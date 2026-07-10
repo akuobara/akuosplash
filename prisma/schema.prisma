@@ -38,6 +38,12 @@ model Usuario {
   clientesDueno     Cliente[]        @relation("ClienteDueno")
   pedidosComoChofer Pedido[]         @relation("PedidoChofer")
   pedidosComoDueno  Pedido[]         @relation("PedidoDueno")
+  pedidosAsignados  Pedido[]         @relation("PedidoChoferAsignado")
+  pedidosTomados    Pedido[]         @relation("PedidoTomadoPor")
+  pedidosConPrioridad Pedido[]       @relation("PedidoPrioridadChofer")
+  recurrentesAsignados PedidoRecurrente[] @relation("RecurrenteChoferAsignado")
+  recurrentesComoDueno PedidoRecurrente[] @relation("RecurrenteDueno")
+  clientesPreferidos  Cliente[]        @relation("ClienteChoferPreferido")
   configuracion     Configuracion?   @relation("ConfigDueno")
 }
 
@@ -64,11 +70,17 @@ model Cliente {
   requiereClientePresente  Boolean @default(true)  // ¿el cliente debe estar presente para recibir?
   indicacionesAcceso       String?  // descripción libre: cómo entrar, dónde está el estanque, etc.
 
+  // Chofer preferido — el chofer que creó al cliente tiene prioridad para atenderlo
+  // (a menos que el dueño elija otro de manera permanente)
+  choferPreferidoId  String?
+  choferPreferido    Usuario? @relation("ClienteChoferPreferido", fields: [choferPreferidoId], references: [id])
+
   duenoId       String
   dueno         Usuario  @relation("ClienteDueno", fields: [duenoId], references: [id])
 
   entregas      Entrega[]
   pedidos       Pedido[]
+  pedidosRecurrentes PedidoRecurrente[]
 }
 
 // Pedido de agua — creado cuando un cliente pide agua (por teléfono, etc.)
@@ -99,8 +111,30 @@ model Pedido {
   entregaId         String?  @unique  // cuando se entrega, se vincula a la Entrega
   entrega           Entrega? @relation(fields: [entregaId], references: [id])
 
-  // Quién toma el pedido y a qué dueño pertenece
-  choferId          String?  // quién tomó el pedido (puede ser null si lo creó el sistema)
+  // === Asignación de chofer ===
+  // asignacionTipo: cómo se asigna el chofer que entregará
+  //   - "manual": el dueño lo asigna a un chofer específico (choferAsignadoId)
+  //   - "publicado": disponible para que cualquier chofer lo tome
+  //   - "auto": el sistema sugiere según cercanía/capacidad (futuro)
+  asignacionTipo    String   @default("manual")  // manual | publicado | auto
+
+  // Chofer asignado manualmente por el dueño
+  choferAsignadoId  String?
+  choferAsignado    Usuario? @relation("PedidoChoferAsignado", fields: [choferAsignadoId], references: [id])
+
+  // Chofer que tomó el pedido publicado (puede ser distinto del creador)
+  tomadoPorChoferId String?
+  tomadoPorChofer   Usuario? @relation("PedidoTomadoPor", fields: [tomadoPorChoferId], references: [id])
+
+  // Prioridad: el chofer que creó el pedido (porque creó el cliente) tiene prioridad
+  prioridadChoferId String?
+  prioridadChofer   Usuario? @relation("PedidoPrioridadChofer", fields: [prioridadChoferId], references: [id])
+  prioridadTipo     String   @default("ninguna")  // ninguna | permanente | caso
+
+  publicadoEn       DateTime?  // cuándo se publicó para que choferes lo tomen
+
+  // Quién creó el pedido y a qué dueño pertenece
+  choferId          String?  // quién creó el pedido (puede ser null si lo creó el dueño o el sistema)
   chofer            Usuario? @relation("PedidoChofer", fields: [choferId], references: [id])
 
   duenoId           String
@@ -109,6 +143,43 @@ model Pedido {
   // Vuelta asignada (para planificación de ruta)
   vueltaId          String?
   vuelta            Vuelta?  @relation(fields: [vueltaId], references: [id])
+
+  // Si viene de un pedido recurrente
+  pedidoRecurrenteId String?
+  pedidoRecurrente  PedidoRecurrente? @relation(fields: [pedidoRecurrenteId], references: [id])
+}
+
+// Pedido recurrente — genera pedidos automáticamente cada N días
+// Ej: cliente que rellena el estanque semanalmente
+model PedidoRecurrente {
+  id                String   @id @default(cuid())
+  creadoEn          DateTime @default(now())
+
+  // Cliente (debe ser del catálogo)
+  clienteId         String
+  cliente           Cliente  @relation(fields: [clienteId], references: [id])
+
+  // Detalle
+  litrosSolicitados Float
+  metodoPagoPreferido String @default("efectivo")
+  nota              String?
+
+  // Frecuencia
+  frecuenciaDias    Int      // cada cuántos días generar el pedido (7 = semanal)
+  fechaInicio       DateTime
+  fechaProximaGeneracion DateTime  // próxima fecha en que se generará un pedido
+  activo            Boolean  @default(true)
+
+  // Asignación (igual que Pedido)
+  asignacionTipo    String   @default("manual")  // manual | publicado
+  choferAsignadoId  String?
+  choferAsignado    Usuario? @relation("RecurrenteChoferAsignado", fields: [choferAsignadoId], references: [id])
+
+  duenoId           String
+  dueno             Usuario  @relation("RecurrenteDueno", fields: [duenoId], references: [id])
+
+  // Pedidos generados por esta regla
+  pedidos           Pedido[]
 }
 
 // Camión aljibe. Pertenece a un dueño. Puede tener varios choferes asignados.

@@ -21,6 +21,7 @@ import {
   LogOut,
   User as UserIcon,
   Package,
+  Repeat,
 } from "lucide-react";
 import { Dashboard } from "@/components/app/dashboard";
 import { EntregasTab } from "@/components/app/entregas-tab";
@@ -30,6 +31,7 @@ import { ClientesTab } from "@/components/app/clientes-tab";
 import { ConfiguracionTab } from "@/components/app/configuracion-tab";
 import { EquipoTab } from "@/components/app/equipo-tab";
 import { PedidosTab } from "@/components/app/pedidos-tab";
+import { PedidosRecurrentesTab } from "@/components/app/pedidos-recurrentes-tab";
 import { AuthScreen, type SessionUser } from "@/components/app/auth-screen";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -94,7 +96,7 @@ interface VueltaActual {
   } | null;
 }
 
-type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "config" | "equipo";
+type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "config" | "equipo";
 
 export default function Home() {
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -107,6 +109,7 @@ export default function Home() {
   const [config, setConfig] = useState<Config | null>(null);
   const [vueltaActual, setVueltaActual] = useState<VueltaActual | null>(null);
   const [camiones, setCamiones] = useState<Camion[]>([]);
+  const [usuarios, setUsuarios] = useState<{ id: string; nombre: string; email: string; role: string }[]>([]);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
@@ -140,6 +143,13 @@ export default function Home() {
         setConfig(cfg.configuracion);
         setVueltaActual(v.vuelta);
         setCamiones(cams.camiones);
+        // Cargar usuarios (choferes) solo si es dueño
+        if (user.role === "dueno") {
+          try {
+            const u = await apiGet<{ usuarios: { id: string; nombre: string; email: string; role: string }[] }>("/api/usuarios");
+            setUsuarios(u.usuarios);
+          } catch {}
+        }
       } catch (e) {
         console.error(e);
       }
@@ -265,6 +275,13 @@ export default function Home() {
               <Users className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Clientes</span>
             </TabsTrigger>
+            {/* Recurrentes: solo dueño */}
+            {isDueno && (
+              <TabsTrigger value="recurrentes" className="flex-1 sm:flex-initial">
+                <Repeat className="mr-1 h-4 w-4" />
+                <span className="hidden sm:inline">Recurrentes</span>
+              </TabsTrigger>
+            )}
             {/* Equipo y Ajustes: solo dueño */}
             {isDueno && (
               <TabsTrigger value="equipo" className="flex-1 sm:flex-initial">
@@ -302,7 +319,10 @@ export default function Home() {
               refreshKey={refreshKey}
               onRefresh={refresh}
               canCreate={isDueno || !!config?.choferesPuedenCrearPedidos}
+              isDueno={isDueno}
+              currentUserId={user.userId}
               clientes={clientes}
+              choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre }))}
             />
           </TabsContent>
 
@@ -333,8 +353,20 @@ export default function Home() {
               refreshKey={refreshKey}
               onRefresh={refresh}
               readOnly={isDueno ? false : !config?.choferesPuedenEditarClientes}
+              choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))}
             />
           </TabsContent>
+
+          {isDueno && (
+            <TabsContent value="recurrentes" className="mt-0">
+              <PedidosRecurrentesTab
+                refreshKey={refreshKey}
+                onRefresh={refresh}
+                clientes={clientes}
+                choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre }))}
+              />
+            </TabsContent>
+          )}
 
           {isDueno && (
             <TabsContent value="equipo" className="mt-0">

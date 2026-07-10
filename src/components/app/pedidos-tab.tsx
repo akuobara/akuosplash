@@ -48,6 +48,8 @@ import {
   Users,
   Filter,
   Droplets,
+  UserCheck,
+  Repeat,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
@@ -85,6 +87,7 @@ interface Pedido {
     conexionExterna: boolean;
     requiereClientePresente: boolean;
     indicacionesAcceso: string | null;
+    choferPreferidoId: string | null;
   } | null;
   litrosSolicitados: number;
   fechaSolicitada: string | null;
@@ -95,6 +98,13 @@ interface Pedido {
   entregaId: string | null;
   entrega?: { id: string; litros: number; total: number; fecha: string } | null;
   chofer?: { id: string; nombre: string } | null;
+  // Asignación
+  asignacionTipo: string;
+  choferAsignado?: { id: string; nombre: string } | null;
+  tomadoPorChofer?: { id: string; nombre: string } | null;
+  prioridadChofer?: { id: string; nombre: string } | null;
+  prioridadTipo: string;
+  publicadoEn: string | null;
   vueltaId: string | null;
   vuelta?: { id: string; numero: number } | null;
 }
@@ -120,7 +130,10 @@ interface PedidosTabProps {
   refreshKey: number;
   onRefresh: () => void;
   canCreate: boolean;
+  isDueno: boolean;
+  currentUserId: string;
   clientes: ClienteOption[];
+  choferes: { id: string; nombre: string }[];
 }
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -131,7 +144,7 @@ const ESTADO_COLORS: Record<string, string> = {
   cancelado: "bg-muted text-muted-foreground",
 };
 
-export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: PedidosTabProps) {
+export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes }: PedidosTabProps) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState<string>("todos");
@@ -154,6 +167,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: Pedid
   const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("efectivo");
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [nota, setNota] = useState("");
+  // Asignación
+  const [asignacionTipo, setAsignacionTipo] = useState<string>("manual");
+  const [choferAsignadoId, setChoferAsignadoId] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
   // Campos para convertir a entrega
@@ -213,6 +229,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: Pedid
     setMetodoPagoPreferido("efectivo");
     setIndicacionesAcceso("");
     setNota("");
+    setAsignacionTipo("manual");
+    setChoferAsignadoId("");
     setFormOpen(true);
   }
 
@@ -228,6 +246,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: Pedid
     setMetodoPagoPreferido(p.metodoPagoPreferido);
     setIndicacionesAcceso(p.indicacionesAcceso ?? "");
     setNota(p.nota ?? "");
+    setAsignacionTipo(p.asignacionTipo || "manual");
+    setChoferAsignadoId(p.choferAsignado?.id ?? "");
     setFormOpen(true);
   }
 
@@ -277,6 +297,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: Pedid
         metodoPagoPreferido,
         indicacionesAcceso: indicacionesAcceso.trim() || null,
         nota: nota.trim() || null,
+        asignacionTipo,
+        choferAsignadoId: isDueno && asignacionTipo === "manual" ? (choferAsignadoId || null) : null,
       };
 
       if (editando) {
@@ -335,6 +357,36 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: Pedid
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo cambiar el estado");
+    }
+  }
+
+  async function publicarPedido(p: Pedido) {
+    try {
+      await apiPost(`/api/pedidos/${p.id}/publicar`, {});
+      toast.success("Pedido publicado para choferes");
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo publicar");
+    }
+  }
+
+  async function tomarPedido(p: Pedido) {
+    try {
+      await apiPost(`/api/pedidos/${p.id}/tomar`, {});
+      toast.success("Pedido tomado");
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo tomar el pedido");
+    }
+  }
+
+  async function cederPrioridad(p: Pedido, permanente: boolean = false) {
+    try {
+      await apiPost(`/api/pedidos/${p.id}/ceder`, { permanente });
+      toast.success(permanente ? "Prioridad cedida permanentemente" : "Prioridad cedida para este pedido");
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo ceder la prioridad");
     }
   }
 
@@ -449,6 +501,27 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: Pedid
                             {p.clienteZona && (
                               <Badge variant="outline" className="text-[10px]">{p.clienteZona}</Badge>
                             )}
+                            {/* Badges de asignación */}
+                            {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
+                              <Badge variant="outline" className="text-[10px] gap-0.5 text-purple-700 dark:text-purple-300">
+                                <Package className="h-2.5 w-2.5" /> Publicado
+                              </Badge>
+                            )}
+                            {p.tomadoPorChofer && (
+                              <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
+                                <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre}
+                              </Badge>
+                            )}
+                            {p.choferAsignado && !p.tomadoPorChofer && (
+                              <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
+                                <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
+                              </Badge>
+                            )}
+                            {p.prioridadChofer && p.prioridadTipo !== "ninguna" && (
+                              <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300" title={`Prioridad ${p.prioridadTipo} para ${p.prioridadChofer.nombre}`}>
+                                <UserCheck className="h-2.5 w-2.5" /> {p.prioridadChofer.nombre}
+                              </Badge>
+                            )}
                           </div>
                           <p className="truncate text-xs text-muted-foreground">
                             <Droplets className="mr-1 inline h-3 w-3" />
@@ -498,6 +571,29 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: Pedid
                               <DropdownMenuItem onClick={() => abrirEditar(p)}>
                                 <Pencil className="mr-2 h-4 w-4" /> Editar
                               </DropdownMenuItem>
+
+                              {/* Acciones de asignación */}
+                              {isDueno && p.asignacionTipo === "manual" && !p.tomadoPorChofer && (
+                                <DropdownMenuItem onClick={() => publicarPedido(p)}>
+                                  <Package className="mr-2 h-4 w-4" /> Publicar para choferes
+                                </DropdownMenuItem>
+                              )}
+                              {!isDueno && p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
+                                <DropdownMenuItem onClick={() => tomarPedido(p)}>
+                                  <Truck className="mr-2 h-4 w-4" /> Tomar pedido
+                                </DropdownMenuItem>
+                              )}
+                              {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
+                                <DropdownMenuItem onClick={() => cederPrioridad(p, false)}>
+                                  <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (este caso)
+                                </DropdownMenuItem>
+                              )}
+                              {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
+                                <DropdownMenuItem onClick={() => cederPrioridad(p, true)}>
+                                  <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (permanente)
+                                </DropdownMenuItem>
+                              )}
+
                               {p.estado === "pendiente" && (
                                 <DropdownMenuItem onClick={() => cambiarEstado(p, "programado")}>
                                   <Clock className="mr-2 h-4 w-4" /> Marcar programado
@@ -770,6 +866,76 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, clientes }: Pedid
                 rows={2}
               />
             </div>
+
+            {/* Asignación — solo dueño */}
+            {isDueno && (
+              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+                <Label className="flex items-center gap-1.5 text-sm font-medium">
+                  <UserCheck className="h-4 w-4 text-primary" /> Asignación de chofer
+                </Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button
+                    type="button"
+                    variant={asignacionTipo === "manual" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setAsignacionTipo("manual")}
+                  >
+                    Asignar a chofer específico
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={asignacionTipo === "publicado" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setAsignacionTipo("publicado")}
+                  >
+                    Publicar para choferes
+                  </Button>
+                </div>
+
+                {asignacionTipo === "manual" && (
+                  <div className="space-y-1">
+                    <Label htmlFor="choferAsignado" className="text-xs">Chofer</Label>
+                    <Select value={choferAsignadoId || "__ninguno"} onValueChange={setChoferAsignadoId}>
+                      <SelectTrigger id="choferAsignado">
+                        <SelectValue placeholder="Sin asignar" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__ninguno">— Sin asignar —</SelectItem>
+                        {choferes.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.nombre}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {asignacionTipo === "publicado" && (
+                  <p className="text-xs text-muted-foreground">
+                    El pedido quedará disponible para que cualquier chofer lo tome.
+                    Si el cliente tiene chofer preferido, ese chofer tendrá prioridad.
+                  </p>
+                )}
+
+                {!isDueno && (
+                  <p className="text-xs text-muted-foreground">
+                    Como chofer, si el cliente es nuevo, tendrás prioridad permanente para atenderlo.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {!isDueno && (
+              <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
+                <p className="font-medium">Asignación automática:</p>
+                <p className="mt-1 text-muted-foreground">
+                  {clienteId && clienteId !== "__nuevo"
+                    ? "Si el cliente tiene chofer preferido, el pedido se asignará a ese chofer."
+                    : "Como estás creando un cliente nuevo, tendrás prioridad permanente para atender pedidos de este cliente."}
+                </p>
+              </div>
+            )}
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>

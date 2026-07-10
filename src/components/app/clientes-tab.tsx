@@ -9,6 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -64,6 +71,9 @@ interface Cliente {
   conexionExterna: boolean;
   requiereClientePresente: boolean;
   indicacionesAcceso: string | null;
+  // Chofer preferido
+  choferPreferidoId: string | null;
+  choferPreferido?: { id: string; nombre: string } | null;
   _count?: { entregas: number };
 }
 
@@ -71,9 +81,10 @@ interface ClientesTabProps {
   refreshKey: number;
   onRefresh: () => void;
   readOnly?: boolean;
+  choferes?: { id: string; nombre: string; email: string }[];
 }
 
-export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: ClientesTabProps) {
+export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes = [] }: ClientesTabProps) {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -100,6 +111,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
   const [conexionExterna, setConexionExterna] = useState(false);
   const [requiereClientePresente, setRequiereClientePresente] = useState(true);
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
+  const [choferPreferidoId, setChoferPreferidoId] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -146,6 +158,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
     setConexionExterna(false);
     setRequiereClientePresente(true);
     setIndicacionesAcceso("");
+    setChoferPreferidoId("");
     setFormOpen(true);
   }
 
@@ -165,6 +178,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
     setConexionExterna(c.conexionExterna ?? false);
     setRequiereClientePresente(c.requiereClientePresente ?? true);
     setIndicacionesAcceso(c.indicacionesAcceso ?? "");
+    setChoferPreferidoId(c.choferPreferidoId ?? "");
     setFormOpen(true);
   }
 
@@ -213,6 +227,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
         conexionExterna,
         requiereClientePresente,
         indicacionesAcceso: indicacionesAcceso.trim() || null,
+        choferPreferidoId: choferPreferidoId || null,
       };
       if (editando) {
         await apiPatch(`/api/clientes/${editando.id}`, payload);
@@ -669,6 +684,29 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
                 />
               </div>
             </div>
+
+            {/* Chofer preferido */}
+            {choferes.length > 0 && (
+              <div className="space-y-2">
+                <Label htmlFor="choferPreferido">Chofer preferido (opcional)</Label>
+                <Select value={choferPreferidoId || "__ninguno"} onValueChange={setChoferPreferidoId}>
+                  <SelectTrigger id="choferPreferido">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__ninguno">— Sin preferido —</SelectItem>
+                    {choferes.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Este chofer tendrá prioridad para atender pedidos de este cliente. Si el cliente fue agregado por un chofer, ese chofer es el preferido por defecto.
+                </p>
+              </div>
+            )}
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>

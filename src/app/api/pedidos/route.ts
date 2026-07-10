@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 
-// GET /api/pedidos?estado=pendiente&clienteId=...
+// GET /api/pedidos?estado=...&clienteId=...&disponibles=true
+// - Dueño: ve todos sus pedidos
+// - Chofer: ve pedidos asignados a él + publicados (sin asignar) + los que él creó
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) {
@@ -17,16 +19,44 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const estado = searchParams.get("estado");
   const clienteId = searchParams.get("clienteId");
+  const soloDisponibles = searchParams.get("disponibles") === "true";
 
   const where: Record<string, unknown> = { duenoId };
   if (estado) where.estado = estado;
   if (clienteId) where.clienteId = clienteId;
 
-  // Choferes solo ven pedidos que ellos tomaron o que están pendientes/programados
   if (session.role === "chofer") {
-    where.OR = [
-      { choferId: session.userId },
-      { choferId: null }, // pedidos sin chofer asignado
+    // Choferes ven:
+    // - Pedidos asignados a ellos (choferAsignadoId = su id)
+    // - Pedidos publicados sin tomar (asignacionTipo = "publicado" AND tomadoPorChoferId IS NULL)
+    // - Pedidos que ellos crearon
+    // - Pedidos donde tienen prioridad
+    if (soloDisponibles) {
+      // Solo pedidos disponibles para tomar (publicados y sin tomar)
+      where.AND = [
+        { asignacionTipo: "publicado" },
+        { tomadoPorChoferId: null },
+        { estado: { in: ["pendiente", "programado"] } },
+      ];
+    } else {
+      where.OR = [
+        { choferAsignadoId: session.userId },
+        { tomadoPorChoferId: session.userId },
+        { choferId: session.userId },
+        { prioridadChoferId: session.userId },
+        {
+          AND: [
+            { asignacionTipo: "publicado" },
+            { tomadoPorChoferId: null },
+          ],
+        },
+      ];
+    }
+  } else if (soloDisponibles) {
+    // Dueño pidió "disponibles": pedidos publicados sin tomar
+    where.AND = [
+      { asignacionTipo: "publicado" },
+      { tomadoPorChoferId: null },
     ];
   }
 
@@ -48,9 +78,13 @@ export async function GET(req: NextRequest) {
           conexionExterna: true,
           requiereClientePresente: true,
           indicacionesAcceso: true,
+          choferPreferidoId: true,
         },
       },
       chofer: { select: { id: true, nombre: true } },
+      choferAsignado: { select: { id: true, nombre: true } },
+      tomadoPorChofer: { select: { id: true, nombre: true } },
+      prioridadChofer: { select: { id: true, nombre: true } },
       entrega: { select: { id: true, litros: true, total: true, fecha: true } },
       vuelta: { select: { id: true, numero: true } },
     },
@@ -59,7 +93,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ pedidos });
 }
 
-// POST /api/pedidos — crear un pedido nuevo
+// POST /api/pedidos
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) {
@@ -87,11 +121,13 @@ export async function POST(req: NextRequest) {
 
     // Si es cliente existente, autollenar datos
     let clienteData: Record<string, unknown> = {};
+    let clienteId: string | null = null;
     if (body.clienteId && body.clienteId !== "__nuevo") {
       const cliente = await db.cliente.findUnique({ where: { id: body.clienteId } });
       if (!cliente || cliente.duenoId !== duenoId) {
         return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
       }
+      clienteId = cliente.id;
       clienteData = {
         clienteId: cliente.id,
         clienteNombre: cliente.nombre,
@@ -103,7 +139,7 @@ export async function POST(req: NextRequest) {
         indicacionesAcceso: cliente.indicacionesAcceso,
       };
     } else {
-      // Cliente nuevo — usar datos del formulario
+      // Cliente nuevo
       clienteData = {
         clienteId: null,
         clienteNombre: body.clienteNombre?.trim() || "Sin nombre",
@@ -116,6 +152,51 @@ export async function POST(req: NextRequest) {
       };
     }
 
+    // === Lógica de asignación ===
+    let asignacionTipo = body.asignacionTipo || "manual";
+    let choferAsignadoId: string | null = null;
+    let prioridadChoferId: string | null = null;
+    let prioridadTipo = "ninguna";
+    let publicadoEn: Date | null = null;
+
+    // Si el cliente tiene choferPreferido, asignar prioridad permanente a ese chofer
+    if (clienteId) {
+      const cliente = await db.cliente.findUnique({ where: { id: clienteId } });
+      if (cliente?.choferPreferidoId) {
+        prioridadChoferId = cliente.choferPreferidoId;
+        prioridadTipo = "permanente";
+      }
+    }
+
+    // Si el chofer crea el pedido y el cliente es nuevo, tiene prioridad permanente
+    if (session.role === "chofer" && !clienteId) {
+      prioridadChoferId = session.userId;
+      prioridadTipo = "permanente";
+    }
+
+    // Si el chofer crea el pedido para un cliente existente que ya tiene choferPreferido, respetar eso
+    if (session.role === "chofer" && clienteId) {
+      const cliente = await db.cliente.findUnique({ where: { id: clienteId } });
+      if (cliente?.choferPreferidoId && cliente.choferPreferidoId !== session.userId) {
+        // El cliente tiene otro chofer preferido — asignar a ese chofer
+        choferAsignadoId = cliente.choferPreferidoId;
+        asignacionTipo = "manual";
+      } else if (cliente?.choferPreferidoId === session.userId) {
+        // El chofer es el preferido del cliente — asignar a él
+        choferAsignadoId = session.userId;
+        asignacionTipo = "manual";
+      }
+    }
+
+    // Dueño puede elegir asignación
+    if (session.role === "dueno") {
+      if (asignacionTipo === "manual") {
+        choferAsignadoId = body.choferAsignadoId || null;
+      } else if (asignacionTipo === "publicado") {
+        publicadoEn = new Date();
+      }
+    }
+
     const nuevo = await db.pedido.create({
       data: {
         ...clienteData,
@@ -126,10 +207,17 @@ export async function POST(req: NextRequest) {
         estado: body.estado || "pendiente",
         choferId: session.userId,
         duenoId,
+        asignacionTipo,
+        choferAsignadoId,
+        prioridadChoferId,
+        prioridadTipo,
+        publicadoEn,
       },
       include: {
         cliente: { select: { id: true, nombre: true, zona: true, lat: true, lng: true } },
         chofer: { select: { id: true, nombre: true } },
+        choferAsignado: { select: { id: true, nombre: true } },
+        prioridadChofer: { select: { id: true, nombre: true } },
       },
     });
 

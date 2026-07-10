@@ -40,6 +40,17 @@ export const ESTADOS_PEDIDO = [
   { value: "cancelado", label: "Cancelado", color: "muted" },
 ] as const;
 
+export const TIPOS_ASIGNACION = [
+  { value: "manual", label: "Asignar a chofer específico", description: "El dueño elige qué chofer entrega" },
+  { value: "publicado", label: "Publicar para choferes", description: "Disponible para que cualquier chofer lo tome" },
+] as const;
+
+export const TIPOS_PRIORIDAD = [
+  { value: "ninguna", label: "Sin prioridad" },
+  { value: "permanente", label: "Prioridad permanente" },
+  { value: "caso", label: "Prioridad por este caso" },
+] as const;
+
 export const TIPOS_TRIBUTO = [
   { value: "boleta_honorarios", label: "Boleta de honorarios", description: "Retención + cotización previsional" },
   { value: "factura", label: "Factura electrónica", description: "IVA y/o retención" },
@@ -75,6 +86,14 @@ export function labelModoLiquidacion(modo: string): string {
 
 export function labelEstadoPedido(estado: string): string {
   return ESTADOS_PEDIDO.find((e) => e.value === estado)?.label ?? estado;
+}
+
+export function labelTipoAsignacion(tipo: string): string {
+  return TIPOS_ASIGNACION.find((t) => t.value === tipo)?.label ?? tipo;
+}
+
+export function labelTipoPrioridad(tipo: string): string {
+  return TIPOS_PRIORIDAD.find((t) => t.value === tipo)?.label ?? tipo;
 }
 
 export function labelTipoTributo(tipo: string): string {

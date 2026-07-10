@@ -39,6 +39,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),
       ...(body.estado !== undefined && { estado: body.estado }),
       ...(body.vueltaId !== undefined && { vueltaId: body.vueltaId || null }),
+      ...(body.asignacionTipo !== undefined && { asignacionTipo: body.asignacionTipo }),
+      ...(body.choferAsignadoId !== undefined && { choferAsignadoId: body.choferAsignadoId || null }),
+      ...(body.prioridadChoferId !== undefined && { prioridadChoferId: body.prioridadChoferId || null }),
+      ...(body.prioridadTipo !== undefined && { prioridadTipo: body.prioridadTipo }),
     },
   });
 
