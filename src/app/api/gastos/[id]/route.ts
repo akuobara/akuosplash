@@ -1,8 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession, getDuenoId } from "@/lib/auth";
 
-// PATCH /api/gastos/[id]
+async function checkOwnership(id: string) {
+  const session = await getSession();
+  if (!session) return { error: NextResponse.json({ error: "No autorizado" }, { status: 401 }), session: null };
+  const duenoId = await getDuenoId();
+  if (!duenoId) return { error: NextResponse.json({ error: "No autorizado" }, { status: 401 }), session: null };
+
+  const gasto = await db.gasto.findUnique({ where: { id } });
+  if (!gasto || gasto.duenoId !== duenoId) {
+    return { error: NextResponse.json({ error: "No autorizado" }, { status: 403 }), session: null };
+  }
+  if (session.role === "chofer" && gasto.choferId !== session.userId) {
+    return { error: NextResponse.json({ error: "No autorizado" }, { status: 403 }), session: null };
+  }
+  return { error: null, session };
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { error: authError } = await checkOwnership(await params.then(p => p.id));
+  if (authError) return authError;
+
   const { id } = await params;
   const body = await req.json();
 
@@ -21,8 +40,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json({ gasto: actualizado });
 }
 
-// DELETE /api/gastos/[id]
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { error: authError } = await checkOwnership(await params.then(p => p.id));
+  if (authError) return authError;
+
   const { id } = await params;
   await db.gasto.delete({ where: { id } });
   return NextResponse.json({ ok: true });

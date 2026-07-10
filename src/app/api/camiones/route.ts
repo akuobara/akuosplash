@@ -1,35 +1,68 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
-// GET /api/camiones — lista todos los camiones. Si no hay ninguno, crea el por defecto.
+// GET /api/camiones
 export async function GET() {
-  let camiones = await db.camion.findMany({
-    orderBy: { creadoEn: "asc" },
-    include: {
-      _count: { select: { vueltas: true } },
-    },
-  });
-
-  // Auto-crear camión por defecto si no existe ninguno
-  if (camiones.length === 0) {
-    const config = await db.configuracion.findUnique({ where: { id: "default" } });
-    const capacidad = config?.capacidadCamion ?? 17000;
-    const nuevo = await db.camion.create({
-      data: {
-        nombre: "Camión principal",
-        capacidad,
-        activo: true,
-      },
-      include: { _count: { select: { vueltas: true } } },
-    });
-    camiones = [nuevo];
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  return NextResponse.json({ camiones });
+  // Dueño: ve todos sus camiones
+  // Chofer: ve solo los camiones asignados a él
+  if (session.role === "dueno") {
+    const camiones = await db.camion.findMany({
+      where: { duenoId: session.userId },
+      orderBy: { creadoEn: "asc" },
+      include: {
+        _count: { select: { vueltas: true } },
+        choferes: {
+          include: {
+            chofer: {
+              select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
+            },
+          },
+        },
+      },
+    });
+    return NextResponse.json({ camiones });
+  } else {
+    // Chofer
+    const asignaciones = await db.camionChofer.findMany({
+      where: { choferId: session.userId },
+      include: {
+        camion: {
+          include: {
+            _count: { select: { vueltas: true } },
+            choferes: {
+              include: {
+                chofer: {
+                  select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const camiones = asignaciones
+      .map((a) => a.camion)
+      .filter((c) => c.activo);
+    return NextResponse.json({ camiones });
+  }
 }
 
-// POST /api/camiones — crear un nuevo camión
+// POST /api/camiones — solo dueño
 export async function POST(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  if (session.role !== "dueno") {
+    return NextResponse.json({ error: "Solo dueños pueden agregar camiones" }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
 
@@ -47,11 +80,43 @@ export async function POST(req: NextRequest) {
         patente: body.patente?.trim() || null,
         capacidad,
         activo: body.activo !== false,
+        duenoId: session.userId,
       },
-      include: { _count: { select: { vueltas: true } } },
+      include: {
+        _count: { select: { vueltas: true } },
+        choferes: {
+          include: {
+            chofer: {
+              select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
+            },
+          },
+        },
+      },
     });
 
-    return NextResponse.json({ camion: nuevo }, { status: 201 });
+    // Si el dueño pidió auto-asignarse, hacerlo
+    if (body.autoAsignarDueno) {
+      await db.camionChofer.create({
+        data: { camionId: nuevo.id, choferId: session.userId },
+      }).catch(() => {}); // ignorar si ya existe
+    }
+
+    // Recargar con choferes
+    const recargado = await db.camion.findUnique({
+      where: { id: nuevo.id },
+      include: {
+        _count: { select: { vueltas: true } },
+        choferes: {
+          include: {
+            chofer: {
+              select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
+            },
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ camion: recargado }, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "No se pudo crear el camión" }, { status: 500 });

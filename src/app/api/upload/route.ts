@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { getSession } from "@/lib/auth";
 
 // POST /api/upload — recibe una imagen (multipart/form-data, campo "file")
 // La guarda en /public/uploads y devuelve la URL relativa.
 export async function POST(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file");

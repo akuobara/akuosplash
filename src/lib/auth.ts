@@ -1,0 +1,120 @@
+import crypto from "node:crypto";
+import { SignJWT, jwtVerify } from "jose";
+import { cookies } from "next/headers";
+import { db } from "@/lib/db";
+
+// ===== Tipos =====
+export interface SessionUser {
+  userId: string;
+  email: string;
+  nombre: string;
+  role: "dueno" | "chofer";
+  duenoId: string | null; // si es chofer, apunta al dueño; si es dueño, es su propio id
+}
+
+// ===== Hash de contraseñas =====
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+export function verifyPassword(password: string, stored: string): boolean {
+  try {
+    const [salt, hash] = stored.split(":");
+    if (!salt || !hash) return false;
+    const verifyHash = crypto.scryptSync(password, salt, 64).toString("hex");
+    return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(verifyHash, "hex"));
+  } catch {
+    return false;
+  }
+}
+
+// ===== JWT =====
+const SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "aljibe-app-dev-secret-change-in-production"
+);
+const COOKIE_NAME = "aljibe-session";
+
+export async function signToken(user: SessionUser): Promise<string> {
+  return await new SignJWT({ ...user })
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime("30d")
+    .setIssuedAt()
+    .sign(SECRET);
+}
+
+export async function verifyToken(token: string): Promise<SessionUser | null> {
+  try {
+    const { payload } = await jwtVerify(token, SECRET);
+    return payload as unknown as SessionUser;
+  } catch {
+    return null;
+  }
+}
+
+// ===== Cookies de sesión =====
+export async function setSessionCookie(token: string) {
+  const cookieStore = await cookies();
+  cookieStore.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 30 * 24 * 60 * 60, // 30 días
+    path: "/",
+  });
+}
+
+export async function clearSessionCookie() {
+  const cookieStore = await cookies();
+  cookieStore.delete(COOKIE_NAME);
+}
+
+// ===== Obtener sesión actual =====
+export async function getSession(): Promise<SessionUser | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(COOKIE_NAME)?.value;
+  if (!token) return null;
+  return verifyToken(token);
+}
+
+// ===== Helpers para APIs =====
+// Devuelve el usuario autenticado o null
+export async function getCurrentUser(): Promise<SessionUser | null> {
+  return getSession();
+}
+
+// Devuelve el duenoId del usuario actual:
+// - Si es dueño, su propio userId
+// - Si es chofer, su duenoId
+export async function getDuenoId(): Promise<string | null> {
+  const session = await getSession();
+  if (!session) return null;
+  return session.role === "dueno" ? session.userId : session.duenoId;
+}
+
+// Devuelve el filtro WHERE para que cada usuario vea solo lo suyo:
+// - Dueño: WHERE duenoId = su userId
+// - Chofer: WHERE duenoId = su duenoId AND (choferId = su userId OR choferId IS NULL)
+export async function getScopeFilter() {
+  const session = await getSession();
+  if (!session) return null;
+
+  if (session.role === "dueno") {
+    return {
+      duenoId: session.userId,
+    };
+  }
+
+  // Chofer: ve los datos de su dueño, pero solo los suyos donde aplique
+  return {
+    duenoId: session.duenoId,
+  };
+}
+
+// Devuelve el ID del chofer actual (para registrar entregas/gastos/vueltas)
+export async function getChoferId(): Promise<string | null> {
+  const session = await getSession();
+  if (!session) return null;
+  return session.role === "chofer" ? session.userId : session.userId; // el dueño también puede registrar cosas como "chofer" de sí mismo
+}

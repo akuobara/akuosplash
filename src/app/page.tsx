@@ -3,14 +3,34 @@
 import { useEffect, useState, useCallback } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
-import { Droplets, LayoutDashboard, Truck, Receipt, HandCoins, Users, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Droplets,
+  LayoutDashboard,
+  Truck,
+  Receipt,
+  HandCoins,
+  Users,
+  Settings,
+  LogOut,
+  User as UserIcon,
+} from "lucide-react";
 import { Dashboard } from "@/components/app/dashboard";
 import { EntregasTab } from "@/components/app/entregas-tab";
 import { GastosTab } from "@/components/app/gastos-tab";
 import { LiquidacionTab } from "@/components/app/liquidacion-tab";
 import { ClientesTab } from "@/components/app/clientes-tab";
 import { ConfiguracionTab } from "@/components/app/configuracion-tab";
-import { apiGet } from "@/lib/api-client";
+import { EquipoTab } from "@/components/app/equipo-tab";
+import { AuthScreen, type SessionUser } from "@/components/app/auth-screen";
+import { apiGet, apiDelete } from "@/lib/api-client";
+import { toast } from "sonner";
 
 interface Cliente {
   id: string;
@@ -63,9 +83,13 @@ interface VueltaActual {
   } | null;
 }
 
-type TabKey = "dashboard" | "entregas" | "gastos" | "liquidacion" | "clientes" | "config";
+type TabKey = "dashboard" | "entregas" | "gastos" | "liquidacion" | "clientes" | "config" | "equipo";
 
 export default function Home() {
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [hasUsers, setHasUsers] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [tab, setTab] = useState<TabKey>("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -75,8 +99,24 @@ export default function Home() {
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
-  // Cargar clientes, configuración, vuelta activa y camiones
+  // Verificar sesión al cargar
   useEffect(() => {
+    (async () => {
+      try {
+        const data = await apiGet<{ user: SessionUser | null; hasUsers: boolean }>("/api/auth/me");
+        setUser(data.user);
+        setHasUsers(data.hasUsers);
+      } catch {
+        setHasUsers(true);
+      } finally {
+        setAuthLoading(false);
+      }
+    })();
+  }, []);
+
+  // Cargar datos cuando hay sesión
+  useEffect(() => {
+    if (!user) return;
     (async () => {
       try {
         const [c, cfg, v, cams] = await Promise.all([
@@ -93,7 +133,47 @@ export default function Home() {
         console.error(e);
       }
     })();
-  }, [refreshKey]);
+  }, [user, refreshKey]);
+
+  async function handleLogout() {
+    try {
+      await apiDelete("/api/auth/logout");
+      setUser(null);
+      setHasUsers(true);
+      toast.success("Sesión cerrada");
+    } catch {
+      toast.error("No se pudo cerrar sesión");
+    }
+  }
+
+  // Pantalla de carga inicial
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground animate-pulse">
+          <Droplets className="h-9 w-9" />
+        </div>
+      </div>
+    );
+  }
+
+  // No autenticado: mostrar pantalla de login/registro
+  if (!user) {
+    return (
+      <>
+        <AuthScreen
+          hasUsers={hasUsers}
+          onAuthSuccess={(u) => {
+            setUser(u);
+            setRefreshKey((k) => k + 1);
+          }}
+        />
+        <SonnerToaster richColors position="top-center" />
+      </>
+    );
+  }
+
+  const isDueno = user.role === "dueno";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -111,25 +191,43 @@ export default function Home() {
               </p>
             </div>
           </div>
-          {config && (
-            <div className="hidden text-right text-xs text-muted-foreground sm:block">
-              <p>
-                <span className="font-medium text-foreground">{config.nombreChofer}</span> · chofer
-              </p>
-              <p>
-                {camiones.length > 0
-                  ? `${camiones.length} camión(es) · ${config.nombreDueno}`
-                  : `${config.nombreDueno}`}
-              </p>
-            </div>
-          )}
+
+          {/* User menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <UserIcon className="h-4 w-4" />
+                </div>
+                <div className="hidden text-right text-xs sm:block">
+                  <p className="font-medium leading-tight">{user.nombre}</p>
+                  <p className="text-muted-foreground leading-tight">
+                    {isDueno ? "Dueño" : "Chofer"}
+                  </p>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <div className="px-2 py-1.5 text-xs">
+                <p className="font-medium">{user.nombre}</p>
+                <p className="text-muted-foreground">{user.email}</p>
+                <p className="mt-1">
+                  <span className="rounded bg-primary/10 px-1.5 py-0.5 font-medium text-primary">
+                    {isDueno ? "Dueño" : "Chofer"}
+                  </span>
+                </p>
+              </div>
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                <LogOut className="mr-2 h-4 w-4" /> Cerrar sesión
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
       {/* Main con tabs */}
       <main className="mx-auto w-full max-w-6xl flex-1 px-3 py-4 sm:px-6 sm:py-6">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="space-y-4">
-          {/* Tabs list */}
           <TabsList className="flex w-full flex-wrap justify-start gap-1 h-auto bg-muted/40 p-1">
             <TabsTrigger value="dashboard" className="flex-1 sm:flex-initial">
               <LayoutDashboard className="mr-1 h-4 w-4" />
@@ -147,14 +245,24 @@ export default function Home() {
               <HandCoins className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Liquidación</span>
             </TabsTrigger>
+            {/* Clientes: dueño ve todo, chofer solo lectura */}
             <TabsTrigger value="clientes" className="flex-1 sm:flex-initial">
               <Users className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Clientes</span>
             </TabsTrigger>
-            <TabsTrigger value="config" className="flex-1 sm:flex-initial">
-              <Settings className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Ajustes</span>
-            </TabsTrigger>
+            {/* Equipo y Ajustes: solo dueño */}
+            {isDueno && (
+              <TabsTrigger value="equipo" className="flex-1 sm:flex-initial">
+                <Users className="mr-1 h-4 w-4" />
+                <span className="hidden sm:inline">Equipo</span>
+              </TabsTrigger>
+            )}
+            {isDueno && (
+              <TabsTrigger value="config" className="flex-1 sm:flex-initial">
+                <Settings className="mr-1 h-4 w-4" />
+                <span className="hidden sm:inline">Ajustes</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="dashboard" className="mt-0">
@@ -197,25 +305,33 @@ export default function Home() {
           </TabsContent>
 
           <TabsContent value="clientes" className="mt-0">
-            <ClientesTab refreshKey={refreshKey} onRefresh={refresh} />
+            <ClientesTab refreshKey={refreshKey} onRefresh={refresh} readOnly={!isDueno} />
           </TabsContent>
 
-          <TabsContent value="config" className="mt-0">
-            <ConfiguracionTab
-              config={config}
-              onConfigChange={(c) => setConfig(c)}
-              refreshKey={refreshKey}
-              onRefresh={refresh}
-              onCamionesChange={setCamiones}
-            />
-          </TabsContent>
+          {isDueno && (
+            <TabsContent value="equipo" className="mt-0">
+              <EquipoTab refreshKey={refreshKey} onRefresh={refresh} />
+            </TabsContent>
+          )}
+
+          {isDueno && (
+            <TabsContent value="config" className="mt-0">
+              <ConfiguracionTab
+                config={config}
+                onConfigChange={(c) => setConfig(c)}
+                refreshKey={refreshKey}
+                onRefresh={refresh}
+                onCamionesChange={setCamiones}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       </main>
 
       {/* Footer */}
       <footer className="mt-auto border-t border-border bg-muted/20 py-3">
         <div className="mx-auto w-full max-w-6xl px-3 text-center text-xs text-muted-foreground sm:px-6">
-          Aljibe App · Registro de entregas de agua · Datos almacenados localmente en el dispositivo
+          Aljibe App · {isDueno ? "Dueño" : "Chofer"}: {user.nombre} · {camiones.length} camión(es)
         </div>
       </footer>
 

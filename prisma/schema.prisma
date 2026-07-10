@@ -1,4 +1,5 @@
 // Aljibe App - Registro de entregas de agua, pagos, gastos y liquidación con dueño
+// Con autenticación: dueños y choferes, asignación de choferes a camiones
 
 generator client {
   provider = "prisma-client-js"
@@ -9,47 +10,100 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Catálogo de clientes (para futuras funciones de venta online)
+// Usuario — puede ser dueño o chofer
+model Usuario {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  nombre        String
+  telefono      String?
+  role          String   @default("chofer")  // "dueno" | "chofer"
+  // Si role=chofer, duenoId apunta al dueño que lo gestiona.
+  // Si role=dueno, duenoId es null.
+  duenoId       String?
+  dueno         Usuario? @relation("DuenoChoferes", fields: [duenoId], references: [id])
+  choferes      Usuario[] @relation("DuenoChoferes")
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+
+  // Relaciones con datos del negocio
+  camionesDueno     Camion[]         @relation("CamionDueno")
+  asignaciones      CamionChofer[]
+  vueltasComoChofer Vuelta[]         @relation("VueltaChofer")
+  vueltasComoDueno  Vuelta[]         @relation("VueltaDueno")
+  entregasComoChofer Entrega[]       @relation("EntregaChofer")
+  entregasComoDueno  Entrega[]       @relation("EntregaDueno")
+  gastosComoChofer  Gasto[]          @relation("GastoChofer")
+  gastosComoDueno   Gasto[]          @relation("GastoDueno")
+  clientesDueno     Cliente[]        @relation("ClienteDueno")
+  configuracion     Configuracion?   @relation("ConfigDueno")
+}
+
+// Catálogo de clientes
 model Cliente {
   id            String   @id @default(cuid())
   nombre        String
   direccion     String?
   telefono      String?
   zona          String?
-  // Precio por litro específico del cliente (sobreescribe los defaults globales).
-  // Si es 0, se usan los precios globales según método de pago.
   precioEfectivoPorLitro       Float @default(0)
   precioTransferenciaPorLitro  Float @default(0)
   nota          String?
   creadoEn      DateTime @default(now())
+
+  duenoId       String
+  dueno         Usuario  @relation("ClienteDueno", fields: [duenoId], references: [id])
+
   entregas      Entrega[]
 }
 
-// Camión aljibe. Cada camión tiene su propia capacidad.
-// Preparado para multi-flota: cuando tengas más de un camión, agregas otro aquí.
+// Camión aljibe. Pertenece a un dueño. Puede tener varios choferes asignados.
 model Camion {
   id          String   @id @default(cuid())
-  nombre      String   // alias como "Camión grande", "Camión pequeño", "Patente ABCD12"
-  patente     String?  // opcional
-  capacidad   Int      // litros
+  nombre      String
+  patente     String?
+  capacidad   Int
   activo      Boolean  @default(true)
   creadoEn    DateTime @default(now())
+
+  duenoId     String
+  dueno       Usuario  @relation("CamionDueno", fields: [duenoId], references: [id])
+
   vueltas     Vuelta[]
+  choferes    CamionChofer[]
+}
+
+// Asignación chofer ↔ camión (muchos a muchos)
+// Un camión puede tener varios choferes; un chofer puede tener varios camiones.
+model CamionChofer {
+  id          String   @id @default(cuid())
+  camionId    String
+  camion      Camion   @relation(fields: [camionId], references: [id], onDelete: Cascade)
+  choferId    String
+  chofer      Usuario  @relation(fields: [choferId], references: [id], onDelete: Cascade)
+  asignadoEn  DateTime @default(now())
+
+  @@unique([camionId, choferId])
 }
 
 // Una vuelta = un viaje del camión aljibe desde la planta de agua.
-// El chofer puede hacer varias vueltas al día. Cada vuelta agrupa 1+ entregas.
-// El pago al chofer por vuelta depende de si entregó a 1 cliente (monto menor)
-// o a múltiples clientes (monto mayor).
 model Vuelta {
   id          String   @id @default(cuid())
-  numero      Int      // número secuencial de vuelta (autoincremental global)
+  numero      Int
   iniciadaEn  DateTime @default(now())
   cerradaEn   DateTime?
   nota        String?
-  activa      Boolean  @default(true) // solo una vuelta activa a la vez
-  camionId    String?  // si es null, era una vuelta creada antes de tener camiones registrados
+  activa      Boolean  @default(true)
+
+  camionId    String?
   camion      Camion?  @relation(fields: [camionId], references: [id])
+
+  choferId    String?
+  chofer      Usuario? @relation("VueltaChofer", fields: [choferId], references: [id])
+
+  duenoId     String
+  dueno       Usuario  @relation("VueltaDueno", fields: [duenoId], references: [id])
+
   entregas    Entrega[]
 }
 
@@ -58,7 +112,6 @@ model Entrega {
   id                String   @id @default(cuid())
   fecha             DateTime @default(now())
 
-  // Datos del cliente (snapshoteados para que no cambien si se edita el cliente después)
   clienteNombre     String
   clienteDireccion  String?
   clienteTelefono   String?
@@ -66,75 +119,77 @@ model Entrega {
   clienteId         String?
   cliente           Cliente? @relation(fields: [clienteId], references: [id])
 
-  // Vuelta a la que pertenece esta entrega (opcional, se autollenar con la activa)
   vueltaId          String?
   vuelta            Vuelta?  @relation(fields: [vueltaId], references: [id])
 
-  // Lecturas del medidor
+  choferId          String?
+  chofer            Usuario? @relation("EntregaChofer", fields: [choferId], references: [id])
+
+  duenoId           String
+  dueno             Usuario  @relation("EntregaDueno", fields: [duenoId], references: [id])
+
   lecturaAnterior   Float?
   lecturaActual     Float?
   litros            Float
 
-  // Método de pago (determina qué precio usar por defecto)
-  metodoPago        String   @default("efectivo")  // efectivo | transferencia | mixto | credito
+  metodoPago        String   @default("efectivo")
 
-  // Montos
   precioPorLitro    Float
   total             Float
   montoEfectivo     Float    @default(0)
   montoTransferencia Float   @default(0)
-  montoRecibido     Float    @default(0)  // efectivo + transferencia recibidos
+  montoRecibido     Float    @default(0)
 
-  // Estado del pago
-  estadoPago        String   @default("pendiente")  // pendiente | pagado | parcial
+  estadoPago        String   @default("pendiente")
 
-  // Evidencia
   fotoMedidorUrl    String?
   nota              String?
   creadoEn          DateTime @default(now())
 }
 
-// Gastos asociados a la operación del camión aljibe
+// Gastos asociados a la operación
 model Gasto {
   id          String   @id @default(cuid())
   fecha       DateTime @default(now())
-  tipo        String   // agua_planta | combustible_camion | combustible_motobomba | cloro | mantenimiento | otro
+  tipo        String
   monto       Float
   descripcion String?
   fotoUrl     String?
-  pagadoPor   String   @default("chofer")  // chofer | dueno  (quien pagó el gasto)
+  pagadoPor   String   @default("chofer")
+
+  choferId    String?
+  chofer      Usuario? @relation("GastoChofer", fields: [choferId], references: [id])
+
+  duenoId     String
+  dueno       Usuario  @relation("GastoDueno", fields: [duenoId], references: [id])
+
   creadoEn    DateTime @default(now())
 }
 
-// Configuración del negocio (registro único)
+// Configuración del negocio — una por dueño
 model Configuracion {
-  id                          String  @id @default("default")
+  id                          String  @id @default(cuid())
 
-  // Partes
+  duenoId                     String  @unique
+  dueno                       Usuario @relation("ConfigDueno", fields: [duenoId], references: [id])
+
   nombreChofer                String  @default("Chofer")
   nombreDueno                 String  @default("Dueño del Camión")
 
-  // Capacidad del camión — LEGACY: ahora se usa el modelo Camion.
-  // Se mantiene como fallback si no hay camiones registrados.
   capacidadCamion             Int     @default(17000)
 
-  // Modo de liquidación: "porcentaje" o "vuelta"
   modoLiquidacion             String  @default("porcentaje")
 
-  // Modo "porcentaje"
   porcentajeComisionChofer    Float   @default(50)
   porcentajeComisionDueno     Float   @default(50)
 
-  // Modo "vuelta" — pago al chofer por vuelta entregada
-  montoPorVueltaUnicoCliente  Float   @default(20000)  // si la vuelta entrega a 1 solo cliente
-  montoPorVueltaMultiple      Float   @default(25000)  // si la vuelta entrega a múltiples clientes
+  montoPorVueltaUnicoCliente  Float   @default(20000)
+  montoPorVueltaMultiple      Float   @default(25000)
 
-  // Precios por litro por defecto según método de pago
   precioEfectivoPorLitro      Float   @default(0)
   precioTransferenciaPorLitro Float   @default(0)
 
-  // Impuestos
-  tipoTributo                 String  @default("boleta_honorarios")  // boleta_honorarios | factura | otro | ninguno
-  porcentajeImpuesto          Float   @default(15.25)  // % del tributo (15.25% boleta honorarios en Chile)
-  aplicaImpuestoSobre         String  @default("pago_chofer")  // pago_chofer | utilidad_bruta | ventas_brutas
+  tipoTributo                 String  @default("boleta_honorarios")
+  porcentajeImpuesto          Float   @default(15.25)
+  aplicaImpuestoSobre         String  @default("pago_chofer")
 }

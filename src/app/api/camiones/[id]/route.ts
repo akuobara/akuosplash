@@ -1,9 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
-// PATCH /api/camiones/[id]
+// PATCH /api/camiones/[id] — solo dueño
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  if (session.role !== "dueno") {
+    return NextResponse.json({ error: "Solo dueños" }, { status: 403 });
+  }
+
   const { id } = await params;
+
+  // Verificar propiedad
+  const camion = await db.camion.findUnique({ where: { id } });
+  if (!camion || camion.duenoId !== session.userId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
   const body = await req.json();
 
   const actualizado = await db.camion.update({
@@ -14,17 +30,38 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.capacidad !== undefined && { capacidad: Number(body.capacidad) || 0 }),
       ...(body.activo !== undefined && { activo: !!body.activo }),
     },
-    include: { _count: { select: { vueltas: true } } },
+    include: {
+      _count: { select: { vueltas: true } },
+      choferes: {
+        include: {
+          chofer: {
+            select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
+          },
+        },
+      },
+    },
   });
 
   return NextResponse.json({ camion: actualizado });
 }
 
-// DELETE /api/camiones/[id]
+// DELETE /api/camiones/[id] — solo dueño
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  if (session.role !== "dueno") {
+    return NextResponse.json({ error: "Solo dueños" }, { status: 403 });
+  }
+
   const { id } = await params;
 
-  // Desvincular vueltas (no borrarlas)
+  const camion = await db.camion.findUnique({ where: { id } });
+  if (!camion || camion.duenoId !== session.userId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
   await db.vuelta.updateMany({
     where: { camionId: id },
     data: { camionId: null },

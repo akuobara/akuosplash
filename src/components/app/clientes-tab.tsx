@@ -53,9 +53,10 @@ interface Cliente {
 interface ClientesTabProps {
   refreshKey: number;
   onRefresh: () => void;
+  readOnly?: boolean;
 }
 
-export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
+export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: ClientesTabProps) {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -177,12 +178,16 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
         <div>
           <h2 className="text-lg font-semibold sm:text-xl">Clientes</h2>
           <p className="text-sm text-muted-foreground">
-            Catálogo de clientes frecuentes con precios por método de pago y por zona.
+            {readOnly
+              ? "Catálogo de clientes del dueño (solo lectura)."
+              : "Catálogo de clientes frecuentes con precios por método de pago y por zona."}
           </p>
         </div>
-        <Button onClick={abrirNuevo} size="sm">
-          <Plus className="mr-1 h-4 w-4" /> Nuevo cliente
-        </Button>
+        {!readOnly && (
+          <Button onClick={abrirNuevo} size="sm">
+            <Plus className="mr-1 h-4 w-4" /> Nuevo cliente
+          </Button>
+        )}
       </div>
 
       <Input
@@ -227,24 +232,26 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
                       </p>
                     )}
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => abrirEditar(c)}>
-                        <Pencil className="mr-2 h-4 w-4" /> Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive focus:text-destructive"
-                        onClick={() => setBorrando(c)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {!readOnly && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => abrirEditar(c)}>
+                          <Pencil className="mr-2 h-4 w-4" /> Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setBorrando(c)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
                 <div className="space-y-1 text-sm text-muted-foreground">
                   {c.zona && (

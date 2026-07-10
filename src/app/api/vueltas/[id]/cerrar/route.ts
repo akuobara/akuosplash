@@ -1,17 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession, getDuenoId } from "@/lib/auth";
 
-// POST /api/vueltas/[id]/cerrar — cierra la vuelta activa (marca como no activa)
+// POST /api/vueltas/[id]/cerrar
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  try {
-    const vuelta = await db.vuelta.update({
-      where: { id },
-      data: { activa: false, cerradaEn: new Date() },
-    });
-    return NextResponse.json({ vuelta });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "No se pudo cerrar la vuelta" }, { status: 500 });
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
+
+  const duenoId = await getDuenoId();
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  const vuelta = await db.vuelta.findUnique({ where: { id } });
+  if (!vuelta || vuelta.duenoId !== duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+  if (session.role === "chofer" && vuelta.choferId !== session.userId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
+  const actualizada = await db.vuelta.update({
+    where: { id },
+    data: { activa: false, cerradaEn: new Date() },
+  });
+
+  return NextResponse.json({ vuelta: actualizada });
 }

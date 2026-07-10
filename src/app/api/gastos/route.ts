@@ -1,25 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession, getDuenoId } from "@/lib/auth";
 import { getRange } from "@/lib/helpers";
 
-// GET /api/gastos?period=hoy|semana|mes|todo&tipo=...
+// GET /api/gastos
 export async function GET(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const duenoId = await getDuenoId();
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const period = (searchParams.get("period") as "hoy" | "semana" | "mes" | "todo") || "todo";
   const tipo = searchParams.get("tipo");
   const pagadoPor = searchParams.get("pagadoPor");
-
   const { start, end } = getRange(period);
 
+  const where: Record<string, unknown> = {
+    duenoId,
+    AND: [
+      start ? { fecha: { gte: start } } : {},
+      end ? { fecha: { lt: end } } : {},
+      tipo ? { tipo } : {},
+      pagadoPor ? { pagadoPor } : {},
+    ],
+  };
+
+  if (session.role === "chofer") {
+    where.choferId = session.userId;
+  }
+
   const gastos = await db.gasto.findMany({
-    where: {
-      AND: [
-        start ? { fecha: { gte: start } } : {},
-        end ? { fecha: { lt: end } } : {},
-        tipo ? { tipo } : {},
-        pagadoPor ? { pagadoPor } : {},
-      ],
-    },
+    where,
     orderBy: { fecha: "desc" },
   });
 
@@ -28,6 +45,16 @@ export async function GET(req: NextRequest) {
 
 // POST /api/gastos
 export async function POST(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const duenoId = await getDuenoId();
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
 
@@ -39,6 +66,8 @@ export async function POST(req: NextRequest) {
         descripcion: body.descripcion?.trim() || null,
         fotoUrl: body.fotoUrl || null,
         pagadoPor: body.pagadoPor || "chofer",
+        choferId: session.userId,
+        duenoId,
       },
     });
 

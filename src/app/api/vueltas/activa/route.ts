@@ -1,12 +1,29 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession, getDuenoId } from "@/lib/auth";
 
-// GET /api/vueltas/activa — devuelve la vuelta activa (o null si no hay)
+// GET /api/vueltas/activa
 export async function GET() {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const duenoId = await getDuenoId();
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const where: Record<string, unknown> = { activa: true, duenoId };
+  if (session.role === "chofer") {
+    where.choferId = session.userId;
+  }
+
   const activa = await db.vuelta.findFirst({
-    where: { activa: true },
+    where,
     include: {
       camion: { select: { id: true, nombre: true, patente: true, capacidad: true } },
+      chofer: { select: { id: true, nombre: true } },
       entregas: {
         select: {
           id: true,
@@ -39,6 +56,7 @@ export async function GET() {
       iniciadaEn: activa.iniciadaEn,
       nota: activa.nota,
       camion: activa.camion,
+      chofer: activa.chofer,
       cantidadEntregas: activa.entregas.length,
       litros,
       litrosRestantes,

@@ -1,23 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession, getDuenoId } from "@/lib/auth";
 import { getRange } from "@/lib/helpers";
 
-// GET /api/entregas?period=hoy|semana|mes|todo&clienteId=...
+// GET /api/entregas?period=...&clienteId=...
 export async function GET(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const duenoId = await getDuenoId();
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const period = (searchParams.get("period") as "hoy" | "semana" | "mes" | "todo") || "todo";
   const clienteId = searchParams.get("clienteId");
-
   const { start, end } = getRange(period);
 
+  const where: Record<string, unknown> = {
+    duenoId,
+    AND: [
+      start ? { fecha: { gte: start } } : {},
+      end ? { fecha: { lt: end } } : {},
+      clienteId ? { clienteId } : {},
+    ],
+  };
+
+  if (session.role === "chofer") {
+    where.choferId = session.userId;
+  }
+
   const entregas = await db.entrega.findMany({
-    where: {
-      AND: [
-        start ? { fecha: { gte: start } } : {},
-        end ? { fecha: { lt: end } } : {},
-        clienteId ? { clienteId } : {},
-      ],
-    },
+    where,
     include: {
       vuelta: { select: { id: true, numero: true, activa: true } },
     },
@@ -29,6 +46,16 @@ export async function GET(req: NextRequest) {
 
 // POST /api/entregas
 export async function POST(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const duenoId = await getDuenoId();
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
 
@@ -41,7 +68,6 @@ export async function POST(req: NextRequest) {
     const montoTransferencia = Number(body.montoTransferencia) || 0;
     const montoRecibido = montoEfectivo + montoTransferencia;
 
-    // Calcular estado de pago automáticamente si no viene
     let estadoPago = body.estadoPago || "pendiente";
     if (!body.estadoPago) {
       if (montoRecibido >= total && total > 0) estadoPago = "pagado";
@@ -49,16 +75,19 @@ export async function POST(req: NextRequest) {
       else estadoPago = "pendiente";
     }
 
-    // Si litros no vino pero hay lecturas, calcularlas
     let litrosFinal = litros;
     if (!litrosFinal && body.lecturaAnterior != null && body.lecturaActual != null) {
       litrosFinal = Number(body.lecturaActual) - Number(body.lecturaAnterior);
     }
 
-    // Si no se especifica vuelta, asignar a la vuelta activa (si existe)
+    // Vuelta activa
     let vueltaId = body.vueltaId || null;
     if (!vueltaId) {
-      const activa = await db.vuelta.findFirst({ where: { activa: true } });
+      const where: Record<string, unknown> = { activa: true, duenoId };
+      if (session.role === "chofer") {
+        where.choferId = session.userId;
+      }
+      const activa = await db.vuelta.findFirst({ where });
       vueltaId = activa?.id ?? null;
     }
 
@@ -71,6 +100,8 @@ export async function POST(req: NextRequest) {
         clienteZona: body.clienteZona?.trim() || null,
         clienteId: body.clienteId || null,
         vueltaId,
+        choferId: session.userId,
+        duenoId,
         lecturaAnterior: body.lecturaAnterior != null ? Number(body.lecturaAnterior) : null,
         lecturaActual: body.lecturaActual != null ? Number(body.lecturaActual) : null,
         litros: litrosFinal,

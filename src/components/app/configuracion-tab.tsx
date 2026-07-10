@@ -190,6 +190,7 @@ export function ConfiguracionTab({
         refreshKey={refreshKey}
         onRefresh={onRefresh}
         onCamionesChange={onCamionesChange}
+        isDueno={true}
       />
 
       {/* Precios por método de pago */}

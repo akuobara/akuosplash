@@ -1,34 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession, getDuenoId } from "@/lib/auth";
+
+async function checkOwnership(id: string) {
+  const session = await getSession();
+  if (!session) return { error: NextResponse.json({ error: "No autorizado" }, { status: 401 }), session: null };
+  const duenoId = await getDuenoId();
+  if (!duenoId) return { error: NextResponse.json({ error: "No autorizado" }, { status: 401 }), session: null };
+
+  const entrega = await db.entrega.findUnique({ where: { id } });
+  if (!entrega || entrega.duenoId !== duenoId) {
+    return { error: NextResponse.json({ error: "No autorizado" }, { status: 403 }), session: null };
+  }
+  if (session.role === "chofer" && entrega.choferId !== session.userId) {
+    return { error: NextResponse.json({ error: "No autorizado" }, { status: 403 }), session: null };
+  }
+  return { error: null, session };
+}
 
 // PATCH /api/entregas/[id]
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { error: authError } = await checkOwnership(await params.then(p => p.id));
+  if (authError) return authError;
+
   const { id } = await params;
   const body = await req.json();
 
   const litros = body.litros != null ? Number(body.litros) : undefined;
   const precioPorLitro = body.precioPorLitro != null ? Number(body.precioPorLitro) : undefined;
 
-  // Recalcular total si cambió litros o precio
   let total: number | undefined;
   if (litros != null && precioPorLitro != null) {
     total = litros * precioPorLitro;
   }
 
-  // Recalcular montoRecibido si cambiaron los componentes
   const montoEfectivo = body.montoEfectivo != null ? Number(body.montoEfectivo) : undefined;
   const montoTransferencia = body.montoTransferencia != null ? Number(body.montoTransferencia) : undefined;
 
   let montoRecibido: number | undefined;
   if (montoEfectivo != null || montoTransferencia != null) {
-    // Si solo uno cambia, leer el otro de la DB
     const actual = await db.entrega.findUnique({ where: { id } });
     const ef = montoEfectivo ?? actual?.montoEfectivo ?? 0;
     const tr = montoTransferencia ?? actual?.montoTransferencia ?? 0;
     montoRecibido = ef + tr;
   }
 
-  // Recalcular estado de pago si cambió montoRecibido o total
   let estadoPago: string | undefined;
   if (montoRecibido != null || total != undefined || body.estadoPago !== undefined) {
     if (body.estadoPago !== undefined) {
@@ -66,9 +82,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.fotoMedidorUrl !== undefined && { fotoMedidorUrl: body.fotoMedidorUrl || null }),
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),
     },
-    include: {
-      vuelta: { select: { id: true, numero: true, activa: true } },
-    },
+    include: { vuelta: { select: { id: true, numero: true, activa: true } } },
   });
 
   return NextResponse.json({ entrega: actualizada });
@@ -76,6 +90,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 // DELETE /api/entregas/[id]
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { error: authError } = await checkOwnership(await params.then(p => p.id));
+  if (authError) return authError;
+
   const { id } = await params;
   await db.entrega.delete({ where: { id } });
   return NextResponse.json({ ok: true });

@@ -1,21 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getSession, getDuenoId } from "@/lib/auth";
 
-// GET /api/configuracion  — crea el registro por defecto si no existe
+// GET /api/configuracion
 export async function GET() {
-  let config = await db.configuracion.findUnique({ where: { id: "default" } });
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const duenoId = await getDuenoId();
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  let config = await db.configuracion.findUnique({ where: { duenoId } });
   if (!config) {
-    config = await db.configuracion.create({ data: { id: "default" } });
+    const dueno = await db.usuario.findUnique({ where: { id: duenoId } });
+    config = await db.configuracion.create({
+      data: {
+        duenoId,
+        nombreDueno: dueno?.nombre ?? "Dueño",
+        nombreChofer: dueno?.nombre ?? "Chofer",
+      },
+    });
   }
   return NextResponse.json({ configuracion: config });
 }
 
-// PUT /api/configuracion
+// PUT /api/configuracion — solo dueño
 export async function PUT(req: NextRequest) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  if (session.role !== "dueno") {
+    return NextResponse.json({ error: "Solo dueños pueden cambiar la configuración" }, { status: 403 });
+  }
+
   const body = await req.json();
 
   const config = await db.configuracion.upsert({
-    where: { id: "default" },
+    where: { duenoId: session.userId },
     update: {
       ...(body.nombreChofer !== undefined && { nombreChofer: body.nombreChofer.trim() }),
       ...(body.nombreDueno !== undefined && { nombreDueno: body.nombreDueno.trim() }),
@@ -32,7 +58,7 @@ export async function PUT(req: NextRequest) {
       ...(body.aplicaImpuestoSobre !== undefined && { aplicaImpuestoSobre: body.aplicaImpuestoSobre }),
     },
     create: {
-      id: "default",
+      duenoId: session.userId,
       nombreChofer: body.nombreChofer?.trim() || "Chofer",
       nombreDueno: body.nombreDueno?.trim() || "Dueño del Camión",
       capacidadCamion: Number(body.capacidadCamion) || 17000,
