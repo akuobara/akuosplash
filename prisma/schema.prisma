@@ -1,0 +1,80 @@
+// Aljibe App - Registro de entregas de agua, pagos, gastos y liquidación con dueño
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Catálogo de clientes (para futuras funciones de venta online)
+model Cliente {
+  id            String   @id @default(cuid())
+  nombre        String
+  direccion     String?
+  telefono      String?
+  precioPorLitro Float   @default(0)
+  nota          String?
+  creadoEn      DateTime @default(now())
+  entregas      Entrega[]
+}
+
+// Cada entrega/venta de agua a un cliente
+model Entrega {
+  id                String   @id @default(cuid())
+  fecha             DateTime @default(now())
+
+  // Datos del cliente (snapshoteados para que no cambien si se edita el cliente después)
+  clienteNombre     String
+  clienteDireccion  String?
+  clienteTelefono   String?
+  clienteId         String?  // opcional, si vino del catálogo
+  cliente           Cliente? @relation(fields: [clienteId], references: [id])
+
+  // Lecturas del medidor
+  lecturaAnterior   Float?   // lectura del medidor antes de cargar
+  lecturaActual     Float?   // lectura del medidor después de cargar
+  litros            Float    // litros entregados (calculado o manual)
+
+  // Montos
+  precioPorLitro    Float    // precio acordado por litro
+  total             Float    // monto total = litros * precioPorLitro
+  montoRecibido     Float    @default(0)  // monto efectivamente pagado en efectivo
+
+  // Estado del pago
+  estadoPago        String   @default("pendiente")  // pendiente | pagado | parcial
+
+  // Evidencia
+  fotoMedidorUrl    String?  // foto del medidor como respaldo
+
+  nota              String?
+  creadoEn          DateTime @default(now())
+}
+
+// Gastos asociados a la operación del camión aljibe
+model Gasto {
+  id          String   @id @default(cuid())
+  fecha       DateTime @default(now())
+  tipo        String   // agua_planta | combustible_camion | combustible_motobomba | cloro | mantenimiento | otro
+  monto       Float
+  descripcion String?
+  fotoUrl     String?  // boleta/factura opcional
+  creadoEn    DateTime @default(now())
+}
+
+// Configuración del negocio (registro único)
+model Configuracion {
+  id                    String  @id @default("default")
+  nombreChofer          String  @default("Chofer")
+  nombreDueno           String  @default("Dueño del Camión")
+  porcentajeComisionChofer Float @default(50)  // % que se queda el chofer
+  porcentajeComisionDueno  Float @default(50)  // % que se le paga al dueño
+  precioPorLitroDefault   Float @default(0)    // precio por defecto para nuevas entregas
+  // La liquidación con el dueño se calcula: 
+  //   totalVentas - totalGastos = utilidad bruta
+  //   utilidadChofer = utilidadBruta * %chofer
+  //   utilidadDueno  = utilidadBruta * %dueno
+  //   montoAPagarAlDueno = utilidadDueno + (gastos pagados por el dueño, si aplica)
+}
