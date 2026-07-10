@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { apiPut } from "@/lib/api-client";
@@ -39,6 +40,7 @@ interface Config {
   tipoTributo: string;
   porcentajeImpuesto: number;
   aplicaImpuestoSobre: string;
+  choferesPuedenEditarClientes: boolean;
 }
 
 interface ConfiguracionTabProps {
@@ -75,6 +77,9 @@ export function ConfiguracionTab({
   const [porcentajeImpuesto, setPorcentajeImpuesto] = useState("15.25");
   const [aplicaImpuestoSobre, setAplicaImpuestoSobre] = useState("pago_chofer");
 
+  // Permisos para choferes
+  const [choferesPuedenEditarClientes, setChoferesPuedenEditarClientes] = useState(false);
+
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -91,6 +96,7 @@ export function ConfiguracionTab({
       setTipoTributo(config.tipoTributo || "boleta_honorarios");
       setPorcentajeImpuesto(String(config.porcentajeImpuesto ?? 15.25));
       setAplicaImpuestoSobre(config.aplicaImpuestoSobre || "pago_chofer");
+      setChoferesPuedenEditarClientes(config.choferesPuedenEditarClientes ?? false);
     }
   }, [config]);
 
@@ -131,6 +137,7 @@ export function ConfiguracionTab({
         tipoTributo,
         porcentajeImpuesto: Number(porcentajeImpuesto),
         aplicaImpuestoSobre,
+        choferesPuedenEditarClientes,
       });
       onConfigChange(r.configuracion);
       toast.success("Configuración guardada");
@@ -432,6 +439,40 @@ export function ConfiguracionTab({
               No se calcularán impuestos en la liquidación.
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Permisos para choferes */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" />
+            <CardTitle className="text-base">Permisos para choferes</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between rounded-lg border border-border p-3">
+            <div className="flex-1">
+              <Label htmlFor="permChoferesClientes" className="text-sm font-medium">
+                Choferes pueden agregar y editar clientes
+              </Label>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Si está activo, los choferes podrán crear nuevos clientes y editar los existentes
+                desde su cuenta. Si está inactivo, solo ven el catálogo (solo lectura).
+              </p>
+            </div>
+            <Switch
+              id="permChoferesClientes"
+              checked={choferesPuedenEditarClientes}
+              onCheckedChange={setChoferesPuedenEditarClientes}
+            />
+          </div>
+          <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
+            <Info className="mb-1 inline h-3 w-3" />{" "}
+            <strong>Consejo:</strong> Si tus choferes visitan clientes nuevos o cambian precios
+            según la zona, activa esta opción para que puedan mantener el catálogo actualizado
+                sin tener que pedirte permiso cada vez.
+          </div>
         </CardContent>
       </Card>
 

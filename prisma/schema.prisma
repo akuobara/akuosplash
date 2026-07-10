@@ -192,4 +192,7 @@ model Configuracion {
   tipoTributo                 String  @default("boleta_honorarios")
   porcentajeImpuesto          Float   @default(15.25)
   aplicaImpuestoSobre         String  @default("pago_chofer")
+
+  // Permisos para choferes
+  choferesPuedenEditarClientes Boolean @default(false)
 }

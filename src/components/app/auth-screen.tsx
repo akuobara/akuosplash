@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,36 @@ interface AuthScreenProps {
   onAuthSuccess: (user: SessionUser) => void;
 }
 
+// Tipos para Google Identity Services
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+            auto_select?: boolean;
+            cancel_on_tap_outside?: boolean;
+          }) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: {
+              theme?: "outline" | "filled_blue";
+              size?: "large" | "medium" | "small";
+              text?: "signin_with" | "signup_with" | "continue_with" | "signin";
+              shape?: "rectangular" | "pill" | "circle" | "square";
+              width?: number;
+              locale?: string;
+            }
+          ) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
+
 export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
   const [mode, setMode] = useState<"login" | "register">(hasUsers ? "login" : "register");
   const [nombre, setNombre] = useState("");
@@ -28,6 +58,103 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
   const [password, setPassword] = useState("");
   const [telefono, setTelefono] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const [googleConfig, setGoogleConfig] = useState<{ enabled: boolean; clientId: string | null }>({
+    enabled: false,
+    clientId: null,
+  });
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+  const googleScriptLoaded = useRef(false);
+
+  // Cargar configuración pública (¿Google login habilitado?)
+  useEffect(() => {
+    fetch("/api/config/public")
+      .then((r) => r.json())
+      .then((data) => {
+        setGoogleConfig({
+          enabled: !!data.googleLoginEnabled,
+          clientId: data.googleClientId,
+        });
+      })
+      .catch(() => {
+        // Si falla, simplemente no mostramos Google
+      });
+  }, []);
+
+  // Cargar script de Google Identity Services cuando esté habilitado
+  useEffect(() => {
+    if (!googleConfig.enabled || !googleConfig.clientId) return;
+    if (googleScriptLoaded.current) return;
+    if (document.getElementById("google-gsi-script")) {
+      googleScriptLoaded.current = true;
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "google-gsi-script";
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    googleScriptLoaded.current = true;
+  }, [googleConfig.enabled, googleConfig.clientId]);
+
+  // Callback de Google — definido con useCallback antes del useEffect que lo usa
+  const handleGoogleCredential = useCallback(async (response: { credential: string }) => {
+    setGoogleLoading(true);
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "No se pudo iniciar sesión con Google");
+        setGoogleLoading(false);
+        return;
+      }
+      toast.success(`¡Bienvenido, ${data.user.nombre}!`);
+      onAuthSuccess(data.user);
+    } catch (err) {
+      toast.error("Error de conexión con Google");
+      setGoogleLoading(false);
+    }
+  }, [onAuthSuccess]);
+
+  // Inicializar Google button cuando el script esté cargado
+  useEffect(() => {
+    if (!googleConfig.enabled || !googleConfig.clientId) return;
+    if (!googleButtonRef.current) return;
+    if (typeof window.google === "undefined") {
+      // El script aún no cargó — reintentar en 200ms
+      const timer = setTimeout(() => {
+        // Trigger re-render verificando
+        setGoogleConfig((c) => ({ ...c }));
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+
+    try {
+      window.google!.accounts.id.initialize({
+        client_id: googleConfig.clientId!,
+        callback: handleGoogleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+      window.google!.accounts.id.renderButton(googleButtonRef.current, {
+        theme: "outline",
+        size: "large",
+        text: "continue_with",
+        shape: "rectangular",
+        width: 400,
+        locale: "es",
+      });
+    } catch (err) {
+      console.error("Error initializing Google:", err);
+    }
+  }, [googleConfig.enabled, googleConfig.clientId, handleGoogleCredential]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -108,6 +235,24 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
             )}
           </CardHeader>
           <CardContent>
+            {/* Google Sign-In button */}
+            {googleConfig.enabled && (
+              <div className="mb-4 space-y-3">
+                <div ref={googleButtonRef} className="flex justify-center min-h-[40px]" />
+                {googleLoading && (
+                  <p className="text-center text-xs text-muted-foreground">
+                    <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />
+                    Verificando con Google…
+                  </p>
+                )}
+                <div className="flex items-center gap-2">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs text-muted-foreground">o con email y contraseña</span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === "register" && (
                 <div className="space-y-2">
@@ -202,7 +347,9 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
           {hasUsers
-            ? "Si eres chofer, pídele al dueño tu email y contraseña."
+            ? googleConfig.enabled
+              ? "Puedes ingresar con Google si tu email coincide con una cuenta existente."
+              : "Si eres chofer, pídeele al dueño tu email y contraseña."
             : "Primera vez: crea la cuenta del dueño del camión."}
         </p>
       </div>

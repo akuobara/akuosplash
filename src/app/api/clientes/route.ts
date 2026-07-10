@@ -22,14 +22,33 @@ export async function GET() {
   return NextResponse.json({ clientes });
 }
 
-// POST /api/clientes — solo dueño (los choferes no crean clientes)
+// Helper: ¿el chofer actual tiene permiso para editar clientes?
+async function choferPuedeEditarClientes(duenoId: string): Promise<boolean> {
+  const config = await db.configuracion.findUnique({ where: { duenoId } });
+  return !!config?.choferesPuedenEditarClientes;
+}
+
+// POST /api/clientes
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo dueños pueden crear clientes" }, { status: 403 });
+
+  const duenoId = await getDuenoId();
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  // Si es chofer, verificar permiso
+  if (session.role === "chofer") {
+    const permitido = await choferPuedeEditarClientes(duenoId);
+    if (!permitido) {
+      return NextResponse.json(
+        { error: "No tienes permiso para crear clientes. Pídele al dueño que habilite esta opción." },
+        { status: 403 }
+      );
+    }
   }
 
   const body = await req.json();
@@ -43,7 +62,7 @@ export async function POST(req: NextRequest) {
       precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0,
       precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0,
       nota: body.nota?.trim() || null,
-      duenoId: session.userId,
+      duenoId,
     },
   });
 

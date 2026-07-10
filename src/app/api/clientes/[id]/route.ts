@@ -5,13 +5,32 @@ import { getSession } from "@/lib/auth";
 async function checkOwnership(id: string) {
   const session = await getSession();
   if (!session) return { error: NextResponse.json({ error: "No autorizado" }, { status: 401 }), session: null };
-  if (session.role !== "dueno") return { error: NextResponse.json({ error: "Solo dueños" }, { status: 403 }), session: null };
 
   const cliente = await db.cliente.findUnique({ where: { id } });
-  if (!cliente || cliente.duenoId !== session.userId) {
+  if (!cliente) {
+    return { error: NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 }), session: null };
+  }
+
+  const duenoId = session.role === "dueno" ? session.userId : session.duenoId;
+  if (cliente.duenoId !== duenoId) {
     return { error: NextResponse.json({ error: "No autorizado" }, { status: 403 }), session: null };
   }
-  return { error: null, session };
+
+  // Si es chofer, verificar permiso de edición
+  if (session.role === "chofer") {
+    const config = await db.configuracion.findUnique({ where: { duenoId } });
+    if (!config?.choferesPuedenEditarClientes) {
+      return {
+        error: NextResponse.json(
+          { error: "No tienes permiso para editar clientes. Pídele al dueño que habilite esta opción." },
+          { status: 403 }
+        ),
+        session: null,
+      };
+    }
+  }
+
+  return { error: null, session, cliente };
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

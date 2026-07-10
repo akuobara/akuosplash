@@ -57,6 +57,7 @@ interface Config {
   tipoTributo: string;
   porcentajeImpuesto: number;
   aplicaImpuestoSobre: string;
+  choferesPuedenEditarClientes: boolean;
 }
 
 interface Camion {
@@ -305,7 +306,11 @@ export default function Home() {
           </TabsContent>
 
           <TabsContent value="clientes" className="mt-0">
-            <ClientesTab refreshKey={refreshKey} onRefresh={refresh} readOnly={!isDueno} />
+            <ClientesTab
+              refreshKey={refreshKey}
+              onRefresh={refresh}
+              readOnly={isDueno ? false : !config?.choferesPuedenEditarClientes}
+            />
           </TabsContent>
 
           {isDueno && (
