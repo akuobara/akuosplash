@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     const isHttps = req.headers.get("x-forwarded-proto") === "https";
     await setSessionCookie(token, isHttps);
 
-    return NextResponse.json({ user: sessionUser }, { status: 201 });
+    return NextResponse.json({ user: sessionUser, token }, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "No se pudo registrar" }, { status: 500 });

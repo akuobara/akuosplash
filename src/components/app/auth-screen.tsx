@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Droplets, Loader2, LogIn, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { saveToken } from "@/lib/api-client";
 
 export interface SessionUser {
   userId: string;
@@ -116,6 +117,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
         return;
       }
       toast.success(`¡Bienvenido, ${data.user.nombre}!`);
+      if (data.token) saveToken(data.token);
       onAuthSuccess(data.user);
     } catch (err) {
       toast.error("Error de conexión con Google");
@@ -179,6 +181,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
           return;
         }
         toast.success(`¡Bienvenido, ${data.user.nombre}! Tu cuenta de dueño está lista.`);
+        if (data.token) saveToken(data.token);
         onAuthSuccess(data.user);
       } else {
         if (!email.trim() || !password) {
@@ -199,6 +202,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
           return;
         }
         toast.success(`¡Bienvenido, ${data.user.nombre}!`);
+        if (data.token) saveToken(data.token);
         onAuthSuccess(data.user);
       }
     } catch (err) {

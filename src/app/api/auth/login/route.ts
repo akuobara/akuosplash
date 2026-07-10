@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     const isHttps = req.headers.get("x-forwarded-proto") === "https";
     await setSessionCookie(token, isHttps);
 
-    return NextResponse.json({ user: sessionUser });
+    return NextResponse.json({ user: sessionUser, token });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "No se pudo iniciar sesión" }, { status: 500 });

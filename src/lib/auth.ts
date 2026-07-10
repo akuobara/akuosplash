@@ -73,6 +73,7 @@ export async function clearSessionCookie() {
 }
 
 // ===== Obtener sesión actual =====
+// Lee el token de la cookie (el middleware se encarga de copiar el header Authorization a cookie)
 export async function getSession(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;

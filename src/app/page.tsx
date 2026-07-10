@@ -33,7 +33,7 @@ import { EquipoTab } from "@/components/app/equipo-tab";
 import { PedidosTab } from "@/components/app/pedidos-tab";
 import { PedidosRecurrentesTab } from "@/components/app/pedidos-recurrentes-tab";
 import { AuthScreen, type SessionUser } from "@/components/app/auth-screen";
-import { apiGet, apiDelete } from "@/lib/api-client";
+import { apiGet, apiDelete, clearToken } from "@/lib/api-client";
 import { toast } from "sonner";
 
 interface Cliente {
@@ -159,12 +159,11 @@ export default function Home() {
   async function handleLogout() {
     try {
       await apiDelete("/api/auth/logout");
-      setUser(null);
-      setHasUsers(true);
-      toast.success("Sesión cerrada");
-    } catch {
-      toast.error("No se pudo cerrar sesión");
-    }
+    } catch {}
+    clearToken();
+    setUser(null);
+    setHasUsers(true);
+    toast.success("Sesión cerrada");
   }
 
   // Pantalla de carga inicial
