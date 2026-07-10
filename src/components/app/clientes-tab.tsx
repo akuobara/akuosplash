@@ -47,11 +47,13 @@ import {
   Fence,
   KeyRound,
   UserCheck,
+  Search,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/helpers";
+import { MapPicker } from "./map-picker";
 
 interface Cliente {
   id: string;
@@ -112,6 +114,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [requiereClientePresente, setRequiereClientePresente] = useState(true);
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [choferPreferidoId, setChoferPreferidoId] = useState<string>("");
+  const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -546,20 +549,31 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                 <Label className="flex items-center gap-1.5 text-sm font-medium">
                   <Navigation className="h-4 w-4 text-primary" /> Ubicación GPS
                 </Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={obtenerMiUbicacion}
-                  disabled={obteniendoGPS}
-                >
-                  {obteniendoGPS ? (
-                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                  ) : (
-                    <MapPin className="mr-1 h-3 w-3" />
-                  )}
-                  Mi ubicación
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setMapPickerOpen(true)}
+                  >
+                    <Search className="mr-1 h-3 w-3" />
+                    Buscar en mapa
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={obtenerMiUbicacion}
+                    disabled={obteniendoGPS}
+                  >
+                    {obteniendoGPS ? (
+                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    ) : (
+                      <MapPin className="mr-1 h-3 w-3" />
+                    )}
+                    Mi ubicación
+                  </Button>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
@@ -598,7 +612,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                 </a>
               )}
               <p className="text-xs text-muted-foreground">
-                Útil para navegación y para que los clientes puedan pedir agua por la app en el futuro.
+                Usa "Buscar en mapa" para encontrar la dirección del cliente sin estar ahí.
               </p>
             </div>
 
@@ -719,6 +733,19 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Map Picker */}
+      <MapPicker
+        open={mapPickerOpen}
+        onOpenChange={setMapPickerOpen}
+        onSelect={(latVal, lngVal) => {
+          setLat(String(latVal));
+          setLng(String(lngVal));
+          toast.success("Ubicación seleccionada");
+        }}
+        initialLat={lat ? parseFloat(lat) : null}
+        initialLng={lng ? parseFloat(lng) : null}
+      />
 
       {/* Confirmar borrado */}
       <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>

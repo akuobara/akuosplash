@@ -163,15 +163,21 @@ export function EntregaForm({
       setLecturaAnterior("");
       setLecturaActual("");
       setLitrosManual("");
-      setPrecioPorLitro("");
       setMetodoPago("efectivo");
       setMontoEfectivo("");
       setMontoTransferencia("");
       setEstadoPago("pendiente");
       setFotoUrl(null);
       setNota("");
+      // Auto-llenar precio según método default (efectivo)
+      const precioDefault = config.precioEfectivoPorLitro || 0;
+      if (precioDefault > 0) {
+        setPrecioPorLitro(String(precioDefault));
+      } else {
+        setPrecioPorLitro("");
+      }
     }
-  }, [open, entrega]);
+  }, [open, entrega, config.precioEfectivoPorLitro]);
 
   // Si el usuario selecciona un cliente del catálogo, autollenar datos y precio
   function onSelectCliente(id: string) {
@@ -203,9 +209,8 @@ export function EntregaForm({
       // mixto o crédito: usar precio efectivo como base
       precio = cliente?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
     }
-    if (precio > 0) {
-      setPrecioPorLitro(String(precio));
-    }
+    // Siempre setear el precio (incluso si es 0, para que el usuario vea que no hay configurado)
+    setPrecioPorLitro(precio > 0 ? String(precio) : "");
   }
 
   // Si cambia método de pago (y el usuario no ha tocado el precio manualmente)
@@ -590,28 +595,34 @@ export function EntregaForm({
             </div>
           </div>
 
-          {/* Resumen de cálculo */}
-          <div className="grid gap-2 rounded-lg border border-border bg-muted/30 p-3 text-sm sm:grid-cols-4">
-            <div>
-              <span className="text-xs uppercase text-muted-foreground">Litros</span>
-              <p className="font-semibold tabular-nums">{formatNumber(litrosFinal, 0)} L</p>
+          {/* Resumen de cálculo — siempre visible y automático */}
+          <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3">
+            <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase text-muted-foreground">
+              Cálculo automático
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div>
+                <span className="text-xs uppercase text-muted-foreground">Litros</span>
+                <p className="text-lg font-bold tabular-nums">{formatNumber(litrosFinal, 0)} L</p>
+              </div>
+              <div>
+                <span className="text-xs uppercase text-muted-foreground">Precio/L</span>
+                <p className="text-lg font-bold tabular-nums">{formatCurrency(precioFinal)}</p>
+              </div>
+              <div>
+                <span className="text-xs uppercase text-muted-foreground">Total</span>
+                <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(totalCalculado)}</p>
+              </div>
+              <div>
+                <span className="text-xs uppercase text-muted-foreground">Saldo</span>
+                <p className={`text-lg font-bold tabular-nums ${saldoFinal > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                  {formatCurrency(saldoFinal)}
+                </p>
+              </div>
             </div>
-            <div>
-              <span className="text-xs uppercase text-muted-foreground">Total</span>
-              <p className="font-semibold tabular-nums">{formatCurrency(totalCalculado)}</p>
-            </div>
-            <div>
-              <span className="text-xs uppercase text-muted-foreground">Recibido</span>
-              <p className="font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
-                {formatCurrency(recibidoFinal)}
-              </p>
-            </div>
-            <div>
-              <span className="text-xs uppercase text-muted-foreground">Saldo</span>
-              <p className={`font-semibold tabular-nums ${saldoFinal > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}>
-                {formatCurrency(saldoFinal)}
-              </p>
-            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Recibido: <strong>{formatCurrency(recibidoFinal)}</strong> (efectivo + transferencia)
+            </p>
           </div>
 
           <div className="space-y-2">
