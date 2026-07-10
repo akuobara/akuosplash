@@ -62,6 +62,13 @@ export async function POST(req: NextRequest) {
       precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0,
       precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0,
       nota: body.nota?.trim() || null,
+      lat: body.lat != null && body.lat !== "" ? Number(body.lat) : null,
+      lng: body.lng != null && body.lng !== "" ? Number(body.lng) : null,
+      requiereIngresoPropiedad: !!body.requiereIngresoPropiedad,
+      entregaDesdeAfuera: !!body.entregaDesdeAfuera,
+      conexionExterna: !!body.conexionExterna,
+      requiereClientePresente: body.requiereClientePresente !== undefined ? !!body.requiereClientePresente : true,
+      indicacionesAcceso: body.indicacionesAcceso?.trim() || null,
       duenoId,
     },
   });

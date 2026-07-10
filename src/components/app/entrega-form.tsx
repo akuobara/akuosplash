@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Camera, X, Droplets, MapPin } from "lucide-react";
+import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost, apiPatch, uploadFile } from "@/lib/api-client";
 import {
@@ -78,6 +78,14 @@ interface ClienteOption {
   zona: string | null;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  // GPS y acceso
+  lat: number | null;
+  lng: number | null;
+  requiereIngresoPropiedad: boolean;
+  entregaDesdeAfuera: boolean;
+  conexionExterna: boolean;
+  requiereClientePresente: boolean;
+  indicacionesAcceso: string | null;
 }
 
 interface EntregaFormProps {
@@ -348,6 +356,64 @@ export function EntregaForm({
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Panel de info de acceso del cliente seleccionado */}
+            {clienteId && clienteId !== "__manual" && (() => {
+              const c = clientes.find((cl) => cl.id === clienteId);
+              if (!c) return null;
+              const tieneAlgo = c.indicacionesAcceso || c.lat != null || c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false;
+              if (!tieneAlgo) return null;
+              return (
+                <div className="mt-2 rounded-lg border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-2">
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-200">
+                    <DoorOpen className="h-3.5 w-3.5" /> Información de acceso
+                  </p>
+
+                  {(c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false) && (
+                    <div className="flex flex-wrap gap-1">
+                      {c.requiereIngresoPropiedad && (
+                        <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
+                          <DoorOpen className="h-2.5 w-2.5" /> Ingreso
+                        </span>
+                      )}
+                      {c.entregaDesdeAfuera && (
+                        <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
+                          <Fence className="h-2.5 w-2.5" /> Desde afuera
+                        </span>
+                      )}
+                      {c.conexionExterna && (
+                        <span className="inline-flex items-center gap-0.5 rounded border border-emerald-300 dark:border-emerald-700 px-1.5 py-0.5 text-[10px] text-emerald-900 dark:text-emerald-200">
+                          <KeyRound className="h-2.5 w-2.5" /> Conexión externa
+                        </span>
+                      )}
+                      {c.requiereClientePresente === false && (
+                        <span className="inline-flex items-center gap-0.5 rounded border border-blue-300 dark:border-blue-700 px-1.5 py-0.5 text-[10px] text-blue-900 dark:text-blue-200">
+                          <UserCheck className="h-2.5 w-2.5" /> Sin presencia
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {c.indicacionesAcceso && (
+                    <p className="text-xs text-amber-900 dark:text-amber-200 whitespace-pre-wrap">
+                      {c.indicacionesAcceso}
+                    </p>
+                  )}
+
+                  {c.lat != null && c.lng != null && (
+                    <a
+                      href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                    >
+                      <Navigation className="h-3 w-3" /> Cómo llegar (Google Maps)
+                      <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">

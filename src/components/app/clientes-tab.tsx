@@ -33,7 +33,15 @@ import {
   Users,
   Banknote,
   Smartphone,
+  Navigation,
+  Loader2,
+  ExternalLink,
+  DoorOpen,
+  Fence,
+  KeyRound,
+  UserCheck,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/helpers";
@@ -47,6 +55,15 @@ interface Cliente {
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
   nota: string | null;
+  // GPS
+  lat: number | null;
+  lng: number | null;
+  // Acceso
+  requiereIngresoPropiedad: boolean;
+  entregaDesdeAfuera: boolean;
+  conexionExterna: boolean;
+  requiereClientePresente: boolean;
+  indicacionesAcceso: string | null;
   _count?: { entregas: number };
 }
 
@@ -73,6 +90,16 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
   const [precioEfectivo, setPrecioEfectivo] = useState("");
   const [precioTransferencia, setPrecioTransferencia] = useState("");
   const [nota, setNota] = useState("");
+  // GPS
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
+  const [obteniendoGPS, setObteniendoGPS] = useState(false);
+  // Acceso
+  const [requiereIngresoPropiedad, setRequiereIngresoPropiedad] = useState(false);
+  const [entregaDesdeAfuera, setEntregaDesdeAfuera] = useState(false);
+  const [conexionExterna, setConexionExterna] = useState(false);
+  const [requiereClientePresente, setRequiereClientePresente] = useState(true);
+  const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [saving, setSaving] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -112,6 +139,13 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
     setPrecioEfectivo("");
     setPrecioTransferencia("");
     setNota("");
+    setLat("");
+    setLng("");
+    setRequiereIngresoPropiedad(false);
+    setEntregaDesdeAfuera(false);
+    setConexionExterna(false);
+    setRequiereClientePresente(true);
+    setIndicacionesAcceso("");
     setFormOpen(true);
   }
 
@@ -124,7 +158,36 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
     setPrecioEfectivo(c.precioEfectivoPorLitro ? String(c.precioEfectivoPorLitro) : "");
     setPrecioTransferencia(c.precioTransferenciaPorLitro ? String(c.precioTransferenciaPorLitro) : "");
     setNota(c.nota ?? "");
+    setLat(c.lat != null ? String(c.lat) : "");
+    setLng(c.lng != null ? String(c.lng) : "");
+    setRequiereIngresoPropiedad(c.requiereIngresoPropiedad ?? false);
+    setEntregaDesdeAfuera(c.entregaDesdeAfuera ?? false);
+    setConexionExterna(c.conexionExterna ?? false);
+    setRequiereClientePresente(c.requiereClientePresente ?? true);
+    setIndicacionesAcceso(c.indicacionesAcceso ?? "");
     setFormOpen(true);
+  }
+
+  // Capturar ubicación GPS actual del dispositivo
+  function obtenerMiUbicacion() {
+    if (!navigator.geolocation) {
+      toast.error("Tu navegador no soporta geolocalización");
+      return;
+    }
+    setObteniendoGPS(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLat(pos.coords.latitude.toFixed(6));
+        setLng(pos.coords.longitude.toFixed(6));
+        setObteniendoGPS(false);
+        toast.success("Ubicación capturada");
+      },
+      (err) => {
+        setObteniendoGPS(false);
+        toast.error(err.message || "No se pudo obtener tu ubicación");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -143,6 +206,13 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
         precioEfectivoPorLitro: Number(precioEfectivo) || 0,
         precioTransferenciaPorLitro: Number(precioTransferencia) || 0,
         nota: nota.trim() || null,
+        lat: lat.trim() === "" ? null : Number(lat),
+        lng: lng.trim() === "" ? null : Number(lng),
+        requiereIngresoPropiedad,
+        entregaDesdeAfuera,
+        conexionExterna,
+        requiereClientePresente,
+        indicacionesAcceso: indicacionesAcceso.trim() || null,
       };
       if (editando) {
         await apiPatch(`/api/clientes/${editando.id}`, payload);
@@ -292,6 +362,53 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
                     )}
                   </div>
                 )}
+
+                {/* Indicadores de acceso */}
+                {(c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false) && (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {c.requiereIngresoPropiedad && (
+                      <Badge variant="outline" className="text-[10px] gap-0.5" title="Hay que ingresar a la propiedad">
+                        <DoorOpen className="h-2.5 w-2.5" /> Ingreso
+                      </Badge>
+                    )}
+                    {c.entregaDesdeAfuera && (
+                      <Badge variant="outline" className="text-[10px] gap-0.5" title="Se puede entregar desde afuera">
+                        <Fence className="h-2.5 w-2.5" /> Desde afuera
+                      </Badge>
+                    )}
+                    {c.conexionExterna && (
+                      <Badge variant="outline" className="text-[10px] gap-0.5 text-emerald-700 dark:text-emerald-300" title="Conexión/llave externa">
+                        <KeyRound className="h-2.5 w-2.5" /> Conexión
+                      </Badge>
+                    )}
+                    {c.requiereClientePresente === false && (
+                      <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300" title="No requiere cliente presente">
+                        <UserCheck className="h-2.5 w-2.5" /> Sin presencia
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
+                {/* GPS */}
+                {c.lat != null && c.lng != null && (
+                  <a
+                    href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                  >
+                    <Navigation className="h-3 w-3" /> Ver ubicación GPS
+                  </a>
+                )}
+
+                {/* Indicaciones de acceso */}
+                {c.indicacionesAcceso && (
+                  <p className="mt-1 line-clamp-3 rounded bg-amber-50 dark:bg-amber-900/20 p-2 text-xs text-amber-900 dark:text-amber-200">
+                    <DoorOpen className="mr-1 inline h-3 w-3" />
+                    {c.indicacionesAcceso}
+                  </p>
+                )}
+
                 {c.nota && (
                   <p className="mt-1 line-clamp-2 rounded bg-muted/40 p-2 text-xs text-muted-foreground">
                     {c.nota}
@@ -407,6 +524,152 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false }: Cliente
                 rows={2}
               />
             </div>
+
+            {/* Ubicación GPS */}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-1.5 text-sm font-medium">
+                  <Navigation className="h-4 w-4 text-primary" /> Ubicación GPS
+                </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={obtenerMiUbicacion}
+                  disabled={obteniendoGPS}
+                >
+                  {obteniendoGPS ? (
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  ) : (
+                    <MapPin className="mr-1 h-3 w-3" />
+                  )}
+                  Mi ubicación
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label htmlFor="latCliente" className="text-xs">Latitud</Label>
+                  <Input
+                    id="latCliente"
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    value={lat}
+                    onChange={(e) => setLat(e.target.value)}
+                    placeholder="-33.4489"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="lngCliente" className="text-xs">Longitud</Label>
+                  <Input
+                    id="lngCliente"
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    value={lng}
+                    onChange={(e) => setLng(e.target.value)}
+                    placeholder="-70.6693"
+                  />
+                </div>
+              </div>
+              {lat && lng && (
+                <a
+                  href={`https://www.google.com/maps?q=${lat},${lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                >
+                  <ExternalLink className="h-3 w-3" /> Ver en Google Maps
+                </a>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Útil para navegación y para que los clientes puedan pedir agua por la app en el futuro.
+              </p>
+            </div>
+
+            {/* Acceso a la propiedad */}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+              <Label className="flex items-center gap-1.5 text-sm font-medium">
+                <DoorOpen className="h-4 w-4 text-primary" /> Acceso a la propiedad
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Indica cómo se entrega el agua en este cliente. Esto ayuda al chofer a saber qué esperar.
+              </p>
+
+              <div className="space-y-2">
+                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+                  <Switch
+                    checked={requiereIngresoPropiedad}
+                    onCheckedChange={setRequiereIngresoPropiedad}
+                  />
+                  <div className="flex-1 -mt-0.5">
+                    <span className="flex items-center gap-1.5 text-sm font-medium">
+                      <DoorOpen className="h-3.5 w-3.5" /> Hay que ingresar a la propiedad
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      El chofer debe entrar al terreno (abrir portón, pasar a patio, etc.)
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+                  <Switch
+                    checked={entregaDesdeAfuera}
+                    onCheckedChange={setEntregaDesdeAfuera}
+                  />
+                  <div className="flex-1 -mt-0.5">
+                    <span className="flex items-center gap-1.5 text-sm font-medium">
+                      <Fence className="h-3.5 w-3.5" /> Se puede entregar desde afuera
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      Pasar manguera por sobre el portón/muro, sin entrar a la propiedad
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+                  <Switch
+                    checked={conexionExterna}
+                    onCheckedChange={setConexionExterna}
+                  />
+                  <div className="flex-1 -mt-0.5">
+                    <span className="flex items-center gap-1.5 text-sm font-medium">
+                      <KeyRound className="h-3.5 w-3.5" /> Hay conexión/llave externa
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      Existe una llave de paso o conexión accesible desde afuera — se puede entregar sin el cliente
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+                  <Switch
+                    checked={requiereClientePresente}
+                    onCheckedChange={setRequiereClientePresente}
+                  />
+                  <div className="flex-1 -mt-0.5">
+                    <span className="flex items-center gap-1.5 text-sm font-medium">
+                      <UserCheck className="h-3.5 w-3.5" /> Cliente debe estar presente
+                    </span>
+                    <p className="text-xs text-muted-foreground">
+                      Si está apagado, se puede entregar aunque el cliente no esté (con autorización/conexión externa)
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="indicacionesAcceso" className="text-xs">Indicaciones de acceso (descripción libre)</Label>
+                <Textarea
+                  id="indicacionesAcceso"
+                  value={indicacionesAcceso}
+                  onChange={(e) => setIndicacionesAcceso(e.target.value)}
+                  placeholder="Ej. Portón verde, llamar al llegar. Estanque atrás cerca del quincho. Llave de paso bajo la tapa de cemento."
+                  rows={3}
+                />
+              </div>
+            </div>
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
                 Cancelar

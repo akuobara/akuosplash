@@ -51,6 +51,17 @@ model Cliente {
   nota          String?
   creadoEn      DateTime @default(now())
 
+  // Ubicación GPS (para navegación y futura venta online)
+  lat           Float?
+  lng           Float?
+
+  // Acceso a la propiedad (cómo se entrega el agua)
+  requiereIngresoPropiedad Boolean @default(false) // ¿hay que entrar a la propiedad?
+  entregaDesdeAfuera       Boolean @default(false) // ¿se puede entregar desde afuera (ej. pasar manguera por encima del portón)?
+  conexionExterna          Boolean @default(false) // ¿hay conexión/llave de paso externa que permite entregar sin el cliente?
+  requiereClientePresente  Boolean @default(true)  // ¿el cliente debe estar presente para recibir?
+  indicacionesAcceso       String?  // descripción libre: cómo entrar, dónde está el estanque, etc.
+
   duenoId       String
   dueno         Usuario  @relation("ClienteDueno", fields: [duenoId], references: [id])
 

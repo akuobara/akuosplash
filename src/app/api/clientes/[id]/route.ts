@@ -50,6 +50,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.precioEfectivoPorLitro !== undefined && { precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0 }),
       ...(body.precioTransferenciaPorLitro !== undefined && { precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0 }),
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),
+      ...(body.lat !== undefined && { lat: body.lat === null || body.lat === "" ? null : Number(body.lat) }),
+      ...(body.lng !== undefined && { lng: body.lng === null || body.lng === "" ? null : Number(body.lng) }),
+      ...(body.requiereIngresoPropiedad !== undefined && { requiereIngresoPropiedad: !!body.requiereIngresoPropiedad }),
+      ...(body.entregaDesdeAfuera !== undefined && { entregaDesdeAfuera: !!body.entregaDesdeAfuera }),
+      ...(body.conexionExterna !== undefined && { conexionExterna: !!body.conexionExterna }),
+      ...(body.requiereClientePresente !== undefined && { requiereClientePresente: !!body.requiereClientePresente }),
+      ...(body.indicacionesAcceso !== undefined && { indicacionesAcceso: body.indicacionesAcceso?.trim() || null }),
     },
   });
 
