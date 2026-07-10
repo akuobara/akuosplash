@@ -113,7 +113,8 @@ export async function POST(req: NextRequest) {
       duenoId: user!.duenoId,
     };
     const token = await signToken(sessionUser);
-    await setSessionCookie(token);
+    const isHttps = req.headers.get("x-forwarded-proto") === "https";
+    await setSessionCookie(token, isHttps);
 
     return NextResponse.json({ user: sessionUser });
   } catch (err) {

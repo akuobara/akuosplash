@@ -69,7 +69,8 @@ export async function POST(req: NextRequest) {
       duenoId: null,
     };
     const token = await signToken(sessionUser);
-    await setSessionCookie(token);
+    const isHttps = req.headers.get("x-forwarded-proto") === "https";
+    await setSessionCookie(token, isHttps);
 
     return NextResponse.json({ user: sessionUser }, { status: 201 });
   } catch (err) {

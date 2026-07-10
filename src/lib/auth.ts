@@ -54,12 +54,14 @@ export async function verifyToken(token: string): Promise<SessionUser | null> {
 }
 
 // ===== Cookies de sesión =====
-export async function setSessionCookie(token: string) {
+export async function setSessionCookie(token: string, isHttps: boolean = false) {
   const cookieStore = await cookies();
+  // Si la request viene por HTTPS (preview/producción), usar SameSite=none + Secure
+  // Si viene por HTTP (localhost dev), usar SameSite=lax sin Secure
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isHttps,
+    sameSite: isHttps ? "none" : "lax",
     maxAge: 30 * 24 * 60 * 60, // 30 días
     path: "/",
   });
