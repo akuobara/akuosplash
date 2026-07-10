@@ -18,6 +18,9 @@ export async function GET(req: NextRequest) {
         clienteId ? { clienteId } : {},
       ],
     },
+    include: {
+      vuelta: { select: { id: true, numero: true, activa: true } },
+    },
     orderBy: { fecha: "desc" },
   });
 
@@ -32,7 +35,11 @@ export async function POST(req: NextRequest) {
     const litros = Number(body.litros) || 0;
     const precioPorLitro = Number(body.precioPorLitro) || 0;
     const total = Number(body.total) || litros * precioPorLitro;
-    const montoRecibido = Number(body.montoRecibido) || 0;
+
+    const metodoPago = body.metodoPago || "efectivo";
+    const montoEfectivo = Number(body.montoEfectivo) || 0;
+    const montoTransferencia = Number(body.montoTransferencia) || 0;
+    const montoRecibido = montoEfectivo + montoTransferencia;
 
     // Calcular estado de pago automáticamente si no viene
     let estadoPago = body.estadoPago || "pendiente";
@@ -48,22 +55,37 @@ export async function POST(req: NextRequest) {
       litrosFinal = Number(body.lecturaActual) - Number(body.lecturaAnterior);
     }
 
+    // Si no se especifica vuelta, asignar a la vuelta activa (si existe)
+    let vueltaId = body.vueltaId || null;
+    if (!vueltaId) {
+      const activa = await db.vuelta.findFirst({ where: { activa: true } });
+      vueltaId = activa?.id ?? null;
+    }
+
     const nueva = await db.entrega.create({
       data: {
         fecha: body.fecha ? new Date(body.fecha) : new Date(),
         clienteNombre: body.clienteNombre?.trim() || "Sin nombre",
         clienteDireccion: body.clienteDireccion?.trim() || null,
         clienteTelefono: body.clienteTelefono?.trim() || null,
+        clienteZona: body.clienteZona?.trim() || null,
         clienteId: body.clienteId || null,
+        vueltaId,
         lecturaAnterior: body.lecturaAnterior != null ? Number(body.lecturaAnterior) : null,
         lecturaActual: body.lecturaActual != null ? Number(body.lecturaActual) : null,
         litros: litrosFinal,
+        metodoPago,
         precioPorLitro,
         total,
+        montoEfectivo,
+        montoTransferencia,
         montoRecibido,
         estadoPago,
         fotoMedidorUrl: body.fotoMedidorUrl || null,
         nota: body.nota?.trim() || null,
+      },
+      include: {
+        vuelta: { select: { id: true, numero: true, activa: true } },
       },
     });
 

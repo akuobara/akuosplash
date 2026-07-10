@@ -20,11 +20,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Camera, X, ImageIcon } from "lucide-react";
+import { Loader2, Camera, X, Droplets, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost, apiPatch, uploadFile } from "@/lib/api-client";
-import { ESTADOS_PAGO, formatCurrency, formatNumber } from "@/lib/helpers";
+import {
+  ESTADOS_PAGO,
+  METODOS_PAGO,
+  formatCurrency,
+  formatNumber,
+} from "@/lib/helpers";
 
 export interface Entrega {
   id: string;
@@ -32,16 +36,30 @@ export interface Entrega {
   clienteNombre: string;
   clienteDireccion: string | null;
   clienteTelefono: string | null;
+  clienteZona: string | null;
   clienteId: string | null;
+  vueltaId: string | null;
+  vuelta?: { id: string; numero: number; activa: boolean } | null;
   lecturaAnterior: number | null;
   lecturaActual: number | null;
   litros: number;
+  metodoPago: string;
   precioPorLitro: number;
   total: number;
+  montoEfectivo: number;
+  montoTransferencia: number;
   montoRecibido: number;
   estadoPago: string;
   fotoMedidorUrl: string | null;
   nota: string | null;
+}
+
+export interface VueltaActual {
+  id: string;
+  numero: number;
+  iniciadaEn: string;
+  cantidadEntregas: number;
+  litros: number;
 }
 
 interface ClienteOption {
@@ -49,7 +67,9 @@ interface ClienteOption {
   nombre: string;
   direccion: string | null;
   telefono: string | null;
-  precioPorLitro: number;
+  zona: string | null;
+  precioEfectivoPorLitro: number;
+  precioTransferenciaPorLitro: number;
 }
 
 interface EntregaFormProps {
@@ -58,7 +78,12 @@ interface EntregaFormProps {
   onSaved: () => void;
   entrega?: Entrega | null;
   clientes: ClienteOption[];
-  precioPorLitroDefault: number;
+  config: {
+    precioEfectivoPorLitro: number;
+    precioTransferenciaPorLitro: number;
+    capacidadCamion: number;
+  };
+  vueltaActual: VueltaActual | null;
 }
 
 export function EntregaForm({
@@ -67,7 +92,8 @@ export function EntregaForm({
   onSaved,
   entrega,
   clientes,
-  precioPorLitroDefault,
+  config,
+  vueltaActual,
 }: EntregaFormProps) {
   const isEdit = !!entrega;
 
@@ -75,12 +101,16 @@ export function EntregaForm({
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteDireccion, setClienteDireccion] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
+  const [clienteZona, setClienteZona] = useState("");
 
   const [lecturaAnterior, setLecturaAnterior] = useState<string>("");
   const [lecturaActual, setLecturaActual] = useState<string>("");
   const [litrosManual, setLitrosManual] = useState<string>("");
-  const [precioPorLitro, setPrecioPorLitro] = useState<string>(String(precioPorLitroDefault || ""));
-  const [montoRecibido, setMontoRecibido] = useState<string>("");
+  const [precioPorLitro, setPrecioPorLitro] = useState<string>("");
+  const [metodoPago, setMetodoPago] = useState<string>("efectivo");
+
+  const [montoEfectivo, setMontoEfectivo] = useState<string>("");
+  const [montoTransferencia, setMontoTransferencia] = useState<string>("");
   const [estadoPago, setEstadoPago] = useState<string>("pendiente");
 
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
@@ -97,11 +127,14 @@ export function EntregaForm({
       setClienteNombre(entrega.clienteNombre);
       setClienteDireccion(entrega.clienteDireccion ?? "");
       setClienteTelefono(entrega.clienteTelefono ?? "");
+      setClienteZona(entrega.clienteZona ?? "");
       setLecturaAnterior(entrega.lecturaAnterior != null ? String(entrega.lecturaAnterior) : "");
       setLecturaActual(entrega.lecturaActual != null ? String(entrega.lecturaActual) : "");
       setLitrosManual(String(entrega.litros ?? ""));
       setPrecioPorLitro(String(entrega.precioPorLitro ?? ""));
-      setMontoRecibido(String(entrega.montoRecibido ?? ""));
+      setMetodoPago(entrega.metodoPago || "efectivo");
+      setMontoEfectivo(entrega.montoEfectivo ? String(entrega.montoEfectivo) : "");
+      setMontoTransferencia(entrega.montoTransferencia ? String(entrega.montoTransferencia) : "");
       setEstadoPago(entrega.estadoPago);
       setFotoUrl(entrega.fotoMedidorUrl);
       setNota(entrega.nota ?? "");
@@ -110,21 +143,26 @@ export function EntregaForm({
       setClienteNombre("");
       setClienteDireccion("");
       setClienteTelefono("");
+      setClienteZona("");
       setLecturaAnterior("");
       setLecturaActual("");
       setLitrosManual("");
-      setPrecioPorLitro(String(precioPorLitroDefault || ""));
-      setMontoRecibido("");
+      setPrecioPorLitro("");
+      setMetodoPago("efectivo");
+      setMontoEfectivo("");
+      setMontoTransferencia("");
       setEstadoPago("pendiente");
       setFotoUrl(null);
       setNota("");
     }
-  }, [open, entrega, precioPorLitroDefault]);
+  }, [open, entrega]);
 
-  // Si el usuario selecciona un cliente del catálogo, autollenar datos
+  // Si el usuario selecciona un cliente del catálogo, autollenar datos y precio
   function onSelectCliente(id: string) {
     setClienteId(id);
     if (!id || id === "__manual") {
+      // Para cliente manual, usar precio global según método
+      aplicarPrecioSegunMetodo(metodoPago, null);
       return;
     }
     const c = clientes.find((c) => c.id === id);
@@ -132,7 +170,44 @@ export function EntregaForm({
       setClienteNombre(c.nombre);
       setClienteDireccion(c.direccion ?? "");
       setClienteTelefono(c.telefono ?? "");
-      if (c.precioPorLitro > 0) setPrecioPorLitro(String(c.precioPorLitro));
+      setClienteZona(c.zona ?? "");
+      // Aplicar precio del cliente según método (si no tiene, usar global)
+      aplicarPrecioSegunMetodo(metodoPago, c);
+    }
+  }
+
+  // Helper: aplicar precio según método de pago
+  function aplicarPrecioSegunMetodo(metodo: string, cliente: ClienteOption | null) {
+    let precio = 0;
+    if (metodo === "efectivo") {
+      precio = cliente?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+    } else if (metodo === "transferencia") {
+      precio = cliente?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+    } else {
+      // mixto o crédito: usar precio efectivo como base
+      precio = cliente?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+    }
+    if (precio > 0) {
+      setPrecioPorLitro(String(precio));
+    }
+  }
+
+  // Si cambia método de pago (y el usuario no ha tocado el precio manualmente)
+  function onChangeMetodoPago(nuevoMetodo: string) {
+    const metodoAnterior = metodoPago;
+    setMetodoPago(nuevoMetodo);
+    // Solo recalcular si el precio actual coincide con el del método anterior
+    // (es decir, el usuario no lo modificó manualmente)
+    const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+    const precioEsperadoAnterior =
+      metodoAnterior === "efectivo"
+        ? clienteActual?.precioEfectivoPorLitro || config.precioEfectivoPorLitro
+        : metodoAnterior === "transferencia"
+        ? clienteActual?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro
+        : clienteActual?.precioEfectivoPorLitro || config.precioEfectivoPorLitro;
+    const precioActual = Number(precioPorLitro) || 0;
+    if (precioActual === precioEsperadoAnterior || precioActual === 0) {
+      aplicarPrecioSegunMetodo(nuevoMetodo, clienteActual);
     }
   }
 
@@ -145,10 +220,12 @@ export function EntregaForm({
   const litrosFinal = litrosManual !== "" ? Number(litrosManual) : litrosCalculado ?? 0;
   const precioFinal = Number(precioPorLitro) || 0;
   const totalCalculado = litrosFinal * precioFinal;
-  const recibidoFinal = Number(montoRecibido) || 0;
+  const efectivoFinal = Number(montoEfectivo) || 0;
+  const transferenciaFinal = Number(montoTransferencia) || 0;
+  const recibidoFinal = efectivoFinal + transferenciaFinal;
   const saldoFinal = totalCalculado - recibidoFinal;
 
-  // Auto-actualizar estadoPago en UI según montoRecibido
+  // Auto-actualizar estadoPago según monto recibido
   useEffect(() => {
     if (recibidoFinal >= totalCalculado && totalCalculado > 0) setEstadoPago("pagado");
     else if (recibidoFinal > 0) setEstadoPago("parcial");
@@ -187,12 +264,15 @@ export function EntregaForm({
         clienteNombre: clienteNombre.trim(),
         clienteDireccion: clienteDireccion.trim() || null,
         clienteTelefono: clienteTelefono.trim() || null,
+        clienteZona: clienteZona.trim() || null,
         lecturaAnterior: lecturaAnterior !== "" ? Number(lecturaAnterior) : null,
         lecturaActual: lecturaActual !== "" ? Number(lecturaActual) : null,
         litros: litrosFinal,
+        metodoPago,
         precioPorLitro: precioFinal,
         total: totalCalculado,
-        montoRecibido: recibidoFinal,
+        montoEfectivo: efectivoFinal,
+        montoTransferencia: transferenciaFinal,
         estadoPago,
         fotoMedidorUrl: fotoUrl,
         nota: nota.trim() || null,
@@ -225,6 +305,16 @@ export function EntregaForm({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Vuelta actual (info) */}
+          {vueltaActual && !isEdit && (
+            <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
+              <Droplets className="h-4 w-4 text-primary" />
+              <span>
+                Se asignará a la <strong>Vuelta #{vueltaActual.numero}</strong> activa · {vueltaActual.cantidadEntregas} entrega(s) · {formatNumber(vueltaActual.litros, 0)} L acumulados
+              </span>
+            </div>
+          )}
+
           {/* Cliente */}
           <div className="space-y-2">
             <Label htmlFor="clienteSelect">Cliente del catálogo (opcional)</Label>
@@ -237,6 +327,7 @@ export function EntregaForm({
                 {clientes.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.nombre}
+                    {c.zona ? ` · ${c.zona}` : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -265,14 +356,26 @@ export function EntregaForm({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="clienteDireccion">Dirección</Label>
-            <Input
-              id="clienteDireccion"
-              value={clienteDireccion}
-              onChange={(e) => setClienteDireccion(e.target.value)}
-              placeholder="Calle, número, referencia"
-            />
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+            <div className="space-y-2">
+              <Label htmlFor="clienteDireccion">Dirección</Label>
+              <Input
+                id="clienteDireccion"
+                value={clienteDireccion}
+                onChange={(e) => setClienteDireccion(e.target.value)}
+                placeholder="Calle, número, referencia"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="clienteZona">Zona</Label>
+              <Input
+                id="clienteZona"
+                value={clienteZona}
+                onChange={(e) => setClienteZona(e.target.value)}
+                placeholder="Ej. Rural 5km"
+                className="w-[150px]"
+              />
+            </div>
           </div>
 
           {/* Lecturas del medidor */}
@@ -321,12 +424,32 @@ export function EntregaForm({
             {litrosCalculado != null && litrosManual === "" && (
               <p className="mt-2 text-xs text-muted-foreground">
                 Litros calculados: <strong>{formatNumber(litrosCalculado, 0)} L</strong>
+                {config.capacidadCamion > 0 && litrosCalculado > config.capacidadCamion && (
+                  <span className="ml-2 text-amber-600 dark:text-amber-400">
+                    ⚠ Excede la capacidad del camión ({formatNumber(config.capacidadCamion, 0)} L)
+                  </span>
+                )}
               </p>
             )}
           </div>
 
-          {/* Precios y pago */}
+          {/* Método de pago + precio */}
           <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="metodoPago">Método de pago</Label>
+              <Select value={metodoPago} onValueChange={onChangeMetodoPago}>
+                <SelectTrigger id="metodoPago">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {METODOS_PAGO.map((m) => (
+                    <SelectItem key={m.value} value={m.value}>
+                      {m.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="precio">Precio por litro</Label>
               <Input
@@ -338,23 +461,47 @@ export function EntregaForm({
                 onChange={(e) => setPrecioPorLitro(e.target.value)}
                 placeholder="0"
               />
+              <p className="text-xs text-muted-foreground">
+                Default: {formatCurrency(config.precioEfectivoPorLitro)}/L efectivo · {formatCurrency(config.precioTransferenciaPorLitro)}/L transferencia
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="montoRecibido">Efectivo recibido</Label>
-              <Input
-                id="montoRecibido"
-                type="number"
-                inputMode="decimal"
-                step="any"
-                value={montoRecibido}
-                onChange={(e) => setMontoRecibido(e.target.value)}
-                placeholder="0"
-              />
+          </div>
+
+          {/* Pagos desglosados */}
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <p className="mb-2 text-sm font-medium">Pagos recibidos</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="montoEfectivo" className="text-xs">Efectivo recibido</Label>
+                <Input
+                  id="montoEfectivo"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  value={montoEfectivo}
+                  onChange={(e) => setMontoEfectivo(e.target.value)}
+                  placeholder="0"
+                  disabled={metodoPago === "transferencia"}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="montoTransferencia" className="text-xs">Transferencia recibida</Label>
+                <Input
+                  id="montoTransferencia"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  value={montoTransferencia}
+                  onChange={(e) => setMontoTransferencia(e.target.value)}
+                  placeholder="0"
+                  disabled={metodoPago === "efectivo"}
+                />
+              </div>
             </div>
           </div>
 
           {/* Resumen de cálculo */}
-          <div className="grid gap-2 rounded-lg border border-border bg-muted/30 p-3 text-sm sm:grid-cols-3">
+          <div className="grid gap-2 rounded-lg border border-border bg-muted/30 p-3 text-sm sm:grid-cols-4">
             <div>
               <span className="text-xs uppercase text-muted-foreground">Litros</span>
               <p className="font-semibold tabular-nums">{formatNumber(litrosFinal, 0)} L</p>
@@ -362,6 +509,12 @@ export function EntregaForm({
             <div>
               <span className="text-xs uppercase text-muted-foreground">Total</span>
               <p className="font-semibold tabular-nums">{formatCurrency(totalCalculado)}</p>
+            </div>
+            <div>
+              <span className="text-xs uppercase text-muted-foreground">Recibido</span>
+              <p className="font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+                {formatCurrency(recibidoFinal)}
+              </p>
             </div>
             <div>
               <span className="text-xs uppercase text-muted-foreground">Saldo</span>

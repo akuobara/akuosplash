@@ -14,6 +14,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.monto !== undefined && { monto: Number(body.monto) || 0 }),
       ...(body.descripcion !== undefined && { descripcion: body.descripcion?.trim() || null }),
       ...(body.fotoUrl !== undefined && { fotoUrl: body.fotoUrl || null }),
+      ...(body.pagadoPor !== undefined && { pagadoPor: body.pagadoPor }),
     },
   });
 

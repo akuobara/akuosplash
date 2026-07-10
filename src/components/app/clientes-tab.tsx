@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -30,17 +31,21 @@ import {
   MapPin,
   Droplets,
   Users,
+  Banknote,
+  Smartphone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
-import { formatCurrency, formatNumber } from "@/lib/helpers";
+import { formatCurrency } from "@/lib/helpers";
 
 interface Cliente {
   id: string;
   nombre: string;
   direccion: string | null;
   telefono: string | null;
-  precioPorLitro: number;
+  zona: string | null;
+  precioEfectivoPorLitro: number;
+  precioTransferenciaPorLitro: number;
   nota: string | null;
   _count?: { entregas: number };
 }
@@ -63,7 +68,9 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
   const [nombre, setNombre] = useState("");
   const [direccion, setDireccion] = useState("");
   const [telefono, setTelefono] = useState("");
-  const [precio, setPrecio] = useState("");
+  const [zona, setZona] = useState("");
+  const [precioEfectivo, setPrecioEfectivo] = useState("");
+  const [precioTransferencia, setPrecioTransferencia] = useState("");
   const [nota, setNota] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -90,7 +97,8 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
     return (
       c.nombre.toLowerCase().includes(q) ||
       (c.direccion ?? "").toLowerCase().includes(q) ||
-      (c.telefono ?? "").toLowerCase().includes(q)
+      (c.telefono ?? "").toLowerCase().includes(q) ||
+      (c.zona ?? "").toLowerCase().includes(q)
     );
   });
 
@@ -99,7 +107,9 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
     setNombre("");
     setDireccion("");
     setTelefono("");
-    setPrecio("");
+    setZona("");
+    setPrecioEfectivo("");
+    setPrecioTransferencia("");
     setNota("");
     setFormOpen(true);
   }
@@ -109,7 +119,9 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
     setNombre(c.nombre);
     setDireccion(c.direccion ?? "");
     setTelefono(c.telefono ?? "");
-    setPrecio(c.precioPorLitro ? String(c.precioPorLitro) : "");
+    setZona(c.zona ?? "");
+    setPrecioEfectivo(c.precioEfectivoPorLitro ? String(c.precioEfectivoPorLitro) : "");
+    setPrecioTransferencia(c.precioTransferenciaPorLitro ? String(c.precioTransferenciaPorLitro) : "");
     setNota(c.nota ?? "");
     setFormOpen(true);
   }
@@ -126,7 +138,9 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
         nombre: nombre.trim(),
         direccion: direccion.trim() || null,
         telefono: telefono.trim() || null,
-        precioPorLitro: Number(precio) || 0,
+        zona: zona.trim() || null,
+        precioEfectivoPorLitro: Number(precioEfectivo) || 0,
+        precioTransferenciaPorLitro: Number(precioTransferencia) || 0,
         nota: nota.trim() || null,
       };
       if (editando) {
@@ -163,7 +177,7 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
         <div>
           <h2 className="text-lg font-semibold sm:text-xl">Clientes</h2>
           <p className="text-sm text-muted-foreground">
-            Catálogo de clientes frecuentes — útil para autocompletar entregas y para futuras ventas online.
+            Catálogo de clientes frecuentes con precios por método de pago y por zona.
           </p>
         </div>
         <Button onClick={abrirNuevo} size="sm">
@@ -174,7 +188,7 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
       <Input
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
-        placeholder="Buscar por nombre, dirección o teléfono…"
+        placeholder="Buscar por nombre, dirección, zona o teléfono…"
         className="max-w-md"
       />
 
@@ -182,7 +196,7 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
       {loading ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-lg" />
+            <Skeleton key={i} className="h-40 rounded-lg" />
           ))}
         </div>
       ) : filtrados.length === 0 ? (
@@ -233,6 +247,12 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
                   </DropdownMenu>
                 </div>
                 <div className="space-y-1 text-sm text-muted-foreground">
+                  {c.zona && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" />
+                      <Badge variant="outline" className="text-[10px]">{c.zona}</Badge>
+                    </div>
+                  )}
                   {c.direccion && (
                     <div className="flex items-start gap-1.5">
                       <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -247,13 +267,24 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
                       </a>
                     </div>
                   )}
-                  {c.precioPorLitro > 0 && (
-                    <div className="flex items-center gap-1.5">
-                      <Droplets className="h-3.5 w-3.5 shrink-0" />
-                      <span>{formatCurrency(c.precioPorLitro)} / L</span>
-                    </div>
-                  )}
                 </div>
+                {/* Precios por método */}
+                {(c.precioEfectivoPorLitro > 0 || c.precioTransferenciaPorLitro > 0) && (
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {c.precioEfectivoPorLitro > 0 && (
+                      <Badge variant="secondary" className="text-[11px]">
+                        <Banknote className="mr-1 h-3 w-3" />
+                        {formatCurrency(c.precioEfectivoPorLitro)}/L
+                      </Badge>
+                    )}
+                    {c.precioTransferenciaPorLitro > 0 && (
+                      <Badge variant="secondary" className="text-[11px]">
+                        <Smartphone className="mr-1 h-3 w-3" />
+                        {formatCurrency(c.precioTransferenciaPorLitro)}/L
+                      </Badge>
+                    )}
+                  </div>
+                )}
                 {c.nota && (
                   <p className="mt-1 line-clamp-2 rounded bg-muted/40 p-2 text-xs text-muted-foreground">
                     {c.nota}
@@ -267,11 +298,12 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
 
       {/* Formulario */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-h-[95vh] w-[95vw] max-w-md overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editando ? "Editar cliente" : "Nuevo cliente"}</DialogTitle>
             <DialogDescription>
               Los datos del cliente se guardan para autocompletar nuevas entregas.
+              Los precios por método sobreescriben los globales.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
@@ -285,6 +317,29 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
                 required
               />
             </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="zonaCliente">Zona</Label>
+                <Input
+                  id="zonaCliente"
+                  value={zona}
+                  onChange={(e) => setZona(e.target.value)}
+                  placeholder="Ej. Rural 5km"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Para identificar clientes lejanos (mayor precio).
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="telefonoCliente">Teléfono</Label>
+                <Input
+                  id="telefonoCliente"
+                  value={telefono}
+                  onChange={(e) => setTelefono(e.target.value)}
+                  placeholder="+56 9 1234 5678"
+                />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="direccionCliente">Dirección</Label>
               <Input
@@ -294,27 +349,47 @@ export function ClientesTab({ refreshKey, onRefresh }: ClientesTabProps) {
                 placeholder="Calle, número, comuna"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="telefonoCliente">Teléfono</Label>
-              <Input
-                id="telefonoCliente"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                placeholder="+56 9 1234 5678"
-              />
+
+            <div className="rounded-lg border border-border bg-muted/30 p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-sm font-medium">
+                <Droplets className="h-4 w-4 text-primary" /> Precios específicos (opcional)
+              </p>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Si dejas estos campos en 0, se usarán los precios globales. Define precios distintos
+                según la ubicación del cliente o su método de pago preferido.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="precioEfectivoCliente" className="text-xs">
+                    <Banknote className="mr-1 inline h-3 w-3" /> Efectivo $/L
+                  </Label>
+                  <Input
+                    id="precioEfectivoCliente"
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    value={precioEfectivo}
+                    onChange={(e) => setPrecioEfectivo(e.target.value)}
+                    placeholder="0 = global"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="precioTransferenciaCliente" className="text-xs">
+                    <Smartphone className="mr-1 inline h-3 w-3" /> Transferencia $/L
+                  </Label>
+                  <Input
+                    id="precioTransferenciaCliente"
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    value={precioTransferencia}
+                    onChange={(e) => setPrecioTransferencia(e.target.value)}
+                    placeholder="0 = global"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="precioCliente">Precio por litro (opcional)</Label>
-              <Input
-                id="precioCliente"
-                type="number"
-                inputMode="decimal"
-                step="any"
-                value={precio}
-                onChange={(e) => setPrecio(e.target.value)}
-                placeholder="0"
-              />
-            </div>
+
             <div className="space-y-2">
               <Label htmlFor="notaCliente">Nota</Label>
               <Textarea

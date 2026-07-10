@@ -35,7 +35,6 @@ import {
   Trash2,
   Eye,
   ImageIcon,
-  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { EntregaForm } from "./entrega-form";
@@ -46,8 +45,9 @@ import {
   formatDate,
   formatDateTime,
   labelEstadoPago,
+  labelMetodoPago,
 } from "@/lib/helpers";
-import type { Entrega } from "./entrega-form";
+import type { Entrega, VueltaActual } from "./entrega-form";
 
 type Period = "hoy" | "semana" | "mes" | "todo";
 type EstadoFilter = "todos" | "pendiente" | "parcial" | "pagado";
@@ -55,8 +55,21 @@ type EstadoFilter = "todos" | "pendiente" | "parcial" | "pagado";
 interface EntregasTabProps {
   refreshKey: number;
   onRefresh: () => void;
-  clientes: { id: string; nombre: string; direccion: string | null; telefono: string | null; precioPorLitro: number }[];
-  precioPorLitroDefault: number;
+  clientes: {
+    id: string;
+    nombre: string;
+    direccion: string | null;
+    telefono: string | null;
+    zona: string | null;
+    precioEfectivoPorLitro: number;
+    precioTransferenciaPorLitro: number;
+  }[];
+  config: {
+    precioEfectivoPorLitro: number;
+    precioTransferenciaPorLitro: number;
+    capacidadCamion: number;
+  };
+  vueltaActual: VueltaActual | null;
 }
 
 const PERIODS: { value: Period; label: string }[] = [
@@ -77,7 +90,8 @@ export function EntregasTab({
   refreshKey,
   onRefresh,
   clientes,
-  precioPorLitroDefault,
+  config,
+  vueltaActual,
 }: EntregasTabProps) {
   const [period, setPeriod] = useState<Period>("mes");
   const [estadoFilter, setEstadoFilter] = useState<EstadoFilter>("todos");
@@ -107,18 +121,16 @@ export function EntregasTab({
     cargar();
   }, [cargar, refreshKey]);
 
-  // Filtrado en cliente
   const filtradas = entregas.filter((e) => {
     if (estadoFilter !== "todos" && e.estadoPago !== estadoFilter) return false;
     if (busqueda.trim()) {
       const q = busqueda.toLowerCase();
-      const blob = `${e.clienteNombre} ${e.clienteDireccion ?? ""} ${e.clienteTelefono ?? ""} ${e.nota ?? ""}`.toLowerCase();
+      const blob = `${e.clienteNombre} ${e.clienteDireccion ?? ""} ${e.clienteTelefono ?? ""} ${e.clienteZona ?? ""} ${e.nota ?? ""}`.toLowerCase();
       if (!blob.includes(q)) return false;
     }
     return true;
   });
 
-  // Totales
   const totalVentas = filtradas.reduce((s, e) => s + e.total, 0);
   const totalLitros = filtradas.reduce((s, e) => s + e.litros, 0);
   const totalPorCobrar = filtradas.reduce((s, e) => s + Math.max(0, e.total - e.montoRecibido), 0);
@@ -186,7 +198,7 @@ export function EntregasTab({
               <Input
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Cliente, dirección, nota…"
+                placeholder="Cliente, dirección, zona, nota…"
                 className="pl-9"
               />
             </div>
@@ -259,14 +271,23 @@ export function EntregasTab({
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <span className="truncate font-medium">{e.clienteNombre}</span>
                         <Badge variant="outline" className="text-[10px]">
                           {labelEstadoPago(e.estadoPago)}
                         </Badge>
+                        <Badge variant="secondary" className="text-[10px]">
+                          {labelMetodoPago(e.metodoPago)}
+                        </Badge>
+                        {e.vuelta && (
+                          <Badge variant="outline" className="text-[10px] text-primary">
+                            Vuelta #{e.vuelta.numero}
+                          </Badge>
+                        )}
                       </div>
                       <p className="truncate text-xs text-muted-foreground">
                         {formatDate(e.fecha)} · {formatNumber(e.litros, 0)} L · {e.clienteDireccion || "Sin dirección"}
+                        {e.clienteZona ? ` · ${e.clienteZona}` : ""}
                       </p>
                     </div>
                     <div className="hidden text-right sm:block">
@@ -319,7 +340,8 @@ export function EntregasTab({
         }}
         entrega={editando}
         clientes={clientes}
-        precioPorLitroDefault={precioPorLitroDefault}
+        config={config}
+        vueltaActual={vueltaActual}
       />
 
       {/* Modal de detalle */}
@@ -344,14 +366,22 @@ export function EntregasTab({
               <div className="grid grid-cols-2 gap-2">
                 <Field label="Cliente" value={vista.clienteNombre} />
                 <Field label="Estado" value={labelEstadoPago(vista.estadoPago)} />
+                <Field label="Método de pago" value={labelMetodoPago(vista.metodoPago)} />
+                {vista.vuelta && <Field label="Vuelta" value={`#${vista.vuelta.numero}`} />}
                 <Field label="Teléfono" value={vista.clienteTelefono || "—"} />
                 <Field label="Dirección" value={vista.clienteDireccion || "—"} />
+                <Field label="Zona" value={vista.clienteZona || "—"} />
                 <Field label="Lectura anterior" value={vista.lecturaAnterior != null ? formatNumber(vista.lecturaAnterior, 0) : "—"} />
                 <Field label="Lectura actual" value={vista.lecturaActual != null ? formatNumber(vista.lecturaActual, 0) : "—"} />
                 <Field label="Litros" value={`${formatNumber(vista.litros, 0)} L`} />
                 <Field label="Precio por litro" value={formatCurrency(vista.precioPorLitro)} />
                 <Field label="Total" value={formatCurrency(vista.total)} strong />
-                <Field label="Efectivo recibido" value={formatCurrency(vista.montoRecibido)} />
+                {vista.montoEfectivo > 0 && (
+                  <Field label="Efectivo recibido" value={formatCurrency(vista.montoEfectivo)} />
+                )}
+                {vista.montoTransferencia > 0 && (
+                  <Field label="Transferencia recibida" value={formatCurrency(vista.montoTransferencia)} />
+                )}
                 <Field
                   label="Saldo"
                   value={formatCurrency(Math.max(0, vista.total - vista.montoRecibido))}

@@ -11,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   ArrowRight,
   Printer,
@@ -31,14 +31,20 @@ import {
   TrendingUp,
   Receipt,
   Users,
+  Repeat,
+  Banknote,
+  Smartphone,
 } from "lucide-react";
 import { toast } from "sonner";
-import { apiGet, apiPatch } from "@/lib/api-client";
+import { apiGet, apiPut } from "@/lib/api-client";
 import {
   formatCurrency,
   formatNumber,
   formatDate,
+  formatDateTime,
   labelTipoGasto,
+  labelModoLiquidacion,
+  MODOS_LIQUIDACION,
 } from "@/lib/helpers";
 import { StatCard } from "./stat-card";
 
@@ -48,9 +54,28 @@ interface Config {
   id: string;
   nombreChofer: string;
   nombreDueno: string;
+  capacidadCamion: number;
+  modoLiquidacion: string;
   porcentajeComisionChofer: number;
   porcentajeComisionDueno: number;
-  precioPorLitroDefault: number;
+  montoPorVueltaUnicoCliente: number;
+  montoPorVueltaMultiple: number;
+  precioEfectivoPorLitro: number;
+  precioTransferenciaPorLitro: number;
+}
+
+interface VueltaDetalle {
+  id: string;
+  numero: number;
+  iniciadaEn: string;
+  cerradaEn: string | null;
+  cantidadEntregas: number;
+  esMultiple: boolean;
+  litros: number;
+  ventas: number;
+  efectivo: number;
+  transferencia: number;
+  montoPago: number;
 }
 
 interface LiquidacionData {
@@ -59,13 +84,21 @@ interface LiquidacionData {
   resumen: {
     totalVentas: number;
     totalEfectivoRecibido: number;
+    totalTransferenciaRecibida: number;
+    totalRecibido: number;
     totalPorCobrar: number;
     totalGastos: number;
+    gastosChofer: number;
+    gastosDueno: number;
     utilidadBruta: number;
-    parteChofer: number;
-    parteDueno: number;
+    pagoChofer: number;
+    pagoDueno: number;
     saldoChofer: number;
+    cantidadVueltas: number;
+    vueltasUnicoCliente: number;
+    vueltasMultiple: number;
   };
+  vueltas: VueltaDetalle[];
   gastosPorTipo: { tipo: string; label: string; monto: number }[];
   topClientes: { nombre: string; litros: number; total: number; entregas: number }[];
   cantidadEntregas: number;
@@ -89,7 +122,6 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
   const [period, setPeriod] = useState<Period>("mes");
   const [data, setData] = useState<LiquidacionData | null>(null);
   const [loading, setLoading] = useState(true);
-
   const [configOpen, setConfigOpen] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -111,6 +143,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
 
   const r = data?.resumen;
   const cfg = data?.config;
+  const esModoVuelta = cfg?.modoLiquidacion === "vuelta";
 
   return (
     <div className="space-y-5">
@@ -119,7 +152,11 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
         <div>
           <h2 className="text-lg font-semibold sm:text-xl">Liquidación con el dueño</h2>
           <p className="text-sm text-muted-foreground">
-            Repartición de utilidades según porcentajes configurados.
+            {cfg ? (
+              <>Modo: <strong>{labelModoLiquidacion(cfg.modoLiquidacion)}</strong></>
+            ) : (
+              "Cargando…"
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -136,7 +173,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
             </SelectContent>
           </Select>
           <Button variant="outline" size="sm" onClick={() => setConfigOpen(true)}>
-            <Receipt className="mr-1 h-4 w-4" /> Ajustar %
+            <Receipt className="mr-1 h-4 w-4" /> Cambiar modo
           </Button>
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="mr-1 h-4 w-4" /> Imprimir
@@ -147,87 +184,10 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
       {/* Tarjeta principal de liquidación */}
       {loading || !r || !cfg ? (
         <Skeleton className="h-64 rounded-xl" />
+      ) : esModoVuelta ? (
+        <LiquidacionVuelta r={r} cfg={cfg} period={period} />
       ) : (
-        <Card className="overflow-hidden border-primary/20">
-          <CardContent className="p-5 sm:p-6">
-            {/* Encabezado de la liquidación */}
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4">
-              <div>
-                <p className="text-xs uppercase text-muted-foreground">Período</p>
-                <p className="font-semibold">{PERIODS.find((p) => p.value === period)?.label}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs uppercase text-muted-foreground">Generado</p>
-                <p className="font-semibold">{formatDate(new Date())}</p>
-              </div>
-            </div>
-
-            {/* Fórmula principal */}
-            <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr]">
-              {/* Lado izquierdo: ventas - gastos */}
-              <div className="space-y-3 rounded-lg border border-border p-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Cálculo</p>
-                <div className="space-y-2 text-sm">
-                  <Row label="Ventas totales" value={formatCurrency(r.totalVentas)} tone="positive" />
-                  <Row label="Gastos totales" value={`−${formatCurrency(r.totalGastos)}`} tone="negative" />
-                  <div className="border-t border-border pt-2">
-                    <Row label="Utilidad bruta" value={formatCurrency(r.utilidadBruta)} strong />
-                  </div>
-                </div>
-              </div>
-
-              {/* Flecha */}
-              <div className="flex items-center justify-center">
-                <ArrowRight className="h-6 w-6 text-muted-foreground" />
-              </div>
-
-              {/* Lado derecho: repartición */}
-              <div className="space-y-3 rounded-lg border-2 border-primary/30 bg-primary/5 p-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Repartición
-                </p>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span>{cfg.nombreChofer} ({cfg.porcentajeComisionChofer}%)</span>
-                      <span className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
-                        {formatCurrency(r.parteChofer)}
-                      </span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span>{cfg.nombreDueno} ({cfg.porcentajeComisionDueno}%)</span>
-                      <span className="font-bold tabular-nums">
-                        {formatCurrency(r.parteDueno)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="border-t border-border pt-2">
-                    <Row label="Efectivo ya recibido por chofer" value={formatCurrency(r.totalEfectivoRecibido)} />
-                    <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
-                      <Row
-                        label={r.saldoChofer >= 0 ? "El dueño le debe al chofer" : "El chofer le debe al dueño"}
-                        value={formatCurrency(Math.abs(r.saldoChofer))}
-                        strong
-                        tone={r.saldoChofer >= 0 ? "positive" : "negative"}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Nota explicativa */}
-            <p className="mt-4 text-xs text-muted-foreground">
-              <strong>Cómo se calcula:</strong> La utilidad bruta (ventas − gastos) se reparte en{" "}
-              <strong>{cfg.porcentajeComisionChofer}%</strong> para el chofer y{" "}
-              <strong>{cfg.porcentajeComisionDueno}%</strong> para el dueño. Como el chofer ya recibió
-              efectivo en ruta, ese monto se descuenta de su parte. Si el saldo es positivo, el dueño
-              le debe al chofer; si es negativo, el chofer le debe al dueño.
-            </p>
-          </CardContent>
-        </Card>
+        <LiquidacionPorcentaje r={r} cfg={cfg} period={period} />
       )}
 
       {/* KPIs secundarios */}
@@ -242,8 +202,13 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
           <StatCard
             label="Efectivo en ruta"
             value={formatCurrency(r.totalEfectivoRecibido)}
-            icon={Wallet}
+            icon={Banknote}
             tone="accent"
+          />
+          <StatCard
+            label="Transferencia"
+            value={formatCurrency(r.totalTransferenciaRecibida)}
+            icon={Smartphone}
           />
           <StatCard
             label="Por cobrar"
@@ -251,13 +216,84 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
             icon={HandCoins}
             tone={r.totalPorCobrar > 0 ? "warning" : "default"}
           />
+        </div>
+      )}
+
+      {/* Gastos por pagador */}
+      {r && r.totalGastos > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard
-            label="Gastos"
+            label="Gastos totales"
             value={formatCurrency(r.totalGastos)}
             icon={TrendingDown}
             tone="negative"
           />
+          <StatCard
+            label="Pagados por chofer"
+            value={formatCurrency(r.gastosChofer)}
+            hint={esModoVuelta ? "Reembolsables" : undefined}
+            icon={Wallet}
+            tone="warning"
+          />
+          <StatCard
+            label="Pagados por dueño"
+            value={formatCurrency(r.gastosDueno)}
+            icon={Receipt}
+          />
         </div>
+      )}
+
+      {/* Detalle de vueltas (solo en modo vuelta) */}
+      {esModoVuelta && data && data.vueltas.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Repeat className="h-4 w-4 text-primary" />
+              <CardTitle className="text-base">Detalle de vueltas ({data.vueltas.length})</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ul className="divide-y divide-border">
+              {data.vueltas.map((v) => (
+                <li key={v.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg font-bold ${
+                      v.esMultiple
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}>
+                      #{v.numero}
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        Vuelta #{v.numero}{" "}
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          ({v.esMultiple ? "múltiples clientes" : "cliente único"})
+                        </span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDateTime(v.iniciadaEn)}
+                        {v.cerradaEn ? ` → ${formatDateTime(v.cerradaEn)}` : " · En curso"}
+                        {" · "}
+                        {v.cantidadEntregas} entrega(s) · {formatNumber(v.litros, 0)} L · {formatCurrency(v.ventas)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs uppercase text-muted-foreground">Pago al chofer</p>
+                    <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                      {formatCurrency(v.montoPago)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t border-border bg-muted/30 p-3 text-right text-sm">
+              <span className="text-muted-foreground">Total pago al chofer por vueltas: </span>
+              <span className="font-bold tabular-nums">{formatCurrency(r.pagoChofer)}</span>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Desglose de gastos por tipo */}
@@ -310,7 +346,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
         </Card>
       )}
 
-      {/* Modal de configuración de porcentajes */}
+      {/* Modal de configuración rápida */}
       <ConfigModal
         open={configOpen}
         onOpenChange={setConfigOpen}
@@ -318,6 +354,179 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
         onSaved={onRefresh}
       />
     </div>
+  );
+}
+
+// ====== Componente: Liquidación Modo Porcentaje ======
+function LiquidacionPorcentaje({
+  r,
+  cfg,
+  period,
+}: {
+  r: NonNullable<LiquidacionData["resumen"]>;
+  cfg: Config;
+  period: string;
+}) {
+  return (
+    <Card className="overflow-hidden border-primary/20">
+      <CardContent className="p-5 sm:p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4">
+          <div>
+            <p className="text-xs uppercase text-muted-foreground">Período</p>
+            <p className="font-semibold">{PERIODS.find((p) => p.value === period)?.label}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs uppercase text-muted-foreground">Modo</p>
+            <p className="font-semibold">Porcentaje de utilidad</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr]">
+          <div className="space-y-3 rounded-lg border border-border p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Cálculo</p>
+            <div className="space-y-2 text-sm">
+              <Row label="Ventas totales" value={formatCurrency(r.totalVentas)} tone="positive" />
+              <Row label="Gastos totales" value={`−${formatCurrency(r.totalGastos)}`} tone="negative" />
+              <div className="border-t border-border pt-2">
+                <Row label="Utilidad bruta" value={formatCurrency(r.utilidadBruta)} strong />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <ArrowRight className="h-6 w-6 text-muted-foreground" />
+          </div>
+
+          <div className="space-y-3 rounded-lg border-2 border-primary/30 bg-primary/5 p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Repartición
+            </p>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span>{cfg.nombreChofer} ({cfg.porcentajeComisionChofer}%)</span>
+                <span className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                  {formatCurrency(r.pagoChofer)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>{cfg.nombreDueno} ({cfg.porcentajeComisionDueno}%)</span>
+                <span className="font-bold tabular-nums">
+                  {formatCurrency(r.pagoDueno)}
+                </span>
+              </div>
+              <div className="border-t border-border pt-2">
+                <Row label="Efectivo ya recibido por chofer" value={formatCurrency(r.totalEfectivoRecibido)} />
+                <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
+                  <Row
+                    label={r.saldoChofer >= 0 ? "El dueño le debe al chofer" : "El chofer le debe al dueño"}
+                    value={formatCurrency(Math.abs(r.saldoChofer))}
+                    strong
+                    tone={r.saldoChofer >= 0 ? "positive" : "negative"}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-4 text-xs text-muted-foreground">
+          <strong>Cómo se calcula:</strong> La utilidad bruta (ventas − gastos) se reparte en{" "}
+          <strong>{cfg.porcentajeComisionChofer}%</strong> para el chofer y{" "}
+          <strong>{cfg.porcentajeComisionDueno}%</strong> para el dueño. Como el chofer ya recibió
+          efectivo en ruta, ese monto se descuenta de su parte.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ====== Componente: Liquidación Modo Vuelta ======
+function LiquidacionVuelta({
+  r,
+  cfg,
+  period,
+}: {
+  r: NonNullable<LiquidacionData["resumen"]>;
+  cfg: Config;
+  period: string;
+}) {
+  return (
+    <Card className="overflow-hidden border-primary/20">
+      <CardContent className="p-5 sm:p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4">
+          <div>
+            <p className="text-xs uppercase text-muted-foreground">Período</p>
+            <p className="font-semibold">{PERIODS.find((p) => p.value === period)?.label}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs uppercase text-muted-foreground">Modo</p>
+            <p className="font-semibold">Pago por vuelta</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr]">
+          {/* Lado izquierdo: vueltas y gastos */}
+          <div className="space-y-3 rounded-lg border border-border p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resumen de vueltas</p>
+            <div className="space-y-2 text-sm">
+              <Row label="Vueltas a cliente único" value={`${r.vueltasUnicoCliente} × ${formatCurrency(cfg.montoPorVueltaUnicoCliente)}`} />
+              <Row label="Vueltas a múltiples clientes" value={`${r.vueltasMultiple} × ${formatCurrency(cfg.montoPorVueltaMultiple)}`} />
+              <Row label="Total vueltas" value={String(r.cantidadVueltas)} />
+              <div className="border-t border-border pt-2">
+                <Row label="Pago al chofer por vueltas" value={formatCurrency(r.pagoChofer)} strong tone="positive" />
+              </div>
+            </div>
+
+            <Separator className="my-2" />
+
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Gastos</p>
+            <div className="space-y-2 text-sm">
+              <Row label="Gastos pagados por chofer (reembolsables)" value={formatCurrency(r.gastosChofer)} tone="warning" />
+              <Row label="Gastos pagados por dueño" value={formatCurrency(r.gastosDueno)} />
+              <div className="border-t border-border pt-2">
+                <Row label="Total gastos" value={formatCurrency(r.totalGastos)} tone="negative" />
+              </div>
+            </div>
+          </div>
+
+          {/* Flecha */}
+          <div className="flex items-center justify-center">
+            <ArrowRight className="h-6 w-6 text-muted-foreground" />
+          </div>
+
+          {/* Lado derecho: total a pagar */}
+          <div className="space-y-3 rounded-lg border-2 border-primary/30 bg-primary/5 p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Resumen del pago
+            </p>
+            <div className="space-y-2 text-sm">
+              <Row label="Pago por vueltas" value={formatCurrency(r.pagoChofer)} tone="positive" />
+              <Row label="+ Reembolso de gastos" value={formatCurrency(r.gastosChofer)} />
+              <div className="border-t border-border pt-2">
+                <Row label="Total que recibe el chofer" value={formatCurrency(r.pagoChofer + r.gastosChofer)} strong />
+              </div>
+              <Row label="− Efectivo ya recibido en ruta" value={formatCurrency(r.totalEfectivoRecibido)} tone="negative" />
+              <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
+                <Row
+                  label={r.saldoChofer >= 0 ? "El dueño le debe al chofer" : "El chofer le debe al dueño"}
+                  value={formatCurrency(Math.abs(r.saldoChofer))}
+                  strong
+                  tone={r.saldoChofer >= 0 ? "positive" : "negative"}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-4 text-xs text-muted-foreground">
+          <strong>Cómo se calcula:</strong> Por cada vuelta recibes{" "}
+          <strong>{formatCurrency(cfg.montoPorVueltaUnicoCliente)}</strong> si fue a 1 cliente o{" "}
+          <strong>{formatCurrency(cfg.montoPorVueltaMultiple)}</strong> si fue a múltiples clientes.
+          Se suman los gastos que pagaste tú (reembolsables). Se descuenta el efectivo que ya recibiste
+          en ruta. El saldo es lo que el dueño te debe (positivo) o lo que tú le debes (negativo).
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -330,14 +539,14 @@ function Row({
   label: string;
   value: string;
   strong?: boolean;
-  tone?: "positive" | "negative";
+  tone?: "positive" | "negative" | "warning";
 }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-muted-foreground">{label}</span>
       <span
         className={`${strong ? "font-bold text-base" : "font-medium"} tabular-nums ${
-          tone === "positive" ? "text-emerald-600 dark:text-emerald-400" : tone === "negative" ? "text-red-600 dark:text-red-400" : ""
+          tone === "positive" ? "text-emerald-600 dark:text-emerald-400" : tone === "negative" ? "text-red-600 dark:text-red-400" : tone === "warning" ? "text-amber-600 dark:text-amber-400" : ""
         }`}
       >
         {value}
@@ -357,43 +566,18 @@ function ConfigModal({
   config: Config | null;
   onSaved: () => void;
 }) {
-  const [nombreChofer, setNombreChofer] = useState("");
-  const [nombreDueno, setNombreDueno] = useState("");
-  const [pctChofer, setPctChofer] = useState("50");
-  const [pctDueno, setPctDueno] = useState("50");
+  const [modo, setModo] = useState("porcentaje");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (config) {
-      setNombreChofer(config.nombreChofer);
-      setNombreDueno(config.nombreDueno);
-      setPctChofer(String(config.porcentajeComisionChofer));
-      setPctDueno(String(config.porcentajeComisionDueno));
-    }
+    if (config) setModo(config.modoLiquidacion);
   }, [config, open]);
-
-  // Sincronizar: si cambia uno, el otro se ajusta a 100
-  function onChangeChofer(v: string) {
-    const n = Number(v) || 0;
-    setPctChofer(String(n));
-    setPctDueno(String(Math.max(0, 100 - n)));
-  }
-  function onChangeDueno(v: string) {
-    const n = Number(v) || 0;
-    setPctDueno(String(n));
-    setPctChofer(String(Math.max(0, 100 - n)));
-  }
 
   async function handleSave() {
     setSaving(true);
     try {
-      await apiPatch("/api/configuracion", {
-        nombreChofer,
-        nombreDueno,
-        porcentajeComisionChofer: Number(pctChofer),
-        porcentajeComisionDueno: Number(pctDueno),
-      });
-      toast.success("Configuración guardada");
+      await apiPut("/api/configuracion", { modoLiquidacion: modo });
+      toast.success("Modo de liquidación actualizado");
       onSaved();
       onOpenChange(false);
     } catch (e) {
@@ -407,51 +591,34 @@ function ConfigModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Configurar liquidación</DialogTitle>
+          <DialogTitle>Cambiar modo de liquidación</DialogTitle>
           <DialogDescription>
-            Define los nombres y porcentajes de reparto. La suma debe ser 100%.
+            Elige cómo se reparte la utilidad con el dueño del camión. Puedes configurar los
+            detalles en la pestaña Ajustes.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="space-y-2">
-            <Label htmlFor="nombreChofer">Tu nombre (chofer)</Label>
-            <Input id="nombreChofer" value={nombreChofer} onChange={(e) => setNombreChofer(e.target.value)} />
+            <Label>Modo</Label>
+            <Select value={modo} onValueChange={setModo}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MODOS_LIQUIDACION.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="nombreDueno">Nombre del dueño</Label>
-            <Input id="nombreDueno" value={nombreDueno} onChange={(e) => setNombreDueno(e.target.value)} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="pctChofer">% chofer</Label>
-              <Input
-                id="pctChofer"
-                type="number"
-                inputMode="decimal"
-                value={pctChofer}
-                onChange={(e) => onChangeChofer(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="pctDueno">% dueño</Label>
-              <Input
-                id="pctDueno"
-                type="number"
-                inputMode="decimal"
-                value={pctDueno}
-                onChange={(e) => onChangeDueno(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="rounded-lg bg-muted/40 p-3 text-sm">
-            <p>
-              <strong>{nombreChofer || "Chofer"}</strong> recibe{" "}
-              <Badge variant="secondary">{pctChofer}%</Badge> de la utilidad bruta.
-            </p>
-            <p className="mt-1">
-              <strong>{nombreDueno || "Dueño"}</strong> recibe{" "}
-              <Badge variant="secondary">{pctDueno}%</Badge> de la utilidad bruta.
-            </p>
+          <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
+            {modo === "porcentaje" ? (
+              <p>La utilidad bruta (ventas − gastos) se reparte por porcentaje entre chofer y dueño.</p>
+            ) : (
+              <p>El chofer recibe un pago fijo por cada vuelta, dependiendo de si entrega a 1 o múltiples clientes.</p>
+            )}
           </div>
         </div>
         <DialogFooter>

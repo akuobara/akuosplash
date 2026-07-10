@@ -15,10 +15,28 @@ model Cliente {
   nombre        String
   direccion     String?
   telefono      String?
-  precioPorLitro Float   @default(0)
+  zona          String?  // zona/ubicación (ej. "Centro", "Sector Norte", "Rural 5km")
+  // Precio por litro específico del cliente (sobreescribe los defaults globales).
+  // Si es 0, se usan los precios globales según método de pago.
+  precioEfectivoPorLitro       Float @default(0)
+  precioTransferenciaPorLitro  Float @default(0)
   nota          String?
   creadoEn      DateTime @default(now())
   entregas      Entrega[]
+}
+
+// Una vuelta = un viaje del camión aljibe desde la planta de agua.
+// El chofer puede hacer varias vueltas al día. Cada vuelta agrupa 1+ entregas.
+// El pago al chofer por vuelta depende de si entregó a 1 cliente (monto menor)
+// o a múltiples clientes (monto mayor).
+model Vuelta {
+  id          String   @id @default(cuid())
+  numero      Int      // número secuencial de vuelta (autoincremental global)
+  iniciadaEn  DateTime @default(now())
+  cerradaEn   DateTime?
+  nota        String?
+  activa      Boolean  @default(true) // solo una vuelta activa a la vez
+  entregas    Entrega[]
 }
 
 // Cada entrega/venta de agua a un cliente
@@ -30,25 +48,34 @@ model Entrega {
   clienteNombre     String
   clienteDireccion  String?
   clienteTelefono   String?
-  clienteId         String?  // opcional, si vino del catálogo
+  clienteZona       String?
+  clienteId         String?
   cliente           Cliente? @relation(fields: [clienteId], references: [id])
 
+  // Vuelta a la que pertenece esta entrega (opcional, se autollenar con la activa)
+  vueltaId          String?
+  vuelta            Vuelta?  @relation(fields: [vueltaId], references: [id])
+
   // Lecturas del medidor
-  lecturaAnterior   Float?   // lectura del medidor antes de cargar
-  lecturaActual     Float?   // lectura del medidor después de cargar
-  litros            Float    // litros entregados (calculado o manual)
+  lecturaAnterior   Float?
+  lecturaActual     Float?
+  litros            Float
+
+  // Método de pago (determina qué precio usar por defecto)
+  metodoPago        String   @default("efectivo")  // efectivo | transferencia | mixto | credito
 
   // Montos
-  precioPorLitro    Float    // precio acordado por litro
-  total             Float    // monto total = litros * precioPorLitro
-  montoRecibido     Float    @default(0)  // monto efectivamente pagado en efectivo
+  precioPorLitro    Float
+  total             Float
+  montoEfectivo     Float    @default(0)
+  montoTransferencia Float   @default(0)
+  montoRecibido     Float    @default(0)  // efectivo + transferencia recibidos
 
   // Estado del pago
   estadoPago        String   @default("pendiente")  // pendiente | pagado | parcial
 
   // Evidencia
-  fotoMedidorUrl    String?  // foto del medidor como respaldo
-
+  fotoMedidorUrl    String?
   nota              String?
   creadoEn          DateTime @default(now())
 }
@@ -60,21 +87,34 @@ model Gasto {
   tipo        String   // agua_planta | combustible_camion | combustible_motobomba | cloro | mantenimiento | otro
   monto       Float
   descripcion String?
-  fotoUrl     String?  // boleta/factura opcional
+  fotoUrl     String?
+  pagadoPor   String   @default("chofer")  // chofer | dueno  (quien pagó el gasto)
   creadoEn    DateTime @default(now())
 }
 
 // Configuración del negocio (registro único)
 model Configuracion {
-  id                    String  @id @default("default")
-  nombreChofer          String  @default("Chofer")
-  nombreDueno           String  @default("Dueño del Camión")
-  porcentajeComisionChofer Float @default(50)  // % que se queda el chofer
-  porcentajeComisionDueno  Float @default(50)  // % que se le paga al dueño
-  precioPorLitroDefault   Float @default(0)    // precio por defecto para nuevas entregas
-  // La liquidación con el dueño se calcula: 
-  //   totalVentas - totalGastos = utilidad bruta
-  //   utilidadChofer = utilidadBruta * %chofer
-  //   utilidadDueno  = utilidadBruta * %dueno
-  //   montoAPagarAlDueno = utilidadDueno + (gastos pagados por el dueño, si aplica)
+  id                          String  @id @default("default")
+
+  // Partes
+  nombreChofer                String  @default("Chofer")
+  nombreDueno                 String  @default("Dueño del Camión")
+
+  // Datos del camión
+  capacidadCamion             Int     @default(17000)  // capacidad del estanque en litros
+
+  // Modo de liquidación: "porcentaje" o "vuelta"
+  modoLiquidacion             String  @default("porcentaje")
+
+  // Modo "porcentaje"
+  porcentajeComisionChofer    Float   @default(50)
+  porcentajeComisionDueno     Float   @default(50)
+
+  // Modo "vuelta" — pago al chofer por vuelta entregada
+  montoPorVueltaUnicoCliente  Float   @default(20000)  // si la vuelta entrega a 1 solo cliente
+  montoPorVueltaMultiple      Float   @default(25000)  // si la vuelta entrega a múltiples clientes
+
+  // Precios por litro por defecto según método de pago
+  precioEfectivoPorLitro      Float   @default(0)
+  precioTransferenciaPorLitro Float   @default(0)
 }

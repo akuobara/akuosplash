@@ -23,7 +23,7 @@ import {
 import { Loader2, Camera, X } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost, apiPatch, uploadFile } from "@/lib/api-client";
-import { TIPOS_GASTO, formatCurrency } from "@/lib/helpers";
+import { TIPOS_GASTO, PAGADO_POR, formatCurrency } from "@/lib/helpers";
 
 export interface Gasto {
   id: string;
@@ -32,6 +32,7 @@ export interface Gasto {
   monto: number;
   descripcion: string | null;
   fotoUrl: string | null;
+  pagadoPor: string;
 }
 
 interface GastoFormProps {
@@ -47,6 +48,7 @@ export function GastoForm({ open, onOpenChange, onSaved, gasto }: GastoFormProps
   const [tipo, setTipo] = useState<string>("agua_planta");
   const [monto, setMonto] = useState<string>("");
   const [descripcion, setDescripcion] = useState("");
+  const [pagadoPor, setPagadoPor] = useState<string>("chofer");
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [subiendoFoto, setSubiendoFoto] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -57,11 +59,13 @@ export function GastoForm({ open, onOpenChange, onSaved, gasto }: GastoFormProps
       setTipo(gasto.tipo);
       setMonto(String(gasto.monto ?? ""));
       setDescripcion(gasto.descripcion ?? "");
+      setPagadoPor(gasto.pagadoPor || "chofer");
       setFotoUrl(gasto.fotoUrl);
     } else {
       setTipo("agua_planta");
       setMonto("");
       setDescripcion("");
+      setPagadoPor("chofer");
       setFotoUrl(null);
     }
   }, [open, gasto]);
@@ -94,6 +98,7 @@ export function GastoForm({ open, onOpenChange, onSaved, gasto }: GastoFormProps
         monto: montoNum,
         descripcion: descripcion.trim() || null,
         fotoUrl,
+        pagadoPor,
       };
 
       if (isEdit && gasto) {
@@ -139,19 +144,41 @@ export function GastoForm({ open, onOpenChange, onSaved, gasto }: GastoFormProps
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="montoGasto">Monto *</Label>
-            <Input
-              id="montoGasto"
-              type="number"
-              inputMode="decimal"
-              step="any"
-              value={monto}
-              onChange={(e) => setMonto(e.target.value)}
-              placeholder="0"
-              required
-            />
-            <p className="text-xs text-muted-foreground">Total: {formatCurrency(Number(monto) || 0)}</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="montoGasto">Monto *</Label>
+              <Input
+                id="montoGasto"
+                type="number"
+                inputMode="decimal"
+                step="any"
+                value={monto}
+                onChange={(e) => setMonto(e.target.value)}
+                placeholder="0"
+                required
+              />
+              <p className="text-xs text-muted-foreground">Total: {formatCurrency(Number(monto) || 0)}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pagadoPor">Pagado por</Label>
+              <Select value={pagadoPor} onValueChange={setPagadoPor}>
+                <SelectTrigger id="pagadoPor">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAGADO_POR.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {pagadoPor === "chofer"
+                  ? "Lo pagaste tú — se reembolsa en la liquidación."
+                  : "Lo pagó el dueño — no se reembolsa."}
+              </p>
+            </div>
           </div>
 
           <div className="space-y-2">

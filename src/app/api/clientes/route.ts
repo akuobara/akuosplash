@@ -21,7 +21,9 @@ export async function POST(req: NextRequest) {
       nombre: body.nombre?.trim() || "Sin nombre",
       direccion: body.direccion?.trim() || null,
       telefono: body.telefono?.trim() || null,
-      precioPorLitro: Number(body.precioPorLitro) || 0,
+      zona: body.zona?.trim() || null,
+      precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0,
+      precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0,
       nota: body.nota?.trim() || null,
     },
   });

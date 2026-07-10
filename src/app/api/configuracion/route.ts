@@ -14,23 +14,32 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
   const body = await req.json();
 
-  // Upsert para que nunca falle si el registro no existe
   const config = await db.configuracion.upsert({
     where: { id: "default" },
     update: {
       ...(body.nombreChofer !== undefined && { nombreChofer: body.nombreChofer.trim() }),
       ...(body.nombreDueno !== undefined && { nombreDueno: body.nombreDueno.trim() }),
+      ...(body.capacidadCamion !== undefined && { capacidadCamion: Number(body.capacidadCamion) || 17000 }),
+      ...(body.modoLiquidacion !== undefined && { modoLiquidacion: body.modoLiquidacion }),
       ...(body.porcentajeComisionChofer !== undefined && { porcentajeComisionChofer: Number(body.porcentajeComisionChofer) }),
       ...(body.porcentajeComisionDueno !== undefined && { porcentajeComisionDueno: Number(body.porcentajeComisionDueno) }),
-      ...(body.precioPorLitroDefault !== undefined && { precioPorLitroDefault: Number(body.precioPorLitroDefault) }),
+      ...(body.montoPorVueltaUnicoCliente !== undefined && { montoPorVueltaUnicoCliente: Number(body.montoPorVueltaUnicoCliente) }),
+      ...(body.montoPorVueltaMultiple !== undefined && { montoPorVueltaMultiple: Number(body.montoPorVueltaMultiple) }),
+      ...(body.precioEfectivoPorLitro !== undefined && { precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) }),
+      ...(body.precioTransferenciaPorLitro !== undefined && { precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) }),
     },
     create: {
       id: "default",
       nombreChofer: body.nombreChofer?.trim() || "Chofer",
       nombreDueno: body.nombreDueno?.trim() || "Dueño del Camión",
+      capacidadCamion: Number(body.capacidadCamion) || 17000,
+      modoLiquidacion: body.modoLiquidacion || "porcentaje",
       porcentajeComisionChofer: Number(body.porcentajeComisionChofer) || 50,
       porcentajeComisionDueno: Number(body.porcentajeComisionDueno) || 50,
-      precioPorLitroDefault: Number(body.precioPorLitroDefault) || 0,
+      montoPorVueltaUnicoCliente: Number(body.montoPorVueltaUnicoCliente) || 20000,
+      montoPorVueltaMultiple: Number(body.montoPorVueltaMultiple) || 25000,
+      precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0,
+      precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0,
     },
   });
 

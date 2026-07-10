@@ -11,7 +11,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.nombre !== undefined && { nombre: body.nombre.trim() }),
       ...(body.direccion !== undefined && { direccion: body.direccion?.trim() || null }),
       ...(body.telefono !== undefined && { telefono: body.telefono?.trim() || null }),
-      ...(body.precioPorLitro !== undefined && { precioPorLitro: Number(body.precioPorLitro) || 0 }),
+      ...(body.zona !== undefined && { zona: body.zona?.trim() || null }),
+      ...(body.precioEfectivoPorLitro !== undefined && { precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0 }),
+      ...(body.precioTransferenciaPorLitro !== undefined && { precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0 }),
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),
     },
   });
@@ -21,7 +23,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  // Quitar relación en entregas pero no borrar el historial
   await db.cliente.update({
     where: { id },
     data: { entregas: { set: [] } },

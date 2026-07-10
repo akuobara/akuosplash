@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const period = (searchParams.get("period") as "hoy" | "semana" | "mes" | "todo") || "todo";
   const tipo = searchParams.get("tipo");
+  const pagadoPor = searchParams.get("pagadoPor");
 
   const { start, end } = getRange(period);
 
@@ -16,6 +17,7 @@ export async function GET(req: NextRequest) {
         start ? { fecha: { gte: start } } : {},
         end ? { fecha: { lt: end } } : {},
         tipo ? { tipo } : {},
+        pagadoPor ? { pagadoPor } : {},
       ],
     },
     orderBy: { fecha: "desc" },
@@ -36,6 +38,7 @@ export async function POST(req: NextRequest) {
         monto: Number(body.monto) || 0,
         descripcion: body.descripcion?.trim() || null,
         fotoUrl: body.fotoUrl || null,
+        pagadoPor: body.pagadoPor || "chofer",
       },
     });
 

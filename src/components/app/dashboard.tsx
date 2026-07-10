@@ -23,10 +23,14 @@ import {
   Gauge,
   Receipt,
   ArrowRight,
+  Banknote,
+  Smartphone,
+  Repeat,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { EntregaForm } from "./entrega-form";
 import { GastoForm } from "./gasto-form";
+import { VueltaWidget } from "./vuelta-widget";
 import { apiGet } from "@/lib/api-client";
 import {
   formatCurrency,
@@ -34,8 +38,9 @@ import {
   formatDate,
   labelTipoGasto,
   labelEstadoPago,
+  labelMetodoPago,
 } from "@/lib/helpers";
-import type { Entrega } from "./entrega-form";
+import type { Entrega, VueltaActual } from "./entrega-form";
 import type { Gasto } from "./gasto-form";
 
 type Period = "hoy" | "semana" | "mes" | "todo";
@@ -44,20 +49,40 @@ interface Resumen {
   period: string;
   totalVentas: number;
   totalEfectivoRecibido: number;
+  totalTransferenciaRecibida: number;
+  totalRecibido: number;
   totalPorCobrar: number;
   totalLitros: number;
   totalGastos: number;
+  gastosChofer: number;
+  gastosDueno: number;
   gastosPorTipo: Record<string, number>;
   utilidadBruta: number;
   cantidadEntregas: number;
   cantidadGastos: number;
+  cantidadVueltas: number;
+  pagoChoferCalculado: number;
+  capacidadCamion: number;
+  modoLiquidacion: string;
 }
 
 interface DashboardProps {
   refreshKey: number;
   onRefresh: () => void;
-  clientes: { id: string; nombre: string; direccion: string | null; telefono: string | null; precioPorLitro: number }[];
-  precioPorLitroDefault: number;
+  clientes: {
+    id: string;
+    nombre: string;
+    direccion: string | null;
+    telefono: string | null;
+    zona: string | null;
+    precioEfectivoPorLitro: number;
+    precioTransferenciaPorLitro: number;
+  }[];
+  config: {
+    precioEfectivoPorLitro: number;
+    precioTransferenciaPorLitro: number;
+    capacidadCamion: number;
+  };
   onGoToEntregas: () => void;
   onGoToGastos: () => void;
   onGoToLiquidacion: () => void;
@@ -74,7 +99,7 @@ export function Dashboard({
   refreshKey,
   onRefresh,
   clientes,
-  precioPorLitroDefault,
+  config,
   onGoToEntregas,
   onGoToGastos,
   onGoToLiquidacion,
@@ -84,9 +109,19 @@ export function Dashboard({
   const [loading, setLoading] = useState(true);
   const [recientes, setRecientes] = useState<Entrega[]>([]);
   const [gastosRecientes, setGastosRecientes] = useState<Gasto[]>([]);
+  const [vueltaActual, setVueltaActual] = useState<VueltaActual | null>(null);
 
   const [entregaFormOpen, setEntregaFormOpen] = useState(false);
   const [gastoFormOpen, setGastoFormOpen] = useState(false);
+
+  const cargarVuelta = useCallback(async () => {
+    try {
+      const data = await apiGet<{ vuelta: VueltaActual | null }>("/api/vueltas/activa");
+      setVueltaActual(data.vuelta);
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -109,6 +144,10 @@ export function Dashboard({
   useEffect(() => {
     cargar();
   }, [cargar, refreshKey]);
+
+  useEffect(() => {
+    cargarVuelta();
+  }, [cargarVuelta, refreshKey]);
 
   return (
     <div className="space-y-5">
@@ -142,6 +181,17 @@ export function Dashboard({
         </div>
       </div>
 
+      {/* Vuelta actual */}
+      <VueltaWidget
+        vueltaActual={vueltaActual}
+        capacidadCamion={config.capacidadCamion}
+        onVueltaChange={() => {
+          cargarVuelta();
+          onRefresh();
+        }}
+        onRegistrarEntrega={() => setEntregaFormOpen(true)}
+      />
+
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {loading || !resumen ? (
@@ -156,41 +206,46 @@ export function Dashboard({
               tone="positive"
             />
             <StatCard
-              label="Efectivo recibido"
+              label="Efectivo"
               value={formatCurrency(resumen.totalEfectivoRecibido)}
-              hint="En ruta"
-              icon={Wallet}
+              hint="Recibido en ruta"
+              icon={Banknote}
               tone="accent"
+            />
+            <StatCard
+              label="Transferencia"
+              value={formatCurrency(resumen.totalTransferenciaRecibida)}
+              hint="Recibida en ruta"
+              icon={Smartphone}
             />
             <StatCard
               label="Por cobrar"
               value={formatCurrency(resumen.totalPorCobrar)}
               hint="Saldo pendiente"
-              icon={DollarSign}
+              icon={Wallet}
               tone={resumen.totalPorCobrar > 0 ? "warning" : "default"}
-            />
-            <StatCard
-              label="Litros entregados"
-              value={`${formatNumber(resumen.totalLitros, 0)} L`}
-              hint="Acumulado"
-              icon={Droplets}
             />
           </>
         )}
       </div>
 
-      {/* Utilidad */}
+      {/* Litros + Vueltas + Utilidad */}
       <div className="grid gap-3 lg:grid-cols-3">
         {loading || !resumen ? (
           Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-lg" />)
         ) : (
           <>
             <StatCard
-              label="Gastos del período"
-              value={formatCurrency(resumen.totalGastos)}
-              hint={`${resumen.cantidadGastos} gastos`}
-              icon={TrendingDown}
-              tone="negative"
+              label="Litros entregados"
+              value={`${formatNumber(resumen.totalLitros, 0)} L`}
+              hint={resumen.capacidadCamion > 0 ? `Camión: ${formatNumber(resumen.capacidadCamion, 0)} L` : "Acumulado"}
+              icon={Droplets}
+            />
+            <StatCard
+              label="Vueltas del período"
+              value={String(resumen.cantidadVueltas)}
+              hint={resumen.modoLiquidacion === "vuelta" ? `Pago: ${formatCurrency(resumen.pagoChoferCalculado)}` : "Modo porcentaje"}
+              icon={Repeat}
             />
             <StatCard
               label="Utilidad bruta"
@@ -199,26 +254,35 @@ export function Dashboard({
               icon={TrendingUp}
               tone={resumen.utilidadBruta >= 0 ? "positive" : "negative"}
             />
-            <Card className="overflow-hidden">
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex h-full flex-col justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Liquidación con dueño
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Calcula la repartición según el porcentaje configurado.
-                    </p>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={onGoToLiquidacion} className="w-fit">
-                    Ver liquidación <ArrowRight className="ml-1 h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           </>
         )}
       </div>
+
+      {/* Gastos separados por pagador */}
+      {resumen && !loading && resumen.totalGastos > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <StatCard
+            label="Gastos totales"
+            value={formatCurrency(resumen.totalGastos)}
+            hint={`${resumen.cantidadGastos} gastos`}
+            icon={TrendingDown}
+            tone="negative"
+          />
+          <StatCard
+            label="Pagados por chofer"
+            value={formatCurrency(resumen.gastosChofer)}
+            hint="Reembolsables"
+            icon={Wallet}
+            tone="warning"
+          />
+          <StatCard
+            label="Pagados por dueño"
+            value={formatCurrency(resumen.gastosDueno)}
+            hint="No reembolsables"
+            icon={Receipt}
+          />
+        </div>
+      )}
 
       {/* Gastos por tipo */}
       {resumen && !loading && Object.keys(resumen.gastosPorTipo).length > 0 && (
@@ -278,14 +342,18 @@ export function Dashboard({
                   className="flex items-center justify-between gap-2 rounded-lg border border-border p-3"
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <span className="truncate font-medium">{e.clienteNombre}</span>
                       <Badge variant="outline" className="text-[10px]">
                         {labelEstadoPago(e.estadoPago)}
                       </Badge>
+                      <Badge variant="secondary" className="text-[10px]">
+                        {labelMetodoPago(e.metodoPago)}
+                      </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {formatDate(e.fecha)} · {formatNumber(e.litros, 0)} L
+                      {e.vuelta && ` · Vuelta #${e.vuelta.numero}`}
                     </p>
                   </div>
                   <div className="text-right">
@@ -329,7 +397,9 @@ export function Dashboard({
                     {g.descripcion && (
                       <p className="truncate text-xs text-muted-foreground">{g.descripcion}</p>
                     )}
-                    <p className="text-xs text-muted-foreground">{formatDate(g.fecha)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(g.fecha)} · Pagó: {g.pagadoPor === "chofer" ? "Chofer" : "Dueño"}
+                    </p>
                   </div>
                   <span className="font-semibold tabular-nums text-red-600 dark:text-red-400">
                     −{formatCurrency(g.monto)}
@@ -345,9 +415,13 @@ export function Dashboard({
       <EntregaForm
         open={entregaFormOpen}
         onOpenChange={setEntregaFormOpen}
-        onSaved={onRefresh}
+        onSaved={() => {
+          onRefresh();
+          cargarVuelta();
+        }}
         clientes={clientes}
-        precioPorLitroDefault={precioPorLitroDefault}
+        config={config}
+        vueltaActual={vueltaActual}
       />
       <GastoForm open={gastoFormOpen} onOpenChange={setGastoFormOpen} onSaved={onRefresh} />
     </div>

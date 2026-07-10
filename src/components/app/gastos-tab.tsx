@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -32,7 +33,6 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
-  ImageIcon,
   Fuel,
   Droplets,
   Gauge,
@@ -46,7 +46,9 @@ import {
   formatDate,
   formatDateTime,
   labelTipoGasto,
+  labelPagadoPor,
   TIPOS_GASTO,
+  PAGADO_POR,
 } from "@/lib/helpers";
 import type { Gasto } from "./gasto-form";
 
@@ -65,7 +67,7 @@ const PERIODS: { value: Period; label: string }[] = [
 ];
 
 function iconoTipo(tipo: string) {
-  if (tipo === "combustible_camion" || tipo === "combustible_motobamba") return Fuel;
+  if (tipo === "combustible_camion" || tipo === "combustible_motobomba") return Fuel;
   if (tipo === "agua_planta") return Droplets;
   if (tipo === "cloro") return Gauge;
   return Receipt;
@@ -74,6 +76,7 @@ function iconoTipo(tipo: string) {
 export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
   const [period, setPeriod] = useState<Period>("mes");
   const [tipoFilter, setTipoFilter] = useState<string>("todos");
+  const [pagadoPorFilter, setPagadoPorFilter] = useState<string>("todos");
   const [busqueda, setBusqueda] = useState("");
   const [gastos, setGastos] = useState<Gasto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,6 +105,7 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
 
   const filtrados = gastos.filter((g) => {
     if (tipoFilter !== "todos" && g.tipo !== tipoFilter) return false;
+    if (pagadoPorFilter !== "todos" && g.pagadoPor !== pagadoPorFilter) return false;
     if (busqueda.trim()) {
       const q = busqueda.toLowerCase();
       const blob = `${labelTipoGasto(g.tipo)} ${g.descripcion ?? ""}`.toLowerCase();
@@ -111,8 +115,9 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
   });
 
   const total = filtrados.reduce((s, g) => s + g.monto, 0);
+  const totalChofer = filtrados.filter((g) => g.pagadoPor === "chofer").reduce((s, g) => s + g.monto, 0);
+  const totalDueno = filtrados.filter((g) => g.pagadoPor === "dueno").reduce((s, g) => s + g.monto, 0);
 
-  // Totales por tipo
   const totalesPorTipo = TIPOS_GASTO.map((t) => ({
     ...t,
     monto: filtrados.filter((g) => g.tipo === t.value).reduce((s, g) => s + g.monto, 0),
@@ -146,7 +151,7 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
           <div className="space-y-1">
             <label className="text-xs font-medium uppercase text-muted-foreground">Período</label>
             <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-[140px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -161,7 +166,7 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
           <div className="space-y-1">
             <label className="text-xs font-medium uppercase text-muted-foreground">Tipo</label>
             <Select value={tipoFilter} onValueChange={setTipoFilter}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-[180px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -169,6 +174,22 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
                 {TIPOS_GASTO.map((t) => (
                   <SelectItem key={t.value} value={t.value}>
                     {t.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase text-muted-foreground">Pagado por</label>
+            <Select value={pagadoPorFilter} onValueChange={setPagadoPorFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                {PAGADO_POR.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -190,6 +211,32 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
         <Button onClick={handleNuevo} size="sm">
           <Plus className="mr-1 h-4 w-4" /> Nuevo gasto
         </Button>
+      </div>
+
+      {/* Totales */}
+      <div className="grid grid-cols-3 gap-3">
+        <Card>
+          <CardContent className="p-3">
+            <p className="text-xs uppercase text-muted-foreground">Total gastos</p>
+            <p className="text-base font-bold tabular-nums text-red-600 dark:text-red-400 sm:text-lg">
+              {formatCurrency(total)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3">
+            <p className="text-xs uppercase text-muted-foreground">Pagó chofer</p>
+            <p className="text-base font-bold tabular-nums text-amber-600 dark:text-amber-400 sm:text-lg">
+              {formatCurrency(totalChofer)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3">
+            <p className="text-xs uppercase text-muted-foreground">Pagó dueño</p>
+            <p className="text-base font-bold tabular-nums sm:text-lg">{formatCurrency(totalDueno)}</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Totales por tipo */}
@@ -215,14 +262,6 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
       {/* Lista */}
       <Card>
         <CardContent className="p-0">
-          <div className="flex items-center justify-between border-b border-border bg-muted/30 p-3">
-            <span className="text-sm text-muted-foreground">
-              {filtrados.length} gasto{filtrados.length !== 1 ? "s" : ""}
-            </span>
-            <span className="font-semibold tabular-nums text-red-600 dark:text-red-400">
-              −{formatCurrency(total)}
-            </span>
-          </div>
           {loading ? (
             <div className="space-y-2 p-4">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -260,7 +299,15 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
                         </div>
                       )}
                       <div className="min-w-0 flex-1">
-                        <span className="font-medium">{labelTipoGasto(g.tipo)}</span>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-medium">{labelTipoGasto(g.tipo)}</span>
+                          <Badge
+                            variant={g.pagadoPor === "chofer" ? "secondary" : "outline"}
+                            className="text-[10px]"
+                          >
+                            {labelPagadoPor(g.pagadoPor)}
+                          </Badge>
+                        </div>
                         {g.descripcion && (
                           <p className="truncate text-xs text-muted-foreground">{g.descripcion}</p>
                         )}
@@ -334,6 +381,10 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
                 <div>
                   <p className="text-xs uppercase text-muted-foreground">Tipo</p>
                   <p className="font-medium">{labelTipoGasto(vista.tipo)}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-muted-foreground">Pagado por</p>
+                  <p className="font-medium">{labelPagadoPor(vista.pagadoPor)}</p>
                 </div>
                 <div>
                   <p className="text-xs uppercase text-muted-foreground">Monto</p>
