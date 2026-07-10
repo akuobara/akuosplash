@@ -90,9 +90,16 @@ interface PedidosRecurrentesTabProps {
     direccion: string | null;
   }[];
   choferes: { id: string; nombre: string }[];
+  pedidos?: {  // pedidos programados para mostrar en el calendario
+    id: string;
+    clienteNombre: string;
+    litrosSolicitados: number;
+    fechaSolicitada: string | null;
+    estado: string;
+  }[];
 }
 
-export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, choferes }: PedidosRecurrentesTabProps) {
+export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, choferes, pedidos = [] }: PedidosRecurrentesTabProps) {
   const [recurrentes, setRecurrentes] = useState<Recurrente[]>([]);
   const [loading, setLoading] = useState(true);
   const [vista, setVista] = useState<"lista" | "calendario">("calendario");
@@ -130,26 +137,22 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
     cargar();
   }, [cargar, refreshKey]);
 
-  // Generar próximas fechas de pedidos recurrentes para el calendario
-  // Calcula las próximas 6 ocurrencias de cada recurrente activo
+  // Generar próximas fechas de pedidos recurrentes Y pedidos programados para el calendario
   const eventosCalendario = useMemo(() => {
     const eventos: { fecha: Date; litros: number; pedidos: { nombre: string; litros: number; tipo: "recurrente" | "programado" }[] }[] = [];
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
+    // 1. Pedidos recurrentes — generar las próximas 6 ocurrencias
     for (const r of recurrentes) {
       if (!r.activo) continue;
-      // Empezar desde la próxima fecha de generación
       let fecha = new Date(r.fechaProximaGeneracion);
       fecha.setHours(0, 0, 0, 0);
-      // Si la próxima fecha ya pasó, calcular desde hoy
       if (fecha < hoy) {
-        // Avanzar hasta encontrar la próxima fecha futura
         while (fecha < hoy) {
           fecha.setDate(fecha.getDate() + r.frecuenciaDias);
         }
       }
-      // Generar las próximas 6 ocurrencias
       for (let i = 0; i < 6; i++) {
         eventos.push({
           fecha: new Date(fecha),
@@ -164,8 +167,26 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
       }
     }
 
+    // 2. Pedidos programados (con fechaSolicitada futura, no entregados ni cancelados)
+    for (const p of pedidos) {
+      if (!p.fechaSolicitada) continue;
+      if (p.estado === "entregado" || p.estado === "cancelado") continue;
+      const fecha = new Date(p.fechaSolicitada);
+      fecha.setHours(0, 0, 0, 0);
+      if (fecha < hoy) continue; // solo mostrar futuros
+      eventos.push({
+        fecha,
+        litros: p.litrosSolicitados,
+        pedidos: [{
+          nombre: p.clienteNombre,
+          litros: p.litrosSolicitados,
+          tipo: "programado" as const,
+        }],
+      });
+    }
+
     return eventos;
-  }, [recurrentes]);
+  }, [recurrentes, pedidos]);
 
   function abrirNuevo() {
     setEditando(null);
@@ -231,7 +252,11 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
         toast.success("Pedido recurrente actualizado");
       } else {
         await apiPost("/api/pedidos-recurrentes", payload);
-        toast.success("Pedido recurrente creado");
+        toast.success(
+          `Pedido recurrente creado. Se generará automáticamente cada ${frec} días. ` +
+          `La próxima entrega es ${fechaInicio ? formatDate(fechaInicio) : "hoy"}. ` +
+          `Míralo en el calendario de esta misma pestaña.`
+        );
       }
       setFormOpen(false);
       onRefresh();
@@ -310,7 +335,64 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
 
       {/* Vista Calendario */}
       {vista === "calendario" && !loading && (
-        <CalendarView eventos={eventosCalendario} />
+        <>
+          {/* Resumen de próximos pedidos */}
+          {(() => {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const manana = new Date(hoy);
+            manana.setDate(manana.getDate() + 1);
+            const en7dias = new Date(hoy);
+            en7dias.setDate(en7dias.getDate() + 7);
+
+            const deHoy = eventosCalendario.filter(e => {
+              const f = new Date(e.fecha);
+              f.setHours(0,0,0,0);
+              return f.getTime() === hoy.getTime();
+            });
+            const deManana = eventosCalendario.filter(e => {
+              const f = new Date(e.fecha);
+              f.setHours(0,0,0,0);
+              return f.getTime() === manana.getTime();
+            });
+            const de7dias = eventosCalendario.filter(e => {
+              const f = new Date(e.fecha);
+              f.setHours(0,0,0,0);
+              return f > hoy && f <= en7dias;
+            });
+
+            const litrosHoy = deHoy.reduce((s,e) => s+e.litros, 0);
+            const litrosManana = deManana.reduce((s,e) => s+e.litros, 0);
+            const litros7dias = de7dias.reduce((s,e) => s+e.litros, 0);
+
+            return (
+              <div className="grid grid-cols-3 gap-3">
+                <Card className={litrosHoy > 0 ? "border-primary/40 bg-primary/5" : ""}>
+                  <CardContent className="p-3">
+                    <p className="text-xs uppercase text-muted-foreground">Hoy</p>
+                    <p className="text-lg font-bold tabular-nums">{formatNumber(litrosHoy, 0)} L</p>
+                    <p className="text-[10px] text-muted-foreground">{deHoy.length} pedido(s)</p>
+                  </CardContent>
+                </Card>
+                <Card className={litrosManana > 0 ? "border-blue-400/40 bg-blue-50 dark:bg-blue-900/10" : ""}>
+                  <CardContent className="p-3">
+                    <p className="text-xs uppercase text-muted-foreground">Mañana</p>
+                    <p className="text-lg font-bold tabular-nums">{formatNumber(litrosManana, 0)} L</p>
+                    <p className="text-[10px] text-muted-foreground">{deManana.length} pedido(s)</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-3">
+                    <p className="text-xs uppercase text-muted-foreground">Próximos 7 días</p>
+                    <p className="text-lg font-bold tabular-nums">{formatNumber(litros7dias, 0)} L</p>
+                    <p className="text-[10px] text-muted-foreground">{de7dias.length} pedido(s)</p>
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          })()}
+          <CalendarView eventos={eventosCalendario} />
+        </>
       )}
 
       {/* Vista Lista */}

@@ -110,6 +110,7 @@ export default function Home() {
   const [vueltaActual, setVueltaActual] = useState<VueltaActual | null>(null);
   const [camiones, setCamiones] = useState<Camion[]>([]);
   const [usuarios, setUsuarios] = useState<{ id: string; nombre: string; email: string; role: string }[]>([]);
+  const [todosPedidos, setTodosPedidos] = useState<{ id: string; clienteNombre: string; litrosSolicitados: number; fechaSolicitada: string | null; estado: string }[]>([]);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
@@ -143,11 +144,15 @@ export default function Home() {
         setConfig(cfg.configuracion);
         setVueltaActual(v.vuelta);
         setCamiones(cams.camiones);
-        // Cargar usuarios (choferes) solo si es dueño
+        // Cargar usuarios (choferes) y pedidos solo si es dueño
         if (user.role === "dueno") {
           try {
-            const u = await apiGet<{ usuarios: { id: string; nombre: string; email: string; role: string }[] }>("/api/usuarios");
+            const [u, peds] = await Promise.all([
+              apiGet<{ usuarios: { id: string; nombre: string; email: string; role: string }[] }>("/api/usuarios"),
+              apiGet<{ pedidos: { id: string; clienteNombre: string; litrosSolicitados: number; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos"),
+            ]);
             setUsuarios(u.usuarios);
+            setTodosPedidos(peds.pedidos);
           } catch {}
         }
       } catch (e) {
@@ -363,6 +368,7 @@ export default function Home() {
                 onRefresh={refresh}
                 clientes={clientes}
                 choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre }))}
+                pedidos={todosPedidos}
               />
             </TabsContent>
           )}
