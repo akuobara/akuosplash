@@ -170,6 +170,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ nombre, email, password, telefono }),
+          credentials: "include",
         });
         const data = await res.json();
         if (!res.ok) {
@@ -189,6 +190,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
+          credentials: "include",
         });
         const data = await res.json();
         if (!res.ok) {
