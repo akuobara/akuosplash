@@ -83,6 +83,13 @@ interface DashboardProps {
     precioTransferenciaPorLitro: number;
     capacidadCamion: number;
   };
+  camiones: {
+    id: string;
+    nombre: string;
+    patente: string | null;
+    capacidad: number;
+    activo: boolean;
+  }[];
   onGoToEntregas: () => void;
   onGoToGastos: () => void;
   onGoToLiquidacion: () => void;
@@ -100,6 +107,7 @@ export function Dashboard({
   onRefresh,
   clientes,
   config,
+  camiones,
   onGoToEntregas,
   onGoToGastos,
   onGoToLiquidacion,
@@ -184,7 +192,7 @@ export function Dashboard({
       {/* Vuelta actual */}
       <VueltaWidget
         vueltaActual={vueltaActual}
-        capacidadCamion={config.capacidadCamion}
+        camiones={camiones}
         onVueltaChange={() => {
           cargarVuelta();
           onRefresh();

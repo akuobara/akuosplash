@@ -27,6 +27,9 @@ export async function PUT(req: NextRequest) {
       ...(body.montoPorVueltaMultiple !== undefined && { montoPorVueltaMultiple: Number(body.montoPorVueltaMultiple) }),
       ...(body.precioEfectivoPorLitro !== undefined && { precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) }),
       ...(body.precioTransferenciaPorLitro !== undefined && { precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) }),
+      ...(body.tipoTributo !== undefined && { tipoTributo: body.tipoTributo }),
+      ...(body.porcentajeImpuesto !== undefined && { porcentajeImpuesto: Number(body.porcentajeImpuesto) }),
+      ...(body.aplicaImpuestoSobre !== undefined && { aplicaImpuestoSobre: body.aplicaImpuestoSobre }),
     },
     create: {
       id: "default",
@@ -40,6 +43,9 @@ export async function PUT(req: NextRequest) {
       montoPorVueltaMultiple: Number(body.montoPorVueltaMultiple) || 25000,
       precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0,
       precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0,
+      tipoTributo: body.tipoTributo || "boleta_honorarios",
+      porcentajeImpuesto: body.porcentajeImpuesto !== undefined ? Number(body.porcentajeImpuesto) : 15.25,
+      aplicaImpuestoSobre: body.aplicaImpuestoSobre || "pago_chofer",
     },
   });
 

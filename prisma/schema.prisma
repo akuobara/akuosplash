@@ -15,7 +15,7 @@ model Cliente {
   nombre        String
   direccion     String?
   telefono      String?
-  zona          String?  // zona/ubicación (ej. "Centro", "Sector Norte", "Rural 5km")
+  zona          String?
   // Precio por litro específico del cliente (sobreescribe los defaults globales).
   // Si es 0, se usan los precios globales según método de pago.
   precioEfectivoPorLitro       Float @default(0)
@@ -23,6 +23,18 @@ model Cliente {
   nota          String?
   creadoEn      DateTime @default(now())
   entregas      Entrega[]
+}
+
+// Camión aljibe. Cada camión tiene su propia capacidad.
+// Preparado para multi-flota: cuando tengas más de un camión, agregas otro aquí.
+model Camion {
+  id          String   @id @default(cuid())
+  nombre      String   // alias como "Camión grande", "Camión pequeño", "Patente ABCD12"
+  patente     String?  // opcional
+  capacidad   Int      // litros
+  activo      Boolean  @default(true)
+  creadoEn    DateTime @default(now())
+  vueltas     Vuelta[]
 }
 
 // Una vuelta = un viaje del camión aljibe desde la planta de agua.
@@ -36,6 +48,8 @@ model Vuelta {
   cerradaEn   DateTime?
   nota        String?
   activa      Boolean  @default(true) // solo una vuelta activa a la vez
+  camionId    String?  // si es null, era una vuelta creada antes de tener camiones registrados
+  camion      Camion?  @relation(fields: [camionId], references: [id])
   entregas    Entrega[]
 }
 
@@ -100,8 +114,9 @@ model Configuracion {
   nombreChofer                String  @default("Chofer")
   nombreDueno                 String  @default("Dueño del Camión")
 
-  // Datos del camión
-  capacidadCamion             Int     @default(17000)  // capacidad del estanque en litros
+  // Capacidad del camión — LEGACY: ahora se usa el modelo Camion.
+  // Se mantiene como fallback si no hay camiones registrados.
+  capacidadCamion             Int     @default(17000)
 
   // Modo de liquidación: "porcentaje" o "vuelta"
   modoLiquidacion             String  @default("porcentaje")
@@ -117,4 +132,9 @@ model Configuracion {
   // Precios por litro por defecto según método de pago
   precioEfectivoPorLitro      Float   @default(0)
   precioTransferenciaPorLitro Float   @default(0)
+
+  // Impuestos
+  tipoTributo                 String  @default("boleta_honorarios")  // boleta_honorarios | factura | otro | ninguno
+  porcentajeImpuesto          Float   @default(15.25)  // % del tributo (15.25% boleta honorarios en Chile)
+  aplicaImpuestoSobre         String  @default("pago_chofer")  // pago_chofer | utilidad_bruta | ventas_brutas
 }

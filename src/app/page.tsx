@@ -34,6 +34,17 @@ interface Config {
   montoPorVueltaMultiple: number;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  tipoTributo: string;
+  porcentajeImpuesto: number;
+  aplicaImpuestoSobre: string;
+}
+
+interface Camion {
+  id: string;
+  nombre: string;
+  patente: string | null;
+  capacidad: number;
+  activo: boolean;
 }
 
 interface VueltaActual {
@@ -42,6 +53,14 @@ interface VueltaActual {
   iniciadaEn: string;
   cantidadEntregas: number;
   litros: number;
+  litrosRestantes?: number;
+  capacidadCamion?: number;
+  camion?: {
+    id: string;
+    nombre: string;
+    patente: string | null;
+    capacidad: number;
+  } | null;
 }
 
 type TabKey = "dashboard" | "entregas" | "gastos" | "liquidacion" | "clientes" | "config";
@@ -52,21 +71,24 @@ export default function Home() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [config, setConfig] = useState<Config | null>(null);
   const [vueltaActual, setVueltaActual] = useState<VueltaActual | null>(null);
+  const [camiones, setCamiones] = useState<Camion[]>([]);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
-  // Cargar clientes, configuración y vuelta activa
+  // Cargar clientes, configuración, vuelta activa y camiones
   useEffect(() => {
     (async () => {
       try {
-        const [c, cfg, v] = await Promise.all([
+        const [c, cfg, v, cams] = await Promise.all([
           apiGet<{ clientes: Cliente[] }>("/api/clientes"),
           apiGet<{ configuracion: Config }>("/api/configuracion"),
           apiGet<{ vuelta: VueltaActual | null }>("/api/vueltas/activa"),
+          apiGet<{ camiones: Camion[] }>("/api/camiones"),
         ]);
         setClientes(c.clientes);
         setConfig(cfg.configuracion);
         setVueltaActual(v.vuelta);
+        setCamiones(cams.camiones);
       } catch (e) {
         console.error(e);
       }
@@ -95,7 +117,9 @@ export default function Home() {
                 <span className="font-medium text-foreground">{config.nombreChofer}</span> · chofer
               </p>
               <p>
-                Camión {config.capacidadCamion.toLocaleString("es-CL")} L · {config.nombreDueno}
+                {camiones.length > 0
+                  ? `${camiones.length} camión(es) · ${config.nombreDueno}`
+                  : `${config.nombreDueno}`}
               </p>
             </div>
           )}
@@ -143,6 +167,7 @@ export default function Home() {
                 precioTransferenciaPorLitro: config?.precioTransferenciaPorLitro ?? 0,
                 capacidadCamion: config?.capacidadCamion ?? 17000,
               }}
+              camiones={camiones}
               onGoToEntregas={() => setTab("entregas")}
               onGoToGastos={() => setTab("gastos")}
               onGoToLiquidacion={() => setTab("liquidacion")}
@@ -179,6 +204,9 @@ export default function Home() {
             <ConfiguracionTab
               config={config}
               onConfigChange={(c) => setConfig(c)}
+              refreshKey={refreshKey}
+              onRefresh={refresh}
+              onCamionesChange={setCamiones}
             />
           </TabsContent>
         </Tabs>

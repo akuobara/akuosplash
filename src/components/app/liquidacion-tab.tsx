@@ -62,6 +62,9 @@ interface Config {
   montoPorVueltaMultiple: number;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  tipoTributo: string;
+  porcentajeImpuesto: number;
+  aplicaImpuestoSobre: string;
 }
 
 interface VueltaDetalle {
@@ -72,6 +75,9 @@ interface VueltaDetalle {
   cantidadEntregas: number;
   esMultiple: boolean;
   litros: number;
+  litrosRestantes: number;
+  capacidadCamion: number;
+  camion?: { id: string; nombre: string; patente: string | null; capacidad: number } | null;
   ventas: number;
   efectivo: number;
   transferencia: number;
@@ -93,6 +99,9 @@ interface LiquidacionData {
     utilidadBruta: number;
     pagoChofer: number;
     pagoDueno: number;
+    baseImponible: number;
+    impuesto: number;
+    liquidoChoferAntesDeEfectivo: number;
     saldoChofer: number;
     cantidadVueltas: number;
     vueltasUnicoCliente: number;
@@ -274,8 +283,14 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                       <p className="text-xs text-muted-foreground">
                         {formatDateTime(v.iniciadaEn)}
                         {v.cerradaEn ? ` → ${formatDateTime(v.cerradaEn)}` : " · En curso"}
+                        {v.camion && ` · ${v.camion.nombre}`}
                         {" · "}
-                        {v.cantidadEntregas} entrega(s) · {formatNumber(v.litros, 0)} L · {formatCurrency(v.ventas)}
+                        {v.cantidadEntregas} entrega(s) · {formatNumber(v.litros, 0)} L entregados
+                        {v.capacidadCamion > 0 && (
+                          <> de {formatNumber(v.capacidadCamion, 0)} L</>
+                        )}
+                        {" · "}
+                        {formatCurrency(v.ventas)}
                       </p>
                     </div>
                   </div>
@@ -414,6 +429,23 @@ function LiquidacionPorcentaje({
                   {formatCurrency(r.pagoDueno)}
                 </span>
               </div>
+
+              {/* Impuestos */}
+              {r.impuesto > 0 && (
+                <div className="border-t border-border pt-2">
+                  <p className="mb-1 text-xs uppercase text-muted-foreground">Impuestos</p>
+                  <Row
+                    label={`Base imponible (${cfg.aplicaImpuestoSobre === "pago_chofer" ? "pago chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "utilidad" : "ventas"})`}
+                    value={formatCurrency(r.baseImponible)}
+                  />
+                  <Row
+                    label={`Impuesto (${cfg.porcentajeImpuesto}% ${cfg.tipoTributo === "boleta_honorarios" ? "boleta honorarios" : cfg.tipoTributo})`}
+                    value={`−${formatCurrency(r.impuesto)}`}
+                    tone="negative"
+                  />
+                </div>
+              )}
+
               <div className="border-t border-border pt-2">
                 <Row label="Efectivo ya recibido por chofer" value={formatCurrency(r.totalEfectivoRecibido)} />
                 <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
@@ -432,8 +464,11 @@ function LiquidacionPorcentaje({
         <p className="mt-4 text-xs text-muted-foreground">
           <strong>Cómo se calcula:</strong> La utilidad bruta (ventas − gastos) se reparte en{" "}
           <strong>{cfg.porcentajeComisionChofer}%</strong> para el chofer y{" "}
-          <strong>{cfg.porcentajeComisionDueno}%</strong> para el dueño. Como el chofer ya recibió
-          efectivo en ruta, ese monto se descuenta de su parte.
+          <strong>{cfg.porcentajeComisionDueno}%</strong> para el dueño.
+          {r.impuesto > 0 && (
+            <> Se descuenta el impuesto ({cfg.porcentajeImpuesto}% sobre {cfg.aplicaImpuestoSobre === "pago_chofer" ? "el pago del chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "la utilidad bruta" : "las ventas brutas"}).</>
+          )}{" "}
+          Como el chofer ya recibió efectivo en ruta, ese monto se descuenta de su parte.
         </p>
       </CardContent>
     </Card>
@@ -502,8 +537,25 @@ function LiquidacionVuelta({
             <div className="space-y-2 text-sm">
               <Row label="Pago por vueltas" value={formatCurrency(r.pagoChofer)} tone="positive" />
               <Row label="+ Reembolso de gastos" value={formatCurrency(r.gastosChofer)} />
+
+              {/* Impuestos */}
+              {r.impuesto > 0 && (
+                <div className="border-t border-border pt-2">
+                  <p className="mb-1 text-xs uppercase text-muted-foreground">Impuestos</p>
+                  <Row
+                    label={`Base imponible (${cfg.aplicaImpuestoSobre === "pago_chofer" ? "pago chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "utilidad" : "ventas"})`}
+                    value={formatCurrency(r.baseImponible)}
+                  />
+                  <Row
+                    label={`Impuesto (${cfg.porcentajeImpuesto}% ${cfg.tipoTributo === "boleta_honorarios" ? "boleta honorarios" : cfg.tipoTributo})`}
+                    value={`−${formatCurrency(r.impuesto)}`}
+                    tone="negative"
+                  />
+                </div>
+              )}
+
               <div className="border-t border-border pt-2">
-                <Row label="Total que recibe el chofer" value={formatCurrency(r.pagoChofer + r.gastosChofer)} strong />
+                <Row label="Líquido a recibir (antes de efectivo en ruta)" value={formatCurrency(r.liquidoChoferAntesDeEfectivo)} strong />
               </div>
               <Row label="− Efectivo ya recibido en ruta" value={formatCurrency(r.totalEfectivoRecibido)} tone="negative" />
               <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
@@ -522,8 +574,11 @@ function LiquidacionVuelta({
           <strong>Cómo se calcula:</strong> Por cada vuelta recibes{" "}
           <strong>{formatCurrency(cfg.montoPorVueltaUnicoCliente)}</strong> si fue a 1 cliente o{" "}
           <strong>{formatCurrency(cfg.montoPorVueltaMultiple)}</strong> si fue a múltiples clientes.
-          Se suman los gastos que pagaste tú (reembolsables). Se descuenta el efectivo que ya recibiste
-          en ruta. El saldo es lo que el dueño te debe (positivo) o lo que tú le debes (negativo).
+          Se suman los gastos que pagaste tú (reembolsables).
+          {r.impuesto > 0 && (
+            <> Se descuenta el impuesto ({cfg.porcentajeImpuesto}% sobre {cfg.aplicaImpuestoSobre === "pago_chofer" ? "el pago del chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "la utilidad bruta" : "las ventas brutas"}).</>
+          )}{" "}
+          Se descuenta el efectivo que ya recibiste en ruta. El saldo es lo que el dueño te debe (positivo) o lo que tú le debes (negativo).
         </p>
       </CardContent>
     </Card>

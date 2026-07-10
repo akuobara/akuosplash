@@ -4,23 +4,28 @@ import { getRange, labelTipoGasto } from "@/lib/helpers";
 
 // GET /api/reportes/liquidacion?period=hoy|semana|mes|todo
 //
-// Dos modos de liquidación:
+// Dos modos de liquidación + cálculo de impuestos.
 //
-// 1. "porcentaje" (antiguo):
-//    utilidadBruta = ventas - gastos
-//    parteChofer = utilidadBruta * (%chofer / 100)
-//    parteDueno  = utilidadBruta * (%dueno  / 100)
-//    saldo = parteChofer - efectivoRecibidoEnRuta
+// Modo "porcentaje":
+//   utilidadBruta = ventas - gastos
+//   pagoChofer = utilidadBruta * (%chofer / 100)
+//   pagoDueno  = utilidadBruta * (%dueno  / 100)
 //
-// 2. "vuelta" (nuevo):
-//    Pago al chofer = suma de pago por vuelta
-//      - vuelta con 1 entrega  -> montoPorVueltaUnicoCliente
-//      - vuelta con >1 entregas -> montoPorVueltaMultiple
-//    Gastos pagados por chofer (reembolsables) = gastos donde pagadoPor = "chofer"
-//    Gastos pagados por dueño = gastos donde pagadoPor = "dueno"
-//    efectivoRecibidoEnRuta = montoEfectivo de todas las entregas
-//    saldo = pagoChofer + gastosPagadosPorChofer - efectivoRecibidoEnRuta
-//      (si saldo > 0: dueño le paga al chofer; si < 0: chofer le debe al dueño)
+// Modo "vuelta":
+//   pagoChofer = suma de pago por vuelta
+//   (1 entrega -> montoPorVueltaUnicoCliente; >1 -> montoPorVueltaMultiple)
+//
+// Impuestos:
+//   baseImponible = depende de aplicaImpuestoSobre:
+//     - "pago_chofer" -> pagoChofer
+//     - "utilidad_bruta" -> utilidadBruta
+//     - "ventas_brutas" -> totalVentas
+//   impuesto = baseImponible * (porcentajeImpuesto / 100)
+//   liquidoChofer = pagoChofer - impuesto  (solo si base es pago_chofer)
+//
+// Saldo final:
+//   saldo = (pagoChofer + gastosChofer) - efectivoRecibidoEnRuta - impuesto
+//   (si baseImponible es pago_chofer o utilidad_bruta, el impuesto se descuenta del chofer)
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const period = (searchParams.get("period") as "hoy" | "semana" | "mes" | "todo") || "mes";
@@ -38,7 +43,10 @@ export async function GET(req: NextRequest) {
     db.gasto.findMany({ where: rangeFilter, orderBy: { fecha: "desc" } }),
     db.vuelta.findMany({
       where: rangeFilterVuelta,
-      include: { entregas: { select: { id: true, litros: true, total: true, montoEfectivo: true, montoTransferencia: true, montoRecibido: true, clienteNombre: true, metodoPago: true } } },
+      include: {
+        camion: { select: { id: true, nombre: true, patente: true, capacidad: true } },
+        entregas: { select: { id: true, litros: true, total: true, montoEfectivo: true, montoTransferencia: true, montoRecibido: true, clienteNombre: true, metodoPago: true } },
+      },
       orderBy: { iniciadaEn: "desc" },
     }),
     db.configuracion.findUnique({ where: { id: "default" } }),
@@ -55,6 +63,9 @@ export async function GET(req: NextRequest) {
     montoPorVueltaMultiple: 25000,
     precioEfectivoPorLitro: 0,
     precioTransferenciaPorLitro: 0,
+    tipoTributo: "boleta_honorarios",
+    porcentajeImpuesto: 15.25,
+    aplicaImpuestoSobre: "pago_chofer",
   };
 
   const totalVentas = entregas.reduce((s, e) => s + e.total, 0);
@@ -68,14 +79,11 @@ export async function GET(req: NextRequest) {
 
   const utilidadBruta = totalVentas - totalGastos;
 
-  // --- Calcular según modo ---
   let pagoChofer = 0;
   let pagoDueno = 0;
-  let saldoChofer = 0;
   let vueltasDetalle: any[] = [];
 
   if (cfg.modoLiquidacion === "vuelta") {
-    // Para cada vuelta, calcular pago
     vueltasDetalle = vueltas.map((v) => {
       const numEntregas = v.entregas.length;
       const esMultiple = numEntregas > 1;
@@ -84,14 +92,18 @@ export async function GET(req: NextRequest) {
       const ventas = v.entregas.reduce((s, e) => s + e.total, 0);
       const efectivo = v.entregas.reduce((s, e) => s + e.montoEfectivo, 0);
       const transferencia = v.entregas.reduce((s, e) => s + e.montoTransferencia, 0);
+      const capacidadCamion = v.camion?.capacidad ?? 0;
       return {
         id: v.id,
         numero: v.numero,
         iniciadaEn: v.iniciadaEn,
         cerradaEn: v.cerradaEn,
+        camion: v.camion,
         cantidadEntregas: numEntregas,
         esMultiple,
         litros,
+        litrosRestantes: Math.max(0, capacidadCamion - litros),
+        capacidadCamion,
         ventas,
         efectivo,
         transferencia,
@@ -100,24 +112,32 @@ export async function GET(req: NextRequest) {
     });
 
     pagoChofer = vueltasDetalle.reduce((s, v) => s + v.montoPago, 0);
-    pagoDueno = 0; // en modo vuelta, el dueño no recibe % de utilidad directamente
-    // Gastos pagados por chofer son reembolsables
-    // Saldo: lo que el dueño le debe al chofer (positivo) o viceversa (negativo)
-    saldoChofer = pagoChofer + gastosChofer - totalEfectivoRecibido;
+    pagoDueno = 0;
   } else {
-    // Modo porcentaje (antiguo)
     pagoChofer = (utilidadBruta * cfg.porcentajeComisionChofer) / 100;
     pagoDueno = (utilidadBruta * cfg.porcentajeComisionDueno) / 100;
-    saldoChofer = pagoChofer - totalEfectivoRecibido;
   }
 
-  // Gastos por tipo (para detalle)
+  // ===== Cálculo de impuestos =====
+  let baseImponible = 0;
+  if (cfg.aplicaImpuestoSobre === "pago_chofer") baseImponible = pagoChofer;
+  else if (cfg.aplicaImpuestoSobre === "utilidad_bruta") baseImponible = utilidadBruta;
+  else if (cfg.aplicaImpuestoSobre === "ventas_brutas") baseImponible = totalVentas;
+
+  const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (baseImponible * cfg.porcentajeImpuesto) / 100;
+
+  // Saldo del chofer (lo que recibe o debe):
+  //   pagoChofer (bruto) + reembolso de gastos que pagó el chofer − impuesto retenido − efectivo ya recibido
+  const liquidoChoferAntesDeEfectivo = pagoChofer + gastosChofer - impuesto;
+  const saldoChofer = liquidoChoferAntesDeEfectivo - totalEfectivoRecibido;
+
+  // Gastos por tipo
   const gastosPorTipo: Record<string, number> = {};
   for (const g of gastos) {
     gastosPorTipo[g.tipo] = (gastosPorTipo[g.tipo] ?? 0) + g.monto;
   }
 
-  // Top clientes por venta en el período
+  // Top clientes por venta
   const porCliente: Record<string, { nombre: string; litros: number; total: number; entregas: number }> = {};
   for (const e of entregas) {
     const key = e.clienteNombre || "Sin nombre";
@@ -145,6 +165,9 @@ export async function GET(req: NextRequest) {
       utilidadBruta,
       pagoChofer,
       pagoDueno,
+      baseImponible,
+      impuesto,
+      liquidoChoferAntesDeEfectivo,
       saldoChofer,
       cantidadVueltas: vueltas.length,
       vueltasUnicoCliente: vueltasDetalle.filter((v) => !v.esMultiple).length,

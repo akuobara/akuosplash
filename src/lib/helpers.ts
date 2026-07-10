@@ -32,6 +32,19 @@ export const MODOS_LIQUIDACION = [
   { value: "vuelta", label: "Pago por vuelta entregada" },
 ] as const;
 
+export const TIPOS_TRIBUTO = [
+  { value: "boleta_honorarios", label: "Boleta de honorarios", description: "Retención + cotización previsional" },
+  { value: "factura", label: "Factura electrónica", description: "IVA y/o retención" },
+  { value: "otro", label: "Otro tributo", description: "Configura el porcentaje manualmente" },
+  { value: "ninguno", label: "Sin impuestos", description: "No aplica retención" },
+] as const;
+
+export const APLICA_IMPUESTO_SOBRE = [
+  { value: "pago_chofer", label: "Pago al chofer (líquido)", description: "Ej. boleta de honorarios sobre el fee del chofer" },
+  { value: "utilidad_bruta", label: "Utilidad bruta (ventas − gastos)", description: "El tributo se calcula sobre la utilidad" },
+  { value: "ventas_brutas", label: "Ventas brutas", description: "El tributo se calcula sobre el total vendido" },
+] as const;
+
 export function labelTipoGasto(tipo: string): string {
   return TIPOS_GASTO.find((t) => t.value === tipo)?.label ?? tipo;
 }
@@ -50,6 +63,14 @@ export function labelPagadoPor(quien: string): string {
 
 export function labelModoLiquidacion(modo: string): string {
   return MODOS_LIQUIDACION.find((m) => m.value === modo)?.label ?? modo;
+}
+
+export function labelTipoTributo(tipo: string): string {
+  return TIPOS_TRIBUTO.find((t) => t.value === tipo)?.label ?? tipo;
+}
+
+export function labelAplicaImpuestoSobre(sobre: string): string {
+  return APLICA_IMPUESTO_SOBRE.find((a) => a.value === sobre)?.label ?? sobre;
 }
 
 export function formatCurrency(value: number): string {

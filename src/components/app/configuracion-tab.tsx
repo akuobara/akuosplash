@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -14,10 +13,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Save, Info, Droplets, HandCoins, Truck, Users } from "lucide-react";
+import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { apiPut } from "@/lib/api-client";
-import { MODOS_LIQUIDACION, formatCurrency } from "@/lib/helpers";
+import {
+  MODOS_LIQUIDACION,
+  TIPOS_TRIBUTO,
+  APLICA_IMPUESTO_SOBRE,
+  formatCurrency,
+} from "@/lib/helpers";
+import { CamionesManager } from "./camiones-manager";
 
 interface Config {
   id: string;
@@ -31,17 +36,28 @@ interface Config {
   montoPorVueltaMultiple: number;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  tipoTributo: string;
+  porcentajeImpuesto: number;
+  aplicaImpuestoSobre: string;
 }
 
 interface ConfiguracionTabProps {
   config: Config | null;
   onConfigChange: (c: Config) => void;
+  refreshKey: number;
+  onRefresh: () => void;
+  onCamionesChange: (camiones: { id: string; nombre: string; patente: string | null; capacidad: number; activo: boolean }[]) => void;
 }
 
-export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabProps) {
+export function ConfiguracionTab({
+  config,
+  onConfigChange,
+  refreshKey,
+  onRefresh,
+  onCamionesChange,
+}: ConfiguracionTabProps) {
   const [nombreChofer, setNombreChofer] = useState("");
   const [nombreDueno, setNombreDueno] = useState("");
-  const [capacidadCamion, setCapacidadCamion] = useState("17000");
 
   const [modoLiquidacion, setModoLiquidacion] = useState("porcentaje");
 
@@ -54,13 +70,17 @@ export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabPro
   const [precioEfectivo, setPrecioEfectivo] = useState("0");
   const [precioTransferencia, setPrecioTransferencia] = useState("0");
 
+  // Impuestos
+  const [tipoTributo, setTipoTributo] = useState("boleta_honorarios");
+  const [porcentajeImpuesto, setPorcentajeImpuesto] = useState("15.25");
+  const [aplicaImpuestoSobre, setAplicaImpuestoSobre] = useState("pago_chofer");
+
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (config) {
       setNombreChofer(config.nombreChofer);
       setNombreDueno(config.nombreDueno);
-      setCapacidadCamion(String(config.capacidadCamion));
       setModoLiquidacion(config.modoLiquidacion || "porcentaje");
       setPctChofer(String(config.porcentajeComisionChofer));
       setPctDueno(String(config.porcentajeComisionDueno));
@@ -68,8 +88,21 @@ export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabPro
       setMontoVueltaMultiple(String(config.montoPorVueltaMultiple));
       setPrecioEfectivo(String(config.precioEfectivoPorLitro));
       setPrecioTransferencia(String(config.precioTransferenciaPorLitro));
+      setTipoTributo(config.tipoTributo || "boleta_honorarios");
+      setPorcentajeImpuesto(String(config.porcentajeImpuesto ?? 15.25));
+      setAplicaImpuestoSobre(config.aplicaImpuestoSobre || "pago_chofer");
     }
   }, [config]);
+
+  // Auto-ajustar porcentaje cuando cambia tipo de tributo
+  function onChangeTipoTributo(t: string) {
+    setTipoTributo(t);
+    if (t === "ninguno") {
+      setPorcentajeImpuesto("0");
+    } else if (t === "boleta_honorarios" && porcentajeImpuesto === "0") {
+      setPorcentajeImpuesto("15.25");
+    }
+  }
 
   function onChangeChofer(v: string) {
     const n = Number(v) || 0;
@@ -88,7 +121,6 @@ export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabPro
       const r = await apiPut<{ configuracion: Config }>("/api/configuracion", {
         nombreChofer,
         nombreDueno,
-        capacidadCamion: Number(capacidadCamion) || 17000,
         modoLiquidacion,
         porcentajeComisionChofer: Number(pctChofer),
         porcentajeComisionDueno: Number(pctDueno),
@@ -96,6 +128,9 @@ export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabPro
         montoPorVueltaMultiple: Number(montoVueltaMultiple),
         precioEfectivoPorLitro: Number(precioEfectivo),
         precioTransferenciaPorLitro: Number(precioTransferencia),
+        tipoTributo,
+        porcentajeImpuesto: Number(porcentajeImpuesto),
+        aplicaImpuestoSobre,
       });
       onConfigChange(r.configuracion);
       toast.success("Configuración guardada");
@@ -106,12 +141,17 @@ export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabPro
     }
   }
 
+  // Ejemplo de cálculo de impuesto para mostrar
+  const ejemploBase = 100000;
+  const ejemploImpuesto = (ejemploBase * (Number(porcentajeImpuesto) || 0)) / 100;
+  const ejemploLiquido = ejemploBase - ejemploImpuesto;
+
   return (
     <div className="space-y-4">
       <div>
         <h2 className="text-lg font-semibold sm:text-xl">Configuración</h2>
         <p className="text-sm text-muted-foreground">
-          Datos del negocio, capacidad del camión, precios y reparto con el dueño.
+          Datos del negocio, camiones, precios, reparto con el dueño e impuestos.
         </p>
       </div>
 
@@ -145,29 +185,12 @@ export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabPro
         </CardContent>
       </Card>
 
-      {/* Datos del camión */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Truck className="h-4 w-4 text-primary" />
-            <CardTitle className="text-base">Camión aljibe</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Label htmlFor="cfgCapacidad">Capacidad del estanque (litros)</Label>
-          <Input
-            id="cfgCapacidad"
-            type="number"
-            inputMode="numeric"
-            value={capacidadCamion}
-            onChange={(e) => setCapacidadCamion(e.target.value)}
-            placeholder="17000"
-          />
-          <p className="text-xs text-muted-foreground">
-            Se usa para mostrar el progreso de carga de cada vuelta y avisarte si la superas.
-          </p>
-        </CardContent>
-      </Card>
+      {/* Camiones — gestionar multiples */}
+      <CamionesManager
+        refreshKey={refreshKey}
+        onRefresh={onRefresh}
+        onCamionesChange={onCamionesChange}
+      />
 
       {/* Precios por método de pago */}
       <Card>
@@ -315,8 +338,97 @@ export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabPro
                   <li>Si esa vuelta entregas a 2+ clientes → te pagan <strong>{formatCurrency(Number(montoVueltaMultiple) || 0)}</strong>.</li>
                   <li>Los gastos que pagaste tú (chofer) se suman a tu pago como reembolso.</li>
                   <li>El efectivo que recibiste en ruta se descuenta de tu pago total.</li>
+                  <li>Se descuentan los impuestos según la configuración de abajo.</li>
                 </ul>
               </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* IMPUESTOS — nueva sección */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Receipt className="h-4 w-4 text-primary" />
+            <CardTitle className="text-base">Impuestos</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="cfgTipoTributo">Tipo de tributo</Label>
+            <Select value={tipoTributo} onValueChange={onChangeTipoTributo}>
+              <SelectTrigger id="cfgTipoTributo">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {TIPOS_TRIBUTO.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>
+                    <div className="flex flex-col">
+                      <span>{t.label}</span>
+                      <span className="text-xs text-muted-foreground">{t.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {tipoTributo !== "ninguno" && (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="cfgPorcentajeImp">Porcentaje de impuesto (%)</Label>
+                  <Input
+                    id="cfgPorcentajeImp"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    value={porcentajeImpuesto}
+                    onChange={(e) => setPorcentajeImpuesto(e.target.value)}
+                    placeholder="15.25"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Variable según tu régimen. Boleta honorarios en Chile: 15.25% (10.75% retención + 4.5% previsión).
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cfgAplicaSobre">Se aplica sobre</Label>
+                  <Select value={aplicaImpuestoSobre} onValueChange={setAplicaImpuestoSobre}>
+                    <SelectTrigger id="cfgAplicaSobre">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {APLICA_IMPUESTO_SOBRE.map((a) => (
+                        <SelectItem key={a.value} value={a.value}>
+                          <div className="flex flex-col">
+                            <span>{a.label}</span>
+                            <span className="text-xs text-muted-foreground">{a.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Ejemplo de cálculo */}
+              <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs">
+                <p className="mb-1 flex items-center gap-1 font-medium">
+                  <FileText className="h-3.5 w-3.5" /> Ejemplo de cálculo (base {formatCurrency(ejemploBase)})
+                </p>
+                <div className="space-y-0.5 tabular-nums">
+                  <p>Base imponible: <strong>{formatCurrency(ejemploBase)}</strong></p>
+                  <p>Impuesto ({Number(porcentajeImpuesto) || 0}%): <strong className="text-red-600 dark:text-red-400">−{formatCurrency(ejemploImpuesto)}</strong></p>
+                  <p className="border-t border-border pt-0.5">Líquido a recibir: <strong className="text-emerald-600 dark:text-emerald-400">{formatCurrency(ejemploLiquido)}</strong></p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {tipoTributo === "ninguno" && (
+            <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
+              No se calcularán impuestos en la liquidación.
             </div>
           )}
         </CardContent>
@@ -335,8 +447,8 @@ export function ConfiguracionTab({ config, onConfigChange }: ConfiguracionTabPro
             <li>Venta de agua directa desde la app (clientes pueden pedir y pagar online).</li>
             <li>Recordatorios automáticos a clientes con saldo pendiente.</li>
             <li>Exportación de reportes a PDF/Excel para compartir con el dueño.</li>
-            <li>Soporte multi-camión si en el futuro manejas más de una unidad.</li>
-            <li>Cuentas de usuario separadas para chofer y dueño (cada uno ve lo que le corresponde).</li>
+            <li>Múltiples dueños/chóferes con login — cada uno ve solo lo suyo.</li>
+            <li>Asignar camiones a dueños específicos (cuando manejes flota de varios dueños).</li>
           </ul>
         </CardContent>
       </Card>

@@ -60,6 +60,14 @@ export interface VueltaActual {
   iniciadaEn: string;
   cantidadEntregas: number;
   litros: number;
+  litrosRestantes?: number;
+  capacidadCamion?: number;
+  camion?: {
+    id: string;
+    nombre: string;
+    patente: string | null;
+    capacidad: number;
+  } | null;
 }
 
 interface ClienteOption {
@@ -307,11 +315,19 @@ export function EntregaForm({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Vuelta actual (info) */}
           {vueltaActual && !isEdit && (
-            <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-              <Droplets className="h-4 w-4 text-primary" />
-              <span>
-                Se asignará a la <strong>Vuelta #{vueltaActual.numero}</strong> activa · {vueltaActual.cantidadEntregas} entrega(s) · {formatNumber(vueltaActual.litros, 0)} L acumulados
-              </span>
+            <div className="flex flex-col gap-1 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2">
+                <Droplets className="h-4 w-4 text-primary" />
+                <span>
+                  Se asignará a la <strong>Vuelta #{vueltaActual.numero}</strong>
+                  {vueltaActual.camion && <> · {vueltaActual.camion.nombre}</>}
+                </span>
+              </div>
+              {vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  Entregado: {formatNumber(vueltaActual.litros, 0)} L · Disponible: {formatNumber(Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros), 0)} L
+                </span>
+              )}
             </div>
           )}
 
@@ -424,10 +440,18 @@ export function EntregaForm({
             {litrosCalculado != null && litrosManual === "" && (
               <p className="mt-2 text-xs text-muted-foreground">
                 Litros calculados: <strong>{formatNumber(litrosCalculado, 0)} L</strong>
-                {config.capacidadCamion > 0 && litrosCalculado > config.capacidadCamion && (
-                  <span className="ml-2 text-amber-600 dark:text-amber-400">
-                    ⚠ Excede la capacidad del camión ({formatNumber(config.capacidadCamion, 0)} L)
-                  </span>
+                {vueltaActual && vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
+                  (() => {
+                    const disponible = Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros);
+                    if (litrosCalculado > disponible) {
+                      return (
+                        <span className="ml-2 text-amber-600 dark:text-amber-400">
+                          ⚠ Solo quedan {formatNumber(disponible, 0)} L en el camión
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()
                 )}
               </p>
             )}
