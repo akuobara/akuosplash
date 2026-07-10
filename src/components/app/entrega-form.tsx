@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink } from "lucide-react";
+import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink, Banknote, Smartphone, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost, apiPatch, uploadFile } from "@/lib/api-client";
 import {
@@ -246,12 +246,15 @@ export function EntregaForm({
   const recibidoFinal = efectivoFinal + transferenciaFinal;
   const saldoFinal = totalCalculado - recibidoFinal;
 
-  // Auto-actualizar estadoPago según monto recibido
+  // Auto-actualizar estadoPago según monto recibido (SIEMPRE automático, no manual)
   useEffect(() => {
-    if (recibidoFinal >= totalCalculado && totalCalculado > 0) setEstadoPago("pagado");
-    else if (recibidoFinal > 0) setEstadoPago("parcial");
-    else setEstadoPago("pendiente");
-     
+    if (recibidoFinal === 0) {
+      setEstadoPago("pendiente");
+    } else if (recibidoFinal >= totalCalculado && totalCalculado > 0) {
+      setEstadoPago("pagado");
+    } else {
+      setEstadoPago("parcial");
+    }
   }, [recibidoFinal, totalCalculado]);
 
   async function handleFoto(file: File) {
@@ -528,71 +531,21 @@ export function EntregaForm({
             )}
           </div>
 
-          {/* Método de pago + precio */}
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="metodoPago">Método de pago</Label>
-              <Select value={metodoPago} onValueChange={onChangeMetodoPago}>
-                <SelectTrigger id="metodoPago">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {METODOS_PAGO.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      {m.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="precio">Precio por litro</Label>
-              <Input
-                id="precio"
-                type="number"
-                inputMode="decimal"
-                step="any"
-                value={precioPorLitro}
-                onChange={(e) => setPrecioPorLitro(e.target.value)}
-                placeholder="0"
-              />
-              <p className="text-xs text-muted-foreground">
-                Default: {formatCurrency(config.precioEfectivoPorLitro)}/L efectivo · {formatCurrency(config.precioTransferenciaPorLitro)}/L transferencia
-              </p>
-            </div>
-          </div>
-
-          {/* Pagos desglosados */}
-          <div className="rounded-lg border border-border bg-muted/30 p-3">
-            <p className="mb-2 text-sm font-medium">Pagos recibidos</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="montoEfectivo" className="text-xs">Efectivo recibido</Label>
-                <Input
-                  id="montoEfectivo"
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  value={montoEfectivo}
-                  onChange={(e) => setMontoEfectivo(e.target.value)}
-                  placeholder="0"
-                  disabled={metodoPago === "transferencia"}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="montoTransferencia" className="text-xs">Transferencia recibida</Label>
-                <Input
-                  id="montoTransferencia"
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  value={montoTransferencia}
-                  onChange={(e) => setMontoTransferencia(e.target.value)}
-                  placeholder="0"
-                  disabled={metodoPago === "efectivo"}
-                />
-              </div>
-            </div>
+          {/* Precio por litro */}
+          <div className="space-y-2">
+            <Label htmlFor="precio">Precio por litro</Label>
+            <Input
+              id="precio"
+              type="number"
+              inputMode="decimal"
+              step="any"
+              value={precioPorLitro}
+              onChange={(e) => setPrecioPorLitro(e.target.value)}
+              placeholder="0"
+            />
+            <p className="text-xs text-muted-foreground">
+              Default: {formatCurrency(config.precioEfectivoPorLitro)}/L efectivo · {formatCurrency(config.precioTransferenciaPorLitro)}/L transferencia
+            </p>
           </div>
 
           {/* Resumen de cálculo — siempre visible y automático */}
@@ -625,20 +578,122 @@ export function EntregaForm({
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label>Estado del pago</Label>
-            <div className="flex flex-wrap gap-2">
-              {ESTADOS_PAGO.map((e) => (
-                <Button
-                  key={e.value}
-                  type="button"
-                  variant={estadoPago === e.value ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setEstadoPago(e.value)}
-                >
-                  {e.label}
-                </Button>
-              ))}
+          {/* Botones rápidos de cobro */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Cobro al cliente</Label>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {/* Botón: Efectivo */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMetodoPago("efectivo");
+                  setMontoTransferencia("");
+                  // Si no hay efectivo ingresado, auto-llenar con el total
+                  if (!montoEfectivo) {
+                    setMontoEfectivo(String(Math.round(totalCalculado)));
+                  }
+                }}
+                className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+                  metodoPago === "efectivo" && efectivoFinal > 0
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                <Banknote className="h-5 w-5" />
+                <span className="text-sm font-medium">Efectivo</span>
+                {efectivoFinal > 0 && (
+                  <span className="text-xs text-muted-foreground">{formatCurrency(efectivoFinal)}</span>
+                )}
+              </button>
+
+              {/* Botón: Transferencia */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMetodoPago("transferencia");
+                  setMontoEfectivo("");
+                  // Si no hay transferencia ingresada, auto-llenar con el total
+                  if (!montoTransferencia) {
+                    setMontoTransferencia(String(Math.round(totalCalculado)));
+                  }
+                }}
+                className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+                  metodoPago === "transferencia" && transferenciaFinal > 0
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                <Smartphone className="h-5 w-5" />
+                <span className="text-sm font-medium">Transferencia</span>
+                {transferenciaFinal > 0 && (
+                  <span className="text-xs text-muted-foreground">{formatCurrency(transferenciaFinal)}</span>
+                )}
+              </button>
+
+              {/* Botón: Sin pago (pendiente) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMetodoPago("credito");
+                  setMontoEfectivo("");
+                  setMontoTransferencia("");
+                }}
+                className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+                  recibidoFinal === 0
+                    ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300"
+                    : "border-border hover:border-amber-500/50"
+                }`}
+              >
+                <Clock className="h-5 w-5" />
+                <span className="text-sm font-medium">Sin pago</span>
+                <span className="text-xs text-muted-foreground">Pendiente</span>
+              </button>
+            </div>
+
+            {/* Inputs de monto (aparecen cuando hay cobro) */}
+            {efectivoFinal > 0 && (
+              <div className="space-y-1 rounded-lg border border-border bg-muted/30 p-2">
+                <Label htmlFor="montoEfectivo" className="text-xs">
+                  <Banknote className="mr-1 inline h-3 w-3" /> Efectivo recibido
+                </Label>
+                <Input
+                  id="montoEfectivo"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  value={montoEfectivo}
+                  onChange={(e) => setMontoEfectivo(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+            )}
+            {transferenciaFinal > 0 && (
+              <div className="space-y-1 rounded-lg border border-border bg-muted/30 p-2">
+                <Label htmlFor="montoTransferencia" className="text-xs">
+                  <Smartphone className="mr-1 inline h-3 w-3" /> Transferencia recibida
+                </Label>
+                <Input
+                  id="montoTransferencia"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  value={montoTransferencia}
+                  onChange={(e) => setMontoTransferencia(e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+            )}
+
+            {/* Estado automático (solo lectura) */}
+            <div className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2 text-sm">
+              <span className="text-muted-foreground">Estado del pago:</span>
+              <span className={`font-semibold ${
+                estadoPago === "pagado" ? "text-emerald-600 dark:text-emerald-400"
+                : estadoPago === "parcial" ? "text-amber-600 dark:text-amber-400"
+                : "text-muted-foreground"
+              }`}>
+                {estadoPago === "pagado" ? "✓ Pagado" : estadoPago === "parcial" ? "Parcial" : "Pendiente"}
+              </span>
             </div>
           </div>
 
