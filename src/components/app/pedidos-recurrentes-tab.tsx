@@ -52,6 +52,8 @@ import {
   labelMetodoPago,
   METODOS_PAGO,
 } from "@/lib/helpers";
+import { CalendarView } from "./calendar-view";
+import { useMemo } from "react";
 
 interface Recurrente {
   id: string;
@@ -93,6 +95,7 @@ interface PedidosRecurrentesTabProps {
 export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, choferes }: PedidosRecurrentesTabProps) {
   const [recurrentes, setRecurrentes] = useState<Recurrente[]>([]);
   const [loading, setLoading] = useState(true);
+  const [vista, setVista] = useState<"lista" | "calendario">("calendario");
 
   const [formOpen, setFormOpen] = useState(false);
   const [editando, setEditando] = useState<Recurrente | null>(null);
@@ -126,6 +129,43 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
   useEffect(() => {
     cargar();
   }, [cargar, refreshKey]);
+
+  // Generar próximas fechas de pedidos recurrentes para el calendario
+  // Calcula las próximas 6 ocurrencias de cada recurrente activo
+  const eventosCalendario = useMemo(() => {
+    const eventos: { fecha: Date; litros: number; pedidos: { nombre: string; litros: number; tipo: "recurrente" | "programado" }[] }[] = [];
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    for (const r of recurrentes) {
+      if (!r.activo) continue;
+      // Empezar desde la próxima fecha de generación
+      let fecha = new Date(r.fechaProximaGeneracion);
+      fecha.setHours(0, 0, 0, 0);
+      // Si la próxima fecha ya pasó, calcular desde hoy
+      if (fecha < hoy) {
+        // Avanzar hasta encontrar la próxima fecha futura
+        while (fecha < hoy) {
+          fecha.setDate(fecha.getDate() + r.frecuenciaDias);
+        }
+      }
+      // Generar las próximas 6 ocurrencias
+      for (let i = 0; i < 6; i++) {
+        eventos.push({
+          fecha: new Date(fecha),
+          litros: r.litrosSolicitados,
+          pedidos: [{
+            nombre: r.cliente.nombre,
+            litros: r.litrosSolicitados,
+            tipo: "recurrente" as const,
+          }],
+        });
+        fecha.setDate(fecha.getDate() + r.frecuenciaDias);
+      }
+    }
+
+    return eventos;
+  }, [recurrentes]);
 
   function abrirNuevo() {
     setEditando(null);
@@ -243,13 +283,39 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
             Genera pedidos automáticamente para clientes que necesitan agua cada cierto tiempo (ej. semanal).
           </p>
         </div>
-        <Button onClick={abrirNuevo} size="sm">
-          <Plus className="mr-1 h-4 w-4" /> Nuevo recurrente
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-lg border border-border p-0.5">
+            <Button
+              size="sm"
+              variant={vista === "calendario" ? "default" : "ghost"}
+              onClick={() => setVista("calendario")}
+              className="h-7"
+            >
+              <Calendar className="mr-1 h-3 w-3" /> Calendario
+            </Button>
+            <Button
+              size="sm"
+              variant={vista === "lista" ? "default" : "ghost"}
+              onClick={() => setVista("lista")}
+              className="h-7"
+            >
+              <Repeat className="mr-1 h-3 w-3" /> Lista
+            </Button>
+          </div>
+          <Button onClick={abrirNuevo} size="sm">
+            <Plus className="mr-1 h-4 w-4" /> Nuevo
+          </Button>
+        </div>
       </div>
 
-      {/* Lista */}
-      {loading ? (
+      {/* Vista Calendario */}
+      {vista === "calendario" && !loading && (
+        <CalendarView eventos={eventosCalendario} />
+      )}
+
+      {/* Vista Lista */}
+      {vista === "lista" && (
+        loading ? (
         <div className="space-y-2">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-lg" />
@@ -351,6 +417,7 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
             </Card>
           ))}
         </div>
+      )
       )}
 
       {/* Formulario */}

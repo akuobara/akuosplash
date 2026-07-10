@@ -107,6 +107,7 @@ interface Pedido {
   publicadoEn: string | null;
   vueltaId: string | null;
   vuelta?: { id: string; numero: number } | null;
+  pedidoRecurrenteId?: string | null;
 }
 
 interface ClienteOption {
@@ -501,6 +502,26 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                             {p.clienteZona && (
                               <Badge variant="outline" className="text-[10px]">{p.clienteZona}</Badge>
                             )}
+                            {/* Badge: pedido recurrente */}
+                            {p.pedidoRecurrenteId && (
+                              <Badge variant="outline" className="text-[10px] gap-0.5 bg-primary/10 text-primary border-primary/30" title="Pedido generado desde una regla recurrente">
+                                <Repeat className="h-2.5 w-2.5" /> Recurrente
+                              </Badge>
+                            )}
+                            {/* Badge: programado para fecha futura */}
+                            {p.fechaSolicitada && (() => {
+                              const fecha = new Date(p.fechaSolicitada);
+                              const hoy = new Date();
+                              hoy.setHours(0, 0, 0, 0);
+                              if (fecha > hoy) {
+                                return (
+                                  <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Programado para ${formatDate(p.fechaSolicitada!)}`}>
+                                    <Clock className="h-2.5 w-2.5" /> {formatDate(p.fechaSolicitada!)}
+                                  </Badge>
+                                );
+                              }
+                              return null;
+                            })()}
                             {/* Badges de asignación */}
                             {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
                               <Badge variant="outline" className="text-[10px] gap-0.5 text-purple-700 dark:text-purple-300">
