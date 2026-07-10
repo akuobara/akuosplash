@@ -20,6 +20,7 @@ import {
   Settings,
   LogOut,
   User as UserIcon,
+  Package,
 } from "lucide-react";
 import { Dashboard } from "@/components/app/dashboard";
 import { EntregasTab } from "@/components/app/entregas-tab";
@@ -28,6 +29,7 @@ import { LiquidacionTab } from "@/components/app/liquidacion-tab";
 import { ClientesTab } from "@/components/app/clientes-tab";
 import { ConfiguracionTab } from "@/components/app/configuracion-tab";
 import { EquipoTab } from "@/components/app/equipo-tab";
+import { PedidosTab } from "@/components/app/pedidos-tab";
 import { AuthScreen, type SessionUser } from "@/components/app/auth-screen";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -65,6 +67,7 @@ interface Config {
   porcentajeImpuesto: number;
   aplicaImpuestoSobre: string;
   choferesPuedenEditarClientes: boolean;
+  choferesPuedenCrearPedidos: boolean;
 }
 
 interface Camion {
@@ -91,7 +94,7 @@ interface VueltaActual {
   } | null;
 }
 
-type TabKey = "dashboard" | "entregas" | "gastos" | "liquidacion" | "clientes" | "config" | "equipo";
+type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "config" | "equipo";
 
 export default function Home() {
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -241,6 +244,10 @@ export default function Home() {
               <LayoutDashboard className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Panel</span>
             </TabsTrigger>
+            <TabsTrigger value="pedidos" className="flex-1 sm:flex-initial">
+              <Package className="mr-1 h-4 w-4" />
+              <span className="hidden sm:inline">Pedidos</span>
+            </TabsTrigger>
             <TabsTrigger value="entregas" className="flex-1 sm:flex-initial">
               <Truck className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Entregas</span>
@@ -287,6 +294,15 @@ export default function Home() {
               onGoToEntregas={() => setTab("entregas")}
               onGoToGastos={() => setTab("gastos")}
               onGoToLiquidacion={() => setTab("liquidacion")}
+            />
+          </TabsContent>
+
+          <TabsContent value="pedidos" className="mt-0">
+            <PedidosTab
+              refreshKey={refreshKey}
+              onRefresh={refresh}
+              canCreate={isDueno || !!config?.choferesPuedenCrearPedidos}
+              clientes={clientes}
             />
           </TabsContent>
 

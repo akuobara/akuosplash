@@ -32,6 +32,14 @@ export const MODOS_LIQUIDACION = [
   { value: "vuelta", label: "Pago por vuelta entregada" },
 ] as const;
 
+export const ESTADOS_PEDIDO = [
+  { value: "pendiente", label: "Pendiente", color: "amber" },
+  { value: "programado", label: "Programado", color: "blue" },
+  { value: "en_ruta", label: "En ruta", color: "purple" },
+  { value: "entregado", label: "Entregado", color: "emerald" },
+  { value: "cancelado", label: "Cancelado", color: "muted" },
+] as const;
+
 export const TIPOS_TRIBUTO = [
   { value: "boleta_honorarios", label: "Boleta de honorarios", description: "Retención + cotización previsional" },
   { value: "factura", label: "Factura electrónica", description: "IVA y/o retención" },
@@ -63,6 +71,10 @@ export function labelPagadoPor(quien: string): string {
 
 export function labelModoLiquidacion(modo: string): string {
   return MODOS_LIQUIDACION.find((m) => m.value === modo)?.label ?? modo;
+}
+
+export function labelEstadoPedido(estado: string): string {
+  return ESTADOS_PEDIDO.find((e) => e.value === estado)?.label ?? estado;
 }
 
 export function labelTipoTributo(tipo: string): string {

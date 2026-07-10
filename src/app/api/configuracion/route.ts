@@ -57,6 +57,7 @@ export async function PUT(req: NextRequest) {
       ...(body.porcentajeImpuesto !== undefined && { porcentajeImpuesto: Number(body.porcentajeImpuesto) }),
       ...(body.aplicaImpuestoSobre !== undefined && { aplicaImpuestoSobre: body.aplicaImpuestoSobre }),
       ...(body.choferesPuedenEditarClientes !== undefined && { choferesPuedenEditarClientes: !!body.choferesPuedenEditarClientes }),
+      ...(body.choferesPuedenCrearPedidos !== undefined && { choferesPuedenCrearPedidos: !!body.choferesPuedenCrearPedidos }),
     },
     create: {
       duenoId: session.userId,
@@ -74,6 +75,7 @@ export async function PUT(req: NextRequest) {
       porcentajeImpuesto: body.porcentajeImpuesto !== undefined ? Number(body.porcentajeImpuesto) : 15.25,
       aplicaImpuestoSobre: body.aplicaImpuestoSobre || "pago_chofer",
       choferesPuedenEditarClientes: body.choferesPuedenEditarClientes !== undefined ? !!body.choferesPuedenEditarClientes : false,
+      choferesPuedenCrearPedidos: body.choferesPuedenCrearPedidos !== undefined ? !!body.choferesPuedenCrearPedidos : false,
     },
   });
 

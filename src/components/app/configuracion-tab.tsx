@@ -41,6 +41,7 @@ interface Config {
   porcentajeImpuesto: number;
   aplicaImpuestoSobre: string;
   choferesPuedenEditarClientes: boolean;
+  choferesPuedenCrearPedidos: boolean;
 }
 
 interface ConfiguracionTabProps {
@@ -79,6 +80,7 @@ export function ConfiguracionTab({
 
   // Permisos para choferes
   const [choferesPuedenEditarClientes, setChoferesPuedenEditarClientes] = useState(false);
+  const [choferesPuedenCrearPedidos, setChoferesPuedenCrearPedidos] = useState(false);
 
   const [saving, setSaving] = useState(false);
 
@@ -97,6 +99,7 @@ export function ConfiguracionTab({
       setPorcentajeImpuesto(String(config.porcentajeImpuesto ?? 15.25));
       setAplicaImpuestoSobre(config.aplicaImpuestoSobre || "pago_chofer");
       setChoferesPuedenEditarClientes(config.choferesPuedenEditarClientes ?? false);
+      setChoferesPuedenCrearPedidos(config.choferesPuedenCrearPedidos ?? false);
     }
   }, [config]);
 
@@ -138,6 +141,7 @@ export function ConfiguracionTab({
         porcentajeImpuesto: Number(porcentajeImpuesto),
         aplicaImpuestoSobre,
         choferesPuedenEditarClientes,
+        choferesPuedenCrearPedidos,
       });
       onConfigChange(r.configuracion);
       toast.success("Configuración guardada");
@@ -467,11 +471,29 @@ export function ConfiguracionTab({
               onCheckedChange={setChoferesPuedenEditarClientes}
             />
           </div>
+
+          <div className="flex items-center justify-between rounded-lg border border-border p-3">
+            <div className="flex-1">
+              <Label htmlFor="permChoferesPedidos" className="text-sm font-medium">
+                Choferes pueden crear pedidos
+              </Label>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Si está activo, los choferes podrán registrar pedidos cuando un cliente les pida agua
+                por teléfono o en persona. Útil para planificar la ruta del día.
+              </p>
+            </div>
+            <Switch
+              id="permChoferesPedidos"
+              checked={choferesPuedenCrearPedidos}
+              onCheckedChange={setChoferesPuedenCrearPedidos}
+            />
+          </div>
+
           <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
             <Info className="mb-1 inline h-3 w-3" />{" "}
-            <strong>Consejo:</strong> Si tus choferes visitan clientes nuevos o cambian precios
-            según la zona, activa esta opción para que puedan mantener el catálogo actualizado
-                sin tener que pedirte permiso cada vez.
+            <strong>Consejo:</strong> Activar "crear pedidos" es útil si tus choferes reciben llamadas
+            de clientes directamente. Así registran el pedido en el momento y después lo convierten en
+            entrega cuando lo llevan.
           </div>
         </CardContent>
       </Card>

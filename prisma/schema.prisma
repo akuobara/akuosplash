@@ -36,6 +36,8 @@ model Usuario {
   gastosComoChofer  Gasto[]          @relation("GastoChofer")
   gastosComoDueno   Gasto[]          @relation("GastoDueno")
   clientesDueno     Cliente[]        @relation("ClienteDueno")
+  pedidosComoChofer Pedido[]         @relation("PedidoChofer")
+  pedidosComoDueno  Pedido[]         @relation("PedidoDueno")
   configuracion     Configuracion?   @relation("ConfigDueno")
 }
 
@@ -66,6 +68,47 @@ model Cliente {
   dueno         Usuario  @relation("ClienteDueno", fields: [duenoId], references: [id])
 
   entregas      Entrega[]
+  pedidos       Pedido[]
+}
+
+// Pedido de agua — creado cuando un cliente pide agua (por teléfono, etc.)
+// Se convierte en Entrega cuando el chofer lo entrega.
+model Pedido {
+  id                String   @id @default(cuid())
+  creadoEn          DateTime @default(now())
+
+  // Datos del cliente (snapshoteados)
+  clienteNombre     String
+  clienteDireccion  String?
+  clienteTelefono   String?
+  clienteZona       String?
+  clienteLat        Float?
+  clienteLng        Float?
+  clienteId         String?
+  cliente           Cliente? @relation(fields: [clienteId], references: [id])
+
+  // Detalle del pedido
+  litrosSolicitados Float
+  fechaSolicitada   DateTime?  // cuándo el cliente quiere que se entregue (opcional)
+  metodoPagoPreferido String   @default("efectivo")  // efectivo | transferencia | mixto | credito
+  indicacionesAcceso String?   // snapshot de indicaciones del cliente o custom
+  nota              String?
+
+  // Estado del pedido
+  estado            String   @default("pendiente")  // pendiente | programado | en_ruta | entregado | cancelado
+  entregaId         String?  @unique  // cuando se entrega, se vincula a la Entrega
+  entrega           Entrega? @relation(fields: [entregaId], references: [id])
+
+  // Quién toma el pedido y a qué dueño pertenece
+  choferId          String?  // quién tomó el pedido (puede ser null si lo creó el sistema)
+  chofer            Usuario? @relation("PedidoChofer", fields: [choferId], references: [id])
+
+  duenoId           String
+  dueno             Usuario  @relation("PedidoDueno", fields: [duenoId], references: [id])
+
+  // Vuelta asignada (para planificación de ruta)
+  vueltaId          String?
+  vuelta            Vuelta?  @relation(fields: [vueltaId], references: [id])
 }
 
 // Camión aljibe. Pertenece a un dueño. Puede tener varios choferes asignados.
@@ -116,6 +159,7 @@ model Vuelta {
   dueno       Usuario  @relation("VueltaDueno", fields: [duenoId], references: [id])
 
   entregas    Entrega[]
+  pedidos     Pedido[]
 }
 
 // Cada entrega/venta de agua a un cliente
@@ -156,6 +200,9 @@ model Entrega {
   fotoMedidorUrl    String?
   nota              String?
   creadoEn          DateTime @default(now())
+
+  // Si esta entrega viene de un pedido, se vincula aquí
+  pedido            Pedido?
 }
 
 // Gastos asociados a la operación
@@ -206,4 +253,5 @@ model Configuracion {
 
   // Permisos para choferes
   choferesPuedenEditarClientes Boolean @default(false)
+  choferesPuedenCrearPedidos   Boolean @default(false)
 }
