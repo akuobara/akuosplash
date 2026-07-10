@@ -275,6 +275,10 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    if (!clienteId || clienteId === "__nuevo") {
+      toast.error("Selecciona un cliente del catálogo");
+      return;
+    }
     if (!clienteNombre.trim()) {
       toast.error("Indica el nombre del cliente");
       return;
@@ -758,72 +762,44 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
           <DialogHeader>
             <DialogTitle>{editando ? "Editar pedido" : "Nuevo pedido"}</DialogTitle>
             <DialogDescription>
-              Registra el pedido de agua. Puedes seleccionar un cliente existente o crear uno nuevo.
+              Registra el pedido de agua. Selecciona un cliente del catálogo. Si es nuevo, primero créalo en Clientes.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
-            {/* Selector de cliente */}
+            {/* Selector de cliente — SOLO del catálogo */}
             <div className="space-y-2">
-              <Label htmlFor="clienteSelect">Cliente</Label>
-              <Select value={clienteId} onValueChange={onSelectCliente}>
-                <SelectTrigger id="clienteSelect">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__nuevo">— Cliente nuevo —</SelectItem>
-                  {clientes.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.nombre}
-                      {c.zona ? ` · ${c.zona}` : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="clienteSelect">Cliente *</Label>
+              {clientes.length === 0 ? (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 text-sm text-amber-800 dark:text-amber-200">
+                  <p className="font-medium">No hay clientes registrados</p>
+                  <p className="mt-1 text-xs">Primero debes crear la ficha del cliente en la pestaña Clientes. No se pueden crear pedidos para clientes no registrados.</p>
+                </div>
+              ) : (
+                <Select value={clienteId} onValueChange={onSelectCliente}>
+                  <SelectTrigger id="clienteSelect">
+                    <SelectValue placeholder="Selecciona un cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clientes.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.nombre}
+                        {c.zona ? ` · ${c.zona}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="clienteNombre">Nombre del cliente *</Label>
-                <Input
-                  id="clienteNombre"
-                  value={clienteNombre}
-                  onChange={(e) => setClienteNombre(e.target.value)}
-                  placeholder="Ej. Juan Pérez"
-                  required
-                />
+            {/* Info del cliente seleccionado (solo lectura) */}
+            {clienteId && clienteId !== "__nuevo" && clienteNombre && (
+              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1 text-sm">
+                <p><strong>{clienteNombre}</strong></p>
+                {clienteDireccion && <p className="text-muted-foreground">📍 {clienteDireccion}</p>}
+                {clienteTelefono && <p className="text-muted-foreground">📞 {clienteTelefono}</p>}
+                {clienteZona && <p className="text-muted-foreground">🗺️ {clienteZona}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="clienteTelefono">Teléfono</Label>
-                <Input
-                  id="clienteTelefono"
-                  value={clienteTelefono}
-                  onChange={(e) => setClienteTelefono(e.target.value)}
-                  placeholder="+56 9 1234 5678"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-              <div className="space-y-2">
-                <Label htmlFor="clienteDireccion">Dirección</Label>
-                <Input
-                  id="clienteDireccion"
-                  value={clienteDireccion}
-                  onChange={(e) => setClienteDireccion(e.target.value)}
-                  placeholder="Calle, número, referencia"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="clienteZona">Zona</Label>
-                <Input
-                  id="clienteZona"
-                  value={clienteZona}
-                  onChange={(e) => setClienteZona(e.target.value)}
-                  placeholder="Ej. Centro"
-                  className="w-[150px]"
-                />
-              </div>
-            </div>
+            )}
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">

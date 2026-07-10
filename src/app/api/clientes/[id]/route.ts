@@ -44,8 +44,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     where: { id },
     data: {
       ...(body.nombre !== undefined && { nombre: body.nombre.trim() }),
+      ...(body.rut !== undefined && { rut: body.rut?.trim() || null }),
       ...(body.direccion !== undefined && { direccion: body.direccion?.trim() || null }),
       ...(body.telefono !== undefined && { telefono: body.telefono?.trim() || null }),
+      ...(body.email !== undefined && { email: body.email?.trim() || null }),
       ...(body.zona !== undefined && { zona: body.zona?.trim() || null }),
       ...(body.precioEfectivoPorLitro !== undefined && { precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0 }),
       ...(body.precioTransferenciaPorLitro !== undefined && { precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0 }),

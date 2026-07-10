@@ -58,8 +58,10 @@ import { MapPicker } from "./map-picker";
 interface Cliente {
   id: string;
   nombre: string;
+  rut: string | null;
   direccion: string | null;
   telefono: string | null;
+  email: string | null;
   zona: string | null;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
@@ -97,8 +99,10 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
 
   // Campos del formulario
   const [nombre, setNombre] = useState("");
+  const [rut, setRut] = useState("");
   const [direccion, setDireccion] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [email, setEmail] = useState("");
   const [zona, setZona] = useState("");
   const [precioEfectivo, setPrecioEfectivo] = useState("");
   const [precioTransferencia, setPrecioTransferencia] = useState("");
@@ -148,8 +152,10 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   function abrirNuevo() {
     setEditando(null);
     setNombre("");
+    setRut("");
     setDireccion("");
     setTelefono("");
+    setEmail("");
     setZona("");
     setPrecioEfectivo("");
     setPrecioTransferencia("");
@@ -168,8 +174,10 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   function abrirEditar(c: Cliente) {
     setEditando(c);
     setNombre(c.nombre);
+    setRut(c.rut ?? "");
     setDireccion(c.direccion ?? "");
     setTelefono(c.telefono ?? "");
+    setEmail(c.email ?? "");
     setZona(c.zona ?? "");
     setPrecioEfectivo(c.precioEfectivoPorLitro ? String(c.precioEfectivoPorLitro) : "");
     setPrecioTransferencia(c.precioTransferenciaPorLitro ? String(c.precioTransferenciaPorLitro) : "");
@@ -217,8 +225,10 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     try {
       const payload = {
         nombre: nombre.trim(),
+        rut: rut.trim() || null,
         direccion: direccion.trim() || null,
         telefono: telefono.trim() || null,
+        email: email.trim() || null,
         zona: zona.trim() || null,
         precioEfectivoPorLitro: Number(precioEfectivo) || 0,
         precioTransferenciaPorLitro: Number(precioTransferencia) || 0,
@@ -449,29 +459,28 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nombreCliente">Nombre *</Label>
-              <Input
-                id="nombreCliente"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                placeholder="Ej. Juan Pérez"
-                required
-              />
-            </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="zonaCliente">Zona</Label>
+                <Label htmlFor="nombreCliente">Nombre *</Label>
                 <Input
-                  id="zonaCliente"
-                  value={zona}
-                  onChange={(e) => setZona(e.target.value)}
-                  placeholder="Ej. Rural 5km"
+                  id="nombreCliente"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  placeholder="Ej. Juan Pérez"
+                  required
                 />
-                <p className="text-xs text-muted-foreground">
-                  Para identificar clientes lejanos (mayor precio).
-                </p>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="rutCliente">RUT</Label>
+                <Input
+                  id="rutCliente"
+                  value={rut}
+                  onChange={(e) => setRut(e.target.value)}
+                  placeholder="12.345.678-9"
+                />
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="telefonoCliente">Teléfono</Label>
                 <Input
@@ -481,15 +490,36 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   placeholder="+56 9 1234 5678"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="emailCliente">Email</Label>
+                <Input
+                  id="emailCliente"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="cliente@email.com"
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="direccionCliente">Dirección</Label>
-              <Input
-                id="direccionCliente"
-                value={direccion}
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+              <div className="space-y-2">
+                <Label htmlFor="direccionCliente">Dirección</Label>
+                <Input
+                  id="direccionCliente"
+                  value={direccion}
                 onChange={(e) => setDireccion(e.target.value)}
                 placeholder="Calle, número, comuna"
               />
+            </div>
+              <div className="space-y-2">
+                <Label htmlFor="zonaCliente">Zona</Label>
+                <Input
+                  id="zonaCliente"
+                  value={zona}
+                  onChange={(e) => setZona(e.target.value)}
+                  placeholder="Ej. Rural 5km"
+                />
+              </div>
             </div>
 
             <div className="rounded-lg border border-border bg-muted/30 p-3">

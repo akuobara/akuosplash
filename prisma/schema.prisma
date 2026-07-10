@@ -51,8 +51,10 @@ model Usuario {
 model Cliente {
   id            String   @id @default(cuid())
   nombre        String
+  rut           String?
   direccion     String?
   telefono      String?
+  email         String?
   zona          String?
   precioEfectivoPorLitro       Float @default(0)
   precioTransferenciaPorLitro  Float @default(0)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Search, MapPin, Check } from "lucide-react";
+import { Loader2, Search, MapPin, Check, Crosshair } from "lucide-react";
 import { toast } from "sonner";
 
 interface MapPickerProps {
@@ -37,11 +37,16 @@ export function MapPicker({ open, onOpenChange, onSelect, initialLat, initialLng
   const [selected, setSelected] = useState<SearchResult | null>(null);
   const [previewLat, setPreviewLat] = useState<number | null>(initialLat);
   const [previewLng, setPreviewLng] = useState<number | null>(initialLng);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [manualLat, setManualLat] = useState("");
+  const [manualLng, setManualLng] = useState("");
 
   useEffect(() => {
     if (open) {
       setPreviewLat(initialLat ?? null);
       setPreviewLng(initialLng ?? null);
+      setManualLat(initialLat ? String(initialLat) : "");
+      setManualLng(initialLng ? String(initialLng) : "");
       setSelected(null);
       setResults([]);
       setQuery("");
@@ -77,19 +82,38 @@ export function MapPicker({ open, onOpenChange, onSelect, initialLat, initialLng
     setSelected(r);
     setPreviewLat(lat);
     setPreviewLng(lng);
+    setManualLat(lat.toFixed(6));
+    setManualLng(lng.toFixed(6));
+  }
+
+  // Cuando el usuario ingresa coordenadas manualmente, actualizar preview
+  function aplicarManuales() {
+    const lat = parseFloat(manualLat);
+    const lng = parseFloat(manualLng);
+    if (isNaN(lat) || isNaN(lng)) {
+      toast.error("Coordenadas inválidas");
+      return;
+    }
+    setPreviewLat(lat);
+    setPreviewLng(lng);
+    toast.success("Ubicación actualizada en el mapa");
   }
 
   function confirm() {
-    if (previewLat != null && previewLng != null) {
-      onSelect(previewLat, previewLng, selected?.display_name || "");
+    const lat = previewLat ?? (manualLat ? parseFloat(manualLat) : null);
+    const lng = previewLng ?? (manualLng ? parseFloat(manualLng) : null);
+    if (lat != null && lng != null && !isNaN(lat) && !isNaN(lng)) {
+      onSelect(lat, lng, selected?.display_name || "");
       onOpenChange(false);
+    } else {
+      toast.error("Selecciona o ingresa una ubicación primero");
     }
   }
 
   // URL para embed de OpenStreetMap con marcador
   const mapUrl =
     previewLat != null && previewLng != null
-      ? `https://www.openstreetmap.org/export/embed.html?bbox=${previewLng - 0.01},${previewLat - 0.01},${previewLng + 0.01},${previewLat + 0.01}&layer=mapnik&marker=${previewLat},${previewLng}`
+      ? `https://www.openstreetmap.org/export/embed.html?bbox=${previewLng - 0.005},${previewLat - 0.005},${previewLng + 0.005},${previewLat + 0.005}&layer=mapnik&marker=${previewLat},${previewLng}`
       : `https://www.openstreetmap.org/export/embed.html?bbox=-70.7,-33.5,-70.6,-33.4&layer=mapnik`;
 
   return (
@@ -98,12 +122,12 @@ export function MapPicker({ open, onOpenChange, onSelect, initialLat, initialLng
         <DialogHeader>
           <DialogTitle>Buscar ubicación del cliente</DialogTitle>
           <DialogDescription>
-            Busca por dirección, nombre del lugar, o calle. Selecciona el resultado correcto en el mapa.
+            Busca por dirección, o ingresa coordenadas manualmente. La ubicación se muestra en el mapa.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Buscador */}
+          {/* Buscador por dirección */}
           <div className="flex gap-2">
             <Input
               value={query}
@@ -140,9 +164,10 @@ export function MapPicker({ open, onOpenChange, onSelect, initialLat, initialLng
             </div>
           )}
 
-          {/* Mapa */}
+          {/* Mapa con marcador */}
           <div className="overflow-hidden rounded-lg border border-border">
             <iframe
+              ref={iframeRef}
               src={mapUrl}
               className="h-64 w-full"
               title="Mapa de ubicación"
@@ -150,10 +175,54 @@ export function MapPicker({ open, onOpenChange, onSelect, initialLat, initialLng
             />
           </div>
 
+          {/* Coordenadas manuales */}
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+            <Label className="flex items-center gap-1.5 text-xs font-medium">
+              <Crosshair className="h-3.5 w-3.5" /> Ingresar coordenadas manualmente
+            </Label>
+            <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
+              <div>
+                <Label htmlFor="manLat" className="text-[10px] text-muted-foreground">Latitud</Label>
+                <Input
+                  id="manLat"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  value={manualLat}
+                  onChange={(e) => setManualLat(e.target.value)}
+                  placeholder="-33.4489"
+                  className="h-8 text-sm"
+                />
+              </div>
+              <div>
+                <Label htmlFor="manLng" className="text-[10px] text-muted-foreground">Longitud</Label>
+                <Input
+                  id="manLng"
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  value={manualLng}
+                  onChange={(e) => setManualLng(e.target.value)}
+                  placeholder="-70.6693"
+                  className="h-8 text-sm"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button type="button" size="sm" variant="outline" onClick={aplicarManuales} className="h-8">
+                  <MapPin className="mr-1 h-3 w-3" /> Marcar
+                </Button>
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              Puedes copiar coordenadas de Google Maps (clic derecho → coordenadas) y pegarlas aquí.
+            </p>
+          </div>
+
+          {/* Ubicación confirmada */}
           {previewLat != null && previewLng != null && (
-            <div className="rounded-lg bg-muted/40 p-2 text-center text-xs text-muted-foreground">
-              Ubicación seleccionada: <strong>{previewLat.toFixed(5)}, {previewLng.toFixed(5)}</strong>
-              <br />
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center text-xs">
+              <p className="font-medium text-primary">Ubicación lista para guardar</p>
+              <p className="text-muted-foreground">{previewLat.toFixed(5)}, {previewLng.toFixed(5)}</p>
               <a
                 href={`https://www.google.com/maps?q=${previewLat},${previewLng}`}
                 target="_blank"
@@ -170,8 +239,8 @@ export function MapPicker({ open, onOpenChange, onSelect, initialLat, initialLng
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={confirm} disabled={previewLat == null}>
-            <Check className="mr-1 h-4 w-4" /> Confirmar ubicación
+          <Button onClick={confirm} disabled={previewLat == null && !manualLat}>
+            <Check className="mr-1 h-4 w-4" /> Guardar ubicación
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -56,8 +56,10 @@ export async function POST(req: NextRequest) {
   const nuevo = await db.cliente.create({
     data: {
       nombre: body.nombre?.trim() || "Sin nombre",
+      rut: body.rut?.trim() || null,
       direccion: body.direccion?.trim() || null,
       telefono: body.telefono?.trim() || null,
+      email: body.email?.trim() || null,
       zona: body.zona?.trim() || null,
       precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0,
       precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0,
