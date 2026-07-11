@@ -51,6 +51,24 @@ export const TIPOS_PRIORIDAD = [
   { value: "caso", label: "Prioridad por este caso" },
 ] as const;
 
+export const USOS_AGUA = [
+  { value: "consumo", label: "Consumo doméstico", description: "Agua para beber, cocinar, bañarse" },
+  { value: "riego_pasto", label: "Riego de pasto/jardín", description: "Regar pasto, plantas, jardines" },
+  { value: "riego_cultivos", label: "Riego de cultivos", description: "Regar huerta, cultivos agrícolas" },
+  { value: "polvo_caminos", label: "Humedecer polvo de caminos", description: "Bajar el polvo en caminos de tierra" },
+  { value: "construccion", label: "Construcción", description: "Mezcla, curado, limpieza de obras" },
+  { value: "piscina", label: "Llenado de piscina", description: "Llenar o rellenar piscina" },
+  { value: "otro", label: "Otro", description: "Otro uso específico" },
+] as const;
+
+export const TIPOS_ESTANQUE = [
+  { value: "estanque", label: "Estanque (sobre tierra)" },
+  { value: "estanque_subterraneo", label: "Estanque subterráneo / cisterna" },
+  { value: "tinaco", label: "Tinaco (elevado)" },
+  { value: "piscina", label: "Piscina" },
+  { value: "otro", label: "Otro" },
+] as const;
+
 export const TIPOS_TRIBUTO = [
   { value: "boleta_honorarios", label: "Boleta de honorarios", description: "Retención + cotización previsional" },
   { value: "factura", label: "Factura electrónica", description: "IVA y/o retención" },
@@ -94,6 +112,14 @@ export function labelTipoAsignacion(tipo: string): string {
 
 export function labelTipoPrioridad(tipo: string): string {
   return TIPOS_PRIORIDAD.find((t) => t.value === tipo)?.label ?? tipo;
+}
+
+export function labelUsoAgua(uso: string): string {
+  return USOS_AGUA.find((u) => u.value === uso)?.label ?? uso;
+}
+
+export function labelTipoEstanque(tipo: string): string {
+  return TIPOS_ESTANQUE.find((t) => t.value === tipo)?.label ?? tipo;
 }
 
 export function labelTipoTributo(tipo: string): string {

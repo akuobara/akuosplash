@@ -52,11 +52,12 @@ import {
   Search,
   Mail,
   ClipboardList,
+  X,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
-import { formatCurrency, formatNumber, formatDate } from "@/lib/helpers";
+import { formatCurrency, formatNumber, formatDate, USOS_AGUA, TIPOS_ESTANQUE, labelUsoAgua, labelTipoEstanque } from "@/lib/helpers";
 import { MapPicker } from "./map-picker";
 
 interface Cliente {
@@ -79,6 +80,10 @@ interface Cliente {
   conexionExterna: boolean;
   requiereClientePresente: boolean;
   indicacionesAcceso: string | null;
+  // Uso del agua
+  usoAgua: string;
+  usoAguaNota: string | null;
+  estanquesJson: string | null;
   // Chofer preferido
   choferPreferidoId: string | null;
   choferPreferido?: { id: string; nombre: string } | null;
@@ -129,6 +134,9 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [conexionExterna, setConexionExterna] = useState(false);
   const [requiereClientePresente, setRequiereClientePresente] = useState(true);
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
+  const [usoAgua, setUsoAgua] = useState("consumo");
+  const [usoAguaNota, setUsoAguaNota] = useState("");
+  const [estanques, setEstanques] = useState<{ tipo: string; capacidad: string; nombre: string; ubicacion: string }[]>([]);
   const [choferPreferidoId, setChoferPreferidoId] = useState<string>("");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -179,6 +187,9 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     setConexionExterna(false);
     setRequiereClientePresente(true);
     setIndicacionesAcceso("");
+    setUsoAgua("consumo");
+    setUsoAguaNota("");
+    setEstanques([]);
     setChoferPreferidoId("");
     setFormOpen(true);
   }
@@ -201,6 +212,11 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     setConexionExterna(c.conexionExterna ?? false);
     setRequiereClientePresente(c.requiereClientePresente ?? true);
     setIndicacionesAcceso(c.indicacionesAcceso ?? "");
+    setUsoAgua(c.usoAgua || "consumo");
+    setUsoAguaNota(c.usoAguaNota ?? "");
+    try {
+      setEstanques(c.estanquesJson ? JSON.parse(c.estanquesJson) : []);
+    } catch { setEstanques([]); }
     setChoferPreferidoId(c.choferPreferidoId ?? "");
     setFormOpen(true);
   }
@@ -271,6 +287,9 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         conexionExterna,
         requiereClientePresente,
         indicacionesAcceso: indicacionesAcceso.trim() || null,
+        usoAgua,
+        usoAguaNota: usoAguaNota.trim() || null,
+        estanquesJson: estanques.length > 0 ? JSON.stringify(estanques) : null,
         choferPreferidoId: choferPreferidoId || null,
       };
       if (editando) {
@@ -763,6 +782,128 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               </div>
             </div>
 
+            {/* Uso del agua */}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+              <Label className="flex items-center gap-1.5 text-sm font-medium">
+                <Droplets className="h-4 w-4 text-primary" /> Uso del agua
+              </Label>
+              <p className="text-xs text-muted-foreground">¿Para qué pide agua este cliente?</p>
+              <div className="space-y-1">
+                <Select value={usoAgua} onValueChange={setUsoAgua}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {USOS_AGUA.map((u) => (
+                      <SelectItem key={u.value} value={u.value}>
+                        <div className="flex flex-col">
+                          <span>{u.label}</span>
+                          <span className="text-xs text-muted-foreground">{u.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="usoAguaNota" className="text-xs">Detalle del uso (opcional)</Label>
+                <Input
+                  id="usoAguaNota"
+                  value={usoAguaNota}
+                  onChange={(e) => setUsoAguaNota(e.target.value)}
+                  placeholder="Ej. Regar 2 hectáreas de pasto, humedecer 500m de camino"
+                />
+              </div>
+            </div>
+
+            {/* Estanques / Piscinas */}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-1.5 text-sm font-medium">
+                  <Droplets className="h-4 w-4 text-primary" /> Estanques y piscinas
+                </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEstanques([...estanques, { tipo: "estanque", capacidad: "", nombre: "", ubicacion: "" }])}
+                >
+                  <Plus className="mr-1 h-3 w-3" /> Agregar
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Registra los estanques/piscinas del cliente para saber cuánta agua puede recibir de una vez.
+              </p>
+
+              {estanques.length === 0 ? (
+                <p className="rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
+                  Sin estanques registrados. Clic en "Agregar" para añadir uno.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {estanques.map((est, i) => (
+                    <div key={i} className="rounded-lg border border-border bg-background p-2 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium">Estanque #{i + 1}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => setEstanques(estanques.filter((_, j) => j !== i))}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Select value={est.tipo} onValueChange={(v) => setEstanques(estanques.map((e, j) => j === i ? { ...e, tipo: v } : e))}>
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIPOS_ESTANQUE.map((t) => (
+                              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          value={est.capacidad}
+                          onChange={(e) => setEstanques(estanques.map((e, j) => j === i ? { ...e, capacidad: e.target.value } : e))}
+                          placeholder="Capacidad (L)"
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                      <Input
+                        value={est.nombre}
+                        onChange={(e) => setEstanques(estanques.map((e, j) => j === i ? { ...e, nombre: e.target.value } : e))}
+                        placeholder="Nombre/identificador (ej. Estanque principal, Piscina)"
+                        className="h-8 text-xs"
+                      />
+                      <Input
+                        value={est.ubicacion}
+                        onChange={(e) => setEstanques(estanques.map((e, j) => j === i ? { ...e, ubicacion: e.target.value } : e))}
+                        placeholder="Ubicación (ej. Patio trasero, junto al quincho)"
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Total capacidad */}
+              {estanques.length > 0 && (() => {
+                const total = estanques.reduce((s, e) => s + (Number(e.capacidad) || 0), 0);
+                return total > 0 ? (
+                  <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center text-sm">
+                    <span className="text-muted-foreground">Capacidad total: </span>
+                    <strong className="tabular-nums text-primary">{formatNumber(total, 0)} L</strong>
+                  </div>
+                ) : null;
+              })()}
+            </div>
+
             {/* Chofer preferido */}
             {choferes.length > 0 && (
               <div className="space-y-2">
@@ -1060,6 +1201,50 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                         </p>
                       </div>
                     )}
+
+                    {/* Uso del agua */}
+                    <div>
+                      <p className="text-xs uppercase text-muted-foreground">Uso del agua</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <Badge variant="secondary" className="text-[11px]">
+                          <Droplets className="mr-1 h-3 w-3" /> {labelUsoAgua(clienteDetalle.usoAgua || "consumo")}
+                        </Badge>
+                        {clienteDetalle.usoAguaNota && (
+                          <span className="text-xs text-muted-foreground">{clienteDetalle.usoAguaNota}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Estanques / Piscinas */}
+                    {(() => {
+                      let estanquesDetalle: { tipo: string; capacidad: string; nombre: string; ubicacion: string }[] = [];
+                      try {
+                        estanquesDetalle = clienteDetalle.estanquesJson ? JSON.parse(clienteDetalle.estanquesJson) : [];
+                      } catch {}
+                      if (estanquesDetalle.length === 0) return null;
+                      const totalCap = estanquesDetalle.reduce((s, e) => s + (Number(e.capacidad) || 0), 0);
+                      return (
+                        <div>
+                          <p className="text-xs uppercase text-muted-foreground">
+                            Estanques y piscinas {totalCap > 0 && `(total: ${formatNumber(totalCap, 0)} L)`}
+                          </p>
+                          <div className="mt-1 space-y-1">
+                            {estanquesDetalle.map((est, i) => (
+                              <div key={i} className="rounded-lg border border-border p-2 text-xs">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-medium">{est.nombre || labelTipoEstanque(est.tipo)}</span>
+                                  {est.capacidad && <Badge variant="outline" className="text-[10px]">{formatNumber(Number(est.capacidad), 0)} L</Badge>}
+                                </div>
+                                <div className="mt-0.5 flex items-center gap-2 text-muted-foreground">
+                                  <span>{labelTipoEstanque(est.tipo)}</span>
+                                  {est.ubicacion && <span>· {est.ubicacion}</span>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {/* Nota */}
                     {clienteDetalle.nota && (

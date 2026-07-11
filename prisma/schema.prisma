@@ -72,6 +72,14 @@ model Cliente {
   requiereClientePresente  Boolean @default(true)  // ¿el cliente debe estar presente para recibir?
   indicacionesAcceso       String?  // descripción libre: cómo entrar, dónde está el estanque, etc.
 
+  // Uso del agua (para qué pide el agua)
+  usoAgua                  String   @default("consumo")  // consumo | riego_pasto | riego_cultivos | polvo_caminos | construccion | otro
+  usoAguaNota              String?  // detalle adicional del uso
+
+  // Estanques/piscinas del cliente (JSON array: [{tipo, capacidadLitros, nombre, ubicacion}])
+  // tipo: estanque | piscina | estanque_subterraneo | tinaco | otro
+  estanquesJson            String?  // JSON string con array de estanques
+
   // Chofer preferido — el chofer que creó al cliente tiene prioridad para atenderlo
   // (a menos que el dueño elija otro de manera permanente)
   choferPreferidoId  String?

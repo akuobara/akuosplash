@@ -59,6 +59,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.conexionExterna !== undefined && { conexionExterna: !!body.conexionExterna }),
       ...(body.requiereClientePresente !== undefined && { requiereClientePresente: !!body.requiereClientePresente }),
       ...(body.indicacionesAcceso !== undefined && { indicacionesAcceso: body.indicacionesAcceso?.trim() || null }),
+      ...(body.usoAgua !== undefined && { usoAgua: body.usoAgua }),
+      ...(body.usoAguaNota !== undefined && { usoAguaNota: body.usoAguaNota?.trim() || null }),
+      ...(body.estanquesJson !== undefined && { estanquesJson: body.estanquesJson || null }),
       ...(body.choferPreferidoId !== undefined && { choferPreferidoId: (body.choferPreferidoId && body.choferPreferidoId !== "__ninguno") ? body.choferPreferidoId : null }),
     },
   });
