@@ -135,6 +135,8 @@ interface PedidosTabProps {
   currentUserId: string;
   clientes: ClienteOption[];
   choferes: { id: string; nombre: string }[];
+  clientePreselect?: string | null;
+  onPreselectConsumed?: () => void;
 }
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -145,7 +147,7 @@ const ESTADO_COLORS: Record<string, string> = {
   cancelado: "bg-muted text-muted-foreground",
 };
 
-export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes }: PedidosTabProps) {
+export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes, clientePreselect, onPreselectConsumed }: PedidosTabProps) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState<string>("todos");
@@ -195,6 +197,27 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   useEffect(() => {
     cargar();
   }, [cargar, refreshKey]);
+
+  // Cuando llega un cliente preseleccionado desde la ficha de cliente, abrir el formulario
+  useEffect(() => {
+    if (clientePreselect && canCreate) {
+      // Buscar el cliente en el catálogo
+      const c = clientes.find((cl) => cl.id === clientePreselect);
+      if (c) {
+        abrirNuevo();
+        // Pequeño delay para que el formulario se abra antes de setear el cliente
+        setTimeout(() => {
+          setClienteId(c.id);
+          setClienteNombre(c.nombre);
+          setClienteDireccion(c.direccion ?? "");
+          setClienteTelefono(c.telefono ?? "");
+          setClienteZona(c.zona ?? "");
+          setIndicacionesAcceso(c.indicacionesAcceso ?? "");
+        }, 50);
+      }
+      onPreselectConsumed?.();
+    }
+  }, [clientePreselect, canCreate, clientes]);
 
   const filtrados = pedidos.filter((p) => {
     if (filtroEstado !== "todos" && p.estado !== filtroEstado) return false;

@@ -112,6 +112,7 @@ export default function Home() {
   const [config, setConfig] = useState<Config | null>(null);
   const [vueltaActual, setVueltaActual] = useState<VueltaActual | null>(null);
   const [camiones, setCamiones] = useState<Camion[]>([]);
+  const [pedidoClientePreselect, setPedidoClientePreselect] = useState<string | null>(null);
   const [usuarios, setUsuarios] = useState<{ id: string; nombre: string; email: string; role: string }[]>([]);
   const [todosPedidos, setTodosPedidos] = useState<{ id: string; clienteNombre: string; litrosSolicitados: number; fechaSolicitada: string | null; estado: string }[]>([]);
 
@@ -330,6 +331,8 @@ export default function Home() {
               currentUserId={user.userId}
               clientes={clientes}
               choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre }))}
+              clientePreselect={pedidoClientePreselect}
+              onPreselectConsumed={() => setPedidoClientePreselect(null)}
             />
           </TabsContent>
 
@@ -361,7 +364,10 @@ export default function Home() {
               onRefresh={refresh}
               readOnly={isDueno ? false : !config?.choferesPuedenEditarClientes}
               choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))}
-              onAgendarPedido={() => setTab("pedidos")}
+              onAgendarPedido={(clienteId) => {
+                setPedidoClientePreselect(clienteId);
+                setTab("pedidos");
+              }}
             />
           </TabsContent>
 
