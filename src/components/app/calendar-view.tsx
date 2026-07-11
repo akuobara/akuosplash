@@ -64,7 +64,7 @@ export function CalendarView({ eventos }: CalendarViewProps) {
     for (const ev of eventos) {
       const key = fechaKey(ev.fecha);
       if (!map[key]) {
-        map[key] = { ...ev, pedidos: [] };
+        map[key] = { fecha: ev.fecha, litros: 0, pedidos: [] };
       }
       map[key].pedidos.push(...ev.pedidos);
       map[key].litros += ev.litros;
@@ -125,7 +125,7 @@ export function CalendarView({ eventos }: CalendarViewProps) {
     for (const ev of proximosEventos) {
       const key = fechaKey(ev.fecha);
       if (!map[key]) {
-        map[key] = { ...ev, pedidos: [] };
+        map[key] = { fecha: ev.fecha, litros: 0, pedidos: [] };
       }
       map[key].pedidos.push(...ev.pedidos);
       map[key].litros += ev.litros;

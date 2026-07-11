@@ -105,10 +105,13 @@ export function labelAplicaImpuestoSobre(sobre: string): string {
 }
 
 export function formatCurrency(value: number): string {
+  // Si el valor tiene decimales significativos, mostrarlos (ej. precio por litro: 8.7)
+  const hasDecimals = value % 1 !== 0;
   return new Intl.NumberFormat("es-CL", {
     style: "currency",
     currency: "CLP",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: hasDecimals ? 1 : 0,
+    maximumFractionDigits: 2,
   }).format(value || 0);
 }
 
