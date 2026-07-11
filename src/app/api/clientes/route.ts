@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       conexionExterna: !!body.conexionExterna,
       requiereClientePresente: body.requiereClientePresente !== undefined ? !!body.requiereClientePresente : true,
       indicacionesAcceso: body.indicacionesAcceso?.trim() || null,
-      choferPreferidoId: body.choferPreferidoId || null,
+      choferPreferidoId: (body.choferPreferidoId && body.choferPreferidoId !== "__ninguno") ? body.choferPreferidoId : null,
       duenoId,
     },
   });
