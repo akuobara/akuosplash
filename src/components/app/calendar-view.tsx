@@ -21,7 +21,6 @@ interface DiaPedido {
 }
 
 interface CalendarViewProps {
-  // Lista de fechas programadas con sus pedidos
   eventos: DiaPedido[];
 }
 
@@ -31,6 +30,14 @@ const MESES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
 
+// Helper: formatear fecha como YYYY-MM-DD en hora LOCAL (no UTC)
+function fechaKey(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export function CalendarView({ eventos }: CalendarViewProps) {
   const [fechaActual, setFechaActual] = useState(new Date());
   const [diaSeleccionado, setDiaSeleccionado] = useState<Date | null>(null);
@@ -38,15 +45,11 @@ export function CalendarView({ eventos }: CalendarViewProps) {
   const year = fechaActual.getFullYear();
   const month = fechaActual.getMonth();
 
-  // Calcular primer día del mes y ajustar para que la semana empiece en lunes
   const primerDia = new Date(year, month, 1);
   const primerDiaSemana = primerDia.getDay() === 0 ? 6 : primerDia.getDay() - 1;
-
-  // Último día del mes
   const ultimoDia = new Date(year, month + 1, 0);
   const diasEnMes = ultimoDia.getDate();
 
-  // Generar array de días (con espacios vacíos al inicio)
   const dias: (Date | null)[] = [];
   for (let i = 0; i < primerDiaSemana; i++) {
     dias.push(null);
@@ -55,11 +58,11 @@ export function CalendarView({ eventos }: CalendarViewProps) {
     dias.push(new Date(year, month, i));
   }
 
-  // Mapa de eventos por fecha (YYYY-MM-DD)
+  // Mapa de eventos por fecha (usando hora local)
   const eventosPorFecha = useMemo(() => {
     const map: Record<string, DiaPedido> = {};
     for (const ev of eventos) {
-      const key = ev.fecha.toISOString().slice(0, 10);
+      const key = fechaKey(ev.fecha);
       if (!map[key]) {
         map[key] = { ...ev, pedidos: [] };
       }
@@ -70,7 +73,7 @@ export function CalendarView({ eventos }: CalendarViewProps) {
   }, [eventos]);
 
   function getEventosDia(dia: Date): DiaPedido | null {
-    const key = dia.toISOString().slice(0, 10);
+    const key = fechaKey(dia);
     return eventosPorFecha[key] || null;
   }
 
@@ -96,18 +99,39 @@ export function CalendarView({ eventos }: CalendarViewProps) {
     setDiaSeleccionado(null);
   }
 
-  // Eventos del día seleccionado
   const eventosSeleccionados = diaSeleccionado ? getEventosDia(diaSeleccionado) : null;
 
-  // Próximos eventos (desde hoy en adelante)
+  // Próximos eventos ordenados por fecha
   const proximosEventos = useMemo(() => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     return eventos
-      .filter((e) => e.fecha >= hoy)
-      .sort((a, b) => a.fecha.getTime() - b.fecha.getTime())
-      .slice(0, 10);
+      .filter((e) => {
+        const f = new Date(e.fecha);
+        f.setHours(0, 0, 0, 0);
+        return f >= hoy;
+      })
+      .sort((a, b) => {
+        const fa = new Date(a.fecha); fa.setHours(0,0,0,0);
+        const fb = new Date(b.fecha); fb.setHours(0,0,0,0);
+        return fa.getTime() - fb.getTime();
+      })
+      .slice(0, 15);
   }, [eventos]);
+
+  // Agrupar próximos eventos por fecha
+  const proximosAgrupados = useMemo(() => {
+    const map: Record<string, DiaPedido> = {};
+    for (const ev of proximosEventos) {
+      const key = fechaKey(ev.fecha);
+      if (!map[key]) {
+        map[key] = { ...ev, pedidos: [] };
+      }
+      map[key].pedidos.push(...ev.pedidos);
+      map[key].litros += ev.litros;
+    }
+    return Object.entries(map).sort(([a], [b]) => a.localeCompare(b));
+  }, [proximosEventos]);
 
   return (
     <div className="space-y-4">
@@ -117,7 +141,7 @@ export function CalendarView({ eventos }: CalendarViewProps) {
           <Button variant="outline" size="icon" onClick={mesAnterior}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <h3 className="text-base font-semibold min-w-[140px] text-center">
+          <h3 className="min-w-[140px] text-center text-base font-semibold">
             {MESES[month]} {year}
           </h3>
           <Button variant="outline" size="icon" onClick={mesSiguiente}>
@@ -129,32 +153,31 @@ export function CalendarView({ eventos }: CalendarViewProps) {
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         {/* Grilla del calendario */}
         <Card>
           <CardContent className="p-3">
-            {/* Encabezados de días */}
-            <div className="grid grid-cols-7 gap-1 mb-1">
+            <div className="mb-1 grid grid-cols-7 gap-1">
               {DIAS_SEMANA.map((dia) => (
-                <div key={dia} className="text-center text-xs font-medium text-muted-foreground py-1">
+                <div key={dia} className="py-1 text-center text-xs font-medium text-muted-foreground">
                   {dia}
                 </div>
               ))}
             </div>
-            {/* Días */}
             <div className="grid grid-cols-7 gap-1">
               {dias.map((dia, i) => {
                 if (!dia) return <div key={`empty-${i}`} />;
-                const eventos = getEventosDia(dia);
-                const tieneEventos = !!eventos;
+                const evs = getEventosDia(dia);
+                const tieneEventos = !!evs;
                 const esHoyFlag = esHoy(dia);
                 const esSeleccionado = diaSeleccionado &&
                   dia.getDate() === diaSeleccionado.getDate() &&
-                  dia.getMonth() === diaSeleccionado.getMonth();
+                  dia.getMonth() === diaSeleccionado.getMonth() &&
+                  dia.getFullYear() === diaSeleccionado.getFullYear();
 
                 return (
                   <button
-                    key={dia.toISOString()}
+                    key={fechaKey(dia)}
                     type="button"
                     onClick={() => setDiaSeleccionado(dia)}
                     className={`relative aspect-square rounded-lg border p-1 text-left transition ${
@@ -171,15 +194,15 @@ export function CalendarView({ eventos }: CalendarViewProps) {
                     {tieneEventos && (
                       <div className="absolute bottom-1 left-1 right-1">
                         <div className="flex items-center gap-0.5">
-                          {eventos!.pedidos.some((p) => p.tipo === "recurrente") && (
+                          {evs!.pedidos.some((p) => p.tipo === "recurrente") && (
                             <Repeat className="h-2.5 w-2.5 text-primary" />
                           )}
-                          {eventos!.pedidos.some((p) => p.tipo === "programado") && (
+                          {evs!.pedidos.some((p) => p.tipo === "programado") && (
                             <Clock className="h-2.5 w-2.5 text-blue-500" />
                           )}
                         </div>
-                        <p className="text-[9px] font-medium text-muted-foreground truncate">
-                          {formatNumber(eventos!.litros, 0)} L
+                        <p className="truncate text-[9px] font-medium text-muted-foreground">
+                          {formatNumber(evs!.litros, 0)} L
                         </p>
                       </div>
                     )}
@@ -188,7 +211,6 @@ export function CalendarView({ eventos }: CalendarViewProps) {
               })}
             </div>
 
-            {/* Leyenda */}
             <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Repeat className="h-3 w-3 text-primary" /> Recurrente
@@ -200,7 +222,7 @@ export function CalendarView({ eventos }: CalendarViewProps) {
           </CardContent>
         </Card>
 
-        {/* Panel lateral: detalles del día seleccionado o próximos eventos */}
+        {/* Panel lateral */}
         <Card>
           <CardContent className="p-3">
             {eventosSeleccionados ? (
@@ -239,37 +261,46 @@ export function CalendarView({ eventos }: CalendarViewProps) {
                 <p className="mb-2 flex items-center gap-1 text-xs font-medium uppercase text-muted-foreground">
                   <Calendar className="h-3 w-3" /> Próximos pedidos programados
                 </p>
-                {proximosEventos.length === 0 ? (
+                {proximosAgrupados.length === 0 ? (
                   <p className="py-4 text-center text-sm text-muted-foreground">
                     No hay pedidos programados.
                   </p>
                 ) : (
-                  <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                    {proximosEventos.map((ev, i) => (
-                      <div key={i} className="rounded-lg border border-border p-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-muted-foreground">
-                            {formatDate(ev.fecha)}
-                          </span>
-                          <span className="text-xs font-bold tabular-nums">
-                            {formatNumber(ev.litros, 0)} L
-                          </span>
-                        </div>
-                        <div className="mt-1 space-y-0.5">
-                          {ev.pedidos.map((p, j) => (
-                            <div key={j} className="flex items-center gap-1.5 text-xs">
-                              {p.tipo === "recurrente" ? (
-                                <Repeat className="h-3 w-3 shrink-0 text-primary" />
-                              ) : (
-                                <Clock className="h-3 w-3 shrink-0 text-blue-500" />
-                              )}
-                              <span className="truncate">{p.nombre}</span>
-                              <span className="ml-auto text-muted-foreground">{formatNumber(p.litros, 0)} L</span>
+                  <div className="max-h-[450px] space-y-2 overflow-y-auto">
+                    {proximosAgrupados.map(([key, ev]) => {
+                      const f = new Date(key + "T12:00:00");
+                      const hoy = new Date();
+                      hoy.setHours(0,0,0,0);
+                      const diff = Math.round((f.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                      const etiqueta = diff === 0 ? "Hoy" : diff === 1 ? "Mañana" : diff === 7 ? "En 1 semana" : `En ${diff} días`;
+
+                      return (
+                        <div key={key} className="rounded-lg border border-border p-2">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-xs font-medium">{formatDate(f)}</span>
+                              <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{etiqueta}</span>
                             </div>
-                          ))}
+                            <span className="text-xs font-bold tabular-nums">
+                              {formatNumber(ev.litros, 0)} L
+                            </span>
+                          </div>
+                          <div className="mt-1 space-y-0.5">
+                            {ev.pedidos.map((p, j) => (
+                              <div key={j} className="flex items-center gap-1.5 text-xs">
+                                {p.tipo === "recurrente" ? (
+                                  <Repeat className="h-3 w-3 shrink-0 text-primary" />
+                                ) : (
+                                  <Clock className="h-3 w-3 shrink-0 text-blue-500" />
+                                )}
+                                <span className="truncate">{p.nombre}</span>
+                                <span className="ml-auto text-muted-foreground">{formatNumber(p.litros, 0)} L</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </>

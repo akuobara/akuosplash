@@ -146,16 +146,21 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
     // 1. Pedidos recurrentes — generar las próximas 6 ocurrencias
     for (const r of recurrentes) {
       if (!r.activo) continue;
-      let fecha = new Date(r.fechaProximaGeneracion);
+      // Parsear fechaInicio sin zona horaria (YYYY-MM-DD → local)
+      const inicioParts = r.fechaInicio.split("T")[0].split("-");
+      let fecha = new Date(parseInt(inicioParts[0]), parseInt(inicioParts[1]) - 1, parseInt(inicioParts[2]));
       fecha.setHours(0, 0, 0, 0);
+
+      // Si la fecha de inicio ya pasó, avanzar hasta la próxima fecha futura
       if (fecha < hoy) {
         while (fecha < hoy) {
           fecha.setDate(fecha.getDate() + r.frecuenciaDias);
         }
       }
+
       for (let i = 0; i < 6; i++) {
         eventos.push({
-          fecha: new Date(fecha),
+          fecha: new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()),
           litros: r.litrosSolicitados,
           pedidos: [{
             nombre: r.cliente.nombre,
@@ -171,9 +176,10 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
     for (const p of pedidos) {
       if (!p.fechaSolicitada) continue;
       if (p.estado === "entregado" || p.estado === "cancelado") continue;
-      const fecha = new Date(p.fechaSolicitada);
+      const parts = p.fechaSolicitada.split("T")[0].split("-");
+      const fecha = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
       fecha.setHours(0, 0, 0, 0);
-      if (fecha < hoy) continue; // solo mostrar futuros
+      if (fecha < hoy) continue;
       eventos.push({
         fecha,
         litros: p.litrosSolicitados,
