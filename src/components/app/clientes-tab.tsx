@@ -41,6 +41,7 @@ import {
   Users,
   Banknote,
   Smartphone,
+  Truck,
   Navigation,
   Loader2,
   ExternalLink,
@@ -842,6 +843,22 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             const totalPorCobrar = totalVentas - totalRecibido;
             const pedidosPendientes = detallePedidos.filter((p: any) => p.estado === "pendiente" || p.estado === "programado").length;
 
+            // Última entrega (con pago)
+            const entregasConFecha = [...detalleEntregas].sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+            const ultimaEntrega = entregasConFecha[0];
+            const ultimaConPago = entregasConFecha.find((e: any) => e.montoRecibido > 0);
+            const promedioLitros = totalEntregas > 0 ? totalLitros / totalEntregas : 0;
+            const promedioMonto = totalEntregas > 0 ? totalVentas / totalEntregas : 0;
+            const ultimaEntregaFecha = ultimaEntrega ? formatDate(ultimaEntrega.fecha) : "—";
+            const ultimoPagoMonto = ultimaConPago ? ultimaConPago.montoRecibido : 0;
+            const ultimoPagoFecha = ultimaConPago ? formatDate(ultimaConPago.fecha) : "—";
+            const ultimoPagoMetodo = ultimaConPago
+              ? (ultimaConPago.metodoPago === "efectivo" ? "Efectivo"
+                : ultimaConPago.metodoPago === "transferencia" ? "Transferencia"
+                : ultimaConPago.metodoPago === "mixto" ? "Mixto"
+                : "Crédito")
+              : "—";
+
             return (
               <>
                 <DialogHeader>
@@ -862,7 +879,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                     <p className="text-lg font-bold">{totalEntregas}</p>
                   </div>
                   <div className="rounded-lg bg-muted/30 p-2 text-center">
-                    <p className="text-[10px] uppercase text-muted-foreground">Litros</p>
+                    <p className="text-[10px] uppercase text-muted-foreground">Litros totales</p>
                     <p className="text-lg font-bold tabular-nums">{formatNumber(totalLitros, 0)}</p>
                   </div>
                   <div className="rounded-lg bg-muted/30 p-2 text-center">
@@ -876,6 +893,64 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                     </p>
                   </div>
                 </div>
+
+                {/* Última entrega y último pago */}
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border bg-muted/20 p-3">
+                    <p className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase text-muted-foreground">
+                      <Truck className="h-3 w-3" /> Última entrega
+                    </p>
+                    {ultimaEntrega ? (
+                      <div className="space-y-0.5 text-sm">
+                        <p className="font-medium">{ultimaEntregaFecha}</p>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(ultimaEntrega.litros, 0)} L</span>
+                          <span>Total: <strong className="text-foreground tabular-nums">{formatCurrency(ultimaEntrega.total)}</strong></span>
+                        </div>
+                        <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                          ultimaEntrega.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                          : ultimaEntrega.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                          : "bg-muted text-muted-foreground"
+                        }`}>
+                          {ultimaEntrega.estadoPago}
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Sin entregas</p>
+                    )}
+                  </div>
+
+                  <div className="rounded-lg border border-border bg-muted/20 p-3">
+                    <p className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase text-muted-foreground">
+                      <Banknote className="h-3 w-3" /> Último pago
+                    </p>
+                    {ultimaConPago ? (
+                      <div className="space-y-0.5 text-sm">
+                        <p className="font-medium">{ultimoPagoFecha}</p>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span>Monto: <strong className="text-foreground tabular-nums">{formatCurrency(ultimoPagoMonto)}</strong></span>
+                          <span className="rounded bg-muted px-1.5 py-0.5">{ultimoPagoMetodo}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Sin pagos registrados</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Promedios */}
+                {totalEntregas > 0 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
+                      <p className="text-[10px] uppercase text-muted-foreground">Promedio litros/entrega</p>
+                      <p className="text-lg font-bold tabular-nums text-primary">{formatNumber(promedioLitros, 0)} L</p>
+                    </div>
+                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
+                      <p className="text-[10px] uppercase text-muted-foreground">Promedio monto/entrega</p>
+                      <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(promedioMonto)}</p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Botones de acción */}
                 <div className="flex flex-wrap gap-2">
