@@ -829,21 +829,15 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               </Label>
               <p className="text-xs text-muted-foreground">¿Para qué pide agua este cliente?</p>
               <div className="space-y-1">
-                <Select value={usoAgua} onValueChange={setUsoAgua}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent position="popper" sideOffset={4}>
-                    {USOS_AGUA.map((u) => (
-                      <SelectItem key={u.value} value={u.value}>
-                        <div className="flex flex-col">
-                          <span>{u.label}</span>
-                          <span className="text-xs text-muted-foreground">{u.description}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <select
+                  value={usoAgua}
+                  onChange={(e) => setUsoAgua(e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {USOS_AGUA.map((u) => (
+                    <option key={u.value} value={u.value}>{u.label} — {u.description}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1">
                 <Label htmlFor="usoAguaNota" className="text-xs">Detalle del uso (opcional)</Label>
@@ -896,34 +890,33 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                         </Button>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
-                        <Select value={est.tipo} onValueChange={(v) => setEstanques(estanques.map((e, j) => j === i ? { ...e, tipo: v } : e))}>
-                          <SelectTrigger className="h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent position="popper" sideOffset={4}>
-                            {TIPOS_ESTANQUE.map((t) => (
-                              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <select
+                          value={est.tipo}
+                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, tipo: e.target.value } : est2))}
+                          className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                        >
+                          {TIPOS_ESTANQUE.map((t) => (
+                            <option key={t.value} value={t.value}>{t.label}</option>
+                          ))}
+                        </select>
                         <Input
                           type="number"
                           inputMode="numeric"
                           value={est.capacidad}
-                          onChange={(e) => setEstanques(estanques.map((e, j) => j === i ? { ...e, capacidad: e.target.value } : e))}
+                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, capacidad: e.target.value } : est2))}
                           placeholder="Capacidad (L)"
                           className="h-8 text-xs"
                         />
                       </div>
                       <Input
                         value={est.nombre}
-                        onChange={(e) => setEstanques(estanques.map((e, j) => j === i ? { ...e, nombre: e.target.value } : e))}
+                        onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, nombre: e.target.value } : est2))}
                         placeholder="Nombre/identificador (ej. Estanque principal, Piscina)"
                         className="h-8 text-xs"
                       />
                       <Input
                         value={est.ubicacion}
-                        onChange={(e) => setEstanques(estanques.map((e, j) => j === i ? { ...e, ubicacion: e.target.value } : e))}
+                        onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, ubicacion: e.target.value } : est2))}
                         placeholder="Ubicación (ej. Patio trasero, junto al quincho)"
                         className="h-8 text-xs"
                       />
@@ -948,19 +941,17 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             {choferes.length > 0 && (
               <div className="space-y-2">
                 <Label htmlFor="choferPreferido">Chofer preferido (opcional)</Label>
-                <Select value={choferPreferidoId || "__ninguno"} onValueChange={setChoferPreferidoId}>
-                  <SelectTrigger id="choferPreferido">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent position="popper" sideOffset={4}>
-                    <SelectItem value="__ninguno">— Sin preferido —</SelectItem>
-                    {choferes.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.nombre}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <select
+                  id="choferPreferido"
+                  value={choferPreferidoId || "__ninguno"}
+                  onChange={(e) => setChoferPreferidoId(e.target.value === "__ninguno" ? "" : e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="__ninguno">— Sin preferido —</option>
+                  {choferes.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
                 <p className="text-xs text-muted-foreground">
                   Este chofer tendrá prioridad para atender pedidos de este cliente. Si el cliente fue agregado por un chofer, ese chofer es el preferido por defecto.
                 </p>
