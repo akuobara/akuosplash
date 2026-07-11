@@ -13,10 +13,13 @@ import {
 import {
   Droplets,
   LayoutDashboard,
+  ClipboardList,
   Truck,
   Receipt,
-  HandCoins,
+  Calculator,
   Users,
+  CalendarClock,
+  UserCog,
   Settings,
   LogOut,
   User as UserIcon,
@@ -259,7 +262,7 @@ export default function Home() {
               <span className="hidden sm:inline">Panel</span>
             </TabsTrigger>
             <TabsTrigger value="pedidos" className="flex-1 sm:flex-initial">
-              <Package className="mr-1 h-4 w-4" />
+              <ClipboardList className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Pedidos</span>
             </TabsTrigger>
             <TabsTrigger value="entregas" className="flex-1 sm:flex-initial">
@@ -271,7 +274,7 @@ export default function Home() {
               <span className="hidden sm:inline">Gastos</span>
             </TabsTrigger>
             <TabsTrigger value="liquidacion" className="flex-1 sm:flex-initial">
-              <HandCoins className="mr-1 h-4 w-4" />
+              <Calculator className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Liquidación</span>
             </TabsTrigger>
             {/* Clientes: dueño ve todo, chofer solo lectura */}
@@ -282,14 +285,14 @@ export default function Home() {
             {/* Recurrentes: solo dueño */}
             {isDueno && (
               <TabsTrigger value="recurrentes" className="flex-1 sm:flex-initial">
-                <Repeat className="mr-1 h-4 w-4" />
+                <CalendarClock className="mr-1 h-4 w-4" />
                 <span className="hidden sm:inline">Recurrentes</span>
               </TabsTrigger>
             )}
             {/* Equipo y Ajustes: solo dueño */}
             {isDueno && (
               <TabsTrigger value="equipo" className="flex-1 sm:flex-initial">
-                <Users className="mr-1 h-4 w-4" />
+                <UserCog className="mr-1 h-4 w-4" />
                 <span className="hidden sm:inline">Equipo</span>
               </TabsTrigger>
             )}
