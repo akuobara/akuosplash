@@ -843,6 +843,9 @@ export function EntregaForm({
                 onClick={() => {
                   setMetodoPago("efectivo");
                   setMontoTransferencia("");
+                  // Actualizar precio según método
+                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  aplicarPrecioSegunMetodo("efectivo", clienteActual);
                   // Si no hay efectivo ingresado, auto-llenar con el total
                   if (!montoEfectivo) {
                     setMontoEfectivo(String(Math.round(totalCalculado)));
@@ -867,6 +870,9 @@ export function EntregaForm({
                 onClick={() => {
                   setMetodoPago("transferencia");
                   setMontoEfectivo("");
+                  // Actualizar precio según método
+                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  aplicarPrecioSegunMetodo("transferencia", clienteActual);
                   // Si no hay transferencia ingresada, auto-llenar con el total
                   if (!montoTransferencia) {
                     setMontoTransferencia(String(Math.round(totalCalculado)));
@@ -892,6 +898,9 @@ export function EntregaForm({
                   setMetodoPago("credito");
                   setMontoEfectivo("");
                   setMontoTransferencia("");
+                  // Precio efectivo como base para crédito
+                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  aplicarPrecioSegunMetodo("credito", clienteActual);
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
                   recibidoFinal === 0
