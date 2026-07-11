@@ -833,7 +833,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" sideOffset={4}>
                     {USOS_AGUA.map((u) => (
                       <SelectItem key={u.value} value={u.value}>
                         <div className="flex flex-col">
@@ -900,7 +900,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                           <SelectTrigger className="h-8 text-xs">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent position="popper" sideOffset={4}>
                             {TIPOS_ESTANQUE.map((t) => (
                               <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                             ))}
@@ -952,7 +952,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   <SelectTrigger id="choferPreferido">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" sideOffset={4}>
                     <SelectItem value="__ninguno">— Sin preferido —</SelectItem>
                     {choferes.map((c) => (
                       <SelectItem key={c.id} value={c.id}>

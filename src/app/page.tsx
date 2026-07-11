@@ -42,8 +42,10 @@ import { toast } from "sonner";
 interface Cliente {
   id: string;
   nombre: string;
+  rut: string | null;
   direccion: string | null;
   telefono: string | null;
+  email: string | null;
   zona: string | null;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
@@ -54,6 +56,10 @@ interface Cliente {
   conexionExterna: boolean;
   requiereClientePresente: boolean;
   indicacionesAcceso: string | null;
+  usoAgua: string;
+  usoAguaNota: string | null;
+  estanquesJson: string | null;
+  choferPreferidoId: string | null;
 }
 
 interface Config {
