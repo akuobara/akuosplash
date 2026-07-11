@@ -281,6 +281,10 @@ model Entrega {
 
   estadoPago        String   @default("pendiente")
 
+  // Desglose por estanque (cuando el cliente tiene facturación independiente por estanque)
+  // JSON: [{ nombre, litros, precioPorLitro, total, metodoPago, montoRecibido }]
+  detalleEstanquesJson String?
+
   fotoMedidorUrl    String?
   nota              String?
   creadoEn          DateTime @default(now())

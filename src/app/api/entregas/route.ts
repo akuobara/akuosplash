@@ -114,6 +114,7 @@ export async function POST(req: NextRequest) {
         estadoPago,
         fotoMedidorUrl: body.fotoMedidorUrl || null,
         nota: body.nota?.trim() || null,
+        detalleEstanquesJson: body.detalleEstanquesJson || null,
       },
       include: {
         vuelta: { select: { id: true, numero: true, activa: true } },

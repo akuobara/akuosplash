@@ -86,6 +86,8 @@ interface ClienteOption {
   conexionExterna: boolean;
   requiereClientePresente: boolean;
   indicacionesAcceso: string | null;
+  // Estanques
+  estanquesJson: string | null;
 }
 
 interface EntregaFormProps {
@@ -121,6 +123,9 @@ export function EntregaForm({
 
   // Deuda del cliente seleccionado (para pagos de entregas anteriores)
   const [clienteDeuda, setClienteDeuda] = useState<number | null>(null);
+  // Desglose por estanque (cuando el cliente tiene facturación independiente)
+  const [estanquesEntrega, setEstanquesEntrega] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string }[]>([]);
+  const [modoEstanques, setModoEstanques] = useState(false);
 
   const [lecturaAnterior, setLecturaAnterior] = useState<string>("");
   const [lecturaActual, setLecturaActual] = useState<string>("");
@@ -188,6 +193,8 @@ export function EntregaForm({
     if (!id || id === "__manual") {
       aplicarPrecioSegunMetodo(metodoPago, null);
       setClienteDeuda(null);
+      setModoEstanques(false);
+      setEstanquesEntrega([]);
       return;
     }
     const c = clientes.find((c) => c.id === id);
@@ -197,6 +204,26 @@ export function EntregaForm({
       setClienteTelefono(c.telefono ?? "");
       setClienteZona(c.zona ?? "");
       aplicarPrecioSegunMetodo(metodoPago, c);
+
+      // Detectar si el cliente tiene estanques con facturación independiente
+      let estanquesCliente: { tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada: boolean }[] = [];
+      try {
+        estanquesCliente = c.estanquesJson ? JSON.parse(c.estanquesJson) : [];
+      } catch {}
+      const independientes = estanquesCliente.filter((e) => e.facturaSeparada);
+      if (independientes.length > 0) {
+        setModoEstanques(true);
+        setEstanquesEntrega(independientes.map((e) => ({
+          nombre: e.nombre || e.tipo,
+          litros: "",
+          precio: String(c.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0),
+          metodoPago: "efectivo",
+          montoRecibido: "",
+        })));
+      } else {
+        setModoEstanques(false);
+        setEstanquesEntrega([]);
+      }
 
       // Cargar la deuda del cliente (todas sus entregas)
       try {
@@ -289,6 +316,67 @@ export function EntregaForm({
       toast.error("Indica el nombre del cliente");
       return;
     }
+
+    // Si está en modo estanques, calcular totales desde el desglose
+    if (modoEstanques && estanquesEntrega.length > 0) {
+      const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+      if (totalLitrosEst <= 0) {
+        toast.error("Ingresa al menos litros en un estanque");
+        return;
+      }
+      const totalVentaEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+      const totalEfectivoEst = estanquesEntrega.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+      const totalTransferenciaEst = estanquesEntrega.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+      const totalRecibidoEst = totalEfectivoEst + totalTransferenciaEst;
+
+      let estadoPagoEst = "pendiente";
+      if (totalRecibidoEst >= totalVentaEst && totalVentaEst > 0) estadoPagoEst = "pagado";
+      else if (totalRecibidoEst > 0) estadoPagoEst = "parcial";
+
+      setSaving(true);
+      try {
+        const payload = {
+          clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
+          clienteNombre: clienteNombre.trim(),
+          clienteDireccion: clienteDireccion.trim() || null,
+          clienteTelefono: clienteTelefono.trim() || null,
+          clienteZona: clienteZona.trim() || null,
+          litros: totalLitrosEst,
+          metodoPago: "mixto",
+          precioPorLitro: 0,
+          total: totalVentaEst,
+          montoEfectivo: totalEfectivoEst,
+          montoTransferencia: totalTransferenciaEst,
+          estadoPago: estadoPagoEst,
+          fotoMedidorUrl: fotoUrl,
+          nota: nota.trim() || null,
+          detalleEstanquesJson: JSON.stringify(estanquesEntrega.map((e) => ({
+            nombre: e.nombre,
+            litros: Number(e.litros) || 0,
+            precioPorLitro: Number(e.precio) || 0,
+            total: (Number(e.litros) || 0) * (Number(e.precio) || 0),
+            metodoPago: e.metodoPago,
+            montoRecibido: Number(e.montoRecibido) || 0,
+          }))),
+        };
+
+        if (isEdit && entrega) {
+          await apiPatch(`/api/entregas/${entrega.id}`, payload);
+          toast.success("Entrega actualizada");
+        } else {
+          await apiPost("/api/entregas", payload);
+          toast.success("Entrega registrada");
+        }
+        onSaved();
+        onOpenChange(false);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     if (litrosFinal <= 0) {
       toast.error("Los litros deben ser mayores a 0");
       return;
@@ -629,6 +717,122 @@ export function EntregaForm({
             )}
           </div>
 
+          {/* Desglose por estanque (cuando el cliente tiene facturación independiente) */}
+          {modoEstanques && estanquesEntrega.length > 0 && (
+            <div className="rounded-lg border-2 border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-3">
+              <Label className="flex items-center gap-1.5 text-sm font-medium text-amber-900 dark:text-amber-200">
+                <Droplets className="h-4 w-4" /> Entrega por estanque (facturación independiente)
+              </Label>
+              <p className="text-xs text-amber-800 dark:text-amber-300">
+                Este cliente tiene estanques que se facturan por separado. Registra los litros y pago de cada uno.
+              </p>
+
+              {estanquesEntrega.map((est, i) => {
+                const litrosEst = Number(est.litros) || 0;
+                const precioEst = Number(est.precio) || 0;
+                const totalEst = litrosEst * precioEst;
+                const recibidoEst = Number(est.montoRecibido) || 0;
+                return (
+                  <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background p-2 space-y-2">
+                    <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+                      {i + 1}. {est.nombre}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-muted-foreground">Litros</label>
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          step="any"
+                          value={est.litros}
+                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, litros: e.target.value } : est2))}
+                          placeholder="0"
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground">Precio/L</label>
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          step="any"
+                          value={est.precio}
+                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
+                          placeholder="0"
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-muted-foreground">Método de pago</label>
+                        <select
+                          value={est.metodoPago}
+                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, metodoPago: e.target.value } : est2))}
+                          className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+                        >
+                          <option value="efectivo">Efectivo</option>
+                          <option value="transferencia">Transferencia</option>
+                          <option value="credito">Sin pago</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground">Monto recibido</label>
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          step="any"
+                          value={est.montoRecibido}
+                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, montoRecibido: e.target.value } : est2))}
+                          placeholder={String(Math.round(totalEst))}
+                          disabled={est.metodoPago === "credito"}
+                          className="h-8 text-xs"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-muted-foreground">Total: <strong className="text-foreground tabular-nums">{formatCurrency(totalEst)}</strong></span>
+                      {recibidoEst > 0 && recibidoEst < totalEst && (
+                        <span className="text-amber-600 dark:text-amber-400">Saldo: {formatCurrency(totalEst - recibidoEst)}</span>
+                      )}
+                      {recibidoEst >= totalEst && totalEst > 0 && (
+                        <span className="text-emerald-600 dark:text-emerald-400">✓ Pagado</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Total de la entrega (suma de estanques) */}
+              {(() => {
+                const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+                const totalVentaEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+                const totalRecibidoEst = estanquesEntrega.reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+                return (
+                  <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-center text-sm">
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <p className="text-[10px] uppercase text-muted-foreground">Total litros</p>
+                        <p className="font-bold tabular-nums">{formatNumber(totalLitrosEst, 0)} L</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase text-muted-foreground">Total venta</p>
+                        <p className="font-bold tabular-nums">{formatCurrency(totalVentaEst)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase text-muted-foreground">Total recibido</p>
+                        <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(totalRecibidoEst)}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* Si NO está en modo estanques, mostrar los botones de cobro normales */}
+          {!modoEstanques && (
+          <>
           {/* Botones rápidos de cobro */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">Cobro al cliente</Label>
@@ -747,6 +951,8 @@ export function EntregaForm({
               </span>
             </div>
           </div>
+          </>
+          )}
 
           {/* Foto del medidor */}
           <div className="space-y-2">

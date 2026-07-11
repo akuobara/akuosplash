@@ -144,7 +144,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [usoAgua, setUsoAgua] = useState("consumo");
   const [usoAguaNota, setUsoAguaNota] = useState("");
-  const [estanques, setEstanques] = useState<{ tipo: string; capacidad: string; nombre: string; ubicacion: string }[]>([]);
+  const [estanques, setEstanques] = useState<{ tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada: boolean }[]>([]);
   const [choferPreferidoId, setChoferPreferidoId] = useState<string>("");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -860,7 +860,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => setEstanques([...estanques, { tipo: "estanque", capacidad: "", nombre: "", ubicacion: "" }])}
+                  onClick={() => setEstanques([...estanques, { tipo: "estanque", capacidad: "", nombre: "", ubicacion: "", facturaSeparada: false }])}
                 >
                   <Plus className="mr-1 h-3 w-3" /> Agregar
                 </Button>
@@ -920,6 +920,16 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                         placeholder="Ubicación (ej. Patio trasero, junto al quincho)"
                         className="h-8 text-xs"
                       />
+                      {/* Checkbox facturación independiente */}
+                      <label className="flex items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={est.facturaSeparada}
+                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, facturaSeparada: e.target.checked } : est2))}
+                          className="h-3.5 w-3.5"
+                        />
+                        <span>Facturar este estanque por separado (casa/cabaña independiente)</span>
+                      </label>
                     </div>
                   ))}
                 </div>
@@ -928,12 +938,20 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               {/* Total capacidad */}
               {estanques.length > 0 && (() => {
                 const total = estanques.reduce((s, e) => s + (Number(e.capacidad) || 0), 0);
-                return total > 0 ? (
-                  <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center text-sm">
-                    <span className="text-muted-foreground">Capacidad total: </span>
-                    <strong className="tabular-nums text-primary">{formatNumber(total, 0)} L</strong>
-                  </div>
-                ) : null;
+                const independientes = estanques.filter((e) => e.facturaSeparada).length;
+                return (
+                  <>
+                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center text-sm">
+                      <span className="text-muted-foreground">Capacidad total: </span>
+                      <strong className="tabular-nums text-primary">{formatNumber(total, 0)} L</strong>
+                    </div>
+                    {independientes > 0 && (
+                      <p className="text-center text-[11px] text-amber-600 dark:text-amber-400">
+                        {independientes} estanque(s) con facturación independiente — al registrar una entrega se desglosará por estanque
+                      </p>
+                    )}
+                  </>
+                );
               })()}
             </div>
 

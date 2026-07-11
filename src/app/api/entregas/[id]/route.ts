@@ -80,6 +80,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(montoRecibido !== undefined && { montoRecibido }),
       ...(estadoPago !== undefined && { estadoPago }),
       ...(body.fotoMedidorUrl !== undefined && { fotoMedidorUrl: body.fotoMedidorUrl || null }),
+      ...(body.detalleEstanquesJson !== undefined && { detalleEstanquesJson: body.detalleEstanquesJson || null }),
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),
     },
     include: { vuelta: { select: { id: true, numero: true, activa: true } } },
