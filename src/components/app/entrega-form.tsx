@@ -898,9 +898,8 @@ export function EntregaForm({
                   setMetodoPago("credito");
                   setMontoEfectivo("");
                   setMontoTransferencia("");
-                  // Precio efectivo como base para crédito
-                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
-                  aplicarPrecioSegunMetodo("credito", clienteActual);
+                  // Sin pago = sin método definido. El precio se define al cobrar.
+                  // Dejar el precio que tenía el usuario (no forzar efectivo ni transferencia).
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
                   recibidoFinal === 0
