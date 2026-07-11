@@ -63,6 +63,14 @@ interface EntregasTabProps {
     zona: string | null;
     precioEfectivoPorLitro: number;
     precioTransferenciaPorLitro: number;
+    lat: number | null;
+    lng: number | null;
+    requiereIngresoPropiedad: boolean;
+    entregaDesdeAfuera: boolean;
+    conexionExterna: boolean;
+    requiereClientePresente: boolean;
+    indicacionesAcceso: string | null;
+    estanquesJson: string | null;
   }[];
   config: {
     precioEfectivoPorLitro: number;
