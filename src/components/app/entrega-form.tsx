@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink, Banknote, Smartphone, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { apiPost, apiPatch, uploadFile } from "@/lib/api-client";
+import { apiGet, apiPost, apiPatch, uploadFile } from "@/lib/api-client";
 import {
   ESTADOS_PAGO,
   METODOS_PAGO,
@@ -119,6 +119,9 @@ export function EntregaForm({
   const [clienteTelefono, setClienteTelefono] = useState("");
   const [clienteZona, setClienteZona] = useState("");
 
+  // Deuda del cliente seleccionado (para pagos de entregas anteriores)
+  const [clienteDeuda, setClienteDeuda] = useState<number | null>(null);
+
   const [lecturaAnterior, setLecturaAnterior] = useState<string>("");
   const [lecturaActual, setLecturaActual] = useState<string>("");
   const [litrosManual, setLitrosManual] = useState<string>("");
@@ -180,11 +183,11 @@ export function EntregaForm({
   }, [open, entrega, config.precioEfectivoPorLitro]);
 
   // Si el usuario selecciona un cliente del catálogo, autollenar datos y precio
-  function onSelectCliente(id: string) {
+  async function onSelectCliente(id: string) {
     setClienteId(id);
     if (!id || id === "__manual") {
-      // Para cliente manual, usar precio global según método
       aplicarPrecioSegunMetodo(metodoPago, null);
+      setClienteDeuda(null);
       return;
     }
     const c = clientes.find((c) => c.id === id);
@@ -193,8 +196,18 @@ export function EntregaForm({
       setClienteDireccion(c.direccion ?? "");
       setClienteTelefono(c.telefono ?? "");
       setClienteZona(c.zona ?? "");
-      // Aplicar precio del cliente según método (si no tiene, usar global)
       aplicarPrecioSegunMetodo(metodoPago, c);
+
+      // Cargar la deuda del cliente (todas sus entregas)
+      try {
+        const data = await apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${id}`);
+        const totalVentas = data.entregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
+        const totalRecibido = data.entregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
+        const deuda = totalVentas - totalRecibido;
+        setClienteDeuda(deuda);
+      } catch {
+        setClienteDeuda(null);
+      }
     }
   }
 
@@ -422,6 +435,31 @@ export function EntregaForm({
                 </div>
               );
             })()}
+
+            {/* Panel de deuda del cliente */}
+            {clienteId && clienteId !== "__manual" && clienteDeuda != null && clienteDeuda !== 0 && (
+              <div className={`mt-2 rounded-lg border p-3 space-y-1 ${
+                clienteDeuda > 0
+                  ? "border-red-300 bg-red-50 dark:bg-red-900/20"
+                  : "border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20"
+              }`}>
+                <p className={`flex items-center gap-1.5 text-xs font-medium ${
+                  clienteDeuda > 0 ? "text-red-800 dark:text-red-300" : "text-emerald-800 dark:text-emerald-300"
+                }`}>
+                  <Banknote className="h-3.5 w-3.5" />
+                  {clienteDeuda > 0
+                    ? `Este cliente tiene una deuda pendiente de ${formatCurrency(clienteDeuda)}`
+                    : `Este cliente tiene saldo a favor de ${formatCurrency(Math.abs(clienteDeuda))}`
+                  }
+                </p>
+                {clienteDeuda > 0 && (
+                  <p className="text-[11px] text-red-700 dark:text-red-400">
+                    Puedes recibir más efectivo que el total de esta entrega para cubrir la deuda anterior.
+                    El exceso se descontará automáticamente del saldo pendiente.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -576,6 +614,19 @@ export function EntregaForm({
             <p className="mt-2 text-xs text-muted-foreground">
               Recibido: <strong>{formatCurrency(recibidoFinal)}</strong> (efectivo + transferencia)
             </p>
+            {/* Si hay deuda anterior y el cliente paga más del total */}
+            {clienteDeuda != null && clienteDeuda > 0 && recibidoFinal > totalCalculado && totalCalculado > 0 && (
+              <div className="mt-1 rounded bg-red-50 dark:bg-red-900/20 p-2 text-xs text-red-800 dark:text-red-300">
+                <p>Excedente para deuda anterior: <strong>{formatCurrency(recibidoFinal - totalCalculado)}</strong></p>
+                <p>Deuda total después de este pago: <strong>{formatCurrency(Math.max(0, clienteDeuda - (recibidoFinal - totalCalculado)))}</strong></p>
+              </div>
+            )}
+            {/* Si el cliente tiene saldo a favor */}
+            {clienteDeuda != null && clienteDeuda < 0 && (
+              <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                Saldo a favor anterior: <strong>{formatCurrency(Math.abs(clienteDeuda))}</strong>
+              </p>
+            )}
           </div>
 
           {/* Botones rápidos de cobro */}

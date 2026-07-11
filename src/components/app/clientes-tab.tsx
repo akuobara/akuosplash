@@ -982,6 +982,8 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             const totalVentas = detalleEntregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
             const totalRecibido = detalleEntregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
             const totalPorCobrar = totalVentas - totalRecibido;
+            const tieneDeuda = totalPorCobrar > 0.5; // tolerance
+            const tieneSaldoFavor = totalPorCobrar < -0.5;
             const pedidosPendientes = detallePedidos.filter((p: any) => p.estado === "pendiente" || p.estado === "programado").length;
 
             // Última entrega (con pago)
@@ -1027,10 +1029,20 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                     <p className="text-[10px] uppercase text-muted-foreground">Total ventas</p>
                     <p className="text-sm font-bold tabular-nums">{formatCurrency(totalVentas)}</p>
                   </div>
-                  <div className={`rounded-lg p-2 text-center ${totalPorCobrar > 0 ? "bg-amber-50 dark:bg-amber-900/20" : "bg-emerald-50 dark:bg-emerald-900/20"}`}>
-                    <p className="text-[10px] uppercase text-muted-foreground">Por cobrar</p>
-                    <p className={`text-sm font-bold tabular-nums ${totalPorCobrar > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}>
-                      {formatCurrency(totalPorCobrar)}
+                  <div className={`rounded-lg p-2 text-center ${
+                    tieneDeuda ? "bg-red-50 dark:bg-red-900/20"
+                    : tieneSaldoFavor ? "bg-blue-50 dark:bg-blue-900/20"
+                    : "bg-emerald-50 dark:bg-emerald-900/20"
+                  }`}>
+                    <p className="text-[10px] uppercase text-muted-foreground">
+                      {tieneDeuda ? "Deuda" : tieneSaldoFavor ? "Saldo a favor" : "Al día"}
+                    </p>
+                    <p className={`text-sm font-bold tabular-nums ${
+                      tieneDeuda ? "text-red-600 dark:text-red-400"
+                      : tieneSaldoFavor ? "text-blue-600 dark:text-blue-400"
+                      : "text-emerald-600 dark:text-emerald-400"
+                    }`}>
+                      {formatCurrency(Math.abs(totalPorCobrar))}
                     </p>
                   </div>
                 </div>
