@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
       data: {
         ...clienteData,
         litrosSolicitados: Number(body.litrosSolicitados) || 0,
-        fechaSolicitada: body.fechaSolicitada ? new Date(body.fechaSolicitada) : null,
+        fechaSolicitada: body.fechaSolicitada ? new Date(body.fechaSolicitada + ":00-04:00") : null,
         metodoPagoPreferido: body.metodoPagoPreferido || "efectivo",
         nota: body.nota?.trim() || null,
         estado: body.estado || "pendiente",

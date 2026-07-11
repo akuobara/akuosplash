@@ -142,6 +142,18 @@ export function formatDateTime(date: Date | string): string {
   });
 }
 
+// Formatea una fecha para un input datetime-local (sin zona horaria)
+// Convierte a hora LOCAL, no UTC — evita el desfase de 4 horas en Chile
+export function toDateTimeLocalInput(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${day}T${h}:${min}`;
+}
+
 export function formatTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleTimeString("es-CL", {

@@ -62,6 +62,7 @@ import {
   labelMetodoPago,
   ESTADOS_PEDIDO,
   METODOS_PAGO,
+  toDateTimeLocalInput,
 } from "@/lib/helpers";
 
 interface Pedido {
@@ -266,7 +267,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     setClienteTelefono(p.clienteTelefono ?? "");
     setClienteZona(p.clienteZona ?? "");
     setLitrosSolicitados(String(p.litrosSolicitados));
-    setFechaSolicitada(p.fechaSolicitada ? new Date(p.fechaSolicitada).toISOString().slice(0, 16) : "");
+    setFechaSolicitada(p.fechaSolicitada ? toDateTimeLocalInput(p.fechaSolicitada) : "");
     setMetodoPagoPreferido(p.metodoPagoPreferido);
     setIndicacionesAcceso(p.indicacionesAcceso ?? "");
     setNota(p.nota ?? "");

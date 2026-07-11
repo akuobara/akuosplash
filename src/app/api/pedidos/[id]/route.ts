@@ -33,7 +33,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.clienteLat !== undefined && { clienteLat: body.clienteLat === null || body.clienteLat === "" ? null : Number(body.clienteLat) }),
       ...(body.clienteLng !== undefined && { clienteLng: body.clienteLng === null || body.clienteLng === "" ? null : Number(body.clienteLng) }),
       ...(body.litrosSolicitados !== undefined && { litrosSolicitados: Number(body.litrosSolicitados) || 0 }),
-      ...(body.fechaSolicitada !== undefined && { fechaSolicitada: body.fechaSolicitada ? new Date(body.fechaSolicitada) : null }),
+      ...(body.fechaSolicitada !== undefined && { fechaSolicitada: body.fechaSolicitada ? new Date(body.fechaSolicitada + ":00-04:00") : null }),
       ...(body.metodoPagoPreferido !== undefined && { metodoPagoPreferido: body.metodoPagoPreferido }),
       ...(body.indicacionesAcceso !== undefined && { indicacionesAcceso: body.indicacionesAcceso?.trim() || null }),
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),
