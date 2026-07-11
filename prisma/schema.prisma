@@ -44,6 +44,8 @@ model Usuario {
   recurrentesAsignados PedidoRecurrente[] @relation("RecurrenteChoferAsignado")
   recurrentesComoDueno PedidoRecurrente[] @relation("RecurrenteDueno")
   clientesPreferidos  Cliente[]        @relation("ClienteChoferPreferido")
+  pagosComoChofer     Pago[]           @relation("PagoChofer")
+  pagosComoDueno      Pago[]           @relation("PagoDueno")
   configuracion     Configuracion?   @relation("ConfigDueno")
 }
 
@@ -91,6 +93,7 @@ model Cliente {
   entregas      Entrega[]
   pedidos       Pedido[]
   pedidosRecurrentes PedidoRecurrente[]
+  pagos         Pago[]
 }
 
 // Pedido de agua — creado cuando un cliente pide agua (por teléfono, etc.)
@@ -284,6 +287,25 @@ model Entrega {
 
   // Si esta entrega viene de un pedido, se vincula aquí
   pedido            Pedido?
+}
+
+// Pago sin entrega — cuando un cliente paga deuda sin pedir agua
+model Pago {
+  id              String   @id @default(cuid())
+  fecha           DateTime @default(now())
+
+  clienteId       String
+  cliente         Cliente  @relation(fields: [clienteId], references: [id])
+
+  monto           Float
+  metodoPago      String   @default("efectivo")  // efectivo | transferencia | mixto
+  nota            String?
+
+  choferId        String?
+  chofer          Usuario? @relation("PagoChofer", fields: [choferId], references: [id])
+
+  duenoId         String
+  dueno           Usuario  @relation("PagoDueno", fields: [duenoId], references: [id])
 }
 
 // Gastos asociados a la operación

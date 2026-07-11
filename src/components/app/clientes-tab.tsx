@@ -109,10 +109,18 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
 
   // Estado para detalle del cliente
   const [clienteDetalle, setClienteDetalle] = useState<Cliente | null>(null);
-  const [detalleTab, setDetalleTab] = useState<"info" | "entregas" | "pedidos">("info");
+  const [detalleTab, setDetalleTab] = useState<"info" | "entregas" | "pedidos" | "pagos">("info");
   const [detalleEntregas, setDetalleEntregas] = useState<any[]>([]);
   const [detallePedidos, setDetallePedidos] = useState<any[]>([]);
+  const [detallePagos, setDetallePagos] = useState<any[]>([]);
   const [detalleLoading, setDetalleLoading] = useState(false);
+
+  // Estado para formulario de pago
+  const [pagoOpen, setPagoOpen] = useState(false);
+  const [pagoMonto, setPagoMonto] = useState("");
+  const [pagoMetodo, setPagoMetodo] = useState("efectivo");
+  const [pagoNota, setPagoNota] = useState("");
+  const [pagoSaving, setPagoSaving] = useState(false);
 
   // Campos del formulario
   const [nombre, setNombre] = useState("");
@@ -227,12 +235,14 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     setDetalleTab("info");
     setDetalleLoading(true);
     try {
-      const [ents, peds] = await Promise.all([
+      const [ents, peds, pays] = await Promise.all([
         apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${c.id}`),
         apiGet<{ pedidos: any[] }>(`/api/pedidos?clienteId=${c.id}`),
+        apiGet<{ pagos: any[] }>(`/api/pagos?clienteId=${c.id}`),
       ]);
       setDetalleEntregas(ents.entregas || []);
       setDetallePedidos(peds.pedidos || []);
+      setDetallePagos(pays.pagos || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -316,6 +326,36 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+    }
+  }
+
+  async function handlePago(e: React.FormEvent) {
+    e.preventDefault();
+    if (!clienteDetalle) return;
+    const monto = Number(pagoMonto) || 0;
+    if (monto <= 0) {
+      toast.error("El monto debe ser mayor a 0");
+      return;
+    }
+    setPagoSaving(true);
+    try {
+      await apiPost("/api/pagos", {
+        clienteId: clienteDetalle.id,
+        monto,
+        metodoPago: pagoMetodo,
+        nota: pagoNota.trim() || null,
+      });
+      toast.success("Pago registrado");
+      setPagoOpen(false);
+      setPagoMonto("");
+      setPagoNota("");
+      // Recargar detalle
+      abrirDetalle(clienteDetalle);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo registrar el pago");
+    } finally {
+      setPagoSaving(false);
     }
   }
 
@@ -952,6 +992,73 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         initialLng={lng ? parseFloat(lng) : null}
       />
 
+      {/* Diálogo registrar pago */}
+      <Dialog open={pagoOpen} onOpenChange={setPagoOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Registrar pago de {clienteDetalle?.nombre}</DialogTitle>
+            <DialogDescription>
+              Registra un pago sin entrega. Se descontará de la deuda pendiente del cliente.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handlePago} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="pagoMonto">Monto recibido *</Label>
+              <Input
+                id="pagoMonto"
+                type="number"
+                inputMode="decimal"
+                step="any"
+                value={pagoMonto}
+                onChange={(e) => setPagoMonto(e.target.value)}
+                placeholder="0"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Método de pago</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={pagoMetodo === "efectivo" ? "default" : "outline"}
+                  onClick={() => setPagoMetodo("efectivo")}
+                  className="flex-1"
+                >
+                  <Banknote className="mr-1 h-4 w-4" /> Efectivo
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={pagoMetodo === "transferencia" ? "default" : "outline"}
+                  onClick={() => setPagoMetodo("transferencia")}
+                  className="flex-1"
+                >
+                  <Smartphone className="mr-1 h-4 w-4" /> Transferencia
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pagoNota">Nota (opcional)</Label>
+              <Input
+                id="pagoNota"
+                value={pagoNota}
+                onChange={(e) => setPagoNota(e.target.value)}
+                placeholder="Ej. Pago de deuda anterior"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setPagoOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={pagoSaving}>
+                {pagoSaving ? "Guardando…" : "Registrar pago"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Confirmar borrado */}
       <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>
         <DialogContent className="max-w-sm">
@@ -981,7 +1088,8 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             const totalLitros = detalleEntregas.reduce((s: number, e: any) => s + (e.litros || 0), 0);
             const totalVentas = detalleEntregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
             const totalRecibido = detalleEntregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
-            const totalPorCobrar = totalVentas - totalRecibido;
+            const totalPagosSueltos = detallePagos.reduce((s: number, p: any) => s + (p.monto || 0), 0);
+            const totalPorCobrar = totalVentas - totalRecibido - totalPagosSueltos;
             const tieneDeuda = totalPorCobrar > 0.5; // tolerance
             const tieneSaldoFavor = totalPorCobrar < -0.5;
             const pedidosPendientes = detallePedidos.filter((p: any) => p.estado === "pendiente" || p.estado === "programado").length;
@@ -1112,6 +1220,17 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       <ClipboardList className="mr-1 h-4 w-4" /> Agendar pedido
                     </Button>
                   )}
+                  <Button
+                    size="sm"
+                    variant={tieneDeuda ? "default" : "outline"}
+                    onClick={() => {
+                      setPagoOpen(true);
+                      if (tieneDeuda) setPagoMonto(String(Math.round(totalPorCobrar)));
+                    }}
+                    className={tieneDeuda ? "bg-emerald-600 hover:bg-emerald-700" : ""}
+                  >
+                    <Banknote className="mr-1 h-4 w-4" /> Registrar pago
+                  </Button>
                   {!readOnly && (
                     <Button size="sm" variant="outline" onClick={() => { abrirEditar(clienteDetalle); setClienteDetalle(null); }}>
                       <Pencil className="mr-1 h-4 w-4" /> Editar ficha
@@ -1140,6 +1259,9 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   </Button>
                   <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-7">
                     Pedidos ({detallePedidos.length})
+                  </Button>
+                  <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-7">
+                    Pagos ({detallePagos.length})
                   </Button>
                 </div>
 
@@ -1300,7 +1422,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       ))}
                     </div>
                   )
-                ) : (
+                ) : detalleTab === "pedidos" ? (
                   // Tab pedidos
                   detallePedidos.length === 0 ? (
                     <p className="py-8 text-center text-sm text-muted-foreground">No hay pedidos registrados para este cliente.</p>
@@ -1328,7 +1450,31 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       ))}
                     </div>
                   )
-                )}
+                ) : detalleTab === "pagos" ? (
+                  // Tab pagos
+                  detallePagos.length === 0 ? (
+                    <p className="py-8 text-center text-sm text-muted-foreground">No hay pagos sin entrega registrados.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {detallePagos.map((p: any) => (
+                        <div key={p.id} className="rounded-lg border border-border p-3 text-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-medium">{formatDate(p.fecha)}</span>
+                            <span className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                              +{formatCurrency(p.monto)}
+                            </span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                            <Badge variant="outline" className="text-[10px]">
+                              {p.metodoPago === "efectivo" ? "Efectivo" : p.metodoPago === "transferencia" ? "Transferencia" : "Mixto"}
+                            </Badge>
+                            {p.nota && <span className="truncate">{p.nota}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ) : null}
               </>
             );
           })()}
