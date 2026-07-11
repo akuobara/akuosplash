@@ -361,6 +361,7 @@ export default function Home() {
               onRefresh={refresh}
               readOnly={isDueno ? false : !config?.choferesPuedenEditarClientes}
               choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))}
+              onAgendarPedido={() => setTab("pedidos")}
             />
           </TabsContent>
 

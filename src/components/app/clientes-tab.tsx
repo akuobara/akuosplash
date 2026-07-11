@@ -34,6 +34,7 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  Eye,
   Phone,
   MapPin,
   Droplets,
@@ -48,11 +49,13 @@ import {
   KeyRound,
   UserCheck,
   Search,
+  Mail,
+  ClipboardList,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
-import { formatCurrency } from "@/lib/helpers";
+import { formatCurrency, formatNumber, formatDate } from "@/lib/helpers";
 import { MapPicker } from "./map-picker";
 
 interface Cliente {
@@ -86,9 +89,10 @@ interface ClientesTabProps {
   onRefresh: () => void;
   readOnly?: boolean;
   choferes?: { id: string; nombre: string; email: string }[];
+  onAgendarPedido?: (clienteId: string) => void;
 }
 
-export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes = [] }: ClientesTabProps) {
+export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes = [], onAgendarPedido }: ClientesTabProps) {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -96,6 +100,13 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [formOpen, setFormOpen] = useState(false);
   const [editando, setEditando] = useState<Cliente | null>(null);
   const [borrando, setBorrando] = useState<Cliente | null>(null);
+
+  // Estado para detalle del cliente
+  const [clienteDetalle, setClienteDetalle] = useState<Cliente | null>(null);
+  const [detalleTab, setDetalleTab] = useState<"info" | "entregas" | "pedidos">("info");
+  const [detalleEntregas, setDetalleEntregas] = useState<any[]>([]);
+  const [detallePedidos, setDetallePedidos] = useState<any[]>([]);
+  const [detalleLoading, setDetalleLoading] = useState(false);
 
   // Campos del formulario
   const [nombre, setNombre] = useState("");
@@ -191,6 +202,25 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     setIndicacionesAcceso(c.indicacionesAcceso ?? "");
     setChoferPreferidoId(c.choferPreferidoId ?? "");
     setFormOpen(true);
+  }
+
+  // Abrir detalle del cliente con su historial
+  async function abrirDetalle(c: Cliente) {
+    setClienteDetalle(c);
+    setDetalleTab("info");
+    setDetalleLoading(true);
+    try {
+      const [ents, peds] = await Promise.all([
+        apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${c.id}`),
+        apiGet<{ pedidos: any[] }>(`/api/pedidos?clienteId=${c.id}`),
+      ]);
+      setDetalleEntregas(ents.entregas || []);
+      setDetallePedidos(peds.pedidos || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDetalleLoading(false);
+    }
   }
 
   // Capturar ubicación GPS actual del dispositivo
@@ -319,7 +349,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtrados.map((c) => (
-            <Card key={c.id} className="flex flex-col">
+            <Card key={c.id} className="flex flex-col cursor-pointer hover:shadow-md transition-shadow" onClick={() => abrirDetalle(c)}>
               <CardContent className="flex flex-1 flex-col gap-2 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
@@ -333,11 +363,14 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   {!readOnly && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={(e) => e.stopPropagation()}>
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenuItem onClick={() => abrirDetalle(c)}>
+                          <Eye className="mr-2 h-4 w-4" /> Ver detalle
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => abrirEditar(c)}>
                           <Pencil className="mr-2 h-4 w-4" /> Editar
                         </DropdownMenuItem>
@@ -795,6 +828,238 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               <Trash2 className="mr-1 h-4 w-4" /> Eliminar
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de detalle del cliente */}
+      <Dialog open={!!clienteDetalle} onOpenChange={(o) => !o && setClienteDetalle(null)}>
+        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
+          {clienteDetalle && (() => {
+            const totalEntregas = detalleEntregas.length;
+            const totalLitros = detalleEntregas.reduce((s: number, e: any) => s + (e.litros || 0), 0);
+            const totalVentas = detalleEntregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
+            const totalRecibido = detalleEntregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
+            const totalPorCobrar = totalVentas - totalRecibido;
+            const pedidosPendientes = detallePedidos.filter((p: any) => p.estado === "pendiente" || p.estado === "programado").length;
+
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-primary" />
+                    {clienteDetalle.nombre}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {clienteDetalle.rut && `RUT: ${clienteDetalle.rut} · `}
+                    {totalEntregas} entrega(s) · {pedidosPendientes} pedido(s) pendiente(s)
+                  </DialogDescription>
+                </DialogHeader>
+
+                {/* Resumen rápido */}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <div className="rounded-lg bg-muted/30 p-2 text-center">
+                    <p className="text-[10px] uppercase text-muted-foreground">Entregas</p>
+                    <p className="text-lg font-bold">{totalEntregas}</p>
+                  </div>
+                  <div className="rounded-lg bg-muted/30 p-2 text-center">
+                    <p className="text-[10px] uppercase text-muted-foreground">Litros</p>
+                    <p className="text-lg font-bold tabular-nums">{formatNumber(totalLitros, 0)}</p>
+                  </div>
+                  <div className="rounded-lg bg-muted/30 p-2 text-center">
+                    <p className="text-[10px] uppercase text-muted-foreground">Total ventas</p>
+                    <p className="text-sm font-bold tabular-nums">{formatCurrency(totalVentas)}</p>
+                  </div>
+                  <div className={`rounded-lg p-2 text-center ${totalPorCobrar > 0 ? "bg-amber-50 dark:bg-amber-900/20" : "bg-emerald-50 dark:bg-emerald-900/20"}`}>
+                    <p className="text-[10px] uppercase text-muted-foreground">Por cobrar</p>
+                    <p className={`text-sm font-bold tabular-nums ${totalPorCobrar > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                      {formatCurrency(totalPorCobrar)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Botones de acción */}
+                <div className="flex flex-wrap gap-2">
+                  {onAgendarPedido && (
+                    <Button size="sm" onClick={() => { onAgendarPedido(clienteDetalle.id); setClienteDetalle(null); }}>
+                      <ClipboardList className="mr-1 h-4 w-4" /> Agendar pedido
+                    </Button>
+                  )}
+                  {!readOnly && (
+                    <Button size="sm" variant="outline" onClick={() => { abrirEditar(clienteDetalle); setClienteDetalle(null); }}>
+                      <Pencil className="mr-1 h-4 w-4" /> Editar ficha
+                    </Button>
+                  )}
+                  {clienteDetalle.lat != null && clienteDetalle.lng != null && (
+                    <a
+                      href={`https://www.google.com/maps?q=${clienteDetalle.lat},${clienteDetalle.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button size="sm" variant="outline">
+                        <Navigation className="mr-1 h-4 w-4" /> Cómo llegar
+                      </Button>
+                    </a>
+                  )}
+                </div>
+
+                {/* Tabs internos */}
+                <div className="flex gap-1 rounded-lg bg-muted/40 p-1">
+                  <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-7">
+                    Info
+                  </Button>
+                  <Button size="sm" variant={detalleTab === "entregas" ? "default" : "ghost"} onClick={() => setDetalleTab("entregas")} className="h-7">
+                    Entregas ({totalEntregas})
+                  </Button>
+                  <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-7">
+                    Pedidos ({detallePedidos.length})
+                  </Button>
+                </div>
+
+                {/* Contenido según tab */}
+                {detalleLoading ? (
+                  <div className="flex items-center justify-center p-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : detalleTab === "info" ? (
+                  <div className="space-y-3 text-sm">
+                    {/* Datos de contacto */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {clienteDetalle.telefono && (
+                        <div className="flex items-center gap-1.5">
+                          <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                          <a href={`tel:${clienteDetalle.telefono}`} className="hover:underline">{clienteDetalle.telefono}</a>
+                        </div>
+                      )}
+                      {clienteDetalle.email && (
+                        <div className="flex items-center gap-1.5 truncate">
+                          <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="truncate">{clienteDetalle.email}</span>
+                        </div>
+                      )}
+                      {clienteDetalle.direccion && (
+                        <div className="flex items-start gap-1.5 col-span-2">
+                          <MapPin className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
+                          <span>{clienteDetalle.direccion}</span>
+                        </div>
+                      )}
+                      {clienteDetalle.zona && (
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                          <Badge variant="outline" className="text-[10px]">{clienteDetalle.zona}</Badge>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Precios */}
+                    {(clienteDetalle.precioEfectivoPorLitro > 0 || clienteDetalle.precioTransferenciaPorLitro > 0) && (
+                      <div className="flex flex-wrap gap-2">
+                        {clienteDetalle.precioEfectivoPorLitro > 0 && (
+                          <Badge variant="secondary" className="text-[11px]">
+                            <Banknote className="mr-1 h-3 w-3" /> {formatCurrency(clienteDetalle.precioEfectivoPorLitro)}/L
+                          </Badge>
+                        )}
+                        {clienteDetalle.precioTransferenciaPorLitro > 0 && (
+                          <Badge variant="secondary" className="text-[11px]">
+                            <Smartphone className="mr-1 h-3 w-3" /> {formatCurrency(clienteDetalle.precioTransferenciaPorLitro)}/L
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Acceso */}
+                    {(clienteDetalle.requiereIngresoPropiedad || clienteDetalle.entregaDesdeAfuera || clienteDetalle.conexionExterna || clienteDetalle.requiereClientePresente === false) && (
+                      <div className="flex flex-wrap gap-1">
+                        {clienteDetalle.requiereIngresoPropiedad && <Badge variant="outline" className="text-[10px]"><DoorOpen className="mr-0.5 h-2.5 w-2.5" /> Ingreso</Badge>}
+                        {clienteDetalle.entregaDesdeAfuera && <Badge variant="outline" className="text-[10px]"><Fence className="mr-0.5 h-2.5 w-2.5" /> Desde afuera</Badge>}
+                        {clienteDetalle.conexionExterna && <Badge variant="outline" className="text-[10px] text-emerald-700"><KeyRound className="mr-0.5 h-2.5 w-2.5" /> Conexión</Badge>}
+                        {clienteDetalle.requiereClientePresente === false && <Badge variant="outline" className="text-[10px] text-amber-700"><UserCheck className="mr-0.5 h-2.5 w-2.5" /> Sin presencia</Badge>}
+                      </div>
+                    )}
+
+                    {/* Indicaciones de acceso */}
+                    {clienteDetalle.indicacionesAcceso && (
+                      <div>
+                        <p className="text-xs uppercase text-muted-foreground">Indicaciones de acceso</p>
+                        <p className="mt-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 p-2 text-xs text-amber-900 dark:text-amber-200 whitespace-pre-wrap">
+                          {clienteDetalle.indicacionesAcceso}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Nota */}
+                    {clienteDetalle.nota && (
+                      <div>
+                        <p className="text-xs uppercase text-muted-foreground">Nota</p>
+                        <p className="mt-1 rounded-lg bg-muted/40 p-2 text-xs">{clienteDetalle.nota}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : detalleTab === "entregas" ? (
+                  detalleEntregas.length === 0 ? (
+                    <p className="py-8 text-center text-sm text-muted-foreground">No hay entregas registradas para este cliente.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {detalleEntregas.map((e: any) => (
+                        <div key={e.id} className="rounded-lg border border-border p-3 text-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <div>
+                              <span className="font-medium">{formatDate(e.fecha)}</span>
+                              {e.vuelta && <Badge variant="outline" className="ml-2 text-[10px]">Vuelta #{e.vuelta.numero}</Badge>}
+                            </div>
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                              e.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                              : e.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                              : "bg-muted text-muted-foreground"
+                            }`}>
+                              {e.estadoPago}
+                            </span>
+                          </div>
+                          <div className="mt-1 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                            <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(e.litros, 0)} L</span>
+                            <span>Total: <strong className="text-foreground tabular-nums">{formatCurrency(e.total)}</strong></span>
+                            <span>Recibido: <strong className="text-foreground tabular-nums">{formatCurrency(e.montoRecibido)}</strong></span>
+                          </div>
+                          {e.total - e.montoRecibido > 0 && (
+                            <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
+                              Saldo: {formatCurrency(e.total - e.montoRecibido)}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  // Tab pedidos
+                  detallePedidos.length === 0 ? (
+                    <p className="py-8 text-center text-sm text-muted-foreground">No hay pedidos registrados para este cliente.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {detallePedidos.map((p: any) => (
+                        <div key={p.id} className="rounded-lg border border-border p-3 text-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-medium">{formatDate(p.creadoEn)}</span>
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                              p.estado === "entregado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                              : p.estado === "pendiente" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                              : p.estado === "cancelado" ? "bg-muted text-muted-foreground"
+                              : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                            }`}>
+                              {p.estado}
+                            </span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                            <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(p.litrosSolicitados, 0)} L</span>
+                            {p.fechaSolicitada && <span>📅 {formatDate(p.fechaSolicitada)}</span>}
+                            {p.pedidoRecurrenteId && <Badge variant="outline" className="text-[10px]">Recurrente</Badge>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                )}
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
