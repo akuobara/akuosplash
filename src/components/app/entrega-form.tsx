@@ -205,21 +205,26 @@ export function EntregaForm({
       setClienteZona(c.zona ?? "");
       aplicarPrecioSegunMetodo(metodoPago, c);
 
-      // Detectar si el cliente tiene estanques con facturación independiente
-      let estanquesCliente: { tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada: boolean }[] = [];
+      // Detectar si el cliente tiene estanques
+      let estanquesCliente: { tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada?: boolean }[] = [];
       try {
         estanquesCliente = c.estanquesJson ? JSON.parse(c.estanquesJson) : [];
       } catch {}
-      const independientes = estanquesCliente.filter((e) => e.facturaSeparada);
-      if (independientes.length > 0) {
-        setModoEstanques(true);
-        setEstanquesEntrega(independientes.map((e) => ({
+
+      // Cargar todos los estanques del cliente para uso opcional
+      if (estanquesCliente.length > 0) {
+        // Si hay estanques con facturaSeparada, activar automáticamente
+        const independientes = estanquesCliente.filter((e) => e.facturaSeparada);
+        const listaEstanques = independientes.length > 0 ? independientes : estanquesCliente;
+        setEstanquesEntrega(listaEstanques.map((e) => ({
           nombre: e.nombre || e.tipo,
           litros: "",
           precio: String(c.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0),
           metodoPago: "efectivo",
           montoRecibido: "",
         })));
+        // Auto-activar solo si hay con facturaSeparada
+        setModoEstanques(independientes.length > 0);
       } else {
         setModoEstanques(false);
         setEstanquesEntrega([]);
@@ -546,6 +551,41 @@ export function EntregaForm({
                     El exceso se descontará automáticamente del saldo pendiente.
                   </p>
                 )}
+              </div>
+            )}
+
+            {/* Botón para activar entrega por estanque */}
+            {clienteId && clienteId !== "__manual" && estanquesEntrega.length > 0 && !modoEstanques && (
+              <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-2">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-200">
+                  <Droplets className="h-3.5 w-3.5" />
+                  Este cliente tiene {estanquesEntrega.length} estanque(s) registrado(s)
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setModoEstanques(true)}
+                  className="w-full border-amber-400 text-amber-800 hover:bg-amber-100 dark:text-amber-300"
+                >
+                  <Droplets className="mr-1 h-4 w-4" />
+                  Entregar por estanque (cobro separado)
+                </Button>
+              </div>
+            )}
+
+            {/* Botón para desactivar modo estanques */}
+            {modoEstanques && (
+              <div className="mt-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setModoEstanques(false)}
+                  className="text-xs"
+                >
+                  ← Volver a entrega simple (un solo cobro)
+                </Button>
               </div>
             )}
           </div>
