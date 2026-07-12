@@ -80,6 +80,14 @@ export async function POST(req: NextRequest) {
       litrosFinal = Number(body.lecturaActual) - Number(body.lecturaAnterior);
     }
 
+    // Validar litros no negativos
+    if (litrosFinal < 0) {
+      return NextResponse.json(
+        { error: "Los litros no pueden ser negativos. Verifica las lecturas del medidor." },
+        { status: 400 }
+      );
+    }
+
     // Vuelta activa
     let vueltaId = body.vueltaId || null;
     if (!vueltaId) {
@@ -91,54 +99,69 @@ export async function POST(req: NextRequest) {
       vueltaId = activa?.id ?? null;
     }
 
-    const nueva = await db.entrega.create({
-      data: {
-        fecha: body.fecha ? new Date(body.fecha) : new Date(),
-        clienteNombre: body.clienteNombre?.trim() || "Sin nombre",
-        clienteDireccion: body.clienteDireccion?.trim() || null,
-        clienteTelefono: body.clienteTelefono?.trim() || null,
-        clienteZona: body.clienteZona?.trim() || null,
-        clienteId: body.clienteId || null,
-        vueltaId,
-        choferId: session.userId,
-        duenoId,
-        lecturaAnterior: body.lecturaAnterior != null ? Number(body.lecturaAnterior) : null,
-        lecturaActual: body.lecturaActual != null ? Number(body.lecturaActual) : null,
-        litros: litrosFinal,
-        metodoPago,
-        precioPorLitro,
-        total,
-        montoEfectivo,
-        montoTransferencia,
-        montoRecibido,
-        estadoPago,
-        fotoMedidorUrl: body.fotoMedidorUrl || null,
-        nota: body.nota?.trim() || null,
-        detalleEstanquesJson: body.detalleEstanquesJson || null,
-      },
-      include: {
-        vuelta: { select: { id: true, numero: true, activa: true } },
-      },
-    });
+    const nueva = await db.$transaction(async (tx) => {
+      const creada = await tx.entrega.create({
+        data: {
+          fecha: body.fecha ? new Date(body.fecha) : new Date(),
+          clienteNombre: body.clienteNombre?.trim() || "Sin nombre",
+          clienteDireccion: body.clienteDireccion?.trim() || null,
+          clienteTelefono: body.clienteTelefono?.trim() || null,
+          clienteZona: body.clienteZona?.trim() || null,
+          clienteId: body.clienteId || null,
+          vueltaId,
+          choferId: session.userId,
+          duenoId,
+          lecturaAnterior: body.lecturaAnterior != null ? Number(body.lecturaAnterior) : null,
+          lecturaActual: body.lecturaActual != null ? Number(body.lecturaActual) : null,
+          litros: litrosFinal,
+          metodoPago,
+          precioPorLitro,
+          total,
+          montoEfectivo,
+          montoTransferencia,
+          montoRecibido,
+          estadoPago,
+          fotoMedidorUrl: body.fotoMedidorUrl || null,
+          nota: body.nota?.trim() || null,
+          detalleEstanquesJson: body.detalleEstanquesJson || null,
+        },
+        include: {
+          vuelta: { select: { id: true, numero: true, activa: true } },
+        },
+      });
 
-    // Si viene de un pedido, vincularlo y marcarlo como entregado
-    if (body.pedidoId) {
-      try {
-        await db.pedido.update({
+      // Si viene de un pedido, vincularlo y marcarlo como entregado (validando ownership)
+      if (body.pedidoId) {
+        const pedido = await tx.pedido.findUnique({ where: { id: body.pedidoId } });
+        if (!pedido || pedido.duenoId !== duenoId) {
+          throw new Error("PEDIDO_NO_AUTORIZADO");
+        }
+        if (pedido.estado === "entregado") {
+          throw new Error("PEDIDO_YA_ENTREGADO");
+        }
+        await tx.pedido.update({
           where: { id: body.pedidoId },
           data: {
             estado: "entregado",
-            entregaId: nueva.id,
+            entregaId: creada.id,
             vueltaId: vueltaId,
           },
         });
-      } catch (e) {
-        console.error("No se pudo vincular el pedido:", e);
       }
-    }
+
+      return creada;
+    });
 
     return NextResponse.json({ entrega: nueva }, { status: 201 });
   } catch (err) {
+    if (err instanceof Error) {
+      if (err.message === "PEDIDO_NO_AUTORIZADO") {
+        return NextResponse.json({ error: "El pedido no pertenece a tu organización" }, { status: 403 });
+      }
+      if (err.message === "PEDIDO_YA_ENTREGADO") {
+        return NextResponse.json({ error: "Este pedido ya fue entregado" }, { status: 400 });
+      }
+    }
     console.error(err);
     return NextResponse.json({ error: "No se pudo crear la entrega" }, { status: 500 });
   }

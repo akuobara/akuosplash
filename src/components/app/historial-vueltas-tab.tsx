@@ -101,6 +101,8 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
   const [cargandoEntregas, setCargandoEntregas] = useState<Set<string>>(new Set());
   const [reabrirConfirm, setReabrirConfirm] = useState<Vuelta | null>(null);
   const [reabriendo, setReabriendo] = useState(false);
+  // Cache de todas las entregas para no hacer N+1 requests
+  const [cacheEntregas, setCacheEntregas] = useState<EntregaVuelta[] | null>(null);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -142,15 +144,25 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
       nuevasCargando.add(vueltaId);
       setCargandoEntregas(nuevasCargando);
       try {
-        const data = await apiGet<{ entregas: EntregaVuelta[] }>(`/api/entregas?period=todo`);
-        const deVuelta = data.entregas.filter((e: any) => e.vueltaId === vueltaId);
-        setEntregasPorVuelta({ ...entregasPorVuelta, [vueltaId]: deVuelta });
+        // Usar cache si ya se cargaron todas las entregas antes
+        let todas: EntregaVuelta[] = cacheEntregas ?? [];
+        if (!cacheEntregas) {
+          const data = await apiGet<{ entregas: EntregaVuelta[] }>(`/api/entregas?period=todo`);
+          todas = data.entregas;
+          setCacheEntregas(todas);
+        }
+        const deVuelta = todas.filter((e: any) => e.vueltaId === vueltaId);
+        // Usar functional updater para evitar stale closure
+        setEntregasPorVuelta((prev) => ({ ...prev, [vueltaId]: deVuelta }));
       } catch (e) {
         console.error(e);
       } finally {
-        const nuevasCargando2 = new Set(cargandoEntregas);
-        nuevasCargando2.delete(vueltaId);
-        setCargandoEntregas(nuevasCargando2);
+        // Usar functional updater también aquí
+        setCargandoEntregas((prev) => {
+          const next = new Set(prev);
+          next.delete(vueltaId);
+          return next;
+        });
       }
     }
   }

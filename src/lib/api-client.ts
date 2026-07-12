@@ -22,6 +22,15 @@ export function clearToken() {
   }
 }
 
+// Manejo de 401: limpia el token y dispara un evento para que la app reaccione
+function handleUnauthorized() {
+  clearToken();
+  if (typeof window !== "undefined") {
+    // Disparar evento personalizado que page.tsx puede escuchar
+    window.dispatchEvent(new CustomEvent("auth:unauthorized"));
+  }
+}
+
 function authHeaders(): Record<string, string> {
   const token = getToken();
   if (token) {
@@ -30,13 +39,26 @@ function authHeaders(): Record<string, string> {
   return {};
 }
 
+async function parseError(res: Response): Promise<string> {
+  try {
+    const err = await res.json();
+    return err.error || err.message || `HTTP ${res.status}`;
+  } catch {
+    return res.statusText || `HTTP ${res.status}`;
+  }
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(path, {
     cache: "no-store",
     credentials: "include",
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error(`GET ${path} falló: ${res.status}`);
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Sesión expirada");
+  }
+  if (!res.ok) throw new Error(await parseError(res));
   return res.json();
 }
 
@@ -47,10 +69,11 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
     credentials: "include",
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || `POST ${path} falló`);
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Sesión expirada");
   }
+  if (!res.ok) throw new Error(await parseError(res));
   return res.json();
 }
 
@@ -61,10 +84,11 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
     credentials: "include",
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || `PATCH ${path} falló`);
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Sesión expirada");
   }
+  if (!res.ok) throw new Error(await parseError(res));
   return res.json();
 }
 
@@ -75,10 +99,11 @@ export async function apiPut<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
     credentials: "include",
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || `PUT ${path} falló`);
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Sesión expirada");
   }
+  if (!res.ok) throw new Error(await parseError(res));
   return res.json();
 }
 
@@ -88,10 +113,11 @@ export async function apiDelete<T>(path: string): Promise<T> {
     credentials: "include",
     headers: authHeaders(),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || `DELETE ${path} falló`);
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Sesión expirada");
   }
+  if (!res.ok) throw new Error(await parseError(res));
   return res.json();
 }
 
@@ -104,10 +130,11 @@ export async function uploadFile(file: File): Promise<string> {
     credentials: "include",
     headers: authHeaders(),
   });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || "No se pudo subir la imagen");
+  if (res.status === 401) {
+    handleUnauthorized();
+    throw new Error("Sesión expirada");
   }
+  if (!res.ok) throw new Error(await parseError(res));
   const data = await res.json();
   return data.url as string;
 }

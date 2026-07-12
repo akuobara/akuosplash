@@ -97,9 +97,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
 
-    // Cerrar la vuelta activa actual del mismo dueno
+    // Cerrar la vuelta activa actual del MISMO chofer (solo puede haber una activa por chofer)
     const activaActual = await db.vuelta.findFirst({
-      where: { activa: true, duenoId },
+      where: { activa: true, duenoId, choferId: session.userId },
     });
     if (activaActual) {
       await db.vuelta.update({

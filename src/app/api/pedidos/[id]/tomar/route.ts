@@ -9,6 +9,9 @@ import { getSession, getDuenoId } from "@/lib/auth";
 //   - Solo el chofer con prioridad puede tomarlo
 //   - EXCEPTO si el chofer con prioridad cede (estado del pedido sigue publicado pero prioridadTipo = "ninguna")
 // - Si no hay prioridad, cualquier chofer puede tomarlo
+//
+// Implementación atómica: usa updateMany con condición tomadoPorChoferId=null para evitar
+// race conditions entre dos choferes que intentan tomar el mismo pedido simultáneamente.
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
@@ -42,8 +45,13 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   // Verificar prioridad
   if (pedido.prioridadChoferId && pedido.prioridadTipo !== "ninguna") {
     if (pedido.prioridadChoferId !== session.userId) {
+      // Obtener nombre del chofer preferido para el mensaje
+      const choferPrioridad = await db.usuario.findUnique({
+        where: { id: pedido.prioridadChoferId },
+        select: { nombre: true },
+      });
       return NextResponse.json(
-        { error: `Este pedido tiene prioridad para ${pedido.prioridadChoferId}. Debes esperar a que ceda su prioridad.` },
+        { error: `Este pedido tiene prioridad para ${choferPrioridad?.nombre ?? "otro chofer"}. Debes esperar a que ceda su prioridad.` },
         { status: 403 }
       );
     }
@@ -54,14 +62,27 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Este pedido no está disponible para tomar" }, { status: 400 });
   }
 
-  const actualizado = await db.pedido.update({
-    where: { id },
+  // UPDATE atómico: solo actualiza si tomadoPorChoferId sigue siendo null.
+  // Esto previene race conditions: si dos choferes llegan aquí simultáneamente,
+  // solo uno obtendrá count=1.
+  const nuevoEstado = pedido.estado === "pendiente" ? "en_ruta" : pedido.estado;
+  const result = await db.pedido.updateMany({
+    where: {
+      id,
+      tomadoPorChoferId: null,
+      estado: { in: ["pendiente", "programado", "en_ruta"] },
+    },
     data: {
       tomadoPorChoferId: session.userId,
-      choferId: session.userId, // el chofer que toma es el responsable
-      estado: pedido.estado === "pendiente" ? "en_ruta" : pedido.estado,
+      choferId: session.userId,
+      estado: nuevoEstado,
     },
   });
 
+  if (result.count === 0) {
+    return NextResponse.json({ error: "Este pedido fue tomado por otro chofer justo ahora. Recarga la lista." }, { status: 409 });
+  }
+
+  const actualizado = await db.pedido.findUnique({ where: { id } });
   return NextResponse.json({ pedido: actualizado });
 }

@@ -107,10 +107,21 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 // DELETE /api/entregas/[id]
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { error: authError } = await checkOwnership(await params.then(p => p.id));
+  const { id } = await params;
+  const { error: authError } = await checkOwnership(id);
   if (authError) return authError;
 
-  const { id } = await params;
+  // Si la entrega estaba vinculada a un pedido, revertir el pedido a "pendiente"
+  // y desvincularlo para que pueda ser re-entregado.
+  await db.pedido.updateMany({
+    where: { entregaId: id },
+    data: {
+      estado: "pendiente",
+      entregaId: null,
+      vueltaId: null,
+    },
+  });
+
   await db.entrega.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

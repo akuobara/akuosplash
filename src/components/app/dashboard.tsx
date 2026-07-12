@@ -229,7 +229,7 @@ export function Dashboard({
                 <Smartphone className="h-3 w-3" /> Transferencia vuelta
               </p>
               <p className="text-lg font-bold tabular-nums text-blue-600 dark:text-blue-400">
-                {formatCurrency(vueltaActual.ventas ? vueltaActual.ventas - (vueltaActual.efectivoRecibido || 0) : 0)}
+                {formatCurrency(vueltaActual.transferenciaRecibida ?? 0)}
               </p>
             </CardContent>
           </Card>

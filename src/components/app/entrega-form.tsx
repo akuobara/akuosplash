@@ -210,6 +210,12 @@ export function EntregaForm({
       setFotoUrl(entrega.fotoMedidorUrl);
       setNota(entrega.nota ?? "");
       setPedidoSeleccionadoId(null);
+      setModoEstanques(false);
+      setEstanquesEntrega([]);
+      setClienteDeuda(null);
+      setDialogoVueltaAbierto(false);
+      setVueltasRecientes([]);
+      setCamionSeleccionado("");
     } else {
       setClienteId("");
       setClienteNombre("");
@@ -226,6 +232,12 @@ export function EntregaForm({
       setFotoUrl(null);
       setNota("");
       setPedidoSeleccionadoId(null);
+      setModoEstanques(false);
+      setEstanquesEntrega([]);
+      setClienteDeuda(null);
+      setDialogoVueltaAbierto(false);
+      setVueltasRecientes([]);
+      setCamionSeleccionado("");
       // Auto-llenar precio: para "credito" (sin pago) usar el precio MÁS ALTO
       const precioEfectivoDef = config.precioEfectivoPorLitro || 0;
       const precioTransferenciaDef = config.precioTransferenciaPorLitro || 0;
@@ -305,12 +317,16 @@ export function EntregaForm({
       setEstanquesEntrega([]);
     }
 
-    // Cargar la deuda del cliente (en background)
-    apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${id}`)
-      .then((data) => {
-        const totalVentas = data.entregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
-        const totalRecibido = data.entregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
-        setClienteDeuda(totalVentas - totalRecibido);
+    // Cargar la deuda del cliente (en background) — incluye pagos sueltos
+    Promise.all([
+      apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${id}`),
+      apiGet<{ pagos: any[] }>(`/api/pagos?clienteId=${id}`),
+    ])
+      .then(([dataEnt, dataPag]) => {
+        const totalVentas = dataEnt.entregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
+        const totalRecibido = dataEnt.entregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
+        const totalPagosSueltos = (dataPag.pagos || []).reduce((s: number, p: any) => s + (p.monto || 0), 0);
+        setClienteDeuda(totalVentas - totalRecibido - totalPagosSueltos);
       })
       .catch(() => setClienteDeuda(null));
   }
@@ -403,16 +419,6 @@ export function EntregaForm({
     const efectivoFinalLocal = efectivoFinal;
     const transferenciaFinalLocal = transferenciaFinal;
 
-    // Debug: trace what we're about to save
-    console.log("[guardarEntrega] estado capturado:", {
-      modoEstanques: modoEst,
-      estanquesCount: estanques.length,
-      estanquesConLitros: estanques.filter(e => Number(e.litros) > 0).length,
-      clienteNombre: clienteNombreLocal,
-      litrosFinal: litrosFinalLocal,
-      vueltaIdOverride,
-    });
-
     // Determinar si hay datos de estanques con litros > 0
     const estanquesConLitros = estanques.filter((e) => Number(e.litros) > 0);
 
@@ -461,14 +467,6 @@ export function EntregaForm({
         if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
         if (pedidoSeleccionadoId) payload.pedidoId = pedidoSeleccionadoId;
 
-        console.log("[guardarEntrega] guardando con estanques, payload:", {
-          litros: totalLitrosEst,
-          total: totalVentaEst,
-          vueltaId: payload.vueltaId,
-          pedidoId: payload.pedidoId,
-          estanquesCount: estanquesConLitros.length,
-        });
-
         if (isEdit && entrega) {
           await apiPatch(`/api/entregas/${entrega.id}`, payload);
           toast.success("Entrega actualizada");
@@ -516,13 +514,6 @@ export function EntregaForm({
       if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
       if (pedidoSeleccionadoId) payload.pedidoId = pedidoSeleccionadoId;
 
-      console.log("[guardarEntrega] guardando sin estanques, payload:", {
-        litros: litrosFinalLocal,
-        total: totalCalculadoLocal,
-        vueltaId: payload.vueltaId,
-        pedidoId: payload.pedidoId,
-      });
-
       if (isEdit && entrega) {
         await apiPatch(`/api/entregas/${entrega.id}`, payload);
         toast.success("Entrega actualizada");
@@ -559,8 +550,33 @@ export function EntregaForm({
     }
   }
 
+  // Validar que haya litros suficientes antes de iniciar/reabrir vuelta
+  // Retorna true si la validación pasa, false si falla (y muestra error)
+  function validarLitrosAntesDeVuelta(): boolean {
+    const estanquesConLitros = estanquesEntrega.filter((e) => Number(e.litros) > 0);
+    const modoEst = modoEstanques;
+
+    if ((modoEst || estanquesConLitros.length > 0) && estanquesEntrega.length > 0) {
+      const totalLitrosEst = estanquesConLitros.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+      if (totalLitrosEst <= 0) {
+        toast.error("Ingresa al menos litros en un estanque antes de iniciar la vuelta");
+        return false;
+      }
+      return true;
+    }
+
+    if (litrosFinal <= 0) {
+      toast.error("Los litros deben ser mayores a 0 antes de iniciar la vuelta");
+      return false;
+    }
+    return true;
+  }
+
   // Iniciar nueva vuelta y luego guardar la entrega con el nuevo vueltaId
   async function iniciarNuevaYGuardar() {
+    // Validar ANTES de crear la vuelta para evitar vueltas huérfanas
+    if (!validarLitrosAntesDeVuelta()) return;
+
     const camionesActivos = (camiones ?? []).filter((c) => c.activo);
     if (camionesActivos.length === 0) {
       toast.error("No hay camiones activos. Agrega uno en Ajustes primero.");
@@ -569,21 +585,12 @@ export function EntregaForm({
     const camionId = camionSeleccionado || camionesActivos[0].id;
     setIniciandoVuelta(true);
     try {
-      console.log("[iniciarNuevaYGuardar] iniciando vuelta con camionId:", camionId);
-      console.log("[iniciarNuevaYGuardar] estado del formulario antes de iniciar:", {
-        modoEstanques,
-        estanquesCount: estanquesEntrega.length,
-        clienteNombre,
-        litrosFinal,
-      });
       const res = await apiPost<{ vuelta: { id: string; numero: number } }>("/api/vueltas", { camionId });
       toast.success(`Vuelta #${res.vuelta.numero} iniciada`);
-      console.log("[iniciarNuevaYGuardar] vuelta creada:", res.vuelta);
       // Guardar la entrega PRIMERO (sin notificar al padre aún para evitar re-renders que puedan afectar el estado)
       await guardarEntrega(res.vuelta.id);
       // Después de guardar, onSaved() ya se encargó de refrescar el padre
     } catch (e) {
-      console.error("[iniciarNuevaYGuardar] error:", e);
       toast.error(e instanceof Error ? e.message : "No se pudo iniciar la vuelta");
     } finally {
       setIniciandoVuelta(false);
@@ -592,23 +599,17 @@ export function EntregaForm({
 
   // Reabrir vuelta existente y luego guardar la entrega con ese vueltaId
   async function reabrirYGuardar(vuelta: VueltaReciente) {
+    // Validar ANTES de reabrir la vuelta para evitar vueltas huérfanas
+    if (!validarLitrosAntesDeVuelta()) return;
+
     setIniciandoVuelta(true);
     try {
-      console.log("[reabrirYGuardar] reabriendo vuelta:", vuelta.id, "#"+vuelta.numero);
-      console.log("[reabrirYGuardar] estado del formulario antes de reabrir:", {
-        modoEstanques,
-        estanquesCount: estanquesEntrega.length,
-        clienteNombre,
-        litrosFinal,
-      });
       const res = await apiPost<{ vuelta: { id: string; numero: number } }>(`/api/vueltas/${vuelta.id}/reabrir`, {});
       toast.success(`Vuelta #${res.vuelta.numero} reabierta`);
-      console.log("[reabrirYGuardar] vuelta reabierta:", res.vuelta);
       // Guardar la entrega PRIMERO
       await guardarEntrega(res.vuelta.id);
       // Después de guardar, onSaved() ya se encargó de refrescar el padre
     } catch (e) {
-      console.error("[reabrirYGuardar] error:", e);
       toast.error(e instanceof Error ? e.message : "No se pudo reabrir la vuelta");
     } finally {
       setIniciandoVuelta(false);
@@ -622,13 +623,15 @@ export function EntregaForm({
       return;
     }
 
-    // Si no hay vuelta activa, abrir el diálogo de selección de vuelta
+    // Si no hay vuelta activa, validar litros ANTES de abrir el diálogo
     if (!vueltaActual) {
       // Verificar si hay camiones disponibles
       if (!camiones || camiones.filter(c => c.activo).length === 0) {
         toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
         return;
       }
+      // Validar litros antes de abrir el diálogo para evitar vueltas huérfanas
+      if (!validarLitrosAntesDeVuelta()) return;
       // Cargar vueltas recientes y abrir el diálogo
       await cargarVueltasRecientes();
       setDialogoVueltaAbierto(true);

@@ -9,8 +9,10 @@ import { getSession, getDuenoId } from "@/lib/auth";
 // 3. Marca el pedido como "entregado"
 // 4. Si hay vuelta activa, la asigna a esa vuelta
 //
-// Body opcional: { litrosReales, precioPorLitro, montoEfectivo, montoTransferencia, fotoMedidorUrl, nota }
+// Body opcional: { litrosReales, precioPorLitro, montoEfectivo, montoTransferencia, fotoMedidorUrl, nota, detalleEstanquesJson }
 // Si no se envían, se usan los valores del pedido (litrosSolicitados) y defaults de config.
+//
+// Implementación atómica: usa transacción + updateMany condicional para evitar race conditions.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
@@ -42,38 +44,41 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // Determinar precio según método preferido
     const config = await db.configuracion.findUnique({ where: { duenoId } });
-    let precioPorLitro = Number(body.precioPorLitro) || 0;
 
     // Si el cliente del catálogo tiene precios propios, usarlos
+    let precioEfectivoCfg = config?.precioEfectivoPorLitro || 0;
+    let precioTransferenciaCfg = config?.precioTransferenciaPorLitro || 0;
     if (pedido.clienteId) {
       const cliente = await db.cliente.findUnique({ where: { id: pedido.clienteId } });
       if (cliente) {
-        const precioEfectivo = cliente.precioEfectivoPorLitro || config?.precioEfectivoPorLitro || 0;
-        const precioTransferencia = cliente.precioTransferenciaPorLitro || config?.precioTransferenciaPorLitro || 0;
-        if (pedido.metodoPagoPreferido === "efectivo") {
-          precioPorLitro = precioEfectivo;
-        } else if (pedido.metodoPagoPreferido === "transferencia") {
-          precioPorLitro = precioTransferencia;
-        } else {
-          // credito (sin pago) o mixto: precio MÁS ALTO para generar deuda
-          precioPorLitro = Math.max(precioEfectivo, precioTransferencia);
-        }
-      }
-    }
-    if (!precioPorLitro) {
-      // Fallback a config si no hay cliente o precios propios
-      const precioEfectivo = config?.precioEfectivoPorLitro || 0;
-      const precioTransferencia = config?.precioTransferenciaPorLitro || 0;
-      if (pedido.metodoPagoPreferido === "efectivo") {
-        precioPorLitro = precioEfectivo;
-      } else if (pedido.metodoPagoPreferido === "transferencia") {
-        precioPorLitro = precioTransferencia;
-      } else {
-        precioPorLitro = Math.max(precioEfectivo, precioTransferencia);
+        precioEfectivoCfg = cliente.precioEfectivoPorLitro || precioEfectivoCfg;
+        precioTransferenciaCfg = cliente.precioTransferenciaPorLitro || precioTransferenciaCfg;
       }
     }
 
-    const litros = Number(body.litrosReales) || pedido.litrosSolicitados;
+    let precioPorLitro = Number(body.precioPorLitro) || 0;
+    if (!precioPorLitro) {
+      if (pedido.metodoPagoPreferido === "efectivo") {
+        precioPorLitro = precioEfectivoCfg;
+      } else if (pedido.metodoPagoPreferido === "transferencia") {
+        precioPorLitro = precioTransferenciaCfg;
+      } else {
+        // credito (sin pago) o mixto: precio MÁS ALTO para generar deuda
+        precioPorLitro = Math.max(precioEfectivoCfg, precioTransferenciaCfg);
+      }
+    }
+
+    // Litros: usar litrosReales si se envió explícitamente (incluyendo 0), sino litrosSolicitados
+    let litros: number;
+    if (body.litrosReales != null && body.litrosReales !== "") {
+      litros = Number(body.litrosReales);
+      if (isNaN(litros) || litros < 0) {
+        return NextResponse.json({ error: "Los litros reales deben ser un número ≥ 0" }, { status: 400 });
+      }
+    } else {
+      litros = pedido.litrosSolicitados;
+    }
+
     const total = litros * precioPorLitro;
     const montoEfectivo = Number(body.montoEfectivo) || 0;
     const montoTransferencia = Number(body.montoTransferencia) || 0;
@@ -104,47 +109,73 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       );
     }
 
-    // Crear la entrega
-    const nuevaEntrega = await db.entrega.create({
-      data: {
-        fecha: new Date(),
-        clienteNombre: pedido.clienteNombre,
-        clienteDireccion: pedido.clienteDireccion,
-        clienteTelefono: pedido.clienteTelefono,
-        clienteZona: pedido.clienteZona,
-        clienteId: pedido.clienteId,
-        vueltaId: vueltaActiva?.id ?? null,
-        choferId: session.userId,
-        duenoId,
-        litros,
-        metodoPago: pedido.metodoPagoPreferido,
-        precioPorLitro,
-        total,
-        montoEfectivo,
-        montoTransferencia,
-        montoRecibido,
-        estadoPago,
-        fotoMedidorUrl: body.fotoMedidorUrl || null,
-        nota: body.nota?.trim() || pedido.nota || null,
-        detalleEstanquesJson: body.detalleEstanquesJson || null,
-      },
+    // Determinar el choferId: si es chofer, su propio id; si es dueño, usar el choferAsignadoId o tomadoPorChoferId del pedido
+    let choferIdParaEntrega: string | null = session.userId;
+    if (session.role === "dueno") {
+      choferIdParaEntrega = pedido.tomadoPorChoferId || pedido.choferAsignadoId || pedido.choferId || session.userId;
+    }
+
+    // TRANSACCIÓN: crear entrega + marcar pedido como entregado atómicamente
+    const result = await db.$transaction(async (tx) => {
+      // 1. Crear la entrega
+      const nuevaEntrega = await tx.entrega.create({
+        data: {
+          fecha: new Date(),
+          clienteNombre: pedido.clienteNombre,
+          clienteDireccion: pedido.clienteDireccion,
+          clienteTelefono: pedido.clienteTelefono,
+          clienteZona: pedido.clienteZona,
+          clienteId: pedido.clienteId,
+          vueltaId: vueltaActiva.id,
+          choferId: choferIdParaEntrega,
+          duenoId,
+          litros,
+          metodoPago: pedido.metodoPagoPreferido,
+          precioPorLitro,
+          total,
+          montoEfectivo,
+          montoTransferencia,
+          montoRecibido,
+          estadoPago,
+          fotoMedidorUrl: body.fotoMedidorUrl || null,
+          nota: body.nota?.trim() || pedido.nota || null,
+          detalleEstanquesJson: body.detalleEstanquesJson || null,
+        },
+      });
+
+      // 2. Marcar el pedido como entregado de forma atómica
+      // updateMany con condición estado para evitar race: si otro proceso ya lo marcó, count=0
+      const pedidoUpdate = await tx.pedido.updateMany({
+        where: {
+          id,
+          estado: { in: ["pendiente", "programado", "en_ruta"] },
+        },
+        data: {
+          estado: "entregado",
+          entregaId: nuevaEntrega.id,
+          vueltaId: vueltaActiva.id,
+        },
+      });
+
+      if (pedidoUpdate.count === 0) {
+        // El pedido ya fue entregado por otro proceso — revertir la transacción
+        throw new Error("CONFLICT: Este pedido ya fue entregado por otro proceso");
+      }
+
+      return { nuevaEntrega };
     });
 
-    // Marcar el pedido como entregado y vincularlo a la entrega
-    const pedidoActualizado = await db.pedido.update({
-      where: { id },
-      data: {
-        estado: "entregado",
-        entregaId: nuevaEntrega.id,
-        vueltaId: vueltaActiva?.id ?? null,
-      },
-    });
+    // Recargar el pedido actualizado
+    const pedidoActualizado = await db.pedido.findUnique({ where: { id } });
 
     return NextResponse.json({
       pedido: pedidoActualizado,
-      entrega: nuevaEntrega,
+      entrega: result.nuevaEntrega,
     });
   } catch (err) {
+    if (err instanceof Error && err.message.startsWith("CONFLICT:")) {
+      return NextResponse.json({ error: err.message.replace("CONFLICT: ", "") }, { status: 409 });
+    }
     console.error(err);
     return NextResponse.json({ error: "No se pudo convertir el pedido en entrega" }, { status: 500 });
   }

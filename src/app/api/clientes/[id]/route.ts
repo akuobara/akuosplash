@@ -70,14 +70,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { error: authError } = await checkOwnership(await params.then(p => p.id));
+  const { id } = await params;
+  const { error: authError } = await checkOwnership(id);
   if (authError) return authError;
 
-  const { id } = await params;
+  // Desvincular relaciones opcionales (entregas, pedidos) antes de borrar
   await db.cliente.update({
     where: { id },
-    data: { entregas: { set: [] } },
+    data: {
+      entregas: { set: [] },
+      pedidos: { set: [] },
+      pedidosRecurrentes: { set: [] },
+    },
   });
+
+  // Borrar pagos sueltos del cliente (no se pueden desvincular porque clienteId es required)
+  await db.pago.deleteMany({ where: { clienteId: id } });
+
   await db.cliente.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

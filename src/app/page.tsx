@@ -183,6 +183,17 @@ export default function Home() {
     toast.success("Sesión cerrada");
   }
 
+  // Escuchar evento de sesión expirada (401 en api-client)
+  useEffect(() => {
+    const onUnauthorized = () => {
+      setUser(null);
+      setHasUsers(true);
+      toast.error("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+    };
+    window.addEventListener("auth:unauthorized", onUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", onUnauthorized);
+  }, []);
+
   // Pantalla de carga inicial
   if (authLoading) {
     return (

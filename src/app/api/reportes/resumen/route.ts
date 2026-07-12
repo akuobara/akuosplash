@@ -68,9 +68,17 @@ export async function GET(req: NextRequest) {
     const numEntregas = v.entregas.length;
     const esMultiple = numEntregas > 1;
     const monto = esMultiple ? cfg.montoPorVueltaMultiple : cfg.montoPorVueltaUnicoCliente;
-    pagoChofer += monto;
+    // Solo acumular pagoChofer si el modo de liquidación es "vuelta"
+    if (cfg.modoLiquidacion === "vuelta") {
+      pagoChofer += monto;
+    }
     return { id: v.id, numero: v.numero, cantidadEntregas: numEntregas, esMultiple, montoPago: monto };
   });
+
+  // En modo porcentaje, calcular pagoChofer como porcentaje de utilidad
+  if (cfg.modoLiquidacion !== "vuelta") {
+    pagoChofer = (utilidadBruta * cfg.porcentajeComisionChofer) / 100;
+  }
 
   return NextResponse.json({
     period,

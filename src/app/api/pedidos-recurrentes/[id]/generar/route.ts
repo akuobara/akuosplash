@@ -28,6 +28,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (session.role === "dueno" && recurrente.duenoId !== session.userId) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
+  // Chofer: verificar que el recurrente pertenece a su dueño
+  if (session.role === "chofer" && recurrente.duenoId !== session.duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
+  // Idempotencia: si ya existe un pedido generado hoy para este recurrente, no crear otro
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const existente = await db.pedido.findFirst({
+    where: {
+      pedidoRecurrenteId: recurrente.id,
+      creadoEn: { gte: hoy },
+    },
+  });
+  if (existente) {
+    return NextResponse.json({ pedido: existente, proximaGeneracion: recurrente.fechaProximaGeneracion, yaExistente: true });
+  }
 
   if (!recurrente.activo) {
     return NextResponse.json({ error: "El pedido recurrente está inactivo" }, { status: 400 });

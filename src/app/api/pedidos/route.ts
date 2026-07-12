@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
+import { parseDateTimeLocalInput } from "@/lib/helpers";
 
 // GET /api/pedidos?estado=...&clienteId=...&disponibles=true
 // - Dueño: ve todos sus pedidos
@@ -209,7 +210,7 @@ export async function POST(req: NextRequest) {
       data: {
         ...clienteData,
         litrosSolicitados: Number(body.litrosSolicitados) || 0,
-        fechaSolicitada: body.fechaSolicitada ? new Date(body.fechaSolicitada + ":00-04:00") : null,
+        fechaSolicitada: body.fechaSolicitada ? parseDateTimeLocalInput(body.fechaSolicitada) : null,
         metodoPagoPreferido: body.metodoPagoPreferido || "efectivo",
         nota: body.nota?.trim() || null,
         estado: body.estado || "pendiente",

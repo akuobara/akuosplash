@@ -29,9 +29,10 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "La vuelta ya está activa" }, { status: 400 });
   }
 
-  // Cerrar cualquier vuelta activa actualmente (solo puede haber una)
+  // Cerrar cualquier vuelta activa actualmente del MISMO chofer (solo puede haber una por chofer)
+  const choferIdVuelta = vuelta.choferId ?? session.userId;
   const activaActual = await db.vuelta.findFirst({
-    where: { activa: true, duenoId },
+    where: { activa: true, duenoId, choferId: choferIdVuelta },
   });
   if (activaActual && activaActual.id !== id) {
     await db.vuelta.update({

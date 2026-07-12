@@ -180,6 +180,21 @@ export function toDateTimeLocalInput(date: Date | string): string {
   return `${y}-${m}-${day}T${h}:${min}`;
 }
 
+// Convierte un valor de input datetime-local (ej. "2024-01-15T14:30") a un objeto Date.
+// El valor del input se interpreta como hora LOCAL del servidor.
+// Si ya viene como ISO completo (con zona horaria), se parsea directamente.
+export function parseDateTimeLocalInput(value: string): Date {
+  // Si ya incluye zona horaria (Z o +XX:XX), parsear directamente
+  if (/[zZ]$|[+-]\d{2}:\d{2}$/.test(value)) {
+    return new Date(value);
+  }
+  // Si ya incluye segundos, no añadirlos
+  const hasSeconds = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value);
+  const normalized = hasSeconds ? value : value + ":00";
+  // new Date("2024-01-15T14:30:00") interpreta como hora LOCAL en Node.js
+  return new Date(normalized);
+}
+
 export function formatTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleTimeString("es-CL", {
@@ -203,8 +218,9 @@ export function esVueltaCompletada(
   if (capacidadCamion && capacidadCamion > 0) {
     return litros >= capacidadCamion * UMBRAL_COMPLETACION_VUELTA;
   }
-  // Sin info de capacidad: se considera completada si hubo al menos una entrega
-  return cantidadEntregas > 0;
+  // Sin info de capacidad: NO se considera completada (evita que 1L cuente como vuelta válida)
+  // Solo se considera completada si entregó al menos 1000L (mínimo razonable)
+  return litros >= 1000 && cantidadEntregas > 0;
 }
 
 export function porcentajeCompletado(

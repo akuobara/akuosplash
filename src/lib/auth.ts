@@ -31,8 +31,13 @@ export function verifyPassword(password: string, stored: string): boolean {
 }
 
 // ===== JWT =====
+// En producción, JWT_SECRET debe estar definido. En desarrollo, se permite un fallback.
+const JWT_SECRET_RAW = process.env.JWT_SECRET;
+if (process.env.NODE_ENV === "production" && !JWT_SECRET_RAW) {
+  console.error("FATAL: JWT_SECRET no está definido en producción. La aplicación no es segura.");
+}
 const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "aljibe-app-dev-secret-change-in-production"
+  JWT_SECRET_RAW || "aljibe-app-dev-secret-change-in-production"
 );
 const COOKIE_NAME = "aljibe-session";
 

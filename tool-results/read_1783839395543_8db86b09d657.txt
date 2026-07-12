@@ -1,0 +1,502 @@
+   850→                  <p className="flex items-center gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-200">
+   851→                    <DoorOpen className="h-3.5 w-3.5" /> Información de acceso
+   852→                  </p>
+   853→
+   854→                  {(c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false) && (
+   855→                    <div className="flex flex-wrap gap-1">
+   856→                      {c.requiereIngresoPropiedad && (
+   857→                        <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
+   858→                          <DoorOpen className="h-2.5 w-2.5" /> Ingreso
+   859→                        </span>
+   860→                      )}
+   861→                      {c.entregaDesdeAfuera && (
+   862→                        <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
+   863→                          <Fence className="h-2.5 w-2.5" /> Desde afuera
+   864→                        </span>
+   865→                      )}
+   866→                      {c.conexionExterna && (
+   867→                        <span className="inline-flex items-center gap-0.5 rounded border border-emerald-300 dark:border-emerald-700 px-1.5 py-0.5 text-[10px] text-emerald-900 dark:text-emerald-200">
+   868→                          <KeyRound className="h-2.5 w-2.5" /> Conexión externa
+   869→                        </span>
+   870→                      )}
+   871→                      {c.requiereClientePresente === false && (
+   872→                        <span className="inline-flex items-center gap-0.5 rounded border border-blue-300 dark:border-blue-700 px-1.5 py-0.5 text-[10px] text-blue-900 dark:text-blue-200">
+   873→                          <UserCheck className="h-2.5 w-2.5" /> Sin presencia
+   874→                        </span>
+   875→                      )}
+   876→                    </div>
+   877→                  )}
+   878→
+   879→                  {c.indicacionesAcceso && (
+   880→                    <p className="text-xs text-amber-900 dark:text-amber-200 whitespace-pre-wrap">
+   881→                      {c.indicacionesAcceso}
+   882→                    </p>
+   883→                  )}
+   884→
+   885→                  {c.lat != null && c.lng != null && (
+   886→                    <a
+   887→                      href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
+   888→                      target="_blank"
+   889→                      rel="noopener noreferrer"
+   890→                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+   891→                    >
+   892→                      <Navigation className="h-3 w-3" /> Cómo llegar (Google Maps)
+   893→                      <ExternalLink className="h-2.5 w-2.5" />
+   894→                    </a>
+   895→                  )}
+   896→                </div>
+   897→              );
+   898→            })()}
+   899→
+   900→            {/* Panel de deuda del cliente */}
+   901→            {clienteId && clienteId !== "__manual" && clienteDeuda != null && clienteDeuda !== 0 && (
+   902→              <div className={`mt-2 rounded-lg border p-3 space-y-1 ${
+   903→                clienteDeuda > 0
+   904→                  ? "border-red-300 bg-red-50 dark:bg-red-900/20"
+   905→                  : "border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20"
+   906→              }`}>
+   907→                <p className={`flex items-center gap-1.5 text-xs font-medium ${
+   908→                  clienteDeuda > 0 ? "text-red-800 dark:text-red-300" : "text-emerald-800 dark:text-emerald-300"
+   909→                }`}>
+   910→                  <Banknote className="h-3.5 w-3.5" />
+   911→                  {clienteDeuda > 0
+   912→                    ? `Este cliente tiene una deuda pendiente de ${formatCurrency(clienteDeuda)}`
+   913→                    : `Este cliente tiene saldo a favor de ${formatCurrency(Math.abs(clienteDeuda))}`
+   914→                  }
+   915→                </p>
+   916→                {clienteDeuda > 0 && (
+   917→                  <p className="text-[11px] text-red-700 dark:text-red-400">
+   918→                    Puedes recibir más efectivo que el total de esta entrega para cubrir la deuda anterior.
+   919→                    El exceso se descontará automáticamente del saldo pendiente.
+   920→                  </p>
+   921→                )}
+   922→              </div>
+   923→            )}
+   924→
+   925→            {/* Botón para activar entrega por estanque */}
+   926→            {clienteId && clienteId !== "__manual" && estanquesEntrega.length > 0 && !modoEstanques && (
+   927→              <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-2">
+   928→                <p className="flex items-center gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-200">
+   929→                  <Droplets className="h-3.5 w-3.5" />
+   930→                  Este cliente tiene {estanquesEntrega.length} estanque(s) registrado(s)
+   931→                </p>
+   932→                <Button
+   933→                  type="button"
+   934→                  variant="outline"
+   935→                  size="sm"
+   936→                  onClick={() => setModoEstanques(true)}
+   937→                  className="w-full border-amber-400 text-amber-800 hover:bg-amber-100 dark:text-amber-300"
+   938→                >
+   939→                  <Droplets className="mr-1 h-4 w-4" />
+   940→                  Entregar por estanque (cobro separado)
+   941→                </Button>
+   942→              </div>
+   943→            )}
+   944→
+   945→            {/* Botón para agregar estanques cuando el cliente no tiene ninguno registrado */}
+   946→            {clienteId && clienteId !== "__manual" && estanquesEntrega.length === 0 && !modoEstanques && (
+   947→              <div className="mt-2">
+   948→                <Button
+   949→                  type="button"
+   950→                  variant="ghost"
+   951→                  size="sm"
+   952→                  onClick={() => {
+   953→                    // Agregar un estanque vacío para facturación independiente
+   954→                    const c = clientes.find((cl) => cl.id === clienteId);
+   955→                    const precioEfectivoEst = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+   956→                    const precioTransferenciaEst = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+   957→                    const precioMaxEst = Math.max(precioEfectivoEst, precioTransferenciaEst);
+   958→                    setEstanquesEntrega([{
+   959→                      nombre: "Estanque 1",
+   960→                      litros: "",
+   961→                      precio: String(precioMaxEst || 0),
+   962→                      metodoPago: "credito",
+   963→                      montoRecibido: "",
+   964→                    }]);
+   965→                    setModoEstanques(true);
+   966→                  }}
+   967→                  className="w-full text-xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-300"
+   968→                >
+   969→                  <Droplets className="mr-1 h-3.5 w-3.5" />
+   970→                  Cobrar por estanque (el cliente no tiene estanques registrados, pero puedes agregarlos aquí)
+   971→                </Button>
+   972→              </div>
+   973→            )}
+   974→
+   975→            {/* Botón para desactivar modo estanques */}
+   976→            {modoEstanques && (
+   977→              <div className="mt-2">
+   978→                <Button
+   979→                  type="button"
+   980→                  variant="ghost"
+   981→                  size="sm"
+   982→                  onClick={() => setModoEstanques(false)}
+   983→                  className="text-xs"
+   984→                >
+   985→                  ← Volver a entrega simple (un solo cobro)
+   986→                </Button>
+   987→              </div>
+   988→            )}
+   989→          </div>
+   990→
+   991→          <div className="grid gap-3 sm:grid-cols-2">
+   992→            <div className="space-y-2">
+   993→              <Label htmlFor="clienteNombre">Nombre del cliente *</Label>
+   994→              <Input
+   995→                id="clienteNombre"
+   996→                value={clienteNombre}
+   997→                onChange={(e) => setClienteNombre(e.target.value)}
+   998→                placeholder="Ej. Juan Pérez"
+   999→                required
+  1000→              />
+  1001→            </div>
+  1002→            <div className="space-y-2">
+  1003→              <Label htmlFor="clienteTelefono">Teléfono</Label>
+  1004→              <Input
+  1005→                id="clienteTelefono"
+  1006→                value={clienteTelefono}
+  1007→                onChange={(e) => setClienteTelefono(e.target.value)}
+  1008→                placeholder="+56 9 1234 5678"
+  1009→              />
+  1010→            </div>
+  1011→          </div>
+  1012→
+  1013→          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+  1014→            <div className="space-y-2">
+  1015→              <Label htmlFor="clienteDireccion">Dirección</Label>
+  1016→              <Input
+  1017→                id="clienteDireccion"
+  1018→                value={clienteDireccion}
+  1019→                onChange={(e) => setClienteDireccion(e.target.value)}
+  1020→                placeholder="Calle, número, referencia"
+  1021→              />
+  1022→            </div>
+  1023→            <div className="space-y-2">
+  1024→              <Label htmlFor="clienteZona">Zona</Label>
+  1025→              <Input
+  1026→                id="clienteZona"
+  1027→                value={clienteZona}
+  1028→                onChange={(e) => setClienteZona(e.target.value)}
+  1029→                placeholder="Ej. Rural 5km"
+  1030→                className="w-[150px]"
+  1031→              />
+  1032→            </div>
+  1033→          </div>
+  1034→
+  1035→          {/* Lecturas del medidor */}
+  1036→          <div className="rounded-lg border border-border bg-muted/30 p-3">
+  1037→            <p className="mb-2 text-sm font-medium">Lecturas del medidor</p>
+  1038→            <div className="grid gap-3 sm:grid-cols-3">
+  1039→              <div className="space-y-2">
+  1040→                <Label htmlFor="lecturaAnterior" className="text-xs">Lectura anterior</Label>
+  1041→                <Input
+  1042→                  id="lecturaAnterior"
+  1043→                  type="number"
+  1044→                  inputMode="decimal"
+  1045→                  step="any"
+  1046→                  value={lecturaAnterior}
+  1047→                  onChange={(e) => setLecturaAnterior(e.target.value)}
+  1048→                  placeholder="0"
+  1049→                />
+  1050→              </div>
+  1051→              <div className="space-y-2">
+  1052→                <Label htmlFor="lecturaActual" className="text-xs">Lectura actual</Label>
+  1053→                <Input
+  1054→                  id="lecturaActual"
+  1055→                  type="number"
+  1056→                  inputMode="decimal"
+  1057→                  step="any"
+  1058→                  value={lecturaActual}
+  1059→                  onChange={(e) => setLecturaActual(e.target.value)}
+  1060→                  placeholder="0"
+  1061→                />
+  1062→              </div>
+  1063→              <div className="space-y-2">
+  1064→                <Label htmlFor="litrosManual" className="text-xs">
+  1065→                  Litros {litrosCalculado != null && litrosManual === "" && "(auto)"}
+  1066→                </Label>
+  1067→                <Input
+  1068→                  id="litrosManual"
+  1069→                  type="number"
+  1070→                  inputMode="decimal"
+  1071→                  step="any"
+  1072→                  value={litrosManual}
+  1073→                  onChange={(e) => setLitrosManual(e.target.value)}
+  1074→                  placeholder={litrosCalculado != null ? String(litrosCalculado) : "0"}
+  1075→                />
+  1076→              </div>
+  1077→            </div>
+  1078→            {litrosCalculado != null && litrosManual === "" && (
+  1079→              <p className="mt-2 text-xs text-muted-foreground">
+  1080→                Litros calculados: <strong>{formatNumber(litrosCalculado, 0)} L</strong>
+  1081→                {vueltaActual && vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
+  1082→                  (() => {
+  1083→                    const disponible = Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros);
+  1084→                    if (litrosCalculado > disponible) {
+  1085→                      return (
+  1086→                        <span className="ml-2 text-amber-600 dark:text-amber-400">
+  1087→                          ⚠ Solo quedan {formatNumber(disponible, 0)} L en el camión
+  1088→                        </span>
+  1089→                      );
+  1090→                    }
+  1091→                    return null;
+  1092→                  })()
+  1093→                )}
+  1094→              </p>
+  1095→            )}
+  1096→          </div>
+  1097→
+  1098→          {/* Precio por litro */}
+  1099→          <div className="space-y-2">
+  1100→            <Label htmlFor="precio">Precio por litro</Label>
+  1101→            <Input
+  1102→              id="precio"
+  1103→              type="number"
+  1104→              inputMode="decimal"
+  1105→              step="any"
+  1106→              value={precioPorLitro}
+  1107→              onChange={(e) => setPrecioPorLitro(e.target.value)}
+  1108→              placeholder="0"
+  1109→            />
+  1110→            <p className="text-xs text-muted-foreground">
+  1111→              Default: {formatCurrency(config.precioEfectivoPorLitro)}/L efectivo · {formatCurrency(config.precioTransferenciaPorLitro)}/L transferencia
+  1112→            </p>
+  1113→          </div>
+  1114→
+  1115→          {/* Resumen de cálculo — siempre visible y automático */}
+  1116→          <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3">
+  1117→            <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase text-muted-foreground">
+  1118→              Cálculo automático
+  1119→            </p>
+  1120→            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+  1121→              <div>
+  1122→                <span className="text-xs uppercase text-muted-foreground">Litros</span>
+  1123→                <p className="text-lg font-bold tabular-nums">{formatNumber(litrosFinal, 0)} L</p>
+  1124→              </div>
+  1125→              <div>
+  1126→                <span className="text-xs uppercase text-muted-foreground">Precio/L</span>
+  1127→                <p className="text-lg font-bold tabular-nums">{formatCurrency(precioFinal)}</p>
+  1128→              </div>
+  1129→              <div>
+  1130→                <span className="text-xs uppercase text-muted-foreground">Total</span>
+  1131→                <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(totalCalculado)}</p>
+  1132→              </div>
+  1133→              <div>
+  1134→                <span className="text-xs uppercase text-muted-foreground">Saldo</span>
+  1135→                <p className={`text-lg font-bold tabular-nums ${saldoFinal > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+  1136→                  {formatCurrency(saldoFinal)}
+  1137→                </p>
+  1138→              </div>
+  1139→            </div>
+  1140→            <p className="mt-2 text-xs text-muted-foreground">
+  1141→              Recibido: <strong>{formatCurrency(recibidoFinal)}</strong> (efectivo + transferencia)
+  1142→            </p>
+  1143→            {/* Si hay deuda anterior y el cliente paga más del total */}
+  1144→            {clienteDeuda != null && clienteDeuda > 0 && recibidoFinal > totalCalculado && totalCalculado > 0 && (
+  1145→              <div className="mt-1 rounded bg-red-50 dark:bg-red-900/20 p-2 text-xs text-red-800 dark:text-red-300">
+  1146→                <p>Excedente para deuda anterior: <strong>{formatCurrency(recibidoFinal - totalCalculado)}</strong></p>
+  1147→                <p>Deuda total después de este pago: <strong>{formatCurrency(Math.max(0, clienteDeuda - (recibidoFinal - totalCalculado)))}</strong></p>
+  1148→              </div>
+  1149→            )}
+  1150→            {/* Si el cliente tiene saldo a favor */}
+  1151→            {clienteDeuda != null && clienteDeuda < 0 && (
+  1152→              <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+  1153→                Saldo a favor anterior: <strong>{formatCurrency(Math.abs(clienteDeuda))}</strong>
+  1154→              </p>
+  1155→            )}
+  1156→          </div>
+  1157→
+  1158→          {/* Desglose por estanque (cuando el cliente tiene facturación independiente) */}
+  1159→          {modoEstanques && estanquesEntrega.length > 0 && (
+  1160→            <div className="rounded-lg border-2 border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-3">
+  1161→              <Label className="flex items-center gap-1.5 text-sm font-medium text-amber-900 dark:text-amber-200">
+  1162→                <Droplets className="h-4 w-4" /> Entrega por estanque (facturación independiente)
+  1163→              </Label>
+  1164→              <p className="text-xs text-amber-800 dark:text-amber-300">
+  1165→                Registra los litros y el pago de cada estanque por separado.
+  1166→              </p>
+  1167→
+  1168→              {estanquesEntrega.map((est, i) => {
+  1169→                const litrosEst = Number(est.litros) || 0;
+  1170→                const precioEst = Number(est.precio) || 0;
+  1171→                const totalEst = litrosEst * precioEst;
+  1172→                const recibidoEst = Number(est.montoRecibido) || 0;
+  1173→                return (
+  1174→                  <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background p-2 space-y-2">
+  1175→                    <div className="flex items-center gap-2">
+  1176→                      <span className="text-xs font-semibold text-amber-900 dark:text-amber-200 shrink-0">{i + 1}.</span>
+  1177→                      <Input
+  1178→                        type="text"
+  1179→                        value={est.nombre}
+  1180→                        onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, nombre: e.target.value } : est2))}
+  1181→                        className="h-7 text-xs flex-1"
+  1182→                        placeholder="Nombre del estanque"
+  1183→                      />
+  1184→                      {estanquesEntrega.length > 1 && (
+  1185→                        <Button
+  1186→                          type="button"
+  1187→                          variant="ghost"
+  1188→                          size="sm"
+  1189→                          className="h-7 w-7 p-0 text-muted-foreground hover:text-red-600"
+  1190→                          onClick={() => setEstanquesEntrega(estanquesEntrega.filter((_, j) => j !== i))}
+  1191→                        >
+  1192→                          <X className="h-3.5 w-3.5" />
+  1193→                        </Button>
+  1194→                      )}
+  1195→                    </div>
+  1196→                    <div className="grid grid-cols-2 gap-2">
+  1197→                      <div>
+  1198→                        <label className="text-[10px] text-muted-foreground">Litros</label>
+  1199→                        <Input
+  1200→                          type="number"
+  1201→                          inputMode="decimal"
+  1202→                          step="any"
+  1203→                          value={est.litros}
+  1204→                          onChange={(e) => {
+  1205→                            const nuevosLitros = e.target.value;
+  1206→                            const precioCalc = Number(est.precio) || 0;
+  1207→                            const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
+  1208→                            setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
+  1209→                              ...est2,
+  1210→                              litros: nuevosLitros,
+  1211→                              // Auto-actualizar monto recibido si no fue editado manualmente
+  1212→                              montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalCalc > 0 ? String(Math.round(totalCalc)) : "")),
+  1213→                            } : est2));
+  1214→                          }}
+  1215→                          placeholder="0"
+  1216→                          className="h-8 text-xs"
+  1217→                        />
+  1218→                      </div>
+  1219→                      <div>
+  1220→                        <label className="text-[10px] text-muted-foreground">Precio/L</label>
+  1221→                        <Input
+  1222→                          type="number"
+  1223→                          inputMode="decimal"
+  1224→                          step="any"
+  1225→                          value={est.precio}
+  1226→                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
+  1227→                          placeholder="0"
+  1228→                          className="h-8 text-xs"
+  1229→                        />
+  1230→                      </div>
+  1231→                    </div>
+  1232→                    <div className="grid grid-cols-2 gap-2">
+  1233→                      <div>
+  1234→                        <label className="text-[10px] text-muted-foreground">Método de pago</label>
+  1235→                        <select
+  1236→                          value={est.metodoPago}
+  1237→                          onChange={(e) => {
+  1238→                            const nuevoMetodo = e.target.value;
+  1239→                            const c = clientes.find(cl => cl.id === clienteId);
+  1240→                            const precioEfectivo = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+  1241→                            const precioTransferencia = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+  1242→                            let nuevoPrecio = est.precio;
+  1243→                            if (nuevoMetodo === "efectivo") {
+  1244→                              nuevoPrecio = String(precioEfectivo || 0);
+  1245→                            } else if (nuevoMetodo === "transferencia") {
+  1246→                              nuevoPrecio = String(precioTransferencia || 0);
+  1247→                            } else {
+  1248→                              // Sin pago: usar el precio MÁS ALTO para generar deuda correcta
+  1249→                              // El usuario puede ajustar al momento de cobrar
+  1250→                              nuevoPrecio = String(Math.max(precioEfectivo, precioTransferencia) || 0);
+  1251→                            }
+  1252→                            const totalEstCalc = (Number(est.litros) || 0) * (Number(nuevoPrecio) || 0);
+  1253→                            setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
+  1254→                              ...est2,
+  1255→                              metodoPago: nuevoMetodo,
+  1256→                              precio: nuevoPrecio,
+  1257→                              // Sin pago: NO auto-llenar montoRecibido (queda vacío = 0 = deuda)
+  1258→                              montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
+  1259→                            } : est2));
+  1260→                          }}
+  1261→                          className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+  1262→                        >
+  1263→                          <option value="efectivo">Efectivo</option>
+  1264→                          <option value="transferencia">Transferencia</option>
+  1265→                          <option value="credito">Sin pago</option>
+  1266→                        </select>
+  1267→                      </div>
+  1268→                      <div>
+  1269→                        <label className="text-[10px] text-muted-foreground">Monto recibido</label>
+  1270→                        <Input
+  1271→                          type="number"
+  1272→                          inputMode="decimal"
+  1273→                          step="any"
+  1274→                          value={est.montoRecibido}
+  1275→                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, montoRecibido: e.target.value } : est2))}
+  1276→                          placeholder={est.metodoPago === "credito" ? "—" : String(Math.round(totalEst))}
+  1277→                          disabled={est.metodoPago === "credito"}
+  1278→                          className="h-8 text-xs"
+  1279→                        />
+  1280→                      </div>
+  1281→                    </div>
+  1282→                    <div className="flex items-center justify-between text-[10px]">
+  1283→                      {est.metodoPago === "credito" ? (
+  1284→                        <>
+  1285→                          <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400">Se definirá al cobrar</strong></span>
+  1286→                          <span className="text-amber-600 dark:text-amber-400">Pendiente</span>
+  1287→                        </>
+  1288→                      ) : (
+  1289→                        <>
+  1290→                          <span className="text-muted-foreground">Total: <strong className="text-foreground tabular-nums">{formatCurrency(totalEst)}</strong></span>
+  1291→                          {recibidoEst > 0 && recibidoEst < totalEst && (
+  1292→                            <span className="text-amber-600 dark:text-amber-400">Saldo: {formatCurrency(totalEst - recibidoEst)}</span>
+  1293→                          )}
+  1294→                          {recibidoEst >= totalEst && totalEst > 0 && (
+  1295→                            <span className="text-emerald-600 dark:text-emerald-400">✓ Pagado</span>
+  1296→                          )}
+  1297→                        </>
+  1298→                      )}
+  1299→                    </div>
+  1300→                  </div>
+  1301→                );
+  1302→              })}
+  1303→
+  1304→              {/* Total de la entrega (suma de estanques) */}
+  1305→              {(() => {
+  1306→                const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+  1307→                const totalVentaEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+  1308→                const totalRecibidoEst = estanquesEntrega.reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+  1309→                const haySinPago = estanquesEntrega.some(e => e.metodoPago === "credito");
+  1310→                return (
+  1311→                  <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-center text-sm">
+  1312→                    <div className="grid grid-cols-3 gap-2">
+  1313→                      <div>
+  1314→                        <p className="text-[10px] uppercase text-muted-foreground">Total litros</p>
+  1315→                        <p className="font-bold tabular-nums">{formatNumber(totalLitrosEst, 0)} L</p>
+  1316→                      </div>
+  1317→                      <div>
+  1318→                        <p className="text-[10px] uppercase text-muted-foreground">Total venta</p>
+  1319→                        {haySinPago && totalVentaEst === 0 ? (
+  1320→                          <p className="font-bold text-amber-600 dark:text-amber-400 text-xs">Se definirá al cobrar</p>
+  1321→                        ) : (
+  1322→                          <p className="font-bold tabular-nums">{formatCurrency(totalVentaEst)}</p>
+  1323→                        )}
+  1324→                      </div>
+  1325→                      <div>
+  1326→                        <p className="text-[10px] uppercase text-muted-foreground">Total recibido</p>
+  1327→                        <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(totalRecibidoEst)}</p>
+  1328→                      </div>
+  1329→                    </div>
+  1330→                    {haySinPago && (
+  1331→                      <p className="mt-1 text-[10px] text-amber-600 dark:text-amber-400">
+  1332→                        Los estanques sin pago se cobrarán después. Ve a la ficha del cliente → Registrar pago.
+  1333→                      </p>
+  1334→                    )}
+  1335→                  </div>
+  1336→                );
+  1337→              })()}
+  1338→
+  1339→              {/* Botón para agregar otro estanque */}
+  1340→              <Button
+  1341→                type="button"
+  1342→                variant="outline"
+  1343→                size="sm"
+  1344→                onClick={() => {
+  1345→                  const c = clientes.find((cl) => cl.id === clienteId);
+  1346→                  const precioEfectivoEst = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+  1347→                  const precioTransferenciaEst = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+  1348→                  const precioMaxEst = Math.max(precioEfectivoEst, precioTransferenciaEst);
+  1349→                  setEstanquesEntrega([...estanquesEntrega, {
+
+[showing lines 850-1349 of 1702; use offset=1350 with limit to continue reading]

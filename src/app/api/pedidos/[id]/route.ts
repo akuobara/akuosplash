@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
+import { parseDateTimeLocalInput } from "@/lib/helpers";
 
 // PATCH /api/pedidos/[id]
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +34,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.clienteLat !== undefined && { clienteLat: body.clienteLat === null || body.clienteLat === "" ? null : Number(body.clienteLat) }),
       ...(body.clienteLng !== undefined && { clienteLng: body.clienteLng === null || body.clienteLng === "" ? null : Number(body.clienteLng) }),
       ...(body.litrosSolicitados !== undefined && { litrosSolicitados: Number(body.litrosSolicitados) || 0 }),
-      ...(body.fechaSolicitada !== undefined && { fechaSolicitada: body.fechaSolicitada ? new Date(body.fechaSolicitada + ":00-04:00") : null }),
+      ...(body.fechaSolicitada !== undefined && { fechaSolicitada: body.fechaSolicitada ? parseDateTimeLocalInput(body.fechaSolicitada) : null }),
       ...(body.metodoPagoPreferido !== undefined && { metodoPagoPreferido: body.metodoPagoPreferido }),
       ...(body.indicacionesAcceso !== undefined && { indicacionesAcceso: body.indicacionesAcceso?.trim() || null }),
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),

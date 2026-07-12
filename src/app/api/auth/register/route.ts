@@ -24,55 +24,70 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verificar si ya hay usuarios registrados
-    const userCount = await db.usuario.count();
-    if (userCount > 0) {
-      return NextResponse.json(
-        { error: "Ya existe una cuenta registrada. Usa el login o pide al dueño que te agregue como chofer." },
-        { status: 403 }
-      );
-    }
+    // Verificar si ya hay usuarios registrados — usar transacción para evitar race condition
+    // que podría crear dos dueños si dos registros llegan simultáneamente.
+    try {
+      const user = await db.$transaction(async (tx) => {
+        const userCount = await tx.usuario.count();
+        if (userCount > 0) {
+          throw new Error("ALREADY_REGISTERED");
+        }
 
-    // Verificar email único
-    const existing = await db.usuario.findUnique({ where: { email: email.trim().toLowerCase() } });
-    if (existing) {
-      return NextResponse.json({ error: "Email ya registrado" }, { status: 409 });
-    }
+        // Verificar email único
+        const existing = await tx.usuario.findUnique({ where: { email: email.trim().toLowerCase() } });
+        if (existing) {
+          throw new Error("EMAIL_EXISTS");
+        }
 
-    // Crear el primer usuario como dueño
-    const user = await db.usuario.create({
-      data: {
-        nombre: nombre.trim(),
-        email: email.trim().toLowerCase(),
-        passwordHash: hashPassword(password),
-        telefono: telefono?.trim() || null,
-        role: "dueno",
+        // Crear el primer usuario como dueño
+        const newUser = await tx.usuario.create({
+          data: {
+            nombre: nombre.trim(),
+            email: email.trim().toLowerCase(),
+            passwordHash: hashPassword(password),
+            telefono: telefono?.trim() || null,
+            role: "dueno",
+            duenoId: null,
+          },
+        });
+
+        // Crear configuración por defecto para este dueño
+        await tx.configuracion.create({
+          data: {
+            duenoId: newUser.id,
+            nombreDueno: newUser.nombre,
+            nombreChofer: newUser.nombre, // el dueño puede ser su propio chofer
+          },
+        });
+
+        return newUser;
+      });
+
+      // Firmar token y setear cookie (fuera de la transacción)
+      const sessionUser = {
+        userId: user.id,
+        email: user.email,
+        nombre: user.nombre,
+        role: "dueno" as const,
         duenoId: null,
-      },
-    });
+      };
+      const token = await signToken(sessionUser);
+      const isHttps = req.headers.get("x-forwarded-proto") === "https";
+      await setSessionCookie(token, isHttps);
 
-    // Crear configuración por defecto para este dueño
-    await db.configuracion.create({
-      data: {
-        duenoId: user.id,
-        nombreDueno: user.nombre,
-        nombreChofer: user.nombre, // el dueño puede ser su propio chofer
-      },
-    });
-
-    // Firmar token y setear cookie
-    const sessionUser = {
-      userId: user.id,
-      email: user.email,
-      nombre: user.nombre,
-      role: "dueno" as const,
-      duenoId: null,
-    };
-    const token = await signToken(sessionUser);
-    const isHttps = req.headers.get("x-forwarded-proto") === "https";
-    await setSessionCookie(token, isHttps);
-
-    return NextResponse.json({ user: sessionUser, token }, { status: 201 });
+      return NextResponse.json({ user: sessionUser, token }, { status: 201 });
+    } catch (err) {
+      if (err instanceof Error && err.message === "ALREADY_REGISTERED") {
+        return NextResponse.json(
+          { error: "Ya existe una cuenta registrada. Usa el login o pide al dueño que te agregue como chofer." },
+          { status: 403 }
+        );
+      }
+      if (err instanceof Error && err.message === "EMAIL_EXISTS") {
+        return NextResponse.json({ error: "Email ya registrado" }, { status: 409 });
+      }
+      throw err;
+    }
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "No se pudo registrar" }, { status: 500 });

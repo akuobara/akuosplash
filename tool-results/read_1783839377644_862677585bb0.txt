@@ -1,0 +1,1702 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useState } from "react";
+     4→import {
+     5→  Dialog,
+     6→  DialogContent,
+     7→  DialogHeader,
+     8→  DialogTitle,
+     9→  DialogFooter,
+    10→  DialogDescription,
+    11→} from "@/components/ui/dialog";
+    12→import { Button } from "@/components/ui/button";
+    13→import { Input } from "@/components/ui/input";
+    14→import { Label } from "@/components/ui/label";
+    15→import { Textarea } from "@/components/ui/textarea";
+    16→import {
+    17→  Select,
+    18→  SelectContent,
+    19→  SelectItem,
+    20→  SelectTrigger,
+    21→  SelectValue,
+    22→} from "@/components/ui/select";
+    23→import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink, Banknote, Smartphone, Clock, ClipboardList, RotateCcw, Plus, AlertTriangle, Truck } from "lucide-react";
+    24→import { toast } from "sonner";
+    25→import { apiGet, apiPost, apiPatch, uploadFile } from "@/lib/api-client";
+    26→import {
+    27→  ESTADOS_PAGO,
+    28→  METODOS_PAGO,
+    29→  formatCurrency,
+    30→  formatNumber,
+    31→  labelMetodoPago,
+    32→  esVueltaCompletada,
+    33→  UMBRAL_COMPLETACION_VUELTA,
+    34→  formatTime,
+    35→} from "@/lib/helpers";
+    36→
+    37→export interface Entrega {
+    38→  id: string;
+    39→  fecha: string;
+    40→  clienteNombre: string;
+    41→  clienteDireccion: string | null;
+    42→  clienteTelefono: string | null;
+    43→  clienteZona: string | null;
+    44→  clienteId: string | null;
+    45→  vueltaId: string | null;
+    46→  vuelta?: { id: string; numero: number; activa: boolean } | null;
+    47→  lecturaAnterior: number | null;
+    48→  lecturaActual: number | null;
+    49→  litros: number;
+    50→  metodoPago: string;
+    51→  precioPorLitro: number;
+    52→  total: number;
+    53→  montoEfectivo: number;
+    54→  montoTransferencia: number;
+    55→  montoRecibido: number;
+    56→  estadoPago: string;
+    57→  fotoMedidorUrl: string | null;
+    58→  nota: string | null;
+    59→  detalleEstanquesJson: string | null;
+    60→}
+    61→
+    62→export interface VueltaActual {
+    63→  id: string;
+    64→  numero: number;
+    65→  iniciadaEn: string;
+    66→  cantidadEntregas: number;
+    67→  litros: number;
+    68→  litrosRestantes?: number;
+    69→  capacidadCamion?: number;
+    70→  ventas?: number;
+    71→  efectivoRecibido?: number;
+    72→  transferenciaRecibida?: number;
+    73→  camion?: {
+    74→    id: string;
+    75→    nombre: string;
+    76→    patente: string | null;
+    77→    capacidad: number;
+    78→  } | null;
+    79→  entregas?: {
+    80→    id: string;
+    81→    litros: number;
+    82→    total: number;
+    83→    montoEfectivo: number;
+    84→    montoTransferencia: number;
+    85→    montoRecibido: number;
+    86→    clienteNombre: string;
+    87→    metodoPago: string;
+    88→    fecha: string;
+    89→  }[];
+    90→}
+    91→
+    92→interface ClienteOption {
+    93→  id: string;
+    94→  nombre: string;
+    95→  direccion: string | null;
+    96→  telefono: string | null;
+    97→  zona: string | null;
+    98→  precioEfectivoPorLitro: number;
+    99→  precioTransferenciaPorLitro: number;
+   100→  // GPS y acceso
+   101→  lat: number | null;
+   102→  lng: number | null;
+   103→  requiereIngresoPropiedad: boolean;
+   104→  entregaDesdeAfuera: boolean;
+   105→  conexionExterna: boolean;
+   106→  requiereClientePresente: boolean;
+   107→  indicacionesAcceso: string | null;
+   108→  // Estanques
+   109→  estanquesJson: string | null;
+   110→}
+   111→
+   112→interface EntregaFormProps {
+   113→  open: boolean;
+   114→  onOpenChange: (open: boolean) => void;
+   115→  onSaved: () => void;
+   116→  onVueltaIniciada?: () => void;
+   117→  entrega?: Entrega | null;
+   118→  clientes: ClienteOption[];
+   119→  config: {
+   120→    precioEfectivoPorLitro: number;
+   121→    precioTransferenciaPorLitro: number;
+   122→    capacidadCamion: number;
+   123→  };
+   124→  vueltaActual: VueltaActual | null;
+   125→  pedidosPendientes?: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string }[];
+   126→  camiones?: { id: string; nombre: string; activo: boolean }[];
+   127→}
+   128→
+   129→interface VueltaReciente {
+   130→  id: string;
+   131→  numero: number;
+   132→  iniciadaEn: string;
+   133→  cerradaEn: string | null;
+   134→  litros: number;
+   135→  cantidadEntregas: number;
+   136→  capacidadCamion: number;
+   137→  camion?: { id: string; nombre: string; patente: string | null; capacidad: number } | null;
+   138→  chofer?: { id: string; nombre: string } | null;
+   139→}
+   140→
+   141→export function EntregaForm({
+   142→  open,
+   143→  onOpenChange,
+   144→  onSaved,
+   145→  onVueltaIniciada,
+   146→  entrega,
+   147→  clientes,
+   148→  config,
+   149→  vueltaActual,
+   150→  pedidosPendientes = [],
+   151→  camiones = [],
+   152→}: EntregaFormProps) {
+   153→  const isEdit = !!entrega;
+   154→
+   155→  const [clienteId, setClienteId] = useState<string>("");
+   156→  const [clienteNombre, setClienteNombre] = useState("");
+   157→  const [clienteDireccion, setClienteDireccion] = useState("");
+   158→  const [clienteTelefono, setClienteTelefono] = useState("");
+   159→  const [clienteZona, setClienteZona] = useState("");
+   160→
+   161→  // Deuda del cliente seleccionado (para pagos de entregas anteriores)
+   162→  const [clienteDeuda, setClienteDeuda] = useState<number | null>(null);
+   163→  // Desglose por estanque (cuando el cliente tiene facturación independiente)
+   164→  const [estanquesEntrega, setEstanquesEntrega] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string }[]>([]);
+   165→  const [modoEstanques, setModoEstanques] = useState(false);
+   166→
+   167→  const [lecturaAnterior, setLecturaAnterior] = useState<string>("");
+   168→  const [lecturaActual, setLecturaActual] = useState<string>("");
+   169→  const [litrosManual, setLitrosManual] = useState<string>("");
+   170→  const [precioPorLitro, setPrecioPorLitro] = useState<string>("");
+   171→  const [metodoPago, setMetodoPago] = useState<string>("credito");
+   172→
+   173→  const [montoEfectivo, setMontoEfectivo] = useState<string>("");
+   174→  const [montoTransferencia, setMontoTransferencia] = useState<string>("");
+   175→  const [estadoPago, setEstadoPago] = useState<string>("pendiente");
+   176→
+   177→  const [fotoUrl, setFotoUrl] = useState<string | null>(null);
+   178→  const [subiendoFoto, setSubiendoFoto] = useState(false);
+   179→
+   180→  const [nota, setNota] = useState("");
+   181→  const [saving, setSaving] = useState(false);
+   182→
+   183→  // Diálogo de selección de vuelta (cuando no hay vuelta activa)
+   184→  const [dialogoVueltaAbierto, setDialogoVueltaAbierto] = useState(false);
+   185→  const [vueltasRecientes, setVueltasRecientes] = useState<VueltaReciente[]>([]);
+   186→  const [cargandoVueltas, setCargandoVueltas] = useState(false);
+   187→  const [iniciandoVuelta, setIniciandoVuelta] = useState(false);
+   188→  const [camionSeleccionado, setCamionSeleccionado] = useState<string>("");
+   189→
+   190→  // Pedido seleccionado (cuando se entrega desde un pedido pendiente)
+   191→  const [pedidoSeleccionadoId, setPedidoSeleccionadoId] = useState<string | null>(null);
+   192→
+   193→  // Reset al abrir / cambia entrega
+   194→  useEffect(() => {
+   195→    if (!open) return;
+   196→    if (entrega) {
+   197→      setClienteId(entrega.clienteId ?? "");
+   198→      setClienteNombre(entrega.clienteNombre);
+   199→      setClienteDireccion(entrega.clienteDireccion ?? "");
+   200→      setClienteTelefono(entrega.clienteTelefono ?? "");
+   201→      setClienteZona(entrega.clienteZona ?? "");
+   202→      setLecturaAnterior(entrega.lecturaAnterior != null ? String(entrega.lecturaAnterior) : "");
+   203→      setLecturaActual(entrega.lecturaActual != null ? String(entrega.lecturaActual) : "");
+   204→      setLitrosManual(String(entrega.litros ?? ""));
+   205→      setPrecioPorLitro(String(entrega.precioPorLitro ?? ""));
+   206→      setMetodoPago(entrega.metodoPago || "efectivo");
+   207→      setMontoEfectivo(entrega.montoEfectivo ? String(entrega.montoEfectivo) : "");
+   208→      setMontoTransferencia(entrega.montoTransferencia ? String(entrega.montoTransferencia) : "");
+   209→      setEstadoPago(entrega.estadoPago);
+   210→      setFotoUrl(entrega.fotoMedidorUrl);
+   211→      setNota(entrega.nota ?? "");
+   212→      setPedidoSeleccionadoId(null);
+   213→      setModoEstanques(false);
+   214→      setEstanquesEntrega([]);
+   215→      setClienteDeuda(null);
+   216→      setDialogoVueltaAbierto(false);
+   217→      setVueltasRecientes([]);
+   218→      setCamionSeleccionado("");
+   219→    } else {
+   220→      setClienteId("");
+   221→      setClienteNombre("");
+   222→      setClienteDireccion("");
+   223→      setClienteTelefono("");
+   224→      setClienteZona("");
+   225→      setLecturaAnterior("");
+   226→      setLecturaActual("");
+   227→      setLitrosManual("");
+   228→      setMetodoPago("credito");
+   229→      setMontoEfectivo("");
+   230→      setMontoTransferencia("");
+   231→      setEstadoPago("pendiente");
+   232→      setFotoUrl(null);
+   233→      setNota("");
+   234→      setPedidoSeleccionadoId(null);
+   235→      setModoEstanques(false);
+   236→      setEstanquesEntrega([]);
+   237→      setClienteDeuda(null);
+   238→      setDialogoVueltaAbierto(false);
+   239→      setVueltasRecientes([]);
+   240→      setCamionSeleccionado("");
+   241→      // Auto-llenar precio: para "credito" (sin pago) usar el precio MÁS ALTO
+   242→      const precioEfectivoDef = config.precioEfectivoPorLitro || 0;
+   243→      const precioTransferenciaDef = config.precioTransferenciaPorLitro || 0;
+   244→      const precioDefault = Math.max(precioEfectivoDef, precioTransferenciaDef);
+   245→      if (precioDefault > 0) {
+   246→        setPrecioPorLitro(String(precioDefault));
+   247→      } else {
+   248→        setPrecioPorLitro("");
+   249→      }
+   250→    }
+   251→  }, [open, entrega, config.precioEfectivoPorLitro]);
+   252→
+   253→  // Si el usuario selecciona un cliente del catálogo, autollenar datos y precio
+   254→  // pedidoIdOpcional: si viene de un click en pedido pendiente, se pasa aquí para no perderlo
+   255→  function onSelectCliente(id: string, pedidoIdOpcional?: string | null) {
+   256→    setClienteId(id);
+   257→    // limpiar pedido seleccionado al cambiar cliente manualmente
+   258→    // (a menos que vengamos de un click en pedido, en cuyo caso lo preservamos)
+   259→    setPedidoSeleccionadoId(pedidoIdOpcional ?? null);
+   260→    if (!id || id === "__manual") {
+   261→      aplicarPrecioSegunMetodo(metodoPago, null);
+   262→      setClienteDeuda(null);
+   263→      setModoEstanques(false);
+   264→      setEstanquesEntrega([]);
+   265→      return;
+   266→    }
+   267→    const c = clientes.find((c) => c.id === id);
+   268→    if (!c) {
+   269→      toast.error("Cliente no encontrado en la lista. ID: " + id);
+   270→      return;
+   271→    }
+   272→
+   273→    toast.success("Cliente seleccionado: " + c.nombre);
+   274→
+   275→    setClienteNombre(c.nombre);
+   276→    setClienteDireccion(c.direccion ?? "");
+   277→    setClienteTelefono(c.telefono ?? "");
+   278→    setClienteZona(c.zona ?? "");
+   279→    aplicarPrecioSegunMetodo(metodoPago, c);
+   280→
+   281→    // Detectar si el cliente tiene estanques
+   282→    let estanquesCliente: { tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada?: boolean }[] = [];
+   283→    if (c.estanquesJson) {
+   284→      try {
+   285→        estanquesCliente = JSON.parse(c.estanquesJson);
+   286→      } catch {
+   287→        toast.error("Error al leer los estanques del cliente");
+   288→      }
+   289→    }
+   290→
+   291→    if (estanquesCliente.length > 0) {
+   292→      const independientes = estanquesCliente.filter((e) => e.facturaSeparada === true);
+   293→      const listaEstanques = independientes.length > 0 ? independientes : estanquesCliente;
+   294→      // Para "sin pago" (credito) usar el precio MÁS ALTO — genera deuda correcta
+   295→      const precioEfectivoEst = c.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+   296→      const precioTransferenciaEst = c.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+   297→      const precioMaxEst = Math.max(precioEfectivoEst, precioTransferenciaEst);
+   298→      setEstanquesEntrega(listaEstanques.map((e) => ({
+   299→        nombre: e.nombre || e.tipo,
+   300→        litros: "",
+   301→        precio: String(precioMaxEst || 0),
+   302→        metodoPago: "credito",
+   303→        montoRecibido: "",
+   304→      })));
+   305→      setModoEstanques(independientes.length > 0);
+   306→      if (independientes.length > 0) {
+   307→        toast.info(
+   308→          `Cliente tiene ${estanquesCliente.length} estanque(s), ${independientes.length} con facturación independiente. Modo estanques activado.`,
+   309→          { duration: 6000 }
+   310→        );
+   311→      }
+   312→    } else {
+   313→      // El cliente no tiene estanques registrados — NO es un error.
+   314→      // Se puede entregar igual (modo normal con litros manuales).
+   315→      // Si el usuario quiere facturación por estanque, puede agregarlos desde aquí.
+   316→      setModoEstanques(false);
+   317→      setEstanquesEntrega([]);
+   318→    }
+   319→
+   320→    // Cargar la deuda del cliente (en background) — incluye pagos sueltos
+   321→    Promise.all([
+   322→      apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${id}`),
+   323→      apiGet<{ pagos: any[] }>(`/api/pagos?clienteId=${id}`),
+   324→    ])
+   325→      .then(([dataEnt, dataPag]) => {
+   326→        const totalVentas = dataEnt.entregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
+   327→        const totalRecibido = dataEnt.entregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
+   328→        const totalPagosSueltos = (dataPag.pagos || []).reduce((s: number, p: any) => s + (p.monto || 0), 0);
+   329→        setClienteDeuda(totalVentas - totalRecibido - totalPagosSueltos);
+   330→      })
+   331→      .catch(() => setClienteDeuda(null));
+   332→  }
+   333→
+   334→  // Helper: aplicar precio según método de pago
+   335→  function aplicarPrecioSegunMetodo(metodo: string, cliente: ClienteOption | null) {
+   336→    const precioEfectivo = cliente?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+   337→    const precioTransferencia = cliente?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+   338→    let precio = 0;
+   339→    if (metodo === "efectivo") {
+   340→      precio = precioEfectivo;
+   341→    } else if (metodo === "transferencia") {
+   342→      precio = precioTransferencia;
+   343→    } else {
+   344→      // mixto o crédito (sin pago): usar el precio MÁS ALTO como base
+   345→      // — para "sin pago" esto genera la deuda correcta desde el inicio,
+   346→      //   y el usuario puede ajustar el precio al momento de cobrar
+   347→      precio = Math.max(precioEfectivo, precioTransferencia);
+   348→    }
+   349→    // Siempre setear el precio (incluso si es 0, para que el usuario vea que no hay configurado)
+   350→    setPrecioPorLitro(precio > 0 ? String(precio) : "");
+   351→  }
+   352→
+   353→  // Si cambia método de pago (y el usuario no ha tocado el precio manualmente)
+   354→  function onChangeMetodoPago(nuevoMetodo: string) {
+   355→    const metodoAnterior = metodoPago;
+   356→    setMetodoPago(nuevoMetodo);
+   357→    // Solo recalcular si el precio actual coincide con el del método anterior
+   358→    // (es decir, el usuario no lo modificó manualmente)
+   359→    const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+   360→    const precioEsperadoAnterior =
+   361→      metodoAnterior === "efectivo"
+   362→        ? clienteActual?.precioEfectivoPorLitro || config.precioEfectivoPorLitro
+   363→        : metodoAnterior === "transferencia"
+   364→        ? clienteActual?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro
+   365→        : clienteActual?.precioEfectivoPorLitro || config.precioEfectivoPorLitro;
+   366→    const precioActual = Number(precioPorLitro) || 0;
+   367→    if (precioActual === precioEsperadoAnterior || precioActual === 0) {
+   368→      aplicarPrecioSegunMetodo(nuevoMetodo, clienteActual);
+   369→    }
+   370→  }
+   371→
+   372→  // Calcular litros desde lecturas si no se ingresa manualmente
+   373→  const litrosCalculado =
+   374→    lecturaAnterior !== "" && lecturaActual !== ""
+   375→      ? Number(lecturaActual) - Number(lecturaAnterior)
+   376→      : null;
+   377→
+   378→  const litrosFinal = litrosManual !== "" ? Number(litrosManual) : litrosCalculado ?? 0;
+   379→  const precioFinal = Number(precioPorLitro) || 0;
+   380→  const totalCalculado = litrosFinal * precioFinal;
+   381→  const efectivoFinal = Number(montoEfectivo) || 0;
+   382→  const transferenciaFinal = Number(montoTransferencia) || 0;
+   383→  const recibidoFinal = efectivoFinal + transferenciaFinal;
+   384→  const saldoFinal = totalCalculado - recibidoFinal;
+   385→
+   386→  // Auto-actualizar estadoPago según monto recibido (SIEMPRE automático, no manual)
+   387→  useEffect(() => {
+   388→    if (recibidoFinal === 0) {
+   389→      setEstadoPago("pendiente");
+   390→    } else if (recibidoFinal >= totalCalculado && totalCalculado > 0) {
+   391→      setEstadoPago("pagado");
+   392→    } else {
+   393→      setEstadoPago("parcial");
+   394→    }
+   395→  }, [recibidoFinal, totalCalculado]);
+   396→
+   397→  async function handleFoto(file: File) {
+   398→    setSubiendoFoto(true);
+   399→    try {
+   400→      const url = await uploadFile(file);
+   401→      setFotoUrl(url);
+   402→      toast.success("Foto del medidor subida");
+   403→    } catch (e) {
+   404→      toast.error(e instanceof Error ? e.message : "Error al subir la foto");
+   405→    } finally {
+   406→      setSubiendoFoto(false);
+   407→    }
+   408→  }
+   409→
+   410→  // Guarda la entrega con un vueltaId opcional (cuando se inicia/reabre desde el diálogo)
+   411→  async function guardarEntrega(vueltaIdOverride?: string) {
+   412→    // Capturar el estado actual en variables locales para evitar problemas de stale closure
+   413→    const modoEst = modoEstanques;
+   414→    const estanques = estanquesEntrega;
+   415→    const clienteNombreLocal = clienteNombre.trim();
+   416→    const litrosFinalLocal = litrosFinal;
+   417→    const precioFinalLocal = precioFinal;
+   418→    const totalCalculadoLocal = totalCalculado;
+   419→    const efectivoFinalLocal = efectivoFinal;
+   420→    const transferenciaFinalLocal = transferenciaFinal;
+   421→
+   422→    // Determinar si hay datos de estanques con litros > 0
+   423→    const estanquesConLitros = estanques.filter((e) => Number(e.litros) > 0);
+   424→
+   425→    // Si está en modo estanques (o hay estanques con litros), usar el path de estanques
+   426→    if ((modoEst || estanquesConLitros.length > 0) && estanques.length > 0) {
+   427→      const totalLitrosEst = estanquesConLitros.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+   428→      if (totalLitrosEst <= 0) {
+   429→        toast.error("Ingresa al menos litros en un estanque");
+   430→        return;
+   431→      }
+   432→      const totalVentaEst = estanquesConLitros.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+   433→      const totalEfectivoEst = estanquesConLitros.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+   434→      const totalTransferenciaEst = estanquesConLitros.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+   435→      const totalRecibidoEst = totalEfectivoEst + totalTransferenciaEst;
+   436→
+   437→      let estadoPagoEst = "pendiente";
+   438→      if (totalRecibidoEst >= totalVentaEst && totalVentaEst > 0) estadoPagoEst = "pagado";
+   439→      else if (totalRecibidoEst > 0) estadoPagoEst = "parcial";
+   440→
+   441→      setSaving(true);
+   442→      try {
+   443→        const payload: Record<string, unknown> = {
+   444→          clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
+   445→          clienteNombre: clienteNombreLocal,
+   446→          clienteDireccion: clienteDireccion.trim() || null,
+   447→          clienteTelefono: clienteTelefono.trim() || null,
+   448→          clienteZona: clienteZona.trim() || null,
+   449→          litros: totalLitrosEst,
+   450→          metodoPago: "mixto",
+   451→          precioPorLitro: 0,
+   452→          total: totalVentaEst,
+   453→          montoEfectivo: totalEfectivoEst,
+   454→          montoTransferencia: totalTransferenciaEst,
+   455→          estadoPago: estadoPagoEst,
+   456→          fotoMedidorUrl: fotoUrl,
+   457→          nota: nota.trim() || null,
+   458→          detalleEstanquesJson: JSON.stringify(estanquesConLitros.map((e) => ({
+   459→            nombre: e.nombre,
+   460→            litros: Number(e.litros) || 0,
+   461→            precioPorLitro: Number(e.precio) || 0,
+   462→            total: (Number(e.litros) || 0) * (Number(e.precio) || 0),
+   463→            metodoPago: e.metodoPago,
+   464→            montoRecibido: Number(e.montoRecibido) || 0,
+   465→          }))),
+   466→        };
+   467→        if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
+   468→        if (pedidoSeleccionadoId) payload.pedidoId = pedidoSeleccionadoId;
+   469→
+   470→        if (isEdit && entrega) {
+   471→          await apiPatch(`/api/entregas/${entrega.id}`, payload);
+   472→          toast.success("Entrega actualizada");
+   473→        } else {
+   474→          await apiPost("/api/entregas", payload);
+   475→          toast.success("Entrega registrada");
+   476→        }
+   477→        onSaved();
+   478→        onOpenChange(false);
+   479→        setDialogoVueltaAbierto(false);
+   480→      } catch (e) {
+   481→        console.error("[guardarEntrega] error al guardar:", e);
+   482→        toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+   483→      } finally {
+   484→        setSaving(false);
+   485→      }
+   486→      return;
+   487→    }
+   488→
+   489→    if (litrosFinalLocal <= 0) {
+   490→      toast.error("Los litros deben ser mayores a 0");
+   491→      return;
+   492→    }
+   493→
+   494→    setSaving(true);
+   495→    try {
+   496→      const payload: Record<string, unknown> = {
+   497→        clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
+   498→        clienteNombre: clienteNombreLocal,
+   499→        clienteDireccion: clienteDireccion.trim() || null,
+   500→        clienteTelefono: clienteTelefono.trim() || null,
+   501→        clienteZona: clienteZona.trim() || null,
+   502→        lecturaAnterior: lecturaAnterior !== "" ? Number(lecturaAnterior) : null,
+   503→        lecturaActual: lecturaActual !== "" ? Number(lecturaActual) : null,
+   504→        litros: litrosFinalLocal,
+   505→        metodoPago,
+   506→        precioPorLitro: precioFinalLocal,
+   507→        total: totalCalculadoLocal,
+   508→        montoEfectivo: efectivoFinalLocal,
+   509→        montoTransferencia: transferenciaFinalLocal,
+   510→        estadoPago,
+   511→        fotoMedidorUrl: fotoUrl,
+   512→        nota: nota.trim() || null,
+   513→      };
+   514→      if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
+   515→      if (pedidoSeleccionadoId) payload.pedidoId = pedidoSeleccionadoId;
+   516→
+   517→      if (isEdit && entrega) {
+   518→        await apiPatch(`/api/entregas/${entrega.id}`, payload);
+   519→        toast.success("Entrega actualizada");
+   520→      } else {
+   521→        await apiPost("/api/entregas", payload);
+   522→        toast.success("Entrega registrada");
+   523→      }
+   524→      onSaved();
+   525→      onOpenChange(false);
+   526→      setDialogoVueltaAbierto(false);
+   527→    } catch (e) {
+   528→      console.error("[guardarEntrega] error al guardar:", e);
+   529→      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+   530→    } finally {
+   531→      setSaving(false);
+   532→    }
+   533→  }
+   534→
+   535→  // Cargar vueltas recientes cerradas sin completar
+   536→  async function cargarVueltasRecientes() {
+   537→    setCargandoVueltas(true);
+   538→    try {
+   539→      const data = await apiGet<{ vueltas: VueltaReciente[] }>(`/api/vueltas?period=mes`);
+   540→      // Filtrar: no activas + no completadas + de este chofer (si aplica)
+   541→      const excluidas = data.vueltas.filter((v) => {
+   542→        const completada = esVueltaCompletada(v.litros, v.capacidadCamion, v.cantidadEntregas);
+   543→        return !completada;
+   544→      });
+   545→      setVueltasRecientes(excluidas.slice(0, 5));
+   546→    } catch (e) {
+   547→      console.error(e);
+   548→    } finally {
+   549→      setCargandoVueltas(false);
+   550→    }
+   551→  }
+   552→
+   553→  // Validar que haya litros suficientes antes de iniciar/reabrir vuelta
+   554→  // Retorna true si la validación pasa, false si falla (y muestra error)
+   555→  function validarLitrosAntesDeVuelta(): boolean {
+   556→    const estanquesConLitros = estanquesEntrega.filter((e) => Number(e.litros) > 0);
+   557→    const modoEst = modoEstanques;
+   558→
+   559→    if ((modoEst || estanquesConLitros.length > 0) && estanquesEntrega.length > 0) {
+   560→      const totalLitrosEst = estanquesConLitros.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+   561→      if (totalLitrosEst <= 0) {
+   562→        toast.error("Ingresa al menos litros en un estanque antes de iniciar la vuelta");
+   563→        return false;
+   564→      }
+   565→      return true;
+   566→    }
+   567→
+   568→    if (litrosFinal <= 0) {
+   569→      toast.error("Los litros deben ser mayores a 0 antes de iniciar la vuelta");
+   570→      return false;
+   571→    }
+   572→    return true;
+   573→  }
+   574→
+   575→  // Iniciar nueva vuelta y luego guardar la entrega con el nuevo vueltaId
+   576→  async function iniciarNuevaYGuardar() {
+   577→    // Validar ANTES de crear la vuelta para evitar vueltas huérfanas
+   578→    if (!validarLitrosAntesDeVuelta()) return;
+   579→
+   580→    const camionesActivos = (camiones ?? []).filter((c) => c.activo);
+   581→    if (camionesActivos.length === 0) {
+   582→      toast.error("No hay camiones activos. Agrega uno en Ajustes primero.");
+   583→      return;
+   584→    }
+   585→    const camionId = camionSeleccionado || camionesActivos[0].id;
+   586→    setIniciandoVuelta(true);
+   587→    try {
+   588→      const res = await apiPost<{ vuelta: { id: string; numero: number } }>("/api/vueltas", { camionId });
+   589→      toast.success(`Vuelta #${res.vuelta.numero} iniciada`);
+   590→      // Guardar la entrega PRIMERO (sin notificar al padre aún para evitar re-renders que puedan afectar el estado)
+   591→      await guardarEntrega(res.vuelta.id);
+   592→      // Después de guardar, onSaved() ya se encargó de refrescar el padre
+   593→    } catch (e) {
+   594→      toast.error(e instanceof Error ? e.message : "No se pudo iniciar la vuelta");
+   595→    } finally {
+   596→      setIniciandoVuelta(false);
+   597→    }
+   598→  }
+   599→
+   600→  // Reabrir vuelta existente y luego guardar la entrega con ese vueltaId
+   601→  async function reabrirYGuardar(vuelta: VueltaReciente) {
+   602→    // Validar ANTES de reabrir la vuelta para evitar vueltas huérfanas
+   603→    if (!validarLitrosAntesDeVuelta()) return;
+   604→
+   605→    setIniciandoVuelta(true);
+   606→    try {
+   607→      const res = await apiPost<{ vuelta: { id: string; numero: number } }>(`/api/vueltas/${vuelta.id}/reabrir`, {});
+   608→      toast.success(`Vuelta #${res.vuelta.numero} reabierta`);
+   609→      // Guardar la entrega PRIMERO
+   610→      await guardarEntrega(res.vuelta.id);
+   611→      // Después de guardar, onSaved() ya se encargó de refrescar el padre
+   612→    } catch (e) {
+   613→      toast.error(e instanceof Error ? e.message : "No se pudo reabrir la vuelta");
+   614→    } finally {
+   615→      setIniciandoVuelta(false);
+   616→    }
+   617→  }
+   618→
+   619→  async function handleSubmit(e: React.FormEvent) {
+   620→    e.preventDefault();
+   621→    if (!clienteNombre.trim()) {
+   622→      toast.error("Indica el nombre del cliente");
+   623→      return;
+   624→    }
+   625→
+   626→    // Si no hay vuelta activa, validar litros ANTES de abrir el diálogo
+   627→    if (!vueltaActual) {
+   628→      // Verificar si hay camiones disponibles
+   629→      if (!camiones || camiones.filter(c => c.activo).length === 0) {
+   630→        toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
+   631→        return;
+   632→      }
+   633→      // Validar litros antes de abrir el diálogo para evitar vueltas huérfanas
+   634→      if (!validarLitrosAntesDeVuelta()) return;
+   635→      // Cargar vueltas recientes y abrir el diálogo
+   636→      await cargarVueltasRecientes();
+   637→      setDialogoVueltaAbierto(true);
+   638→      return;
+   639→    }
+   640→
+   641→    // Calcular litros totales según modo
+   642→    let litrosAEntregar = litrosFinal;
+   643→    if (modoEstanques && estanquesEntrega.length > 0) {
+   644→      litrosAEntregar = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+   645→    }
+   646→
+   647→    // Avisar (no bloquear) si excede la capacidad del camión
+   648→    if (vueltaActual.capacidadCamion && vueltaActual.capacidadCamion > 0) {
+   649→      const disponible = vueltaActual.capacidadCamion - vueltaActual.litros;
+   650→      const tolerancia = 300;
+   651→      if (litrosAEntregar > disponible + tolerancia) {
+   652→        if (disponible <= 0) {
+   653→          toast.warning(
+   654→            `El camión está vacío. Esta entrega se registrará pero deberías cerrar la vuelta #${vueltaActual.numero} y empezar una nueva.`,
+   655→            { duration: 8000 }
+   656→          );
+   657→        } else {
+   658→          toast.warning(
+   659→            `Quedan ${formatNumber(disponible, 0)} L en el camión. Entregarás ${formatNumber(litrosAEntregar, 0)} L. ` +
+   660→            `Cierra la vuelta y empieza una nueva para recargar.`,
+   661→            { duration: 8000 }
+   662→          );
+   663→        }
+   664→      } else if (disponible - litrosAEntregar <= tolerancia && disponible - litrosAEntregar > 0) {
+   665→        toast.info(
+   666→          `Después de esta entrega quedarán ${formatNumber(disponible - litrosAEntregar, 0)} L en el camión. ` +
+   667→          `Considera cerrar la vuelta pronto.`,
+   668→          { duration: 6000 }
+   669→        );
+   670→      }
+   671→    }
+   672→
+   673→    // Guardar con la vuelta activa actual
+   674→    await guardarEntrega();
+   675→  }
+   676→
+   677→  return (
+   678→    <Dialog open={open} onOpenChange={onOpenChange}>
+   679→      <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
+   680→        <DialogHeader>
+   681→          <DialogTitle>{isEdit ? "Editar entrega" : "Registrar entrega de agua"}</DialogTitle>
+   682→          <DialogDescription>
+   683→            Registra la venta de agua. Puedes calcular los litros desde las lecturas del medidor o ingresarlos manualmente.
+   684→          </DialogDescription>
+   685→        </DialogHeader>
+   686→
+   687→        <form onSubmit={handleSubmit} className="space-y-4">
+   688→          {/* Vuelta actual (info) */}
+   689→          {vueltaActual && !isEdit && (
+   690→            <div className="flex flex-col gap-1 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+   691→              <div className="flex items-center gap-2">
+   692→                <Droplets className="h-4 w-4 text-primary" />
+   693→                <span>
+   694→                  Se asignará a la <strong>Vuelta #{vueltaActual.numero}</strong>
+   695→                  {vueltaActual.camion && <> · {vueltaActual.camion.nombre}</>}
+   696→                </span>
+   697→              </div>
+   698→              {vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
+   699→                <span className="text-xs text-muted-foreground">
+   700→                  Entregado: {formatNumber(vueltaActual.litros, 0)} L · Disponible: {formatNumber(Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros), 0)} L
+   701→                </span>
+   702→              )}
+   703→            </div>
+   704→          )}
+   705→
+   706→          {/* Aviso de pedido seleccionado */}
+   707→          {pedidoSeleccionadoId && !isEdit && (
+   708→            <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+   709→              <ClipboardList className="h-4 w-4 shrink-0" />
+   710→              <span>
+   711→                Esta entrega corresponde a un <strong>pedido pendiente</strong>.
+   712→                {" "}Al guardar, el pedido se marcará automáticamente como <strong>entregado</strong>.
+   713→              </span>
+   714→              <button
+   715→                type="button"
+   716→                onClick={() => setPedidoSeleccionadoId(null)}
+   717→                className="ml-auto shrink-0 text-xs text-blue-700 underline hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
+   718→              >
+   719→                Desvincular
+   720→              </button>
+   721→            </div>
+   722→          )}
+   723→
+   724→          {/* Pedidos pendientes — PRIMERA OPCIÓN */}
+   725→          {pedidosPendientes.length > 0 && (
+   726→            <div className="rounded-lg border-2 border-blue-300 bg-blue-50 dark:bg-blue-900/20 p-3 space-y-2">
+   727→              <div className="flex items-center justify-between gap-2">
+   728→                <p className="flex items-center gap-1.5 text-sm font-medium text-blue-900 dark:text-blue-200">
+   729→                  <ClipboardList className="h-4 w-4" /> Pedidos pendientes — clic para entregar
+   730→                </p>
+   731→                {vueltaActual && vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
+   732→                  <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
+   733→                    Agua disponible: {formatNumber(Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros), 0)} L
+   734→                  </span>
+   735→                )}
+   736→              </div>
+   737→              {pedidosPendientes.map((p) => {
+   738→                const clientePedido = p.clienteId ? clientes.find(c => c.id === p.clienteId) : null;
+   739→                // Calcular agua disponible en la vuelta activa
+   740→                const capacidadVuelta = vueltaActual?.capacidadCamion ?? 0;
+   741→                const litrosEntregadosVuelta = vueltaActual?.litros ?? 0;
+   742→                const aguaDisponible = Math.max(0, capacidadVuelta - litrosEntregadosVuelta);
+   743→                const excedeAgua = capacidadVuelta > 0 && p.litrosSolicitados > aguaDisponible;
+   744→                const litrosFaltantes = excedeAgua ? p.litrosSolicitados - aguaDisponible : 0;
+   745→                return (
+   746→                  <button
+   747→                    key={p.id}
+   748→                    type="button"
+   749→                    onClick={() => {
+   750→                      // Pasar pedidoId a onSelectCliente para preservarlo
+   751→                      if (p.clienteId) {
+   752→                        onSelectCliente(p.clienteId, p.id);
+   753→                      } else {
+   754→                        setClienteId("__manual");
+   755→                        setClienteNombre(p.clienteNombre);
+   756→                        setPedidoSeleccionadoId(p.id);
+   757→                      }
+   758→                      setLitrosManual(String(p.litrosSolicitados));
+   759→                      setMetodoPago(p.metodoPagoPreferido);
+   760→                      // Aviso inmediato si no hay suficiente agua
+   761→                      if (excedeAgua) {
+   762→                        toast.warning(
+   763→                          `Este pedido pide ${formatNumber(p.litrosSolicitados, 0)} L pero solo quedan ${formatNumber(aguaDisponible, 0)} L en la vuelta #${vueltaActual?.numero}. ` +
+   764→                          `Faltan ${formatNumber(litrosFaltantes, 0)} L. ` +
+   765→                          `Puedes entregar lo que queda y cerrar la vuelta, o cerrar la vuelta y empezar una nueva.`,
+   766→                          { duration: 10000 }
+   767→                        );
+   768→                      }
+   769→                    }}
+   770→                    className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition ${
+   771→                      excedeAgua
+   772→                        ? "border-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+   773→                        : "border-blue-200 dark:border-blue-800 bg-white dark:bg-background hover:bg-blue-100 dark:hover:bg-blue-900/30"
+   774→                    }`}
+   775→                  >
+   776→                    <div className="min-w-0 flex-1">
+   777→                      <p className="font-medium text-sm">{p.clienteNombre}</p>
+   778→                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+   779→                        <span className={`font-semibold ${excedeAgua ? "text-amber-700 dark:text-amber-300" : "text-blue-700 dark:text-blue-300"}`}>
+   780→                          {formatNumber(p.litrosSolicitados, 0)} L
+   781→                        </span>
+   782→                        <span>·</span>
+   783→                        <span>{labelMetodoPago(p.metodoPagoPreferido)}</span>
+   784→                        {clientePedido?.estanquesJson && <span>· 🛢️ Estanques</span>}
+   785→                        {excedeAgua && (
+   786→                          <span className="inline-flex items-center gap-0.5 rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-medium text-amber-900 dark:bg-amber-800 dark:text-amber-100">
+   787→                            <AlertTriangle className="h-2.5 w-2.5" /> Solo quedan {formatNumber(aguaDisponible, 0)} L
+   788→                          </span>
+   789→                        )}
+   790→                      </div>
+   791→                    </div>
+   792→                    <span className={`ml-2 shrink-0 rounded px-2 py-1 text-xs font-medium text-white ${
+   793→                      excedeAgua ? "bg-amber-600" : "bg-blue-600"
+   794→                    }`}>
+   795→                      {excedeAgua ? "⚠ Entregar" : "Entregar →"}
+   796→                    </span>
+   797→                  </button>
+   798→                );
+   799→              })}
+   800→            </div>
+   801→          )}
+   802→
+   803→          {/* Separador */}
+   804→          {pedidosPendientes.length > 0 && (
+   805→            <div className="flex items-center gap-2">
+   806→              <div className="h-px flex-1 bg-border" />
+   807→              <span className="text-xs text-muted-foreground">o entrega sin pedido</span>
+   808→              <div className="h-px flex-1 bg-border" />
+   809→            </div>
+   810→          )}
+   811→
+   812→          {/* Cliente */}
+   813→          <div className="space-y-2">
+   814→            <Label htmlFor="clienteSelect">Cliente del catálogo</Label>
+   815→            <select
+   816→              id="clienteSelect"
+   817→              value={clienteId || "__manual"}
+   818→              onChange={(e) => onSelectCliente(e.target.value)}
+   819→              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+   820→            >
+   821→              <option value="__manual">— Ingreso manual —</option>
+   822→              {clientes.map((c) => (
+   823→                <option key={c.id} value={c.id}>
+   824→                  {c.nombre}{c.zona ? ` · ${c.zona}` : ""}{c.estanquesJson ? " 🛢️" : ""}
+   825→                </option>
+   826→              ))}
+   827→            </select>
+   828→
+   829→            {/* Botón manual para activar estanques */}
+   830→            {clienteId && clienteId !== "__manual" && estanquesEntrega.length > 0 && !modoEstanques && (
+   831→              <Button
+   832→                type="button"
+   833→                variant="outline"
+   834→                size="sm"
+   835→                onClick={() => setModoEstanques(true)}
+   836→                className="w-full border-amber-400 text-amber-800"
+   837→              >
+   838→                💧 Entregar por estanque ({estanquesEntrega.length} estanque(s))
+   839→              </Button>
+   840→            )}
+   841→
+   842→            {/* Panel de info de acceso del cliente seleccionado */}
+   843→            {clienteId && clienteId !== "__manual" && (() => {
+   844→              const c = clientes.find((cl) => cl.id === clienteId);
+   845→              if (!c) return null;
+   846→              const tieneAlgo = c.indicacionesAcceso || c.lat != null || c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false;
+   847→              if (!tieneAlgo) return null;
+   848→              return (
+   849→                <div className="mt-2 rounded-lg border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-2">
+   850→                  <p className="flex items-center gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-200">
+   851→                    <DoorOpen className="h-3.5 w-3.5" /> Información de acceso
+   852→                  </p>
+   853→
+   854→                  {(c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false) && (
+   855→                    <div className="flex flex-wrap gap-1">
+   856→                      {c.requiereIngresoPropiedad && (
+   857→                        <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
+   858→                          <DoorOpen className="h-2.5 w-2.5" /> Ingreso
+   859→                        </span>
+   860→                      )}
+   861→                      {c.entregaDesdeAfuera && (
+   862→                        <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
+   863→                          <Fence className="h-2.5 w-2.5" /> Desde afuera
+   864→                        </span>
+   865→                      )}
+   866→                      {c.conexionExterna && (
+   867→                        <span className="inline-flex items-center gap-0.5 rounded border border-emerald-300 dark:border-emerald-700 px-1.5 py-0.5 text-[10px] text-emerald-900 dark:text-emerald-200">
+   868→                          <KeyRound className="h-2.5 w-2.5" /> Conexión externa
+   869→                        </span>
+   870→                      )}
+   871→                      {c.requiereClientePresente === false && (
+   872→                        <span className="inline-flex items-center gap-0.5 rounded border border-blue-300 dark:border-blue-700 px-1.5 py-0.5 text-[10px] text-blue-900 dark:text-blue-200">
+   873→                          <UserCheck className="h-2.5 w-2.5" /> Sin presencia
+   874→                        </span>
+   875→                      )}
+   876→                    </div>
+   877→                  )}
+   878→
+   879→                  {c.indicacionesAcceso && (
+   880→                    <p className="text-xs text-amber-900 dark:text-amber-200 whitespace-pre-wrap">
+   881→                      {c.indicacionesAcceso}
+   882→                    </p>
+   883→                  )}
+   884→
+   885→                  {c.lat != null && c.lng != null && (
+   886→                    <a
+   887→                      href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
+   888→                      target="_blank"
+   889→                      rel="noopener noreferrer"
+   890→                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+   891→                    >
+   892→                      <Navigation className="h-3 w-3" /> Cómo llegar (Google Maps)
+   893→                      <ExternalLink className="h-2.5 w-2.5" />
+   894→                    </a>
+   895→                  )}
+   896→                </div>
+   897→              );
+   898→            })()}
+   899→
+   900→            {/* Panel de deuda del cliente */}
+   901→            {clienteId && clienteId !== "__manual" && clienteDeuda != null && clienteDeuda !== 0 && (
+   902→              <div className={`mt-2 rounded-lg border p-3 space-y-1 ${
+   903→                clienteDeuda > 0
+   904→                  ? "border-red-300 bg-red-50 dark:bg-red-900/20"
+   905→                  : "border-emerald-300 bg-emerald-50 dark:bg-emerald-900/20"
+   906→              }`}>
+   907→                <p className={`flex items-center gap-1.5 text-xs font-medium ${
+   908→                  clienteDeuda > 0 ? "text-red-800 dark:text-red-300" : "text-emerald-800 dark:text-emerald-300"
+   909→                }`}>
+   910→                  <Banknote className="h-3.5 w-3.5" />
+   911→                  {clienteDeuda > 0
+   912→                    ? `Este cliente tiene una deuda pendiente de ${formatCurrency(clienteDeuda)}`
+   913→                    : `Este cliente tiene saldo a favor de ${formatCurrency(Math.abs(clienteDeuda))}`
+   914→                  }
+   915→                </p>
+   916→                {clienteDeuda > 0 && (
+   917→                  <p className="text-[11px] text-red-700 dark:text-red-400">
+   918→                    Puedes recibir más efectivo que el total de esta entrega para cubrir la deuda anterior.
+   919→                    El exceso se descontará automáticamente del saldo pendiente.
+   920→                  </p>
+   921→                )}
+   922→              </div>
+   923→            )}
+   924→
+   925→            {/* Botón para activar entrega por estanque */}
+   926→            {clienteId && clienteId !== "__manual" && estanquesEntrega.length > 0 && !modoEstanques && (
+   927→              <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-2">
+   928→                <p className="flex items-center gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-200">
+   929→                  <Droplets className="h-3.5 w-3.5" />
+   930→                  Este cliente tiene {estanquesEntrega.length} estanque(s) registrado(s)
+   931→                </p>
+   932→                <Button
+   933→                  type="button"
+   934→                  variant="outline"
+   935→                  size="sm"
+   936→                  onClick={() => setModoEstanques(true)}
+   937→                  className="w-full border-amber-400 text-amber-800 hover:bg-amber-100 dark:text-amber-300"
+   938→                >
+   939→                  <Droplets className="mr-1 h-4 w-4" />
+   940→                  Entregar por estanque (cobro separado)
+   941→                </Button>
+   942→              </div>
+   943→            )}
+   944→
+   945→            {/* Botón para agregar estanques cuando el cliente no tiene ninguno registrado */}
+   946→            {clienteId && clienteId !== "__manual" && estanquesEntrega.length === 0 && !modoEstanques && (
+   947→              <div className="mt-2">
+   948→                <Button
+   949→                  type="button"
+   950→                  variant="ghost"
+   951→                  size="sm"
+   952→                  onClick={() => {
+   953→                    // Agregar un estanque vacío para facturación independiente
+   954→                    const c = clientes.find((cl) => cl.id === clienteId);
+   955→                    const precioEfectivoEst = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+   956→                    const precioTransferenciaEst = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+   957→                    const precioMaxEst = Math.max(precioEfectivoEst, precioTransferenciaEst);
+   958→                    setEstanquesEntrega([{
+   959→                      nombre: "Estanque 1",
+   960→                      litros: "",
+   961→                      precio: String(precioMaxEst || 0),
+   962→                      metodoPago: "credito",
+   963→                      montoRecibido: "",
+   964→                    }]);
+   965→                    setModoEstanques(true);
+   966→                  }}
+   967→                  className="w-full text-xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-300"
+   968→                >
+   969→                  <Droplets className="mr-1 h-3.5 w-3.5" />
+   970→                  Cobrar por estanque (el cliente no tiene estanques registrados, pero puedes agregarlos aquí)
+   971→                </Button>
+   972→              </div>
+   973→            )}
+   974→
+   975→            {/* Botón para desactivar modo estanques */}
+   976→            {modoEstanques && (
+   977→              <div className="mt-2">
+   978→                <Button
+   979→                  type="button"
+   980→                  variant="ghost"
+   981→                  size="sm"
+   982→                  onClick={() => setModoEstanques(false)}
+   983→                  className="text-xs"
+   984→                >
+   985→                  ← Volver a entrega simple (un solo cobro)
+   986→                </Button>
+   987→              </div>
+   988→            )}
+   989→          </div>
+   990→
+   991→          <div className="grid gap-3 sm:grid-cols-2">
+   992→            <div className="space-y-2">
+   993→              <Label htmlFor="clienteNombre">Nombre del cliente *</Label>
+   994→              <Input
+   995→                id="clienteNombre"
+   996→                value={clienteNombre}
+   997→                onChange={(e) => setClienteNombre(e.target.value)}
+   998→                placeholder="Ej. Juan Pérez"
+   999→                required
+  1000→              />
+  1001→            </div>
+  1002→            <div className="space-y-2">
+  1003→              <Label htmlFor="clienteTelefono">Teléfono</Label>
+  1004→              <Input
+  1005→                id="clienteTelefono"
+  1006→                value={clienteTelefono}
+  1007→                onChange={(e) => setClienteTelefono(e.target.value)}
+  1008→                placeholder="+56 9 1234 5678"
+  1009→              />
+  1010→            </div>
+  1011→          </div>
+  1012→
+  1013→          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+  1014→            <div className="space-y-2">
+  1015→              <Label htmlFor="clienteDireccion">Dirección</Label>
+  1016→              <Input
+  1017→                id="clienteDireccion"
+  1018→                value={clienteDireccion}
+  1019→                onChange={(e) => setClienteDireccion(e.target.value)}
+  1020→                placeholder="Calle, número, referencia"
+  1021→              />
+  1022→            </div>
+  1023→            <div className="space-y-2">
+  1024→              <Label htmlFor="clienteZona">Zona</Label>
+  1025→              <Input
+  1026→                id="clienteZona"
+  1027→                value={clienteZona}
+  1028→                onChange={(e) => setClienteZona(e.target.value)}
+  1029→                placeholder="Ej. Rural 5km"
+  1030→                className="w-[150px]"
+  1031→              />
+  1032→            </div>
+  1033→          </div>
+  1034→
+  1035→          {/* Lecturas del medidor */}
+  1036→          <div className="rounded-lg border border-border bg-muted/30 p-3">
+  1037→            <p className="mb-2 text-sm font-medium">Lecturas del medidor</p>
+  1038→            <div className="grid gap-3 sm:grid-cols-3">
+  1039→              <div className="space-y-2">
+  1040→                <Label htmlFor="lecturaAnterior" className="text-xs">Lectura anterior</Label>
+  1041→                <Input
+  1042→                  id="lecturaAnterior"
+  1043→                  type="number"
+  1044→                  inputMode="decimal"
+  1045→                  step="any"
+  1046→                  value={lecturaAnterior}
+  1047→                  onChange={(e) => setLecturaAnterior(e.target.value)}
+  1048→                  placeholder="0"
+  1049→                />
+  1050→              </div>
+  1051→              <div className="space-y-2">
+  1052→                <Label htmlFor="lecturaActual" className="text-xs">Lectura actual</Label>
+  1053→                <Input
+  1054→                  id="lecturaActual"
+  1055→                  type="number"
+  1056→                  inputMode="decimal"
+  1057→                  step="any"
+  1058→                  value={lecturaActual}
+  1059→                  onChange={(e) => setLecturaActual(e.target.value)}
+  1060→                  placeholder="0"
+  1061→                />
+  1062→              </div>
+  1063→              <div className="space-y-2">
+  1064→                <Label htmlFor="litrosManual" className="text-xs">
+  1065→                  Litros {litrosCalculado != null && litrosManual === "" && "(auto)"}
+  1066→                </Label>
+  1067→                <Input
+  1068→                  id="litrosManual"
+  1069→                  type="number"
+  1070→                  inputMode="decimal"
+  1071→                  step="any"
+  1072→                  value={litrosManual}
+  1073→                  onChange={(e) => setLitrosManual(e.target.value)}
+  1074→                  placeholder={litrosCalculado != null ? String(litrosCalculado) : "0"}
+  1075→                />
+  1076→              </div>
+  1077→            </div>
+  1078→            {litrosCalculado != null && litrosManual === "" && (
+  1079→              <p className="mt-2 text-xs text-muted-foreground">
+  1080→                Litros calculados: <strong>{formatNumber(litrosCalculado, 0)} L</strong>
+  1081→                {vueltaActual && vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
+  1082→                  (() => {
+  1083→                    const disponible = Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros);
+  1084→                    if (litrosCalculado > disponible) {
+  1085→                      return (
+  1086→                        <span className="ml-2 text-amber-600 dark:text-amber-400">
+  1087→                          ⚠ Solo quedan {formatNumber(disponible, 0)} L en el camión
+  1088→                        </span>
+  1089→                      );
+  1090→                    }
+  1091→                    return null;
+  1092→                  })()
+  1093→                )}
+  1094→              </p>
+  1095→            )}
+  1096→          </div>
+  1097→
+  1098→          {/* Precio por litro */}
+  1099→          <div className="space-y-2">
+  1100→            <Label htmlFor="precio">Precio por litro</Label>
+  1101→            <Input
+  1102→              id="precio"
+  1103→              type="number"
+  1104→              inputMode="decimal"
+  1105→              step="any"
+  1106→              value={precioPorLitro}
+  1107→              onChange={(e) => setPrecioPorLitro(e.target.value)}
+  1108→              placeholder="0"
+  1109→            />
+  1110→            <p className="text-xs text-muted-foreground">
+  1111→              Default: {formatCurrency(config.precioEfectivoPorLitro)}/L efectivo · {formatCurrency(config.precioTransferenciaPorLitro)}/L transferencia
+  1112→            </p>
+  1113→          </div>
+  1114→
+  1115→          {/* Resumen de cálculo — siempre visible y automático */}
+  1116→          <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3">
+  1117→            <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase text-muted-foreground">
+  1118→              Cálculo automático
+  1119→            </p>
+  1120→            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+  1121→              <div>
+  1122→                <span className="text-xs uppercase text-muted-foreground">Litros</span>
+  1123→                <p className="text-lg font-bold tabular-nums">{formatNumber(litrosFinal, 0)} L</p>
+  1124→              </div>
+  1125→              <div>
+  1126→                <span className="text-xs uppercase text-muted-foreground">Precio/L</span>
+  1127→                <p className="text-lg font-bold tabular-nums">{formatCurrency(precioFinal)}</p>
+  1128→              </div>
+  1129→              <div>
+  1130→                <span className="text-xs uppercase text-muted-foreground">Total</span>
+  1131→                <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(totalCalculado)}</p>
+  1132→              </div>
+  1133→              <div>
+  1134→                <span className="text-xs uppercase text-muted-foreground">Saldo</span>
+  1135→                <p className={`text-lg font-bold tabular-nums ${saldoFinal > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+  1136→                  {formatCurrency(saldoFinal)}
+  1137→                </p>
+  1138→              </div>
+  1139→            </div>
+  1140→            <p className="mt-2 text-xs text-muted-foreground">
+  1141→              Recibido: <strong>{formatCurrency(recibidoFinal)}</strong> (efectivo + transferencia)
+  1142→            </p>
+  1143→            {/* Si hay deuda anterior y el cliente paga más del total */}
+  1144→            {clienteDeuda != null && clienteDeuda > 0 && recibidoFinal > totalCalculado && totalCalculado > 0 && (
+  1145→              <div className="mt-1 rounded bg-red-50 dark:bg-red-900/20 p-2 text-xs text-red-800 dark:text-red-300">
+  1146→                <p>Excedente para deuda anterior: <strong>{formatCurrency(recibidoFinal - totalCalculado)}</strong></p>
+  1147→                <p>Deuda total después de este pago: <strong>{formatCurrency(Math.max(0, clienteDeuda - (recibidoFinal - totalCalculado)))}</strong></p>
+  1148→              </div>
+  1149→            )}
+  1150→            {/* Si el cliente tiene saldo a favor */}
+  1151→            {clienteDeuda != null && clienteDeuda < 0 && (
+  1152→              <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+  1153→                Saldo a favor anterior: <strong>{formatCurrency(Math.abs(clienteDeuda))}</strong>
+  1154→              </p>
+  1155→            )}
+  1156→          </div>
+  1157→
+  1158→          {/* Desglose por estanque (cuando el cliente tiene facturación independiente) */}
+  1159→          {modoEstanques && estanquesEntrega.length > 0 && (
+  1160→            <div className="rounded-lg border-2 border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-3">
+  1161→              <Label className="flex items-center gap-1.5 text-sm font-medium text-amber-900 dark:text-amber-200">
+  1162→                <Droplets className="h-4 w-4" /> Entrega por estanque (facturación independiente)
+  1163→              </Label>
+  1164→              <p className="text-xs text-amber-800 dark:text-amber-300">
+  1165→                Registra los litros y el pago de cada estanque por separado.
+  1166→              </p>
+  1167→
+  1168→              {estanquesEntrega.map((est, i) => {
+  1169→                const litrosEst = Number(est.litros) || 0;
+  1170→                const precioEst = Number(est.precio) || 0;
+  1171→                const totalEst = litrosEst * precioEst;
+  1172→                const recibidoEst = Number(est.montoRecibido) || 0;
+  1173→                return (
+  1174→                  <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background p-2 space-y-2">
+  1175→                    <div className="flex items-center gap-2">
+  1176→                      <span className="text-xs font-semibold text-amber-900 dark:text-amber-200 shrink-0">{i + 1}.</span>
+  1177→                      <Input
+  1178→                        type="text"
+  1179→                        value={est.nombre}
+  1180→                        onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, nombre: e.target.value } : est2))}
+  1181→                        className="h-7 text-xs flex-1"
+  1182→                        placeholder="Nombre del estanque"
+  1183→                      />
+  1184→                      {estanquesEntrega.length > 1 && (
+  1185→                        <Button
+  1186→                          type="button"
+  1187→                          variant="ghost"
+  1188→                          size="sm"
+  1189→                          className="h-7 w-7 p-0 text-muted-foreground hover:text-red-600"
+  1190→                          onClick={() => setEstanquesEntrega(estanquesEntrega.filter((_, j) => j !== i))}
+  1191→                        >
+  1192→                          <X className="h-3.5 w-3.5" />
+  1193→                        </Button>
+  1194→                      )}
+  1195→                    </div>
+  1196→                    <div className="grid grid-cols-2 gap-2">
+  1197→                      <div>
+  1198→                        <label className="text-[10px] text-muted-foreground">Litros</label>
+  1199→                        <Input
+  1200→                          type="number"
+  1201→                          inputMode="decimal"
+  1202→                          step="any"
+  1203→                          value={est.litros}
+  1204→                          onChange={(e) => {
+  1205→                            const nuevosLitros = e.target.value;
+  1206→                            const precioCalc = Number(est.precio) || 0;
+  1207→                            const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
+  1208→                            setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
+  1209→                              ...est2,
+  1210→                              litros: nuevosLitros,
+  1211→                              // Auto-actualizar monto recibido si no fue editado manualmente
+  1212→                              montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalCalc > 0 ? String(Math.round(totalCalc)) : "")),
+  1213→                            } : est2));
+  1214→                          }}
+  1215→                          placeholder="0"
+  1216→                          className="h-8 text-xs"
+  1217→                        />
+  1218→                      </div>
+  1219→                      <div>
+  1220→                        <label className="text-[10px] text-muted-foreground">Precio/L</label>
+  1221→                        <Input
+  1222→                          type="number"
+  1223→                          inputMode="decimal"
+  1224→                          step="any"
+  1225→                          value={est.precio}
+  1226→                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
+  1227→                          placeholder="0"
+  1228→                          className="h-8 text-xs"
+  1229→                        />
+  1230→                      </div>
+  1231→                    </div>
+  1232→                    <div className="grid grid-cols-2 gap-2">
+  1233→                      <div>
+  1234→                        <label className="text-[10px] text-muted-foreground">Método de pago</label>
+  1235→                        <select
+  1236→                          value={est.metodoPago}
+  1237→                          onChange={(e) => {
+  1238→                            const nuevoMetodo = e.target.value;
+  1239→                            const c = clientes.find(cl => cl.id === clienteId);
+  1240→                            const precioEfectivo = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+  1241→                            const precioTransferencia = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+  1242→                            let nuevoPrecio = est.precio;
+  1243→                            if (nuevoMetodo === "efectivo") {
+  1244→                              nuevoPrecio = String(precioEfectivo || 0);
+  1245→                            } else if (nuevoMetodo === "transferencia") {
+  1246→                              nuevoPrecio = String(precioTransferencia || 0);
+  1247→                            } else {
+  1248→                              // Sin pago: usar el precio MÁS ALTO para generar deuda correcta
+  1249→                              // El usuario puede ajustar al momento de cobrar
+  1250→                              nuevoPrecio = String(Math.max(precioEfectivo, precioTransferencia) || 0);
+  1251→                            }
+  1252→                            const totalEstCalc = (Number(est.litros) || 0) * (Number(nuevoPrecio) || 0);
+  1253→                            setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
+  1254→                              ...est2,
+  1255→                              metodoPago: nuevoMetodo,
+  1256→                              precio: nuevoPrecio,
+  1257→                              // Sin pago: NO auto-llenar montoRecibido (queda vacío = 0 = deuda)
+  1258→                              montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
+  1259→                            } : est2));
+  1260→                          }}
+  1261→                          className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+  1262→                        >
+  1263→                          <option value="efectivo">Efectivo</option>
+  1264→                          <option value="transferencia">Transferencia</option>
+  1265→                          <option value="credito">Sin pago</option>
+  1266→                        </select>
+  1267→                      </div>
+  1268→                      <div>
+  1269→                        <label className="text-[10px] text-muted-foreground">Monto recibido</label>
+  1270→                        <Input
+  1271→                          type="number"
+  1272→                          inputMode="decimal"
+  1273→                          step="any"
+  1274→                          value={est.montoRecibido}
+  1275→                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, montoRecibido: e.target.value } : est2))}
+  1276→                          placeholder={est.metodoPago === "credito" ? "—" : String(Math.round(totalEst))}
+  1277→                          disabled={est.metodoPago === "credito"}
+  1278→                          className="h-8 text-xs"
+  1279→                        />
+  1280→                      </div>
+  1281→                    </div>
+  1282→                    <div className="flex items-center justify-between text-[10px]">
+  1283→                      {est.metodoPago === "credito" ? (
+  1284→                        <>
+  1285→                          <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400">Se definirá al cobrar</strong></span>
+  1286→                          <span className="text-amber-600 dark:text-amber-400">Pendiente</span>
+  1287→                        </>
+  1288→                      ) : (
+  1289→                        <>
+  1290→                          <span className="text-muted-foreground">Total: <strong className="text-foreground tabular-nums">{formatCurrency(totalEst)}</strong></span>
+  1291→                          {recibidoEst > 0 && recibidoEst < totalEst && (
+  1292→                            <span className="text-amber-600 dark:text-amber-400">Saldo: {formatCurrency(totalEst - recibidoEst)}</span>
+  1293→                          )}
+  1294→                          {recibidoEst >= totalEst && totalEst > 0 && (
+  1295→                            <span className="text-emerald-600 dark:text-emerald-400">✓ Pagado</span>
+  1296→                          )}
+  1297→                        </>
+  1298→                      )}
+  1299→                    </div>
+  1300→                  </div>
+  1301→                );
+  1302→              })}
+  1303→
+  1304→              {/* Total de la entrega (suma de estanques) */}
+  1305→              {(() => {
+  1306→                const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+  1307→                const totalVentaEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+  1308→                const totalRecibidoEst = estanquesEntrega.reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+  1309→                const haySinPago = estanquesEntrega.some(e => e.metodoPago === "credito");
+  1310→                return (
+  1311→                  <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-center text-sm">
+  1312→                    <div className="grid grid-cols-3 gap-2">
+  1313→                      <div>
+  1314→                        <p className="text-[10px] uppercase text-muted-foreground">Total litros</p>
+  1315→                        <p className="font-bold tabular-nums">{formatNumber(totalLitrosEst, 0)} L</p>
+  1316→                      </div>
+  1317→                      <div>
+  1318→                        <p className="text-[10px] uppercase text-muted-foreground">Total venta</p>
+  1319→                        {haySinPago && totalVentaEst === 0 ? (
+  1320→                          <p className="font-bold text-amber-600 dark:text-amber-400 text-xs">Se definirá al cobrar</p>
+  1321→                        ) : (
+  1322→                          <p className="font-bold tabular-nums">{formatCurrency(totalVentaEst)}</p>
+  1323→                        )}
+  1324→                      </div>
+  1325→                      <div>
+  1326→                        <p className="text-[10px] uppercase text-muted-foreground">Total recibido</p>
+  1327→                        <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(totalRecibidoEst)}</p>
+  1328→                      </div>
+  1329→                    </div>
+  1330→                    {haySinPago && (
+  1331→                      <p className="mt-1 text-[10px] text-amber-600 dark:text-amber-400">
+  1332→                        Los estanques sin pago se cobrarán después. Ve a la ficha del cliente → Registrar pago.
+  1333→                      </p>
+  1334→                    )}
+  1335→                  </div>
+  1336→                );
+  1337→              })()}
+  1338→
+  1339→              {/* Botón para agregar otro estanque */}
+  1340→              <Button
+  1341→                type="button"
+  1342→                variant="outline"
+  1343→                size="sm"
+  1344→                onClick={() => {
+  1345→                  const c = clientes.find((cl) => cl.id === clienteId);
+  1346→                  const precioEfectivoEst = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+  1347→                  const precioTransferenciaEst = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+  1348→                  const precioMaxEst = Math.max(precioEfectivoEst, precioTransferenciaEst);
+  1349→                  setEstanquesEntrega([...estanquesEntrega, {
+  1350→                    nombre: `Estanque ${estanquesEntrega.length + 1}`,
+  1351→                    litros: "",
+  1352→                    precio: String(precioMaxEst || 0),
+  1353→                    metodoPago: "credito",
+  1354→                    montoRecibido: "",
+  1355→                  }]);
+  1356→                }}
+  1357→                className="w-full border-amber-400 text-amber-800 hover:bg-amber-100 dark:text-amber-300"
+  1358→              >
+  1359→                <Plus className="mr-1 h-4 w-4" /> Agregar otro estanque
+  1360→              </Button>
+  1361→            </div>
+  1362→          )}
+  1363→
+  1364→          {/* Si NO está en modo estanques, mostrar los botones de cobro normales */}
+  1365→          {!modoEstanques && (
+  1366→          <>
+  1367→          {/* Botones rápidos de cobro */}
+  1368→          <div className="space-y-3">
+  1369→            <Label className="text-sm font-medium">Cobro al cliente</Label>
+  1370→            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+  1371→              {/* Botón: Efectivo */}
+  1372→              <button
+  1373→                type="button"
+  1374→                onClick={() => {
+  1375→                  setMetodoPago("efectivo");
+  1376→                  setMontoTransferencia("");
+  1377→                  // Actualizar precio según método
+  1378→                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+  1379→                  aplicarPrecioSegunMetodo("efectivo", clienteActual);
+  1380→                  // Si no hay efectivo ingresado, auto-llenar con el total
+  1381→                  if (!montoEfectivo) {
+  1382→                    setMontoEfectivo(String(Math.round(totalCalculado)));
+  1383→                  }
+  1384→                }}
+  1385→                className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+  1386→                  metodoPago === "efectivo" && efectivoFinal > 0
+  1387→                    ? "border-primary bg-primary/10 text-primary"
+  1388→                    : "border-border hover:border-primary/50"
+  1389→                }`}
+  1390→              >
+  1391→                <Banknote className="h-5 w-5" />
+  1392→                <span className="text-sm font-medium">Efectivo</span>
+  1393→                {efectivoFinal > 0 && (
+  1394→                  <span className="text-xs text-muted-foreground">{formatCurrency(efectivoFinal)}</span>
+  1395→                )}
+  1396→              </button>
+  1397→
+  1398→              {/* Botón: Transferencia */}
+  1399→              <button
+  1400→                type="button"
+  1401→                onClick={() => {
+  1402→                  setMetodoPago("transferencia");
+  1403→                  setMontoEfectivo("");
+  1404→                  // Actualizar precio según método
+  1405→                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+  1406→                  aplicarPrecioSegunMetodo("transferencia", clienteActual);
+  1407→                  // Si no hay transferencia ingresada, auto-llenar con el total
+  1408→                  if (!montoTransferencia) {
+  1409→                    setMontoTransferencia(String(Math.round(totalCalculado)));
+  1410→                  }
+  1411→                }}
+  1412→                className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+  1413→                  metodoPago === "transferencia" && transferenciaFinal > 0
+  1414→                    ? "border-primary bg-primary/10 text-primary"
+  1415→                    : "border-border hover:border-primary/50"
+  1416→                }`}
+  1417→              >
+  1418→                <Smartphone className="h-5 w-5" />
+  1419→                <span className="text-sm font-medium">Transferencia</span>
+  1420→                {transferenciaFinal > 0 && (
+  1421→                  <span className="text-xs text-muted-foreground">{formatCurrency(transferenciaFinal)}</span>
+  1422→                )}
+  1423→              </button>
+  1424→
+  1425→              {/* Botón: Sin pago (pendiente) */}
+  1426→              <button
+  1427→                type="button"
+  1428→                onClick={() => {
+  1429→                  setMetodoPago("credito");
+  1430→                  setMontoEfectivo("");
+  1431→                  setMontoTransferencia("");
+  1432→                  // Sin pago: usar el precio MÁS ALTO para generar deuda correcta
+  1433→                  // El usuario puede ajustar el precio al momento de cobrar
+  1434→                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+  1435→                  aplicarPrecioSegunMetodo("credito", clienteActual);
+  1436→                }}
+  1437→                className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+  1438→                  recibidoFinal === 0
+  1439→                    ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300"
+  1440→                    : "border-border hover:border-amber-500/50"
+  1441→                }`}
+  1442→              >
+  1443→                <Clock className="h-5 w-5" />
+  1444→                <span className="text-sm font-medium">Sin pago</span>
+  1445→                <span className="text-xs text-muted-foreground">Genera deuda</span>
+  1446→              </button>
+  1447→            </div>
+  1448→
+  1449→            {/* Inputs de monto (aparecen cuando hay cobro) */}
+  1450→            {efectivoFinal > 0 && (
+  1451→              <div className="space-y-1 rounded-lg border border-border bg-muted/30 p-2">
+  1452→                <Label htmlFor="montoEfectivo" className="text-xs">
+  1453→                  <Banknote className="mr-1 inline h-3 w-3" /> Efectivo recibido
+  1454→                </Label>
+  1455→                <Input
+  1456→                  id="montoEfectivo"
+  1457→                  type="number"
+  1458→                  inputMode="decimal"
+  1459→                  step="any"
+  1460→                  value={montoEfectivo}
+  1461→                  onChange={(e) => setMontoEfectivo(e.target.value)}
+  1462→                  placeholder="0"
+  1463→                />
+  1464→              </div>
+  1465→            )}
+  1466→            {transferenciaFinal > 0 && (
+  1467→              <div className="space-y-1 rounded-lg border border-border bg-muted/30 p-2">
+  1468→                <Label htmlFor="montoTransferencia" className="text-xs">
+  1469→                  <Smartphone className="mr-1 inline h-3 w-3" /> Transferencia recibida
+  1470→                </Label>
+  1471→                <Input
+  1472→                  id="montoTransferencia"
+  1473→                  type="number"
+  1474→                  inputMode="decimal"
+  1475→                  step="any"
+  1476→                  value={montoTransferencia}
+  1477→                  onChange={(e) => setMontoTransferencia(e.target.value)}
+  1478→                  placeholder="0"
+  1479→                />
+  1480→              </div>
+  1481→            )}
+  1482→
+  1483→            {/* Estado automático (solo lectura) */}
+  1484→            <div className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2 text-sm">
+  1485→              <span className="text-muted-foreground">Estado del pago:</span>
+  1486→              <span className={`font-semibold ${
+  1487→                estadoPago === "pagado" ? "text-emerald-600 dark:text-emerald-400"
+  1488→                : estadoPago === "parcial" ? "text-amber-600 dark:text-amber-400"
+  1489→                : "text-muted-foreground"
+  1490→              }`}>
+  1491→                {estadoPago === "pagado" ? "✓ Pagado" : estadoPago === "parcial" ? "Parcial" : "Pendiente"}
+  1492→              </span>
+  1493→            </div>
+  1494→          </div>
+  1495→          </>
+  1496→          )}
+  1497→
+  1498→          {/* Foto del medidor */}
+  1499→          <div className="space-y-2">
+  1500→            <Label>Foto del medidor (respaldo)</Label>
+  1501→            {fotoUrl ? (
+  1502→              <div className="relative w-fit">
+  1503→                { }
+  1504→                <img
+  1505→                  src={fotoUrl}
+  1506→                  alt="Foto del medidor"
+  1507→                  className="h-40 w-auto rounded-lg border border-border object-cover"
+  1508→                />
+  1509→                <Button
+  1510→                  type="button"
+  1511→                  size="icon"
+  1512→                  variant="destructive"
+  1513→                  className="absolute -right-2 -top-2 h-7 w-7 rounded-full"
+  1514→                  onClick={() => setFotoUrl(null)}
+  1515→                >
+  1516→                  <X className="h-4 w-4" />
+  1517→                </Button>
+  1518→              </div>
+  1519→            ) : (
+  1520→              <label className="flex h-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border bg-muted/30 text-sm text-muted-foreground transition hover:border-primary hover:bg-primary/5">
+  1521→                {subiendoFoto ? (
+  1522→                  <Loader2 className="h-6 w-6 animate-spin" />
+  1523→                ) : (
+  1524→                  <>
+  1525→                    <Camera className="h-6 w-6" />
+  1526→                    <span>Tomar foto o subir imagen</span>
+  1527→                    <span className="text-xs">JPG / PNG / WEBP · máx 8 MB</span>
+  1528→                  </>
+  1529→                )}
+  1530→                <input
+  1531→                  type="file"
+  1532→                  accept="image/*"
+  1533→                  capture="environment"
+  1534→                  className="hidden"
+  1535→                  onChange={(e) => {
+  1536→                    const f = e.target.files?.[0];
+  1537→                    if (f) handleFoto(f);
+  1538→                  }}
+  1539→                />
+  1540→              </label>
+  1541→            )}
+  1542→          </div>
+  1543→
+  1544→          <div className="space-y-2">
+  1545→            <Label htmlFor="nota">Nota</Label>
+  1546→            <Textarea
+  1547→              id="nota"
+  1548→              value={nota}
+  1549→              onChange={(e) => setNota(e.target.value)}
+  1550→              placeholder="Observaciones: ubicación del estanque, dificultad de acceso, etc."
+  1551→              rows={2}
+  1552→            />
+  1553→          </div>
+  1554→
+  1555→          <DialogFooter>
+  1556→            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+  1557→              Cancelar
+  1558→            </Button>
+  1559→            <Button type="submit" disabled={saving}>
+  1560→              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+  1561→              {isEdit ? "Guardar cambios" : "Registrar entrega"}
+  1562→            </Button>
+  1563→          </DialogFooter>
+  1564→        </form>
+  1565→      </DialogContent>
+  1566→
+  1567→      {/* Diálogo de selección de vuelta cuando no hay vuelta activa */}
+  1568→      <Dialog open={dialogoVueltaAbierto} onOpenChange={(o) => {
+  1569→        if (!iniciandoVuelta && !saving) setDialogoVueltaAbierto(o);
+  1570→      }}>
+  1571→        <DialogContent className="max-h-[90vh] w-[95vw] max-w-lg overflow-y-auto">
+  1572→          <DialogHeader>
+  1573→            <DialogTitle>No hay vuelta activa</DialogTitle>
+  1574→            <DialogDescription>
+  1575→              Para registrar la entrega necesitas una vuelta activa. Puedes retomar una vuelta sin completar o iniciar una nueva.
+  1576→              {" "}Tus datos de entrega se mantendrán y se guardarán automáticamente.
+  1577→            </DialogDescription>
+  1578→          </DialogHeader>
+  1579→
+  1580→          <div className="space-y-3">
+  1581→            {/* Opción: Retomar vuelta existente */}
+  1582→            {cargandoVueltas ? (
+  1583→              <div className="flex items-center justify-center py-6">
+  1584→                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+  1585→                <span className="ml-2 text-sm text-muted-foreground">Cargando vueltas recientes…</span>
+  1586→              </div>
+  1587→            ) : vueltasRecientes.length > 0 ? (
+  1588→              <div className="space-y-2">
+  1589→                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+  1590→                  Vueltas sin completar (puedes retomarlas)
+  1591→                </p>
+  1592→                {vueltasRecientes.map((v) => {
+  1593→                  const porcentaje = v.capacidadCamion > 0 ? (v.litros / v.capacidadCamion) * 100 : 0;
+  1594→                  const umbralLitros = v.capacidadCamion > 0 ? Math.ceil(v.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
+  1595→                  return (
+  1596→                    <button
+  1597→                      key={v.id}
+  1598→                      type="button"
+  1599→                      disabled={iniciandoVuelta || saving}
+  1600→                      onClick={() => reabrirYGuardar(v)}
+  1601→                      className="flex w-full items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left transition hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:bg-amber-900/20 dark:hover:bg-amber-900/30"
+  1602→                    >
+  1603→                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+  1604→                        <RotateCcw className="h-5 w-5" />
+  1605→                      </div>
+  1606→                      <div className="min-w-0 flex-1">
+  1607→                        <p className="font-medium text-sm text-amber-900 dark:text-amber-200">
+  1608→                          Retomar Vuelta #{v.numero}
+  1609→                        </p>
+  1610→                        <p className="text-xs text-amber-800 dark:text-amber-300">
+  1611→                          {formatNumber(v.litros, 0)} L de {formatNumber(v.capacidadCamion, 0)} L ({porcentaje.toFixed(0)}%)
+  1612→                          {" · "}iniciada {formatTime(v.iniciadaEn)}
+  1613→                          {v.camion && <> · {v.camion.nombre}</>}
+  1614→                          {" · "}faltan {formatNumber(Math.max(0, umbralLitros - v.litros), 0)} L para completar
+  1615→                        </p>
+  1616→                      </div>
+  1617→                    </button>
+  1618→                  );
+  1619→                })}
+  1620→              </div>
+  1621→            ) : (
+  1622→              <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+  1623→                No tienes vueltas recientes sin completar en el último mes.
+  1624→              </div>
+  1625→            )}
+  1626→
+  1627→            {/* Separador */}
+  1628→            <div className="relative my-2">
+  1629→              <div className="absolute inset-0 flex items-center">
+  1630→                <span className="w-full border-t border-border" />
+  1631→              </div>
+  1632→              <div className="relative flex justify-center text-xs uppercase">
+  1633→                <span className="bg-background px-2 text-muted-foreground">o</span>
+  1634→              </div>
+  1635→            </div>
+  1636→
+  1637→            {/* Opción: Iniciar nueva vuelta */}
+  1638→            <div className="space-y-2">
+  1639→              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+  1640→                Iniciar nueva vuelta
+  1641→              </p>
+  1642→              {(() => {
+  1643→                const camionesActivos = (camiones ?? []).filter((c) => c.activo);
+  1644→                if (camionesActivos.length > 1) {
+  1645→                  return (
+  1646→                    <div className="space-y-2">
+  1647→                      <Label htmlFor="camionSelectEntrega">Camión</Label>
+  1648→                      <select
+  1649→                        id="camionSelectEntrega"
+  1650→                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+  1651→                        value={camionSeleccionado || camionesActivos[0]?.id || ""}
+  1652→                        onChange={(e) => setCamionSeleccionado(e.target.value)}
+  1653→                        disabled={iniciandoVuelta || saving}
+  1654→                      >
+  1655→                        {camionesActivos.map((c) => (
+  1656→                          <option key={c.id} value={c.id}>{c.nombre}</option>
+  1657→                        ))}
+  1658→                      </select>
+  1659→                    </div>
+  1660→                  );
+  1661→                }
+  1662→                return null;
+  1663→              })()}
+  1664→              <Button
+  1665→                type="button"
+  1666→                className="w-full"
+  1667→                onClick={iniciarNuevaYGuardar}
+  1668→                disabled={iniciandoVuelta || saving}
+  1669→              >
+  1670→                {(iniciandoVuelta || saving) ? (
+  1671→                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando…</>
+  1672→                ) : (
+  1673→                  <><Plus className="mr-2 h-4 w-4" /> Iniciar nueva vuelta y registrar entrega</>
+  1674→                )}
+  1675→              </Button>
+  1676→            </div>
+  1677→
+  1678→            {/* Aviso de preservación de datos */}
+  1679→            <div className="flex items-start gap-2 rounded-lg bg-emerald-50 p-2 text-xs text-emerald-900 dark:bg-emerald-900/20 dark:text-emerald-200">
+  1680→              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+  1681→              <p>
+  1682→                Tus datos de entrega (cliente, litros, cobro) ya están cargados.
+  1683→                {" "}Al elegir una opción, la entrega se guardará automáticamente con la vuelta seleccionada.
+  1684→              </p>
+  1685→            </div>
+  1686→          </div>
+  1687→
+  1688→          <DialogFooter>
+  1689→            <Button
+  1690→              variant="outline"
+  1691→              onClick={() => setDialogoVueltaAbierto(false)}
+  1692→              disabled={iniciandoVuelta || saving}
+  1693→            >
+  1694→              Cancelar
+  1695→            </Button>
+  1696→          </DialogFooter>
+  1697→        </DialogContent>
+  1698→      </Dialog>
+  1699→    </Dialog>
+  1700→  );
+  1701→}
+  1702→
