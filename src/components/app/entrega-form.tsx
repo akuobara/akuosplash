@@ -209,12 +209,17 @@ export function EntregaForm({
       let estanquesCliente: { tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada?: boolean }[] = [];
       try {
         estanquesCliente = c.estanquesJson ? JSON.parse(c.estanquesJson) : [];
-      } catch {}
+      } catch (err) {
+        console.error("Error parseando estanquesJson:", c.estanquesJson, err);
+      }
+
+      // Debug: mostrar qué se encontró
+      console.log("Cliente seleccionado:", c.nombre, "estanquesJson:", c.estanquesJson, "parseado:", estanquesCliente);
 
       // Cargar todos los estanques del cliente para uso opcional
       if (estanquesCliente.length > 0) {
         // Si hay estanques con facturaSeparada, activar automáticamente
-        const independientes = estanquesCliente.filter((e) => e.facturaSeparada);
+        const independientes = estanquesCliente.filter((e) => e.facturaSeparada === true);
         const listaEstanques = independientes.length > 0 ? independientes : estanquesCliente;
         setEstanquesEntrega(listaEstanques.map((e) => ({
           nombre: e.nombre || e.tipo,
@@ -223,8 +228,13 @@ export function EntregaForm({
           metodoPago: "efectivo",
           montoRecibido: "",
         })));
-        // Auto-activar solo si hay con facturaSeparada
+        // Auto-activar si hay con facturaSeparada, o si hay más de 1 estanque
         setModoEstanques(independientes.length > 0);
+        toast.info(
+          `Cliente tiene ${estanquesCliente.length} estanque(s). ` +
+          `${independientes.length} con facturación independiente.`,
+          { duration: 5000 }
+        );
       } else {
         setModoEstanques(false);
         setEstanquesEntrega([]);
