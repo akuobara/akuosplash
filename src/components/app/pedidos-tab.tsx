@@ -1228,9 +1228,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                             <select value={est.metodoPago}
                               onChange={(e) => {
                                 const nuevoMetodo = e.target.value;
-                                const totalEstCalc = (Number(est.litros) || 0) * (Number(est.precio) || 0);
+                                let nuevoPrecio = est.precio;
+                                if (nuevoMetodo === "credito") nuevoPrecio = "";
+                                const totalEstCalc = (Number(est.litros) || 0) * (Number(nuevoPrecio) || 0);
                                 setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
-                                  ...est2, metodoPago: nuevoMetodo,
+                                  ...est2, metodoPago: nuevoMetodo, precio: nuevoPrecio,
                                   montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
                                 } : est2));
                               }}
@@ -1244,12 +1246,21 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                             <label className="text-[10px] text-muted-foreground">Monto recibido</label>
                             <Input type="number" inputMode="decimal" step="any" value={est.montoRecibido}
                               onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, montoRecibido: e.target.value } : est2))}
-                              placeholder={String(Math.round(totalEst))} disabled={est.metodoPago === "credito"} className="h-8 text-xs" />
+                              placeholder={est.metodoPago === "credito" ? "—" : String(Math.round(totalEst))} disabled={est.metodoPago === "credito"} className="h-8 text-xs" />
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-[10px]">
-                          <span className="text-muted-foreground">Total: <strong className="text-foreground tabular-nums">{formatCurrency(totalEst)}</strong></span>
-                          {recibidoEst >= totalEst && totalEst > 0 && <span className="text-emerald-600">✓ Pagado</span>}
+                          {est.metodoPago === "credito" ? (
+                            <>
+                              <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400">Se definirá al cobrar</strong></span>
+                              <span className="text-amber-600 dark:text-amber-400">Pendiente</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-muted-foreground">Total: <strong className="text-foreground tabular-nums">{formatCurrency(totalEst)}</strong></span>
+                              {recibidoEst >= totalEst && totalEst > 0 && <span className="text-emerald-600">✓ Pagado</span>}
+                            </>
+                          )}
                         </div>
                       </div>
                     );

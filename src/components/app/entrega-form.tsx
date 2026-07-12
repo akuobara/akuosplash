@@ -936,11 +936,21 @@ export function EntregaForm({
                           value={est.metodoPago}
                           onChange={(e) => {
                             const nuevoMetodo = e.target.value;
-                            const totalEstCalc = (Number(est.litros) || 0) * (Number(est.precio) || 0);
+                            const c = clientes.find(cl => cl.id === clienteId);
+                            let nuevoPrecio = est.precio;
+                            if (nuevoMetodo === "efectivo") {
+                              nuevoPrecio = String(c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0);
+                            } else if (nuevoMetodo === "transferencia") {
+                              nuevoPrecio = String(c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0);
+                            } else {
+                              // Sin pago: precio se definirá al cobrar
+                              nuevoPrecio = "";
+                            }
+                            const totalEstCalc = (Number(est.litros) || 0) * (Number(nuevoPrecio) || 0);
                             setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
                               ...est2,
                               metodoPago: nuevoMetodo,
-                              // Auto-llenar monto recibido si está vacío y no es "sin pago"
+                              precio: nuevoPrecio,
                               montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
                             } : est2));
                           }}
@@ -959,19 +969,28 @@ export function EntregaForm({
                           step="any"
                           value={est.montoRecibido}
                           onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, montoRecibido: e.target.value } : est2))}
-                          placeholder={String(Math.round(totalEst))}
+                          placeholder={est.metodoPago === "credito" ? "—" : String(Math.round(totalEst))}
                           disabled={est.metodoPago === "credito"}
                           className="h-8 text-xs"
                         />
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-muted-foreground">Total: <strong className="text-foreground tabular-nums">{formatCurrency(totalEst)}</strong></span>
-                      {recibidoEst > 0 && recibidoEst < totalEst && (
-                        <span className="text-amber-600 dark:text-amber-400">Saldo: {formatCurrency(totalEst - recibidoEst)}</span>
-                      )}
-                      {recibidoEst >= totalEst && totalEst > 0 && (
-                        <span className="text-emerald-600 dark:text-emerald-400">✓ Pagado</span>
+                      {est.metodoPago === "credito" ? (
+                        <>
+                          <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400">Se definirá al cobrar</strong></span>
+                          <span className="text-amber-600 dark:text-amber-400">Pendiente</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-muted-foreground">Total: <strong className="text-foreground tabular-nums">{formatCurrency(totalEst)}</strong></span>
+                          {recibidoEst > 0 && recibidoEst < totalEst && (
+                            <span className="text-amber-600 dark:text-amber-400">Saldo: {formatCurrency(totalEst - recibidoEst)}</span>
+                          )}
+                          {recibidoEst >= totalEst && totalEst > 0 && (
+                            <span className="text-emerald-600 dark:text-emerald-400">✓ Pagado</span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
@@ -983,6 +1002,7 @@ export function EntregaForm({
                 const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
                 const totalVentaEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
                 const totalRecibidoEst = estanquesEntrega.reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+                const haySinPago = estanquesEntrega.some(e => e.metodoPago === "credito");
                 return (
                   <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-center text-sm">
                     <div className="grid grid-cols-3 gap-2">
@@ -992,13 +1012,22 @@ export function EntregaForm({
                       </div>
                       <div>
                         <p className="text-[10px] uppercase text-muted-foreground">Total venta</p>
-                        <p className="font-bold tabular-nums">{formatCurrency(totalVentaEst)}</p>
+                        {haySinPago && totalVentaEst === 0 ? (
+                          <p className="font-bold text-amber-600 dark:text-amber-400 text-xs">Se definirá al cobrar</p>
+                        ) : (
+                          <p className="font-bold tabular-nums">{formatCurrency(totalVentaEst)}</p>
+                        )}
                       </div>
                       <div>
                         <p className="text-[10px] uppercase text-muted-foreground">Total recibido</p>
                         <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(totalRecibidoEst)}</p>
                       </div>
                     </div>
+                    {haySinPago && (
+                      <p className="mt-1 text-[10px] text-amber-600 dark:text-amber-400">
+                        Los estanques sin pago se cobrarán después. Ve a la ficha del cliente → Registrar pago.
+                      </p>
+                    )}
                   </div>
                 );
               })()}
