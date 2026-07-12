@@ -199,6 +199,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [precioTotalConvertir, setPrecioTotalConvertir] = useState("");
   const [descuentoTipoConvertir, setDescuentoTipoConvertir] = useState("ninguno");
   const [descuentoMontoConvertir, setDescuentoMontoConvertir] = useState("");
+  const [descuentoPorLitroConvertir, setDescuentoPorLitroConvertir] = useState("");
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -506,6 +507,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         metodoPago: metodoPagoConvertir,
         descuentoTipo: descuentoTipoConvertir,
         descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
+        descuentoPorLitro: descuentoTipoConvertir === "por_litro" ? (Number(descuentoPorLitroConvertir) || 0) : 0,
       });
       toast.success("Pedido convertido en entrega");
       setConvirtiendo(null);
@@ -562,6 +564,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         metodoPago: metodoPagoConvertir,
         descuentoTipo: descuentoTipoConvertir,
         descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
+        descuentoPorLitro: descuentoTipoConvertir === "por_litro" ? (Number(descuentoPorLitroConvertir) || 0) : 0,
       });
       toast.success("Pedido convertido en entrega");
       setVueltaFaltante(null);
@@ -1625,17 +1628,24 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                       <Label className="text-sm font-medium">Descuento</Label>
                       <select
                         value={descuentoTipoConvertir}
-                        onChange={(e) => { setDescuentoTipoConvertir(e.target.value); setDescuentoMontoConvertir(""); }}
+                        onChange={(e) => { setDescuentoTipoConvertir(e.target.value); setDescuentoMontoConvertir(""); setDescuentoPorLitroConvertir(""); }}
                         className="h-8 rounded-md border border-input bg-background px-2 text-xs"
                       >
                         <option value="ninguno">Sin descuento</option>
                         <option value="total">Descuento sobre el total</option>
+                        <option value="por_litro">Descuento por litro</option>
                       </select>
                     </div>
                     {descuentoTipoConvertir === "total" && (
                       <Input type="number" inputMode="decimal" step="any" value={descuentoMontoConvertir}
                         onChange={(e) => setDescuentoMontoConvertir(e.target.value)}
                         placeholder="Ej. 1200 (para redondear de 21200 a 20000)"
+                        className="h-8 text-sm" />
+                    )}
+                    {descuentoTipoConvertir === "por_litro" && (
+                      <Input type="number" inputMode="decimal" step="any" value={descuentoPorLitroConvertir}
+                        onChange={(e) => setDescuentoPorLitroConvertir(e.target.value)}
+                        placeholder="Ej. 1 (bajar de 8 a 7 por litro)"
                         className="h-8 text-sm" />
                     )}
                     {descuentoTipoConvertir !== "ninguno" && (
@@ -1712,6 +1722,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                     let descuento = 0;
                     if (descuentoTipoConvertir === "total") {
                       descuento = Number(descuentoMontoConvertir) || 0;
+                    } else if (descuentoTipoConvertir === "por_litro") {
+                      descuento = (Number(descuentoPorLitroConvertir) || 0) * litrosCalc;
                     }
                     const total = Math.max(0, subtotal - descuento);
                     return (
@@ -1741,11 +1753,12 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                       <Label className="text-sm font-medium">Descuento</Label>
                       <select
                         value={descuentoTipoConvertir}
-                        onChange={(e) => { setDescuentoTipoConvertir(e.target.value); setDescuentoMontoConvertir(""); }}
+                        onChange={(e) => { setDescuentoTipoConvertir(e.target.value); setDescuentoMontoConvertir(""); setDescuentoPorLitroConvertir(""); }}
                         className="h-8 rounded-md border border-input bg-background px-2 text-xs"
                       >
                         <option value="ninguno">Sin descuento</option>
                         <option value="total">Descuento sobre el total</option>
+                        <option value="por_litro">Descuento por litro</option>
                       </select>
                     </div>
                     {descuentoTipoConvertir === "total" && (
@@ -1753,6 +1766,21 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                         onChange={(e) => setDescuentoMontoConvertir(e.target.value)}
                         placeholder="Ej. 1200 (para redondear de 21200 a 20000)"
                         className="h-8 text-sm" />
+                    )}
+                    {descuentoTipoConvertir === "por_litro" && (
+                      <div className="flex items-center gap-2">
+                        <Input type="number" inputMode="decimal" step="any" value={descuentoPorLitroConvertir}
+                          onChange={(e) => setDescuentoPorLitroConvertir(e.target.value)}
+                          placeholder="Ej. 1 (bajar de 8 a 7 por litro)"
+                          className="h-8 text-sm w-32" />
+                        <span className="text-xs text-muted-foreground">
+                          {(() => {
+                            const litrosCalc = Number(litrosReales) || convirtiendo.litrosSolicitados;
+                            const desc = (Number(descuentoPorLitroConvertir) || 0) * litrosCalc;
+                            return `→ ${formatCurrency(desc)} off`;
+                          })()}
+                        </span>
+                      </div>
                     )}
                     {descuentoTipoConvertir !== "ninguno" && (
                       <p className="text-[10px] text-amber-600 dark:text-amber-400">

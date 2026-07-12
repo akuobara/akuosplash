@@ -125,6 +125,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     let descuento = 0;
     if (descuentoTipo === "total") {
       descuento = Number(body.descuento) || 0;
+    } else if (descuentoTipo === "por_litro") {
+      const descuentoPorLitro = Number(body.descuentoPorLitro) || 0;
+      descuento = descuentoPorLitro * litros;
     }
 
     const total = Math.max(0, totalCalc - descuento);
