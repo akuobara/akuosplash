@@ -139,6 +139,7 @@ interface PedidosTabProps {
   choferes: { id: string; nombre: string }[];
   clientePreselect?: string | null;
   onPreselectConsumed?: () => void;
+  vueltaActual?: { litros: number; capacidadCamion?: number; numero: number } | null;
 }
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -149,7 +150,7 @@ const ESTADO_COLORS: Record<string, string> = {
   cancelado: "bg-muted text-muted-foreground",
 };
 
-export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes, clientePreselect, onPreselectConsumed }: PedidosTabProps) {
+export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes, clientePreselect, onPreselectConsumed, vueltaActual }: PedidosTabProps) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState<string>("todos");
@@ -288,6 +289,26 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     setMontoTransferencia("");
     setModoEstanquesConvertir(false);
     setEstanquesConvertir([]);
+
+    // Avisar si los litros del pedido exceden el agua disponible en el camión
+    if (vueltaActual && vueltaActual.capacidadCamion && vueltaActual.capacidadCamion > 0) {
+      const disponible = vueltaActual.capacidadCamion - vueltaActual.litros;
+      if (p.litrosSolicitados > disponible + 300) {
+        if (disponible <= 0) {
+          toast.warning(
+            `El camión está vacío. Este pedido necesita ${formatNumber(p.litrosSolicitados, 0)} L. ` +
+            `Deberías cerrar la vuelta y empezar una nueva.`,
+            { duration: 8000 }
+          );
+        } else {
+          toast.warning(
+            `Quedan ${formatNumber(disponible, 0)} L en el camión pero el pedido es de ${formatNumber(p.litrosSolicitados, 0)} L. ` +
+            `Puedes entregar menos y reprogramar lo que falta, o cerrar la vuelta y empezar una nueva.`,
+            { duration: 8000 }
+          );
+        }
+      }
+    }
 
     // Buscar el cliente en el catálogo para ver si tiene estanques
     if (p.clienteId) {

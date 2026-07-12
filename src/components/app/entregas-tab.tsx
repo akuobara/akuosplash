@@ -35,6 +35,7 @@ import {
   Trash2,
   Eye,
   ImageIcon,
+  Droplets,
 } from "lucide-react";
 import { toast } from "sonner";
 import { EntregaForm } from "./entrega-form";
@@ -397,6 +398,36 @@ export function EntregasTab({
                   tone={vista.total - vista.montoRecibido > 0 ? "warning" : "positive"}
                 />
               </div>
+
+              {/* Detalle de estanques */}
+              {vista.detalleEstanquesJson && (() => {
+                let estanques: { nombre: string; litros: number; precioPorLitro: number; total: number; metodoPago: string; montoRecibido: number }[] = [];
+                try { estanques = JSON.parse(vista.detalleEstanquesJson); } catch { return null; }
+                if (estanques.length === 0) return null;
+                return (
+                  <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-2">
+                    <p className="flex items-center gap-1 text-xs font-medium text-amber-900 dark:text-amber-200">
+                      <Droplets className="h-3.5 w-3.5" /> Detalle por estanque
+                    </p>
+                    {estanques.map((est, i) => (
+                      <div key={i} className="rounded border border-amber-200 dark:border-amber-800 bg-white dark:bg-background p-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-amber-900 dark:text-amber-200">{i + 1}. {est.nombre}</span>
+                          <span className="font-bold tabular-nums">{formatCurrency(est.total)}</span>
+                        </div>
+                        <div className="mt-0.5 flex items-center gap-3 text-muted-foreground">
+                          <span>{formatNumber(est.litros, 0)} L</span>
+                          <span>{formatCurrency(est.precioPorLitro)}/L</span>
+                          <span className="rounded bg-muted px-1">{est.metodoPago === "efectivo" ? "Efectivo" : est.metodoPago === "transferencia" ? "Transferencia" : est.metodoPago === "credito" ? "Sin pago" : est.metodoPago}</span>
+                          {est.montoRecibido > 0 && <span className="text-emerald-600">Recibido: {formatCurrency(est.montoRecibido)}</span>}
+                          {est.total - est.montoRecibido > 0 && <span className="text-amber-600">Saldo: {formatCurrency(est.total - est.montoRecibido)}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
               {vista.nota && (
                 <div>
                   <p className="text-xs uppercase text-muted-foreground">Nota</p>

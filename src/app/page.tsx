@@ -339,6 +339,7 @@ export default function Home() {
               choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre }))}
               clientePreselect={pedidoClientePreselect}
               onPreselectConsumed={() => setPedidoClientePreselect(null)}
+              vueltaActual={vueltaActual}
             />
           </TabsContent>
 

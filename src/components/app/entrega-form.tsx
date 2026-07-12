@@ -52,6 +52,7 @@ export interface Entrega {
   estadoPago: string;
   fotoMedidorUrl: string | null;
   nota: string | null;
+  detalleEstanquesJson: string | null;
 }
 
 export interface VueltaActual {

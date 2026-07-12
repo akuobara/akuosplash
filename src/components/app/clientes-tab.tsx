@@ -1427,6 +1427,28 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                               Saldo: {formatCurrency(e.total - e.montoRecibido)}
                             </p>
                           )}
+
+                          {/* Detalle de estanques */}
+                          {e.detalleEstanquesJson && (() => {
+                            let estanques: any[] = [];
+                            try { estanques = JSON.parse(e.detalleEstanquesJson); } catch { return null; }
+                            if (estanques.length === 0) return null;
+                            return (
+                              <div className="mt-2 rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-2 space-y-1">
+                                <p className="text-[10px] font-medium text-amber-900 dark:text-amber-200">Detalle por estanque:</p>
+                                {estanques.map((est, i) => (
+                                  <div key={i} className="flex items-center justify-between text-[11px]">
+                                    <span className="text-amber-900 dark:text-amber-200">{est.nombre}: {formatNumber(est.litros, 0)} L</span>
+                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                      <span className="tabular-nums">{formatCurrency(est.total)}</span>
+                                      {est.montoRecibido > 0 && <span className="text-emerald-600">✓{formatCurrency(est.montoRecibido)}</span>}
+                                      {est.total - est.montoRecibido > 0 && <span className="text-amber-600">saldo {formatCurrency(est.total - est.montoRecibido)}</span>}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })()}
                         </div>
                       ))}
                     </div>
