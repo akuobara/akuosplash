@@ -170,7 +170,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [clienteZona, setClienteZona] = useState("");
   const [litrosSolicitados, setLitrosSolicitados] = useState("");
   const [fechaSolicitada, setFechaSolicitada] = useState("");
-  const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("efectivo");
+  const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("credito");
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [nota, setNota] = useState("");
   // Asignación
@@ -256,7 +256,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     setClienteZona("");
     setLitrosSolicitados("");
     setFechaSolicitada("");
-    setMetodoPagoPreferido("efectivo");
+    setMetodoPagoPreferido("credito");
     setIndicacionesAcceso("");
     setNota("");
     setAsignacionTipo("manual");
@@ -322,8 +322,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
             setEstanquesConvertir(lista.map((e: any) => ({
               nombre: e.nombre || e.tipo,
               litros: "",
-              precio: String(c.precioEfectivoPorLitro || 0),
-              metodoPago: "efectivo",
+              // Para "sin pago" (credito) usar el precio MÁS ALTO
+              precio: String(Math.max(c.precioEfectivoPorLitro || 0, c.precioTransferenciaPorLitro || 0)),
+              metodoPago: "credito",
               montoRecibido: "",
             })));
             // Auto-activar si hay con factura separada
@@ -1228,8 +1229,18 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                             <select value={est.metodoPago}
                               onChange={(e) => {
                                 const nuevoMetodo = e.target.value;
+                                const c = clientes.find(cl => cl.id === convirtiendo?.clienteId);
+                                const precioEfectivo = c?.precioEfectivoPorLitro || 0;
+                                const precioTransferencia = c?.precioTransferenciaPorLitro || 0;
                                 let nuevoPrecio = est.precio;
-                                if (nuevoMetodo === "credito") nuevoPrecio = "";
+                                if (nuevoMetodo === "efectivo") {
+                                  nuevoPrecio = String(precioEfectivo);
+                                } else if (nuevoMetodo === "transferencia") {
+                                  nuevoPrecio = String(precioTransferencia);
+                                } else {
+                                  // Sin pago: precio MÁS ALTO para generar deuda
+                                  nuevoPrecio = String(Math.max(precioEfectivo, precioTransferencia));
+                                }
                                 const totalEstCalc = (Number(est.litros) || 0) * (Number(nuevoPrecio) || 0);
                                 setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
                                   ...est2, metodoPago: nuevoMetodo, precio: nuevoPrecio,

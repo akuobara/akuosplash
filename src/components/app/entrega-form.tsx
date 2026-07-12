@@ -168,7 +168,7 @@ export function EntregaForm({
   const [lecturaActual, setLecturaActual] = useState<string>("");
   const [litrosManual, setLitrosManual] = useState<string>("");
   const [precioPorLitro, setPrecioPorLitro] = useState<string>("");
-  const [metodoPago, setMetodoPago] = useState<string>("efectivo");
+  const [metodoPago, setMetodoPago] = useState<string>("credito");
 
   const [montoEfectivo, setMontoEfectivo] = useState<string>("");
   const [montoTransferencia, setMontoTransferencia] = useState<string>("");
@@ -219,15 +219,17 @@ export function EntregaForm({
       setLecturaAnterior("");
       setLecturaActual("");
       setLitrosManual("");
-      setMetodoPago("efectivo");
+      setMetodoPago("credito");
       setMontoEfectivo("");
       setMontoTransferencia("");
       setEstadoPago("pendiente");
       setFotoUrl(null);
       setNota("");
       setPedidoSeleccionadoId(null);
-      // Auto-llenar precio según método default (efectivo)
-      const precioDefault = config.precioEfectivoPorLitro || 0;
+      // Auto-llenar precio: para "credito" (sin pago) usar el precio MÁS ALTO
+      const precioEfectivoDef = config.precioEfectivoPorLitro || 0;
+      const precioTransferenciaDef = config.precioTransferenciaPorLitro || 0;
+      const precioDefault = Math.max(precioEfectivoDef, precioTransferenciaDef);
       if (precioDefault > 0) {
         setPrecioPorLitro(String(precioDefault));
       } else {
@@ -277,11 +279,15 @@ export function EntregaForm({
     if (estanquesCliente.length > 0) {
       const independientes = estanquesCliente.filter((e) => e.facturaSeparada === true);
       const listaEstanques = independientes.length > 0 ? independientes : estanquesCliente;
+      // Para "sin pago" (credito) usar el precio MÁS ALTO — genera deuda correcta
+      const precioEfectivoEst = c.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+      const precioTransferenciaEst = c.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+      const precioMaxEst = Math.max(precioEfectivoEst, precioTransferenciaEst);
       setEstanquesEntrega(listaEstanques.map((e) => ({
         nombre: e.nombre || e.tipo,
         litros: "",
-        precio: String(c.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0),
-        metodoPago: "efectivo",
+        precio: String(precioMaxEst || 0),
+        metodoPago: "credito",
         montoRecibido: "",
       })));
       setModoEstanques(independientes.length > 0);

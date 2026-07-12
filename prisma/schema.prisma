@@ -115,7 +115,7 @@ model Pedido {
   // Detalle del pedido
   litrosSolicitados Float
   fechaSolicitada   DateTime?  // cuándo el cliente quiere que se entregue (opcional)
-  metodoPagoPreferido String   @default("efectivo")  // efectivo | transferencia | mixto | credito
+  metodoPagoPreferido String   @default("credito")  // efectivo | transferencia | mixto | credito
   indicacionesAcceso String?   // snapshot de indicaciones del cliente o custom
   nota              String?
 
@@ -174,7 +174,7 @@ model PedidoRecurrente {
 
   // Detalle
   litrosSolicitados Float
-  metodoPagoPreferido String @default("efectivo")
+  metodoPagoPreferido String @default("credito")
   nota              String?
 
   // Frecuencia
@@ -271,7 +271,7 @@ model Entrega {
   lecturaActual     Float?
   litros            Float
 
-  metodoPago        String   @default("efectivo")
+  metodoPago        String   @default("credito")
 
   precioPorLitro    Float
   total             Float
@@ -302,7 +302,7 @@ model Pago {
   cliente         Cliente  @relation(fields: [clienteId], references: [id])
 
   monto           Float
-  metodoPago      String   @default("efectivo")  // efectivo | transferencia | mixto
+  metodoPago      String   @default("credito")  // efectivo | transferencia | mixto
   nota            String?
 
   choferId        String?

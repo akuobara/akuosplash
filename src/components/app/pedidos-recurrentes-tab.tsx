@@ -111,7 +111,7 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
   // Campos del formulario
   const [clienteId, setClienteId] = useState("");
   const [litrosSolicitados, setLitrosSolicitados] = useState("");
-  const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("efectivo");
+  const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("credito");
   const [nota, setNota] = useState("");
   const [frecuenciaDias, setFrecuenciaDias] = useState("7");
   const [fechaInicio, setFechaInicio] = useState("");
@@ -198,7 +198,7 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
     setEditando(null);
     setClienteId("");
     setLitrosSolicitados("");
-    setMetodoPagoPreferido("efectivo");
+    setMetodoPagoPreferido("credito");
     setNota("");
     setFrecuenciaDias("7");
     setFechaInicio(new Date().toISOString().slice(0, 10));

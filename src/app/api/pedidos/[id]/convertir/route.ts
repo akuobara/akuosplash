@@ -43,23 +43,33 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     // Determinar precio según método preferido
     const config = await db.configuracion.findUnique({ where: { duenoId } });
     let precioPorLitro = Number(body.precioPorLitro) || 0;
-    if (!precioPorLitro) {
-      if (pedido.metodoPagoPreferido === "transferencia") {
-        precioPorLitro = config?.precioTransferenciaPorLitro || 0;
-      } else {
-        precioPorLitro = config?.precioEfectivoPorLitro || 0;
-      }
-    }
 
     // Si el cliente del catálogo tiene precios propios, usarlos
     if (pedido.clienteId) {
       const cliente = await db.cliente.findUnique({ where: { id: pedido.clienteId } });
       if (cliente) {
-        if (pedido.metodoPagoPreferido === "transferencia" && cliente.precioTransferenciaPorLitro > 0) {
-          precioPorLitro = cliente.precioTransferenciaPorLitro;
-        } else if (pedido.metodoPagoPreferido === "efectivo" && cliente.precioEfectivoPorLitro > 0) {
-          precioPorLitro = cliente.precioEfectivoPorLitro;
+        const precioEfectivo = cliente.precioEfectivoPorLitro || config?.precioEfectivoPorLitro || 0;
+        const precioTransferencia = cliente.precioTransferenciaPorLitro || config?.precioTransferenciaPorLitro || 0;
+        if (pedido.metodoPagoPreferido === "efectivo") {
+          precioPorLitro = precioEfectivo;
+        } else if (pedido.metodoPagoPreferido === "transferencia") {
+          precioPorLitro = precioTransferencia;
+        } else {
+          // credito (sin pago) o mixto: precio MÁS ALTO para generar deuda
+          precioPorLitro = Math.max(precioEfectivo, precioTransferencia);
         }
+      }
+    }
+    if (!precioPorLitro) {
+      // Fallback a config si no hay cliente o precios propios
+      const precioEfectivo = config?.precioEfectivoPorLitro || 0;
+      const precioTransferencia = config?.precioTransferenciaPorLitro || 0;
+      if (pedido.metodoPagoPreferido === "efectivo") {
+        precioPorLitro = precioEfectivo;
+      } else if (pedido.metodoPagoPreferido === "transferencia") {
+        precioPorLitro = precioTransferencia;
+      } else {
+        precioPorLitro = Math.max(precioEfectivo, precioTransferencia);
       }
     }
 
