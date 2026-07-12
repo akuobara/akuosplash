@@ -291,14 +291,18 @@ export function EntregaForm({
         montoRecibido: "",
       })));
       setModoEstanques(independientes.length > 0);
-      toast.info(
-        `Cliente tiene ${estanquesCliente.length} estanque(s). ${independientes.length} con facturación independiente. Modo estanques: ${independientes.length > 0 ? "ACTIVADO" : "desactivado"}`,
-        { duration: 8000 }
-      );
+      if (independientes.length > 0) {
+        toast.info(
+          `Cliente tiene ${estanquesCliente.length} estanque(s), ${independientes.length} con facturación independiente. Modo estanques activado.`,
+          { duration: 6000 }
+        );
+      }
     } else {
+      // El cliente no tiene estanques registrados — NO es un error.
+      // Se puede entregar igual (modo normal con litros manuales).
+      // Si el usuario quiere facturación por estanque, puede agregarlos desde aquí.
       setModoEstanques(false);
       setEstanquesEntrega([]);
-      toast.warning("Este cliente NO tiene estanques guardados. estanquesJson: " + (c.estanquesJson || "null"), { duration: 8000 });
     }
 
     // Cargar la deuda del cliente (en background)
@@ -900,6 +904,36 @@ export function EntregaForm({
               </div>
             )}
 
+            {/* Botón para agregar estanques cuando el cliente no tiene ninguno registrado */}
+            {clienteId && clienteId !== "__manual" && estanquesEntrega.length === 0 && !modoEstanques && (
+              <div className="mt-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    // Agregar un estanque vacío para facturación independiente
+                    const c = clientes.find((cl) => cl.id === clienteId);
+                    const precioEfectivoEst = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+                    const precioTransferenciaEst = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+                    const precioMaxEst = Math.max(precioEfectivoEst, precioTransferenciaEst);
+                    setEstanquesEntrega([{
+                      nombre: "Estanque 1",
+                      litros: "",
+                      precio: String(precioMaxEst || 0),
+                      metodoPago: "credito",
+                      montoRecibido: "",
+                    }]);
+                    setModoEstanques(true);
+                  }}
+                  className="w-full text-xs text-muted-foreground hover:text-amber-700 dark:hover:text-amber-300"
+                >
+                  <Droplets className="mr-1 h-3.5 w-3.5" />
+                  Cobrar por estanque (el cliente no tiene estanques registrados, pero puedes agregarlos aquí)
+                </Button>
+              </div>
+            )}
+
             {/* Botón para desactivar modo estanques */}
             {modoEstanques && (
               <div className="mt-2">
@@ -1090,7 +1124,7 @@ export function EntregaForm({
                 <Droplets className="h-4 w-4" /> Entrega por estanque (facturación independiente)
               </Label>
               <p className="text-xs text-amber-800 dark:text-amber-300">
-                Este cliente tiene estanques que se facturan por separado. Registra los litros y pago de cada uno.
+                Registra los litros y el pago de cada estanque por separado.
               </p>
 
               {estanquesEntrega.map((est, i) => {
@@ -1100,9 +1134,27 @@ export function EntregaForm({
                 const recibidoEst = Number(est.montoRecibido) || 0;
                 return (
                   <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background p-2 space-y-2">
-                    <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
-                      {i + 1}. {est.nombre}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-amber-900 dark:text-amber-200 shrink-0">{i + 1}.</span>
+                      <Input
+                        type="text"
+                        value={est.nombre}
+                        onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, nombre: e.target.value } : est2))}
+                        className="h-7 text-xs flex-1"
+                        placeholder="Nombre del estanque"
+                      />
+                      {estanquesEntrega.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-red-600"
+                          onClick={() => setEstanquesEntrega(estanquesEntrega.filter((_, j) => j !== i))}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="text-[10px] text-muted-foreground">Litros</label>
@@ -1245,6 +1297,29 @@ export function EntregaForm({
                   </div>
                 );
               })()}
+
+              {/* Botón para agregar otro estanque */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const c = clientes.find((cl) => cl.id === clienteId);
+                  const precioEfectivoEst = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+                  const precioTransferenciaEst = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+                  const precioMaxEst = Math.max(precioEfectivoEst, precioTransferenciaEst);
+                  setEstanquesEntrega([...estanquesEntrega, {
+                    nombre: `Estanque ${estanquesEntrega.length + 1}`,
+                    litros: "",
+                    precio: String(precioMaxEst || 0),
+                    metodoPago: "credito",
+                    montoRecibido: "",
+                  }]);
+                }}
+                className="w-full border-amber-400 text-amber-800 hover:bg-amber-100 dark:text-amber-300"
+              >
+                <Plus className="mr-1 h-4 w-4" /> Agregar otro estanque
+              </Button>
             </div>
           )}
 
