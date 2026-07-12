@@ -1,0 +1,602 @@
+   500→                    {c.conexionExterna && (
+   501→                      <Badge variant="outline" className="text-[10px] gap-0.5 text-emerald-700 dark:text-emerald-300" title="Conexión/llave externa">
+   502→                        <KeyRound className="h-2.5 w-2.5" /> Conexión
+   503→                      </Badge>
+   504→                    )}
+   505→                    {c.requiereClientePresente === false && (
+   506→                      <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300" title="No requiere cliente presente">
+   507→                        <UserCheck className="h-2.5 w-2.5" /> Sin presencia
+   508→                      </Badge>
+   509→                    )}
+   510→                  </div>
+   511→                )}
+   512→
+   513→                {/* GPS */}
+   514→                {c.lat != null && c.lng != null && (
+   515→                  <a
+   516→                    href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
+   517→                    target="_blank"
+   518→                    rel="noopener noreferrer"
+   519→                    className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+   520→                  >
+   521→                    <Navigation className="h-3 w-3" /> Ver ubicación GPS
+   522→                  </a>
+   523→                )}
+   524→
+   525→                {/* Indicaciones de acceso */}
+   526→                {c.indicacionesAcceso && (
+   527→                  <p className="mt-1 line-clamp-3 rounded bg-amber-50 dark:bg-amber-900/20 p-2 text-xs text-amber-900 dark:text-amber-200">
+   528→                    <DoorOpen className="mr-1 inline h-3 w-3" />
+   529→                    {c.indicacionesAcceso}
+   530→                  </p>
+   531→                )}
+   532→
+   533→                {c.nota && (
+   534→                  <p className="mt-1 line-clamp-2 rounded bg-muted/40 p-2 text-xs text-muted-foreground">
+   535→                    {c.nota}
+   536→                  </p>
+   537→                )}
+   538→              </CardContent>
+   539→            </Card>
+   540→          ))}
+   541→        </div>
+   542→      )}
+   543→
+   544→      {/* Formulario */}
+   545→      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+   546→        <DialogContent className="max-h-[95vh] w-[95vw] max-w-md overflow-y-auto">
+   547→          <DialogHeader>
+   548→            <DialogTitle>{editando ? "Editar cliente" : "Nuevo cliente"}</DialogTitle>
+   549→            <DialogDescription>
+   550→              Los datos del cliente se guardan para autocompletar nuevas entregas.
+   551→              Los precios por método sobreescriben los globales.
+   552→            </DialogDescription>
+   553→          </DialogHeader>
+   554→          <form onSubmit={handleSave} className="space-y-4">
+   555→            <div className="grid gap-3 sm:grid-cols-2">
+   556→              <div className="space-y-2">
+   557→                <Label htmlFor="nombreCliente">Nombre *</Label>
+   558→                <Input
+   559→                  id="nombreCliente"
+   560→                  value={nombre}
+   561→                  onChange={(e) => setNombre(e.target.value)}
+   562→                  placeholder="Ej. Juan Pérez"
+   563→                  required
+   564→                />
+   565→              </div>
+   566→              <div className="space-y-2">
+   567→                <Label htmlFor="rutCliente">RUT</Label>
+   568→                <Input
+   569→                  id="rutCliente"
+   570→                  value={rut}
+   571→                  onChange={(e) => setRut(e.target.value)}
+   572→                  placeholder="12.345.678-9"
+   573→                />
+   574→              </div>
+   575→            </div>
+   576→            <div className="grid gap-3 sm:grid-cols-2">
+   577→              <div className="space-y-2">
+   578→                <Label htmlFor="telefonoCliente">Teléfono</Label>
+   579→                <Input
+   580→                  id="telefonoCliente"
+   581→                  value={telefono}
+   582→                  onChange={(e) => setTelefono(e.target.value)}
+   583→                  placeholder="+56 9 1234 5678"
+   584→                />
+   585→              </div>
+   586→              <div className="space-y-2">
+   587→                <Label htmlFor="emailCliente">Email</Label>
+   588→                <Input
+   589→                  id="emailCliente"
+   590→                  type="email"
+   591→                  value={email}
+   592→                  onChange={(e) => setEmail(e.target.value)}
+   593→                  placeholder="cliente@email.com"
+   594→                />
+   595→              </div>
+   596→            </div>
+   597→            <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+   598→              <div className="space-y-2">
+   599→                <Label htmlFor="direccionCliente">Dirección</Label>
+   600→                <Input
+   601→                  id="direccionCliente"
+   602→                  value={direccion}
+   603→                onChange={(e) => setDireccion(e.target.value)}
+   604→                placeholder="Calle, número, comuna"
+   605→              />
+   606→            </div>
+   607→              <div className="space-y-2">
+   608→                <Label htmlFor="zonaCliente">Zona</Label>
+   609→                <Input
+   610→                  id="zonaCliente"
+   611→                  value={zona}
+   612→                  onChange={(e) => setZona(e.target.value)}
+   613→                  placeholder="Ej. Rural 5km"
+   614→                />
+   615→              </div>
+   616→            </div>
+   617→
+   618→            <div className="rounded-lg border border-border bg-muted/30 p-3">
+   619→              <p className="mb-2 flex items-center gap-1.5 text-sm font-medium">
+   620→                <Droplets className="h-4 w-4 text-primary" /> Precios específicos (opcional)
+   621→              </p>
+   622→              <p className="mb-3 text-xs text-muted-foreground">
+   623→                Si dejas estos campos en 0, se usarán los precios globales. Define precios distintos
+   624→                según la ubicación del cliente o su método de pago preferido.
+   625→              </p>
+   626→              <div className="grid gap-3 sm:grid-cols-2">
+   627→                <div className="space-y-2">
+   628→                  <Label htmlFor="precioEfectivoCliente" className="text-xs">
+   629→                    <Banknote className="mr-1 inline h-3 w-3" /> Efectivo $/L
+   630→                  </Label>
+   631→                  <Input
+   632→                    id="precioEfectivoCliente"
+   633→                    type="number"
+   634→                    inputMode="decimal"
+   635→                    step="any"
+   636→                    value={precioEfectivo}
+   637→                    onChange={(e) => setPrecioEfectivo(e.target.value)}
+   638→                    placeholder="0 = global"
+   639→                  />
+   640→                </div>
+   641→                <div className="space-y-2">
+   642→                  <Label htmlFor="precioTransferenciaCliente" className="text-xs">
+   643→                    <Smartphone className="mr-1 inline h-3 w-3" /> Transferencia $/L
+   644→                  </Label>
+   645→                  <Input
+   646→                    id="precioTransferenciaCliente"
+   647→                    type="number"
+   648→                    inputMode="decimal"
+   649→                    step="any"
+   650→                    value={precioTransferencia}
+   651→                    onChange={(e) => setPrecioTransferencia(e.target.value)}
+   652→                    placeholder="0 = global"
+   653→                  />
+   654→                </div>
+   655→              </div>
+   656→            </div>
+   657→
+   658→            <div className="space-y-2">
+   659→              <Label htmlFor="notaCliente">Nota</Label>
+   660→              <Textarea
+   661→                id="notaCliente"
+   662→                value={nota}
+   663→                onChange={(e) => setNota(e.target.value)}
+   664→                placeholder="Ej. Llamar 15 min antes, estanque en el patio trasero"
+   665→                rows={2}
+   666→              />
+   667→            </div>
+   668→
+   669→            {/* Ubicación GPS */}
+   670→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   671→              <div className="flex items-center justify-between">
+   672→                <Label className="flex items-center gap-1.5 text-sm font-medium">
+   673→                  <Navigation className="h-4 w-4 text-primary" /> Ubicación GPS
+   674→                </Label>
+   675→                <div className="flex gap-2">
+   676→                  <Button
+   677→                    type="button"
+   678→                    variant="outline"
+   679→                    size="sm"
+   680→                    onClick={() => setMapPickerOpen(true)}
+   681→                  >
+   682→                    <Search className="mr-1 h-3 w-3" />
+   683→                    Buscar en mapa
+   684→                  </Button>
+   685→                  <Button
+   686→                    type="button"
+   687→                    variant="outline"
+   688→                    size="sm"
+   689→                    onClick={obtenerMiUbicacion}
+   690→                    disabled={obteniendoGPS}
+   691→                  >
+   692→                    {obteniendoGPS ? (
+   693→                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+   694→                    ) : (
+   695→                      <MapPin className="mr-1 h-3 w-3" />
+   696→                    )}
+   697→                    Mi ubicación
+   698→                  </Button>
+   699→                </div>
+   700→              </div>
+   701→              <div className="grid grid-cols-2 gap-2">
+   702→                <div className="space-y-1">
+   703→                  <Label htmlFor="latCliente" className="text-xs">Latitud</Label>
+   704→                  <Input
+   705→                    id="latCliente"
+   706→                    type="number"
+   707→                    inputMode="decimal"
+   708→                    step="any"
+   709→                    value={lat}
+   710→                    onChange={(e) => setLat(e.target.value)}
+   711→                    placeholder="-33.4489"
+   712→                  />
+   713→                </div>
+   714→                <div className="space-y-1">
+   715→                  <Label htmlFor="lngCliente" className="text-xs">Longitud</Label>
+   716→                  <Input
+   717→                    id="lngCliente"
+   718→                    type="number"
+   719→                    inputMode="decimal"
+   720→                    step="any"
+   721→                    value={lng}
+   722→                    onChange={(e) => setLng(e.target.value)}
+   723→                    placeholder="-70.6693"
+   724→                  />
+   725→                </div>
+   726→              </div>
+   727→              {lat && lng && (
+   728→                <a
+   729→                  href={`https://www.google.com/maps?q=${lat},${lng}`}
+   730→                  target="_blank"
+   731→                  rel="noopener noreferrer"
+   732→                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+   733→                >
+   734→                  <ExternalLink className="h-3 w-3" /> Ver en Google Maps
+   735→                </a>
+   736→              )}
+   737→              <p className="text-xs text-muted-foreground">
+   738→                Usa "Buscar en mapa" para encontrar la dirección del cliente sin estar ahí.
+   739→              </p>
+   740→            </div>
+   741→
+   742→            {/* Acceso a la propiedad */}
+   743→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   744→              <Label className="flex items-center gap-1.5 text-sm font-medium">
+   745→                <DoorOpen className="h-4 w-4 text-primary" /> Acceso a la propiedad
+   746→              </Label>
+   747→              <p className="text-xs text-muted-foreground">
+   748→                Indica cómo se entrega el agua en este cliente. Esto ayuda al chofer a saber qué esperar.
+   749→              </p>
+   750→
+   751→              <div className="space-y-2">
+   752→                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+   753→                  <Switch
+   754→                    checked={requiereIngresoPropiedad}
+   755→                    onCheckedChange={setRequiereIngresoPropiedad}
+   756→                  />
+   757→                  <div className="flex-1 -mt-0.5">
+   758→                    <span className="flex items-center gap-1.5 text-sm font-medium">
+   759→                      <DoorOpen className="h-3.5 w-3.5" /> Hay que ingresar a la propiedad
+   760→                    </span>
+   761→                    <p className="text-xs text-muted-foreground">
+   762→                      El chofer debe entrar al terreno (abrir portón, pasar a patio, etc.)
+   763→                    </p>
+   764→                  </div>
+   765→                </label>
+   766→
+   767→                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+   768→                  <Switch
+   769→                    checked={entregaDesdeAfuera}
+   770→                    onCheckedChange={setEntregaDesdeAfuera}
+   771→                  />
+   772→                  <div className="flex-1 -mt-0.5">
+   773→                    <span className="flex items-center gap-1.5 text-sm font-medium">
+   774→                      <Fence className="h-3.5 w-3.5" /> Se puede entregar desde afuera
+   775→                    </span>
+   776→                    <p className="text-xs text-muted-foreground">
+   777→                      Pasar manguera por sobre el portón/muro, sin entrar a la propiedad
+   778→                    </p>
+   779→                  </div>
+   780→                </label>
+   781→
+   782→                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+   783→                  <Switch
+   784→                    checked={conexionExterna}
+   785→                    onCheckedChange={setConexionExterna}
+   786→                  />
+   787→                  <div className="flex-1 -mt-0.5">
+   788→                    <span className="flex items-center gap-1.5 text-sm font-medium">
+   789→                      <KeyRound className="h-3.5 w-3.5" /> Hay conexión/llave externa
+   790→                    </span>
+   791→                    <p className="text-xs text-muted-foreground">
+   792→                      Existe una llave de paso o conexión accesible desde afuera — se puede entregar sin el cliente
+   793→                    </p>
+   794→                  </div>
+   795→                </label>
+   796→
+   797→                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+   798→                  <Switch
+   799→                    checked={requiereClientePresente}
+   800→                    onCheckedChange={setRequiereClientePresente}
+   801→                  />
+   802→                  <div className="flex-1 -mt-0.5">
+   803→                    <span className="flex items-center gap-1.5 text-sm font-medium">
+   804→                      <UserCheck className="h-3.5 w-3.5" /> Cliente debe estar presente
+   805→                    </span>
+   806→                    <p className="text-xs text-muted-foreground">
+   807→                      Si está apagado, se puede entregar aunque el cliente no esté (con autorización/conexión externa)
+   808→                    </p>
+   809→                  </div>
+   810→                </label>
+   811→              </div>
+   812→
+   813→              <div className="space-y-1">
+   814→                <Label htmlFor="indicacionesAcceso" className="text-xs">Indicaciones de acceso (descripción libre)</Label>
+   815→                <Textarea
+   816→                  id="indicacionesAcceso"
+   817→                  value={indicacionesAcceso}
+   818→                  onChange={(e) => setIndicacionesAcceso(e.target.value)}
+   819→                  placeholder="Ej. Portón verde, llamar al llegar. Estanque atrás cerca del quincho. Llave de paso bajo la tapa de cemento."
+   820→                  rows={3}
+   821→                />
+   822→              </div>
+   823→            </div>
+   824→
+   825→            {/* Uso del agua */}
+   826→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   827→              <Label className="flex items-center gap-1.5 text-sm font-medium">
+   828→                <Droplets className="h-4 w-4 text-primary" /> Uso del agua
+   829→              </Label>
+   830→              <p className="text-xs text-muted-foreground">¿Para qué pide agua este cliente?</p>
+   831→              <div className="space-y-1">
+   832→                <select
+   833→                  value={usoAgua}
+   834→                  onChange={(e) => setUsoAgua(e.target.value)}
+   835→                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+   836→                >
+   837→                  {USOS_AGUA.map((u) => (
+   838→                    <option key={u.value} value={u.value}>{u.label} — {u.description}</option>
+   839→                  ))}
+   840→                </select>
+   841→              </div>
+   842→              <div className="space-y-1">
+   843→                <Label htmlFor="usoAguaNota" className="text-xs">Detalle del uso (opcional)</Label>
+   844→                <Input
+   845→                  id="usoAguaNota"
+   846→                  value={usoAguaNota}
+   847→                  onChange={(e) => setUsoAguaNota(e.target.value)}
+   848→                  placeholder="Ej. Regar 2 hectáreas de pasto, humedecer 500m de camino"
+   849→                />
+   850→              </div>
+   851→            </div>
+   852→
+   853→            {/* Estanques / Piscinas */}
+   854→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   855→              <div className="flex items-center justify-between">
+   856→                <Label className="flex items-center gap-1.5 text-sm font-medium">
+   857→                  <Droplets className="h-4 w-4 text-primary" /> Estanques y piscinas
+   858→                </Label>
+   859→                <Button
+   860→                  type="button"
+   861→                  variant="outline"
+   862→                  size="sm"
+   863→                  onClick={() => setEstanques([...estanques, { tipo: "estanque", capacidad: "", nombre: "", ubicacion: "", facturaSeparada: false }])}
+   864→                >
+   865→                  <Plus className="mr-1 h-3 w-3" /> Agregar
+   866→                </Button>
+   867→              </div>
+   868→              <p className="text-xs text-muted-foreground">
+   869→                Registra los estanques/piscinas del cliente para saber cuánta agua puede recibir de una vez.
+   870→              </p>
+   871→
+   872→              {estanques.length === 0 ? (
+   873→                <p className="rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
+   874→                  Sin estanques registrados. Clic en "Agregar" para añadir uno.
+   875→                </p>
+   876→              ) : (
+   877→                <div className="space-y-2">
+   878→                  {estanques.map((est, i) => (
+   879→                    <div key={i} className="rounded-lg border border-border bg-background p-2 space-y-2">
+   880→                      <div className="flex items-center justify-between">
+   881→                        <span className="text-xs font-medium">Estanque #{i + 1}</span>
+   882→                        <Button
+   883→                          type="button"
+   884→                          variant="ghost"
+   885→                          size="icon"
+   886→                          className="h-6 w-6"
+   887→                          onClick={() => setEstanques(estanques.filter((_, j) => j !== i))}
+   888→                        >
+   889→                          <X className="h-3 w-3" />
+   890→                        </Button>
+   891→                      </div>
+   892→                      <div className="grid grid-cols-2 gap-2">
+   893→                        <select
+   894→                          value={est.tipo}
+   895→                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, tipo: e.target.value } : est2))}
+   896→                          className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+   897→                        >
+   898→                          {TIPOS_ESTANQUE.map((t) => (
+   899→                            <option key={t.value} value={t.value}>{t.label}</option>
+   900→                          ))}
+   901→                        </select>
+   902→                        <Input
+   903→                          type="number"
+   904→                          inputMode="numeric"
+   905→                          value={est.capacidad}
+   906→                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, capacidad: e.target.value } : est2))}
+   907→                          placeholder="Capacidad (L)"
+   908→                          className="h-8 text-xs"
+   909→                        />
+   910→                      </div>
+   911→                      <Input
+   912→                        value={est.nombre}
+   913→                        onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, nombre: e.target.value } : est2))}
+   914→                        placeholder="Nombre/identificador (ej. Estanque principal, Piscina)"
+   915→                        className="h-8 text-xs"
+   916→                      />
+   917→                      <Input
+   918→                        value={est.ubicacion}
+   919→                        onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, ubicacion: e.target.value } : est2))}
+   920→                        placeholder="Ubicación (ej. Patio trasero, junto al quincho)"
+   921→                        className="h-8 text-xs"
+   922→                      />
+   923→                      {/* Checkbox facturación independiente */}
+   924→                      <label className="flex items-center gap-2 text-xs">
+   925→                        <input
+   926→                          type="checkbox"
+   927→                          checked={est.facturaSeparada}
+   928→                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, facturaSeparada: e.target.checked } : est2))}
+   929→                          className="h-3.5 w-3.5"
+   930→                        />
+   931→                        <span>Facturar este estanque por separado (casa/cabaña independiente)</span>
+   932→                      </label>
+   933→                    </div>
+   934→                  ))}
+   935→                </div>
+   936→              )}
+   937→
+   938→              {/* Total capacidad */}
+   939→              {estanques.length > 0 && (() => {
+   940→                const total = estanques.reduce((s, e) => s + (Number(e.capacidad) || 0), 0);
+   941→                const independientes = estanques.filter((e) => e.facturaSeparada).length;
+   942→                return (
+   943→                  <>
+   944→                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center text-sm">
+   945→                      <span className="text-muted-foreground">Capacidad total: </span>
+   946→                      <strong className="tabular-nums text-primary">{formatNumber(total, 0)} L</strong>
+   947→                    </div>
+   948→                    {independientes > 0 && (
+   949→                      <p className="text-center text-[11px] text-amber-600 dark:text-amber-400">
+   950→                        {independientes} estanque(s) con facturación independiente — al registrar una entrega se desglosará por estanque
+   951→                      </p>
+   952→                    )}
+   953→                  </>
+   954→                );
+   955→              })()}
+   956→            </div>
+   957→
+   958→            {/* Chofer preferido */}
+   959→            {choferes.length > 0 && (
+   960→              <div className="space-y-2">
+   961→                <Label htmlFor="choferPreferido">Chofer preferido (opcional)</Label>
+   962→                <select
+   963→                  id="choferPreferido"
+   964→                  value={choferPreferidoId || "__ninguno"}
+   965→                  onChange={(e) => setChoferPreferidoId(e.target.value === "__ninguno" ? "" : e.target.value)}
+   966→                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+   967→                >
+   968→                  <option value="__ninguno">— Sin preferido —</option>
+   969→                  {choferes.map((c) => (
+   970→                    <option key={c.id} value={c.id}>{c.nombre}</option>
+   971→                  ))}
+   972→                </select>
+   973→                <p className="text-xs text-muted-foreground">
+   974→                  Este chofer tendrá prioridad para atender pedidos de este cliente. Si el cliente fue agregado por un chofer, ese chofer es el preferido por defecto.
+   975→                </p>
+   976→              </div>
+   977→            )}
+   978→
+   979→            <DialogFooter>
+   980→              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
+   981→                Cancelar
+   982→              </Button>
+   983→              <Button type="submit" disabled={saving}>
+   984→                {saving ? "Guardando…" : editando ? "Guardar cambios" : "Crear cliente"}
+   985→              </Button>
+   986→            </DialogFooter>
+   987→          </form>
+   988→        </DialogContent>
+   989→      </Dialog>
+   990→
+   991→      {/* Map Picker */}
+   992→      <MapPicker
+   993→        open={mapPickerOpen}
+   994→        onOpenChange={setMapPickerOpen}
+   995→        onSelect={(latVal, lngVal) => {
+   996→          setLat(String(latVal));
+   997→          setLng(String(lngVal));
+   998→          toast.success("Ubicación seleccionada");
+   999→        }}
+  1000→        initialLat={lat ? parseFloat(lat) : null}
+  1001→        initialLng={lng ? parseFloat(lng) : null}
+  1002→      />
+  1003→
+  1004→      {/* Diálogo registrar pago */}
+  1005→      <Dialog open={pagoOpen} onOpenChange={setPagoOpen}>
+  1006→        <DialogContent className="max-w-md">
+  1007→          <DialogHeader>
+  1008→            <DialogTitle>Registrar pago de {clienteDetalle?.nombre}</DialogTitle>
+  1009→            <DialogDescription>
+  1010→              Registra un pago sin entrega. Se descontará de la deuda pendiente del cliente.
+  1011→            </DialogDescription>
+  1012→          </DialogHeader>
+  1013→          <form onSubmit={handlePago} className="space-y-4">
+  1014→            <div className="space-y-2">
+  1015→              <Label htmlFor="pagoMonto">Monto recibido *</Label>
+  1016→              <Input
+  1017→                id="pagoMonto"
+  1018→                type="number"
+  1019→                inputMode="decimal"
+  1020→                step="any"
+  1021→                value={pagoMonto}
+  1022→                onChange={(e) => setPagoMonto(e.target.value)}
+  1023→                placeholder="0"
+  1024→                required
+  1025→              />
+  1026→            </div>
+  1027→            <div className="space-y-2">
+  1028→              <Label>Método de pago</Label>
+  1029→              <div className="flex gap-2">
+  1030→                <Button
+  1031→                  type="button"
+  1032→                  size="sm"
+  1033→                  variant={pagoMetodo === "efectivo" ? "default" : "outline"}
+  1034→                  onClick={() => setPagoMetodo("efectivo")}
+  1035→                  className="flex-1"
+  1036→                >
+  1037→                  <Banknote className="mr-1 h-4 w-4" /> Efectivo
+  1038→                </Button>
+  1039→                <Button
+  1040→                  type="button"
+  1041→                  size="sm"
+  1042→                  variant={pagoMetodo === "transferencia" ? "default" : "outline"}
+  1043→                  onClick={() => setPagoMetodo("transferencia")}
+  1044→                  className="flex-1"
+  1045→                >
+  1046→                  <Smartphone className="mr-1 h-4 w-4" /> Transferencia
+  1047→                </Button>
+  1048→              </div>
+  1049→            </div>
+  1050→            <div className="space-y-2">
+  1051→              <Label htmlFor="pagoNota">Nota (opcional)</Label>
+  1052→              <Input
+  1053→                id="pagoNota"
+  1054→                value={pagoNota}
+  1055→                onChange={(e) => setPagoNota(e.target.value)}
+  1056→                placeholder="Ej. Pago de deuda anterior"
+  1057→              />
+  1058→            </div>
+  1059→            <DialogFooter>
+  1060→              <Button type="button" variant="outline" onClick={() => setPagoOpen(false)}>
+  1061→                Cancelar
+  1062→              </Button>
+  1063→              <Button type="submit" disabled={pagoSaving}>
+  1064→                {pagoSaving ? "Guardando…" : "Registrar pago"}
+  1065→              </Button>
+  1066→            </DialogFooter>
+  1067→          </form>
+  1068→        </DialogContent>
+  1069→      </Dialog>
+  1070→
+  1071→      {/* Confirmar borrado */}
+  1072→      <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>
+  1073→        <DialogContent className="max-w-sm">
+  1074→          <DialogHeader>
+  1075→            <DialogTitle>Eliminar cliente</DialogTitle>
+  1076→            <DialogDescription>
+  1077→              ¿Eliminar a <strong>{borrando?.nombre}</strong>? El historial de entregas no se borra,
+  1078→              pero ya no estará asociado a este cliente.
+  1079→            </DialogDescription>
+  1080→          </DialogHeader>
+  1081→          <DialogFooter>
+  1082→            <Button variant="outline" onClick={() => setBorrando(null)}>
+  1083→              Cancelar
+  1084→            </Button>
+  1085→            <Button variant="destructive" onClick={() => borrando && handleBorrar(borrando)}>
+  1086→              <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+  1087→            </Button>
+  1088→          </DialogFooter>
+  1089→        </DialogContent>
+  1090→      </Dialog>
+  1091→
+  1092→      {/* Dialog de detalle del cliente */}
+  1093→      <Dialog open={!!clienteDetalle} onOpenChange={(o) => !o && setClienteDetalle(null)}>
+  1094→        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
+  1095→          {clienteDetalle && (() => {
+  1096→            const totalEntregas = detalleEntregas.length;
+  1097→            const totalLitros = detalleEntregas.reduce((s: number, e: any) => s + (e.litros || 0), 0);
+  1098→            const totalVentas = detalleEntregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
+  1099→            const totalRecibido = detalleEntregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
+
+[showing lines 500-1099 of 1544; use offset=1100 with limit to continue reading]

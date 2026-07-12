@@ -1,0 +1,1370 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useState, useCallback } from "react";
+     4→import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+     5→import { Button } from "@/components/ui/button";
+     6→import { Input } from "@/components/ui/input";
+     7→import { Label } from "@/components/ui/label";
+     8→import { Textarea } from "@/components/ui/textarea";
+     9→import { Skeleton } from "@/components/ui/skeleton";
+    10→import { Badge } from "@/components/ui/badge";
+    11→import {
+    12→  Select,
+    13→  SelectContent,
+    14→  SelectItem,
+    15→  SelectTrigger,
+    16→  SelectValue,
+    17→} from "@/components/ui/select";
+    18→import {
+    19→  Dialog,
+    20→  DialogContent,
+    21→  DialogHeader,
+    22→  DialogTitle,
+    23→  DialogDescription,
+    24→  DialogFooter,
+    25→} from "@/components/ui/dialog";
+    26→import {
+    27→  DropdownMenu,
+    28→  DropdownMenuContent,
+    29→  DropdownMenuItem,
+    30→  DropdownMenuTrigger,
+    31→} from "@/components/ui/dropdown-menu";
+    32→import {
+    33→  Plus,
+    34→  MoreVertical,
+    35→  Pencil,
+    36→  Trash2,
+    37→  Eye,
+    38→  Package,
+    39→  Phone,
+    40→  MapPin,
+    41→  Navigation,
+    42→  ExternalLink,
+    43→  Clock,
+    44→  Calendar,
+    45→  CheckCircle2,
+    46→  XCircle,
+    47→  Truck,
+    48→  Users,
+    49→  Filter,
+    50→  Droplets,
+    51→  UserCheck,
+    52→  Repeat,
+    53→} from "lucide-react";
+    54→import { toast } from "sonner";
+    55→import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
+    56→import {
+    57→  formatNumber,
+    58→  formatCurrency,
+    59→  formatDateTime,
+    60→  formatDate,
+    61→  labelEstadoPedido,
+    62→  labelMetodoPago,
+    63→  ESTADOS_PEDIDO,
+    64→  METODOS_PAGO,
+    65→  toDateTimeLocalInput,
+    66→} from "@/lib/helpers";
+    67→
+    68→interface Pedido {
+    69→  id: string;
+    70→  creadoEn: string;
+    71→  clienteNombre: string;
+    72→  clienteDireccion: string | null;
+    73→  clienteTelefono: string | null;
+    74→  clienteZona: string | null;
+    75→  clienteLat: number | null;
+    76→  clienteLng: number | null;
+    77→  clienteId: string | null;
+    78→  cliente?: {
+    79→    id: string;
+    80→    nombre: string;
+    81→    direccion: string | null;
+    82→    telefono: string | null;
+    83→    zona: string | null;
+    84→    lat: number | null;
+    85→    lng: number | null;
+    86→    requiereIngresoPropiedad: boolean;
+    87→    entregaDesdeAfuera: boolean;
+    88→    conexionExterna: boolean;
+    89→    requiereClientePresente: boolean;
+    90→    indicacionesAcceso: string | null;
+    91→    choferPreferidoId: string | null;
+    92→  } | null;
+    93→  litrosSolicitados: number;
+    94→  fechaSolicitada: string | null;
+    95→  metodoPagoPreferido: string;
+    96→  indicacionesAcceso: string | null;
+    97→  nota: string | null;
+    98→  estado: string;
+    99→  entregaId: string | null;
+   100→  entrega?: { id: string; litros: number; total: number; fecha: string } | null;
+   101→  chofer?: { id: string; nombre: string } | null;
+   102→  // Asignación
+   103→  asignacionTipo: string;
+   104→  choferAsignado?: { id: string; nombre: string } | null;
+   105→  tomadoPorChofer?: { id: string; nombre: string } | null;
+   106→  prioridadChofer?: { id: string; nombre: string } | null;
+   107→  prioridadTipo: string;
+   108→  publicadoEn: string | null;
+   109→  vueltaId: string | null;
+   110→  vuelta?: { id: string; numero: number } | null;
+   111→  pedidoRecurrenteId?: string | null;
+   112→}
+   113→
+   114→interface ClienteOption {
+   115→  id: string;
+   116→  nombre: string;
+   117→  direccion: string | null;
+   118→  telefono: string | null;
+   119→  zona: string | null;
+   120→  lat: number | null;
+   121→  lng: number | null;
+   122→  precioEfectivoPorLitro: number;
+   123→  precioTransferenciaPorLitro: number;
+   124→  requiereIngresoPropiedad: boolean;
+   125→  entregaDesdeAfuera: boolean;
+   126→  conexionExterna: boolean;
+   127→  requiereClientePresente: boolean;
+   128→  indicacionesAcceso: string | null;
+   129→  estanquesJson: string | null;
+   130→}
+   131→
+   132→interface PedidosTabProps {
+   133→  refreshKey: number;
+   134→  onRefresh: () => void;
+   135→  canCreate: boolean;
+   136→  isDueno: boolean;
+   137→  currentUserId: string;
+   138→  clientes: ClienteOption[];
+   139→  choferes: { id: string; nombre: string }[];
+   140→  clientePreselect?: string | null;
+   141→  onPreselectConsumed?: () => void;
+   142→  vueltaActual?: { litros: number; capacidadCamion?: number; numero: number } | null;
+   143→}
+   144→
+   145→const ESTADO_COLORS: Record<string, string> = {
+   146→  pendiente: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+   147→  programado: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+   148→  en_ruta: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+   149→  entregado: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+   150→  cancelado: "bg-muted text-muted-foreground",
+   151→};
+   152→
+   153→export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes, clientePreselect, onPreselectConsumed, vueltaActual }: PedidosTabProps) {
+   154→  const [pedidos, setPedidos] = useState<Pedido[]>([]);
+   155→  const [loading, setLoading] = useState(true);
+   156→  const [filtroEstado, setFiltroEstado] = useState<string>("todos");
+   157→  const [vista, setVista] = useState<"lista" | "ruta">("lista");
+   158→
+   159→  const [formOpen, setFormOpen] = useState(false);
+   160→  const [editando, setEditando] = useState<Pedido | null>(null);
+   161→  const [detalle, setDetalle] = useState<Pedido | null>(null);
+   162→  const [borrando, setBorrando] = useState<Pedido | null>(null);
+   163→  const [convirtiendo, setConvirtiendo] = useState<Pedido | null>(null);
+   164→
+   165→  // Campos del formulario
+   166→  const [clienteId, setClienteId] = useState<string>("__nuevo");
+   167→  const [clienteNombre, setClienteNombre] = useState("");
+   168→  const [clienteDireccion, setClienteDireccion] = useState("");
+   169→  const [clienteTelefono, setClienteTelefono] = useState("");
+   170→  const [clienteZona, setClienteZona] = useState("");
+   171→  const [litrosSolicitados, setLitrosSolicitados] = useState("");
+   172→  const [fechaSolicitada, setFechaSolicitada] = useState("");
+   173→  const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("credito");
+   174→  const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
+   175→  const [nota, setNota] = useState("");
+   176→  // Asignación
+   177→  const [asignacionTipo, setAsignacionTipo] = useState<string>("manual");
+   178→  const [choferAsignadoId, setChoferAsignadoId] = useState<string>("");
+   179→  const [saving, setSaving] = useState(false);
+   180→
+   181→  // Campos para convertir a entrega
+   182→  const [litrosReales, setLitrosReales] = useState("");
+   183→  const [precioPorLitro, setPrecioPorLitro] = useState("");
+   184→  const [montoEfectivo, setMontoEfectivo] = useState("");
+   185→  const [montoTransferencia, setMontoTransferencia] = useState("");
+   186→  // Estanques para entrega por separado
+   187→  const [estanquesConvertir, setEstanquesConvertir] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string }[]>([]);
+   188→  const [modoEstanquesConvertir, setModoEstanquesConvertir] = useState(false);
+   189→
+   190→  const cargar = useCallback(async () => {
+   191→    setLoading(true);
+   192→    try {
+   193→      const data = await apiGet<{ pedidos: Pedido[] }>("/api/pedidos");
+   194→      setPedidos(data.pedidos);
+   195→    } catch (e) {
+   196→      console.error(e);
+   197→      toast.error("No se pudieron cargar los pedidos");
+   198→    } finally {
+   199→      setLoading(false);
+   200→    }
+   201→  }, []);
+   202→
+   203→  useEffect(() => {
+   204→    cargar();
+   205→  }, [cargar, refreshKey]);
+   206→
+   207→  // Cuando llega un cliente preseleccionado desde la ficha de cliente, abrir el formulario
+   208→  useEffect(() => {
+   209→    if (clientePreselect && canCreate) {
+   210→      // Buscar el cliente en el catálogo
+   211→      const c = clientes.find((cl) => cl.id === clientePreselect);
+   212→      if (c) {
+   213→        abrirNuevo();
+   214→        // Pequeño delay para que el formulario se abra antes de setear el cliente
+   215→        setTimeout(() => {
+   216→          setClienteId(c.id);
+   217→          setClienteNombre(c.nombre);
+   218→          setClienteDireccion(c.direccion ?? "");
+   219→          setClienteTelefono(c.telefono ?? "");
+   220→          setClienteZona(c.zona ?? "");
+   221→          setIndicacionesAcceso(c.indicacionesAcceso ?? "");
+   222→        }, 50);
+   223→      }
+   224→      onPreselectConsumed?.();
+   225→    }
+   226→  }, [clientePreselect, canCreate, clientes]);
+   227→
+   228→  const filtrados = pedidos.filter((p) => {
+   229→    if (filtroEstado !== "todos" && p.estado !== filtroEstado) return false;
+   230→    return true;
+   231→  });
+   232→
+   233→  // Para la vista de planificación de ruta
+   234→  const pendientesYProgramados = pedidos.filter(
+   235→    (p) => p.estado === "pendiente" || p.estado === "programado"
+   236→  );
+   237→
+   238→  // Agrupar por zona
+   239→  const porZona: Record<string, Pedido[]> = {};
+   240→  for (const p of pendientesYProgramados) {
+   241→    const zona = p.clienteZona || "Sin zona";
+   242→    if (!porZona[zona]) porZona[zona] = [];
+   243→    porZona[zona].push(p);
+   244→  }
+   245→
+   246→  // Totales
+   247→  const totalLitrosPendientes = pendientesYProgramados.reduce((s, p) => s + p.litrosSolicitados, 0);
+   248→  const totalPedidosPendientes = pendientesYProgramados.length;
+   249→
+   250→  function abrirNuevo() {
+   251→    setEditando(null);
+   252→    setClienteId("__nuevo");
+   253→    setClienteNombre("");
+   254→    setClienteDireccion("");
+   255→    setClienteTelefono("");
+   256→    setClienteZona("");
+   257→    setLitrosSolicitados("");
+   258→    setFechaSolicitada("");
+   259→    setMetodoPagoPreferido("credito");
+   260→    setIndicacionesAcceso("");
+   261→    setNota("");
+   262→    setAsignacionTipo("manual");
+   263→    setChoferAsignadoId("");
+   264→    setFormOpen(true);
+   265→  }
+   266→
+   267→  function abrirEditar(p: Pedido) {
+   268→    setEditando(p);
+   269→    setClienteId(p.clienteId ?? "__nuevo");
+   270→    setClienteNombre(p.clienteNombre);
+   271→    setClienteDireccion(p.clienteDireccion ?? "");
+   272→    setClienteTelefono(p.clienteTelefono ?? "");
+   273→    setClienteZona(p.clienteZona ?? "");
+   274→    setLitrosSolicitados(String(p.litrosSolicitados));
+   275→    setFechaSolicitada(p.fechaSolicitada ? toDateTimeLocalInput(p.fechaSolicitada) : "");
+   276→    setMetodoPagoPreferido(p.metodoPagoPreferido);
+   277→    setIndicacionesAcceso(p.indicacionesAcceso ?? "");
+   278→    setNota(p.nota ?? "");
+   279→    setAsignacionTipo(p.asignacionTipo || "manual");
+   280→    setChoferAsignadoId(p.choferAsignado?.id ?? "");
+   281→    setFormOpen(true);
+   282→  }
+   283→
+   284→  function abrirConvertir(p: Pedido) {
+   285→    setConvirtiendo(p);
+   286→    setLitrosReales(String(p.litrosSolicitados));
+   287→    setPrecioPorLitro("");
+   288→    setMontoEfectivo("");
+   289→    setMontoTransferencia("");
+   290→    setModoEstanquesConvertir(false);
+   291→    setEstanquesConvertir([]);
+   292→
+   293→    // Avisar si los litros del pedido exceden el agua disponible en el camión
+   294→    if (vueltaActual && vueltaActual.capacidadCamion && vueltaActual.capacidadCamion > 0) {
+   295→      const disponible = vueltaActual.capacidadCamion - vueltaActual.litros;
+   296→      if (p.litrosSolicitados > disponible + 300) {
+   297→        if (disponible <= 0) {
+   298→          toast.warning(
+   299→            `El camión está vacío. Este pedido necesita ${formatNumber(p.litrosSolicitados, 0)} L. ` +
+   300→            `Deberías cerrar la vuelta y empezar una nueva.`,
+   301→            { duration: 8000 }
+   302→          );
+   303→        } else {
+   304→          toast.warning(
+   305→            `Quedan ${formatNumber(disponible, 0)} L en el camión pero el pedido es de ${formatNumber(p.litrosSolicitados, 0)} L. ` +
+   306→            `Puedes entregar menos y reprogramar lo que falta, o cerrar la vuelta y empezar una nueva.`,
+   307→            { duration: 8000 }
+   308→          );
+   309→        }
+   310→      }
+   311→    }
+   312→
+   313→    // Buscar el cliente en el catálogo para ver si tiene estanques
+   314→    if (p.clienteId) {
+   315→      const c = clientes.find((cl) => cl.id === p.clienteId);
+   316→      if (c && c.estanquesJson) {
+   317→        try {
+   318→          const estanques = JSON.parse(c.estanquesJson);
+   319→          const independientes = estanques.filter((e: any) => e.facturaSeparada === true);
+   320→          const lista = independientes.length > 0 ? independientes : estanques;
+   321→          if (lista.length > 0) {
+   322→            setEstanquesConvertir(lista.map((e: any) => ({
+   323→              nombre: e.nombre || e.tipo,
+   324→              litros: "",
+   325→              // Para "sin pago" (credito) usar el precio MÁS ALTO
+   326→              precio: String(Math.max(c.precioEfectivoPorLitro || 0, c.precioTransferenciaPorLitro || 0)),
+   327→              metodoPago: "credito",
+   328→              montoRecibido: "",
+   329→            })));
+   330→            // Auto-activar si hay con factura separada
+   331→            setModoEstanquesConvertir(independientes.length > 0);
+   332→          }
+   333→        } catch {}
+   334→      }
+   335→    }
+   336→  }
+   337→
+   338→  function onSelectCliente(id: string) {
+   339→    setClienteId(id);
+   340→    if (id === "__nuevo") return;
+   341→    const c = clientes.find((c) => c.id === id);
+   342→    if (c) {
+   343→      setClienteNombre(c.nombre);
+   344→      setClienteDireccion(c.direccion ?? "");
+   345→      setClienteTelefono(c.telefono ?? "");
+   346→      setClienteZona(c.zona ?? "");
+   347→      setIndicacionesAcceso(c.indicacionesAcceso ?? "");
+   348→    }
+   349→  }
+   350→
+   351→  async function handleSave(e: React.FormEvent) {
+   352→    e.preventDefault();
+   353→    if (!clienteId || clienteId === "__nuevo") {
+   354→      toast.error("Selecciona un cliente del catálogo");
+   355→      return;
+   356→    }
+   357→    if (!clienteNombre.trim()) {
+   358→      toast.error("Indica el nombre del cliente");
+   359→      return;
+   360→    }
+   361→    const litros = Number(litrosSolicitados) || 0;
+   362→    if (litros <= 0) {
+   363→      toast.error("Los litros solicitados deben ser mayores a 0");
+   364→      return;
+   365→    }
+   366→
+   367→    setSaving(true);
+   368→    try {
+   369→      const payload = {
+   370→        clienteId: clienteId === "__nuevo" ? null : clienteId,
+   371→        clienteNombre: clienteNombre.trim(),
+   372→        clienteDireccion: clienteDireccion.trim() || null,
+   373→        clienteTelefono: clienteTelefono.trim() || null,
+   374→        clienteZona: clienteZona.trim() || null,
+   375→        litrosSolicitados: litros,
+   376→        fechaSolicitada: fechaSolicitada || null,
+   377→        metodoPagoPreferido,
+   378→        indicacionesAcceso: indicacionesAcceso.trim() || null,
+   379→        nota: nota.trim() || null,
+   380→        asignacionTipo,
+   381→        choferAsignadoId: isDueno && asignacionTipo === "manual" ? (choferAsignadoId || null) : null,
+   382→      };
+   383→
+   384→      if (editando) {
+   385→        await apiPatch(`/api/pedidos/${editando.id}`, payload);
+   386→        toast.success("Pedido actualizado");
+   387→      } else {
+   388→        await apiPost("/api/pedidos", payload);
+   389→        toast.success("Pedido creado");
+   390→      }
+   391→      setFormOpen(false);
+   392→      onRefresh();
+   393→    } catch (e) {
+   394→      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+   395→    } finally {
+   396→      setSaving(false);
+   397→    }
+   398→  }
+   399→
+   400→  async function handleBorrar(p: Pedido) {
+   401→    try {
+   402→      await apiDelete(`/api/pedidos/${p.id}`);
+   403→      toast.success("Pedido eliminado");
+   404→      setBorrando(null);
+   405→      onRefresh();
+   406→    } catch (e) {
+   407→      toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+   408→    }
+   409→  }
+   410→
+   411→  async function handleConvertir(e: React.FormEvent) {
+   412→    e.preventDefault();
+   413→    if (!convirtiendo) return;
+   414→
+   415→    // Si está en modo estanques, calcular totales desde el desglose
+   416→    if (modoEstanquesConvertir && estanquesConvertir.length > 0) {
+   417→      const totalLitrosEst = estanquesConvertir.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+   418→      if (totalLitrosEst <= 0) {
+   419→        toast.error("Ingresa al menos litros en un estanque");
+   420→        return;
+   421→      }
+   422→      const totalVentaEst = estanquesConvertir.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+   423→      const totalEfectivoEst = estanquesConvertir.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+   424→      const totalTransferenciaEst = estanquesConvertir.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+   425→
+   426→      setSaving(true);
+   427→      try {
+   428→        await apiPost(`/api/pedidos/${convirtiendo.id}/convertir`, {
+   429→          litrosReales: totalLitrosEst,
+   430→          precioPorLitro: 0,
+   431→          montoEfectivo: totalEfectivoEst,
+   432→          montoTransferencia: totalTransferenciaEst,
+   433→          detalleEstanquesJson: JSON.stringify(estanquesConvertir.map((e) => ({
+   434→            nombre: e.nombre,
+   435→            litros: Number(e.litros) || 0,
+   436→            precioPorLitro: Number(e.precio) || 0,
+   437→            total: (Number(e.litros) || 0) * (Number(e.precio) || 0),
+   438→            metodoPago: e.metodoPago,
+   439→            montoRecibido: Number(e.montoRecibido) || 0,
+   440→          }))),
+   441→        });
+   442→        toast.success("Pedido convertido en entrega");
+   443→        setConvirtiendo(null);
+   444→        onRefresh();
+   445→      } catch (e) {
+   446→        toast.error(e instanceof Error ? e.message : "No se pudo convertir");
+   447→      } finally {
+   448→        setSaving(false);
+   449→      }
+   450→      return;
+   451→    }
+   452→
+   453→    setSaving(true);
+   454→    try {
+   455→      await apiPost(`/api/pedidos/${convirtiendo.id}/convertir`, {
+   456→        litrosReales: Number(litrosReales) || convirtiendo.litrosSolicitados,
+   457→        precioPorLitro: Number(precioPorLitro) || undefined,
+   458→        montoEfectivo: Number(montoEfectivo) || 0,
+   459→        montoTransferencia: Number(montoTransferencia) || 0,
+   460→      });
+   461→      toast.success("Pedido convertido en entrega");
+   462→      setConvirtiendo(null);
+   463→      onRefresh();
+   464→    } catch (e) {
+   465→      toast.error(e instanceof Error ? e.message : "No se pudo convertir");
+   466→    } finally {
+   467→      setSaving(false);
+   468→    }
+   469→  }
+   470→
+   471→  async function cambiarEstado(p: Pedido, nuevoEstado: string) {
+   472→    try {
+   473→      await apiPatch(`/api/pedidos/${p.id}`, { estado: nuevoEstado });
+   474→      toast.success(`Pedido marcado como ${labelEstadoPedido(nuevoEstado)}`);
+   475→      onRefresh();
+   476→    } catch (e) {
+   477→      toast.error(e instanceof Error ? e.message : "No se pudo cambiar el estado");
+   478→    }
+   479→  }
+   480→
+   481→  async function publicarPedido(p: Pedido) {
+   482→    try {
+   483→      await apiPost(`/api/pedidos/${p.id}/publicar`, {});
+   484→      toast.success("Pedido publicado para choferes");
+   485→      onRefresh();
+   486→    } catch (e) {
+   487→      toast.error(e instanceof Error ? e.message : "No se pudo publicar");
+   488→    }
+   489→  }
+   490→
+   491→  async function tomarPedido(p: Pedido) {
+   492→    try {
+   493→      await apiPost(`/api/pedidos/${p.id}/tomar`, {});
+   494→      toast.success("Pedido tomado");
+   495→      onRefresh();
+   496→    } catch (e) {
+   497→      toast.error(e instanceof Error ? e.message : "No se pudo tomar el pedido");
+   498→    }
+   499→  }
+   500→
+   501→  async function cederPrioridad(p: Pedido, permanente: boolean = false) {
+   502→    try {
+   503→      await apiPost(`/api/pedidos/${p.id}/ceder`, { permanente });
+   504→      toast.success(permanente ? "Prioridad cedida permanentemente" : "Prioridad cedida para este pedido");
+   505→      onRefresh();
+   506→    } catch (e) {
+   507→      toast.error(e instanceof Error ? e.message : "No se pudo ceder la prioridad");
+   508→    }
+   509→  }
+   510→
+   511→  return (
+   512→    <div className="space-y-4">
+   513→      {/* Encabezado */}
+   514→      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+   515→        <div>
+   516→          <h2 className="text-lg font-semibold sm:text-xl">Pedidos</h2>
+   517→          <p className="text-sm text-muted-foreground">
+   518→            Registra pedidos de agua de clientes (por teléfono, etc.) y conviértelos en entregas.
+   519→          </p>
+   520→        </div>
+   521→        <div className="flex items-center gap-2">
+   522→          <div className="flex rounded-lg border border-border p-0.5">
+   523→            <Button
+   524→              size="sm"
+   525→              variant={vista === "lista" ? "default" : "ghost"}
+   526→              onClick={() => setVista("lista")}
+   527→              className="h-7"
+   528→            >
+   529→              <Filter className="mr-1 h-3 w-3" /> Lista
+   530→            </Button>
+   531→            <Button
+   532→              size="sm"
+   533→              variant={vista === "ruta" ? "default" : "ghost"}
+   534→              onClick={() => setVista("ruta")}
+   535→              className="h-7"
+   536→            >
+   537→              <Navigation className="mr-1 h-3 w-3" /> Ruta
+   538→            </Button>
+   539→          </div>
+   540→          {canCreate && (
+   541→            <Button onClick={abrirNuevo} size="sm">
+   542→              <Plus className="mr-1 h-4 w-4" /> Nuevo pedido
+   543→            </Button>
+   544→          )}
+   545→        </div>
+   546→      </div>
+   547→
+   548→      {/* Vista Lista */}
+   549→      {vista === "lista" && (
+   550→        <>
+   551→          {/* Filtros de estado */}
+   552→          <div className="flex flex-wrap gap-1">
+   553→            <Button
+   554→              size="sm"
+   555→              variant={filtroEstado === "todos" ? "default" : "outline"}
+   556→              onClick={() => setFiltroEstado("todos")}
+   557→            >
+   558→              Todos ({pedidos.length})
+   559→            </Button>
+   560→            {ESTADOS_PEDIDO.map((e) => {
+   561→              const count = pedidos.filter((p) => p.estado === e.value).length;
+   562→              if (count === 0) return null;
+   563→              return (
+   564→                <Button
+   565→                  key={e.value}
+   566→                  size="sm"
+   567→                  variant={filtroEstado === e.value ? "default" : "outline"}
+   568→                  onClick={() => setFiltroEstado(e.value)}
+   569→                >
+   570→                  {e.label} ({count})
+   571→                </Button>
+   572→              );
+   573→            })}
+   574→          </div>
+   575→
+   576→          {/* Lista */}
+   577→          {loading ? (
+   578→            <div className="space-y-2">
+   579→              {Array.from({ length: 4 }).map((_, i) => (
+   580→                <Skeleton key={i} className="h-20 rounded-lg" />
+   581→              ))}
+   582→            </div>
+   583→          ) : filtrados.length === 0 ? (
+   584→            <Card>
+   585→              <CardContent className="flex flex-col items-center justify-center gap-2 p-10 text-center">
+   586→                <Package className="h-10 w-10 text-muted-foreground" />
+   587→                <p className="text-sm text-muted-foreground">
+   588→                  {pedidos.length === 0
+   589→                    ? "No hay pedidos registrados."
+   590→                    : "No hay pedidos con este filtro."}
+   591→                </p>
+   592→                {canCreate && (
+   593→                  <Button onClick={abrirNuevo} variant="outline" size="sm">
+   594→                    <Plus className="mr-1 h-4 w-4" /> Crear primer pedido
+   595→                  </Button>
+   596→                )}
+   597→              </CardContent>
+   598→            </Card>
+   599→          ) : (
+   600→            <Card>
+   601→              <CardContent className="p-0">
+   602→                <ul className="divide-y divide-border">
+   603→                  {filtrados.map((p) => (
+   604→                    <li key={p.id} className="flex items-center gap-3 p-3 sm:p-4">
+   605→                      <button
+   606→                        type="button"
+   607→                        onClick={() => setDetalle(p)}
+   608→                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
+   609→                      >
+   610→                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+   611→                          <Package className="h-5 w-5" />
+   612→                        </div>
+   613→                        <div className="min-w-0 flex-1">
+   614→                          <div className="flex flex-wrap items-center gap-1.5">
+   615→                            <span className="truncate font-medium">{p.clienteNombre}</span>
+   616→                            <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ESTADO_COLORS[p.estado] || ""}`}>
+   617→                              {labelEstadoPedido(p.estado)}
+   618→                            </span>
+   619→                            {p.clienteZona && (
+   620→                              <Badge variant="outline" className="text-[10px]">{p.clienteZona}</Badge>
+   621→                            )}
+   622→                            {/* Badge: pedido recurrente */}
+   623→                            {p.pedidoRecurrenteId && (
+   624→                              <Badge variant="outline" className="text-[10px] gap-0.5 bg-primary/10 text-primary border-primary/30" title="Pedido generado desde una regla recurrente">
+   625→                                <Repeat className="h-2.5 w-2.5" /> Recurrente
+   626→                              </Badge>
+   627→                            )}
+   628→                            {/* Badge: programado para fecha futura */}
+   629→                            {p.fechaSolicitada && (() => {
+   630→                              const fecha = new Date(p.fechaSolicitada);
+   631→                              const hoy = new Date();
+   632→                              hoy.setHours(0, 0, 0, 0);
+   633→                              if (fecha > hoy) {
+   634→                                return (
+   635→                                  <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Programado para ${formatDate(p.fechaSolicitada!)}`}>
+   636→                                    <Clock className="h-2.5 w-2.5" /> {formatDate(p.fechaSolicitada!)}
+   637→                                  </Badge>
+   638→                                );
+   639→                              }
+   640→                              return null;
+   641→                            })()}
+   642→                            {/* Badges de asignación */}
+   643→                            {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
+   644→                              <Badge variant="outline" className="text-[10px] gap-0.5 text-purple-700 dark:text-purple-300">
+   645→                                <Package className="h-2.5 w-2.5" /> Publicado
+   646→                              </Badge>
+   647→                            )}
+   648→                            {p.tomadoPorChofer && (
+   649→                              <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
+   650→                                <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre}
+   651→                              </Badge>
+   652→                            )}
+   653→                            {p.choferAsignado && !p.tomadoPorChofer && (
+   654→                              <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
+   655→                                <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
+   656→                              </Badge>
+   657→                            )}
+   658→                            {p.prioridadChofer && p.prioridadTipo !== "ninguna" && (
+   659→                              <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300" title={`Prioridad ${p.prioridadTipo} para ${p.prioridadChofer.nombre}`}>
+   660→                                <UserCheck className="h-2.5 w-2.5" /> {p.prioridadChofer.nombre}
+   661→                              </Badge>
+   662→                            )}
+   663→                          </div>
+   664→                          <p className="truncate text-xs text-muted-foreground">
+   665→                            <Droplets className="mr-1 inline h-3 w-3" />
+   666→                            {formatNumber(p.litrosSolicitados, 0)} L · {labelMetodoPago(p.metodoPagoPreferido)}
+   667→                            {p.fechaSolicitada && (
+   668→                              <>
+   669→                                <Calendar className="ml-2 inline h-3 w-3" />
+   670→                                {formatDate(p.fechaSolicitada)}
+   671→                              </>
+   672→                            )}
+   673→                            {p.clienteTelefono && (
+   674→                              <>
+   675→                                <Phone className="ml-2 inline h-3 w-3" />
+   676→                                {p.clienteTelefono}
+   677→                              </>
+   678→                            )}
+   679→                          </p>
+   680→                        </div>
+   681→                        {p.clienteLat != null && p.clienteLng != null && (
+   682→                          <a
+   683→                            href={`https://www.google.com/maps?q=${p.clienteLat},${p.clienteLng}`}
+   684→                            target="_blank"
+   685→                            rel="noopener noreferrer"
+   686→                            onClick={(e) => e.stopPropagation()}
+   687→                            className="shrink-0 rounded-md p-1.5 text-primary hover:bg-primary/10"
+   688→                            title="Ver ubicación en Google Maps"
+   689→                          >
+   690→                            <Navigation className="h-4 w-4" />
+   691→                          </a>
+   692→                        )}
+   693→                      </button>
+   694→                      <DropdownMenu>
+   695→                        <DropdownMenuTrigger asChild>
+   696→                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+   697→                            <MoreVertical className="h-4 w-4" />
+   698→                          </Button>
+   699→                        </DropdownMenuTrigger>
+   700→                        <DropdownMenuContent align="end">
+   701→                          <DropdownMenuItem onClick={() => setDetalle(p)}>
+   702→                            <Eye className="mr-2 h-4 w-4" /> Ver detalle
+   703→                          </DropdownMenuItem>
+   704→                          {canCreate && p.estado !== "entregado" && p.estado !== "cancelado" && (
+   705→                            <>
+   706→                              <DropdownMenuItem onClick={() => abrirConvertir(p)}>
+   707→                                <CheckCircle2 className="mr-2 h-4 w-4" /> Convertir en entrega
+   708→                              </DropdownMenuItem>
+   709→                              <DropdownMenuItem onClick={() => abrirEditar(p)}>
+   710→                                <Pencil className="mr-2 h-4 w-4" /> Editar
+   711→                              </DropdownMenuItem>
+   712→
+   713→                              {/* Acciones de asignación */}
+   714→                              {isDueno && p.asignacionTipo === "manual" && !p.tomadoPorChofer && (
+   715→                                <DropdownMenuItem onClick={() => publicarPedido(p)}>
+   716→                                  <Package className="mr-2 h-4 w-4" /> Publicar para choferes
+   717→                                </DropdownMenuItem>
+   718→                              )}
+   719→                              {!isDueno && p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
+   720→                                <DropdownMenuItem onClick={() => tomarPedido(p)}>
+   721→                                  <Truck className="mr-2 h-4 w-4" /> Tomar pedido
+   722→                                </DropdownMenuItem>
+   723→                              )}
+   724→                              {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
+   725→                                <DropdownMenuItem onClick={() => cederPrioridad(p, false)}>
+   726→                                  <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (este caso)
+   727→                                </DropdownMenuItem>
+   728→                              )}
+   729→                              {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
+   730→                                <DropdownMenuItem onClick={() => cederPrioridad(p, true)}>
+   731→                                  <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (permanente)
+   732→                                </DropdownMenuItem>
+   733→                              )}
+   734→
+   735→                              {p.estado === "pendiente" && (
+   736→                                <DropdownMenuItem onClick={() => cambiarEstado(p, "programado")}>
+   737→                                  <Clock className="mr-2 h-4 w-4" /> Marcar programado
+   738→                                </DropdownMenuItem>
+   739→                              )}
+   740→                              <DropdownMenuItem onClick={() => cambiarEstado(p, "cancelado")}>
+   741→                                <XCircle className="mr-2 h-4 w-4" /> Cancelar pedido
+   742→                              </DropdownMenuItem>
+   743→                              <DropdownMenuItem
+   744→                                className="text-destructive focus:text-destructive"
+   745→                                onClick={() => setBorrando(p)}
+   746→                              >
+   747→                                <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+   748→                              </DropdownMenuItem>
+   749→                            </>
+   750→                          )}
+   751→                        </DropdownMenuContent>
+   752→                      </DropdownMenu>
+   753→                    </li>
+   754→                  ))}
+   755→                </ul>
+   756→              </CardContent>
+   757→            </Card>
+   758→          )}
+   759→        </>
+   760→      )}
+   761→
+   762→      {/* Vista Ruta (planificación) */}
+   763→      {vista === "ruta" && (
+   764→        <div className="space-y-4">
+   765→          {/* Resumen */}
+   766→          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+   767→            <Card>
+   768→              <CardContent className="p-3">
+   769→                <p className="text-xs uppercase text-muted-foreground">Pedidos pendientes</p>
+   770→                <p className="text-xl font-bold">{totalPedidosPendientes}</p>
+   771→              </CardContent>
+   772→            </Card>
+   773→            <Card>
+   774→              <CardContent className="p-3">
+   775→                <p className="text-xs uppercase text-muted-foreground">Litros a entregar</p>
+   776→                <p className="text-xl font-bold tabular-nums">{formatNumber(totalLitrosPendientes, 0)} L</p>
+   777→              </CardContent>
+   778→            </Card>
+   779→            <Card>
+   780→              <CardContent className="p-3">
+   781→                <p className="text-xs uppercase text-muted-foreground">Zonas</p>
+   782→                <p className="text-xl font-bold">{Object.keys(porZona).length}</p>
+   783→              </CardContent>
+   784→            </Card>
+   785→          </div>
+   786→
+   787→          {/* Agrupación por zona */}
+   788→          {pendientesYProgramados.length === 0 ? (
+   789→            <Card>
+   790→              <CardContent className="flex flex-col items-center justify-center gap-2 p-10 text-center">
+   791→                <CheckCircle2 className="h-10 w-10 text-emerald-500" />
+   792→                <p className="text-sm text-muted-foreground">
+   793→                  No hay pedidos pendientes. ¡Todo al día!
+   794→                </p>
+   795→              </CardContent>
+   796→            </Card>
+   797→          ) : (
+   798→            Object.entries(porZona)
+   799→              .sort(([a], [b]) => a.localeCompare(b))
+   800→              .map(([zona, pedidosZona]) => {
+   801→                const litrosZona = pedidosZona.reduce((s, p) => s + p.litrosSolicitados, 0);
+   802→                return (
+   803→                  <Card key={zona}>
+   804→                    <CardHeader className="pb-3">
+   805→                      <div className="flex items-center justify-between">
+   806→                        <div className="flex items-center gap-2">
+   807→                          <MapPin className="h-4 w-4 text-primary" />
+   808→                          <CardTitle className="text-base">{zona}</CardTitle>
+   809→                        </div>
+   810→                        <div className="text-right text-xs text-muted-foreground">
+   811→                          {pedidosZona.length} pedido(s) · {formatNumber(litrosZona, 0)} L
+   812→                        </div>
+   813→                      </div>
+   814→                    </CardHeader>
+   815→                    <CardContent className="p-0">
+   816→                      <ul className="divide-y divide-border">
+   817→                        {pedidosZona.map((p) => (
+   818→                          <li key={p.id} className="flex items-center gap-3 p-3">
+   819→                            <button
+   820→                              type="button"
+   821→                              onClick={() => setDetalle(p)}
+   822→                              className="flex min-w-0 flex-1 items-center gap-3 text-left"
+   823→                            >
+   824→                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary text-xs font-bold">
+   825→                                {formatNumber(p.litrosSolicitados, 0)}
+   826→                              </div>
+   827→                              <div className="min-w-0 flex-1">
+   828→                                <div className="flex items-center gap-1.5">
+   829→                                  <span className="truncate font-medium text-sm">{p.clienteNombre}</span>
+   830→                                  <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ESTADO_COLORS[p.estado] || ""}`}>
+   831→                                    {labelEstadoPedido(p.estado)}
+   832→                                  </span>
+   833→                                </div>
+   834→                                <p className="truncate text-xs text-muted-foreground">
+   835→                                  {p.clienteDireccion || "Sin dirección"}
+   836→                                  {p.fechaSolicitada && ` · ${formatDate(p.fechaSolicitada)}`}
+   837→                                </p>
+   838→                              </div>
+   839→                            </button>
+   840→                            {p.clienteLat != null && p.clienteLng != null && (
+   841→                              <a
+   842→                                href={`https://www.google.com/maps?q=${p.clienteLat},${p.clienteLng}`}
+   843→                                target="_blank"
+   844→                                rel="noopener noreferrer"
+   845→                                className="shrink-0 rounded-md p-1.5 text-primary hover:bg-primary/10"
+   846→                                title="Ver ubicación"
+   847→                              >
+   848→                                <Navigation className="h-4 w-4" />
+   849→                              </a>
+   850→                            )}
+   851→                            {canCreate && (
+   852→                              <Button
+   853→                                size="sm"
+   854→                                variant="outline"
+   855→                                onClick={() => abrirConvertir(p)}
+   856→                                className="shrink-0 h-7"
+   857→                              >
+   858→                                <Truck className="mr-1 h-3 w-3" /> Entregar
+   859→                              </Button>
+   860→                            )}
+   861→                          </li>
+   862→                        ))}
+   863→                      </ul>
+   864→                    </CardContent>
+   865→                  </Card>
+   866→                );
+   867→              })
+   868→          )}
+   869→        </div>
+   870→      )}
+   871→
+   872→      {/* Formulario crear/editar pedido */}
+   873→      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+   874→        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
+   875→          <DialogHeader>
+   876→            <DialogTitle>{editando ? "Editar pedido" : "Nuevo pedido"}</DialogTitle>
+   877→            <DialogDescription>
+   878→              Registra el pedido de agua. Selecciona un cliente del catálogo. Si es nuevo, primero créalo en Clientes.
+   879→            </DialogDescription>
+   880→          </DialogHeader>
+   881→          <form onSubmit={handleSave} className="space-y-4">
+   882→            {/* Selector de cliente — SOLO del catálogo */}
+   883→            <div className="space-y-2">
+   884→              <Label htmlFor="clienteSelect">Cliente *</Label>
+   885→              {clientes.length === 0 ? (
+   886→                <div className="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 text-sm text-amber-800 dark:text-amber-200">
+   887→                  <p className="font-medium">No hay clientes registrados</p>
+   888→                  <p className="mt-1 text-xs">Primero debes crear la ficha del cliente en la pestaña Clientes. No se pueden crear pedidos para clientes no registrados.</p>
+   889→                </div>
+   890→              ) : (
+   891→                <Select value={clienteId} onValueChange={onSelectCliente}>
+   892→                  <SelectTrigger id="clienteSelect">
+   893→                    <SelectValue placeholder="Selecciona un cliente" />
+   894→                  </SelectTrigger>
+   895→                  <SelectContent>
+   896→                    {clientes.map((c) => (
+   897→                      <SelectItem key={c.id} value={c.id}>
+   898→                        {c.nombre}
+   899→                        {c.zona ? ` · ${c.zona}` : ""}
+   900→                      </SelectItem>
+   901→                    ))}
+   902→                  </SelectContent>
+   903→                </Select>
+   904→              )}
+   905→            </div>
+   906→
+   907→            {/* Info del cliente seleccionado (solo lectura) */}
+   908→            {clienteId && clienteId !== "__nuevo" && clienteNombre && (
+   909→              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1 text-sm">
+   910→                <p><strong>{clienteNombre}</strong></p>
+   911→                {clienteDireccion && <p className="text-muted-foreground">📍 {clienteDireccion}</p>}
+   912→                {clienteTelefono && <p className="text-muted-foreground">📞 {clienteTelefono}</p>}
+   913→                {clienteZona && <p className="text-muted-foreground">🗺️ {clienteZona}</p>}
+   914→              </div>
+   915→            )}
+   916→
+   917→            <div className="grid gap-3 sm:grid-cols-2">
+   918→              <div className="space-y-2">
+   919→                <Label htmlFor="litrosSolicitados">Litros solicitados *</Label>
+   920→                <Input
+   921→                  id="litrosSolicitados"
+   922→                  type="number"
+   923→                  inputMode="decimal"
+   924→                  step="any"
+   925→                  value={litrosSolicitados}
+   926→                  onChange={(e) => setLitrosSolicitados(e.target.value)}
+   927→                  placeholder="5000"
+   928→                  required
+   929→                />
+   930→              </div>
+   931→              <div className="space-y-2">
+   932→                <Label htmlFor="fechaSolicitada">Fecha solicitada (opcional)</Label>
+   933→                <Input
+   934→                  id="fechaSolicitada"
+   935→                  type="datetime-local"
+   936→                  value={fechaSolicitada}
+   937→                  onChange={(e) => setFechaSolicitada(e.target.value)}
+   938→                />
+   939→              </div>
+   940→            </div>
+   941→
+   942→            <div className="space-y-2">
+   943→              <Label htmlFor="metodoPagoPreferido">Método de pago preferido</Label>
+   944→              <Select value={metodoPagoPreferido} onValueChange={setMetodoPagoPreferido}>
+   945→                <SelectTrigger id="metodoPagoPreferido">
+   946→                  <SelectValue />
+   947→                </SelectTrigger>
+   948→                <SelectContent>
+   949→                  {METODOS_PAGO.map((m) => (
+   950→                    <SelectItem key={m.value} value={m.value}>
+   951→                      {m.label}
+   952→                    </SelectItem>
+   953→                  ))}
+   954→                </SelectContent>
+   955→              </Select>
+   956→            </div>
+   957→
+   958→            <div className="space-y-2">
+   959→              <Label htmlFor="indicacionesAcceso">Indicaciones de acceso</Label>
+   960→              <Textarea
+   961→                id="indicacionesAcceso"
+   962→                value={indicacionesAcceso}
+   963→                onChange={(e) => setIndicacionesAcceso(e.target.value)}
+   964→                placeholder="Ej. Portón verde, llamar al llegar. Estanque atrás."
+   965→                rows={2}
+   966→              />
+   967→            </div>
+   968→
+   969→            <div className="space-y-2">
+   970→              <Label htmlFor="notaPedido">Nota</Label>
+   971→              <Textarea
+   972→                id="notaPedido"
+   973→                value={nota}
+   974→                onChange={(e) => setNota(e.target.value)}
+   975→                placeholder="Ej. Cliente llama temprano, pedir confirmación antes de salir"
+   976→                rows={2}
+   977→              />
+   978→            </div>
+   979→
+   980→            {/* Asignación — solo dueño */}
+   981→            {isDueno && (
+   982→              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   983→                <Label className="flex items-center gap-1.5 text-sm font-medium">
+   984→                  <UserCheck className="h-4 w-4 text-primary" /> Asignación de chofer
+   985→                </Label>
+   986→                <div className="grid gap-2 sm:grid-cols-2">
+   987→                  <Button
+   988→                    type="button"
+   989→                    variant={asignacionTipo === "manual" ? "default" : "outline"}
+   990→                    size="sm"
+   991→                    onClick={() => setAsignacionTipo("manual")}
+   992→                  >
+   993→                    Asignar a chofer específico
+   994→                  </Button>
+   995→                  <Button
+   996→                    type="button"
+   997→                    variant={asignacionTipo === "publicado" ? "default" : "outline"}
+   998→                    size="sm"
+   999→                    onClick={() => setAsignacionTipo("publicado")}
+  1000→                  >
+  1001→                    Publicar para choferes
+  1002→                  </Button>
+  1003→                </div>
+  1004→
+  1005→                {asignacionTipo === "manual" && (
+  1006→                  <div className="space-y-1">
+  1007→                    <Label htmlFor="choferAsignado" className="text-xs">Chofer</Label>
+  1008→                    <Select value={choferAsignadoId || "__ninguno"} onValueChange={setChoferAsignadoId}>
+  1009→                      <SelectTrigger id="choferAsignado">
+  1010→                        <SelectValue placeholder="Sin asignar" />
+  1011→                      </SelectTrigger>
+  1012→                      <SelectContent>
+  1013→                        <SelectItem value="__ninguno">— Sin asignar —</SelectItem>
+  1014→                        {choferes.map((c) => (
+  1015→                          <SelectItem key={c.id} value={c.id}>
+  1016→                            {c.nombre}
+  1017→                          </SelectItem>
+  1018→                        ))}
+  1019→                      </SelectContent>
+  1020→                    </Select>
+  1021→                  </div>
+  1022→                )}
+  1023→
+  1024→                {asignacionTipo === "publicado" && (
+  1025→                  <p className="text-xs text-muted-foreground">
+  1026→                    El pedido quedará disponible para que cualquier chofer lo tome.
+  1027→                    Si el cliente tiene chofer preferido, ese chofer tendrá prioridad.
+  1028→                  </p>
+  1029→                )}
+  1030→
+  1031→                {!isDueno && (
+  1032→                  <p className="text-xs text-muted-foreground">
+  1033→                    Como chofer, si el cliente es nuevo, tendrás prioridad permanente para atenderlo.
+  1034→                  </p>
+  1035→                )}
+  1036→              </div>
+  1037→            )}
+  1038→
+  1039→            {!isDueno && (
+  1040→              <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
+  1041→                <p className="font-medium">Asignación automática:</p>
+  1042→                <p className="mt-1 text-muted-foreground">
+  1043→                  {clienteId && clienteId !== "__nuevo"
+  1044→                    ? "Si el cliente tiene chofer preferido, el pedido se asignará a ese chofer."
+  1045→                    : "Como estás creando un cliente nuevo, tendrás prioridad permanente para atender pedidos de este cliente."}
+  1046→                </p>
+  1047→              </div>
+  1048→            )}
+  1049→
+  1050→            <DialogFooter>
+  1051→              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
+  1052→                Cancelar
+  1053→              </Button>
+  1054→              <Button type="submit" disabled={saving}>
+  1055→                {saving ? "Guardando…" : editando ? "Guardar cambios" : "Crear pedido"}
+  1056→              </Button>
+  1057→            </DialogFooter>
+  1058→          </form>
+  1059→        </DialogContent>
+  1060→      </Dialog>
+  1061→
+  1062→      {/* Modal de detalle */}
+  1063→      <Dialog open={!!detalle} onOpenChange={(o) => !o && setDetalle(null)}>
+  1064→        <DialogContent className="max-w-lg">
+  1065→          <DialogHeader>
+  1066→            <DialogTitle>Detalle del pedido</DialogTitle>
+  1067→            <DialogDescription>
+  1068→              {detalle && `Creado ${formatDateTime(detalle.creadoEn)}`}
+  1069→            </DialogDescription>
+  1070→          </DialogHeader>
+  1071→          {detalle && (
+  1072→            <div className="space-y-3 text-sm">
+  1073→              <div className="grid grid-cols-2 gap-2">
+  1074→                <Field label="Cliente" value={detalle.clienteNombre} />
+  1075→                <Field label="Estado" value={labelEstadoPedido(detalle.estado)} />
+  1076→                <Field label="Teléfono" value={detalle.clienteTelefono || "—"} />
+  1077→                <Field label="Zona" value={detalle.clienteZona || "—"} />
+  1078→                <Field label="Litros solicitados" value={`${formatNumber(detalle.litrosSolicitados, 0)} L`} />
+  1079→                <Field label="Método de pago" value={labelMetodoPago(detalle.metodoPagoPreferido)} />
+  1080→                {detalle.fechaSolicitada && (
+  1081→                  <Field label="Fecha solicitada" value={formatDateTime(detalle.fechaSolicitada)} />
+  1082→                )}
+  1083→                {detalle.chofer && (
+  1084→                  <Field label="Tomado por" value={detalle.chofer.nombre} />
+  1085→                )}
+  1086→                {detalle.vuelta && (
+  1087→                  <Field label="Vuelta asignada" value={`#${detalle.vuelta.numero}`} />
+  1088→                )}
+  1089→                {detalle.entrega && (
+  1090→                  <Field label="Entrega" value={`${formatNumber(detalle.entrega.litros, 0)} L · ${formatCurrency(detalle.entrega.total)}`} />
+  1091→                )}
+  1092→              </div>
+  1093→
+  1094→              {detalle.clienteDireccion && (
+  1095→                <div>
+  1096→                  <p className="text-xs uppercase text-muted-foreground">Dirección</p>
+  1097→                  <p className="font-medium">{detalle.clienteDireccion}</p>
+  1098→                </div>
+  1099→              )}
+  1100→
+  1101→              {detalle.indicacionesAcceso && (
+  1102→                <div>
+  1103→                  <p className="text-xs uppercase text-muted-foreground">Indicaciones de acceso</p>
+  1104→                  <p className="mt-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 p-2 text-amber-900 dark:text-amber-200 whitespace-pre-wrap">
+  1105→                    {detalle.indicacionesAcceso}
+  1106→                  </p>
+  1107→                </div>
+  1108→              )}
+  1109→
+  1110→              {detalle.nota && (
+  1111→                <div>
+  1112→                  <p className="text-xs uppercase text-muted-foreground">Nota</p>
+  1113→                  <p className="mt-1 rounded-lg bg-muted/40 p-2">{detalle.nota}</p>
+  1114→                </div>
+  1115→              )}
+  1116→
+  1117→              {detalle.clienteLat != null && detalle.clienteLng != null && (
+  1118→                <a
+  1119→                  href={`https://www.google.com/maps?q=${detalle.clienteLat},${detalle.clienteLng}`}
+  1120→                  target="_blank"
+  1121→                  rel="noopener noreferrer"
+  1122→                  className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+  1123→                >
+  1124→                  <Navigation className="h-4 w-4" /> Cómo llegar (Google Maps)
+  1125→                  <ExternalLink className="h-3 w-3" />
+  1126→                </a>
+  1127→              )}
+  1128→
+  1129→              {/* Info de acceso del cliente del catálogo */}
+  1130→              {detalle.cliente && (
+  1131→                <div className="rounded-lg border border-border bg-muted/20 p-2 text-xs">
+  1132→                  <p className="mb-1 font-medium">Info de acceso del cliente:</p>
+  1133→                  <div className="flex flex-wrap gap-1">
+  1134→                    {detalle.cliente.requiereIngresoPropiedad && <Badge variant="outline" className="text-[10px]">Ingreso</Badge>}
+  1135→                    {detalle.cliente.entregaDesdeAfuera && <Badge variant="outline" className="text-[10px]">Desde afuera</Badge>}
+  1136→                    {detalle.cliente.conexionExterna && <Badge variant="outline" className="text-[10px] text-emerald-700">Conexión</Badge>}
+  1137→                    {detalle.cliente.requiereClientePresente === false && <Badge variant="outline" className="text-[10px] text-amber-700">Sin presencia</Badge>}
+  1138→                  </div>
+  1139→                </div>
+  1140→              )}
+  1141→            </div>
+  1142→          )}
+  1143→          <DialogFooter>
+  1144→            <Button variant="outline" onClick={() => setDetalle(null)}>
+  1145→              Cerrar
+  1146→            </Button>
+  1147→            {canCreate && detalle && detalle.estado !== "entregado" && detalle.estado !== "cancelado" && (
+  1148→              <Button onClick={() => { abrirConvertir(detalle); setDetalle(null); }}>
+  1149→                <CheckCircle2 className="mr-1 h-4 w-4" /> Convertir en entrega
+  1150→              </Button>
+  1151→            )}
+  1152→          </DialogFooter>
+  1153→        </DialogContent>
+  1154→      </Dialog>
+  1155→
+  1156→      {/* Modal convertir a entrega */}
+  1157→      <Dialog open={!!convirtiendo} onOpenChange={(o) => !o && setConvirtiendo(null)}>
+  1158→        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
+  1159→          <DialogHeader>
+  1160→            <DialogTitle>Convertir pedido en entrega</DialogTitle>
+  1161→            <DialogDescription>
+  1162→              {convirtiendo && `Pedido de ${convirtiendo.clienteNombre} · ${formatNumber(convirtiendo.litrosSolicitados, 0)} L`}
+  1163→            </DialogDescription>
+  1164→          </DialogHeader>
+  1165→          {convirtiendo && (
+  1166→            <form onSubmit={handleConvertir} className="space-y-4">
+  1167→              <div className="rounded-lg bg-muted/30 p-3 text-xs space-y-1">
+  1168→                <p><strong>Cliente:</strong> {convirtiendo.clienteNombre}</p>
+  1169→                <p><strong>Litros pedidos:</strong> {formatNumber(convirtiendo.litrosSolicitados, 0)} L</p>
+  1170→                <p><strong>Pago:</strong> {labelMetodoPago(convirtiendo.metodoPagoPreferido)}</p>
+  1171→              </div>
+  1172→
+  1173→              {/* Si hay estanques, mostrar opción de entrega por estanque */}
+  1174→              {estanquesConvertir.length > 0 && (
+  1175→                <div className="space-y-3">
+  1176→                  {!modoEstanquesConvertir ? (
+  1177→                    <Button type="button" variant="outline" size="sm" onClick={() => setModoEstanquesConvertir(true)} className="w-full border-amber-400 text-amber-800">
+  1178→                      <Droplets className="mr-1 h-4 w-4" /> Entregar por estanque ({estanquesConvertir.length} estanque(s))
+  1179→                    </Button>
+  1180→                  ) : (
+  1181→                    <Button type="button" variant="ghost" size="sm" onClick={() => setModoEstanquesConvertir(false)} className="text-xs">
+  1182→                      ← Volver a entrega simple
+  1183→                    </Button>
+  1184→                  )}
+  1185→                </div>
+  1186→              )}
+  1187→
+  1188→              {/* Modo estanques: desglose por estanque */}
+  1189→              {modoEstanquesConvertir && estanquesConvertir.length > 0 ? (
+  1190→                <div className="rounded-lg border-2 border-amber-300 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-3">
+  1191→                  <p className="text-xs font-medium text-amber-900 dark:text-amber-200">
+  1192→                    <Droplets className="mr-1 inline h-3.5 w-3.5" /> Entrega por estanque (cobro separado)
+  1193→                  </p>
+  1194→                  {estanquesConvertir.map((est, i) => {
+  1195→                    const litrosEst = Number(est.litros) || 0;
+  1196→                    const precioEst = Number(est.precio) || 0;
+  1197→                    const totalEst = litrosEst * precioEst;
+  1198→                    const recibidoEst = Number(est.montoRecibido) || 0;
+  1199→                    return (
+  1200→                      <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background p-2 space-y-2">
+  1201→                        <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+  1202→                          {i + 1}. {est.nombre}
+  1203→                        </p>
+  1204→                        <div className="grid grid-cols-2 gap-2">
+  1205→                          <div>
+  1206→                            <label className="text-[10px] text-muted-foreground">Litros</label>
+  1207→                            <Input type="number" inputMode="decimal" step="any" value={est.litros}
+  1208→                              onChange={(e) => {
+  1209→                                const nuevosLitros = e.target.value;
+  1210→                                const precioCalc = Number(est.precio) || 0;
+  1211→                                const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
+  1212→                                setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
+  1213→                                  ...est2, litros: nuevosLitros,
+  1214→                                  montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalCalc > 0 ? String(Math.round(totalCalc)) : "")),
+  1215→                                } : est2));
+  1216→                              }}
+  1217→                              placeholder="0" className="h-8 text-xs" />
+  1218→                          </div>
+  1219→                          <div>
+  1220→                            <label className="text-[10px] text-muted-foreground">Precio/L</label>
+  1221→                            <Input type="number" inputMode="decimal" step="any" value={est.precio}
+  1222→                              onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
+  1223→                              placeholder="0" className="h-8 text-xs" />
+  1224→                          </div>
+  1225→                        </div>
+  1226→                        <div className="grid grid-cols-2 gap-2">
+  1227→                          <div>
+  1228→                            <label className="text-[10px] text-muted-foreground">Método de pago</label>
+  1229→                            <select value={est.metodoPago}
+  1230→                              onChange={(e) => {
+  1231→                                const nuevoMetodo = e.target.value;
+  1232→                                const c = clientes.find(cl => cl.id === convirtiendo?.clienteId);
+  1233→                                const precioEfectivo = c?.precioEfectivoPorLitro || 0;
+  1234→                                const precioTransferencia = c?.precioTransferenciaPorLitro || 0;
+  1235→                                let nuevoPrecio = est.precio;
+  1236→                                if (nuevoMetodo === "efectivo") {
+  1237→                                  nuevoPrecio = String(precioEfectivo);
+  1238→                                } else if (nuevoMetodo === "transferencia") {
+  1239→                                  nuevoPrecio = String(precioTransferencia);
+  1240→                                } else {
+  1241→                                  // Sin pago: precio MÁS ALTO para generar deuda
+  1242→                                  nuevoPrecio = String(Math.max(precioEfectivo, precioTransferencia));
+  1243→                                }
+  1244→                                const totalEstCalc = (Number(est.litros) || 0) * (Number(nuevoPrecio) || 0);
+  1245→                                setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
+  1246→                                  ...est2, metodoPago: nuevoMetodo, precio: nuevoPrecio,
+  1247→                                  montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
+  1248→                                } : est2));
+  1249→                              }}
+  1250→                              className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs">
+  1251→                              <option value="efectivo">Efectivo</option>
+  1252→                              <option value="transferencia">Transferencia</option>
+  1253→                              <option value="credito">Sin pago</option>
+  1254→                            </select>
+  1255→                          </div>
+  1256→                          <div>
+  1257→                            <label className="text-[10px] text-muted-foreground">Monto recibido</label>
+  1258→                            <Input type="number" inputMode="decimal" step="any" value={est.montoRecibido}
+  1259→                              onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, montoRecibido: e.target.value } : est2))}
+  1260→                              placeholder={est.metodoPago === "credito" ? "—" : String(Math.round(totalEst))} disabled={est.metodoPago === "credito"} className="h-8 text-xs" />
+  1261→                          </div>
+  1262→                        </div>
+  1263→                        <div className="flex items-center justify-between text-[10px]">
+  1264→                          {est.metodoPago === "credito" ? (
+  1265→                            <>
+  1266→                              <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400">Se definirá al cobrar</strong></span>
+  1267→                              <span className="text-amber-600 dark:text-amber-400">Pendiente</span>
+  1268→                            </>
+  1269→                          ) : (
+  1270→                            <>
+  1271→                              <span className="text-muted-foreground">Total: <strong className="text-foreground tabular-nums">{formatCurrency(totalEst)}</strong></span>
+  1272→                              {recibidoEst >= totalEst && totalEst > 0 && <span className="text-emerald-600">✓ Pagado</span>}
+  1273→                            </>
+  1274→                          )}
+  1275→                        </div>
+  1276→                      </div>
+  1277→                    );
+  1278→                  })}
+  1279→                  {(() => {
+  1280→                    const totalLitros = estanquesConvertir.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+  1281→                    const totalVenta = estanquesConvertir.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+  1282→                    const totalRecibido = estanquesConvertir.reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+  1283→                    return (
+  1284→                      <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-center text-sm">
+  1285→                        <div className="grid grid-cols-3 gap-2">
+  1286→                          <div><p className="text-[10px] uppercase text-muted-foreground">Total litros</p><p className="font-bold tabular-nums">{formatNumber(totalLitros, 0)} L</p></div>
+  1287→                          <div><p className="text-[10px] uppercase text-muted-foreground">Total venta</p><p className="font-bold tabular-nums">{formatCurrency(totalVenta)}</p></div>
+  1288→                          <div><p className="text-[10px] uppercase text-muted-foreground">Total recibido</p><p className="font-bold tabular-nums text-emerald-600">{formatCurrency(totalRecibido)}</p></div>
+  1289→                        </div>
+  1290→                      </div>
+  1291→                    );
+  1292→                  })()}
+  1293→                </div>
+  1294→              ) : (
+  1295→                <>
+  1296→                  {/* Modo simple: campos normales */}
+  1297→                  <div className="space-y-2">
+  1298→                    <Label htmlFor="litrosReales">Litros entregados (reales)</Label>
+  1299→                    <Input id="litrosReales" type="number" inputMode="decimal" step="any" value={litrosReales}
+  1300→                      onChange={(e) => setLitrosReales(e.target.value)} placeholder={String(convirtiendo.litrosSolicitados)} />
+  1301→                    <p className="text-xs text-muted-foreground">Ajusta si entregaste una cantidad distinta a la pedida.</p>
+  1302→                  </div>
+  1303→
+  1304→                  <div className="space-y-2">
+  1305→                    <Label htmlFor="precioPorLitro">Precio por litro (opcional)</Label>
+  1306→                    <Input id="precioPorLitro" type="number" inputMode="decimal" step="any" value={precioPorLitro}
+  1307→                      onChange={(e) => setPrecioPorLitro(e.target.value)} placeholder="Auto según método" />
+  1308→                  </div>
+  1309→
+  1310→                  <div className="grid grid-cols-2 gap-3">
+  1311→                    <div className="space-y-2">
+  1312→                      <Label htmlFor="montoEfectivo" className="text-xs">Efectivo recibido</Label>
+  1313→                      <Input id="montoEfectivo" type="number" inputMode="decimal" step="any" value={montoEfectivo}
+  1314→                        onChange={(e) => setMontoEfectivo(e.target.value)} placeholder="0" />
+  1315→                    </div>
+  1316→                    <div className="space-y-2">
+  1317→                      <Label htmlFor="montoTransferencia" className="text-xs">Transferencia</Label>
+  1318→                      <Input id="montoTransferencia" type="number" inputMode="decimal" step="any" value={montoTransferencia}
+  1319→                        onChange={(e) => setMontoTransferencia(e.target.value)} placeholder="0" />
+  1320→                    </div>
+  1321→                  </div>
+  1322→                </>
+  1323→              )}
+  1324→
+  1325→              <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
+  1326→                <p className="font-medium">Se creará una entrega y se asignará a la vuelta activa (si hay).</p>
+  1327→                <p className="mt-1 text-muted-foreground">El pedido se marcará como "entregado" automáticamente.</p>
+  1328→              </div>
+  1329→
+  1330→              <DialogFooter>
+  1331→                <Button type="button" variant="outline" onClick={() => setConvirtiendo(null)}>Cancelar</Button>
+  1332→                <Button type="submit" disabled={saving}>{saving ? "Convirtiendo…" : "Confirmar entrega"}</Button>
+  1333→              </DialogFooter>
+  1334→            </form>
+  1335→          )}
+  1336→        </DialogContent>
+  1337→      </Dialog>
+  1338→
+  1339→      {/* Confirmar borrado */}
+  1340→      <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>
+  1341→        <DialogContent className="max-w-sm">
+  1342→          <DialogHeader>
+  1343→            <DialogTitle>Eliminar pedido</DialogTitle>
+  1344→            <DialogDescription>
+  1345→              ¿Eliminar el pedido de <strong>{borrando?.clienteNombre}</strong>?
+  1346→            </DialogDescription>
+  1347→          </DialogHeader>
+  1348→          <DialogFooter>
+  1349→            <Button variant="outline" onClick={() => setBorrando(null)}>
+  1350→              Cancelar
+  1351→            </Button>
+  1352→            <Button variant="destructive" onClick={() => borrando && handleBorrar(borrando)}>
+  1353→              <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+  1354→            </Button>
+  1355→          </DialogFooter>
+  1356→        </DialogContent>
+  1357→      </Dialog>
+  1358→    </div>
+  1359→  );
+  1360→}
+  1361→
+  1362→function Field({ label, value }: { label: string; value: string }) {
+  1363→  return (
+  1364→    <div>
+  1365→      <p className="text-xs uppercase text-muted-foreground">{label}</p>
+  1366→      <p className="font-medium">{value}</p>
+  1367→    </div>
+  1368→  );
+  1369→}
+  1370→

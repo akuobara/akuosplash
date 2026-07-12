@@ -1,0 +1,697 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useState, useCallback } from "react";
+     4→import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+     5→import { Button } from "@/components/ui/button";
+     6→import { Input } from "@/components/ui/input";
+     7→import { Label } from "@/components/ui/label";
+     8→import { Textarea } from "@/components/ui/textarea";
+     9→import { Skeleton } from "@/components/ui/skeleton";
+    10→import { Badge } from "@/components/ui/badge";
+    11→import { Switch } from "@/components/ui/switch";
+    12→import {
+    13→  Select,
+    14→  SelectContent,
+    15→  SelectItem,
+    16→  SelectTrigger,
+    17→  SelectValue,
+    18→} from "@/components/ui/select";
+    19→import {
+    20→  Dialog,
+    21→  DialogContent,
+    22→  DialogHeader,
+    23→  DialogTitle,
+    24→  DialogDescription,
+    25→  DialogFooter,
+    26→} from "@/components/ui/dialog";
+    27→import {
+    28→  DropdownMenu,
+    29→  DropdownMenuContent,
+    30→  DropdownMenuItem,
+    31→  DropdownMenuTrigger,
+    32→} from "@/components/ui/dropdown-menu";
+    33→import {
+    34→  Plus,
+    35→  MoreVertical,
+    36→  Pencil,
+    37→  Trash2,
+    38→  Repeat,
+    39→  Calendar,
+    40→  Zap,
+    41→  Droplets,
+    42→  MapPin,
+    43→  Navigation,
+    44→  UserCheck,
+    45→} from "lucide-react";
+    46→import { toast } from "sonner";
+    47→import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
+    48→import {
+    49→  formatNumber,
+    50→  formatDate,
+    51→  formatDateTime,
+    52→  labelMetodoPago,
+    53→  METODOS_PAGO,
+    54→} from "@/lib/helpers";
+    55→import { CalendarView } from "./calendar-view";
+    56→import { useMemo } from "react";
+    57→
+    58→interface Recurrente {
+    59→  id: string;
+    60→  creadoEn: string;
+    61→  litrosSolicitados: number;
+    62→  metodoPagoPreferido: string;
+    63→  nota: string | null;
+    64→  frecuenciaDias: number;
+    65→  fechaInicio: string;
+    66→  fechaProximaGeneracion: string;
+    67→  activo: boolean;
+    68→  asignacionTipo: string;
+    69→  cliente: {
+    70→    id: string;
+    71→    nombre: string;
+    72→    direccion: string | null;
+    73→    telefono: string | null;
+    74→    zona: string | null;
+    75→    lat: number | null;
+    76→    lng: number | null;
+    77→    indicacionesAcceso: string | null;
+    78→  };
+    79→  choferAsignado: { id: string; nombre: string } | null;
+    80→  _count?: { pedidos: number };
+    81→}
+    82→
+    83→interface PedidosRecurrentesTabProps {
+    84→  refreshKey: number;
+    85→  onRefresh: () => void;
+    86→  clientes: {
+    87→    id: string;
+    88→    nombre: string;
+    89→    zona: string | null;
+    90→    direccion: string | null;
+    91→  }[];
+    92→  choferes: { id: string; nombre: string }[];
+    93→  pedidos?: {  // pedidos programados para mostrar en el calendario
+    94→    id: string;
+    95→    clienteNombre: string;
+    96→    litrosSolicitados: number;
+    97→    fechaSolicitada: string | null;
+    98→    estado: string;
+    99→  }[];
+   100→}
+   101→
+   102→export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, choferes, pedidos = [] }: PedidosRecurrentesTabProps) {
+   103→  const [recurrentes, setRecurrentes] = useState<Recurrente[]>([]);
+   104→  const [loading, setLoading] = useState(true);
+   105→  const [vista, setVista] = useState<"lista" | "calendario">("calendario");
+   106→
+   107→  const [formOpen, setFormOpen] = useState(false);
+   108→  const [editando, setEditando] = useState<Recurrente | null>(null);
+   109→  const [borrando, setBorrando] = useState<Recurrente | null>(null);
+   110→
+   111→  // Campos del formulario
+   112→  const [clienteId, setClienteId] = useState("");
+   113→  const [litrosSolicitados, setLitrosSolicitados] = useState("");
+   114→  const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("credito");
+   115→  const [nota, setNota] = useState("");
+   116→  const [frecuenciaDias, setFrecuenciaDias] = useState("7");
+   117→  const [fechaInicio, setFechaInicio] = useState("");
+   118→  const [activo, setActivo] = useState(true);
+   119→  const [asignacionTipo, setAsignacionTipo] = useState("manual");
+   120→  const [choferAsignadoId, setChoferAsignadoId] = useState("");
+   121→  const [saving, setSaving] = useState(false);
+   122→
+   123→  const cargar = useCallback(async () => {
+   124→    setLoading(true);
+   125→    try {
+   126→      const data = await apiGet<{ recurrentes: Recurrente[] }>("/api/pedidos-recurrentes");
+   127→      setRecurrentes(data.recurrentes);
+   128→    } catch (e) {
+   129→      console.error(e);
+   130→      toast.error("No se pudieron cargar los pedidos recurrentes");
+   131→    } finally {
+   132→      setLoading(false);
+   133→    }
+   134→  }, []);
+   135→
+   136→  useEffect(() => {
+   137→    cargar();
+   138→  }, [cargar, refreshKey]);
+   139→
+   140→  // Generar próximas fechas de pedidos recurrentes Y pedidos programados para el calendario
+   141→  const eventosCalendario = useMemo(() => {
+   142→    const eventos: { fecha: Date; litros: number; pedidos: { nombre: string; litros: number; tipo: "recurrente" | "programado" }[] }[] = [];
+   143→    const hoy = new Date();
+   144→    hoy.setHours(0, 0, 0, 0);
+   145→
+   146→    // 1. Pedidos recurrentes — generar las próximas 6 ocurrencias
+   147→    for (const r of recurrentes) {
+   148→      if (!r.activo) continue;
+   149→      // Parsear fechaInicio sin zona horaria (YYYY-MM-DD → local)
+   150→      const inicioParts = r.fechaInicio.split("T")[0].split("-");
+   151→      let fecha = new Date(parseInt(inicioParts[0]), parseInt(inicioParts[1]) - 1, parseInt(inicioParts[2]));
+   152→      fecha.setHours(0, 0, 0, 0);
+   153→
+   154→      // Si la fecha de inicio ya pasó, avanzar hasta la próxima fecha futura
+   155→      if (fecha < hoy) {
+   156→        while (fecha < hoy) {
+   157→          fecha.setDate(fecha.getDate() + r.frecuenciaDias);
+   158→        }
+   159→      }
+   160→
+   161→      for (let i = 0; i < 6; i++) {
+   162→        eventos.push({
+   163→          fecha: new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()),
+   164→          litros: r.litrosSolicitados,
+   165→          pedidos: [{
+   166→            nombre: r.cliente.nombre,
+   167→            litros: r.litrosSolicitados,
+   168→            tipo: "recurrente" as const,
+   169→          }],
+   170→        });
+   171→        fecha.setDate(fecha.getDate() + r.frecuenciaDias);
+   172→      }
+   173→    }
+   174→
+   175→    // 2. Pedidos programados (con fechaSolicitada futura, no entregados ni cancelados)
+   176→    for (const p of pedidos) {
+   177→      if (!p.fechaSolicitada) continue;
+   178→      if (p.estado === "entregado" || p.estado === "cancelado") continue;
+   179→      const parts = p.fechaSolicitada.split("T")[0].split("-");
+   180→      const fecha = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+   181→      fecha.setHours(0, 0, 0, 0);
+   182→      if (fecha < hoy) continue;
+   183→      eventos.push({
+   184→        fecha,
+   185→        litros: p.litrosSolicitados,
+   186→        pedidos: [{
+   187→          nombre: p.clienteNombre,
+   188→          litros: p.litrosSolicitados,
+   189→          tipo: "programado" as const,
+   190→        }],
+   191→      });
+   192→    }
+   193→
+   194→    return eventos;
+   195→  }, [recurrentes, pedidos]);
+   196→
+   197→  function abrirNuevo() {
+   198→    setEditando(null);
+   199→    setClienteId("");
+   200→    setLitrosSolicitados("");
+   201→    setMetodoPagoPreferido("credito");
+   202→    setNota("");
+   203→    setFrecuenciaDias("7");
+   204→    setFechaInicio(new Date().toISOString().slice(0, 10));
+   205→    setActivo(true);
+   206→    setAsignacionTipo("manual");
+   207→    setChoferAsignadoId("");
+   208→    setFormOpen(true);
+   209→  }
+   210→
+   211→  function abrirEditar(r: Recurrente) {
+   212→    setEditando(r);
+   213→    setClienteId(r.cliente.id);
+   214→    setLitrosSolicitados(String(r.litrosSolicitados));
+   215→    setMetodoPagoPreferido(r.metodoPagoPreferido);
+   216→    setNota(r.nota ?? "");
+   217→    setFrecuenciaDias(String(r.frecuenciaDias));
+   218→    setFechaInicio(new Date(r.fechaInicio).toISOString().slice(0, 10));
+   219→    setActivo(r.activo);
+   220→    setAsignacionTipo(r.asignacionTipo);
+   221→    setChoferAsignadoId(r.choferAsignado?.id ?? "");
+   222→    setFormOpen(true);
+   223→  }
+   224→
+   225→  async function handleSave(e: React.FormEvent) {
+   226→    e.preventDefault();
+   227→    if (!clienteId) {
+   228→      toast.error("Selecciona un cliente");
+   229→      return;
+   230→    }
+   231→    const litros = Number(litrosSolicitados) || 0;
+   232→    if (litros <= 0) {
+   233→      toast.error("Los litros deben ser mayores a 0");
+   234→      return;
+   235→    }
+   236→    const frec = Number(frecuenciaDias) || 0;
+   237→    if (frec <= 0) {
+   238→      toast.error("La frecuencia debe ser mayor a 0 días");
+   239→      return;
+   240→    }
+   241→
+   242→    setSaving(true);
+   243→    try {
+   244→      const payload = {
+   245→        clienteId,
+   246→        litrosSolicitados: litros,
+   247→        metodoPagoPreferido,
+   248→        nota: nota.trim() || null,
+   249→        frecuenciaDias: frec,
+   250→        fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
+   251→        activo,
+   252→        asignacionTipo,
+   253→        choferAsignadoId: asignacionTipo === "manual" ? (choferAsignadoId || null) : null,
+   254→      };
+   255→
+   256→      if (editando) {
+   257→        await apiPatch(`/api/pedidos-recurrentes/${editando.id}`, payload);
+   258→        toast.success("Pedido recurrente actualizado");
+   259→      } else {
+   260→        await apiPost("/api/pedidos-recurrentes", payload);
+   261→        toast.success(
+   262→          `Pedido recurrente creado. Se generará automáticamente cada ${frec} días. ` +
+   263→          `La próxima entrega es ${fechaInicio ? formatDate(fechaInicio) : "hoy"}. ` +
+   264→          `Míralo en el calendario de esta misma pestaña.`
+   265→        );
+   266→      }
+   267→      setFormOpen(false);
+   268→      onRefresh();
+   269→    } catch (e) {
+   270→      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+   271→    } finally {
+   272→      setSaving(false);
+   273→    }
+   274→  }
+   275→
+   276→  async function handleBorrar(r: Recurrente) {
+   277→    try {
+   278→      await apiDelete(`/api/pedidos-recurrentes/${r.id}`);
+   279→      toast.success("Pedido recurrente eliminado");
+   280→      setBorrando(null);
+   281→      onRefresh();
+   282→    } catch (e) {
+   283→      toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+   284→    }
+   285→  }
+   286→
+   287→  async function generarAhora(r: Recurrente) {
+   288→    try {
+   289→      await apiPost(`/api/pedidos-recurrentes/${r.id}/generar`, {});
+   290→      toast.success(`Pedido generado para ${r.cliente.nombre}`);
+   291→      onRefresh();
+   292→    } catch (e) {
+   293→      toast.error(e instanceof Error ? e.message : "No se pudo generar el pedido");
+   294→    }
+   295→  }
+   296→
+   297→  async function toggleActivo(r: Recurrente) {
+   298→    try {
+   299→      await apiPatch(`/api/pedidos-recurrentes/${r.id}`, { activo: !r.activo });
+   300→      toast.success(r.activo ? "Pausado" : "Activado");
+   301→      onRefresh();
+   302→    } catch (e) {
+   303→      toast.error(e instanceof Error ? e.message : "No se pudo cambiar");
+   304→    }
+   305→  }
+   306→
+   307→  return (
+   308→    <div className="space-y-4">
+   309→      {/* Encabezado */}
+   310→      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+   311→        <div>
+   312→          <h2 className="text-lg font-semibold sm:text-xl">Pedidos recurrentes</h2>
+   313→          <p className="text-sm text-muted-foreground">
+   314→            Genera pedidos automáticamente para clientes que necesitan agua cada cierto tiempo (ej. semanal).
+   315→          </p>
+   316→        </div>
+   317→        <div className="flex items-center gap-2">
+   318→          <div className="flex rounded-lg border border-border p-0.5">
+   319→            <Button
+   320→              size="sm"
+   321→              variant={vista === "calendario" ? "default" : "ghost"}
+   322→              onClick={() => setVista("calendario")}
+   323→              className="h-7"
+   324→            >
+   325→              <Calendar className="mr-1 h-3 w-3" /> Calendario
+   326→            </Button>
+   327→            <Button
+   328→              size="sm"
+   329→              variant={vista === "lista" ? "default" : "ghost"}
+   330→              onClick={() => setVista("lista")}
+   331→              className="h-7"
+   332→            >
+   333→              <Repeat className="mr-1 h-3 w-3" /> Lista
+   334→            </Button>
+   335→          </div>
+   336→          <Button onClick={abrirNuevo} size="sm">
+   337→            <Plus className="mr-1 h-4 w-4" /> Nuevo
+   338→          </Button>
+   339→        </div>
+   340→      </div>
+   341→
+   342→      {/* Vista Calendario */}
+   343→      {vista === "calendario" && !loading && (
+   344→        <>
+   345→          {/* Resumen de próximos pedidos */}
+   346→          {(() => {
+   347→            const hoy = new Date();
+   348→            hoy.setHours(0, 0, 0, 0);
+   349→            const manana = new Date(hoy);
+   350→            manana.setDate(manana.getDate() + 1);
+   351→            const en7dias = new Date(hoy);
+   352→            en7dias.setDate(en7dias.getDate() + 7);
+   353→
+   354→            const deHoy = eventosCalendario.filter(e => {
+   355→              const f = new Date(e.fecha);
+   356→              f.setHours(0,0,0,0);
+   357→              return f.getTime() === hoy.getTime();
+   358→            });
+   359→            const deManana = eventosCalendario.filter(e => {
+   360→              const f = new Date(e.fecha);
+   361→              f.setHours(0,0,0,0);
+   362→              return f.getTime() === manana.getTime();
+   363→            });
+   364→            const de7dias = eventosCalendario.filter(e => {
+   365→              const f = new Date(e.fecha);
+   366→              f.setHours(0,0,0,0);
+   367→              return f > hoy && f <= en7dias;
+   368→            });
+   369→
+   370→            const litrosHoy = deHoy.reduce((s,e) => s+e.litros, 0);
+   371→            const litrosManana = deManana.reduce((s,e) => s+e.litros, 0);
+   372→            const litros7dias = de7dias.reduce((s,e) => s+e.litros, 0);
+   373→
+   374→            return (
+   375→              <div className="grid grid-cols-3 gap-3">
+   376→                <Card className={litrosHoy > 0 ? "border-primary/40 bg-primary/5" : ""}>
+   377→                  <CardContent className="p-3">
+   378→                    <p className="text-xs uppercase text-muted-foreground">Hoy</p>
+   379→                    <p className="text-lg font-bold tabular-nums">{formatNumber(litrosHoy, 0)} L</p>
+   380→                    <p className="text-[10px] text-muted-foreground">{deHoy.length} pedido(s)</p>
+   381→                  </CardContent>
+   382→                </Card>
+   383→                <Card className={litrosManana > 0 ? "border-blue-400/40 bg-blue-50 dark:bg-blue-900/10" : ""}>
+   384→                  <CardContent className="p-3">
+   385→                    <p className="text-xs uppercase text-muted-foreground">Mañana</p>
+   386→                    <p className="text-lg font-bold tabular-nums">{formatNumber(litrosManana, 0)} L</p>
+   387→                    <p className="text-[10px] text-muted-foreground">{deManana.length} pedido(s)</p>
+   388→                  </CardContent>
+   389→                </Card>
+   390→                <Card>
+   391→                  <CardContent className="p-3">
+   392→                    <p className="text-xs uppercase text-muted-foreground">Próximos 7 días</p>
+   393→                    <p className="text-lg font-bold tabular-nums">{formatNumber(litros7dias, 0)} L</p>
+   394→                    <p className="text-[10px] text-muted-foreground">{de7dias.length} pedido(s)</p>
+   395→                  </CardContent>
+   396→                </Card>
+   397→              </div>
+   398→            );
+   399→          })()}
+   400→          <CalendarView eventos={eventosCalendario} />
+   401→        </>
+   402→      )}
+   403→
+   404→      {/* Vista Lista */}
+   405→      {vista === "lista" && (
+   406→        loading ? (
+   407→        <div className="space-y-2">
+   408→          {Array.from({ length: 3 }).map((_, i) => (
+   409→            <Skeleton key={i} className="h-24 rounded-lg" />
+   410→          ))}
+   411→        </div>
+   412→      ) : recurrentes.length === 0 ? (
+   413→        <Card>
+   414→          <CardContent className="flex flex-col items-center justify-center gap-2 p-10 text-center">
+   415→            <Repeat className="h-10 w-10 text-muted-foreground" />
+   416→            <p className="text-sm text-muted-foreground">
+   417→              No hay pedidos recurrentes. Crea el primero para clientes que reciben agua periódicamente.
+   418→            </p>
+   419→            <Button onClick={abrirNuevo} variant="outline" size="sm">
+   420→              <Plus className="mr-1 h-4 w-4" /> Crear recurrente
+   421→            </Button>
+   422→          </CardContent>
+   423→        </Card>
+   424→      ) : (
+   425→        <div className="space-y-2">
+   426→          {recurrentes.map((r) => (
+   427→            <Card key={r.id} className={r.activo ? "" : "opacity-60"}>
+   428→              <CardContent className="flex items-center gap-3 p-3 sm:p-4">
+   429→                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+   430→                  <Repeat className="h-5 w-5" />
+   431→                </div>
+   432→                <div className="min-w-0 flex-1">
+   433→                  <div className="flex flex-wrap items-center gap-1.5">
+   434→                    <span className="truncate font-medium">{r.cliente.nombre}</span>
+   435→                    <Badge variant="outline" className="text-[10px] gap-0.5">
+   436→                      <Calendar className="h-2.5 w-2.5" /> Cada {r.frecuenciaDias} día{r.frecuenciaDias !== 1 ? "s" : ""}
+   437→                    </Badge>
+   438→                    {r.cliente.zona && (
+   439→                      <Badge variant="outline" className="text-[10px]">{r.cliente.zona}</Badge>
+   440→                    )}
+   441→                    {!r.activo && (
+   442→                      <Badge variant="outline" className="text-[10px] text-muted-foreground">Pausado</Badge>
+   443→                    )}
+   444→                    {r.choferAsignado && (
+   445→                      <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
+   446→                        <UserCheck className="h-2.5 w-2.5" /> {r.choferAsignado.nombre}
+   447→                      </Badge>
+   448→                    )}
+   449→                    {r.asignacionTipo === "publicado" && (
+   450→                      <Badge variant="outline" className="text-[10px] text-purple-700 dark:text-purple-300">
+   451→                        Publicado
+   452→                      </Badge>
+   453→                    )}
+   454→                  </div>
+   455→                  <p className="truncate text-xs text-muted-foreground">
+   456→                    <Droplets className="mr-1 inline h-3 w-3" />
+   457→                    {formatNumber(r.litrosSolicitados, 0)} L · {labelMetodoPago(r.metodoPagoPreferido)}
+   458→                    {" · "}
+   459→                    Próxima: <strong>{formatDate(r.fechaProximaGeneracion)}</strong>
+   460→                    {r._count && r._count.pedidos > 0 && ` · ${r._count.pedidos} pedidos generados`}
+   461→                  </p>
+   462→                </div>
+   463→                {r.cliente.lat != null && r.cliente.lng != null && (
+   464→                  <a
+   465→                    href={`https://www.google.com/maps?q=${r.cliente.lat},${r.cliente.lng}`}
+   466→                    target="_blank"
+   467→                    rel="noopener noreferrer"
+   468→                    className="shrink-0 rounded-md p-1.5 text-primary hover:bg-primary/10"
+   469→                    title="Ver ubicación"
+   470→                  >
+   471→                    <Navigation className="h-4 w-4" />
+   472→                  </a>
+   473→                )}
+   474→                <Button
+   475→                  size="sm"
+   476→                  variant="outline"
+   477→                  onClick={() => generarAhora(r)}
+   478→                  className="shrink-0"
+   479→                  title="Generar pedido ahora"
+   480→                >
+   481→                  <Zap className="mr-1 h-3 w-3" /> Generar
+   482→                </Button>
+   483→                <DropdownMenu>
+   484→                  <DropdownMenuTrigger asChild>
+   485→                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+   486→                      <MoreVertical className="h-4 w-4" />
+   487→                    </Button>
+   488→                  </DropdownMenuTrigger>
+   489→                  <DropdownMenuContent align="end">
+   490→                    <DropdownMenuItem onClick={() => toggleActivo(r)}>
+   491→                      {r.activo ? "Pausar" : "Activar"}
+   492→                    </DropdownMenuItem>
+   493→                    <DropdownMenuItem onClick={() => abrirEditar(r)}>
+   494→                      <Pencil className="mr-2 h-4 w-4" /> Editar
+   495→                    </DropdownMenuItem>
+   496→                    <DropdownMenuItem
+   497→                      className="text-destructive focus:text-destructive"
+   498→                      onClick={() => setBorrando(r)}
+   499→                    >
+   500→                      <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+   501→                    </DropdownMenuItem>
+   502→                  </DropdownMenuContent>
+   503→                </DropdownMenu>
+   504→              </CardContent>
+   505→            </Card>
+   506→          ))}
+   507→        </div>
+   508→      )
+   509→      )}
+   510→
+   511→      {/* Formulario */}
+   512→      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+   513→        <DialogContent className="max-h-[95vh] w-[95vw] max-w-lg overflow-y-auto">
+   514→          <DialogHeader>
+   515→            <DialogTitle>{editando ? "Editar pedido recurrente" : "Nuevo pedido recurrente"}</DialogTitle>
+   516→            <DialogDescription>
+   517→              Genera pedidos automáticamente para clientes que necesitan agua periódicamente.
+   518→            </DialogDescription>
+   519→          </DialogHeader>
+   520→          <form onSubmit={handleSave} className="space-y-4">
+   521→            <div className="space-y-2">
+   522→              <Label htmlFor="clienteRecurrente">Cliente *</Label>
+   523→              <Select value={clienteId || "__ninguno"} onValueChange={setClienteId}>
+   524→                <SelectTrigger id="clienteRecurrente">
+   525→                  <SelectValue placeholder="Selecciona un cliente" />
+   526→                </SelectTrigger>
+   527→                <SelectContent>
+   528→                  <SelectItem value="__ninguno" disabled>— Selecciona —</SelectItem>
+   529→                  {clientes.map((c) => (
+   530→                    <SelectItem key={c.id} value={c.id}>
+   531→                      {c.nombre}
+   532→                      {c.zona ? ` · ${c.zona}` : ""}
+   533→                    </SelectItem>
+   534→                  ))}
+   535→                </SelectContent>
+   536→              </Select>
+   537→              <p className="text-xs text-muted-foreground">
+   538→                El cliente debe estar en el catálogo. Si no lo ves, créalo primero en Clientes.
+   539→              </p>
+   540→            </div>
+   541→
+   542→            <div className="grid gap-3 sm:grid-cols-2">
+   543→              <div className="space-y-2">
+   544→                <Label htmlFor="litrosRecurrente">Litros por pedido *</Label>
+   545→                <Input
+   546→                  id="litrosRecurrente"
+   547→                  type="number"
+   548→                  inputMode="decimal"
+   549→                  step="any"
+   550→                  value={litrosSolicitados}
+   551→                  onChange={(e) => setLitrosSolicitados(e.target.value)}
+   552→                  placeholder="5000"
+   553→                  required
+   554→                />
+   555→              </div>
+   556→              <div className="space-y-2">
+   557→                <Label htmlFor="frecuenciaRecurrente">Frecuencia (días) *</Label>
+   558→                <Input
+   559→                  id="frecuenciaRecurrente"
+   560→                  type="number"
+   561→                  inputMode="numeric"
+   562→                  value={frecuenciaDias}
+   563→                  onChange={(e) => setFrecuenciaDias(e.target.value)}
+   564→                  placeholder="7"
+   565→                  required
+   566→                />
+   567→                <p className="text-xs text-muted-foreground">Ej: 7 = semanal, 14 = quincenal, 30 = mensual</p>
+   568→              </div>
+   569→            </div>
+   570→
+   571→            <div className="grid gap-3 sm:grid-cols-2">
+   572→              <div className="space-y-2">
+   573→                <Label htmlFor="fechaInicioRecurrente">Fecha de inicio</Label>
+   574→                <Input
+   575→                  id="fechaInicioRecurrente"
+   576→                  type="date"
+   577→                  value={fechaInicio}
+   578→                  onChange={(e) => setFechaInicio(e.target.value)}
+   579→                />
+   580→              </div>
+   581→              <div className="space-y-2">
+   582→                <Label htmlFor="metodoPagoRecurrente">Método de pago</Label>
+   583→                <Select value={metodoPagoPreferido} onValueChange={setMetodoPagoPreferido}>
+   584→                  <SelectTrigger id="metodoPagoRecurrente">
+   585→                    <SelectValue />
+   586→                  </SelectTrigger>
+   587→                  <SelectContent>
+   588→                    {METODOS_PAGO.map((m) => (
+   589→                      <SelectItem key={m.value} value={m.value}>
+   590→                        {m.label}
+   591→                      </SelectItem>
+   592→                    ))}
+   593→                  </SelectContent>
+   594→                </Select>
+   595→              </div>
+   596→            </div>
+   597→
+   598→            {/* Asignación */}
+   599→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   600→              <Label className="flex items-center gap-1.5 text-sm font-medium">
+   601→                <UserCheck className="h-4 w-4 text-primary" /> Asignación
+   602→              </Label>
+   603→              <div className="grid gap-2 sm:grid-cols-2">
+   604→                <Button
+   605→                  type="button"
+   606→                  variant={asignacionTipo === "manual" ? "default" : "outline"}
+   607→                  size="sm"
+   608→                  onClick={() => setAsignacionTipo("manual")}
+   609→                >
+   610→                  Asignar a chofer
+   611→                </Button>
+   612→                <Button
+   613→                  type="button"
+   614→                  variant={asignacionTipo === "publicado" ? "default" : "outline"}
+   615→                  size="sm"
+   616→                  onClick={() => setAsignacionTipo("publicado")}
+   617→                >
+   618→                  Publicar para choferes
+   619→                </Button>
+   620→              </div>
+   621→              {asignacionTipo === "manual" && (
+   622→                <div className="space-y-1">
+   623→                  <Label htmlFor="choferRecurrente" className="text-xs">Chofer</Label>
+   624→                  <Select value={choferAsignadoId || "__ninguno"} onValueChange={setChoferAsignadoId}>
+   625→                    <SelectTrigger id="choferRecurrente">
+   626→                      <SelectValue placeholder="Sin asignar" />
+   627→                    </SelectTrigger>
+   628→                    <SelectContent>
+   629→                      <SelectItem value="__ninguno">— Sin asignar —</SelectItem>
+   630→                      {choferes.map((c) => (
+   631→                        <SelectItem key={c.id} value={c.id}>
+   632→                          {c.nombre}
+   633→                        </SelectItem>
+   634→                      ))}
+   635→                    </SelectContent>
+   636→                  </Select>
+   637→                </div>
+   638→              )}
+   639→            </div>
+   640→
+   641→            <div className="space-y-2">
+   642→              <Label htmlFor="notaRecurrente">Nota</Label>
+   643→              <Textarea
+   644→                id="notaRecurrente"
+   645→                value={nota}
+   646→                onChange={(e) => setNota(e.target.value)}
+   647→                placeholder="Ej. Rellenar estanque antes de que quede vacío"
+   648→                rows={2}
+   649→              />
+   650→            </div>
+   651→
+   652→            <div className="flex items-center justify-between rounded-lg border border-border p-3">
+   653→              <div>
+   654→                <Label htmlFor="activoRecurrente" className="text-sm font-medium">Activo</Label>
+   655→                <p className="text-xs text-muted-foreground">
+   656→                  Si está pausado, no se generarán pedidos automáticamente.
+   657→                </p>
+   658→              </div>
+   659→              <Switch id="activoRecurrente" checked={activo} onCheckedChange={setActivo} />
+   660→            </div>
+   661→
+   662→            <DialogFooter>
+   663→              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
+   664→                Cancelar
+   665→              </Button>
+   666→              <Button type="submit" disabled={saving}>
+   667→                {saving ? "Guardando…" : editando ? "Guardar cambios" : "Crear recurrente"}
+   668→              </Button>
+   669→            </DialogFooter>
+   670→          </form>
+   671→        </DialogContent>
+   672→      </Dialog>
+   673→
+   674→      {/* Confirmar borrado */}
+   675→      <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>
+   676→        <DialogContent className="max-w-sm">
+   677→          <DialogHeader>
+   678→            <DialogTitle>Eliminar pedido recurrente</DialogTitle>
+   679→            <DialogDescription>
+   680→              ¿Eliminar el pedido recurrente de <strong>{borrando?.cliente.nombre}</strong>?
+   681→              Los pedidos ya generados se conservan.
+   682→            </DialogDescription>
+   683→          </DialogHeader>
+   684→          <DialogFooter>
+   685→            <Button variant="outline" onClick={() => setBorrando(null)}>
+   686→              Cancelar
+   687→            </Button>
+   688→            <Button variant="destructive" onClick={() => borrando && handleBorrar(borrando)}>
+   689→              <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+   690→            </Button>
+   691→          </DialogFooter>
+   692→        </DialogContent>
+   693→      </Dialog>
+   694→    </div>
+   695→  );
+   696→}
+   697→

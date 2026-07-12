@@ -1,0 +1,1544 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useState, useCallback } from "react";
+     4→import { Button } from "@/components/ui/button";
+     5→import { Card, CardContent } from "@/components/ui/card";
+     6→import { Input } from "@/components/ui/input";
+     7→import { Label } from "@/components/ui/label";
+     8→import { Textarea } from "@/components/ui/textarea";
+     9→import { Skeleton } from "@/components/ui/skeleton";
+    10→import { Badge } from "@/components/ui/badge";
+    11→import {
+    12→  Select,
+    13→  SelectContent,
+    14→  SelectItem,
+    15→  SelectTrigger,
+    16→  SelectValue,
+    17→} from "@/components/ui/select";
+    18→import {
+    19→  Dialog,
+    20→  DialogContent,
+    21→  DialogHeader,
+    22→  DialogTitle,
+    23→  DialogDescription,
+    24→  DialogFooter,
+    25→} from "@/components/ui/dialog";
+    26→import {
+    27→  DropdownMenu,
+    28→  DropdownMenuContent,
+    29→  DropdownMenuItem,
+    30→  DropdownMenuTrigger,
+    31→} from "@/components/ui/dropdown-menu";
+    32→import {
+    33→  Plus,
+    34→  MoreVertical,
+    35→  Pencil,
+    36→  Trash2,
+    37→  Eye,
+    38→  Phone,
+    39→  MapPin,
+    40→  Droplets,
+    41→  Users,
+    42→  Banknote,
+    43→  Smartphone,
+    44→  Truck,
+    45→  Navigation,
+    46→  Loader2,
+    47→  ExternalLink,
+    48→  DoorOpen,
+    49→  Fence,
+    50→  KeyRound,
+    51→  UserCheck,
+    52→  Search,
+    53→  Mail,
+    54→  ClipboardList,
+    55→  X,
+    56→} from "lucide-react";
+    57→import { Switch } from "@/components/ui/switch";
+    58→import { toast } from "sonner";
+    59→import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
+    60→import { formatCurrency, formatNumber, formatDate, formatTime, labelMetodoPago, labelEstadoPago, USOS_AGUA, TIPOS_ESTANQUE, labelUsoAgua, labelTipoEstanque } from "@/lib/helpers";
+    61→import { MapPicker } from "./map-picker";
+    62→
+    63→interface Cliente {
+    64→  id: string;
+    65→  nombre: string;
+    66→  rut: string | null;
+    67→  direccion: string | null;
+    68→  telefono: string | null;
+    69→  email: string | null;
+    70→  zona: string | null;
+    71→  precioEfectivoPorLitro: number;
+    72→  precioTransferenciaPorLitro: number;
+    73→  nota: string | null;
+    74→  // GPS
+    75→  lat: number | null;
+    76→  lng: number | null;
+    77→  // Acceso
+    78→  requiereIngresoPropiedad: boolean;
+    79→  entregaDesdeAfuera: boolean;
+    80→  conexionExterna: boolean;
+    81→  requiereClientePresente: boolean;
+    82→  indicacionesAcceso: string | null;
+    83→  // Uso del agua
+    84→  usoAgua: string;
+    85→  usoAguaNota: string | null;
+    86→  estanquesJson: string | null;
+    87→  // Chofer preferido
+    88→  choferPreferidoId: string | null;
+    89→  choferPreferido?: { id: string; nombre: string } | null;
+    90→  _count?: { entregas: number };
+    91→}
+    92→
+    93→interface ClientesTabProps {
+    94→  refreshKey: number;
+    95→  onRefresh: () => void;
+    96→  readOnly?: boolean;
+    97→  choferes?: { id: string; nombre: string; email: string }[];
+    98→  onAgendarPedido?: (clienteId: string) => void;
+    99→}
+   100→
+   101→export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes = [], onAgendarPedido }: ClientesTabProps) {
+   102→  const [clientes, setClientes] = useState<Cliente[]>([]);
+   103→  const [loading, setLoading] = useState(true);
+   104→  const [busqueda, setBusqueda] = useState("");
+   105→
+   106→  const [formOpen, setFormOpen] = useState(false);
+   107→  const [editando, setEditando] = useState<Cliente | null>(null);
+   108→  const [borrando, setBorrando] = useState<Cliente | null>(null);
+   109→
+   110→  // Estado para detalle del cliente
+   111→  const [clienteDetalle, setClienteDetalle] = useState<Cliente | null>(null);
+   112→  const [detalleTab, setDetalleTab] = useState<"info" | "entregas" | "pedidos" | "pagos">("info");
+   113→  const [detalleEntregas, setDetalleEntregas] = useState<any[]>([]);
+   114→  const [detallePedidos, setDetallePedidos] = useState<any[]>([]);
+   115→  const [detallePagos, setDetallePagos] = useState<any[]>([]);
+   116→  const [detalleLoading, setDetalleLoading] = useState(false);
+   117→
+   118→  // Estado para formulario de pago
+   119→  const [pagoOpen, setPagoOpen] = useState(false);
+   120→  const [pagoMonto, setPagoMonto] = useState("");
+   121→  const [pagoMetodo, setPagoMetodo] = useState("efectivo");
+   122→  const [pagoNota, setPagoNota] = useState("");
+   123→  const [pagoSaving, setPagoSaving] = useState(false);
+   124→
+   125→  // Campos del formulario
+   126→  const [nombre, setNombre] = useState("");
+   127→  const [rut, setRut] = useState("");
+   128→  const [direccion, setDireccion] = useState("");
+   129→  const [telefono, setTelefono] = useState("");
+   130→  const [email, setEmail] = useState("");
+   131→  const [zona, setZona] = useState("");
+   132→  const [precioEfectivo, setPrecioEfectivo] = useState("");
+   133→  const [precioTransferencia, setPrecioTransferencia] = useState("");
+   134→  const [nota, setNota] = useState("");
+   135→  // GPS
+   136→  const [lat, setLat] = useState("");
+   137→  const [lng, setLng] = useState("");
+   138→  const [obteniendoGPS, setObteniendoGPS] = useState(false);
+   139→  // Acceso
+   140→  const [requiereIngresoPropiedad, setRequiereIngresoPropiedad] = useState(false);
+   141→  const [entregaDesdeAfuera, setEntregaDesdeAfuera] = useState(false);
+   142→  const [conexionExterna, setConexionExterna] = useState(false);
+   143→  const [requiereClientePresente, setRequiereClientePresente] = useState(true);
+   144→  const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
+   145→  const [usoAgua, setUsoAgua] = useState("consumo");
+   146→  const [usoAguaNota, setUsoAguaNota] = useState("");
+   147→  const [estanques, setEstanques] = useState<{ tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada: boolean }[]>([]);
+   148→  const [choferPreferidoId, setChoferPreferidoId] = useState<string>("");
+   149→  const [mapPickerOpen, setMapPickerOpen] = useState(false);
+   150→  const [saving, setSaving] = useState(false);
+   151→
+   152→  const cargar = useCallback(async () => {
+   153→    setLoading(true);
+   154→    try {
+   155→      const data = await apiGet<{ clientes: Cliente[] }>("/api/clientes");
+   156→      setClientes(data.clientes);
+   157→    } catch (e) {
+   158→      console.error(e);
+   159→      toast.error("No se pudieron cargar los clientes");
+   160→    } finally {
+   161→      setLoading(false);
+   162→    }
+   163→  }, []);
+   164→
+   165→  useEffect(() => {
+   166→    cargar();
+   167→  }, [cargar, refreshKey]);
+   168→
+   169→  const filtrados = clientes.filter((c) => {
+   170→    if (!busqueda.trim()) return true;
+   171→    const q = busqueda.toLowerCase();
+   172→    return (
+   173→      c.nombre.toLowerCase().includes(q) ||
+   174→      (c.direccion ?? "").toLowerCase().includes(q) ||
+   175→      (c.telefono ?? "").toLowerCase().includes(q) ||
+   176→      (c.zona ?? "").toLowerCase().includes(q)
+   177→    );
+   178→  });
+   179→
+   180→  function abrirNuevo() {
+   181→    setEditando(null);
+   182→    setNombre("");
+   183→    setRut("");
+   184→    setDireccion("");
+   185→    setTelefono("");
+   186→    setEmail("");
+   187→    setZona("");
+   188→    setPrecioEfectivo("");
+   189→    setPrecioTransferencia("");
+   190→    setNota("");
+   191→    setLat("");
+   192→    setLng("");
+   193→    setRequiereIngresoPropiedad(false);
+   194→    setEntregaDesdeAfuera(false);
+   195→    setConexionExterna(false);
+   196→    setRequiereClientePresente(true);
+   197→    setIndicacionesAcceso("");
+   198→    setUsoAgua("consumo");
+   199→    setUsoAguaNota("");
+   200→    setEstanques([]);
+   201→    setChoferPreferidoId("");
+   202→    setFormOpen(true);
+   203→  }
+   204→
+   205→  function abrirEditar(c: Cliente) {
+   206→    setEditando(c);
+   207→    setNombre(c.nombre);
+   208→    setRut(c.rut ?? "");
+   209→    setDireccion(c.direccion ?? "");
+   210→    setTelefono(c.telefono ?? "");
+   211→    setEmail(c.email ?? "");
+   212→    setZona(c.zona ?? "");
+   213→    setPrecioEfectivo(c.precioEfectivoPorLitro ? String(c.precioEfectivoPorLitro) : "");
+   214→    setPrecioTransferencia(c.precioTransferenciaPorLitro ? String(c.precioTransferenciaPorLitro) : "");
+   215→    setNota(c.nota ?? "");
+   216→    setLat(c.lat != null ? String(c.lat) : "");
+   217→    setLng(c.lng != null ? String(c.lng) : "");
+   218→    setRequiereIngresoPropiedad(c.requiereIngresoPropiedad ?? false);
+   219→    setEntregaDesdeAfuera(c.entregaDesdeAfuera ?? false);
+   220→    setConexionExterna(c.conexionExterna ?? false);
+   221→    setRequiereClientePresente(c.requiereClientePresente ?? true);
+   222→    setIndicacionesAcceso(c.indicacionesAcceso ?? "");
+   223→    setUsoAgua(c.usoAgua || "consumo");
+   224→    setUsoAguaNota(c.usoAguaNota ?? "");
+   225→    try {
+   226→      setEstanques(c.estanquesJson ? JSON.parse(c.estanquesJson) : []);
+   227→    } catch { setEstanques([]); }
+   228→    setChoferPreferidoId(c.choferPreferidoId ?? "");
+   229→    setFormOpen(true);
+   230→  }
+   231→
+   232→  // Abrir detalle del cliente con su historial
+   233→  async function abrirDetalle(c: Cliente) {
+   234→    setClienteDetalle(c);
+   235→    setDetalleTab("info");
+   236→    setDetalleLoading(true);
+   237→    try {
+   238→      const [ents, peds, pays] = await Promise.all([
+   239→        apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${c.id}`),
+   240→        apiGet<{ pedidos: any[] }>(`/api/pedidos?clienteId=${c.id}`),
+   241→        apiGet<{ pagos: any[] }>(`/api/pagos?clienteId=${c.id}`),
+   242→      ]);
+   243→      setDetalleEntregas(ents.entregas || []);
+   244→      setDetallePedidos(peds.pedidos || []);
+   245→      setDetallePagos(pays.pagos || []);
+   246→    } catch (e) {
+   247→      console.error(e);
+   248→    } finally {
+   249→      setDetalleLoading(false);
+   250→    }
+   251→  }
+   252→
+   253→  // Capturar ubicación GPS actual del dispositivo
+   254→  function obtenerMiUbicacion() {
+   255→    if (!navigator.geolocation) {
+   256→      toast.error("Tu navegador no soporta geolocalización");
+   257→      return;
+   258→    }
+   259→    setObteniendoGPS(true);
+   260→    navigator.geolocation.getCurrentPosition(
+   261→      (pos) => {
+   262→        setLat(pos.coords.latitude.toFixed(6));
+   263→        setLng(pos.coords.longitude.toFixed(6));
+   264→        setObteniendoGPS(false);
+   265→        toast.success("Ubicación capturada");
+   266→      },
+   267→      (err) => {
+   268→        setObteniendoGPS(false);
+   269→        toast.error(err.message || "No se pudo obtener tu ubicación");
+   270→      },
+   271→      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+   272→    );
+   273→  }
+   274→
+   275→  async function handleSave(e: React.FormEvent) {
+   276→    e.preventDefault();
+   277→    if (!nombre.trim()) {
+   278→      toast.error("El nombre es obligatorio");
+   279→      return;
+   280→    }
+   281→    setSaving(true);
+   282→    try {
+   283→      const payload = {
+   284→        nombre: nombre.trim(),
+   285→        rut: rut.trim() || null,
+   286→        direccion: direccion.trim() || null,
+   287→        telefono: telefono.trim() || null,
+   288→        email: email.trim() || null,
+   289→        zona: zona.trim() || null,
+   290→        precioEfectivoPorLitro: Number(precioEfectivo) || 0,
+   291→        precioTransferenciaPorLitro: Number(precioTransferencia) || 0,
+   292→        nota: nota.trim() || null,
+   293→        lat: lat.trim() === "" ? null : Number(lat),
+   294→        lng: lng.trim() === "" ? null : Number(lng),
+   295→        requiereIngresoPropiedad,
+   296→        entregaDesdeAfuera,
+   297→        conexionExterna,
+   298→        requiereClientePresente,
+   299→        indicacionesAcceso: indicacionesAcceso.trim() || null,
+   300→        usoAgua,
+   301→        usoAguaNota: usoAguaNota.trim() || null,
+   302→        estanquesJson: estanques.length > 0 ? JSON.stringify(estanques) : null,
+   303→        choferPreferidoId: choferPreferidoId || null,
+   304→      };
+   305→      if (editando) {
+   306→        await apiPatch(`/api/clientes/${editando.id}`, payload);
+   307→        toast.success("Cliente actualizado");
+   308→      } else {
+   309→        await apiPost("/api/clientes", payload);
+   310→        toast.success("Cliente creado");
+   311→      }
+   312→      setFormOpen(false);
+   313→      onRefresh();
+   314→    } catch (e) {
+   315→      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+   316→    } finally {
+   317→      setSaving(false);
+   318→    }
+   319→  }
+   320→
+   321→  async function handleBorrar(c: Cliente) {
+   322→    try {
+   323→      await apiDelete(`/api/clientes/${c.id}`);
+   324→      toast.success("Cliente eliminado");
+   325→      setBorrando(null);
+   326→      onRefresh();
+   327→    } catch (e) {
+   328→      toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+   329→    }
+   330→  }
+   331→
+   332→  async function handlePago(e: React.FormEvent) {
+   333→    e.preventDefault();
+   334→    if (!clienteDetalle) return;
+   335→    const monto = Number(pagoMonto) || 0;
+   336→    if (monto <= 0) {
+   337→      toast.error("El monto debe ser mayor a 0");
+   338→      return;
+   339→    }
+   340→    setPagoSaving(true);
+   341→    try {
+   342→      await apiPost("/api/pagos", {
+   343→        clienteId: clienteDetalle.id,
+   344→        monto,
+   345→        metodoPago: pagoMetodo,
+   346→        nota: pagoNota.trim() || null,
+   347→      });
+   348→      toast.success("Pago registrado");
+   349→      setPagoOpen(false);
+   350→      setPagoMonto("");
+   351→      setPagoNota("");
+   352→      // Recargar detalle
+   353→      abrirDetalle(clienteDetalle);
+   354→      onRefresh();
+   355→    } catch (e) {
+   356→      toast.error(e instanceof Error ? e.message : "No se pudo registrar el pago");
+   357→    } finally {
+   358→      setPagoSaving(false);
+   359→    }
+   360→  }
+   361→
+   362→  return (
+   363→    <div className="space-y-4">
+   364→      {/* Encabezado */}
+   365→      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+   366→        <div>
+   367→          <h2 className="text-lg font-semibold sm:text-xl">Clientes</h2>
+   368→          <p className="text-sm text-muted-foreground">
+   369→            {readOnly
+   370→              ? "Catálogo de clientes del dueño (solo lectura)."
+   371→              : "Catálogo de clientes frecuentes con precios por método de pago y por zona."}
+   372→          </p>
+   373→        </div>
+   374→        {!readOnly && (
+   375→          <Button onClick={abrirNuevo} size="sm">
+   376→            <Plus className="mr-1 h-4 w-4" /> Nuevo cliente
+   377→          </Button>
+   378→        )}
+   379→      </div>
+   380→
+   381→      <Input
+   382→        value={busqueda}
+   383→        onChange={(e) => setBusqueda(e.target.value)}
+   384→        placeholder="Buscar por nombre, dirección, zona o teléfono…"
+   385→        className="max-w-md"
+   386→      />
+   387→
+   388→      {/* Lista */}
+   389→      {loading ? (
+   390→        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+   391→          {Array.from({ length: 6 }).map((_, i) => (
+   392→            <Skeleton key={i} className="h-40 rounded-lg" />
+   393→          ))}
+   394→        </div>
+   395→      ) : filtrados.length === 0 ? (
+   396→        <Card>
+   397→          <CardContent className="flex flex-col items-center justify-center gap-2 p-10 text-center">
+   398→            <Users className="h-10 w-10 text-muted-foreground" />
+   399→            <p className="text-sm text-muted-foreground">
+   400→              {clientes.length === 0
+   401→                ? "Aún no hay clientes registrados."
+   402→                : "No se encontraron clientes."}
+   403→            </p>
+   404→            <Button onClick={abrirNuevo} variant="outline" size="sm">
+   405→              <Plus className="mr-1 h-4 w-4" /> Agregar cliente
+   406→            </Button>
+   407→          </CardContent>
+   408→        </Card>
+   409→      ) : (
+   410→        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+   411→          {filtrados.map((c) => (
+   412→            <Card key={c.id} className="flex flex-col cursor-pointer hover:shadow-md transition-shadow" onClick={() => abrirDetalle(c)}>
+   413→              <CardContent className="flex flex-1 flex-col gap-2 p-4">
+   414→                <div className="flex items-start justify-between gap-2">
+   415→                  <div className="min-w-0 flex-1">
+   416→                    <p className="truncate font-semibold">{c.nombre}</p>
+   417→                    {c._count && (
+   418→                      <p className="text-xs text-muted-foreground">
+   419→                        {c._count.entregas} entrega{c._count.entregas !== 1 ? "s" : ""} registradas
+   420→                      </p>
+   421→                    )}
+   422→                  </div>
+   423→                  {!readOnly && (
+   424→                    <DropdownMenu>
+   425→                      <DropdownMenuTrigger asChild>
+   426→                        <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={(e) => e.stopPropagation()}>
+   427→                          <MoreVertical className="h-4 w-4" />
+   428→                        </Button>
+   429→                      </DropdownMenuTrigger>
+   430→                      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+   431→                        <DropdownMenuItem onClick={() => abrirDetalle(c)}>
+   432→                          <Eye className="mr-2 h-4 w-4" /> Ver detalle
+   433→                        </DropdownMenuItem>
+   434→                        <DropdownMenuItem onClick={() => abrirEditar(c)}>
+   435→                          <Pencil className="mr-2 h-4 w-4" /> Editar
+   436→                        </DropdownMenuItem>
+   437→                        <DropdownMenuItem
+   438→                          className="text-destructive focus:text-destructive"
+   439→                          onClick={() => setBorrando(c)}
+   440→                        >
+   441→                          <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+   442→                        </DropdownMenuItem>
+   443→                      </DropdownMenuContent>
+   444→                    </DropdownMenu>
+   445→                  )}
+   446→                </div>
+   447→                <div className="space-y-1 text-sm text-muted-foreground">
+   448→                  {c.zona && (
+   449→                    <div className="flex items-center gap-1.5">
+   450→                      <MapPin className="h-3.5 w-3.5 shrink-0" />
+   451→                      <Badge variant="outline" className="text-[10px]">{c.zona}</Badge>
+   452→                    </div>
+   453→                  )}
+   454→                  {c.direccion && (
+   455→                    <div className="flex items-start gap-1.5">
+   456→                      <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+   457→                      <span className="truncate">{c.direccion}</span>
+   458→                    </div>
+   459→                  )}
+   460→                  {c.telefono && (
+   461→                    <div className="flex items-center gap-1.5">
+   462→                      <Phone className="h-3.5 w-3.5 shrink-0" />
+   463→                      <a href={`tel:${c.telefono}`} className="hover:underline">
+   464→                        {c.telefono}
+   465→                      </a>
+   466→                    </div>
+   467→                  )}
+   468→                </div>
+   469→                {/* Precios por método */}
+   470→                {(c.precioEfectivoPorLitro > 0 || c.precioTransferenciaPorLitro > 0) && (
+   471→                  <div className="mt-1 flex flex-wrap gap-2">
+   472→                    {c.precioEfectivoPorLitro > 0 && (
+   473→                      <Badge variant="secondary" className="text-[11px]">
+   474→                        <Banknote className="mr-1 h-3 w-3" />
+   475→                        {formatCurrency(c.precioEfectivoPorLitro)}/L
+   476→                      </Badge>
+   477→                    )}
+   478→                    {c.precioTransferenciaPorLitro > 0 && (
+   479→                      <Badge variant="secondary" className="text-[11px]">
+   480→                        <Smartphone className="mr-1 h-3 w-3" />
+   481→                        {formatCurrency(c.precioTransferenciaPorLitro)}/L
+   482→                      </Badge>
+   483→                    )}
+   484→                  </div>
+   485→                )}
+   486→
+   487→                {/* Indicadores de acceso */}
+   488→                {(c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false) && (
+   489→                  <div className="mt-1 flex flex-wrap gap-1">
+   490→                    {c.requiereIngresoPropiedad && (
+   491→                      <Badge variant="outline" className="text-[10px] gap-0.5" title="Hay que ingresar a la propiedad">
+   492→                        <DoorOpen className="h-2.5 w-2.5" /> Ingreso
+   493→                      </Badge>
+   494→                    )}
+   495→                    {c.entregaDesdeAfuera && (
+   496→                      <Badge variant="outline" className="text-[10px] gap-0.5" title="Se puede entregar desde afuera">
+   497→                        <Fence className="h-2.5 w-2.5" /> Desde afuera
+   498→                      </Badge>
+   499→                    )}
+   500→                    {c.conexionExterna && (
+   501→                      <Badge variant="outline" className="text-[10px] gap-0.5 text-emerald-700 dark:text-emerald-300" title="Conexión/llave externa">
+   502→                        <KeyRound className="h-2.5 w-2.5" /> Conexión
+   503→                      </Badge>
+   504→                    )}
+   505→                    {c.requiereClientePresente === false && (
+   506→                      <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300" title="No requiere cliente presente">
+   507→                        <UserCheck className="h-2.5 w-2.5" /> Sin presencia
+   508→                      </Badge>
+   509→                    )}
+   510→                  </div>
+   511→                )}
+   512→
+   513→                {/* GPS */}
+   514→                {c.lat != null && c.lng != null && (
+   515→                  <a
+   516→                    href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
+   517→                    target="_blank"
+   518→                    rel="noopener noreferrer"
+   519→                    className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+   520→                  >
+   521→                    <Navigation className="h-3 w-3" /> Ver ubicación GPS
+   522→                  </a>
+   523→                )}
+   524→
+   525→                {/* Indicaciones de acceso */}
+   526→                {c.indicacionesAcceso && (
+   527→                  <p className="mt-1 line-clamp-3 rounded bg-amber-50 dark:bg-amber-900/20 p-2 text-xs text-amber-900 dark:text-amber-200">
+   528→                    <DoorOpen className="mr-1 inline h-3 w-3" />
+   529→                    {c.indicacionesAcceso}
+   530→                  </p>
+   531→                )}
+   532→
+   533→                {c.nota && (
+   534→                  <p className="mt-1 line-clamp-2 rounded bg-muted/40 p-2 text-xs text-muted-foreground">
+   535→                    {c.nota}
+   536→                  </p>
+   537→                )}
+   538→              </CardContent>
+   539→            </Card>
+   540→          ))}
+   541→        </div>
+   542→      )}
+   543→
+   544→      {/* Formulario */}
+   545→      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+   546→        <DialogContent className="max-h-[95vh] w-[95vw] max-w-md overflow-y-auto">
+   547→          <DialogHeader>
+   548→            <DialogTitle>{editando ? "Editar cliente" : "Nuevo cliente"}</DialogTitle>
+   549→            <DialogDescription>
+   550→              Los datos del cliente se guardan para autocompletar nuevas entregas.
+   551→              Los precios por método sobreescriben los globales.
+   552→            </DialogDescription>
+   553→          </DialogHeader>
+   554→          <form onSubmit={handleSave} className="space-y-4">
+   555→            <div className="grid gap-3 sm:grid-cols-2">
+   556→              <div className="space-y-2">
+   557→                <Label htmlFor="nombreCliente">Nombre *</Label>
+   558→                <Input
+   559→                  id="nombreCliente"
+   560→                  value={nombre}
+   561→                  onChange={(e) => setNombre(e.target.value)}
+   562→                  placeholder="Ej. Juan Pérez"
+   563→                  required
+   564→                />
+   565→              </div>
+   566→              <div className="space-y-2">
+   567→                <Label htmlFor="rutCliente">RUT</Label>
+   568→                <Input
+   569→                  id="rutCliente"
+   570→                  value={rut}
+   571→                  onChange={(e) => setRut(e.target.value)}
+   572→                  placeholder="12.345.678-9"
+   573→                />
+   574→              </div>
+   575→            </div>
+   576→            <div className="grid gap-3 sm:grid-cols-2">
+   577→              <div className="space-y-2">
+   578→                <Label htmlFor="telefonoCliente">Teléfono</Label>
+   579→                <Input
+   580→                  id="telefonoCliente"
+   581→                  value={telefono}
+   582→                  onChange={(e) => setTelefono(e.target.value)}
+   583→                  placeholder="+56 9 1234 5678"
+   584→                />
+   585→              </div>
+   586→              <div className="space-y-2">
+   587→                <Label htmlFor="emailCliente">Email</Label>
+   588→                <Input
+   589→                  id="emailCliente"
+   590→                  type="email"
+   591→                  value={email}
+   592→                  onChange={(e) => setEmail(e.target.value)}
+   593→                  placeholder="cliente@email.com"
+   594→                />
+   595→              </div>
+   596→            </div>
+   597→            <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+   598→              <div className="space-y-2">
+   599→                <Label htmlFor="direccionCliente">Dirección</Label>
+   600→                <Input
+   601→                  id="direccionCliente"
+   602→                  value={direccion}
+   603→                onChange={(e) => setDireccion(e.target.value)}
+   604→                placeholder="Calle, número, comuna"
+   605→              />
+   606→            </div>
+   607→              <div className="space-y-2">
+   608→                <Label htmlFor="zonaCliente">Zona</Label>
+   609→                <Input
+   610→                  id="zonaCliente"
+   611→                  value={zona}
+   612→                  onChange={(e) => setZona(e.target.value)}
+   613→                  placeholder="Ej. Rural 5km"
+   614→                />
+   615→              </div>
+   616→            </div>
+   617→
+   618→            <div className="rounded-lg border border-border bg-muted/30 p-3">
+   619→              <p className="mb-2 flex items-center gap-1.5 text-sm font-medium">
+   620→                <Droplets className="h-4 w-4 text-primary" /> Precios específicos (opcional)
+   621→              </p>
+   622→              <p className="mb-3 text-xs text-muted-foreground">
+   623→                Si dejas estos campos en 0, se usarán los precios globales. Define precios distintos
+   624→                según la ubicación del cliente o su método de pago preferido.
+   625→              </p>
+   626→              <div className="grid gap-3 sm:grid-cols-2">
+   627→                <div className="space-y-2">
+   628→                  <Label htmlFor="precioEfectivoCliente" className="text-xs">
+   629→                    <Banknote className="mr-1 inline h-3 w-3" /> Efectivo $/L
+   630→                  </Label>
+   631→                  <Input
+   632→                    id="precioEfectivoCliente"
+   633→                    type="number"
+   634→                    inputMode="decimal"
+   635→                    step="any"
+   636→                    value={precioEfectivo}
+   637→                    onChange={(e) => setPrecioEfectivo(e.target.value)}
+   638→                    placeholder="0 = global"
+   639→                  />
+   640→                </div>
+   641→                <div className="space-y-2">
+   642→                  <Label htmlFor="precioTransferenciaCliente" className="text-xs">
+   643→                    <Smartphone className="mr-1 inline h-3 w-3" /> Transferencia $/L
+   644→                  </Label>
+   645→                  <Input
+   646→                    id="precioTransferenciaCliente"
+   647→                    type="number"
+   648→                    inputMode="decimal"
+   649→                    step="any"
+   650→                    value={precioTransferencia}
+   651→                    onChange={(e) => setPrecioTransferencia(e.target.value)}
+   652→                    placeholder="0 = global"
+   653→                  />
+   654→                </div>
+   655→              </div>
+   656→            </div>
+   657→
+   658→            <div className="space-y-2">
+   659→              <Label htmlFor="notaCliente">Nota</Label>
+   660→              <Textarea
+   661→                id="notaCliente"
+   662→                value={nota}
+   663→                onChange={(e) => setNota(e.target.value)}
+   664→                placeholder="Ej. Llamar 15 min antes, estanque en el patio trasero"
+   665→                rows={2}
+   666→              />
+   667→            </div>
+   668→
+   669→            {/* Ubicación GPS */}
+   670→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   671→              <div className="flex items-center justify-between">
+   672→                <Label className="flex items-center gap-1.5 text-sm font-medium">
+   673→                  <Navigation className="h-4 w-4 text-primary" /> Ubicación GPS
+   674→                </Label>
+   675→                <div className="flex gap-2">
+   676→                  <Button
+   677→                    type="button"
+   678→                    variant="outline"
+   679→                    size="sm"
+   680→                    onClick={() => setMapPickerOpen(true)}
+   681→                  >
+   682→                    <Search className="mr-1 h-3 w-3" />
+   683→                    Buscar en mapa
+   684→                  </Button>
+   685→                  <Button
+   686→                    type="button"
+   687→                    variant="outline"
+   688→                    size="sm"
+   689→                    onClick={obtenerMiUbicacion}
+   690→                    disabled={obteniendoGPS}
+   691→                  >
+   692→                    {obteniendoGPS ? (
+   693→                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+   694→                    ) : (
+   695→                      <MapPin className="mr-1 h-3 w-3" />
+   696→                    )}
+   697→                    Mi ubicación
+   698→                  </Button>
+   699→                </div>
+   700→              </div>
+   701→              <div className="grid grid-cols-2 gap-2">
+   702→                <div className="space-y-1">
+   703→                  <Label htmlFor="latCliente" className="text-xs">Latitud</Label>
+   704→                  <Input
+   705→                    id="latCliente"
+   706→                    type="number"
+   707→                    inputMode="decimal"
+   708→                    step="any"
+   709→                    value={lat}
+   710→                    onChange={(e) => setLat(e.target.value)}
+   711→                    placeholder="-33.4489"
+   712→                  />
+   713→                </div>
+   714→                <div className="space-y-1">
+   715→                  <Label htmlFor="lngCliente" className="text-xs">Longitud</Label>
+   716→                  <Input
+   717→                    id="lngCliente"
+   718→                    type="number"
+   719→                    inputMode="decimal"
+   720→                    step="any"
+   721→                    value={lng}
+   722→                    onChange={(e) => setLng(e.target.value)}
+   723→                    placeholder="-70.6693"
+   724→                  />
+   725→                </div>
+   726→              </div>
+   727→              {lat && lng && (
+   728→                <a
+   729→                  href={`https://www.google.com/maps?q=${lat},${lng}`}
+   730→                  target="_blank"
+   731→                  rel="noopener noreferrer"
+   732→                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+   733→                >
+   734→                  <ExternalLink className="h-3 w-3" /> Ver en Google Maps
+   735→                </a>
+   736→              )}
+   737→              <p className="text-xs text-muted-foreground">
+   738→                Usa "Buscar en mapa" para encontrar la dirección del cliente sin estar ahí.
+   739→              </p>
+   740→            </div>
+   741→
+   742→            {/* Acceso a la propiedad */}
+   743→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   744→              <Label className="flex items-center gap-1.5 text-sm font-medium">
+   745→                <DoorOpen className="h-4 w-4 text-primary" /> Acceso a la propiedad
+   746→              </Label>
+   747→              <p className="text-xs text-muted-foreground">
+   748→                Indica cómo se entrega el agua en este cliente. Esto ayuda al chofer a saber qué esperar.
+   749→              </p>
+   750→
+   751→              <div className="space-y-2">
+   752→                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+   753→                  <Switch
+   754→                    checked={requiereIngresoPropiedad}
+   755→                    onCheckedChange={setRequiereIngresoPropiedad}
+   756→                  />
+   757→                  <div className="flex-1 -mt-0.5">
+   758→                    <span className="flex items-center gap-1.5 text-sm font-medium">
+   759→                      <DoorOpen className="h-3.5 w-3.5" /> Hay que ingresar a la propiedad
+   760→                    </span>
+   761→                    <p className="text-xs text-muted-foreground">
+   762→                      El chofer debe entrar al terreno (abrir portón, pasar a patio, etc.)
+   763→                    </p>
+   764→                  </div>
+   765→                </label>
+   766→
+   767→                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+   768→                  <Switch
+   769→                    checked={entregaDesdeAfuera}
+   770→                    onCheckedChange={setEntregaDesdeAfuera}
+   771→                  />
+   772→                  <div className="flex-1 -mt-0.5">
+   773→                    <span className="flex items-center gap-1.5 text-sm font-medium">
+   774→                      <Fence className="h-3.5 w-3.5" /> Se puede entregar desde afuera
+   775→                    </span>
+   776→                    <p className="text-xs text-muted-foreground">
+   777→                      Pasar manguera por sobre el portón/muro, sin entrar a la propiedad
+   778→                    </p>
+   779→                  </div>
+   780→                </label>
+   781→
+   782→                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+   783→                  <Switch
+   784→                    checked={conexionExterna}
+   785→                    onCheckedChange={setConexionExterna}
+   786→                  />
+   787→                  <div className="flex-1 -mt-0.5">
+   788→                    <span className="flex items-center gap-1.5 text-sm font-medium">
+   789→                      <KeyRound className="h-3.5 w-3.5" /> Hay conexión/llave externa
+   790→                    </span>
+   791→                    <p className="text-xs text-muted-foreground">
+   792→                      Existe una llave de paso o conexión accesible desde afuera — se puede entregar sin el cliente
+   793→                    </p>
+   794→                  </div>
+   795→                </label>
+   796→
+   797→                <label className="flex items-start gap-3 rounded-lg border border-border bg-background p-2.5 cursor-pointer hover:bg-muted/30">
+   798→                  <Switch
+   799→                    checked={requiereClientePresente}
+   800→                    onCheckedChange={setRequiereClientePresente}
+   801→                  />
+   802→                  <div className="flex-1 -mt-0.5">
+   803→                    <span className="flex items-center gap-1.5 text-sm font-medium">
+   804→                      <UserCheck className="h-3.5 w-3.5" /> Cliente debe estar presente
+   805→                    </span>
+   806→                    <p className="text-xs text-muted-foreground">
+   807→                      Si está apagado, se puede entregar aunque el cliente no esté (con autorización/conexión externa)
+   808→                    </p>
+   809→                  </div>
+   810→                </label>
+   811→              </div>
+   812→
+   813→              <div className="space-y-1">
+   814→                <Label htmlFor="indicacionesAcceso" className="text-xs">Indicaciones de acceso (descripción libre)</Label>
+   815→                <Textarea
+   816→                  id="indicacionesAcceso"
+   817→                  value={indicacionesAcceso}
+   818→                  onChange={(e) => setIndicacionesAcceso(e.target.value)}
+   819→                  placeholder="Ej. Portón verde, llamar al llegar. Estanque atrás cerca del quincho. Llave de paso bajo la tapa de cemento."
+   820→                  rows={3}
+   821→                />
+   822→              </div>
+   823→            </div>
+   824→
+   825→            {/* Uso del agua */}
+   826→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   827→              <Label className="flex items-center gap-1.5 text-sm font-medium">
+   828→                <Droplets className="h-4 w-4 text-primary" /> Uso del agua
+   829→              </Label>
+   830→              <p className="text-xs text-muted-foreground">¿Para qué pide agua este cliente?</p>
+   831→              <div className="space-y-1">
+   832→                <select
+   833→                  value={usoAgua}
+   834→                  onChange={(e) => setUsoAgua(e.target.value)}
+   835→                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+   836→                >
+   837→                  {USOS_AGUA.map((u) => (
+   838→                    <option key={u.value} value={u.value}>{u.label} — {u.description}</option>
+   839→                  ))}
+   840→                </select>
+   841→              </div>
+   842→              <div className="space-y-1">
+   843→                <Label htmlFor="usoAguaNota" className="text-xs">Detalle del uso (opcional)</Label>
+   844→                <Input
+   845→                  id="usoAguaNota"
+   846→                  value={usoAguaNota}
+   847→                  onChange={(e) => setUsoAguaNota(e.target.value)}
+   848→                  placeholder="Ej. Regar 2 hectáreas de pasto, humedecer 500m de camino"
+   849→                />
+   850→              </div>
+   851→            </div>
+   852→
+   853→            {/* Estanques / Piscinas */}
+   854→            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+   855→              <div className="flex items-center justify-between">
+   856→                <Label className="flex items-center gap-1.5 text-sm font-medium">
+   857→                  <Droplets className="h-4 w-4 text-primary" /> Estanques y piscinas
+   858→                </Label>
+   859→                <Button
+   860→                  type="button"
+   861→                  variant="outline"
+   862→                  size="sm"
+   863→                  onClick={() => setEstanques([...estanques, { tipo: "estanque", capacidad: "", nombre: "", ubicacion: "", facturaSeparada: false }])}
+   864→                >
+   865→                  <Plus className="mr-1 h-3 w-3" /> Agregar
+   866→                </Button>
+   867→              </div>
+   868→              <p className="text-xs text-muted-foreground">
+   869→                Registra los estanques/piscinas del cliente para saber cuánta agua puede recibir de una vez.
+   870→              </p>
+   871→
+   872→              {estanques.length === 0 ? (
+   873→                <p className="rounded-lg border border-dashed border-border p-3 text-center text-xs text-muted-foreground">
+   874→                  Sin estanques registrados. Clic en "Agregar" para añadir uno.
+   875→                </p>
+   876→              ) : (
+   877→                <div className="space-y-2">
+   878→                  {estanques.map((est, i) => (
+   879→                    <div key={i} className="rounded-lg border border-border bg-background p-2 space-y-2">
+   880→                      <div className="flex items-center justify-between">
+   881→                        <span className="text-xs font-medium">Estanque #{i + 1}</span>
+   882→                        <Button
+   883→                          type="button"
+   884→                          variant="ghost"
+   885→                          size="icon"
+   886→                          className="h-6 w-6"
+   887→                          onClick={() => setEstanques(estanques.filter((_, j) => j !== i))}
+   888→                        >
+   889→                          <X className="h-3 w-3" />
+   890→                        </Button>
+   891→                      </div>
+   892→                      <div className="grid grid-cols-2 gap-2">
+   893→                        <select
+   894→                          value={est.tipo}
+   895→                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, tipo: e.target.value } : est2))}
+   896→                          className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+   897→                        >
+   898→                          {TIPOS_ESTANQUE.map((t) => (
+   899→                            <option key={t.value} value={t.value}>{t.label}</option>
+   900→                          ))}
+   901→                        </select>
+   902→                        <Input
+   903→                          type="number"
+   904→                          inputMode="numeric"
+   905→                          value={est.capacidad}
+   906→                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, capacidad: e.target.value } : est2))}
+   907→                          placeholder="Capacidad (L)"
+   908→                          className="h-8 text-xs"
+   909→                        />
+   910→                      </div>
+   911→                      <Input
+   912→                        value={est.nombre}
+   913→                        onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, nombre: e.target.value } : est2))}
+   914→                        placeholder="Nombre/identificador (ej. Estanque principal, Piscina)"
+   915→                        className="h-8 text-xs"
+   916→                      />
+   917→                      <Input
+   918→                        value={est.ubicacion}
+   919→                        onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, ubicacion: e.target.value } : est2))}
+   920→                        placeholder="Ubicación (ej. Patio trasero, junto al quincho)"
+   921→                        className="h-8 text-xs"
+   922→                      />
+   923→                      {/* Checkbox facturación independiente */}
+   924→                      <label className="flex items-center gap-2 text-xs">
+   925→                        <input
+   926→                          type="checkbox"
+   927→                          checked={est.facturaSeparada}
+   928→                          onChange={(e) => setEstanques(estanques.map((est2, j) => j === i ? { ...est2, facturaSeparada: e.target.checked } : est2))}
+   929→                          className="h-3.5 w-3.5"
+   930→                        />
+   931→                        <span>Facturar este estanque por separado (casa/cabaña independiente)</span>
+   932→                      </label>
+   933→                    </div>
+   934→                  ))}
+   935→                </div>
+   936→              )}
+   937→
+   938→              {/* Total capacidad */}
+   939→              {estanques.length > 0 && (() => {
+   940→                const total = estanques.reduce((s, e) => s + (Number(e.capacidad) || 0), 0);
+   941→                const independientes = estanques.filter((e) => e.facturaSeparada).length;
+   942→                return (
+   943→                  <>
+   944→                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center text-sm">
+   945→                      <span className="text-muted-foreground">Capacidad total: </span>
+   946→                      <strong className="tabular-nums text-primary">{formatNumber(total, 0)} L</strong>
+   947→                    </div>
+   948→                    {independientes > 0 && (
+   949→                      <p className="text-center text-[11px] text-amber-600 dark:text-amber-400">
+   950→                        {independientes} estanque(s) con facturación independiente — al registrar una entrega se desglosará por estanque
+   951→                      </p>
+   952→                    )}
+   953→                  </>
+   954→                );
+   955→              })()}
+   956→            </div>
+   957→
+   958→            {/* Chofer preferido */}
+   959→            {choferes.length > 0 && (
+   960→              <div className="space-y-2">
+   961→                <Label htmlFor="choferPreferido">Chofer preferido (opcional)</Label>
+   962→                <select
+   963→                  id="choferPreferido"
+   964→                  value={choferPreferidoId || "__ninguno"}
+   965→                  onChange={(e) => setChoferPreferidoId(e.target.value === "__ninguno" ? "" : e.target.value)}
+   966→                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+   967→                >
+   968→                  <option value="__ninguno">— Sin preferido —</option>
+   969→                  {choferes.map((c) => (
+   970→                    <option key={c.id} value={c.id}>{c.nombre}</option>
+   971→                  ))}
+   972→                </select>
+   973→                <p className="text-xs text-muted-foreground">
+   974→                  Este chofer tendrá prioridad para atender pedidos de este cliente. Si el cliente fue agregado por un chofer, ese chofer es el preferido por defecto.
+   975→                </p>
+   976→              </div>
+   977→            )}
+   978→
+   979→            <DialogFooter>
+   980→              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
+   981→                Cancelar
+   982→              </Button>
+   983→              <Button type="submit" disabled={saving}>
+   984→                {saving ? "Guardando…" : editando ? "Guardar cambios" : "Crear cliente"}
+   985→              </Button>
+   986→            </DialogFooter>
+   987→          </form>
+   988→        </DialogContent>
+   989→      </Dialog>
+   990→
+   991→      {/* Map Picker */}
+   992→      <MapPicker
+   993→        open={mapPickerOpen}
+   994→        onOpenChange={setMapPickerOpen}
+   995→        onSelect={(latVal, lngVal) => {
+   996→          setLat(String(latVal));
+   997→          setLng(String(lngVal));
+   998→          toast.success("Ubicación seleccionada");
+   999→        }}
+  1000→        initialLat={lat ? parseFloat(lat) : null}
+  1001→        initialLng={lng ? parseFloat(lng) : null}
+  1002→      />
+  1003→
+  1004→      {/* Diálogo registrar pago */}
+  1005→      <Dialog open={pagoOpen} onOpenChange={setPagoOpen}>
+  1006→        <DialogContent className="max-w-md">
+  1007→          <DialogHeader>
+  1008→            <DialogTitle>Registrar pago de {clienteDetalle?.nombre}</DialogTitle>
+  1009→            <DialogDescription>
+  1010→              Registra un pago sin entrega. Se descontará de la deuda pendiente del cliente.
+  1011→            </DialogDescription>
+  1012→          </DialogHeader>
+  1013→          <form onSubmit={handlePago} className="space-y-4">
+  1014→            <div className="space-y-2">
+  1015→              <Label htmlFor="pagoMonto">Monto recibido *</Label>
+  1016→              <Input
+  1017→                id="pagoMonto"
+  1018→                type="number"
+  1019→                inputMode="decimal"
+  1020→                step="any"
+  1021→                value={pagoMonto}
+  1022→                onChange={(e) => setPagoMonto(e.target.value)}
+  1023→                placeholder="0"
+  1024→                required
+  1025→              />
+  1026→            </div>
+  1027→            <div className="space-y-2">
+  1028→              <Label>Método de pago</Label>
+  1029→              <div className="flex gap-2">
+  1030→                <Button
+  1031→                  type="button"
+  1032→                  size="sm"
+  1033→                  variant={pagoMetodo === "efectivo" ? "default" : "outline"}
+  1034→                  onClick={() => setPagoMetodo("efectivo")}
+  1035→                  className="flex-1"
+  1036→                >
+  1037→                  <Banknote className="mr-1 h-4 w-4" /> Efectivo
+  1038→                </Button>
+  1039→                <Button
+  1040→                  type="button"
+  1041→                  size="sm"
+  1042→                  variant={pagoMetodo === "transferencia" ? "default" : "outline"}
+  1043→                  onClick={() => setPagoMetodo("transferencia")}
+  1044→                  className="flex-1"
+  1045→                >
+  1046→                  <Smartphone className="mr-1 h-4 w-4" /> Transferencia
+  1047→                </Button>
+  1048→              </div>
+  1049→            </div>
+  1050→            <div className="space-y-2">
+  1051→              <Label htmlFor="pagoNota">Nota (opcional)</Label>
+  1052→              <Input
+  1053→                id="pagoNota"
+  1054→                value={pagoNota}
+  1055→                onChange={(e) => setPagoNota(e.target.value)}
+  1056→                placeholder="Ej. Pago de deuda anterior"
+  1057→              />
+  1058→            </div>
+  1059→            <DialogFooter>
+  1060→              <Button type="button" variant="outline" onClick={() => setPagoOpen(false)}>
+  1061→                Cancelar
+  1062→              </Button>
+  1063→              <Button type="submit" disabled={pagoSaving}>
+  1064→                {pagoSaving ? "Guardando…" : "Registrar pago"}
+  1065→              </Button>
+  1066→            </DialogFooter>
+  1067→          </form>
+  1068→        </DialogContent>
+  1069→      </Dialog>
+  1070→
+  1071→      {/* Confirmar borrado */}
+  1072→      <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>
+  1073→        <DialogContent className="max-w-sm">
+  1074→          <DialogHeader>
+  1075→            <DialogTitle>Eliminar cliente</DialogTitle>
+  1076→            <DialogDescription>
+  1077→              ¿Eliminar a <strong>{borrando?.nombre}</strong>? El historial de entregas no se borra,
+  1078→              pero ya no estará asociado a este cliente.
+  1079→            </DialogDescription>
+  1080→          </DialogHeader>
+  1081→          <DialogFooter>
+  1082→            <Button variant="outline" onClick={() => setBorrando(null)}>
+  1083→              Cancelar
+  1084→            </Button>
+  1085→            <Button variant="destructive" onClick={() => borrando && handleBorrar(borrando)}>
+  1086→              <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+  1087→            </Button>
+  1088→          </DialogFooter>
+  1089→        </DialogContent>
+  1090→      </Dialog>
+  1091→
+  1092→      {/* Dialog de detalle del cliente */}
+  1093→      <Dialog open={!!clienteDetalle} onOpenChange={(o) => !o && setClienteDetalle(null)}>
+  1094→        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
+  1095→          {clienteDetalle && (() => {
+  1096→            const totalEntregas = detalleEntregas.length;
+  1097→            const totalLitros = detalleEntregas.reduce((s: number, e: any) => s + (e.litros || 0), 0);
+  1098→            const totalVentas = detalleEntregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
+  1099→            const totalRecibido = detalleEntregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
+  1100→            const totalPagosSueltos = detallePagos.reduce((s: number, p: any) => s + (p.monto || 0), 0);
+  1101→            const totalPorCobrar = totalVentas - totalRecibido - totalPagosSueltos;
+  1102→            const tieneDeuda = totalPorCobrar > 0.5; // tolerance
+  1103→            const tieneSaldoFavor = totalPorCobrar < -0.5;
+  1104→            const pedidosPendientes = detallePedidos.filter((p: any) => p.estado === "pendiente" || p.estado === "programado").length;
+  1105→
+  1106→            // Última entrega (con pago)
+  1107→            const entregasConFecha = [...detalleEntregas].sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+  1108→            const ultimaEntrega = entregasConFecha[0];
+  1109→            const ultimaConPago = entregasConFecha.find((e: any) => e.montoRecibido > 0);
+  1110→            const promedioLitros = totalEntregas > 0 ? totalLitros / totalEntregas : 0;
+  1111→            const promedioMonto = totalEntregas > 0 ? totalVentas / totalEntregas : 0;
+  1112→            const ultimaEntregaFecha = ultimaEntrega ? formatDate(ultimaEntrega.fecha) : "—";
+  1113→            const ultimoPagoMonto = ultimaConPago ? ultimaConPago.montoRecibido : 0;
+  1114→            const ultimoPagoFecha = ultimaConPago ? formatDate(ultimaConPago.fecha) : "—";
+  1115→            const ultimoPagoMetodo = ultimaConPago
+  1116→              ? (ultimaConPago.metodoPago === "efectivo" ? "Efectivo"
+  1117→                : ultimaConPago.metodoPago === "transferencia" ? "Transferencia"
+  1118→                : ultimaConPago.metodoPago === "mixto" ? "Mixto"
+  1119→                : "Crédito")
+  1120→              : "—";
+  1121→
+  1122→            return (
+  1123→              <>
+  1124→                <DialogHeader>
+  1125→                  <DialogTitle className="flex items-center gap-2">
+  1126→                    <Users className="h-5 w-5 text-primary" />
+  1127→                    {clienteDetalle.nombre}
+  1128→                  </DialogTitle>
+  1129→                  <DialogDescription>
+  1130→                    {clienteDetalle.rut && `RUT: ${clienteDetalle.rut} · `}
+  1131→                    {totalEntregas} entrega(s) · {pedidosPendientes} pedido(s) pendiente(s)
+  1132→                  </DialogDescription>
+  1133→                </DialogHeader>
+  1134→
+  1135→                {/* Deuda destacada (si existe) */}
+  1136→                {tieneDeuda && (
+  1137→                  <div className="flex items-center justify-between rounded-lg border border-red-300 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+  1138→                    <div className="flex items-center gap-2">
+  1139→                      <Banknote className="h-5 w-5 text-red-600 dark:text-red-400" />
+  1140→                      <div>
+  1141→                        <p className="text-sm font-semibold text-red-900 dark:text-red-200">Deuda pendiente</p>
+  1142→                        <p className="text-xs text-red-700 dark:text-red-300">
+  1143→                          {totalVentas > 0 ? `${formatCurrency(totalVentas)} en ventas · ` : ""}
+  1144→                          {totalRecibido > 0 ? `${formatCurrency(totalRecibido)} recibido · ` : ""}
+  1145→                          {totalPagosSueltos > 0 ? `${formatCurrency(totalPagosSueltos)} en pagos sueltos` : ""}
+  1146→                        </p>
+  1147→                      </div>
+  1148→                    </div>
+  1149→                    <div className="text-right">
+  1150→                      <p className="text-xl font-bold tabular-nums text-red-600 dark:text-red-400">
+  1151→                        {formatCurrency(totalPorCobrar)}
+  1152→                      </p>
+  1153→                      <Button
+  1154→                        size="sm"
+  1155→                        className="mt-1 bg-emerald-600 hover:bg-emerald-700"
+  1156→                        onClick={() => {
+  1157→                          setPagoOpen(true);
+  1158→                          setPagoMonto(String(Math.round(totalPorCobrar)));
+  1159→                        }}
+  1160→                      >
+  1161→                        <Banknote className="mr-1 h-3 w-3" /> Cobrar
+  1162→                      </Button>
+  1163→                    </div>
+  1164→                  </div>
+  1165→                )}
+  1166→                {tieneSaldoFavor && (
+  1167→                  <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+  1168→                    <Banknote className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+  1169→                    <div>
+  1170→                      <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">Saldo a favor del cliente</p>
+  1171→                      <p className="text-lg font-bold tabular-nums text-blue-600 dark:text-blue-400">
+  1172→                        {formatCurrency(Math.abs(totalPorCobrar))}
+  1173→                      </p>
+  1174→                    </div>
+  1175→                  </div>
+  1176→                )}
+  1177→
+  1178→                {/* Tabs internos — al inicio para fácil acceso */}
+  1179→                <div className="sticky top-0 z-10 flex gap-1 rounded-lg bg-muted/40 p-1">
+  1180→                  <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-7">
+  1181→                    Info
+  1182→                  </Button>
+  1183→                  <Button size="sm" variant={detalleTab === "entregas" ? "default" : "ghost"} onClick={() => setDetalleTab("entregas")} className="h-7">
+  1184→                    Entregas ({totalEntregas})
+  1185→                  </Button>
+  1186→                  <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-7">
+  1187→                    Pedidos ({detallePedidos.length})
+  1188→                  </Button>
+  1189→                  <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-7">
+  1190→                    Pagos ({detallePagos.length})
+  1191→                  </Button>
+  1192→                </div>
+  1193→
+  1194→                {/* Contenido según tab */}
+  1195→                {detalleLoading ? (
+  1196→                  <div className="flex items-center justify-center p-8">
+  1197→                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+  1198→                  </div>
+  1199→                ) : detalleTab === "info" ? (
+  1200→                  <div className="space-y-3 text-sm">
+  1201→                    {/* Datos de contacto */}
+  1202→                    <div className="grid grid-cols-2 gap-2">
+  1203→                      {clienteDetalle.telefono && (
+  1204→                        <div className="flex items-center gap-1.5">
+  1205→                          <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+  1206→                          <a href={`tel:${clienteDetalle.telefono}`} className="hover:underline">{clienteDetalle.telefono}</a>
+  1207→                        </div>
+  1208→                      )}
+  1209→                      {clienteDetalle.email && (
+  1210→                        <div className="flex items-center gap-1.5 truncate">
+  1211→                          <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+  1212→                          <span className="truncate">{clienteDetalle.email}</span>
+  1213→                        </div>
+  1214→                      )}
+  1215→                      {clienteDetalle.direccion && (
+  1216→                        <div className="flex items-start gap-1.5 col-span-2">
+  1217→                          <MapPin className="mt-0.5 h-3.5 w-3.5 text-muted-foreground" />
+  1218→                          <span>{clienteDetalle.direccion}</span>
+  1219→                        </div>
+  1220→                      )}
+  1221→                      {clienteDetalle.zona && (
+  1222→                        <div className="flex items-center gap-1.5">
+  1223→                          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+  1224→                          <Badge variant="outline" className="text-[10px]">{clienteDetalle.zona}</Badge>
+  1225→                        </div>
+  1226→                      )}
+  1227→                    </div>
+  1228→
+  1229→                    {/* Precios */}
+  1230→                    {(clienteDetalle.precioEfectivoPorLitro > 0 || clienteDetalle.precioTransferenciaPorLitro > 0) && (
+  1231→                      <div className="flex flex-wrap gap-2">
+  1232→                        {clienteDetalle.precioEfectivoPorLitro > 0 && (
+  1233→                          <Badge variant="secondary" className="text-[11px]">
+  1234→                            <Banknote className="mr-1 h-3 w-3" /> {formatCurrency(clienteDetalle.precioEfectivoPorLitro)}/L
+  1235→                          </Badge>
+  1236→                        )}
+  1237→                        {clienteDetalle.precioTransferenciaPorLitro > 0 && (
+  1238→                          <Badge variant="secondary" className="text-[11px]">
+  1239→                            <Smartphone className="mr-1 h-3 w-3" /> {formatCurrency(clienteDetalle.precioTransferenciaPorLitro)}/L
+  1240→                          </Badge>
+  1241→                        )}
+  1242→                      </div>
+  1243→                    )}
+  1244→
+  1245→                    {/* Acceso */}
+  1246→                    {(clienteDetalle.requiereIngresoPropiedad || clienteDetalle.entregaDesdeAfuera || clienteDetalle.conexionExterna || clienteDetalle.requiereClientePresente === false) && (
+  1247→                      <div className="flex flex-wrap gap-1">
+  1248→                        {clienteDetalle.requiereIngresoPropiedad && <Badge variant="outline" className="text-[10px]"><DoorOpen className="mr-0.5 h-2.5 w-2.5" /> Ingreso</Badge>}
+  1249→                        {clienteDetalle.entregaDesdeAfuera && <Badge variant="outline" className="text-[10px]"><Fence className="mr-0.5 h-2.5 w-2.5" /> Desde afuera</Badge>}
+  1250→                        {clienteDetalle.conexionExterna && <Badge variant="outline" className="text-[10px] text-emerald-700"><KeyRound className="mr-0.5 h-2.5 w-2.5" /> Conexión</Badge>}
+  1251→                        {clienteDetalle.requiereClientePresente === false && <Badge variant="outline" className="text-[10px] text-amber-700"><UserCheck className="mr-0.5 h-2.5 w-2.5" /> Sin presencia</Badge>}
+  1252→                      </div>
+  1253→                    )}
+  1254→
+  1255→                    {/* Indicaciones de acceso */}
+  1256→                    {clienteDetalle.indicacionesAcceso && (
+  1257→                      <div>
+  1258→                        <p className="text-xs uppercase text-muted-foreground">Indicaciones de acceso</p>
+  1259→                        <p className="mt-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 p-2 text-xs text-amber-900 dark:text-amber-200 whitespace-pre-wrap">
+  1260→                          {clienteDetalle.indicacionesAcceso}
+  1261→                        </p>
+  1262→                      </div>
+  1263→                    )}
+  1264→
+  1265→                    {/* Uso del agua */}
+  1266→                    <div>
+  1267→                      <p className="text-xs uppercase text-muted-foreground">Uso del agua</p>
+  1268→                      <div className="mt-1 flex flex-wrap items-center gap-2">
+  1269→                        <Badge variant="secondary" className="text-[11px]">
+  1270→                          <Droplets className="mr-1 h-3 w-3" /> {labelUsoAgua(clienteDetalle.usoAgua || "consumo")}
+  1271→                        </Badge>
+  1272→                        {clienteDetalle.usoAguaNota && (
+  1273→                          <span className="text-xs text-muted-foreground">{clienteDetalle.usoAguaNota}</span>
+  1274→                        )}
+  1275→                      </div>
+  1276→                    </div>
+  1277→
+  1278→                    {/* Estanques / Piscinas */}
+  1279→                    {(() => {
+  1280→                      let estanquesDetalle: { tipo: string; capacidad: string; nombre: string; ubicacion: string }[] = [];
+  1281→                      try {
+  1282→                        estanquesDetalle = clienteDetalle.estanquesJson ? JSON.parse(clienteDetalle.estanquesJson) : [];
+  1283→                      } catch {}
+  1284→                      if (estanquesDetalle.length === 0) return null;
+  1285→                      const totalCap = estanquesDetalle.reduce((s, e) => s + (Number(e.capacidad) || 0), 0);
+  1286→                      return (
+  1287→                        <div>
+  1288→                          <p className="text-xs uppercase text-muted-foreground">
+  1289→                            Estanques y piscinas {totalCap > 0 && `(total: ${formatNumber(totalCap, 0)} L)`}
+  1290→                          </p>
+  1291→                          <div className="mt-1 space-y-1">
+  1292→                            {estanquesDetalle.map((est, i) => (
+  1293→                              <div key={i} className="rounded-lg border border-border p-2 text-xs">
+  1294→                                <div className="flex items-center justify-between">
+  1295→                                  <span className="font-medium">{est.nombre || labelTipoEstanque(est.tipo)}</span>
+  1296→                                  {est.capacidad && <Badge variant="outline" className="text-[10px]">{formatNumber(Number(est.capacidad), 0)} L</Badge>}
+  1297→                                </div>
+  1298→                                <div className="mt-0.5 flex items-center gap-2 text-muted-foreground">
+  1299→                                  <span>{labelTipoEstanque(est.tipo)}</span>
+  1300→                                  {est.ubicacion && <span>· {est.ubicacion}</span>}
+  1301→                                </div>
+  1302→                              </div>
+  1303→                            ))}
+  1304→                          </div>
+  1305→                        </div>
+  1306→                      );
+  1307→                    })()}
+  1308→
+  1309→                    {/* Nota */}
+  1310→                    {clienteDetalle.nota && (
+  1311→                      <div>
+  1312→                        <p className="text-xs uppercase text-muted-foreground">Nota</p>
+  1313→                        <p className="mt-1 rounded-lg bg-muted/40 p-2 text-xs">{clienteDetalle.nota}</p>
+  1314→                      </div>
+  1315→                    )}
+  1316→
+  1317→                    {/* Resumen de actividad */}
+  1318→                    {totalEntregas > 0 && (
+  1319→                      <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
+  1320→                        <div className="rounded-lg bg-muted/30 p-2 text-center">
+  1321→                          <p className="text-[10px] uppercase text-muted-foreground">Litros totales</p>
+  1322→                          <p className="text-lg font-bold tabular-nums">{formatNumber(totalLitros, 0)}</p>
+  1323→                        </div>
+  1324→                        <div className="rounded-lg bg-muted/30 p-2 text-center">
+  1325→                          <p className="text-[10px] uppercase text-muted-foreground">Total ventas</p>
+  1326→                          <p className="text-sm font-bold tabular-nums">{formatCurrency(totalVentas)}</p>
+  1327→                        </div>
+  1328→                        <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
+  1329→                          <p className="text-[10px] uppercase text-muted-foreground">Promedio L/entrega</p>
+  1330→                          <p className="text-lg font-bold tabular-nums text-primary">{formatNumber(promedioLitros, 0)} L</p>
+  1331→                        </div>
+  1332→                        <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
+  1333→                          <p className="text-[10px] uppercase text-muted-foreground">Promedio $/entrega</p>
+  1334→                          <p className="text-sm font-bold tabular-nums text-primary">{formatCurrency(promedioMonto)}</p>
+  1335→                        </div>
+  1336→                      </div>
+  1337→                    )}
+  1338→
+  1339→                    {/* Última entrega */}
+  1340→                    {ultimaEntrega && (
+  1341→                      <div className="rounded-lg border border-border bg-muted/20 p-3">
+  1342→                        <p className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase text-muted-foreground">
+  1343→                          <Truck className="h-3 w-3" /> Última entrega
+  1344→                        </p>
+  1345→                        <div className="space-y-0.5 text-sm">
+  1346→                          <p className="font-medium">{ultimaEntregaFecha}</p>
+  1347→                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+  1348→                            <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(ultimaEntrega.litros, 0)} L</span>
+  1349→                            <span>Total: <strong className="text-foreground tabular-nums">{formatCurrency(ultimaEntrega.total)}</strong></span>
+  1350→                          </div>
+  1351→                          <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
+  1352→                            ultimaEntrega.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+  1353→                            : ultimaEntrega.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+  1354→                            : "bg-muted text-muted-foreground"
+  1355→                          }`}>
+  1356→                            {ultimaEntrega.estadoPago}
+  1357→                          </span>
+  1358→                        </div>
+  1359→                      </div>
+  1360→                    )}
+  1361→
+  1362→                    {/* Botones de acción */}
+  1363→                    <div className="flex flex-wrap gap-2 border-t border-border pt-3">
+  1364→                      {onAgendarPedido && (
+  1365→                        <Button size="sm" onClick={() => { onAgendarPedido(clienteDetalle.id); setClienteDetalle(null); }}>
+  1366→                          <ClipboardList className="mr-1 h-4 w-4" /> Agendar pedido
+  1367→                        </Button>
+  1368→                      )}
+  1369→                      <Button
+  1370→                        size="sm"
+  1371→                        variant="outline"
+  1372→                        onClick={() => {
+  1373→                          setPagoOpen(true);
+  1374→                          if (!tieneDeuda) setPagoMonto("");
+  1375→                        }}
+  1376→                      >
+  1377→                        <Banknote className="mr-1 h-4 w-4" /> Registrar pago
+  1378→                      </Button>
+  1379→                      {!readOnly && (
+  1380→                        <Button size="sm" variant="outline" onClick={() => { abrirEditar(clienteDetalle); setClienteDetalle(null); }}>
+  1381→                          <Pencil className="mr-1 h-4 w-4" /> Editar ficha
+  1382→                        </Button>
+  1383→                      )}
+  1384→                      {clienteDetalle.lat != null && clienteDetalle.lng != null && (
+  1385→                        <a
+  1386→                          href={`https://www.google.com/maps?q=${clienteDetalle.lat},${clienteDetalle.lng}`}
+  1387→                          target="_blank"
+  1388→                          rel="noopener noreferrer"
+  1389→                        >
+  1390→                          <Button size="sm" variant="outline">
+  1391→                            <Navigation className="mr-1 h-4 w-4" /> Cómo llegar
+  1392→                          </Button>
+  1393→                        </a>
+  1394→                      )}
+  1395→                    </div>
+  1396→                  </div>
+  1397→                ) : detalleTab === "entregas" ? (
+  1398→                  detalleEntregas.length === 0 ? (
+  1399→                    <p className="py-8 text-center text-sm text-muted-foreground">No hay entregas registradas para este cliente.</p>
+  1400→                  ) : (
+  1401→                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
+  1402→                      {detalleEntregas.map((e: any) => (
+  1403→                        <div key={e.id} className="rounded-lg border border-border p-3 text-sm">
+  1404→                          <div className="flex items-center justify-between gap-2">
+  1405→                            <div className="flex items-center gap-2">
+  1406→                              <span className="font-medium">{formatDate(e.fecha)}</span>
+  1407→                              <span className="text-xs text-muted-foreground">{formatTime(e.fecha)}</span>
+  1408→                              {e.vuelta && <Badge variant="outline" className="text-[10px]">Vuelta #{e.vuelta.numero}</Badge>}
+  1409→                            </div>
+  1410→                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+  1411→                              e.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+  1412→                              : e.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+  1413→                              : "bg-muted text-muted-foreground"
+  1414→                            }`}>
+  1415→                              {labelEstadoPago(e.estadoPago)}
+  1416→                            </span>
+  1417→                          </div>
+  1418→                          <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+  1419→                            <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(e.litros, 0)} L</span>
+  1420→                            <span>·</span>
+  1421→                            <span>{labelMetodoPago(e.metodoPago)}</span>
+  1422→                            <span>·</span>
+  1423→                            <span>Total: <strong className="text-foreground tabular-nums">{formatCurrency(e.total)}</strong></span>
+  1424→                            {e.montoRecibido > 0 && (
+  1425→                              <>
+  1426→                                <span>·</span>
+  1427→                                <span>Recibido: <strong className="text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(e.montoRecibido)}</strong></span>
+  1428→                              </>
+  1429→                            )}
+  1430→                          </div>
+  1431→                          {e.total - e.montoRecibido > 0 && (
+  1432→                            <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
+  1433→                              Saldo pendiente: {formatCurrency(e.total - e.montoRecibido)}
+  1434→                            </p>
+  1435→                          )}
+  1436→
+  1437→                          {/* Detalle de estanques */}
+  1438→                          {e.detalleEstanquesJson && (() => {
+  1439→                            let estanques: any[] = [];
+  1440→                            try { estanques = JSON.parse(e.detalleEstanquesJson); } catch { return null; }
+  1441→                            if (estanques.length === 0) return null;
+  1442→                            return (
+  1443→                              <div className="mt-2 rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-2 space-y-1">
+  1444→                                <p className="text-[10px] font-medium text-amber-900 dark:text-amber-200">Detalle por estanque:</p>
+  1445→                                {estanques.map((est, i) => (
+  1446→                                  <div key={i} className="flex items-center justify-between text-[11px]">
+  1447→                                    <span className="text-amber-900 dark:text-amber-200">
+  1448→                                      {est.nombre}: {formatNumber(est.litros, 0)} L · {labelMetodoPago(est.metodoPago)}
+  1449→                                    </span>
+  1450→                                    <div className="flex items-center gap-2 text-muted-foreground">
+  1451→                                      <span className="tabular-nums">{formatCurrency(est.total)}</span>
+  1452→                                      {est.montoRecibido > 0 && <span className="text-emerald-600">✓{formatCurrency(est.montoRecibido)}</span>}
+  1453→                                      {est.total - est.montoRecibido > 0 && <span className="text-amber-600">saldo {formatCurrency(est.total - est.montoRecibido)}</span>}
+  1454→                                    </div>
+  1455→                                  </div>
+  1456→                                ))}
+  1457→                              </div>
+  1458→                            );
+  1459→                          })()}
+  1460→                        </div>
+  1461→                      ))}
+  1462→                    </div>
+  1463→                  )
+  1464→                ) : detalleTab === "pedidos" ? (
+  1465→                  // Tab pedidos
+  1466→                  detallePedidos.length === 0 ? (
+  1467→                    <p className="py-8 text-center text-sm text-muted-foreground">No hay pedidos registrados para este cliente.</p>
+  1468→                  ) : (
+  1469→                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
+  1470→                      {detallePedidos.map((p: any) => (
+  1471→                        <div key={p.id} className="rounded-lg border border-border p-3 text-sm">
+  1472→                          <div className="flex items-center justify-between gap-2">
+  1473→                            <div className="flex items-center gap-2">
+  1474→                              <span className="font-medium">{formatDate(p.creadoEn)}</span>
+  1475→                              <span className="text-xs text-muted-foreground">{formatTime(p.creadoEn)}</span>
+  1476→                            </div>
+  1477→                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+  1478→                              p.estado === "entregado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+  1479→                              : p.estado === "pendiente" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+  1480→                              : p.estado === "cancelado" ? "bg-muted text-muted-foreground"
+  1481→                              : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+  1482→                            }`}>
+  1483→                              {p.estado}
+  1484→                            </span>
+  1485→                          </div>
+  1486→                          <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+  1487→                            <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(p.litrosSolicitados, 0)} L</span>
+  1488→                            <span>·</span>
+  1489→                            <span>{labelMetodoPago(p.metodoPagoPreferido)}</span>
+  1490→                            {p.fechaSolicitada && (
+  1491→                              <>
+  1492→                                <span>·</span>
+  1493→                                <span>Entrega: {formatDate(p.fechaSolicitada)}</span>
+  1494→                              </>
+  1495→                            )}
+  1496→                            {p.pedidoRecurrenteId && <Badge variant="outline" className="text-[10px]">Recurrente</Badge>}
+  1497→                          </div>
+  1498→                          {p.entrega && (
+  1499→                            <div className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+  1500→                              ✓ Entregado: {formatNumber(p.entrega.litros, 0)} L · {formatCurrency(p.entrega.total)}
+  1501→                              {p.entrega.vuelta && <span> · Vuelta #{p.entrega.vuelta.numero}</span>}
+  1502→                            </div>
+  1503→                          )}
+  1504→                          {p.nota && (
+  1505→                            <p className="mt-1 text-xs text-muted-foreground italic">"{p.nota}"</p>
+  1506→                          )}
+  1507→                        </div>
+  1508→                      ))}
+  1509→                    </div>
+  1510→                  )
+  1511→                ) : detalleTab === "pagos" ? (
+  1512→                  // Tab pagos
+  1513→                  detallePagos.length === 0 ? (
+  1514→                    <p className="py-8 text-center text-sm text-muted-foreground">No hay pagos sin entrega registrados.</p>
+  1515→                  ) : (
+  1516→                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+  1517→                      {detallePagos.map((p: any) => (
+  1518→                        <div key={p.id} className="rounded-lg border border-border p-3 text-sm">
+  1519→                          <div className="flex items-center justify-between gap-2">
+  1520→                            <span className="font-medium">{formatDate(p.fecha)}</span>
+  1521→                            <span className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+  1522→                              +{formatCurrency(p.monto)}
+  1523→                            </span>
+  1524→                          </div>
+  1525→                          <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+  1526→                            <Badge variant="outline" className="text-[10px]">
+  1527→                              {p.metodoPago === "efectivo" ? "Efectivo" : p.metodoPago === "transferencia" ? "Transferencia" : "Mixto"}
+  1528→                            </Badge>
+  1529→                            {p.nota && <span className="truncate">{p.nota}</span>}
+  1530→                          </div>
+  1531→                        </div>
+  1532→                      ))}
+  1533→                    </div>
+  1534→                  )
+  1535→                ) : null}
+  1536→              </>
+  1537→            );
+  1538→          })()}
+  1539→        </DialogContent>
+  1540→      </Dialog>
+  1541→    </div>
+  1542→  );
+  1543→}
+  1544→
