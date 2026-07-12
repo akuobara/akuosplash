@@ -26,6 +26,9 @@ import {
   Banknote,
   Smartphone,
   Repeat,
+  ChevronDown,
+  ChevronRight,
+  Clock,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { EntregaForm } from "./entrega-form";
@@ -147,6 +150,9 @@ export function Dashboard({
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
   const [showCustom, setShowCustom] = useState(false);
+  const [vueltaExpandida, setVueltaExpandida] = useState<string | null>(null);
+  const [entregasVuelta, setEntregasVuelta] = useState<Record<string, any[]>>({});
+  const [cargandoEntregasVuelta, setCargandoEntregasVuelta] = useState<Set<string>>(new Set());
 
   const [entregaFormOpen, setEntregaFormOpen] = useState(false);
   const [gastoFormOpen, setGastoFormOpen] = useState(false);
@@ -159,6 +165,30 @@ export function Dashboard({
       console.error(e);
     }
   }, []);
+
+  async function toggleVueltaDetalle(vueltaId: string) {
+    if (vueltaExpandida === vueltaId) {
+      setVueltaExpandida(null);
+      return;
+    }
+    setVueltaExpandida(vueltaId);
+    if (!entregasVuelta[vueltaId]) {
+      setCargandoEntregasVuelta((prev) => new Set(prev).add(vueltaId));
+      try {
+        const data = await apiGet<{ entregas: any[] }>(`/api/entregas?period=todo`);
+        const deVuelta = data.entregas.filter((e: any) => e.vueltaId === vueltaId);
+        setEntregasVuelta((prev) => ({ ...prev, [vueltaId]: deVuelta }));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setCargandoEntregasVuelta((prev) => {
+          const next = new Set(prev);
+          next.delete(vueltaId);
+          return next;
+        });
+      }
+    }
+  }
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -425,40 +455,149 @@ export function Dashboard({
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-border">
-              {resumen.vueltas.map((v) => (
-                <div key={v.id} className="flex items-center gap-3 p-3">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold ${
-                    v.activa
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                  }`}>
-                    #{v.numero}
+              {resumen.vueltas.map((v) => {
+                const expandida = vueltaExpandida === v.id;
+                const entregas = entregasVuelta[v.id] || [];
+                const cargando = cargandoEntregasVuelta.has(v.id);
+                return (
+                  <div key={v.id}>
+                    <button
+                      type="button"
+                      onClick={() => toggleVueltaDetalle(v.id)}
+                      className="flex w-full items-center gap-3 p-3 text-left hover:bg-muted/30"
+                    >
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold ${
+                        v.activa
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        #{v.numero}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-medium text-sm">Vuelta #{v.numero}</span>
+                          {v.activa && (
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Activa
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(v.iniciadaEn)}
+                          {v.cerradaEn ? ` → ${formatDate(v.cerradaEn)}` : " · en curso"}
+                          {" · "}{v.numEntregas} entrega(s)
+                          {" · "}{formatNumber(v.litros, 0)} L
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="font-semibold tabular-nums text-sm">{formatCurrency(v.ventas)}</p>
+                        <div className="flex items-center gap-2 text-xs">
+                          {v.efectivo > 0 && <span className="text-emerald-600 dark:text-emerald-400 tabular-nums">Efect: {formatCurrency(v.efectivo)}</span>}
+                          {v.transferencia > 0 && <span className="text-blue-600 dark:text-blue-400 tabular-nums">Trans: {formatCurrency(v.transferencia)}</span>}
+                        </div>
+                      </div>
+                      {expandida ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
+                    </button>
+
+                    {/* Detalle de entregas de la vuelta */}
+                    {expandida && (
+                      <div className="border-t border-border bg-muted/10 p-3 space-y-2">
+                        {cargando ? (
+                          <div className="flex items-center justify-center py-4">
+                            <Skeleton className="h-16 w-full rounded-lg" />
+                          </div>
+                        ) : entregas.length === 0 ? (
+                          <p className="py-4 text-center text-sm text-muted-foreground">No hay entregas en esta vuelta.</p>
+                        ) : (
+                          <>
+                            {entregas.map((e: any, idx: number) => (
+                              <div key={e.id} className="rounded-lg border border-border bg-background p-2.5 text-sm">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-xs text-muted-foreground">#{idx + 1}</span>
+                                      <span className="font-medium truncate">{e.clienteNombre}</span>
+                                    </div>
+                                    <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                      <span className="flex items-center gap-0.5">
+                                        <Droplets className="h-3 w-3" /> {formatNumber(e.litros, 0)} L
+                                      </span>
+                                      <span>·</span>
+                                      <span>{labelMetodoPago(e.metodoPago)}</span>
+                                      <span>·</span>
+                                      <span className="tabular-nums">{formatCurrency(e.total)}</span>
+                                      <span>·</span>
+                                      <span className="flex items-center gap-0.5">
+                                        <Clock className="h-3 w-3" /> {formatDate(e.fecha)}
+                                      </span>
+                                    </div>
+                                    {e.descuento > 0 && (
+                                      <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
+                                        Descuento: {formatCurrency(e.descuento)} ({e.descuentoPor === "chofer" ? "asumido por chofer" : "asumido por dueño"})
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="shrink-0 text-right">
+                                    {e.montoEfectivo > 0 && <p className="text-xs text-emerald-600 dark:text-emerald-400 tabular-nums">Efect: {formatCurrency(e.montoEfectivo)}</p>}
+                                    {e.montoTransferencia > 0 && <p className="text-xs text-blue-600 dark:text-blue-400 tabular-nums">Trans: {formatCurrency(e.montoTransferencia)}</p>}
+                                    {e.total - e.montoRecibido > 0 && <p className="text-xs text-amber-600 dark:text-amber-400 tabular-nums">Saldo: {formatCurrency(e.total - e.montoRecibido)}</p>}
+                                    <span className={`ml-1 inline-block rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                                      e.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                                      : e.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                                      : "bg-muted text-muted-foreground"
+                                    }`}>
+                                      {e.estadoPago}
+                                    </span>
+                                  </div>
+                                </div>
+                                {/* Detalle de estanques */}
+                                {e.detalleEstanquesJson && (() => {
+                                  let estanques: any[] = [];
+                                  try { estanques = JSON.parse(e.detalleEstanquesJson); } catch { return null; }
+                                  if (estanques.length === 0) return null;
+                                  return (
+                                    <div className="mt-1.5 rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-1.5 space-y-0.5">
+                                      {estanques.map((est, i) => (
+                                        <div key={i} className="flex items-center justify-between text-[11px]">
+                                          <span className="text-amber-900 dark:text-amber-200">
+                                            {est.nombre}: {formatNumber(est.litros, 0)} L · {est.metodoPago}
+                                          </span>
+                                          <span className="tabular-nums text-amber-900 dark:text-amber-200">{formatCurrency(est.total)}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            ))}
+                            {/* Totales de la vuelta */}
+                            <div className="rounded-lg bg-muted/40 p-2 text-center text-xs">
+                              <div className="grid grid-cols-4 gap-2">
+                                <div>
+                                  <p className="text-[10px] uppercase text-muted-foreground">Entregas</p>
+                                  <p className="font-bold">{entregas.length}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] uppercase text-muted-foreground">Litros</p>
+                                  <p className="font-bold tabular-nums">{formatNumber(entregas.reduce((s: number, e: any) => s + e.litros, 0), 0)} L</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] uppercase text-muted-foreground">Ventas</p>
+                                  <p className="font-bold tabular-nums">{formatCurrency(entregas.reduce((s: number, e: any) => s + e.total, 0))}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[10px] uppercase text-muted-foreground">Efectivo</p>
+                                  <p className="font-bold tabular-nums text-emerald-600">{formatCurrency(entregas.reduce((s: number, e: any) => s + (e.montoEfectivo || 0), 0))}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="font-medium text-sm">Vuelta #{v.numero}</span>
-                      {v.activa && (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Activa
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(v.iniciadaEn)}
-                      {v.cerradaEn ? ` → ${formatDate(v.cerradaEn)}` : " · en curso"}
-                      {" · "}{v.numEntregas} entrega(s)
-                      {" · "}{formatNumber(v.litros, 0)} L
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="font-semibold tabular-nums text-sm">{formatCurrency(v.ventas)}</p>
-                    <div className="flex items-center gap-2 text-xs">
-                      {v.efectivo > 0 && <span className="text-emerald-600 dark:text-emerald-400 tabular-nums">Efect: {formatCurrency(v.efectivo)}</span>}
-                      {v.transferencia > 0 && <span className="text-blue-600 dark:text-blue-400 tabular-nums">Trans: {formatCurrency(v.transferencia)}</span>}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
