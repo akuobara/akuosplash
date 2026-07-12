@@ -1813,138 +1813,143 @@ export function EntregaForm({
         </form>
       </DialogContent>
 
-      {/* Diálogo de selección de vuelta cuando no hay vuelta activa */}
-      <Dialog open={dialogoVueltaAbierto} onOpenChange={(o) => {
-        if (!iniciandoVuelta && !saving) setDialogoVueltaAbierto(o);
-      }}>
-        <DialogContent className="max-h-[90vh] w-[95vw] max-w-lg overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>No hay vuelta activa</DialogTitle>
-            <DialogDescription>
+      {/* Diálogo de selección de vuelta cuando no hay vuelta activa
+          NOTA: Este diálogo está FUERA del Dialog principal para evitar problemas
+          de diálogos anidados en Radix UI. Usamos un overlay manual. */}
+      {dialogoVueltaAbierto && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => {
+          if (!iniciandoVuelta && !saving) setDialogoVueltaAbierto(false);
+        }}>
+          <div
+            className="max-h-[90vh] w-[95vw] max-w-lg overflow-y-auto rounded-lg border border-border bg-background p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold">No hay vuelta activa</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               Para registrar la entrega necesitas una vuelta activa. Puedes retomar una vuelta sin completar o iniciar una nueva.
               {" "}Tus datos de entrega se mantendrán y se guardarán automáticamente.
-            </DialogDescription>
-          </DialogHeader>
+            </p>
 
-          <div className="space-y-3">
-            {/* Opción: Retomar vuelta existente */}
-            {cargandoVueltas ? (
-              <div className="flex items-center justify-center py-6">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                <span className="ml-2 text-sm text-muted-foreground">Cargando vueltas recientes…</span>
+            <div className="mt-4 space-y-3">
+              {/* Opción: Retomar vuelta existente */}
+              {cargandoVueltas ? (
+                <div className="flex items-center justify-center py-6">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  <span className="ml-2 text-sm text-muted-foreground">Cargando vueltas recientes…</span>
+                </div>
+              ) : vueltasRecientes.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Vueltas sin completar (puedes retomarlas)
+                  </p>
+                  {vueltasRecientes.map((v) => {
+                    const porcentaje = v.capacidadCamion > 0 ? (v.litros / v.capacidadCamion) * 100 : 0;
+                    const umbralLitros = v.capacidadCamion > 0 ? Math.ceil(v.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        disabled={iniciandoVuelta || saving}
+                        onClick={() => reabrirYGuardar(v)}
+                        className="flex w-full items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left transition hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:bg-amber-900/20 dark:hover:bg-amber-900/30"
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                          <RotateCcw className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm text-amber-900 dark:text-amber-200">
+                            Retomar Vuelta #{v.numero}
+                          </p>
+                          <p className="text-xs text-amber-800 dark:text-amber-300">
+                            {formatNumber(v.litros, 0)} L de {formatNumber(v.capacidadCamion, 0)} L ({porcentaje.toFixed(0)}%)
+                            {" · "}iniciada {formatTime(v.iniciadaEn)}
+                            {v.camion && <> · {v.camion.nombre}</>}
+                            {" · "}faltan {formatNumber(Math.max(0, umbralLitros - v.litros), 0)} L para completar
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                  No tienes vueltas recientes sin completar en el último mes.
+                </div>
+              )}
+
+              {/* Separador */}
+              <div className="relative my-2">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">o</span>
+                </div>
               </div>
-            ) : vueltasRecientes.length > 0 ? (
+
+              {/* Opción: Iniciar nueva vuelta */}
               <div className="space-y-2">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Vueltas sin completar (puedes retomarlas)
+                  Iniciar nueva vuelta
                 </p>
-                {vueltasRecientes.map((v) => {
-                  const porcentaje = v.capacidadCamion > 0 ? (v.litros / v.capacidadCamion) * 100 : 0;
-                  const umbralLitros = v.capacidadCamion > 0 ? Math.ceil(v.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
-                  return (
-                    <button
-                      key={v.id}
-                      type="button"
-                      disabled={iniciandoVuelta || saving}
-                      onClick={() => reabrirYGuardar(v)}
-                      className="flex w-full items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left transition hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:bg-amber-900/20 dark:hover:bg-amber-900/30"
-                    >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-                        <RotateCcw className="h-5 w-5" />
+                {(() => {
+                  const camionesActivos = (camiones ?? []).filter((c) => c.activo);
+                  if (camionesActivos.length > 1) {
+                    return (
+                      <div className="space-y-2">
+                        <Label htmlFor="camionSelectEntrega">Camión</Label>
+                        <select
+                          id="camionSelectEntrega"
+                          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                          value={camionSeleccionado || camionesActivos[0]?.id || ""}
+                          onChange={(e) => setCamionSeleccionado(e.target.value)}
+                          disabled={iniciandoVuelta || saving}
+                        >
+                          {camionesActivos.map((c) => (
+                            <option key={c.id} value={c.id}>{c.nombre}</option>
+                          ))}
+                        </select>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm text-amber-900 dark:text-amber-200">
-                          Retomar Vuelta #{v.numero}
-                        </p>
-                        <p className="text-xs text-amber-800 dark:text-amber-300">
-                          {formatNumber(v.litros, 0)} L de {formatNumber(v.capacidadCamion, 0)} L ({porcentaje.toFixed(0)}%)
-                          {" · "}iniciada {formatTime(v.iniciadaEn)}
-                          {v.camion && <> · {v.camion.nombre}</>}
-                          {" · "}faltan {formatNumber(Math.max(0, umbralLitros - v.litros), 0)} L para completar
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
+                    );
+                  }
+                  return null;
+                })()}
+                <Button
+                  type="button"
+                  className="w-full"
+                  onClick={iniciarNuevaYGuardar}
+                  disabled={iniciandoVuelta || saving}
+                >
+                  {(iniciandoVuelta || saving) ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando…</>
+                  ) : (
+                    <><Plus className="mr-2 h-4 w-4" /> Iniciar nueva vuelta y registrar entrega</>
+                  )}
+                </Button>
               </div>
-            ) : (
-              <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
-                No tienes vueltas recientes sin completar en el último mes.
-              </div>
-            )}
 
-            {/* Separador */}
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">o</span>
+              {/* Aviso de preservación de datos */}
+              <div className="flex items-start gap-2 rounded-lg bg-emerald-50 p-2 text-xs text-emerald-900 dark:bg-emerald-900/20 dark:text-emerald-200">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <p>
+                  Tus datos de entrega (cliente, litros, cobro) ya están cargados.
+                  {" "}Al elegir una opción, la entrega se guardará automáticamente con la vuelta seleccionada.
+                </p>
               </div>
             </div>
 
-            {/* Opción: Iniciar nueva vuelta */}
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Iniciar nueva vuelta
-              </p>
-              {(() => {
-                const camionesActivos = (camiones ?? []).filter((c) => c.activo);
-                if (camionesActivos.length > 1) {
-                  return (
-                    <div className="space-y-2">
-                      <Label htmlFor="camionSelectEntrega">Camión</Label>
-                      <select
-                        id="camionSelectEntrega"
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        value={camionSeleccionado || camionesActivos[0]?.id || ""}
-                        onChange={(e) => setCamionSeleccionado(e.target.value)}
-                        disabled={iniciandoVuelta || saving}
-                      >
-                        {camionesActivos.map((c) => (
-                          <option key={c.id} value={c.id}>{c.nombre}</option>
-                        ))}
-                      </select>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
+            <div className="mt-4 flex justify-end">
               <Button
-                type="button"
-                className="w-full"
-                onClick={iniciarNuevaYGuardar}
+                variant="outline"
+                onClick={() => setDialogoVueltaAbierto(false)}
                 disabled={iniciandoVuelta || saving}
               >
-                {(iniciandoVuelta || saving) ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando…</>
-                ) : (
-                  <><Plus className="mr-2 h-4 w-4" /> Iniciar nueva vuelta y registrar entrega</>
-                )}
+                Cancelar
               </Button>
             </div>
-
-            {/* Aviso de preservación de datos */}
-            <div className="flex items-start gap-2 rounded-lg bg-emerald-50 p-2 text-xs text-emerald-900 dark:bg-emerald-900/20 dark:text-emerald-200">
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <p>
-                Tus datos de entrega (cliente, litros, cobro) ya están cargados.
-                {" "}Al elegir una opción, la entrega se guardará automáticamente con la vuelta seleccionada.
-              </p>
-            </div>
           </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDialogoVueltaAbierto(false)}
-              disabled={iniciandoVuelta || saving}
-            >
-              Cancelar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </Dialog>
   );
 }
