@@ -161,7 +161,7 @@ export function EntregaForm({
   // Deuda del cliente seleccionado (para pagos de entregas anteriores)
   const [clienteDeuda, setClienteDeuda] = useState<number | null>(null);
   // Desglose por estanque (cuando el cliente tiene facturación independiente)
-  const [estanquesEntrega, setEstanquesEntrega] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string }[]>([]);
+  const [estanquesEntrega, setEstanquesEntrega] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string; modoIngreso?: "por_litros" | "por_precio"; precioTotalInput?: string }[]>([]);
   const [modoEstanques, setModoEstanques] = useState(false);
 
   const [lecturaAnterior, setLecturaAnterior] = useState<string>("");
@@ -310,10 +310,11 @@ export function EntregaForm({
         precio: String(precioMaxEst || 0),
         metodoPago: "credito",
         montoRecibido: "",
+        modoIngreso: "por_litros" as const,
+        precioTotalInput: "",
       })));
-      // NO forzar modoEstanques automáticamente — el usuario elige si quiere
-      // facturación por estanque o entrega simple (por litros o por precio)
-      setModoEstanques(false);
+      // Si hay estanques con facturación independiente, activar modo estanques automáticamente
+      setModoEstanques(independientes.length > 0);
       if (independientes.length > 0) {
         toast.info(
           `Cliente tiene ${estanquesCliente.length} estanque(s), ${independientes.length} con facturación independiente. Puedes activar "Entregar por estanque" si quieres cobro separado.`,
@@ -466,15 +467,16 @@ export function EntregaForm({
       }
 
       // Normalizar montoRecibido por estanque: si es efectivo/transferencia y está vacío,
-      // usar el total calculado (litros × precio). Si es credito, queda 0 (deuda).
+      // usar el total calculado (litros × precio) con redondeo a $100. Si es credito, queda 0 (deuda).
       const estanquesNormalizados = estanquesConLitros.map((e) => {
         const litrosNum = Number(e.litros) || 0;
         const precioNum = Number(e.precio) || 0;
-        const totalEstCalc = litrosNum * precioNum;
+        const totalEstRaw = litrosNum * precioNum;
+        // Redondear a $100 superior
+        const totalEstCalc = totalEstRaw > 0 ? Math.ceil(totalEstRaw / 100) * 100 : 0;
         let montoRecibidoNum = Number(e.montoRecibido) || 0;
         if (e.metodoPago !== "credito" && montoRecibidoNum === 0 && totalEstCalc > 0) {
-          // Auto-llenar montoRecibido con el total si el usuario no lo editó manualmente
-          montoRecibidoNum = Math.round(totalEstCalc);
+          montoRecibidoNum = totalEstCalc;
         }
         return {
           ...e,
@@ -1350,7 +1352,9 @@ export function EntregaForm({
               {estanquesEntrega.map((est, i) => {
                 const litrosEst = Number(est.litros) || 0;
                 const precioEst = Number(est.precio) || 0;
-                const totalEst = litrosEst * precioEst;
+                const totalEstRaw = litrosEst * precioEst;
+                // Redondear a $100 superior
+                const totalEst = totalEstRaw > 0 ? Math.ceil(totalEstRaw / 100) * 100 : 0;
                 const recibidoEst = Number(est.montoRecibido) || 0;
                 return (
                   <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background p-2 space-y-2">
@@ -1375,42 +1379,105 @@ export function EntregaForm({
                         </Button>
                       )}
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-[10px] text-muted-foreground">Litros</label>
-                        <Input
-                          type="number"
-                          inputMode="decimal"
-                          step="any"
-                          value={est.litros}
-                          onChange={(e) => {
-                            const nuevosLitros = e.target.value;
-                            const precioCalc = Number(est.precio) || 0;
-                            const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
-                            setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
-                              ...est2,
-                              litros: nuevosLitros,
-                              // Auto-actualizar monto recibido si no fue editado manualmente
-                              montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalCalc > 0 ? String(Math.round(totalCalc)) : "")),
-                            } : est2));
-                          }}
-                          placeholder="0"
-                          className="h-8 text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-muted-foreground">Precio/L</label>
-                        <Input
-                          type="number"
-                          inputMode="decimal"
-                          step="any"
-                          value={est.precio}
-                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
-                          placeholder="0"
-                          className="h-8 text-xs"
-                        />
-                      </div>
+                    {/* Toggle por litros / por precio para cada estanque */}
+                    <div className="flex gap-1 rounded bg-amber-100/50 p-0.5 dark:bg-amber-900/30">
+                      <button
+                        type="button"
+                        onClick={() => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, modoIngreso: "por_litros", litros: "", precioTotalInput: "" } : est2))}
+                        className={`flex-1 rounded px-2 py-1 text-[10px] font-medium transition ${(est.modoIngreso ?? "por_litros") === "por_litros" ? "bg-white text-amber-900 dark:bg-background dark:text-amber-200 shadow-sm" : "text-amber-700 dark:text-amber-300"}`}
+                      >
+                        Por litros
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, modoIngreso: "por_precio", litros: "", precioTotalInput: "" } : est2))}
+                        className={`flex-1 rounded px-2 py-1 text-[10px] font-medium transition ${(est.modoIngreso ?? "por_litros") === "por_precio" ? "bg-white text-amber-900 dark:bg-background dark:text-amber-200 shadow-sm" : "text-amber-700 dark:text-amber-300"}`}
+                      >
+                        Por precio ($)
+                      </button>
                     </div>
+                    {/* Campos según modo de ingreso del estanque */}
+                    {(est.modoIngreso ?? "por_litros") === "por_litros" ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] text-muted-foreground">Litros</label>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            step="any"
+                            value={est.litros}
+                            onChange={(e) => {
+                              const nuevosLitros = e.target.value;
+                              const precioCalc = Number(est.precio) || 0;
+                              const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
+                              const totalRedondeado = totalCalc > 0 ? Math.ceil(totalCalc / 100) * 100 : 0;
+                              setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
+                                ...est2,
+                                litros: nuevosLitros,
+                                montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalRedondeado > 0 ? String(totalRedondeado) : "")),
+                              } : est2));
+                            }}
+                            placeholder="0"
+                            className="h-8 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-muted-foreground">Precio/L</label>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            step="any"
+                            value={est.precio}
+                            onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
+                            placeholder="0"
+                            className="h-8 text-xs"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div>
+                          <label className="text-[10px] text-muted-foreground">¿Cuántos pesos de agua?</label>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            step="any"
+                            value={est.precioTotalInput ?? ""}
+                            onChange={(e) => {
+                              const precioTotalStr = e.target.value;
+                              const precioCalc = Number(est.precio) || 0;
+                              const litrosCalc = precioCalc > 0 ? Math.round((Number(precioTotalStr) || 0) / precioCalc) : 0;
+                              const totalRedondeado = Number(precioTotalStr) > 0 ? Math.ceil(Number(precioTotalStr) / 100) * 100 : 0;
+                              setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
+                                ...est2,
+                                precioTotalInput: precioTotalStr,
+                                litros: litrosCalc > 0 ? String(litrosCalc) : "",
+                                montoRecibido: est2.metodoPago === "credito" ? "" : (totalRedondeado > 0 ? String(totalRedondeado) : ""),
+                              } : est2));
+                            }}
+                            placeholder="Ej. 5000"
+                            className="h-8 text-xs"
+                          />
+                        </div>
+                        {est.precioTotalInput && Number(est.precio) > 0 && (
+                          <p className="text-[10px] text-amber-700 dark:text-amber-300">
+                            → {formatNumber(Math.round((Number(est.precioTotalInput) || 0) / (Number(est.precio) || 1)), 0)} L a {formatCurrency(Number(est.precio))}/L
+                          </p>
+                        )}
+                        <div>
+                          <label className="text-[10px] text-muted-foreground">Precio/L (para cálculo)</label>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            step="any"
+                            value={est.precio}
+                            onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
+                            placeholder="0"
+                            className="h-8 text-xs"
+                          />
+                        </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="text-[10px] text-muted-foreground">Método de pago</label>
