@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Dialog,
   DialogContent,
@@ -1814,9 +1815,8 @@ export function EntregaForm({
       </DialogContent>
 
       {/* Diálogo de selección de vuelta cuando no hay vuelta activa
-          NOTA: Este diálogo está FUERA del Dialog principal para evitar problemas
-          de diálogos anidados en Radix UI. Usamos un overlay manual. */}
-      {dialogoVueltaAbierto && (
+          Usa createPortal para renderizar fuera del Dialog de Radix y que sea visible */}
+      {dialogoVueltaAbierto && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => {
           if (!iniciandoVuelta && !saving) setDialogoVueltaAbierto(false);
         }}>
@@ -1948,7 +1948,8 @@ export function EntregaForm({
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </Dialog>
   );

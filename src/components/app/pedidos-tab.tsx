@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -466,6 +467,23 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       } finally {
         setSaving(false);
       }
+      return;
+    }
+
+    // PRE-VERIFICACIÓN: si no hay vuelta activa, mostrar overlay inmediatamente
+    // sin llamar al API (evita el error 400)
+    if (!vueltaActual) {
+      const camionesActivos = (camiones ?? []).filter(c => c.activo);
+      if (camionesActivos.length === 0) {
+        toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
+        setSaving(false);
+        return;
+      }
+      // Guardar referencia al pedido, cerrar diálogo de convertir, abrir overlay
+      const pedidoAConvertir = convirtiendo;
+      setConvirtiendo(null);
+      setSaving(false);
+      setTimeout(() => setVueltaFaltante(pedidoAConvertir), 50);
       return;
     }
 
@@ -1282,7 +1300,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       </Dialog>
 
       {/* Overlay: falta vuelta activa al convertir pedido */}
-      {vueltaFaltante && (
+      {vueltaFaltante && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => {
           if (!iniciandoVueltaConvertir) setVueltaFaltante(null);
         }}>
@@ -1335,7 +1353,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Modal soltar pedido */}
