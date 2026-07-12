@@ -63,6 +63,8 @@ export interface VueltaActual {
   litros: number;
   litrosRestantes?: number;
   capacidadCamion?: number;
+  ventas?: number;
+  efectivoRecibido?: number;
   camion?: {
     id: string;
     nombre: string;
@@ -856,7 +858,17 @@ export function EntregaForm({
                           inputMode="decimal"
                           step="any"
                           value={est.litros}
-                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, litros: e.target.value } : est2))}
+                          onChange={(e) => {
+                            const nuevosLitros = e.target.value;
+                            const precioCalc = Number(est.precio) || 0;
+                            const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
+                            setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
+                              ...est2,
+                              litros: nuevosLitros,
+                              // Auto-actualizar monto recibido si no fue editado manualmente
+                              montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalCalc > 0 ? String(Math.round(totalCalc)) : "")),
+                            } : est2));
+                          }}
                           placeholder="0"
                           className="h-8 text-xs"
                         />
@@ -879,7 +891,16 @@ export function EntregaForm({
                         <label className="text-[10px] text-muted-foreground">Método de pago</label>
                         <select
                           value={est.metodoPago}
-                          onChange={(e) => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, metodoPago: e.target.value } : est2))}
+                          onChange={(e) => {
+                            const nuevoMetodo = e.target.value;
+                            const totalEstCalc = (Number(est.litros) || 0) * (Number(est.precio) || 0);
+                            setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
+                              ...est2,
+                              metodoPago: nuevoMetodo,
+                              // Auto-llenar monto recibido si está vacío y no es "sin pago"
+                              montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
+                            } : est2));
+                          }}
                           className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
                         >
                           <option value="efectivo">Efectivo</option>

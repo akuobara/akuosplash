@@ -1204,7 +1204,15 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                           <div>
                             <label className="text-[10px] text-muted-foreground">Litros</label>
                             <Input type="number" inputMode="decimal" step="any" value={est.litros}
-                              onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, litros: e.target.value } : est2))}
+                              onChange={(e) => {
+                                const nuevosLitros = e.target.value;
+                                const precioCalc = Number(est.precio) || 0;
+                                const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
+                                setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
+                                  ...est2, litros: nuevosLitros,
+                                  montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalCalc > 0 ? String(Math.round(totalCalc)) : "")),
+                                } : est2));
+                              }}
                               placeholder="0" className="h-8 text-xs" />
                           </div>
                           <div>
@@ -1218,7 +1226,14 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                           <div>
                             <label className="text-[10px] text-muted-foreground">Método de pago</label>
                             <select value={est.metodoPago}
-                              onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, metodoPago: e.target.value } : est2))}
+                              onChange={(e) => {
+                                const nuevoMetodo = e.target.value;
+                                const totalEstCalc = (Number(est.litros) || 0) * (Number(est.precio) || 0);
+                                setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
+                                  ...est2, metodoPago: nuevoMetodo,
+                                  montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
+                                } : est2));
+                              }}
                               className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs">
                               <option value="efectivo">Efectivo</option>
                               <option value="transferencia">Transferencia</option>

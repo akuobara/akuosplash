@@ -208,6 +208,42 @@ export function Dashboard({
         onRegistrarEntrega={() => setEntregaFormOpen(true)}
       />
 
+      {/* Resumen de efectivo de la vuelta actual */}
+      {vueltaActual && vueltaActual.cantidadEntregas > 0 && (
+        <div className="grid grid-cols-3 gap-3">
+          <Card className="border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/10">
+            <CardContent className="p-3">
+              <p className="flex items-center gap-1 text-[10px] uppercase text-muted-foreground">
+                <Banknote className="h-3 w-3" /> Efectivo vuelta
+              </p>
+              <p className="text-lg font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                {formatCurrency(vueltaActual.efectivoRecibido || 0)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/10">
+            <CardContent className="p-3">
+              <p className="flex items-center gap-1 text-[10px] uppercase text-muted-foreground">
+                <Smartphone className="h-3 w-3" /> Transferencia vuelta
+              </p>
+              <p className="text-lg font-bold tabular-nums text-blue-600 dark:text-blue-400">
+                {formatCurrency(vueltaActual.ventas ? vueltaActual.ventas - (vueltaActual.efectivoRecibido || 0) : 0)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="p-3">
+              <p className="flex items-center gap-1 text-[10px] uppercase text-muted-foreground">
+                <DollarSign className="h-3 w-3" /> Total ventas vuelta
+              </p>
+              <p className="text-lg font-bold tabular-nums text-primary">
+                {formatCurrency(vueltaActual.ventas || 0)}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {loading || !resumen ? (
