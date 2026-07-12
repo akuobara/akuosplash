@@ -482,46 +482,57 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       onRefresh();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "No se pudo convertir";
-      // Si el error es por falta de vuelta activa, ofrecer iniciar una
+      // Si el error es por falta de vuelta activa, abrir diálogo para iniciar vuelta
       if (msg.includes("No hay vuelta activa") || msg.includes("vuelta")) {
-        // Verificar si hay camiones disponibles
         const camionesActivos = (camiones ?? []).filter(c => c.activo);
         if (camionesActivos.length === 0) {
           toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
         } else {
-          toast(
-            "No hay vuelta activa. ¿Quieres iniciar una vuelta ahora?",
-            {
-              duration: 15000,
-              action: {
-                label: "Iniciar vuelta",
-                onClick: async () => {
-                  try {
-                    await apiPost("/api/vueltas", { camionId: camionesActivos[0].id });
-                    toast.success(`Vuelta iniciada`);
-                    onRefresh();
-                    // Reintentar la conversión
-                    setTimeout(() => {
-                      // El usuario debe hacer clic en "Convertir" nuevamente
-                      toast.info("Vuelta iniciada. Presiona 'Convertir en entrega' nuevamente.", { duration: 6000 });
-                    }, 500);
-                  } catch (err) {
-                    toast.error(err instanceof Error ? err.message : "No se pudo iniciar la vuelta");
-                  }
-                },
-              },
-              cancel: {
-                label: "Cancelar",
-                onClick: () => {},
-              },
-            }
-          );
+          // Abrir diálogo de selección de vuelta directamente
+          setVueltaFaltante(convirtiendo);
         }
       } else {
         toast.error(msg);
       }
     } finally {
       setSaving(false);
+    }
+  }
+
+  // Estado para el diálogo de "falta vuelta activa" al convertir
+  const [vueltaFaltante, setVueltaFaltante] = useState<Pedido | null>(null);
+  const [iniciandoVueltaConvertir, setIniciandoVueltaConvertir] = useState(false);
+
+  async function iniciarVueltaYConvertir(camionId?: string) {
+    if (!vueltaFaltante) return;
+    const camionesActivos = (camiones ?? []).filter(c => c.activo);
+    const camionIdFinal = camionId || camionesActivos[0]?.id;
+    if (!camionIdFinal) {
+      toast.error("No hay camiones disponibles");
+      return;
+    }
+    setIniciandoVueltaConvertir(true);
+    try {
+      // 1. Iniciar vuelta
+      await apiPost("/api/vueltas", { camionId: camionIdFinal });
+      toast.success("Vuelta iniciada");
+      onRefresh();
+
+      // 2. Reintentar la conversión automáticamente
+      await apiPost(`/api/pedidos/${vueltaFaltante.id}/convertir`, {
+        litrosReales: Number(litrosReales) || vueltaFaltante.litrosSolicitados,
+        precioPorLitro: Number(precioPorLitro) || undefined,
+        montoEfectivo: Number(montoEfectivo) || 0,
+        montoTransferencia: Number(montoTransferencia) || 0,
+      });
+      toast.success("Pedido convertido en entrega");
+      setVueltaFaltante(null);
+      setConvirtiendo(null);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo completar");
+    } finally {
+      setIniciandoVueltaConvertir(false);
     }
   }
 
@@ -1265,6 +1276,63 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Overlay: falta vuelta activa al convertir pedido */}
+      {vueltaFaltante && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => {
+          if (!iniciandoVueltaConvertir) setVueltaFaltante(null);
+        }}>
+          <div
+            className="max-w-md w-full rounded-lg border border-border bg-background p-6 shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold">No hay vuelta activa</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Para convertir el pedido de <strong>{vueltaFaltante.clienteNombre}</strong> en entrega,
+              necesitas una vuelta activa. Inicia una vuelta y el pedido se convertirá automáticamente.
+            </p>
+            {(() => {
+              const camionesActivos = (camiones ?? []).filter(c => c.activo);
+              if (camionesActivos.length > 1) {
+                return (
+                  <div className="mt-4 space-y-2">
+                    <Label className="text-xs">Selecciona un camión</Label>
+                    <select
+                      id="camionSelectConvertir"
+                      className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                      defaultValue={camionesActivos[0]?.id}
+                      onChange={(e) => { /* se lee al hacer clic */ }}
+                    >
+                      {camionesActivos.map((c) => (
+                        <option key={c.id} value={c.id}>{c.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+            <div className="mt-4 flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setVueltaFaltante(null)} disabled={iniciandoVueltaConvertir}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => {
+                  const select = document.getElementById("camionSelectConvertir") as HTMLSelectElement | null;
+                  iniciarVueltaYConvertir(select?.value);
+                }}
+                disabled={iniciandoVueltaConvertir}
+              >
+                {iniciandoVueltaConvertir ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Iniciando vuelta…</>
+                ) : (
+                  <>Iniciar vuelta y convertir</>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal soltar pedido */}
       <Dialog open={!!soltandoPedido} onOpenChange={(o) => {
