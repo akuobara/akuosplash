@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink, Banknote, Smartphone, Clock, ClipboardList } from "lucide-react";
+import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink, Banknote, Smartphone, Clock, ClipboardList, RotateCcw, Plus, AlertTriangle, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, uploadFile } from "@/lib/api-client";
 import {
@@ -29,6 +29,9 @@ import {
   formatCurrency,
   formatNumber,
   labelMetodoPago,
+  esVueltaCompletada,
+  UMBRAL_COMPLETACION_VUELTA,
+  formatTime,
 } from "@/lib/helpers";
 
 export interface Entrega {
@@ -98,6 +101,7 @@ interface EntregaFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSaved: () => void;
+  onVueltaIniciada?: () => void;
   entrega?: Entrega | null;
   clientes: ClienteOption[];
   config: {
@@ -110,10 +114,23 @@ interface EntregaFormProps {
   camiones?: { id: string; nombre: string; activo: boolean }[];
 }
 
+interface VueltaReciente {
+  id: string;
+  numero: number;
+  iniciadaEn: string;
+  cerradaEn: string | null;
+  litros: number;
+  cantidadEntregas: number;
+  capacidadCamion: number;
+  camion?: { id: string; nombre: string; patente: string | null; capacidad: number } | null;
+  chofer?: { id: string; nombre: string } | null;
+}
+
 export function EntregaForm({
   open,
   onOpenChange,
   onSaved,
+  onVueltaIniciada,
   entrega,
   clientes,
   config,
@@ -150,6 +167,13 @@ export function EntregaForm({
 
   const [nota, setNota] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Diálogo de selección de vuelta (cuando no hay vuelta activa)
+  const [dialogoVueltaAbierto, setDialogoVueltaAbierto] = useState(false);
+  const [vueltasRecientes, setVueltasRecientes] = useState<VueltaReciente[]>([]);
+  const [cargandoVueltas, setCargandoVueltas] = useState(false);
+  const [iniciandoVuelta, setIniciandoVuelta] = useState(false);
+  const [camionSeleccionado, setCamionSeleccionado] = useState<string>("");
 
   // Reset al abrir / cambia entrega
   useEffect(() => {
@@ -332,16 +356,167 @@ export function EntregaForm({
     }
   }
 
-  // Función auxiliar para recargar la vuelta y reintentar el guardado
-  async function cargarVueltaYGuardar() {
+  // Guarda la entrega con un vueltaId opcional (cuando se inicia/reabre desde el diálogo)
+  async function guardarEntrega(vueltaIdOverride?: string) {
+    // Si está en modo estanques, calcular totales desde el desglose
+    if (modoEstanques && estanquesEntrega.length > 0) {
+      const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+      if (totalLitrosEst <= 0) {
+        toast.error("Ingresa al menos litros en un estanque");
+        return;
+      }
+      const totalVentaEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+      const totalEfectivoEst = estanquesEntrega.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+      const totalTransferenciaEst = estanquesEntrega.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+      const totalRecibidoEst = totalEfectivoEst + totalTransferenciaEst;
+
+      let estadoPagoEst = "pendiente";
+      if (totalRecibidoEst >= totalVentaEst && totalVentaEst > 0) estadoPagoEst = "pagado";
+      else if (totalRecibidoEst > 0) estadoPagoEst = "parcial";
+
+      setSaving(true);
+      try {
+        const payload: Record<string, unknown> = {
+          clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
+          clienteNombre: clienteNombre.trim(),
+          clienteDireccion: clienteDireccion.trim() || null,
+          clienteTelefono: clienteTelefono.trim() || null,
+          clienteZona: clienteZona.trim() || null,
+          litros: totalLitrosEst,
+          metodoPago: "mixto",
+          precioPorLitro: 0,
+          total: totalVentaEst,
+          montoEfectivo: totalEfectivoEst,
+          montoTransferencia: totalTransferenciaEst,
+          estadoPago: estadoPagoEst,
+          fotoMedidorUrl: fotoUrl,
+          nota: nota.trim() || null,
+          detalleEstanquesJson: JSON.stringify(estanquesEntrega.map((e) => ({
+            nombre: e.nombre,
+            litros: Number(e.litros) || 0,
+            precioPorLitro: Number(e.precio) || 0,
+            total: (Number(e.litros) || 0) * (Number(e.precio) || 0),
+            metodoPago: e.metodoPago,
+            montoRecibido: Number(e.montoRecibido) || 0,
+          }))),
+        };
+        if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
+
+        if (isEdit && entrega) {
+          await apiPatch(`/api/entregas/${entrega.id}`, payload);
+          toast.success("Entrega actualizada");
+        } else {
+          await apiPost("/api/entregas", payload);
+          toast.success("Entrega registrada");
+        }
+        onSaved();
+        onOpenChange(false);
+        setDialogoVueltaAbierto(false);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
+    if (litrosFinal <= 0) {
+      toast.error("Los litros deben ser mayores a 0");
+      return;
+    }
+
+    setSaving(true);
     try {
-      const data = await apiGet<{ vuelta: VueltaActual | null }>("/api/vueltas/activa");
-      // Actualizar la vueltaActual y esperar al próximo render
-      // Como no podemos setear props directamente, usamos un truco:
-      // recargamos la página del formulario forzando un nuevo intento
-      toast.info("Vuelta iniciada. Presiona 'Registrar entrega' nuevamente.", { duration: 6000 });
-    } catch {
-      toast.error("No se pudo cargar la vuelta activa");
+      const payload: Record<string, unknown> = {
+        clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
+        clienteNombre: clienteNombre.trim(),
+        clienteDireccion: clienteDireccion.trim() || null,
+        clienteTelefono: clienteTelefono.trim() || null,
+        clienteZona: clienteZona.trim() || null,
+        lecturaAnterior: lecturaAnterior !== "" ? Number(lecturaAnterior) : null,
+        lecturaActual: lecturaActual !== "" ? Number(lecturaActual) : null,
+        litros: litrosFinal,
+        metodoPago,
+        precioPorLitro: precioFinal,
+        total: totalCalculado,
+        montoEfectivo: efectivoFinal,
+        montoTransferencia: transferenciaFinal,
+        estadoPago,
+        fotoMedidorUrl: fotoUrl,
+        nota: nota.trim() || null,
+      };
+      if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
+
+      if (isEdit && entrega) {
+        await apiPatch(`/api/entregas/${entrega.id}`, payload);
+        toast.success("Entrega actualizada");
+      } else {
+        await apiPost("/api/entregas", payload);
+        toast.success("Entrega registrada");
+      }
+      onSaved();
+      onOpenChange(false);
+      setDialogoVueltaAbierto(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Cargar vueltas recientes cerradas sin completar
+  async function cargarVueltasRecientes() {
+    setCargandoVueltas(true);
+    try {
+      const data = await apiGet<{ vueltas: VueltaReciente[] }>(`/api/vueltas?period=mes`);
+      // Filtrar: no activas + no completadas + de este chofer (si aplica)
+      const excluidas = data.vueltas.filter((v) => {
+        const completada = esVueltaCompletada(v.litros, v.capacidadCamion, v.cantidadEntregas);
+        return !completada;
+      });
+      setVueltasRecientes(excluidas.slice(0, 5));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCargandoVueltas(false);
+    }
+  }
+
+  // Iniciar nueva vuelta y luego guardar la entrega con el nuevo vueltaId
+  async function iniciarNuevaYGuardar() {
+    const camionesActivos = (camiones ?? []).filter((c) => c.activo);
+    if (camionesActivos.length === 0) {
+      toast.error("No hay camiones activos. Agrega uno en Ajustes primero.");
+      return;
+    }
+    const camionId = camionSeleccionado || camionesActivos[0].id;
+    setIniciandoVuelta(true);
+    try {
+      const res = await apiPost<{ vuelta: { id: string; numero: number } }>("/api/vueltas", { camionId });
+      toast.success(`Vuelta #${res.vuelta.numero} iniciada`);
+      onVueltaIniciada?.();
+      // Guardar la entrega con el nuevo vueltaId
+      await guardarEntrega(res.vuelta.id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo iniciar la vuelta");
+    } finally {
+      setIniciandoVuelta(false);
+    }
+  }
+
+  // Reabrir vuelta existente y luego guardar la entrega con ese vueltaId
+  async function reabrirYGuardar(vuelta: VueltaReciente) {
+    setIniciandoVuelta(true);
+    try {
+      const res = await apiPost<{ vuelta: { id: string; numero: number } }>(`/api/vueltas/${vuelta.id}/reabrir`, {});
+      toast.success(`Vuelta #${res.vuelta.numero} reabierta`);
+      onVueltaIniciada?.();
+      // Guardar la entrega con el vueltaId reabierto
+      await guardarEntrega(res.vuelta.id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo reabrir la vuelta");
+    } finally {
+      setIniciandoVuelta(false);
     }
   }
 
@@ -352,40 +527,16 @@ export function EntregaForm({
       return;
     }
 
-    // Si no hay vuelta activa, ofrecer iniciar una sin perder los datos
+    // Si no hay vuelta activa, abrir el diálogo de selección de vuelta
     if (!vueltaActual) {
       // Verificar si hay camiones disponibles
       if (!camiones || camiones.filter(c => c.activo).length === 0) {
         toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
         return;
       }
-      // Mostrar diálogo de confirmación en vez de perder los datos
-      const camionDisponible = camiones.filter(c => c.activo)[0];
-      toast(
-        "No hay vuelta activa. ¿Quieres iniciar una vuelta ahora?",
-        {
-          duration: 15000,
-          action: {
-            label: "Iniciar vuelta",
-            onClick: async () => {
-              try {
-                await apiPost("/api/vueltas", { camionId: camionDisponible.id });
-                toast.success(`Vuelta iniciada con ${camionDisponible.nombre}`);
-                // Esperar a que se cargue la vuelta y reintentar el guardado
-                setTimeout(() => {
-                  cargarVueltaYGuardar();
-                }, 1000);
-              } catch (e) {
-                toast.error(e instanceof Error ? e.message : "No se pudo iniciar la vuelta");
-              }
-          },
-          },
-          cancel: {
-            label: "Cancelar",
-            onClick: () => {},
-          },
-        }
-      );
+      // Cargar vueltas recientes y abrir el diálogo
+      await cargarVueltasRecientes();
+      setDialogoVueltaAbierto(true);
       return;
     }
 
@@ -421,106 +572,8 @@ export function EntregaForm({
       }
     }
 
-    // Si está en modo estanques, calcular totales desde el desglose
-    if (modoEstanques && estanquesEntrega.length > 0) {
-      const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
-      if (totalLitrosEst <= 0) {
-        toast.error("Ingresa al menos litros en un estanque");
-        return;
-      }
-      const totalVentaEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
-      const totalEfectivoEst = estanquesEntrega.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
-      const totalTransferenciaEst = estanquesEntrega.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
-      const totalRecibidoEst = totalEfectivoEst + totalTransferenciaEst;
-
-      let estadoPagoEst = "pendiente";
-      if (totalRecibidoEst >= totalVentaEst && totalVentaEst > 0) estadoPagoEst = "pagado";
-      else if (totalRecibidoEst > 0) estadoPagoEst = "parcial";
-
-      setSaving(true);
-      try {
-        const payload = {
-          clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
-          clienteNombre: clienteNombre.trim(),
-          clienteDireccion: clienteDireccion.trim() || null,
-          clienteTelefono: clienteTelefono.trim() || null,
-          clienteZona: clienteZona.trim() || null,
-          litros: totalLitrosEst,
-          metodoPago: "mixto",
-          precioPorLitro: 0,
-          total: totalVentaEst,
-          montoEfectivo: totalEfectivoEst,
-          montoTransferencia: totalTransferenciaEst,
-          estadoPago: estadoPagoEst,
-          fotoMedidorUrl: fotoUrl,
-          nota: nota.trim() || null,
-          detalleEstanquesJson: JSON.stringify(estanquesEntrega.map((e) => ({
-            nombre: e.nombre,
-            litros: Number(e.litros) || 0,
-            precioPorLitro: Number(e.precio) || 0,
-            total: (Number(e.litros) || 0) * (Number(e.precio) || 0),
-            metodoPago: e.metodoPago,
-            montoRecibido: Number(e.montoRecibido) || 0,
-          }))),
-        };
-
-        if (isEdit && entrega) {
-          await apiPatch(`/api/entregas/${entrega.id}`, payload);
-          toast.success("Entrega actualizada");
-        } else {
-          await apiPost("/api/entregas", payload);
-          toast.success("Entrega registrada");
-        }
-        onSaved();
-        onOpenChange(false);
-      } catch (e) {
-        toast.error(e instanceof Error ? e.message : "No se pudo guardar");
-      } finally {
-        setSaving(false);
-      }
-      return;
-    }
-
-    if (litrosFinal <= 0) {
-      toast.error("Los litros deben ser mayores a 0");
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const payload = {
-        clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
-        clienteNombre: clienteNombre.trim(),
-        clienteDireccion: clienteDireccion.trim() || null,
-        clienteTelefono: clienteTelefono.trim() || null,
-        clienteZona: clienteZona.trim() || null,
-        lecturaAnterior: lecturaAnterior !== "" ? Number(lecturaAnterior) : null,
-        lecturaActual: lecturaActual !== "" ? Number(lecturaActual) : null,
-        litros: litrosFinal,
-        metodoPago,
-        precioPorLitro: precioFinal,
-        total: totalCalculado,
-        montoEfectivo: efectivoFinal,
-        montoTransferencia: transferenciaFinal,
-        estadoPago,
-        fotoMedidorUrl: fotoUrl,
-        nota: nota.trim() || null,
-      };
-
-      if (isEdit && entrega) {
-        await apiPatch(`/api/entregas/${entrega.id}`, payload);
-        toast.success("Entrega actualizada");
-      } else {
-        await apiPost("/api/entregas", payload);
-        toast.success("Entrega registrada");
-      }
-      onSaved();
-      onOpenChange(false);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
-    } finally {
-      setSaving(false);
-    }
+    // Guardar con la vuelta activa actual
+    await guardarEntrega();
   }
 
   return (
@@ -1280,6 +1333,139 @@ export function EntregaForm({
           </DialogFooter>
         </form>
       </DialogContent>
+
+      {/* Diálogo de selección de vuelta cuando no hay vuelta activa */}
+      <Dialog open={dialogoVueltaAbierto} onOpenChange={(o) => {
+        if (!iniciandoVuelta && !saving) setDialogoVueltaAbierto(o);
+      }}>
+        <DialogContent className="max-h-[90vh] w-[95vw] max-w-lg overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>No hay vuelta activa</DialogTitle>
+            <DialogDescription>
+              Para registrar la entrega necesitas una vuelta activa. Puedes retomar una vuelta sin completar o iniciar una nueva.
+              {" "}Tus datos de entrega se mantendrán y se guardarán automáticamente.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            {/* Opción: Retomar vuelta existente */}
+            {cargandoVueltas ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-sm text-muted-foreground">Cargando vueltas recientes…</span>
+              </div>
+            ) : vueltasRecientes.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Vueltas sin completar (puedes retomarlas)
+                </p>
+                {vueltasRecientes.map((v) => {
+                  const porcentaje = v.capacidadCamion > 0 ? (v.litros / v.capacidadCamion) * 100 : 0;
+                  const umbralLitros = v.capacidadCamion > 0 ? Math.ceil(v.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
+                  return (
+                    <button
+                      key={v.id}
+                      type="button"
+                      disabled={iniciandoVuelta || saving}
+                      onClick={() => reabrirYGuardar(v)}
+                      className="flex w-full items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-left transition hover:bg-amber-100 disabled:opacity-50 dark:border-amber-800 dark:bg-amber-900/20 dark:hover:bg-amber-900/30"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                        <RotateCcw className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm text-amber-900 dark:text-amber-200">
+                          Retomar Vuelta #{v.numero}
+                        </p>
+                        <p className="text-xs text-amber-800 dark:text-amber-300">
+                          {formatNumber(v.litros, 0)} L de {formatNumber(v.capacidadCamion, 0)} L ({porcentaje.toFixed(0)}%)
+                          {" · "}iniciada {formatTime(v.iniciadaEn)}
+                          {v.camion && <> · {v.camion.nombre}</>}
+                          {" · "}faltan {formatNumber(Math.max(0, umbralLitros - v.litros), 0)} L para completar
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                No tienes vueltas recientes sin completar en el último mes.
+              </div>
+            )}
+
+            {/* Separador */}
+            <div className="relative my-2">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">o</span>
+              </div>
+            </div>
+
+            {/* Opción: Iniciar nueva vuelta */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Iniciar nueva vuelta
+              </p>
+              {(() => {
+                const camionesActivos = (camiones ?? []).filter((c) => c.activo);
+                if (camionesActivos.length > 1) {
+                  return (
+                    <div className="space-y-2">
+                      <Label htmlFor="camionSelectEntrega">Camión</Label>
+                      <select
+                        id="camionSelectEntrega"
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        value={camionSeleccionado || camionesActivos[0]?.id || ""}
+                        onChange={(e) => setCamionSeleccionado(e.target.value)}
+                        disabled={iniciandoVuelta || saving}
+                      >
+                        {camionesActivos.map((c) => (
+                          <option key={c.id} value={c.id}>{c.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              <Button
+                type="button"
+                className="w-full"
+                onClick={iniciarNuevaYGuardar}
+                disabled={iniciandoVuelta || saving}
+              >
+                {(iniciandoVuelta || saving) ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando…</>
+                ) : (
+                  <><Plus className="mr-2 h-4 w-4" /> Iniciar nueva vuelta y registrar entrega</>
+                )}
+              </Button>
+            </div>
+
+            {/* Aviso de preservación de datos */}
+            <div className="flex items-start gap-2 rounded-lg bg-emerald-50 p-2 text-xs text-emerald-900 dark:bg-emerald-900/20 dark:text-emerald-200">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <p>
+                Tus datos de entrega (cliente, litros, cobro) ya están cargados.
+                {" "}Al elegir una opción, la entrega se guardará automáticamente con la vuelta seleccionada.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDialogoVueltaAbierto(false)}
+              disabled={iniciandoVuelta || saving}
+            >
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

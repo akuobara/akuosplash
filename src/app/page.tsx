@@ -361,6 +361,7 @@ export default function Home() {
             <EntregasTab
               refreshKey={refreshKey}
               onRefresh={refresh}
+              onVueltaIniciada={refresh}
               clientes={clientes}
               config={{
                 precioEfectivoPorLitro: config?.precioEfectivoPorLitro ?? 0,
@@ -368,6 +369,7 @@ export default function Home() {
                 capacidadCamion: config?.capacidadCamion ?? 17000,
               }}
               vueltaActual={vueltaActual}
+              camiones={camiones}
             />
           </TabsContent>
 

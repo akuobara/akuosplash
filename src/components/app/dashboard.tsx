@@ -473,6 +473,10 @@ export function Dashboard({
           onRefresh();
           cargarVuelta();
         }}
+        onVueltaIniciada={() => {
+          cargarVuelta();
+          onRefresh();
+        }}
         clientes={clientes}
         config={config}
         vueltaActual={vueltaActual}

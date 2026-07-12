@@ -56,6 +56,7 @@ type EstadoFilter = "todos" | "pendiente" | "parcial" | "pagado";
 interface EntregasTabProps {
   refreshKey: number;
   onRefresh: () => void;
+  onVueltaIniciada?: () => void;
   clientes: {
     id: string;
     nombre: string;
@@ -79,6 +80,7 @@ interface EntregasTabProps {
     capacidadCamion: number;
   };
   vueltaActual: VueltaActual | null;
+  camiones?: { id: string; nombre: string; activo: boolean }[];
 }
 
 const PERIODS: { value: Period; label: string }[] = [
@@ -98,9 +100,11 @@ const ESTADOS: { value: EstadoFilter; label: string }[] = [
 export function EntregasTab({
   refreshKey,
   onRefresh,
+  onVueltaIniciada,
   clientes,
   config,
   vueltaActual,
+  camiones,
 }: EntregasTabProps) {
   const [period, setPeriod] = useState<Period>("mes");
   const [estadoFilter, setEstadoFilter] = useState<EstadoFilter>("todos");
@@ -347,10 +351,15 @@ export function EntregasTab({
           cargar();
           onRefresh();
         }}
+        onVueltaIniciada={() => {
+          onVueltaIniciada?.();
+          onRefresh();
+        }}
         entrega={editando}
         clientes={clientes}
         config={config}
         vueltaActual={vueltaActual}
+        camiones={camiones}
       />
 
       {/* Modal de detalle */}
