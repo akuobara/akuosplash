@@ -494,20 +494,19 @@ export function EntregaForm({
           {/* Cliente */}
           <div className="space-y-2">
             <Label htmlFor="clienteSelect">Cliente del catálogo (opcional)</Label>
-            <Select value={clienteId || "__manual"} onValueChange={onSelectCliente}>
-              <SelectTrigger id="clienteSelect">
-                <SelectValue placeholder="Sin cliente del catálogo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__manual">— Ingreso manual —</SelectItem>
-                {clientes.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.nombre}
-                    {c.zona ? ` · ${c.zona}` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              id="clienteSelect"
+              value={clienteId || "__manual"}
+              onChange={(e) => onSelectCliente(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="__manual">— Ingreso manual —</option>
+              {clientes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}{c.zona ? ` · ${c.zona}` : ""}
+                </option>
+              ))}
+            </select>
 
             {/* Panel de info de acceso del cliente seleccionado */}
             {clienteId && clienteId !== "__manual" && (() => {
