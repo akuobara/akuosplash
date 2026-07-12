@@ -506,17 +506,64 @@ export function EntregaForm({
             </div>
           )}
 
+          {/* Pedidos pendientes — PRIMERA OPCIÓN */}
+          {pedidosPendientes.length > 0 && (
+            <div className="rounded-lg border-2 border-blue-300 bg-blue-50 dark:bg-blue-900/20 p-3 space-y-2">
+              <p className="flex items-center gap-1.5 text-sm font-medium text-blue-900 dark:text-blue-200">
+                <ClipboardList className="h-4 w-4" /> Pedidos pendientes — clic para entregar
+              </p>
+              {pedidosPendientes.map((p) => {
+                const clientePedido = p.clienteId ? clientes.find(c => c.id === p.clienteId) : null;
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      if (p.clienteId) {
+                        onSelectCliente(p.clienteId);
+                      } else {
+                        setClienteId("__manual");
+                        setClienteNombre(p.clienteNombre);
+                      }
+                      setLitrosManual(String(p.litrosSolicitados));
+                      setMetodoPago(p.metodoPagoPreferido);
+                    }}
+                    className="flex w-full items-center justify-between rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-background p-3 text-left hover:bg-blue-100 dark:hover:bg-blue-900/30 transition"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm">{p.clienteNombre}</p>
+                      <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="font-semibold text-blue-700 dark:text-blue-300">{formatNumber(p.litrosSolicitados, 0)} L</span>
+                        <span>·</span>
+                        <span>{labelMetodoPago(p.metodoPagoPreferido)}</span>
+                        {clientePedido?.estanquesJson && <span>· 🛢️ Estanques</span>}
+                      </div>
+                    </div>
+                    <span className="ml-2 shrink-0 rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white">
+                      Entregar →
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Separador */}
+          {pedidosPendientes.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-muted-foreground">o entrega sin pedido</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+          )}
+
           {/* Cliente */}
           <div className="space-y-2">
-            <Label htmlFor="clienteSelect">Cliente del catálogo (opcional) · v2</Label>
+            <Label htmlFor="clienteSelect">Cliente del catálogo</Label>
             <select
               id="clienteSelect"
               value={clienteId || "__manual"}
-              onChange={(e) => {
-                const val = e.target.value;
-                toast.success("Seleccionaste: " + (val === "__manual" ? "manual" : val));
-                onSelectCliente(val);
-              }}
+              onChange={(e) => onSelectCliente(e.target.value)}
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
             >
               <option value="__manual">— Ingreso manual —</option>
@@ -526,13 +573,6 @@ export function EntregaForm({
                 </option>
               ))}
             </select>
-
-            {/* Debug visible */}
-            {clienteId && clienteId !== "__manual" && (
-              <p className="text-[10px] text-muted-foreground bg-muted/30 rounded p-1">
-                ID: {clienteId} | Estanques cargados: {estanquesEntrega.length} | Modo: {modoEstanques ? "ON" : "OFF"} | JSON: {clientes.find(c => c.id === clienteId)?.estanquesJson ? "SÍ" : "NO"}
-              </p>
-            )}
 
             {/* Botón manual para activar estanques */}
             {clienteId && clienteId !== "__manual" && estanquesEntrega.length > 0 && !modoEstanques && (
@@ -604,33 +644,6 @@ export function EntregaForm({
                 </div>
               );
             })()}
-
-            {/* Pedidos pendientes del cliente */}
-            {clienteId && clienteId !== "__manual" && pedidosPendientes.filter(p => p.clienteId === clienteId).length > 0 && (
-              <div className="mt-2 rounded-lg border border-blue-300 bg-blue-50 dark:bg-blue-900/20 p-3 space-y-2">
-                <p className="flex items-center gap-1.5 text-xs font-medium text-blue-900 dark:text-blue-200">
-                  <ClipboardList className="h-3.5 w-3.5" /> Pedidos pendientes de este cliente
-                </p>
-                {pedidosPendientes.filter(p => p.clienteId === clienteId).map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => {
-                      setLitrosManual(String(p.litrosSolicitados));
-                      onSelectCliente(p.clienteId || "__manual");
-                      setMetodoPago(p.metodoPagoPreferido);
-                    }}
-                    className="flex w-full items-center justify-between rounded border border-blue-200 dark:border-blue-800 bg-white dark:bg-background p-2 text-left text-xs hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                  >
-                    <div>
-                      <span className="font-medium">{formatNumber(p.litrosSolicitados, 0)} L</span>
-                      <span className="ml-2 text-muted-foreground">{labelMetodoPago(p.metodoPagoPreferido)}</span>
-                    </div>
-                    <span className="text-blue-600 dark:text-blue-400">Usar →</span>
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Panel de deuda del cliente */}
             {clienteId && clienteId !== "__manual" && clienteDeuda != null && clienteDeuda !== 0 && (
