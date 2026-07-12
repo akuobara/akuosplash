@@ -142,6 +142,7 @@ interface PedidosTabProps {
   clientePreselect?: string | null;
   onPreselectConsumed?: () => void;
   vueltaActual?: { litros: number; capacidadCamion?: number; numero: number } | null;
+  camiones?: { id: string; nombre: string; activo: boolean }[];
 }
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -152,7 +153,7 @@ const ESTADO_COLORS: Record<string, string> = {
   cancelado: "bg-muted text-muted-foreground",
 };
 
-export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes, clientePreselect, onPreselectConsumed, vueltaActual }: PedidosTabProps) {
+export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes, clientePreselect, onPreselectConsumed, vueltaActual, camiones }: PedidosTabProps) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState<string>("todos");
@@ -480,7 +481,45 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       setConvirtiendo(null);
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo convertir");
+      const msg = e instanceof Error ? e.message : "No se pudo convertir";
+      // Si el error es por falta de vuelta activa, ofrecer iniciar una
+      if (msg.includes("No hay vuelta activa") || msg.includes("vuelta")) {
+        // Verificar si hay camiones disponibles
+        const camionesActivos = (camiones ?? []).filter(c => c.activo);
+        if (camionesActivos.length === 0) {
+          toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
+        } else {
+          toast(
+            "No hay vuelta activa. ¿Quieres iniciar una vuelta ahora?",
+            {
+              duration: 15000,
+              action: {
+                label: "Iniciar vuelta",
+                onClick: async () => {
+                  try {
+                    await apiPost("/api/vueltas", { camionId: camionesActivos[0].id });
+                    toast.success(`Vuelta iniciada`);
+                    onRefresh();
+                    // Reintentar la conversión
+                    setTimeout(() => {
+                      // El usuario debe hacer clic en "Convertir" nuevamente
+                      toast.info("Vuelta iniciada. Presiona 'Convertir en entrega' nuevamente.", { duration: 6000 });
+                    }, 500);
+                  } catch (err) {
+                    toast.error(err instanceof Error ? err.message : "No se pudo iniciar la vuelta");
+                  }
+                },
+              },
+              cancel: {
+                label: "Cancelar",
+                onClick: () => {},
+              },
+            }
+          );
+        }
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setSaving(false);
     }

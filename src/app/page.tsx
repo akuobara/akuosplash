@@ -365,6 +365,7 @@ export default function Home() {
               clientePreselect={pedidoClientePreselect}
               onPreselectConsumed={() => setPedidoClientePreselect(null)}
               vueltaActual={vueltaActual}
+              camiones={camiones}
             />
           </TabsContent>
 

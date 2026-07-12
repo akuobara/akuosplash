@@ -697,8 +697,8 @@ export function EntregaForm({
         toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
         return;
       }
-      // Validar litros antes de abrir el diálogo para evitar vueltas huérfanas
-      if (!validarLitrosAntesDeVuelta()) return;
+      // No validar litros aquí — se validarán al hacer clic en "Iniciar nueva" o "Retomar"
+      // dentro del diálogo. Esto permite abrir el diálogo primero y llenar los datos después.
       // Cargar vueltas recientes y abrir el diálogo
       await cargarVueltasRecientes();
       setDialogoVueltaAbierto(true);
