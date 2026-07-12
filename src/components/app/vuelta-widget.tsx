@@ -19,10 +19,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Droplets, Play, Square, Plus, AlertCircle, Truck } from "lucide-react";
+import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost } from "@/lib/api-client";
-import { formatNumber, formatTime } from "@/lib/helpers";
+import { formatNumber, formatTime, esVueltaCompletada, UMBRAL_COMPLETACION_VUELTA } from "@/lib/helpers";
 import type { VueltaActual } from "./entrega-form";
 
 export interface CamionOption {
@@ -142,6 +142,8 @@ export function VueltaWidget({
   const litrosRestantes = Math.max(0, capacidadCamion - litrosEntregados);
   const porcentajeUsado = capacidadCamion > 0 ? (litrosEntregados / capacidadCamion) * 100 : 0;
   const excede = litrosEntregados > capacidadCamion && capacidadCamion > 0;
+  const vueltaCompletada = esVueltaCompletada(litrosEntregados, capacidadCamion, vueltaActual.cantidadEntregas);
+  const umbralLitros = capacidadCamion > 0 ? Math.ceil(capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
 
   async function iniciarVuelta() {
     setIniciando(true);
@@ -230,18 +232,35 @@ export function VueltaWidget({
                   <span className="text-muted-foreground">Capacidad usada</span>
                   <span className={excede ? "font-medium text-red-600 dark:text-red-400" : "text-muted-foreground"}>
                     {porcentajeUsado.toFixed(0)}%
+                    {!vueltaCompletada && !excede && (
+                      <span className="ml-1 text-amber-600 dark:text-amber-400">· falta {Math.max(0, 95 - porcentajeUsado).toFixed(0)}% para validar</span>
+                    )}
                   </span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
                   <div
-                    className={`h-full rounded-full transition-all ${excede ? "bg-red-500" : porcentajeUsado >= 90 ? "bg-amber-500" : "bg-primary"}`}
+                    className={`h-full rounded-full transition-all ${excede ? "bg-red-500" : vueltaCompletada ? "bg-emerald-500" : porcentajeUsado >= 90 ? "bg-amber-500" : "bg-primary"}`}
                     style={{ width: `${Math.min(100, porcentajeUsado)}%` }}
+                  />
+                  {/* Marcador del 95% */}
+                  <div
+                    className="absolute top-0 h-full w-0.5 bg-emerald-600/70"
+                    style={{ left: "95%" }}
+                    title="Umbral 95% para vuelta válida"
                   />
                 </div>
                 {excede && (
                   <div className="mt-1 flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
                     <AlertCircle className="h-3 w-3" />
                     <span>Excede la capacidad del camión — debería cerrar la vuelta y hacer otra.</span>
+                  </div>
+                )}
+                {!excede && !vueltaCompletada && litrosEntregados > 0 && (
+                  <div className="mt-1 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                    <AlertTriangle className="h-3 w-3" />
+                    <span>
+                      Faltan {formatNumber(Math.max(0, umbralLitros - litrosEntregados), 0)} L para completar la vuelta.
+                    </span>
                   </div>
                 )}
               </div>
@@ -251,21 +270,42 @@ export function VueltaWidget({
       </Card>
 
       <Dialog open={confirmarCerrar} onOpenChange={setConfirmarCerrar}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Cerrar Vuelta #{vueltaActual.numero}</DialogTitle>
             <DialogDescription>
               Vas a cerrar la vuelta actual con {vueltaActual.cantidadEntregas} entrega(s) y {formatNumber(vueltaActual.litros, 0)} L entregados.
-              {vueltaActual.cantidadEntregas === 0 && " Esta vuelta no tiene entregas, igual se cerrará."}
               {" "}Luego podrás iniciar una nueva vuelta cuando recargues agua en la planta.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmarCerrar(false)}>
-              Cancelar
+
+          {!vueltaCompletada && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/20">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                <div className="space-y-1 text-amber-900 dark:text-amber-200">
+                  <p className="font-semibold">Vuelta no completada</p>
+                  <p className="text-xs">
+                    Has entregado <strong>{formatNumber(litrosEntregados, 0)} L</strong> de{" "}
+                    <strong>{formatNumber(capacidadCamion, 0)} L</strong> ({porcentajeUsado.toFixed(0)}%).
+                    {" "}Para que la vuelta cuente como válida en la liquidación debes entregar al menos{" "}
+                    <strong>{formatNumber(umbralLitros, 0)} L</strong> (95% de la capacidad).
+                  </p>
+                  <p className="text-xs">
+                    Si cierras ahora, esta vuelta <strong>no se contabilizará</strong> para el pago al chofer.
+                    {" "}Puedes seguir con esta vuelta para completarla, o cerrarla si ya no vas a entregar más agua.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={() => setConfirmarCerrar(false)} className="w-full sm:w-auto">
+              Seguir con esta vuelta
             </Button>
-            <Button onClick={cerrarVuelta} disabled={cerrando}>
-              <Square className="mr-2 h-4 w-4" /> Cerrar vuelta
+            <Button onClick={cerrarVuelta} disabled={cerrando} variant={vueltaCompletada ? "default" : "destructive"} className="w-full sm:w-auto">
+              <Square className="mr-2 h-4 w-4" /> {vueltaCompletada ? "Cerrar vuelta" : "Cerrar de todas formas"}
             </Button>
           </DialogFooter>
         </DialogContent>

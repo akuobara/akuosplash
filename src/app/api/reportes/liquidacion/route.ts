@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
-import { getRange, labelTipoGasto } from "@/lib/helpers";
+import { getRange, labelTipoGasto, esVueltaCompletada } from "@/lib/helpers";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -73,6 +73,7 @@ export async function GET(req: NextRequest) {
   let pagoChofer = 0;
   let pagoDueno = 0;
   let vueltasDetalle: any[] = [];
+  let vueltasExcluidas: any[] = [];
 
   if (cfg.modoLiquidacion === "vuelta") {
     vueltasDetalle = vueltas.map((v) => {
@@ -83,16 +84,22 @@ export async function GET(req: NextRequest) {
       const ventas = v.entregas.reduce((s, e) => s + e.total, 0);
       const efectivo = v.entregas.reduce((s, e) => s + e.montoEfectivo, 0);
       const transferencia = v.entregas.reduce((s, e) => s + e.montoTransferencia, 0);
-      const capacidadCamion = v.camion?.capacidad ?? 0;
+      const capacidadCamion = v.camion?.capacidad ?? cfg.capacidadCamion ?? 0;
+      const completada = esVueltaCompletada(litros, capacidadCamion, numEntregas);
       return {
         id: v.id, numero: v.numero, iniciadaEn: v.iniciadaEn, cerradaEn: v.cerradaEn,
         camion: v.camion, chofer: v.chofer,
         cantidadEntregas: numEntregas, esMultiple, litros,
         litrosRestantes: Math.max(0, capacidadCamion - litros), capacidadCamion,
         ventas, efectivo, transferencia, montoPago: monto,
+        completada, porcentajeCompletado: capacidadCamion > 0 ? (litros / capacidadCamion) * 100 : 0,
       };
     });
-    pagoChofer = vueltasDetalle.reduce((s, v) => s + v.montoPago, 0);
+    // Separar vueltas válidas (completadas) de excluidas (no completadas)
+    const vueltasValidas = vueltasDetalle.filter((v) => v.completada);
+    vueltasExcluidas = vueltasDetalle.filter((v) => !v.completada);
+    vueltasDetalle = vueltasValidas;
+    pagoChofer = vueltasValidas.reduce((s, v) => s + v.montoPago, 0);
   } else {
     pagoChofer = (utilidadBruta * cfg.porcentajeComisionChofer) / 100;
     pagoDueno = (utilidadBruta * cfg.porcentajeComisionDueno) / 100;
@@ -129,11 +136,15 @@ export async function GET(req: NextRequest) {
       totalVentas, totalEfectivoRecibido, totalTransferenciaRecibida, totalRecibido,
       totalPorCobrar, totalGastos, gastosChofer, gastosDueno, utilidadBruta,
       pagoChofer, pagoDueno, baseImponible, impuesto, liquidoChoferAntesDeEfectivo,
-      saldoChofer, cantidadVueltas: vueltas.length,
+      saldoChofer,
+      cantidadVueltas: vueltas.length,
+      vueltasValidas: vueltasDetalle.length,
+      vueltasExcluidas: vueltasExcluidas.length,
       vueltasUnicoCliente: vueltasDetalle.filter((v) => !v.esMultiple).length,
       vueltasMultiple: vueltasDetalle.filter((v) => v.esMultiple).length,
     },
     vueltas: vueltasDetalle,
+    vueltasExcluidas,
     gastosPorTipo: Object.entries(gastosPorTipo).map(([tipo, monto]) => ({ tipo, label: labelTipoGasto(tipo), monto })),
     topClientes,
     cantidadEntregas: entregas.length,

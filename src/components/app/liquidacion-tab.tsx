@@ -34,6 +34,8 @@ import {
   Repeat,
   Banknote,
   Smartphone,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPut } from "@/lib/api-client";
@@ -82,6 +84,8 @@ interface VueltaDetalle {
   efectivo: number;
   transferencia: number;
   montoPago: number;
+  completada?: boolean;
+  porcentajeCompletado?: number;
 }
 
 interface LiquidacionData {
@@ -104,10 +108,13 @@ interface LiquidacionData {
     liquidoChoferAntesDeEfectivo: number;
     saldoChofer: number;
     cantidadVueltas: number;
+    vueltasValidas?: number;
+    vueltasExcluidas?: number;
     vueltasUnicoCliente: number;
     vueltasMultiple: number;
   };
   vueltas: VueltaDetalle[];
+  vueltasExcluidas?: VueltaDetalle[];
   gastosPorTipo: { tipo: string; label: string; monto: number }[];
   topClientes: { nombre: string; litros: number; total: number; entregas: number }[];
   cantidadEntregas: number;
@@ -253,62 +260,105 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
       )}
 
       {/* Detalle de vueltas (solo en modo vuelta) */}
-      {esModoVuelta && data && data.vueltas.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Repeat className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Detalle de vueltas ({data.vueltas.length})</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ul className="divide-y divide-border">
-              {data.vueltas.map((v) => (
-                <li key={v.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg font-bold ${
-                      v.esMultiple
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    }`}>
-                      #{v.numero}
-                    </div>
-                    <div>
-                      <p className="font-medium">
-                        Vuelta #{v.numero}{" "}
-                        <span className="ml-1 text-xs text-muted-foreground">
-                          ({v.esMultiple ? "múltiples clientes" : "cliente único"})
-                        </span>
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDateTime(v.iniciadaEn)}
-                        {v.cerradaEn ? ` → ${formatDateTime(v.cerradaEn)}` : " · En curso"}
-                        {v.camion && ` · ${v.camion.nombre}`}
-                        {" · "}
-                        {v.cantidadEntregas} entrega(s) · {formatNumber(v.litros, 0)} L entregados
-                        {v.capacidadCamion > 0 && (
-                          <> de {formatNumber(v.capacidadCamion, 0)} L</>
-                        )}
-                        {" · "}
-                        {formatCurrency(v.ventas)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs uppercase text-muted-foreground">Pago al chofer</p>
-                    <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
-                      {formatCurrency(v.montoPago)}
+      {esModoVuelta && data && (
+        <>
+          {/* Aviso de vueltas excluidas */}
+          {data.vueltasExcluidas && data.vueltasExcluidas.length > 0 && (
+            <Card className="border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                      {data.vueltasExcluidas.length} vuelta{data.vueltasExcluidas.length !== 1 ? "s" : ""} sin completar — no cuentan para el pago
                     </p>
+                    <p className="mt-0.5 text-xs text-amber-900 dark:text-amber-200">
+                      Una vuelta se considera válida cuando se entrega al menos el 95% de la capacidad del camión.
+                      {" "}Las vueltas listadas abajo se cerraron sin alcanzar ese umbral.
+                    </p>
+                    <ul className="mt-2 space-y-1 text-xs">
+                      {data.vueltasExcluidas.map((v) => (
+                        <li key={v.id} className="flex items-center justify-between gap-2 rounded bg-white/60 px-2 py-1 dark:bg-black/20">
+                          <span className="text-amber-900 dark:text-amber-200">
+                            <strong>#{v.numero}</strong> · {v.cantidadEntregas} entrega(s) ·{" "}
+                            {formatNumber(v.litros, 0)} L de {formatNumber(v.capacidadCamion, 0)} L
+                            {" ("}{v.porcentajeCompletado?.toFixed(0) ?? 0}%{")"}
+                          </span>
+                          <span className="text-amber-700 dark:text-amber-300 tabular-nums">
+                            Excluida — {formatCurrency(v.montoPago)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </li>
-              ))}
-            </ul>
-            <div className="border-t border-border bg-muted/30 p-3 text-right text-sm">
-              <span className="text-muted-foreground">Total pago al chofer por vueltas: </span>
-              <span className="font-bold tabular-nums">{formatCurrency(r.pagoChofer)}</span>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {data.vueltas.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Repeat className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-base">
+                    Vueltas válidas para liquidación ({data.vueltas.length})
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <ul className="divide-y divide-border">
+                  {data.vueltas.map((v) => (
+                    <li key={v.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg font-bold ${
+                          v.esMultiple
+                            ? "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground"
+                        }`}>
+                          #{v.numero}
+                        </div>
+                        <div>
+                          <p className="font-medium flex items-center gap-1.5 flex-wrap">
+                            Vuelta #{v.numero}
+                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                              <CheckCircle2 className="h-2.5 w-2.5" /> Completada
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              ({v.esMultiple ? "múltiples clientes" : "cliente único"})
+                            </span>
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDateTime(v.iniciadaEn)}
+                            {v.cerradaEn ? ` → ${formatDateTime(v.cerradaEn)}` : " · En curso"}
+                            {v.camion && ` · ${v.camion.nombre}`}
+                            {" · "}
+                            {v.cantidadEntregas} entrega(s) · {formatNumber(v.litros, 0)} L entregados
+                            {v.capacidadCamion > 0 && (
+                              <> de {formatNumber(v.capacidadCamion, 0)} L ({v.porcentajeCompletado?.toFixed(0) ?? 100}%)</>
+                            )}
+                            {" · "}
+                            {formatCurrency(v.ventas)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs uppercase text-muted-foreground">Pago al chofer</p>
+                        <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                          {formatCurrency(v.montoPago)}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <div className="border-t border-border bg-muted/30 p-3 text-right text-sm">
+                  <span className="text-muted-foreground">Total pago al chofer por vueltas válidas: </span>
+                  <span className="font-bold tabular-nums">{formatCurrency(r?.pagoChofer ?? 0)}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
 
       {/* Desglose de gastos por tipo */}
@@ -506,9 +556,13 @@ function LiquidacionVuelta({
             <div className="space-y-2 text-sm">
               <Row label="Vueltas a cliente único" value={`${r.vueltasUnicoCliente} × ${formatCurrency(cfg.montoPorVueltaUnicoCliente)}`} />
               <Row label="Vueltas a múltiples clientes" value={`${r.vueltasMultiple} × ${formatCurrency(cfg.montoPorVueltaMultiple)}`} />
-              <Row label="Total vueltas" value={String(r.cantidadVueltas)} />
+              <Row label="Vueltas válidas (≥ 95% capacidad)" value={String(r.vueltasValidas ?? (r.cantidadVueltas - (r.vueltasExcluidas ?? 0)))} tone="positive" />
+              {(r.vueltasExcluidas ?? 0) > 0 && (
+                <Row label="Vueltas sin completar (excluidas)" value={String(r.vueltasExcluidas)} tone="negative" />
+              )}
+              <Row label="Total vueltas del período" value={String(r.cantidadVueltas)} />
               <div className="border-t border-border pt-2">
-                <Row label="Pago al chofer por vueltas" value={formatCurrency(r.pagoChofer)} strong tone="positive" />
+                <Row label="Pago al chofer por vueltas válidas" value={formatCurrency(r.pagoChofer)} strong tone="positive" />
               </div>
             </div>
 
@@ -571,10 +625,14 @@ function LiquidacionVuelta({
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          <strong>Cómo se calcula:</strong> Por cada vuelta recibes{" "}
+          <strong>Cómo se calcula:</strong> Por cada vuelta <strong>válida</strong> recibes{" "}
           <strong>{formatCurrency(cfg.montoPorVueltaUnicoCliente)}</strong> si fue a 1 cliente o{" "}
           <strong>{formatCurrency(cfg.montoPorVueltaMultiple)}</strong> si fue a múltiples clientes.
-          Se suman los gastos que pagaste tú (reembolsables).
+          {" "}Una vuelta es válida solo si entregaste al menos el <strong>95%</strong> de la capacidad del camión.
+          {(r.vueltasExcluidas ?? 0) > 0 && (
+            <> Las vueltas cerradas sin completar no se contabilizan ({r.vueltasExcluidas} en este período).</>
+          )}
+          {" "}Se suman los gastos que pagaste tú (reembolsables).
           {r.impuesto > 0 && (
             <> Se descuenta el impuesto ({cfg.porcentajeImpuesto}% sobre {cfg.aplicaImpuestoSobre === "pago_chofer" ? "el pago del chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "la utilidad bruta" : "las ventas brutas"}).</>
           )}{" "}

@@ -188,12 +188,44 @@ export function formatTime(date: Date | string): string {
   });
 }
 
+// === Completación de vuelta ===
+// Una vuelta se considera completada (válida para liquidación) cuando se han
+// entregado al menos el 95% de la capacidad del camión.
+// Si no se conoce la capacidad del camión, se considera completada si tuvo
+// al menos una entrega (para no penalizar vueltas antiguas sin camión asignado).
+export const UMBRAL_COMPLETACION_VUELTA = 0.95;
+
+export function esVueltaCompletada(
+  litros: number,
+  capacidadCamion: number | null | undefined,
+  cantidadEntregas: number = 0
+): boolean {
+  if (capacidadCamion && capacidadCamion > 0) {
+    return litros >= capacidadCamion * UMBRAL_COMPLETACION_VUELTA;
+  }
+  // Sin info de capacidad: se considera completada si hubo al menos una entrega
+  return cantidadEntregas > 0;
+}
+
+export function porcentajeCompletado(
+  litros: number,
+  capacidadCamion: number | null | undefined
+): number {
+  if (!capacidadCamion || capacidadCamion <= 0) return 0;
+  return (litros / capacidadCamion) * 100;
+}
+
 // Devuelve un rango de fechas para el día/semana/mes actual
-export function getRange(period: "hoy" | "semana" | "mes" | "todo"): { start?: Date; end?: Date } {
+export function getRange(period: "hoy" | "ayer" | "semana" | "mes" | "todo"): { start?: Date; end?: Date } {
   const now = new Date();
   if (period === "hoy") {
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    return { start, end };
+  }
+  if (period === "ayer") {
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     return { start, end };
   }
   if (period === "semana") {

@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Repeat,
@@ -29,8 +30,13 @@ import {
   ChevronRight,
   Clock,
   MapPin,
+  RotateCcw,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
 } from "lucide-react";
-import { apiGet } from "@/lib/api-client";
+import { toast } from "sonner";
+import { apiGet, apiPost } from "@/lib/api-client";
 import {
   formatNumber,
   formatCurrency,
@@ -39,6 +45,8 @@ import {
   formatTime,
   labelMetodoPago,
   labelEstadoPago,
+  esVueltaCompletada,
+  UMBRAL_COMPLETACION_VUELTA,
 } from "@/lib/helpers";
 
 interface EntregaVuelta {
@@ -84,13 +92,15 @@ const PERIODS: { value: Period; label: string }[] = [
   { value: "todo", label: "Todo" },
 ];
 
-export function HistorialVueltasTab({ refreshKey }: { refreshKey: number; onRefresh: () => void }) {
+export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: number; onRefresh: () => void }) {
   const [vueltas, setVueltas] = useState<Vuelta[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("semana");
   const [vueltasAbiertas, setVueltasAbiertas] = useState<Set<string>>(new Set());
   const [entregasPorVuelta, setEntregasPorVuelta] = useState<Record<string, EntregaVuelta[]>>({});
   const [cargandoEntregas, setCargandoEntregas] = useState<Set<string>>(new Set());
+  const [reabrirConfirm, setReabrirConfirm] = useState<Vuelta | null>(null);
+  const [reabriendo, setReabriendo] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -145,6 +155,22 @@ export function HistorialVueltasTab({ refreshKey }: { refreshKey: number; onRefr
     }
   }
 
+  async function reabrirVuelta() {
+    if (!reabrirConfirm) return;
+    setReabriendo(true);
+    try {
+      await apiPost(`/api/vueltas/${reabrirConfirm.id}/reabrir`, {});
+      toast.success(`Vuelta #${reabrirConfirm.numero} reabierta — ahora es la vuelta activa`);
+      setReabrirConfirm(null);
+      onRefresh();
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo reabrir la vuelta");
+    } finally {
+      setReabriendo(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       {/* Encabezado */}
@@ -174,6 +200,18 @@ export function HistorialVueltasTab({ refreshKey }: { refreshKey: number; onRefr
             <CardContent className="p-3">
               <p className="text-xs uppercase text-muted-foreground">Vueltas</p>
               <p className="text-xl font-bold">{vueltas.length}</p>
+              {(() => {
+                const validas = vueltas.filter((v) => esVueltaCompletada(v.litros, v.capacidadCamion, v.cantidadEntregas)).length;
+                const invalidas = vueltas.length - validas;
+                if (invalidas > 0) {
+                  return (
+                    <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                      {validas} válidas · {invalidas} sin completar
+                    </p>
+                  );
+                }
+                return null;
+              })()}
             </CardContent>
           </Card>
           <Card>
@@ -247,23 +285,41 @@ export function HistorialVueltasTab({ refreshKey }: { refreshKey: number; onRefr
                   const abierta = vueltasAbiertas.has(v.id);
                   const entregas = entregasPorVuelta[v.id] || [];
                   const cargando = cargandoEntregas.has(v.id);
+                  const completada = esVueltaCompletada(v.litros, v.capacidadCamion, v.cantidadEntregas);
+                  const porcentaje = v.capacidadCamion > 0 ? (v.litros / v.capacidadCamion) * 100 : 0;
+                  const umbralLitros = v.capacidadCamion > 0 ? Math.ceil(v.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
+                  const puedeReabrir = !v.activa && !completada;
 
                   return (
-                    <Card key={v.id} className="overflow-hidden">
+                    <Card key={v.id} className={`overflow-hidden ${!completada && !v.activa ? "border-amber-300 dark:border-amber-800" : ""}`}>
                       <button
                         type="button"
                         onClick={() => toggleVuelta(v.id)}
                         className="flex w-full items-center gap-3 p-3 text-left hover:bg-muted/30"
                       >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold ${
+                          v.activa
+                            ? "bg-primary text-primary-foreground"
+                            : completada
+                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                              : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                        }`}>
                           #{v.numero}
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-1.5">
                             <span className="font-medium text-sm">Vuelta #{v.numero}</span>
-                            {v.activa && (
+                            {v.activa ? (
                               <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
                                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Activa
+                              </span>
+                            ) : completada ? (
+                              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                <CheckCircle2 className="h-2.5 w-2.5" /> Completada
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                                <AlertTriangle className="h-2.5 w-2.5" /> Sin completar
                               </span>
                             )}
                             {v.esMultiple && (
@@ -287,7 +343,9 @@ export function HistorialVueltasTab({ refreshKey }: { refreshKey: number; onRefr
                             <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(v.litros, 0)} L</span>
                             {v.cantidadEntregas > 0 && <><span>·</span><span>{v.cantidadEntregas} entrega(s)</span></>}
                             {v.capacidadCamion > 0 && (
-                              <span className="text-muted-foreground/70">· {formatNumber(v.litrosRestantes, 0)} L restantes</span>
+                              <span className={completada ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
+                                · {porcentaje.toFixed(0)}% de {formatNumber(v.capacidadCamion, 0)} L
+                              </span>
                             )}
                           </div>
                         </div>
@@ -297,6 +355,31 @@ export function HistorialVueltasTab({ refreshKey }: { refreshKey: number; onRefr
                         </div>
                         {abierta ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
                       </button>
+
+                      {/* Banner de vuelta no completada con botón Retomar */}
+                      {puedeReabrir && (
+                        <div className="border-t border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="text-xs text-amber-900 dark:text-amber-200">
+                              <AlertTriangle className="mr-1 inline h-3 w-3" />
+                              Vuelta cerrada sin completar ({porcentaje.toFixed(0)}% de {formatNumber(v.capacidadCamion, 0)} L).
+                              {" "}Faltaron {formatNumber(Math.max(0, umbralLitros - v.litros), 0)} L para ser válida.
+                              {" "}No cuenta para la liquidación.
+                            </p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-amber-400 bg-white text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setReabrirConfirm(v);
+                              }}
+                            >
+                              <RotateCcw className="mr-1 h-3 w-3" /> Retomar vuelta
+                            </Button>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Detalle de entregas de la vuelta */}
                       {abierta && (
@@ -389,6 +472,40 @@ export function HistorialVueltasTab({ refreshKey }: { refreshKey: number; onRefr
           })}
         </div>
       )}
+
+      {/* Diálogo de confirmación para reabrir vuelta */}
+      <Dialog open={!!reabrirConfirm} onOpenChange={(o) => !o && setReabrirConfirm(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Retomar Vuelta #{reabrirConfirm?.numero}</DialogTitle>
+            <DialogDescription>
+              Esta vuelta fue cerrada sin completar (solo {reabrirConfirm ? (reabrirConfirm.capacidadCamion > 0 ? ((reabrirConfirm.litros / reabrirConfirm.capacidadCamion) * 100).toFixed(0) : "0") : "0"}% de {formatNumber(reabrirConfirm?.capacidadCamion ?? 0, 0)} L).
+              {" "}Al retomarla volverá a ser la vuelta activa y podrás seguir registrando entregas.
+            </DialogDescription>
+          </DialogHeader>
+          {reabrirConfirm && (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs dark:border-amber-800 dark:bg-amber-900/20">
+              <div className="flex items-start gap-2 text-amber-900 dark:text-amber-200">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  <p>Si hay otra vuelta activa actualmente, se cerrará automáticamente.</p>
+                  <p className="mt-1">Para que esta vuelta cuente en la liquidación, debes entregar al menos{" "}
+                    <strong>{formatNumber(reabrirConfirm.capacidadCamion > 0 ? Math.ceil(reabrirConfirm.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0, 0)} L</strong> en total (95% de la capacidad del camión).
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={() => setReabrirConfirm(null)} className="w-full sm:w-auto">
+              Cancelar
+            </Button>
+            <Button onClick={reabrirVuelta} disabled={reabriendo} className="w-full sm:w-auto">
+              <RotateCcw className="mr-2 h-4 w-4" /> {reabriendo ? "Reabriendo…" : "Retomar vuelta"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

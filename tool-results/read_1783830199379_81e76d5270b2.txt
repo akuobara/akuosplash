@@ -1,0 +1,691 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useState, useCallback } from "react";
+     4→import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+     5→import { Button } from "@/components/ui/button";
+     6→import { Skeleton } from "@/components/ui/skeleton";
+     7→import {
+     8→  Select,
+     9→  SelectContent,
+    10→  SelectItem,
+    11→  SelectTrigger,
+    12→  SelectValue,
+    13→} from "@/components/ui/select";
+    14→import {
+    15→  Dialog,
+    16→  DialogContent,
+    17→  DialogHeader,
+    18→  DialogTitle,
+    19→  DialogDescription,
+    20→  DialogFooter,
+    21→} from "@/components/ui/dialog";
+    22→import { Input } from "@/components/ui/input";
+    23→import { Label } from "@/components/ui/label";
+    24→import { Separator } from "@/components/ui/separator";
+    25→import {
+    26→  ArrowRight,
+    27→  Printer,
+    28→  HandCoins,
+    29→  Wallet,
+    30→  TrendingDown,
+    31→  TrendingUp,
+    32→  Receipt,
+    33→  Users,
+    34→  Repeat,
+    35→  Banknote,
+    36→  Smartphone,
+    37→} from "lucide-react";
+    38→import { toast } from "sonner";
+    39→import { apiGet, apiPut } from "@/lib/api-client";
+    40→import {
+    41→  formatCurrency,
+    42→  formatNumber,
+    43→  formatDate,
+    44→  formatDateTime,
+    45→  labelTipoGasto,
+    46→  labelModoLiquidacion,
+    47→  MODOS_LIQUIDACION,
+    48→} from "@/lib/helpers";
+    49→import { StatCard } from "./stat-card";
+    50→
+    51→type Period = "hoy" | "semana" | "mes" | "todo";
+    52→
+    53→interface Config {
+    54→  id: string;
+    55→  nombreChofer: string;
+    56→  nombreDueno: string;
+    57→  capacidadCamion: number;
+    58→  modoLiquidacion: string;
+    59→  porcentajeComisionChofer: number;
+    60→  porcentajeComisionDueno: number;
+    61→  montoPorVueltaUnicoCliente: number;
+    62→  montoPorVueltaMultiple: number;
+    63→  precioEfectivoPorLitro: number;
+    64→  precioTransferenciaPorLitro: number;
+    65→  tipoTributo: string;
+    66→  porcentajeImpuesto: number;
+    67→  aplicaImpuestoSobre: string;
+    68→}
+    69→
+    70→interface VueltaDetalle {
+    71→  id: string;
+    72→  numero: number;
+    73→  iniciadaEn: string;
+    74→  cerradaEn: string | null;
+    75→  cantidadEntregas: number;
+    76→  esMultiple: boolean;
+    77→  litros: number;
+    78→  litrosRestantes: number;
+    79→  capacidadCamion: number;
+    80→  camion?: { id: string; nombre: string; patente: string | null; capacidad: number } | null;
+    81→  ventas: number;
+    82→  efectivo: number;
+    83→  transferencia: number;
+    84→  montoPago: number;
+    85→}
+    86→
+    87→interface LiquidacionData {
+    88→  period: string;
+    89→  config: Config;
+    90→  resumen: {
+    91→    totalVentas: number;
+    92→    totalEfectivoRecibido: number;
+    93→    totalTransferenciaRecibida: number;
+    94→    totalRecibido: number;
+    95→    totalPorCobrar: number;
+    96→    totalGastos: number;
+    97→    gastosChofer: number;
+    98→    gastosDueno: number;
+    99→    utilidadBruta: number;
+   100→    pagoChofer: number;
+   101→    pagoDueno: number;
+   102→    baseImponible: number;
+   103→    impuesto: number;
+   104→    liquidoChoferAntesDeEfectivo: number;
+   105→    saldoChofer: number;
+   106→    cantidadVueltas: number;
+   107→    vueltasUnicoCliente: number;
+   108→    vueltasMultiple: number;
+   109→  };
+   110→  vueltas: VueltaDetalle[];
+   111→  gastosPorTipo: { tipo: string; label: string; monto: number }[];
+   112→  topClientes: { nombre: string; litros: number; total: number; entregas: number }[];
+   113→  cantidadEntregas: number;
+   114→  cantidadGastos: number;
+   115→}
+   116→
+   117→const PERIODS: { value: Period; label: string }[] = [
+   118→  { value: "hoy", label: "Hoy" },
+   119→  { value: "semana", label: "Esta semana" },
+   120→  { value: "mes", label: "Este mes" },
+   121→  { value: "todo", label: "Todo" },
+   122→];
+   123→
+   124→interface LiquidacionTabProps {
+   125→  refreshKey: number;
+   126→  onRefresh: () => void;
+   127→  config: Config | null;
+   128→}
+   129→
+   130→export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTabProps) {
+   131→  const [period, setPeriod] = useState<Period>("mes");
+   132→  const [data, setData] = useState<LiquidacionData | null>(null);
+   133→  const [loading, setLoading] = useState(true);
+   134→  const [configOpen, setConfigOpen] = useState(false);
+   135→
+   136→  const cargar = useCallback(async () => {
+   137→    setLoading(true);
+   138→    try {
+   139→      const r = await apiGet<LiquidacionData>(`/api/reportes/liquidacion?period=${period}`);
+   140→      setData(r);
+   141→    } catch (e) {
+   142→      console.error(e);
+   143→      toast.error("No se pudo cargar la liquidación");
+   144→    } finally {
+   145→      setLoading(false);
+   146→    }
+   147→  }, [period]);
+   148→
+   149→  useEffect(() => {
+   150→    cargar();
+   151→  }, [cargar, refreshKey]);
+   152→
+   153→  const r = data?.resumen;
+   154→  const cfg = data?.config;
+   155→  const esModoVuelta = cfg?.modoLiquidacion === "vuelta";
+   156→
+   157→  return (
+   158→    <div className="space-y-5">
+   159→      {/* Encabezado */}
+   160→      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+   161→        <div>
+   162→          <h2 className="text-lg font-semibold sm:text-xl">Liquidación con el dueño</h2>
+   163→          <p className="text-sm text-muted-foreground">
+   164→            {cfg ? (
+   165→              <>Modo: <strong>{labelModoLiquidacion(cfg.modoLiquidacion)}</strong></>
+   166→            ) : (
+   167→              "Cargando…"
+   168→            )}
+   169→          </p>
+   170→        </div>
+   171→        <div className="flex items-center gap-2">
+   172→          <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
+   173→            <SelectTrigger className="w-[150px]">
+   174→              <SelectValue />
+   175→            </SelectTrigger>
+   176→            <SelectContent>
+   177→              {PERIODS.map((p) => (
+   178→                <SelectItem key={p.value} value={p.value}>
+   179→                  {p.label}
+   180→                </SelectItem>
+   181→              ))}
+   182→            </SelectContent>
+   183→          </Select>
+   184→          <Button variant="outline" size="sm" onClick={() => setConfigOpen(true)}>
+   185→            <Receipt className="mr-1 h-4 w-4" /> Cambiar modo
+   186→          </Button>
+   187→          <Button variant="outline" size="sm" onClick={() => window.print()}>
+   188→            <Printer className="mr-1 h-4 w-4" /> Imprimir
+   189→          </Button>
+   190→        </div>
+   191→      </div>
+   192→
+   193→      {/* Tarjeta principal de liquidación */}
+   194→      {loading || !r || !cfg ? (
+   195→        <Skeleton className="h-64 rounded-xl" />
+   196→      ) : esModoVuelta ? (
+   197→        <LiquidacionVuelta r={r} cfg={cfg} period={period} />
+   198→      ) : (
+   199→        <LiquidacionPorcentaje r={r} cfg={cfg} period={period} />
+   200→      )}
+   201→
+   202→      {/* KPIs secundarios */}
+   203→      {r && (
+   204→        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+   205→          <StatCard
+   206→            label="Ventas totales"
+   207→            value={formatCurrency(r.totalVentas)}
+   208→            icon={TrendingUp}
+   209→            tone="positive"
+   210→          />
+   211→          <StatCard
+   212→            label="Efectivo en ruta"
+   213→            value={formatCurrency(r.totalEfectivoRecibido)}
+   214→            icon={Banknote}
+   215→            tone="accent"
+   216→          />
+   217→          <StatCard
+   218→            label="Transferencia"
+   219→            value={formatCurrency(r.totalTransferenciaRecibida)}
+   220→            icon={Smartphone}
+   221→          />
+   222→          <StatCard
+   223→            label="Por cobrar"
+   224→            value={formatCurrency(r.totalPorCobrar)}
+   225→            icon={HandCoins}
+   226→            tone={r.totalPorCobrar > 0 ? "warning" : "default"}
+   227→          />
+   228→        </div>
+   229→      )}
+   230→
+   231→      {/* Gastos por pagador */}
+   232→      {r && r.totalGastos > 0 && (
+   233→        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+   234→          <StatCard
+   235→            label="Gastos totales"
+   236→            value={formatCurrency(r.totalGastos)}
+   237→            icon={TrendingDown}
+   238→            tone="negative"
+   239→          />
+   240→          <StatCard
+   241→            label="Pagados por chofer"
+   242→            value={formatCurrency(r.gastosChofer)}
+   243→            hint={esModoVuelta ? "Reembolsables" : undefined}
+   244→            icon={Wallet}
+   245→            tone="warning"
+   246→          />
+   247→          <StatCard
+   248→            label="Pagados por dueño"
+   249→            value={formatCurrency(r.gastosDueno)}
+   250→            icon={Receipt}
+   251→          />
+   252→        </div>
+   253→      )}
+   254→
+   255→      {/* Detalle de vueltas (solo en modo vuelta) */}
+   256→      {esModoVuelta && data && data.vueltas.length > 0 && (
+   257→        <Card>
+   258→          <CardHeader className="pb-3">
+   259→            <div className="flex items-center gap-2">
+   260→              <Repeat className="h-4 w-4 text-primary" />
+   261→              <CardTitle className="text-base">Detalle de vueltas ({data.vueltas.length})</CardTitle>
+   262→            </div>
+   263→          </CardHeader>
+   264→          <CardContent className="p-0">
+   265→            <ul className="divide-y divide-border">
+   266→              {data.vueltas.map((v) => (
+   267→                <li key={v.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+   268→                  <div className="flex items-center gap-3">
+   269→                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg font-bold ${
+   270→                      v.esMultiple
+   271→                        ? "bg-primary/10 text-primary"
+   272→                        : "bg-muted text-muted-foreground"
+   273→                    }`}>
+   274→                      #{v.numero}
+   275→                    </div>
+   276→                    <div>
+   277→                      <p className="font-medium">
+   278→                        Vuelta #{v.numero}{" "}
+   279→                        <span className="ml-1 text-xs text-muted-foreground">
+   280→                          ({v.esMultiple ? "múltiples clientes" : "cliente único"})
+   281→                        </span>
+   282→                      </p>
+   283→                      <p className="text-xs text-muted-foreground">
+   284→                        {formatDateTime(v.iniciadaEn)}
+   285→                        {v.cerradaEn ? ` → ${formatDateTime(v.cerradaEn)}` : " · En curso"}
+   286→                        {v.camion && ` · ${v.camion.nombre}`}
+   287→                        {" · "}
+   288→                        {v.cantidadEntregas} entrega(s) · {formatNumber(v.litros, 0)} L entregados
+   289→                        {v.capacidadCamion > 0 && (
+   290→                          <> de {formatNumber(v.capacidadCamion, 0)} L</>
+   291→                        )}
+   292→                        {" · "}
+   293→                        {formatCurrency(v.ventas)}
+   294→                      </p>
+   295→                    </div>
+   296→                  </div>
+   297→                  <div className="text-right">
+   298→                    <p className="text-xs uppercase text-muted-foreground">Pago al chofer</p>
+   299→                    <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+   300→                      {formatCurrency(v.montoPago)}
+   301→                    </p>
+   302→                  </div>
+   303→                </li>
+   304→              ))}
+   305→            </ul>
+   306→            <div className="border-t border-border bg-muted/30 p-3 text-right text-sm">
+   307→              <span className="text-muted-foreground">Total pago al chofer por vueltas: </span>
+   308→              <span className="font-bold tabular-nums">{formatCurrency(r.pagoChofer)}</span>
+   309→            </div>
+   310→          </CardContent>
+   311→        </Card>
+   312→      )}
+   313→
+   314→      {/* Desglose de gastos por tipo */}
+   315→      {data && data.gastosPorTipo.length > 0 && (
+   316→        <Card>
+   317→          <CardHeader className="pb-3">
+   318→            <CardTitle className="text-base">Gastos por tipo</CardTitle>
+   319→          </CardHeader>
+   320→          <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+   321→            {data.gastosPorTipo.map((g) => (
+   322→              <div
+   323→                key={g.tipo}
+   324→                className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3"
+   325→              >
+   326→                <span className="text-sm">{g.label}</span>
+   327→                <span className="font-semibold tabular-nums">{formatCurrency(g.monto)}</span>
+   328→              </div>
+   329→            ))}
+   330→          </CardContent>
+   331→        </Card>
+   332→      )}
+   333→
+   334→      {/* Top clientes */}
+   335→      {data && data.topClientes.length > 0 && (
+   336→        <Card>
+   337→          <CardHeader className="pb-3">
+   338→            <div className="flex items-center gap-2">
+   339→              <Users className="h-4 w-4 text-primary" />
+   340→              <CardTitle className="text-base">Top clientes del período</CardTitle>
+   341→            </div>
+   342→          </CardHeader>
+   343→          <CardContent className="p-0">
+   344→            <ul className="divide-y divide-border">
+   345→              {data.topClientes.map((c, i) => (
+   346→                <li key={c.nombre} className="flex items-center gap-3 p-3 sm:p-4">
+   347→                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+   348→                    {i + 1}
+   349→                  </span>
+   350→                  <div className="min-w-0 flex-1">
+   351→                    <p className="truncate font-medium">{c.nombre}</p>
+   352→                    <p className="text-xs text-muted-foreground">
+   353→                      {c.entregas} entrega{c.entregas !== 1 ? "s" : ""} · {formatNumber(c.litros, 0)} L
+   354→                    </p>
+   355→                  </div>
+   356→                  <span className="font-semibold tabular-nums">{formatCurrency(c.total)}</span>
+   357→                </li>
+   358→              ))}
+   359→            </ul>
+   360→          </CardContent>
+   361→        </Card>
+   362→      )}
+   363→
+   364→      {/* Modal de configuración rápida */}
+   365→      <ConfigModal
+   366→        open={configOpen}
+   367→        onOpenChange={setConfigOpen}
+   368→        config={config}
+   369→        onSaved={onRefresh}
+   370→      />
+   371→    </div>
+   372→  );
+   373→}
+   374→
+   375→// ====== Componente: Liquidación Modo Porcentaje ======
+   376→function LiquidacionPorcentaje({
+   377→  r,
+   378→  cfg,
+   379→  period,
+   380→}: {
+   381→  r: NonNullable<LiquidacionData["resumen"]>;
+   382→  cfg: Config;
+   383→  period: string;
+   384→}) {
+   385→  return (
+   386→    <Card className="overflow-hidden border-primary/20">
+   387→      <CardContent className="p-5 sm:p-6">
+   388→        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4">
+   389→          <div>
+   390→            <p className="text-xs uppercase text-muted-foreground">Período</p>
+   391→            <p className="font-semibold">{PERIODS.find((p) => p.value === period)?.label}</p>
+   392→          </div>
+   393→          <div className="text-right">
+   394→            <p className="text-xs uppercase text-muted-foreground">Modo</p>
+   395→            <p className="font-semibold">Porcentaje de utilidad</p>
+   396→          </div>
+   397→        </div>
+   398→
+   399→        <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr]">
+   400→          <div className="space-y-3 rounded-lg border border-border p-4">
+   401→            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Cálculo</p>
+   402→            <div className="space-y-2 text-sm">
+   403→              <Row label="Ventas totales" value={formatCurrency(r.totalVentas)} tone="positive" />
+   404→              <Row label="Gastos totales" value={`−${formatCurrency(r.totalGastos)}`} tone="negative" />
+   405→              <div className="border-t border-border pt-2">
+   406→                <Row label="Utilidad bruta" value={formatCurrency(r.utilidadBruta)} strong />
+   407→              </div>
+   408→            </div>
+   409→          </div>
+   410→
+   411→          <div className="flex items-center justify-center">
+   412→            <ArrowRight className="h-6 w-6 text-muted-foreground" />
+   413→          </div>
+   414→
+   415→          <div className="space-y-3 rounded-lg border-2 border-primary/30 bg-primary/5 p-4">
+   416→            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+   417→              Repartición
+   418→            </p>
+   419→            <div className="space-y-3 text-sm">
+   420→              <div className="flex items-center justify-between">
+   421→                <span>{cfg.nombreChofer} ({cfg.porcentajeComisionChofer}%)</span>
+   422→                <span className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+   423→                  {formatCurrency(r.pagoChofer)}
+   424→                </span>
+   425→              </div>
+   426→              <div className="flex items-center justify-between">
+   427→                <span>{cfg.nombreDueno} ({cfg.porcentajeComisionDueno}%)</span>
+   428→                <span className="font-bold tabular-nums">
+   429→                  {formatCurrency(r.pagoDueno)}
+   430→                </span>
+   431→              </div>
+   432→
+   433→              {/* Impuestos */}
+   434→              {r.impuesto > 0 && (
+   435→                <div className="border-t border-border pt-2">
+   436→                  <p className="mb-1 text-xs uppercase text-muted-foreground">Impuestos</p>
+   437→                  <Row
+   438→                    label={`Base imponible (${cfg.aplicaImpuestoSobre === "pago_chofer" ? "pago chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "utilidad" : "ventas"})`}
+   439→                    value={formatCurrency(r.baseImponible)}
+   440→                  />
+   441→                  <Row
+   442→                    label={`Impuesto (${cfg.porcentajeImpuesto}% ${cfg.tipoTributo === "boleta_honorarios" ? "boleta honorarios" : cfg.tipoTributo})`}
+   443→                    value={`−${formatCurrency(r.impuesto)}`}
+   444→                    tone="negative"
+   445→                  />
+   446→                </div>
+   447→              )}
+   448→
+   449→              <div className="border-t border-border pt-2">
+   450→                <Row label="Efectivo ya recibido por chofer" value={formatCurrency(r.totalEfectivoRecibido)} />
+   451→                <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
+   452→                  <Row
+   453→                    label={r.saldoChofer >= 0 ? "El dueño le debe al chofer" : "El chofer le debe al dueño"}
+   454→                    value={formatCurrency(Math.abs(r.saldoChofer))}
+   455→                    strong
+   456→                    tone={r.saldoChofer >= 0 ? "positive" : "negative"}
+   457→                  />
+   458→                </div>
+   459→              </div>
+   460→            </div>
+   461→          </div>
+   462→        </div>
+   463→
+   464→        <p className="mt-4 text-xs text-muted-foreground">
+   465→          <strong>Cómo se calcula:</strong> La utilidad bruta (ventas − gastos) se reparte en{" "}
+   466→          <strong>{cfg.porcentajeComisionChofer}%</strong> para el chofer y{" "}
+   467→          <strong>{cfg.porcentajeComisionDueno}%</strong> para el dueño.
+   468→          {r.impuesto > 0 && (
+   469→            <> Se descuenta el impuesto ({cfg.porcentajeImpuesto}% sobre {cfg.aplicaImpuestoSobre === "pago_chofer" ? "el pago del chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "la utilidad bruta" : "las ventas brutas"}).</>
+   470→          )}{" "}
+   471→          Como el chofer ya recibió efectivo en ruta, ese monto se descuenta de su parte.
+   472→        </p>
+   473→      </CardContent>
+   474→    </Card>
+   475→  );
+   476→}
+   477→
+   478→// ====== Componente: Liquidación Modo Vuelta ======
+   479→function LiquidacionVuelta({
+   480→  r,
+   481→  cfg,
+   482→  period,
+   483→}: {
+   484→  r: NonNullable<LiquidacionData["resumen"]>;
+   485→  cfg: Config;
+   486→  period: string;
+   487→}) {
+   488→  return (
+   489→    <Card className="overflow-hidden border-primary/20">
+   490→      <CardContent className="p-5 sm:p-6">
+   491→        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-4">
+   492→          <div>
+   493→            <p className="text-xs uppercase text-muted-foreground">Período</p>
+   494→            <p className="font-semibold">{PERIODS.find((p) => p.value === period)?.label}</p>
+   495→          </div>
+   496→          <div className="text-right">
+   497→            <p className="text-xs uppercase text-muted-foreground">Modo</p>
+   498→            <p className="font-semibold">Pago por vuelta</p>
+   499→          </div>
+   500→        </div>
+   501→
+   502→        <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr]">
+   503→          {/* Lado izquierdo: vueltas y gastos */}
+   504→          <div className="space-y-3 rounded-lg border border-border p-4">
+   505→            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Resumen de vueltas</p>
+   506→            <div className="space-y-2 text-sm">
+   507→              <Row label="Vueltas a cliente único" value={`${r.vueltasUnicoCliente} × ${formatCurrency(cfg.montoPorVueltaUnicoCliente)}`} />
+   508→              <Row label="Vueltas a múltiples clientes" value={`${r.vueltasMultiple} × ${formatCurrency(cfg.montoPorVueltaMultiple)}`} />
+   509→              <Row label="Total vueltas" value={String(r.cantidadVueltas)} />
+   510→              <div className="border-t border-border pt-2">
+   511→                <Row label="Pago al chofer por vueltas" value={formatCurrency(r.pagoChofer)} strong tone="positive" />
+   512→              </div>
+   513→            </div>
+   514→
+   515→            <Separator className="my-2" />
+   516→
+   517→            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Gastos</p>
+   518→            <div className="space-y-2 text-sm">
+   519→              <Row label="Gastos pagados por chofer (reembolsables)" value={formatCurrency(r.gastosChofer)} tone="warning" />
+   520→              <Row label="Gastos pagados por dueño" value={formatCurrency(r.gastosDueno)} />
+   521→              <div className="border-t border-border pt-2">
+   522→                <Row label="Total gastos" value={formatCurrency(r.totalGastos)} tone="negative" />
+   523→              </div>
+   524→            </div>
+   525→          </div>
+   526→
+   527→          {/* Flecha */}
+   528→          <div className="flex items-center justify-center">
+   529→            <ArrowRight className="h-6 w-6 text-muted-foreground" />
+   530→          </div>
+   531→
+   532→          {/* Lado derecho: total a pagar */}
+   533→          <div className="space-y-3 rounded-lg border-2 border-primary/30 bg-primary/5 p-4">
+   534→            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+   535→              Resumen del pago
+   536→            </p>
+   537→            <div className="space-y-2 text-sm">
+   538→              <Row label="Pago por vueltas" value={formatCurrency(r.pagoChofer)} tone="positive" />
+   539→              <Row label="+ Reembolso de gastos" value={formatCurrency(r.gastosChofer)} />
+   540→
+   541→              {/* Impuestos */}
+   542→              {r.impuesto > 0 && (
+   543→                <div className="border-t border-border pt-2">
+   544→                  <p className="mb-1 text-xs uppercase text-muted-foreground">Impuestos</p>
+   545→                  <Row
+   546→                    label={`Base imponible (${cfg.aplicaImpuestoSobre === "pago_chofer" ? "pago chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "utilidad" : "ventas"})`}
+   547→                    value={formatCurrency(r.baseImponible)}
+   548→                  />
+   549→                  <Row
+   550→                    label={`Impuesto (${cfg.porcentajeImpuesto}% ${cfg.tipoTributo === "boleta_honorarios" ? "boleta honorarios" : cfg.tipoTributo})`}
+   551→                    value={`−${formatCurrency(r.impuesto)}`}
+   552→                    tone="negative"
+   553→                  />
+   554→                </div>
+   555→              )}
+   556→
+   557→              <div className="border-t border-border pt-2">
+   558→                <Row label="Líquido a recibir (antes de efectivo en ruta)" value={formatCurrency(r.liquidoChoferAntesDeEfectivo)} strong />
+   559→              </div>
+   560→              <Row label="− Efectivo ya recibido en ruta" value={formatCurrency(r.totalEfectivoRecibido)} tone="negative" />
+   561→              <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
+   562→                <Row
+   563→                  label={r.saldoChofer >= 0 ? "El dueño le debe al chofer" : "El chofer le debe al dueño"}
+   564→                  value={formatCurrency(Math.abs(r.saldoChofer))}
+   565→                  strong
+   566→                  tone={r.saldoChofer >= 0 ? "positive" : "negative"}
+   567→                />
+   568→              </div>
+   569→            </div>
+   570→          </div>
+   571→        </div>
+   572→
+   573→        <p className="mt-4 text-xs text-muted-foreground">
+   574→          <strong>Cómo se calcula:</strong> Por cada vuelta recibes{" "}
+   575→          <strong>{formatCurrency(cfg.montoPorVueltaUnicoCliente)}</strong> si fue a 1 cliente o{" "}
+   576→          <strong>{formatCurrency(cfg.montoPorVueltaMultiple)}</strong> si fue a múltiples clientes.
+   577→          Se suman los gastos que pagaste tú (reembolsables).
+   578→          {r.impuesto > 0 && (
+   579→            <> Se descuenta el impuesto ({cfg.porcentajeImpuesto}% sobre {cfg.aplicaImpuestoSobre === "pago_chofer" ? "el pago del chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "la utilidad bruta" : "las ventas brutas"}).</>
+   580→          )}{" "}
+   581→          Se descuenta el efectivo que ya recibiste en ruta. El saldo es lo que el dueño te debe (positivo) o lo que tú le debes (negativo).
+   582→        </p>
+   583→      </CardContent>
+   584→    </Card>
+   585→  );
+   586→}
+   587→
+   588→function Row({
+   589→  label,
+   590→  value,
+   591→  strong,
+   592→  tone,
+   593→}: {
+   594→  label: string;
+   595→  value: string;
+   596→  strong?: boolean;
+   597→  tone?: "positive" | "negative" | "warning";
+   598→}) {
+   599→  return (
+   600→    <div className="flex items-center justify-between">
+   601→      <span className="text-muted-foreground">{label}</span>
+   602→      <span
+   603→        className={`${strong ? "font-bold text-base" : "font-medium"} tabular-nums ${
+   604→          tone === "positive" ? "text-emerald-600 dark:text-emerald-400" : tone === "negative" ? "text-red-600 dark:text-red-400" : tone === "warning" ? "text-amber-600 dark:text-amber-400" : ""
+   605→        }`}
+   606→      >
+   607→        {value}
+   608→      </span>
+   609→    </div>
+   610→  );
+   611→}
+   612→
+   613→function ConfigModal({
+   614→  open,
+   615→  onOpenChange,
+   616→  config,
+   617→  onSaved,
+   618→}: {
+   619→  open: boolean;
+   620→  onOpenChange: (o: boolean) => void;
+   621→  config: Config | null;
+   622→  onSaved: () => void;
+   623→}) {
+   624→  const [modo, setModo] = useState("porcentaje");
+   625→  const [saving, setSaving] = useState(false);
+   626→
+   627→  useEffect(() => {
+   628→    if (config) setModo(config.modoLiquidacion);
+   629→  }, [config, open]);
+   630→
+   631→  async function handleSave() {
+   632→    setSaving(true);
+   633→    try {
+   634→      await apiPut("/api/configuracion", { modoLiquidacion: modo });
+   635→      toast.success("Modo de liquidación actualizado");
+   636→      onSaved();
+   637→      onOpenChange(false);
+   638→    } catch (e) {
+   639→      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+   640→    } finally {
+   641→      setSaving(false);
+   642→    }
+   643→  }
+   644→
+   645→  return (
+   646→    <Dialog open={open} onOpenChange={onOpenChange}>
+   647→      <DialogContent className="max-w-md">
+   648→        <DialogHeader>
+   649→          <DialogTitle>Cambiar modo de liquidación</DialogTitle>
+   650→          <DialogDescription>
+   651→            Elige cómo se reparte la utilidad con el dueño del camión. Puedes configurar los
+   652→            detalles en la pestaña Ajustes.
+   653→          </DialogDescription>
+   654→        </DialogHeader>
+   655→        <div className="space-y-3">
+   656→          <div className="space-y-2">
+   657→            <Label>Modo</Label>
+   658→            <Select value={modo} onValueChange={setModo}>
+   659→              <SelectTrigger>
+   660→                <SelectValue />
+   661→              </SelectTrigger>
+   662→              <SelectContent>
+   663→                {MODOS_LIQUIDACION.map((m) => (
+   664→                  <SelectItem key={m.value} value={m.value}>
+   665→                    {m.label}
+   666→                  </SelectItem>
+   667→                ))}
+   668→              </SelectContent>
+   669→            </Select>
+   670→          </div>
+   671→          <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
+   672→            {modo === "porcentaje" ? (
+   673→              <p>La utilidad bruta (ventas − gastos) se reparte por porcentaje entre chofer y dueño.</p>
+   674→            ) : (
+   675→              <p>El chofer recibe un pago fijo por cada vuelta, dependiendo de si entrega a 1 o múltiples clientes.</p>
+   676→            )}
+   677→          </div>
+   678→        </div>
+   679→        <DialogFooter>
+   680→          <Button variant="outline" onClick={() => onOpenChange(false)}>
+   681→            Cancelar
+   682→          </Button>
+   683→          <Button onClick={handleSave} disabled={saving}>
+   684→            Guardar
+   685→          </Button>
+   686→        </DialogFooter>
+   687→      </DialogContent>
+   688→    </Dialog>
+   689→  );
+   690→}
+   691→
