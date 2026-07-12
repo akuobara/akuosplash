@@ -64,6 +64,18 @@ interface Resumen {
   pagoChoferCalculado: number;
   capacidadCamion: number;
   modoLiquidacion: string;
+  vueltas?: {
+    id: string;
+    numero: number;
+    iniciadaEn: string;
+    cerradaEn: string | null;
+    activa: boolean;
+    litros: number;
+    ventas: number;
+    efectivo: number;
+    transferencia: number;
+    numEntregas: number;
+  }[];
 }
 
 interface DashboardProps {
@@ -398,6 +410,56 @@ export function Dashboard({
                 <span className="font-semibold tabular-nums">{formatCurrency(monto)}</span>
               </div>
             ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Vueltas del período */}
+      {resumen && !loading && resumen.vueltas && resumen.vueltas.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Repeat className="h-4 w-4 text-primary" />
+              <CardTitle className="text-base">Vueltas del período ({resumen.vueltas.length})</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {resumen.vueltas.map((v) => (
+                <div key={v.id} className="flex items-center gap-3 p-3">
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold ${
+                    v.activa
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    #{v.numero}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-medium text-sm">Vuelta #{v.numero}</span>
+                      {v.activa && (
+                        <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Activa
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(v.iniciadaEn)}
+                      {v.cerradaEn ? ` → ${formatDate(v.cerradaEn)}` : " · en curso"}
+                      {" · "}{v.numEntregas} entrega(s)
+                      {" · "}{formatNumber(v.litros, 0)} L
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-semibold tabular-nums text-sm">{formatCurrency(v.ventas)}</p>
+                    <div className="flex items-center gap-2 text-xs">
+                      {v.efectivo > 0 && <span className="text-emerald-600 dark:text-emerald-400 tabular-nums">Efect: {formatCurrency(v.efectivo)}</span>}
+                      {v.transferencia > 0 && <span className="text-blue-600 dark:text-blue-400 tabular-nums">Trans: {formatCurrency(v.transferencia)}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}

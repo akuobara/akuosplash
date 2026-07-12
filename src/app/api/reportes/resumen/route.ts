@@ -80,6 +80,27 @@ export async function GET(req: NextRequest) {
     pagoChofer = (utilidadBruta * cfg.porcentajeComisionChofer) / 100;
   }
 
+  // Construir detalle de vueltas para el dashboard
+  const vueltasDetalle = vueltas.map((v) => {
+    const litros = v.entregas.reduce((s, e) => s + e.litros, 0);
+    const ventas = v.entregas.reduce((s, e) => s + e.total, 0);
+    const efectivo = v.entregas.reduce((s, e) => s + e.montoEfectivo, 0);
+    const transferencia = v.entregas.reduce((s, e) => s + e.montoTransferencia, 0);
+    const numEntregas = v.entregas.length;
+    return {
+      id: v.id,
+      numero: v.numero,
+      iniciadaEn: v.iniciadaEn,
+      cerradaEn: v.cerradaEn,
+      activa: v.activa,
+      litros,
+      ventas,
+      efectivo,
+      transferencia,
+      numEntregas,
+    };
+  }).sort((a, b) => new Date(b.iniciadaEn).getTime() - new Date(a.iniciadaEn).getTime());
+
   return NextResponse.json({
     period,
     totalVentas,
@@ -99,5 +120,6 @@ export async function GET(req: NextRequest) {
     pagoChoferCalculado: pagoChofer,
     capacidadCamion: cfg.capacidadCamion,
     modoLiquidacion: cfg.modoLiquidacion,
+    vueltas: vueltasDetalle,
   });
 }
