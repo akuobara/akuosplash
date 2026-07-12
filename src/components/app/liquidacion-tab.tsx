@@ -273,7 +273,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                       {data.vueltasExcluidas.length} vuelta{data.vueltasExcluidas.length !== 1 ? "s" : ""} sin completar — no cuentan para el pago
                     </p>
                     <p className="mt-0.5 text-xs text-amber-900 dark:text-amber-200">
-                      Una vuelta se considera válida cuando se entrega al menos el 95% de la capacidad del camión.
+                      Una vuelta se considera válida cuando se entrega al menos el 97.5% de la capacidad del camión.
                       {" "}Las vueltas listadas abajo se cerraron sin alcanzar ese umbral.
                     </p>
                     <ul className="mt-2 space-y-1 text-xs">
@@ -556,7 +556,7 @@ function LiquidacionVuelta({
             <div className="space-y-2 text-sm">
               <Row label="Vueltas a cliente único" value={`${r.vueltasUnicoCliente} × ${formatCurrency(cfg.montoPorVueltaUnicoCliente)}`} />
               <Row label="Vueltas a múltiples clientes" value={`${r.vueltasMultiple} × ${formatCurrency(cfg.montoPorVueltaMultiple)}`} />
-              <Row label="Vueltas válidas (≥ 95% capacidad)" value={String(r.vueltasValidas ?? (r.cantidadVueltas - (r.vueltasExcluidas ?? 0)))} tone="positive" />
+              <Row label="Vueltas válidas (≥ 97.5% capacidad)" value={String(r.vueltasValidas ?? (r.cantidadVueltas - (r.vueltasExcluidas ?? 0)))} tone="positive" />
               {(r.vueltasExcluidas ?? 0) > 0 && (
                 <Row label="Vueltas sin completar (excluidas)" value={String(r.vueltasExcluidas)} tone="negative" />
               )}
@@ -628,7 +628,7 @@ function LiquidacionVuelta({
           <strong>Cómo se calcula:</strong> Por cada vuelta <strong>válida</strong> recibes{" "}
           <strong>{formatCurrency(cfg.montoPorVueltaUnicoCliente)}</strong> si fue a 1 cliente o{" "}
           <strong>{formatCurrency(cfg.montoPorVueltaMultiple)}</strong> si fue a múltiples clientes.
-          {" "}Una vuelta es válida solo si entregaste al menos el <strong>95%</strong> de la capacidad del camión.
+          {" "}Una vuelta es válida solo si entregaste al menos el <strong>97.5%</strong> de la capacidad del camión.
           {(r.vueltasExcluidas ?? 0) > 0 && (
             <> Las vueltas cerradas sin completar no se contabilizan ({r.vueltasExcluidas} en este período).</>
           )}

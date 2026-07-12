@@ -190,10 +190,10 @@ export function formatTime(date: Date | string): string {
 
 // === Completación de vuelta ===
 // Una vuelta se considera completada (válida para liquidación) cuando se han
-// entregado al menos el 95% de la capacidad del camión.
+// entregado al menos el 97.5% de la capacidad del camión.
 // Si no se conoce la capacidad del camión, se considera completada si tuvo
 // al menos una entrega (para no penalizar vueltas antiguas sin camión asignado).
-export const UMBRAL_COMPLETACION_VUELTA = 0.95;
+export const UMBRAL_COMPLETACION_VUELTA = 0.975;
 
 export function esVueltaCompletada(
   litros: number,

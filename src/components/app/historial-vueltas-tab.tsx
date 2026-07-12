@@ -490,7 +490,7 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
                 <div>
                   <p>Si hay otra vuelta activa actualmente, se cerrará automáticamente.</p>
                   <p className="mt-1">Para que esta vuelta cuente en la liquidación, debes entregar al menos{" "}
-                    <strong>{formatNumber(reabrirConfirm.capacidadCamion > 0 ? Math.ceil(reabrirConfirm.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0, 0)} L</strong> en total (95% de la capacidad del camión).
+                    <strong>{formatNumber(reabrirConfirm.capacidadCamion > 0 ? Math.ceil(reabrirConfirm.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0, 0)} L</strong> en total (97.5% de la capacidad del camión).
                   </p>
                 </div>
               </div>

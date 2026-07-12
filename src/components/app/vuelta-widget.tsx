@@ -233,7 +233,7 @@ export function VueltaWidget({
                   <span className={excede ? "font-medium text-red-600 dark:text-red-400" : "text-muted-foreground"}>
                     {porcentajeUsado.toFixed(0)}%
                     {!vueltaCompletada && !excede && (
-                      <span className="ml-1 text-amber-600 dark:text-amber-400">· falta {Math.max(0, 95 - porcentajeUsado).toFixed(0)}% para validar</span>
+                      <span className="ml-1 text-amber-600 dark:text-amber-400">· falta {Math.max(0, 97.5 - porcentajeUsado).toFixed(1)}% para validar</span>
                     )}
                   </span>
                 </div>
@@ -242,11 +242,11 @@ export function VueltaWidget({
                     className={`h-full rounded-full transition-all ${excede ? "bg-red-500" : vueltaCompletada ? "bg-emerald-500" : porcentajeUsado >= 90 ? "bg-amber-500" : "bg-primary"}`}
                     style={{ width: `${Math.min(100, porcentajeUsado)}%` }}
                   />
-                  {/* Marcador del 95% */}
+                  {/* Marcador del 97.5% */}
                   <div
                     className="absolute top-0 h-full w-0.5 bg-emerald-600/70"
-                    style={{ left: "95%" }}
-                    title="Umbral 95% para vuelta válida"
+                    style={{ left: "97.5%" }}
+                    title="Umbral 97.5% para vuelta válida"
                   />
                 </div>
                 {excede && (
@@ -289,7 +289,7 @@ export function VueltaWidget({
                     Has entregado <strong>{formatNumber(litrosEntregados, 0)} L</strong> de{" "}
                     <strong>{formatNumber(capacidadCamion, 0)} L</strong> ({porcentajeUsado.toFixed(0)}%).
                     {" "}Para que la vuelta cuente como válida en la liquidación debes entregar al menos{" "}
-                    <strong>{formatNumber(umbralLitros, 0)} L</strong> (95% de la capacidad).
+                    <strong>{formatNumber(umbralLitros, 0)} L</strong> (97.5% de la capacidad).
                   </p>
                   <p className="text-xs">
                     Si cierras ahora, esta vuelta <strong>no se contabilizará</strong> para el pago al chofer.
