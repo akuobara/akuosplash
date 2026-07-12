@@ -78,7 +78,42 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (session.role === "chofer") {
       vueltaWhere.choferId = session.userId;
     }
-    const vueltaActiva = await db.vuelta.findFirst({ where: vueltaWhere });
+    const vueltaActiva = await db.vuelta.findFirst({
+      where: vueltaWhere,
+      include: {
+        camion: { select: { capacidad: true } },
+        entregas: { select: { litros: true } },
+      },
+    });
+
+    // Validar que haya vuelta activa
+    if (!vueltaActiva) {
+      return NextResponse.json(
+        { error: "No hay vuelta activa. Inicia una vuelta antes de entregar pedidos." },
+        { status: 400 }
+      );
+    }
+
+    // Validar capacidad del camión (tolerancia de 300 L)
+    const capacidadCamion = vueltaActiva.camion?.capacidad ?? 0;
+    if (capacidadCamion > 0) {
+      const litrosEntregados = vueltaActiva.entregas.reduce((s, e) => s + e.litros, 0);
+      const disponible = capacidadCamion - litrosEntregados;
+      const tolerancia = 300;
+      if (litros > disponible + tolerancia) {
+        if (disponible <= 0) {
+          return NextResponse.json(
+            { error: `El camión está vacío. Cierra la vuelta #${vueltaActiva.numero} e inicia una nueva.` },
+            { status: 400 }
+          );
+        } else {
+          return NextResponse.json(
+            { error: `Solo quedan ${disponible} L en el camión (tolerancia 300 L). Necesitas ${litros} L. Cierra la vuelta y empieza una nueva.` },
+            { status: 400 }
+          );
+        }
+      }
+    }
 
     // Crear la entrega
     const nuevaEntrega = await db.entrega.create({

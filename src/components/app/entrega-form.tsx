@@ -322,6 +322,39 @@ export function EntregaForm({
       return;
     }
 
+    // Validar que haya una vuelta activa
+    if (!vueltaActual) {
+      toast.error("No hay vuelta activa. Inicia una vuelta antes de registrar entregas.");
+      return;
+    }
+
+    // Calcular litros totales según modo
+    let litrosAEntregar = litrosFinal;
+    if (modoEstanques && estanquesEntrega.length > 0) {
+      litrosAEntregar = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+    }
+
+    // Validar capacidad del camión (tolerancia de 300 L)
+    if (vueltaActual.capacidadCamion && vueltaActual.capacidadCamion > 0) {
+      const disponible = vueltaActual.capacidadCamion - vueltaActual.litros;
+      const tolerancia = 300;
+      if (litrosAEntregar > disponible + tolerancia) {
+        if (disponible <= 0) {
+          toast.error(
+            `El camión está vacío. Cierra la vuelta #${vueltaActual.numero} e inicia una nueva después de recargar agua en la planta.`,
+            { duration: 6000 }
+          );
+        } else {
+          toast.error(
+            `Solo quedan ${formatNumber(disponible, 0)} L en el camión (tolerancia 300 L). ` +
+            `Necesitas ${formatNumber(litrosAEntregar, 0)} L. Cierra la vuelta y empieza una nueva.`,
+            { duration: 6000 }
+          );
+        }
+        return;
+      }
+    }
+
     // Si está en modo estanques, calcular totales desde el desglose
     if (modoEstanques && estanquesEntrega.length > 0) {
       const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
