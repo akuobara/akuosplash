@@ -33,9 +33,33 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     data.passwordHash = hashPassword(body.password);
   }
 
-  const actualizado = await db.usuario.update({
+  // No puede desactivarse a sí mismo (bloqueo permanente sin recuperación)
+  // Usar data.activo (ya normalizado con !!) para cubrir todos los valores falsy: false, 0, null, "", etc.
+  if (id === session.userId && data.activo === false) {
+    return NextResponse.json({ error: "No puedes desactivar tu propia cuenta" }, { status: 400 });
+  }
+
+  // Si se está desactivando un chofer (activo: false), limpiar referencias + cerrar vueltas activas
+  if (data.activo === false && target.role === "chofer") {
+    await db.$transaction(async (tx) => {
+      await tx.vuelta.updateMany({
+        where: { choferId: id, activa: true },
+        data: { activa: false, cerradaEn: new Date() },
+      });
+      await tx.camionChofer.deleteMany({ where: { choferId: id } });
+      await tx.pedido.updateMany({ where: { choferAsignadoId: id }, data: { choferAsignadoId: null } });
+      await tx.pedido.updateMany({ where: { prioridadChoferId: id }, data: { prioridadChoferId: null, prioridadTipo: "ninguna" } });
+      await tx.pedido.updateMany({ where: { tomadoPorChoferId: id }, data: { tomadoPorChoferId: null } });
+      await tx.cliente.updateMany({ where: { choferPreferidoId: id }, data: { choferPreferidoId: null } });
+      await tx.pedidoRecurrente.updateMany({ where: { choferAsignadoId: id }, data: { choferAsignadoId: null } });
+      await tx.usuario.update({ where: { id }, data });
+    });
+  } else {
+    await db.usuario.update({ where: { id }, data });
+  }
+
+  const actualizado = await db.usuario.findUnique({
     where: { id },
-    data,
     select: {
       id: true,
       email: true,
@@ -51,7 +75,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json({ usuario: actualizado });
 }
 
-// DELETE /api/usuarios/[id] — desactivar (no borrar para preservar historial)
+// DELETE /api/usuarios/[id] — desactivar chofer (soft-delete para preservar historial)
+// Cierra vueltas activas, elimina asignaciones de camiones, marca como inactivo.
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
@@ -73,11 +98,49 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: "No autorizado sobre este usuario" }, { status: 403 });
   }
 
-  // Eliminar asignaciones de camiones
-  await db.camionChofer.deleteMany({ where: { choferId: id } });
+  // Soft-delete: marcar como inactivo + limpiar asignaciones + cerrar vueltas activas + limpiar referencias
+  await db.$transaction(async (tx) => {
+    // Cerrar cualquier vuelta activa del chofer
+    await tx.vuelta.updateMany({
+      where: { choferId: id, activa: true },
+      data: { activa: false, cerradaEn: new Date() },
+    });
 
-  // Eliminar usuario
-  await db.usuario.delete({ where: { id } });
+    // Eliminar asignaciones de camiones
+    await tx.camionChofer.deleteMany({ where: { choferId: id } });
+
+    // Limpiar referencias en pedidos (asignación, prioridad, tomado)
+    await tx.pedido.updateMany({
+      where: { choferAsignadoId: id },
+      data: { choferAsignadoId: null },
+    });
+    await tx.pedido.updateMany({
+      where: { prioridadChoferId: id },
+      data: { prioridadChoferId: null, prioridadTipo: "ninguna" },
+    });
+    await tx.pedido.updateMany({
+      where: { tomadoPorChoferId: id },
+      data: { tomadoPorChoferId: null },
+    });
+
+    // Limpiar chofer preferido en clientes
+    await tx.cliente.updateMany({
+      where: { choferPreferidoId: id },
+      data: { choferPreferidoId: null },
+    });
+
+    // Limpiar asignación en pedidos recurrentes
+    await tx.pedidoRecurrente.updateMany({
+      where: { choferAsignadoId: id },
+      data: { choferAsignadoId: null },
+    });
+
+    // Marcar usuario como inactivo (soft-delete)
+    await tx.usuario.update({
+      where: { id },
+      data: { activo: false },
+    });
+  });
 
   return NextResponse.json({ ok: true });
 }

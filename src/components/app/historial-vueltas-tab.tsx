@@ -109,6 +109,9 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
     try {
       const data = await apiGet<{ vueltas: Vuelta[] }>(`/api/vueltas?period=${period}`);
       setVueltas(data.vueltas);
+      // Invalidar cache de entregas y entregasPorVuelta al refrescar
+      setCacheEntregas(null);
+      setEntregasPorVuelta({});
     } catch (e) {
       console.error(e);
     } finally {

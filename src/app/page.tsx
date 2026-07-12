@@ -121,7 +121,7 @@ export default function Home() {
   const [vueltaActual, setVueltaActual] = useState<VueltaActual | null>(null);
   const [camiones, setCamiones] = useState<Camion[]>([]);
   const [pedidoClientePreselect, setPedidoClientePreselect] = useState<string | null>(null);
-  const [usuarios, setUsuarios] = useState<{ id: string; nombre: string; email: string; role: string }[]>([]);
+  const [usuarios, setUsuarios] = useState<{ id: string; nombre: string; email: string; role: string; activo: boolean }[]>([]);
   const [todosPedidos, setTodosPedidos] = useState<{ id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[]>([]);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
@@ -160,7 +160,7 @@ export default function Home() {
         if (user.role === "dueno") {
           try {
             const [u, peds] = await Promise.all([
-              apiGet<{ usuarios: { id: string; nombre: string; email: string; role: string }[] }>("/api/usuarios"),
+              apiGet<{ usuarios: { id: string; nombre: string; email: string; role: string; activo: boolean }[] }>("/api/usuarios"),
               apiGet<{ pedidos: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos"),
             ]);
             setUsuarios(u.usuarios);
@@ -361,7 +361,7 @@ export default function Home() {
               isDueno={isDueno}
               currentUserId={user.userId}
               clientes={clientes}
-              choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre }))}
+              choferes={usuarios.filter((u) => (u.role === "chofer" || u.role === "dueno") && u.activo).map((u) => ({ id: u.id, nombre: u.nombre }))}
               clientePreselect={pedidoClientePreselect}
               onPreselectConsumed={() => setPedidoClientePreselect(null)}
               vueltaActual={vueltaActual}
@@ -397,7 +397,7 @@ export default function Home() {
               refreshKey={refreshKey}
               onRefresh={refresh}
               readOnly={isDueno ? false : !config?.choferesPuedenEditarClientes}
-              choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))}
+              choferes={usuarios.filter((u) => (u.role === "chofer" || u.role === "dueno") && u.activo).map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))}
               onAgendarPedido={(clienteId) => {
                 setPedidoClientePreselect(clienteId);
                 setTab("pedidos");
@@ -411,7 +411,7 @@ export default function Home() {
                 refreshKey={refreshKey}
                 onRefresh={refresh}
                 clientes={clientes}
-                choferes={usuarios.filter((u) => u.role === "chofer" || u.role === "dueno").map((u) => ({ id: u.id, nombre: u.nombre }))}
+                choferes={usuarios.filter((u) => (u.role === "chofer" || u.role === "dueno") && u.activo).map((u) => ({ id: u.id, nombre: u.nombre }))}
                 pedidos={todosPedidos}
               />
             </TabsContent>

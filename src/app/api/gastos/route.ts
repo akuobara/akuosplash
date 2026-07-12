@@ -58,6 +58,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
+    // Choferes siempre son "chofer" como pagador; solo el dueño puede registrar gastos pagados por él
+    // Validar que pagadoPor es "chofer" o "dueno"
+    let pagadoPor = session.role === "chofer" ? "chofer" : (body.pagadoPor || "chofer");
+    if (pagadoPor !== "chofer" && pagadoPor !== "dueno") {
+      pagadoPor = "chofer";
+    }
+
     const nuevo = await db.gasto.create({
       data: {
         fecha: body.fecha ? new Date(body.fecha) : new Date(),
@@ -65,7 +72,7 @@ export async function POST(req: NextRequest) {
         monto: Number(body.monto) || 0,
         descripcion: body.descripcion?.trim() || null,
         fotoUrl: body.fotoUrl || null,
-        pagadoPor: body.pagadoPor || "chofer",
+        pagadoPor,
         choferId: session.userId,
         duenoId,
       },

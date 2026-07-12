@@ -4,6 +4,8 @@ import { getSession, getDuenoId } from "@/lib/auth";
 import { parseDateTimeLocalInput } from "@/lib/helpers";
 
 // PATCH /api/pedidos/[id]
+// Choferes solo pueden editar pedidos asignados a ellos, que crearon, o que tomaron.
+// Solo el dueño puede cambiar asignación, prioridad, o estado.
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
@@ -22,7 +24,31 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
+  // Chofer: verificar que tiene relación con el pedido
+  if (session.role === "chofer") {
+    const esSuPedido =
+      pedido.choferAsignadoId === session.userId ||
+      pedido.tomadoPorChoferId === session.userId ||
+      pedido.choferId === session.userId;
+    if (!esSuPedido) {
+      return NextResponse.json({ error: "No tienes permiso para editar este pedido" }, { status: 403 });
+    }
+  }
+
   const body = await req.json();
+
+  // Choferes no pueden cambiar asignación, prioridad, ni marcar como entregado.
+  // Sí pueden marcar como programado o cancelado (sus propios pedidos).
+  if (session.role === "chofer") {
+    delete body.asignacionTipo;
+    delete body.choferAsignadoId;
+    delete body.prioridadChoferId;
+    delete body.prioridadTipo;
+    // Solo bloquear "entregado" — programado y cancelado son permitidos
+    if (body.estado === "entregado") {
+      delete body.estado;
+    }
+  }
 
   const actualizado = await db.pedido.update({
     where: { id },
@@ -41,8 +67,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.estado !== undefined && { estado: body.estado }),
       ...(body.vueltaId !== undefined && { vueltaId: body.vueltaId || null }),
       ...(body.asignacionTipo !== undefined && { asignacionTipo: body.asignacionTipo }),
-      ...(body.choferAsignadoId !== undefined && { choferAsignadoId: body.choferAsignadoId || null }),
-      ...(body.prioridadChoferId !== undefined && { prioridadChoferId: body.prioridadChoferId || null }),
+      ...(body.choferAsignadoId !== undefined && { choferAsignadoId: (body.choferAsignadoId && body.choferAsignadoId !== "__ninguno") ? body.choferAsignadoId : null }),
+      ...(body.prioridadChoferId !== undefined && { prioridadChoferId: (body.prioridadChoferId && body.prioridadChoferId !== "__ninguno") ? body.prioridadChoferId : null }),
       ...(body.prioridadTipo !== undefined && { prioridadTipo: body.prioridadTipo }),
     },
   });
@@ -50,11 +76,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json({ pedido: actualizado });
 }
 
-// DELETE /api/pedidos/[id]
+// DELETE /api/pedidos/[id] — solo dueño puede borrar
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+  if (session.role !== "dueno") {
+    return NextResponse.json({ error: "Solo el dueño puede eliminar pedidos" }, { status: 403 });
   }
 
   const duenoId = await getDuenoId();

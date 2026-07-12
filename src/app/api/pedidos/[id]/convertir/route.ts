@@ -88,13 +88,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (montoRecibido >= total && total > 0) estadoPago = "pagado";
     else if (montoRecibido > 0) estadoPago = "parcial";
 
-    // Buscar vuelta activa para asignar la entrega
+    // Determinar el choferId: si es chofer, su propio id; si es dueño, usar el choferAsignadoId o tomadoPorChoferId del pedido
+    let choferIdParaEntrega: string | null = session.userId;
+    if (session.role === "dueno") {
+      choferIdParaEntrega = pedido.tomadoPorChoferId || pedido.choferAsignadoId || pedido.choferId || session.userId;
+    }
+
+    // Buscar vuelta activa para asignar la entrega — usar el choferId correcto
     const vueltaWhere: Record<string, unknown> = { activa: true, duenoId };
     if (session.role === "chofer") {
       vueltaWhere.choferId = session.userId;
+    } else if (choferIdParaEntrega) {
+      // Dueño: usar la vuelta activa del chofer que tiene el pedido
+      vueltaWhere.choferId = choferIdParaEntrega;
     }
     const vueltaActiva = await db.vuelta.findFirst({
       where: vueltaWhere,
+      orderBy: { iniciadaEn: "desc" },
       include: {
         camion: { select: { capacidad: true } },
         entregas: { select: { litros: true } },
@@ -107,12 +117,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         { error: "No hay vuelta activa. Inicia una vuelta antes de entregar pedidos." },
         { status: 400 }
       );
-    }
-
-    // Determinar el choferId: si es chofer, su propio id; si es dueño, usar el choferAsignadoId o tomadoPorChoferId del pedido
-    let choferIdParaEntrega: string | null = session.userId;
-    if (session.role === "dueno") {
-      choferIdParaEntrega = pedido.tomadoPorChoferId || pedido.choferAsignadoId || pedido.choferId || session.userId;
     }
 
     // TRANSACCIÓN: crear entrega + marcar pedido como entregado atómicamente

@@ -83,7 +83,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!chofer) {
     return NextResponse.json({ error: "Chofer no encontrado" }, { status: 404 });
   }
-  if (chofer.role === "chofer" && chofer.duenoId !== session.userId) {
+  // Rechazar cualquier usuario que no sea el dueño mismo o un chofer del dueño
+  const esValido = chofer.id === session.userId || (chofer.role === "chofer" && chofer.duenoId === session.userId);
+  if (!esValido) {
     return NextResponse.json({ error: "Chofer no autorizado" }, { status: 403 });
   }
 

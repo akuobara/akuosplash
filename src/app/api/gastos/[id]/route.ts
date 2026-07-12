@@ -19,11 +19,22 @@ async function checkOwnership(id: string) {
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { error: authError } = await checkOwnership(await params.then(p => p.id));
+  const { error: authError, session } = await checkOwnership(await params.then(p => p.id));
   if (authError) return authError;
 
   const { id } = await params;
   const body = await req.json();
+
+  // Choferes no pueden cambiar pagadoPor a "dueno"; validar enum
+  let pagadoPorFinal = body.pagadoPor;
+  if (pagadoPorFinal !== undefined) {
+    if (pagadoPorFinal !== "chofer" && pagadoPorFinal !== "dueno") {
+      pagadoPorFinal = "chofer";
+    }
+    if (session?.role === "chofer" && pagadoPorFinal === "dueno") {
+      pagadoPorFinal = "chofer";
+    }
+  }
 
   const actualizado = await db.gasto.update({
     where: { id },
@@ -33,7 +44,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.monto !== undefined && { monto: Number(body.monto) || 0 }),
       ...(body.descripcion !== undefined && { descripcion: body.descripcion?.trim() || null }),
       ...(body.fotoUrl !== undefined && { fotoUrl: body.fotoUrl || null }),
-      ...(body.pagadoPor !== undefined && { pagadoPor: body.pagadoPor }),
+      ...(body.pagadoPor !== undefined && { pagadoPor: pagadoPorFinal }),
     },
   });
 

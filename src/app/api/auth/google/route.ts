@@ -64,40 +64,63 @@ export async function POST(req: NextRequest) {
 
     // Buscar usuario existente por email
     let user = await db.usuario.findUnique({ where: { email } });
-    const userCount = await db.usuario.count();
 
-    // Si no existe y no hay usuarios, crear como primer dueño
-    if (!user && userCount === 0) {
-      user = await db.usuario.create({
-        data: {
-          nombre: googleData.name || email.split("@")[0],
-          email,
-          // Los usuarios de Google no tienen passwordHash — solo pueden entrar por Google.
-          // Generamos un hash aleatorio para que no se pueda usar con login normal.
-          passwordHash: `google-only:${googleData.sub}`,
-          telefono: null,
-          role: "dueno",
-          duenoId: null,
-        },
-      });
+    // Si no existe y no hay usuarios, crear como primer dueño (transaccional para evitar race)
+    if (!user) {
+      try {
+        user = await db.$transaction(async (tx) => {
+          const userCount = await tx.usuario.count();
+          if (userCount > 0) {
+            throw new Error("ALREADY_HAS_USERS");
+          }
+          const existing = await tx.usuario.findUnique({ where: { email } });
+          if (existing) {
+            return existing;
+          }
+          const newUser = await tx.usuario.create({
+            data: {
+              nombre: googleData.name || email.split("@")[0],
+              email,
+              // Los usuarios de Google no tienen passwordHash — solo pueden entrar por Google.
+              // Generamos un hash aleatorio para que no se pueda usar con login normal.
+              passwordHash: `google-only:${googleData.sub}`,
+              telefono: null,
+              role: "dueno",
+              duenoId: null,
+            },
+          });
 
-      // Crear configuración por defecto para este dueño
-      await db.configuracion.create({
-        data: {
-          duenoId: user.id,
-          nombreDueno: user.nombre,
-          nombreChofer: user.nombre,
-        },
-      });
-    } else if (!user) {
-      // Ya hay usuarios pero este email no está registrado
-      return NextResponse.json(
-        {
-          error: "No existe una cuenta con este email. Pídeele al dueño que te agregue como chofer, o regístrate con email y contraseña.",
-        },
-        { status: 403 }
-      );
-    } else if (!user.activo) {
+          // Crear configuración por defecto para este dueño
+          await tx.configuracion.create({
+            data: {
+              duenoId: newUser.id,
+              nombreDueno: newUser.nombre,
+              nombreChofer: newUser.nombre,
+            },
+          });
+
+          return newUser;
+        });
+      } catch (err) {
+        if (err instanceof Error && err.message === "ALREADY_HAS_USERS") {
+          return NextResponse.json(
+            { error: "Ya existe una cuenta registrada. Pídele al dueño que te agregue como chofer." },
+            { status: 403 }
+          );
+        }
+        throw err;
+      }
+
+      if (!user) {
+        return NextResponse.json(
+          { error: "No se pudo crear la cuenta" },
+          { status: 500 }
+        );
+      }
+    }
+
+    // En este punto user siempre existe. Verificar si está activo.
+    if (!user.activo) {
       return NextResponse.json(
         { error: "Tu cuenta está inactiva. Contacta al dueño." },
         { status: 403 }

@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
     // Dueño puede elegir asignación
     if (session.role === "dueno") {
       if (asignacionTipo === "manual") {
-        choferAsignadoId = body.choferAsignadoId || null;
+        choferAsignadoId = (body.choferAsignadoId && body.choferAsignadoId !== "__ninguno") ? body.choferAsignadoId : null;
       } else if (asignacionTipo === "publicado") {
         publicadoEn = new Date();
       }

@@ -26,6 +26,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await req.json();
 
+  // Validar que clienteId pertenece al dueno si se está cambiando
+  if (body.clienteId !== undefined && body.clienteId) {
+    const entregaActual = await db.entrega.findUnique({ where: { id }, select: { duenoId: true } });
+    const cliente = await db.cliente.findUnique({ where: { id: body.clienteId }, select: { duenoId: true } });
+    if (!cliente || cliente.duenoId !== entregaActual?.duenoId) {
+      return NextResponse.json({ error: "El cliente no pertenece a tu organización" }, { status: 403 });
+    }
+  }
+
   const litros = body.litros != null ? Number(body.litros) : undefined;
   const precioPorLitro = body.precioPorLitro != null ? Number(body.precioPorLitro) : undefined;
 
@@ -86,8 +95,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     include: { vuelta: { select: { id: true, numero: true, activa: true } } },
   });
 
-  // Si viene de un pedido (en creación desde PATCH raro, o edición), vincularlo
+  // Si viene de un pedido (en edición), vincularlo — validando ownership
   if (body.pedidoId) {
+    const pedido = await db.pedido.findUnique({ where: { id: body.pedidoId } });
+    if (!pedido || pedido.duenoId !== actualizada.duenoId) {
+      return NextResponse.json({ error: "El pedido no pertenece a tu organización" }, { status: 403 });
+    }
+    if (pedido.estado === "entregado" && pedido.entregaId !== id) {
+      return NextResponse.json({ error: "Este pedido ya fue entregado en otra entrega" }, { status: 400 });
+    }
     try {
       await db.pedido.update({
         where: { id: body.pedidoId },

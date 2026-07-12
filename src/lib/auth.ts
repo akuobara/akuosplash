@@ -79,11 +79,49 @@ export async function clearSessionCookie() {
 
 // ===== Obtener sesión actual =====
 // Lee el token de la cookie (el middleware se encarga de copiar el header Authorization a cookie)
+// Verifica en DB que el usuario siga activo (cache de 60s para no saturar la DB).
+
+// Cache simple en memoria: userId -> { activo, ts }
+const activoCache = new Map<string, { activo: boolean; ts: number }>();
+const ACTIVO_CACHE_TTL = 60_000; // 60 segundos
+
 export async function getSession(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
-  return verifyToken(token);
+  const payload = await verifyToken(token);
+  if (!payload) return null;
+
+  // Verificar en DB que el usuario siga activo (con cache corto)
+  const now = Date.now();
+  const cached = activoCache.get(payload.userId);
+  if (cached && now - cached.ts < ACTIVO_CACHE_TTL) {
+    if (!cached.activo) return null;
+    return payload;
+  }
+
+  // Consultar DB
+  try {
+    const user = await db.usuario.findUnique({
+      where: { id: payload.userId },
+      select: { activo: true, role: true },
+    });
+    if (!user || !user.activo) {
+      // NO cachear negativo: si el usuario es reactivado, podrá usar la app inmediatamente
+      return null;
+    }
+    // Actualizar rol si cambió en DB (evita stale JWT)
+    if (user.role !== payload.role) {
+      // El rol cambió — invalidar sesión forzando re-login
+      // NO cachear negativo para permitir re-login inmediato tras corrección
+      return null;
+    }
+    activoCache.set(payload.userId, { activo: true, ts: now });
+    return payload;
+  } catch {
+    // Si la DB falla, permitir la sesión (fail-open para no bloquear todo)
+    return payload;
+  }
 }
 
 // ===== Helpers para APIs =====

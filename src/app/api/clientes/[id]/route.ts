@@ -71,22 +71,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { error: authError } = await checkOwnership(id);
+  const { error: authError, session } = await checkOwnership(id);
   if (authError) return authError;
 
-  // Desvincular relaciones opcionales (entregas, pedidos) antes de borrar
-  await db.cliente.update({
-    where: { id },
-    data: {
-      entregas: { set: [] },
-      pedidos: { set: [] },
-      pedidosRecurrentes: { set: [] },
-    },
+  // Solo el dueño puede borrar clientes (choferes con permiso de edición no pueden borrar)
+  if (session?.role === "chofer") {
+    return NextResponse.json({ error: "Solo el dueño puede eliminar clientes" }, { status: 403 });
+  }
+
+  // Transacción: desvincular relaciones + borrar pagos + borrar cliente (atómico)
+  await db.$transaction(async (tx) => {
+    // Desvincular relaciones opcionales (entregas, pedidos, recurrentes)
+    await tx.cliente.update({
+      where: { id },
+      data: {
+        entregas: { set: [] },
+        pedidos: { set: [] },
+        pedidosRecurrentes: { set: [] },
+      },
+    });
+
+    // Borrar pagos sueltos del cliente (no se pueden desvincular porque clienteId es required)
+    await tx.pago.deleteMany({ where: { clienteId: id } });
+
+    // Borrar cliente
+    await tx.cliente.delete({ where: { id } });
   });
 
-  // Borrar pagos sueltos del cliente (no se pueden desvincular porque clienteId es required)
-  await db.pago.deleteMany({ where: { clienteId: id } });
-
-  await db.cliente.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }

@@ -29,25 +29,26 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "La vuelta ya está activa" }, { status: 400 });
   }
 
-  // Cerrar cualquier vuelta activa actualmente del MISMO chofer (solo puede haber una por chofer)
+  // TRANSACCIÓN: cerrar vuelta activa previa + reabrir la seleccionada (atómico)
   const choferIdVuelta = vuelta.choferId ?? session.userId;
-  const activaActual = await db.vuelta.findFirst({
-    where: { activa: true, duenoId, choferId: choferIdVuelta },
-  });
-  if (activaActual && activaActual.id !== id) {
-    await db.vuelta.update({
-      where: { id: activaActual.id },
-      data: { activa: false, cerradaEn: new Date() },
+  const actualizada = await db.$transaction(async (tx) => {
+    const activaActual = await tx.vuelta.findFirst({
+      where: { activa: true, duenoId, choferId: choferIdVuelta },
     });
-  }
-
-  const actualizada = await db.vuelta.update({
-    where: { id },
-    data: { activa: true, cerradaEn: null },
-    include: {
-      camion: { select: { id: true, nombre: true, patente: true, capacidad: true } },
-      chofer: { select: { id: true, nombre: true } },
-    },
+    if (activaActual && activaActual.id !== id) {
+      await tx.vuelta.update({
+        where: { id: activaActual.id },
+        data: { activa: false, cerradaEn: new Date() },
+      });
+    }
+    return await tx.vuelta.update({
+      where: { id },
+      data: { activa: true, cerradaEn: null },
+      include: {
+        camion: { select: { id: true, nombre: true, patente: true, capacidad: true } },
+        chofer: { select: { id: true, nombre: true } },
+      },
+    });
   });
 
   return NextResponse.json({ vuelta: actualizada });

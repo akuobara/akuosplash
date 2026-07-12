@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.frecuenciaDias !== undefined) data.frecuenciaDias = Number(body.frecuenciaDias) || 1;
   if (body.activo !== undefined) data.activo = !!body.activo;
   if (body.asignacionTipo !== undefined) data.asignacionTipo = body.asignacionTipo;
-  if (body.choferAsignadoId !== undefined) data.choferAsignadoId = body.choferAsignadoId || null;
+  if (body.choferAsignadoId !== undefined) data.choferAsignadoId = (body.choferAsignadoId && body.choferAsignadoId !== "__ninguno") ? body.choferAsignadoId : null;
   if (body.fechaProximaGeneracion !== undefined) {
     data.fechaProximaGeneracion = body.fechaProximaGeneracion ? new Date(body.fechaProximaGeneracion) : undefined;
   }

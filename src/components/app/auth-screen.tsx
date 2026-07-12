@@ -324,16 +324,12 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
             {hasUsers && (
               <div className="mt-4 text-center text-sm text-muted-foreground">
                 {mode === "login" ? (
-                  <>
-                    ¿No tienes cuenta?{" "}
-                    <button
-                      type="button"
-                      onClick={() => setMode("register")}
-                      className="font-medium text-primary hover:underline"
-                    >
-                      Pídeele al dueño que te agregue
-                    </button>
-                  </>
+                  <p>
+                    ¿Eres chofer?{" "}
+                    <span className="text-muted-foreground">
+                      Pídeele al dueño que te agregue desde la sección Equipo.
+                    </span>
+                  </p>
                 ) : (
                   <>
                     ¿Ya tienes cuenta?{" "}

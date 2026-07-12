@@ -110,8 +110,12 @@ export async function GET(req: NextRequest) {
   else if (cfg.aplicaImpuestoSobre === "utilidad_bruta") baseImponible = utilidadBruta;
   else if (cfg.aplicaImpuestoSobre === "ventas_brutas") baseImponible = totalVentas;
 
-  const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (baseImponible * cfg.porcentajeImpuesto) / 100;
-  const liquidoChoferAntesDeEfectivo = pagoChofer + gastosChofer - impuesto;
+  // El impuesto no puede ser negativo (base negativa en meses con pérdida → impuesto 0)
+  const baseImponiblePositiva = Math.max(0, baseImponible);
+  const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (baseImponiblePositiva * cfg.porcentajeImpuesto) / 100;
+  // El pago al chofer no puede ser negativo
+  const pagoChoferPositivo = Math.max(0, pagoChofer);
+  const liquidoChoferAntesDeEfectivo = pagoChoferPositivo + gastosChofer - impuesto;
   const saldoChofer = liquidoChoferAntesDeEfectivo - totalEfectivoRecibido;
 
   const gastosPorTipo: Record<string, number> = {};

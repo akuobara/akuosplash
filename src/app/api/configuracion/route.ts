@@ -40,6 +40,51 @@ export async function PUT(req: NextRequest) {
 
   const body = await req.json();
 
+  // Validar comisiones: deben estar en [0, 100] y sumar 100 si ambas se envían
+  const pctChofer = body.porcentajeComisionChofer != null ? Number(body.porcentajeComisionChofer) : undefined;
+  const pctDueno = body.porcentajeComisionDueno != null ? Number(body.porcentajeComisionDueno) : undefined;
+  if (pctChofer != null && (pctChofer < 0 || pctChofer > 100)) {
+    return NextResponse.json({ error: "El porcentaje del chofer debe estar entre 0 y 100" }, { status: 400 });
+  }
+  if (pctDueno != null && (pctDueno < 0 || pctDueno > 100)) {
+    return NextResponse.json({ error: "El porcentaje del dueño debe estar entre 0 y 100" }, { status: 400 });
+  }
+  // Validar suma=100: si solo se envía uno, obtener el otro de DB
+  if (pctChofer != null || pctDueno != null) {
+    const configActual = await db.configuracion.findUnique({ where: { duenoId: session.userId } });
+    const choferFinal = pctChofer ?? configActual?.porcentajeComisionChofer ?? 50;
+    const duenoFinal = pctDueno ?? configActual?.porcentajeComisionDueno ?? 50;
+    if (Math.abs(choferFinal + duenoFinal - 100) > 0.01) {
+      return NextResponse.json({ error: `Los porcentajes deben sumar 100% (actual: ${choferFinal + duenoFinal}%)` }, { status: 400 });
+    }
+  }
+
+  // Validar otros campos numéricos
+  const pctImpuesto = body.porcentajeImpuesto != null ? Number(body.porcentajeImpuesto) : undefined;
+  if (pctImpuesto != null && (pctImpuesto < 0 || pctImpuesto > 100)) {
+    return NextResponse.json({ error: "El porcentaje de impuesto debe estar entre 0 y 100" }, { status: 400 });
+  }
+  const capacidad = body.capacidadCamion != null ? Number(body.capacidadCamion) : undefined;
+  if (capacidad != null && capacidad <= 0) {
+    return NextResponse.json({ error: "La capacidad del camión debe ser mayor a 0" }, { status: 400 });
+  }
+  const montoUnico = body.montoPorVueltaUnicoCliente != null ? Number(body.montoPorVueltaUnicoCliente) : undefined;
+  if (montoUnico != null && montoUnico < 0) {
+    return NextResponse.json({ error: "El monto por vuelta (cliente único) no puede ser negativo" }, { status: 400 });
+  }
+  const montoMultiple = body.montoPorVueltaMultiple != null ? Number(body.montoPorVueltaMultiple) : undefined;
+  if (montoMultiple != null && montoMultiple < 0) {
+    return NextResponse.json({ error: "El monto por vuelta (múltiples) no puede ser negativo" }, { status: 400 });
+  }
+  const precioEfectivo = body.precioEfectivoPorLitro != null ? Number(body.precioEfectivoPorLitro) : undefined;
+  if (precioEfectivo != null && precioEfectivo < 0) {
+    return NextResponse.json({ error: "El precio efectivo por litro no puede ser negativo" }, { status: 400 });
+  }
+  const precioTransf = body.precioTransferenciaPorLitro != null ? Number(body.precioTransferenciaPorLitro) : undefined;
+  if (precioTransf != null && precioTransf < 0) {
+    return NextResponse.json({ error: "El precio transferencia por litro no puede ser negativo" }, { status: 400 });
+  }
+
   const config = await db.configuracion.upsert({
     where: { duenoId: session.userId },
     update: {

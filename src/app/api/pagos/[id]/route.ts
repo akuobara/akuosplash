@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
-// DELETE /api/pagos/[id]
+// DELETE /api/pagos/[id] — choferes solo pueden borrar sus propios pagos
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
@@ -19,6 +19,11 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const duenoId = session.role === "dueno" ? session.userId : session.duenoId;
   if (pago.duenoId !== duenoId) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
+  // Chofer: solo puede borrar pagos que él registró
+  if (session.role === "chofer" && pago.choferId !== session.userId) {
+    return NextResponse.json({ error: "Solo puedes borrar pagos que tú registraste" }, { status: 403 });
   }
 
   await db.pago.delete({ where: { id } });

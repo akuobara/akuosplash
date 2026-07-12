@@ -95,8 +95,17 @@ export async function POST(req: NextRequest) {
       if (session.role === "chofer") {
         where.choferId = session.userId;
       }
-      const activa = await db.vuelta.findFirst({ where });
+      // Para dueño con múltiples choferes activos: usar la más reciente (determinista)
+      const activa = await db.vuelta.findFirst({ where, orderBy: { iniciadaEn: "desc" } });
       vueltaId = activa?.id ?? null;
+    }
+
+    // Validar que clienteId pertenece al dueno si se proporciona
+    if (body.clienteId) {
+      const cliente = await db.cliente.findUnique({ where: { id: body.clienteId }, select: { duenoId: true } });
+      if (!cliente || cliente.duenoId !== duenoId) {
+        return NextResponse.json({ error: "El cliente no pertenece a tu organización" }, { status: 403 });
+      }
     }
 
     const nueva = await db.$transaction(async (tx) => {

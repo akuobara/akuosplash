@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
         fechaProximaGeneracion: fechaProxima,
         activo: body.activo !== false,
         asignacionTipo: body.asignacionTipo || "manual",
-        choferAsignadoId: body.choferAsignadoId || null,
+        choferAsignadoId: (body.choferAsignadoId && body.choferAsignadoId !== "__ninguno") ? body.choferAsignadoId : null,
         duenoId: session.userId,
       },
       include: {

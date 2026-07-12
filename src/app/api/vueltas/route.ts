@@ -97,18 +97,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
 
-    // Cerrar la vuelta activa actual del MISMO chofer (solo puede haber una activa por chofer)
-    const activaActual = await db.vuelta.findFirst({
-      where: { activa: true, duenoId, choferId: session.userId },
-    });
-    if (activaActual) {
-      await db.vuelta.update({
-        where: { id: activaActual.id },
-        data: { activa: false, cerradaEn: new Date() },
-      });
-    }
-
-    // Determinar camión
+    // Determinar camión PRIMERO (antes de la transacción)
     let camionId = body.camionId || null;
     if (!camionId) {
       // Dueño: primer camión activo suyo
@@ -149,26 +138,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No hay camión disponible. Pídele al dueño que te asigne uno." }, { status: 400 });
     }
 
-    // Calcular siguiente número
-    const ultima = await db.vuelta.findFirst({
-      where: { duenoId },
-      orderBy: { numero: "desc" },
-    });
-    const siguienteNumero = (ultima?.numero ?? 0) + 1;
+    // TRANSACCIÓN: cerrar vuelta activa previa + crear nueva (atómico para evitar race condition)
+    const nueva = await db.$transaction(async (tx) => {
+      // Cerrar la vuelta activa actual del MISMO chofer (solo puede haber una activa por chofer)
+      const activaActual = await tx.vuelta.findFirst({
+        where: { activa: true, duenoId, choferId: session.userId },
+      });
+      if (activaActual) {
+        await tx.vuelta.update({
+          where: { id: activaActual.id },
+          data: { activa: false, cerradaEn: new Date() },
+        });
+      }
 
-    const nueva = await db.vuelta.create({
-      data: {
-        numero: siguienteNumero,
-        nota: body.nota?.trim() || null,
-        activa: true,
-        camionId,
-        choferId: session.userId,
-        duenoId,
-      },
-      include: {
-        camion: { select: { id: true, nombre: true, patente: true, capacidad: true } },
-        chofer: { select: { id: true, nombre: true } },
-      },
+      // Calcular siguiente número
+      const ultima = await tx.vuelta.findFirst({
+        where: { duenoId },
+        orderBy: { numero: "desc" },
+      });
+      const siguienteNumero = (ultima?.numero ?? 0) + 1;
+
+      return await tx.vuelta.create({
+        data: {
+          numero: siguienteNumero,
+          nota: body.nota?.trim() || null,
+          activa: true,
+          camionId,
+          choferId: session.userId,
+          duenoId,
+        },
+        include: {
+          camion: { select: { id: true, nombre: true, patente: true, capacidad: true } },
+          chofer: { select: { id: true, nombre: true } },
+        },
+      });
     });
 
     return NextResponse.json({ vuelta: nueva }, { status: 201 });

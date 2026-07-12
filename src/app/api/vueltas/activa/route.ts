@@ -19,8 +19,11 @@ export async function GET() {
     where.choferId = session.userId;
   }
 
+  // Para dueño: si hay múltiples vueltas activas (varios choferes), devolver la más reciente.
+  // Esto es determinista y evita ambigüedad.
   const activa = await db.vuelta.findFirst({
     where,
+    orderBy: { iniciadaEn: "desc" },
     include: {
       camion: { select: { id: true, nombre: true, patente: true, capacidad: true } },
       chofer: { select: { id: true, nombre: true } },
