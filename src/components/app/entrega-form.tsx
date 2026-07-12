@@ -237,9 +237,12 @@ export function EntregaForm({
   }, [open, entrega, config.precioEfectivoPorLitro]);
 
   // Si el usuario selecciona un cliente del catálogo, autollenar datos y precio
-  function onSelectCliente(id: string) {
+  // pedidoIdOpcional: si viene de un click en pedido pendiente, se pasa aquí para no perderlo
+  function onSelectCliente(id: string, pedidoIdOpcional?: string | null) {
     setClienteId(id);
-    setPedidoSeleccionadoId(null); // limpiar pedido seleccionado al cambiar cliente manualmente
+    // limpiar pedido seleccionado al cambiar cliente manualmente
+    // (a menos que vengamos de un click en pedido, en cuyo caso lo preservamos)
+    setPedidoSeleccionadoId(pedidoIdOpcional ?? null);
     if (!id || id === "__manual") {
       aplicarPrecioSegunMetodo(metodoPago, null);
       setClienteDeuda(null);
@@ -714,14 +717,13 @@ export function EntregaForm({
                     key={p.id}
                     type="button"
                     onClick={() => {
-                      setPedidoSeleccionadoId(p.id); // marcar que esta entrega viene de un pedido
+                      // Pasar pedidoId a onSelectCliente para preservarlo
                       if (p.clienteId) {
-                        onSelectCliente(p.clienteId);
-                        // onSelectCliente limpia pedidoSeleccionadoId, así que lo volvemos a setear
-                        setPedidoSeleccionadoId(p.id);
+                        onSelectCliente(p.clienteId, p.id);
                       } else {
                         setClienteId("__manual");
                         setClienteNombre(p.clienteNombre);
+                        setPedidoSeleccionadoId(p.id);
                       }
                       setLitrosManual(String(p.litrosSolicitados));
                       setMetodoPago(p.metodoPagoPreferido);
