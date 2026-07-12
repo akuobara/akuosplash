@@ -322,7 +322,7 @@ export function EntregaForm({
       return;
     }
 
-    // Validar que haya una vuelta activa
+    // Avisar (no bloquear) si no hay vuelta activa
     if (!vueltaActual) {
       toast.error("No hay vuelta activa. Inicia una vuelta antes de registrar entregas.");
       return;
@@ -334,24 +334,29 @@ export function EntregaForm({
       litrosAEntregar = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
     }
 
-    // Validar capacidad del camión (tolerancia de 300 L)
+    // Avisar (no bloquear) si excede la capacidad del camión
     if (vueltaActual.capacidadCamion && vueltaActual.capacidadCamion > 0) {
       const disponible = vueltaActual.capacidadCamion - vueltaActual.litros;
       const tolerancia = 300;
       if (litrosAEntregar > disponible + tolerancia) {
         if (disponible <= 0) {
-          toast.error(
-            `El camión está vacío. Cierra la vuelta #${vueltaActual.numero} e inicia una nueva después de recargar agua en la planta.`,
-            { duration: 6000 }
+          toast.warning(
+            `El camión está vacío. Esta entrega se registrará pero deberías cerrar la vuelta #${vueltaActual.numero} y empezar una nueva.`,
+            { duration: 8000 }
           );
         } else {
-          toast.error(
-            `Solo quedan ${formatNumber(disponible, 0)} L en el camión (tolerancia 300 L). ` +
-            `Necesitas ${formatNumber(litrosAEntregar, 0)} L. Cierra la vuelta y empieza una nueva.`,
-            { duration: 6000 }
+          toast.warning(
+            `Quedan ${formatNumber(disponible, 0)} L en el camión. Entregarás ${formatNumber(litrosAEntregar, 0)} L. ` +
+            `Cierra la vuelta y empieza una nueva para recargar.`,
+            { duration: 8000 }
           );
         }
-        return;
+      } else if (disponible - litrosAEntregar <= tolerancia && disponible - litrosAEntregar > 0) {
+        toast.info(
+          `Después de esta entrega quedarán ${formatNumber(disponible - litrosAEntregar, 0)} L en el camión. ` +
+          `Considera cerrar la vuelta pronto.`,
+          { duration: 6000 }
+        );
       }
     }
 
