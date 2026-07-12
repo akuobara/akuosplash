@@ -188,7 +188,7 @@ export function EntregaForm({
   }, [open, entrega, config.precioEfectivoPorLitro]);
 
   // Si el usuario selecciona un cliente del catálogo, autollenar datos y precio
-  async function onSelectCliente(id: string) {
+  function onSelectCliente(id: string) {
     setClienteId(id);
     if (!id || id === "__manual") {
       aplicarPrecioSegunMetodo(metodoPago, null);
@@ -198,59 +198,60 @@ export function EntregaForm({
       return;
     }
     const c = clientes.find((c) => c.id === id);
-    if (c) {
-      setClienteNombre(c.nombre);
-      setClienteDireccion(c.direccion ?? "");
-      setClienteTelefono(c.telefono ?? "");
-      setClienteZona(c.zona ?? "");
-      aplicarPrecioSegunMetodo(metodoPago, c);
+    if (!c) {
+      console.log("Cliente no encontrado en la lista:", id);
+      return;
+    }
 
-      // Detectar si el cliente tiene estanques
-      let estanquesCliente: { tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada?: boolean }[] = [];
+    console.log("Cliente seleccionado:", c.nombre, "estanquesJson:", c.estanquesJson);
+
+    setClienteNombre(c.nombre);
+    setClienteDireccion(c.direccion ?? "");
+    setClienteTelefono(c.telefono ?? "");
+    setClienteZona(c.zona ?? "");
+    aplicarPrecioSegunMetodo(metodoPago, c);
+
+    // Detectar si el cliente tiene estanques
+    let estanquesCliente: { tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada?: boolean }[] = [];
+    if (c.estanquesJson) {
       try {
-        estanquesCliente = c.estanquesJson ? JSON.parse(c.estanquesJson) : [];
+        estanquesCliente = JSON.parse(c.estanquesJson);
       } catch (err) {
         console.error("Error parseando estanquesJson:", c.estanquesJson, err);
       }
+    }
 
-      // Debug: mostrar qué se encontró
-      console.log("Cliente seleccionado:", c.nombre, "estanquesJson:", c.estanquesJson, "parseado:", estanquesCliente);
+    console.log("Estanques parseados:", estanquesCliente);
 
-      // Cargar todos los estanques del cliente para uso opcional
-      if (estanquesCliente.length > 0) {
-        // Si hay estanques con facturaSeparada, activar automáticamente
-        const independientes = estanquesCliente.filter((e) => e.facturaSeparada === true);
-        const listaEstanques = independientes.length > 0 ? independientes : estanquesCliente;
-        setEstanquesEntrega(listaEstanques.map((e) => ({
-          nombre: e.nombre || e.tipo,
-          litros: "",
-          precio: String(c.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0),
-          metodoPago: "efectivo",
-          montoRecibido: "",
-        })));
-        // Auto-activar si hay con facturaSeparada, o si hay más de 1 estanque
-        setModoEstanques(independientes.length > 0);
-        toast.info(
-          `Cliente tiene ${estanquesCliente.length} estanque(s). ` +
-          `${independientes.length} con facturación independiente.`,
-          { duration: 5000 }
-        );
-      } else {
-        setModoEstanques(false);
-        setEstanquesEntrega([]);
-      }
+    if (estanquesCliente.length > 0) {
+      const independientes = estanquesCliente.filter((e) => e.facturaSeparada === true);
+      const listaEstanques = independientes.length > 0 ? independientes : estanquesCliente;
+      setEstanquesEntrega(listaEstanques.map((e) => ({
+        nombre: e.nombre || e.tipo,
+        litros: "",
+        precio: String(c.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0),
+        metodoPago: "efectivo",
+        montoRecibido: "",
+      })));
+      setModoEstanques(independientes.length > 0);
+      toast.info(
+        `Cliente tiene ${estanquesCliente.length} estanque(s). ${independientes.length} con facturación independiente.`,
+        { duration: 5000 }
+      );
+    } else {
+      setModoEstanques(false);
+      setEstanquesEntrega([]);
+    }
 
-      // Cargar la deuda del cliente (todas sus entregas)
-      try {
-        const data = await apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${id}`);
+    // Cargar la deuda del cliente (en background, sin bloquear)
+    apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${id}`)
+      .then((data) => {
         const totalVentas = data.entregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
         const totalRecibido = data.entregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
         const deuda = totalVentas - totalRecibido;
         setClienteDeuda(deuda);
-      } catch {
-        setClienteDeuda(null);
-      }
-    }
+      })
+      .catch(() => setClienteDeuda(null));
   }
 
   // Helper: aplicar precio según método de pago
