@@ -199,11 +199,11 @@ export function EntregaForm({
     }
     const c = clientes.find((c) => c.id === id);
     if (!c) {
-      console.log("Cliente no encontrado en la lista:", id);
+      toast.error("Cliente no encontrado en la lista. ID: " + id);
       return;
     }
 
-    console.log("Cliente seleccionado:", c.nombre, "estanquesJson:", c.estanquesJson);
+    toast.success("Cliente seleccionado: " + c.nombre);
 
     setClienteNombre(c.nombre);
     setClienteDireccion(c.direccion ?? "");
@@ -216,12 +216,10 @@ export function EntregaForm({
     if (c.estanquesJson) {
       try {
         estanquesCliente = JSON.parse(c.estanquesJson);
-      } catch (err) {
-        console.error("Error parseando estanquesJson:", c.estanquesJson, err);
+      } catch {
+        toast.error("Error al leer los estanques del cliente");
       }
     }
-
-    console.log("Estanques parseados:", estanquesCliente);
 
     if (estanquesCliente.length > 0) {
       const independientes = estanquesCliente.filter((e) => e.facturaSeparada === true);
@@ -235,21 +233,21 @@ export function EntregaForm({
       })));
       setModoEstanques(independientes.length > 0);
       toast.info(
-        `Cliente tiene ${estanquesCliente.length} estanque(s). ${independientes.length} con facturación independiente.`,
-        { duration: 5000 }
+        `Cliente tiene ${estanquesCliente.length} estanque(s). ${independientes.length} con facturación independiente. Modo estanques: ${independientes.length > 0 ? "ACTIVADO" : "desactivado"}`,
+        { duration: 8000 }
       );
     } else {
       setModoEstanques(false);
       setEstanquesEntrega([]);
+      toast.warning("Este cliente NO tiene estanques guardados. estanquesJson: " + (c.estanquesJson || "null"), { duration: 8000 });
     }
 
-    // Cargar la deuda del cliente (en background, sin bloquear)
+    // Cargar la deuda del cliente (en background)
     apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${id}`)
       .then((data) => {
         const totalVentas = data.entregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
         const totalRecibido = data.entregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
-        const deuda = totalVentas - totalRecibido;
-        setClienteDeuda(deuda);
+        setClienteDeuda(totalVentas - totalRecibido);
       })
       .catch(() => setClienteDeuda(null));
   }
