@@ -89,11 +89,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
     }
 
+    // Método de pago: usar el del body si se proporciona, sino el del pedido
+    const metodoPagoFinal = body.metodoPago || pedido.metodoPagoPreferido;
+
     let precioPorLitro = Number(body.precioPorLitro) || 0;
     if (!precioPorLitro) {
-      if (pedido.metodoPagoPreferido === "efectivo") {
+      if (metodoPagoFinal === "efectivo") {
         precioPorLitro = precioEfectivoCfg;
-      } else if (pedido.metodoPagoPreferido === "transferencia") {
+      } else if (metodoPagoFinal === "transferencia") {
         precioPorLitro = precioTransferenciaCfg;
       } else {
         // credito (sin pago) o mixto: precio MÁS ALTO para generar deuda
@@ -179,7 +182,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           choferId: choferIdParaEntrega,
           duenoId,
           litros,
-          metodoPago: pedido.metodoPagoPreferido,
+          metodoPago: metodoPagoFinal,
           precioPorLitro,
           total,
           montoEfectivo,

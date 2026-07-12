@@ -52,6 +52,8 @@ import {
   UserCheck,
   Repeat,
   Hand,
+  Banknote,
+  Smartphone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
@@ -189,6 +191,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [precioPorLitro, setPrecioPorLitro] = useState("");
   const [montoEfectivo, setMontoEfectivo] = useState("");
   const [montoTransferencia, setMontoTransferencia] = useState("");
+  const [metodoPagoConvertir, setMetodoPagoConvertir] = useState<string>("credito");
   // Estanques para entrega por separado
   const [estanquesConvertir, setEstanquesConvertir] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string }[]>([]);
   const [modoEstanquesConvertir, setModoEstanquesConvertir] = useState(false);
@@ -297,6 +300,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     setPrecioPorLitro("");
     setMontoEfectivo("");
     setMontoTransferencia("");
+    setMetodoPagoConvertir("credito");
     setModoEstanquesConvertir(false);
     setEstanquesConvertir([]);
 
@@ -498,6 +502,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         precioPorLitro: Number(precioPorLitro) || undefined,
         montoEfectivo: Number(montoEfectivo) || 0,
         montoTransferencia: Number(montoTransferencia) || 0,
+        metodoPago: metodoPagoConvertir,
         descuentoTipo: descuentoTipoConvertir,
         descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
       });
@@ -553,6 +558,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         precioPorLitro: Number(precioPorLitro) || undefined,
         montoEfectivo: Number(montoEfectivo) || 0,
         montoTransferencia: Number(montoTransferencia) || 0,
+        metodoPago: metodoPagoConvertir,
         descuentoTipo: descuentoTipoConvertir,
         descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
       });
@@ -1680,6 +1686,81 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                         El descuento se descontará del pago en liquidación.
                       </p>
                     )}
+                  </div>
+
+                  {/* Botones de método de pago */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Método de pago</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMetodoPagoConvertir("efectivo");
+                          const c = clientes.find(cl => cl.id === convirtiendo?.clienteId);
+                          const precio = c?.precioEfectivoPorLitro || 0;
+                          setPrecioPorLitro(precio > 0 ? String(precio) : "");
+                          setMontoTransferencia("");
+                          const litrosCalc = Number(litrosReales) || convirtiendo.litrosSolicitados;
+                          const totalCalc = litrosCalc * precio;
+                          const totalRedondeado = totalCalc > 0 ? Math.ceil(totalCalc / 100) * 100 : 0;
+                          let descuento = descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0;
+                          const totalFinal = Math.max(0, totalRedondeado - descuento);
+                          setMontoEfectivo(totalFinal > 0 ? String(totalFinal) : "");
+                        }}
+                        className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+                          metodoPagoConvertir === "efectivo"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <Banknote className="h-5 w-5" />
+                        <span className="text-sm font-medium">Efectivo</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMetodoPagoConvertir("transferencia");
+                          const c = clientes.find(cl => cl.id === convirtiendo?.clienteId);
+                          const precio = c?.precioTransferenciaPorLitro || 0;
+                          setPrecioPorLitro(precio > 0 ? String(precio) : "");
+                          setMontoEfectivo("");
+                          const litrosCalc = Number(litrosReales) || convirtiendo.litrosSolicitados;
+                          const totalCalc = litrosCalc * precio;
+                          const totalRedondeado = totalCalc > 0 ? Math.ceil(totalCalc / 100) * 100 : 0;
+                          let descuento = descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0;
+                          const totalFinal = Math.max(0, totalRedondeado - descuento);
+                          setMontoTransferencia(totalFinal > 0 ? String(totalFinal) : "");
+                        }}
+                        className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+                          metodoPagoConvertir === "transferencia"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <Smartphone className="h-5 w-5" />
+                        <span className="text-sm font-medium">Transferencia</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMetodoPagoConvertir("credito");
+                          const c = clientes.find(cl => cl.id === convirtiendo?.clienteId);
+                          const precioMax = Math.max(c?.precioEfectivoPorLitro || 0, c?.precioTransferenciaPorLitro || 0);
+                          setPrecioPorLitro(precioMax > 0 ? String(precioMax) : "");
+                          setMontoEfectivo("");
+                          setMontoTransferencia("");
+                        }}
+                        className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
+                          metodoPagoConvertir === "credito"
+                            ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300"
+                            : "border-border hover:border-amber-500/50"
+                        }`}
+                      >
+                        <Clock className="h-5 w-5" />
+                        <span className="text-sm font-medium">Sin pago</span>
+                        <span className="text-xs text-muted-foreground">Genera deuda</span>
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
