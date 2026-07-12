@@ -1,0 +1,527 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useState, useCallback } from "react";
+     4→import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+     5→import { Button } from "@/components/ui/button";
+     6→import { Skeleton } from "@/components/ui/skeleton";
+     7→import { Badge } from "@/components/ui/badge";
+     8→import {
+     9→  Select,
+    10→  SelectContent,
+    11→  SelectItem,
+    12→  SelectTrigger,
+    13→  SelectValue,
+    14→} from "@/components/ui/select";
+    15→import {
+    16→  Dialog,
+    17→  DialogContent,
+    18→  DialogHeader,
+    19→  DialogTitle,
+    20→  DialogDescription,
+    21→  DialogFooter,
+    22→} from "@/components/ui/dialog";
+    23→import {
+    24→  Repeat,
+    25→  Droplets,
+    26→  Banknote,
+    27→  Smartphone,
+    28→  Truck,
+    29→  ChevronDown,
+    30→  ChevronRight,
+    31→  Clock,
+    32→  MapPin,
+    33→  RotateCcw,
+    34→  CheckCircle2,
+    35→  XCircle,
+    36→  AlertTriangle,
+    37→} from "lucide-react";
+    38→import { toast } from "sonner";
+    39→import { apiGet, apiPost } from "@/lib/api-client";
+    40→import {
+    41→  formatNumber,
+    42→  formatCurrency,
+    43→  formatDate,
+    44→  formatDateTime,
+    45→  formatTime,
+    46→  labelMetodoPago,
+    47→  labelEstadoPago,
+    48→  esVueltaCompletada,
+    49→  UMBRAL_COMPLETACION_VUELTA,
+    50→} from "@/lib/helpers";
+    51→
+    52→interface EntregaVuelta {
+    53→  id: string;
+    54→  fecha: string;
+    55→  clienteNombre: string;
+    56→  clienteZona: string | null;
+    57→  litros: number;
+    58→  metodoPago: string;
+    59→  total: number;
+    60→  montoEfectivo: number;
+    61→  montoTransferencia: number;
+    62→  montoRecibido: number;
+    63→  estadoPago: string;
+    64→  detalleEstanquesJson: string | null;
+    65→}
+    66→
+    67→interface Vuelta {
+    68→  id: string;
+    69→  numero: number;
+    70→  iniciadaEn: string;
+    71→  cerradaEn: string | null;
+    72→  activa: boolean;
+    73→  nota: string | null;
+    74→  camion: { id: string; nombre: string; patente: string | null; capacidad: number } | null;
+    75→  chofer: { id: string; nombre: string } | null;
+    76→  cantidadEntregas: number;
+    77→  litros: number;
+    78→  litrosRestantes: number;
+    79→  capacidadCamion: number;
+    80→  ventas: number;
+    81→  efectivoRecibido: number;
+    82→  esMultiple: boolean;
+    83→}
+    84→
+    85→type Period = "hoy" | "ayer" | "semana" | "mes" | "todo";
+    86→
+    87→const PERIODS: { value: Period; label: string }[] = [
+    88→  { value: "hoy", label: "Hoy" },
+    89→  { value: "ayer", label: "Ayer" },
+    90→  { value: "semana", label: "Esta semana" },
+    91→  { value: "mes", label: "Este mes" },
+    92→  { value: "todo", label: "Todo" },
+    93→];
+    94→
+    95→export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: number; onRefresh: () => void }) {
+    96→  const [vueltas, setVueltas] = useState<Vuelta[]>([]);
+    97→  const [loading, setLoading] = useState(true);
+    98→  const [period, setPeriod] = useState<Period>("semana");
+    99→  const [vueltasAbiertas, setVueltasAbiertas] = useState<Set<string>>(new Set());
+   100→  const [entregasPorVuelta, setEntregasPorVuelta] = useState<Record<string, EntregaVuelta[]>>({});
+   101→  const [cargandoEntregas, setCargandoEntregas] = useState<Set<string>>(new Set());
+   102→  const [reabrirConfirm, setReabrirConfirm] = useState<Vuelta | null>(null);
+   103→  const [reabriendo, setReabriendo] = useState(false);
+   104→  // Cache de todas las entregas para no hacer N+1 requests
+   105→  const [cacheEntregas, setCacheEntregas] = useState<EntregaVuelta[] | null>(null);
+   106→
+   107→  const cargar = useCallback(async () => {
+   108→    setLoading(true);
+   109→    try {
+   110→      const data = await apiGet<{ vueltas: Vuelta[] }>(`/api/vueltas?period=${period}`);
+   111→      setVueltas(data.vueltas);
+   112→      // Invalidar cache de entregas y entregasPorVuelta al refrescar
+   113→      setCacheEntregas(null);
+   114→      setEntregasPorVuelta({});
+   115→    } catch (e) {
+   116→      console.error(e);
+   117→    } finally {
+   118→      setLoading(false);
+   119→    }
+   120→  }, [period]);
+   121→
+   122→  useEffect(() => {
+   123→    cargar();
+   124→  }, [cargar, refreshKey]);
+   125→
+   126→  // Agrupar por día
+   127→  const vueltasPorDia: Record<string, Vuelta[]> = {};
+   128→  for (const v of vueltas) {
+   129→    const fecha = v.iniciadaEn.split("T")[0];
+   130→    if (!vueltasPorDia[fecha]) vueltasPorDia[fecha] = [];
+   131→    vueltasPorDia[fecha].push(v);
+   132→  }
+   133→  const dias = Object.entries(vueltasPorDia).sort(([a], [b]) => b.localeCompare(a));
+   134→
+   135→  async function toggleVuelta(vueltaId: string) {
+   136→    const nuevasAbiertas = new Set(vueltasAbiertas);
+   137→    if (nuevasAbiertas.has(vueltaId)) {
+   138→      nuevasAbiertas.delete(vueltaId);
+   139→      setVueltasAbiertas(nuevasAbiertas);
+   140→      return;
+   141→    }
+   142→    nuevasAbiertas.add(vueltaId);
+   143→    setVueltasAbiertas(nuevasAbiertas);
+   144→
+   145→    if (!entregasPorVuelta[vueltaId]) {
+   146→      const nuevasCargando = new Set(cargandoEntregas);
+   147→      nuevasCargando.add(vueltaId);
+   148→      setCargandoEntregas(nuevasCargando);
+   149→      try {
+   150→        // Usar cache si ya se cargaron todas las entregas antes
+   151→        let todas: EntregaVuelta[] = cacheEntregas ?? [];
+   152→        if (!cacheEntregas) {
+   153→          const data = await apiGet<{ entregas: EntregaVuelta[] }>(`/api/entregas?period=todo`);
+   154→          todas = data.entregas;
+   155→          setCacheEntregas(todas);
+   156→        }
+   157→        const deVuelta = todas.filter((e: any) => e.vueltaId === vueltaId);
+   158→        // Usar functional updater para evitar stale closure
+   159→        setEntregasPorVuelta((prev) => ({ ...prev, [vueltaId]: deVuelta }));
+   160→      } catch (e) {
+   161→        console.error(e);
+   162→      } finally {
+   163→        // Usar functional updater también aquí
+   164→        setCargandoEntregas((prev) => {
+   165→          const next = new Set(prev);
+   166→          next.delete(vueltaId);
+   167→          return next;
+   168→        });
+   169→      }
+   170→    }
+   171→  }
+   172→
+   173→  async function reabrirVuelta() {
+   174→    if (!reabrirConfirm) return;
+   175→    setReabriendo(true);
+   176→    try {
+   177→      await apiPost(`/api/vueltas/${reabrirConfirm.id}/reabrir`, {});
+   178→      toast.success(`Vuelta #${reabrirConfirm.numero} reabierta — ahora es la vuelta activa`);
+   179→      setReabrirConfirm(null);
+   180→      onRefresh();
+   181→      cargar();
+   182→    } catch (e) {
+   183→      toast.error(e instanceof Error ? e.message : "No se pudo reabrir la vuelta");
+   184→    } finally {
+   185→      setReabriendo(false);
+   186→    }
+   187→  }
+   188→
+   189→  return (
+   190→    <div className="space-y-4">
+   191→      {/* Encabezado */}
+   192→      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+   193→        <div>
+   194→          <h2 className="text-lg font-semibold sm:text-xl">Historial de vueltas</h2>
+   195→          <p className="text-sm text-muted-foreground">
+   196→            Detalle de cada vuelta: clientes, litros, cobros y camión usado.
+   197→          </p>
+   198→        </div>
+   199→        <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
+   200→          <SelectTrigger className="w-[150px]">
+   201→            <SelectValue />
+   202→          </SelectTrigger>
+   203→          <SelectContent>
+   204→            {PERIODS.map((p) => (
+   205→              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+   206→            ))}
+   207→          </SelectContent>
+   208→        </Select>
+   209→      </div>
+   210→
+   211→      {/* Resumen del período */}
+   212→      {vueltas.length > 0 && (
+   213→        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+   214→          <Card>
+   215→            <CardContent className="p-3">
+   216→              <p className="text-xs uppercase text-muted-foreground">Vueltas</p>
+   217→              <p className="text-xl font-bold">{vueltas.length}</p>
+   218→              {(() => {
+   219→                const validas = vueltas.filter((v) => esVueltaCompletada(v.litros, v.capacidadCamion, v.cantidadEntregas)).length;
+   220→                const invalidas = vueltas.length - validas;
+   221→                if (invalidas > 0) {
+   222→                  return (
+   223→                    <p className="text-[10px] text-amber-600 dark:text-amber-400">
+   224→                      {validas} válidas · {invalidas} sin completar
+   225→                    </p>
+   226→                  );
+   227→                }
+   228→                return null;
+   229→              })()}
+   230→            </CardContent>
+   231→          </Card>
+   232→          <Card>
+   233→            <CardContent className="p-3">
+   234→              <p className="text-xs uppercase text-muted-foreground">Litros</p>
+   235→              <p className="text-xl font-bold tabular-nums">{formatNumber(vueltas.reduce((s, v) => s + v.litros, 0), 0)} L</p>
+   236→            </CardContent>
+   237→          </Card>
+   238→          <Card>
+   239→            <CardContent className="p-3">
+   240→              <p className="text-xs uppercase text-muted-foreground">Ventas</p>
+   241→              <p className="text-xl font-bold tabular-nums">{formatCurrency(vueltas.reduce((s, v) => s + v.ventas, 0))}</p>
+   242→            </CardContent>
+   243→          </Card>
+   244→          <Card>
+   245→            <CardContent className="p-3">
+   246→              <p className="text-xs uppercase text-muted-foreground">Efectivo</p>
+   247→              <p className="text-xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+   248→                {formatCurrency(vueltas.reduce((s, v) => s + v.efectivoRecibido, 0))}
+   249→              </p>
+   250→            </CardContent>
+   251→          </Card>
+   252→        </div>
+   253→      )}
+   254→
+   255→      {/* Lista por día */}
+   256→      {loading ? (
+   257→        <div className="space-y-2">
+   258→          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-lg" />)}
+   259→        </div>
+   260→      ) : vueltas.length === 0 ? (
+   261→        <Card>
+   262→          <CardContent className="flex flex-col items-center justify-center gap-2 p-10 text-center">
+   263→            <Repeat className="h-10 w-10 text-muted-foreground" />
+   264→            <p className="text-sm text-muted-foreground">No hay vueltas en este período.</p>
+   265→          </CardContent>
+   266→        </Card>
+   267→      ) : (
+   268→        <div className="space-y-4">
+   269→          {dias.map(([fechaKey, vueltasDia]) => {
+   270→            const f = new Date(fechaKey + "T12:00:00");
+   271→            const hoy = new Date();
+   272→            hoy.setHours(0, 0, 0, 0);
+   273→            const ayer = new Date(hoy);
+   274→            ayer.setDate(ayer.getDate() - 1);
+   275→            const esHoy = f.toDateString() === hoy.toDateString();
+   276→            const esAyer = f.toDateString() === ayer.toDateString();
+   277→            const etiqueta = esHoy ? "Hoy" : esAyer ? "Ayer" : formatDate(f);
+   278→
+   279→            const litrosDia = vueltasDia.reduce((s, v) => s + v.litros, 0);
+   280→            const ventasDia = vueltasDia.reduce((s, v) => s + v.ventas, 0);
+   281→            const efectivoDia = vueltasDia.reduce((s, v) => s + v.efectivoRecibido, 0);
+   282→
+   283→            return (
+   284→              <div key={fechaKey} className="space-y-2">
+   285→                {/* Encabezado del día */}
+   286→                <div className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2">
+   287→                  <div>
+   288→                    <span className="text-sm font-semibold">{etiqueta}</span>
+   289→                    <span className="ml-2 text-xs text-muted-foreground">{vueltasDia.length} vuelta(s)</span>
+   290→                  </div>
+   291→                  <div className="flex items-center gap-3 text-xs">
+   292→                    <span className="tabular-nums">{formatNumber(litrosDia, 0)} L</span>
+   293→                    <span className="tabular-nums font-semibold">{formatCurrency(ventasDia)}</span>
+   294→                    <span className="tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(efectivoDia)}</span>
+   295→                  </div>
+   296→                </div>
+   297→
+   298→                {/* Vueltas del día */}
+   299→                {vueltasDia.map((v) => {
+   300→                  const abierta = vueltasAbiertas.has(v.id);
+   301→                  const entregas = entregasPorVuelta[v.id] || [];
+   302→                  const cargando = cargandoEntregas.has(v.id);
+   303→                  const completada = esVueltaCompletada(v.litros, v.capacidadCamion, v.cantidadEntregas);
+   304→                  const porcentaje = v.capacidadCamion > 0 ? (v.litros / v.capacidadCamion) * 100 : 0;
+   305→                  const umbralLitros = v.capacidadCamion > 0 ? Math.ceil(v.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
+   306→                  const puedeReabrir = !v.activa && !completada;
+   307→
+   308→                  return (
+   309→                    <Card key={v.id} className={`overflow-hidden ${!completada && !v.activa ? "border-amber-300 dark:border-amber-800" : ""}`}>
+   310→                      <button
+   311→                        type="button"
+   312→                        onClick={() => toggleVuelta(v.id)}
+   313→                        className="flex w-full items-center gap-3 p-3 text-left hover:bg-muted/30"
+   314→                      >
+   315→                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold ${
+   316→                          v.activa
+   317→                            ? "bg-primary text-primary-foreground"
+   318→                            : completada
+   319→                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+   320→                              : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+   321→                        }`}>
+   322→                          #{v.numero}
+   323→                        </div>
+   324→                        <div className="min-w-0 flex-1">
+   325→                          <div className="flex flex-wrap items-center gap-1.5">
+   326→                            <span className="font-medium text-sm">Vuelta #{v.numero}</span>
+   327→                            {v.activa ? (
+   328→                              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+   329→                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Activa
+   330→                              </span>
+   331→                            ) : completada ? (
+   332→                              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+   333→                                <CheckCircle2 className="h-2.5 w-2.5" /> Completada
+   334→                              </span>
+   335→                            ) : (
+   336→                              <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+   337→                                <AlertTriangle className="h-2.5 w-2.5" /> Sin completar
+   338→                              </span>
+   339→                            )}
+   340→                            {v.esMultiple && (
+   341→                              <Badge variant="outline" className="text-[10px]">Múltiples</Badge>
+   342→                            )}
+   343→                            {v.camion && (
+   344→                              <Badge variant="outline" className="text-[10px] gap-0.5">
+   345→                                <Truck className="h-2.5 w-2.5" /> {v.camion.nombre}
+   346→                              </Badge>
+   347→                            )}
+   348→                            {v.chofer && (
+   349→                              <Badge variant="outline" className="text-[10px]">{v.chofer.nombre}</Badge>
+   350→                            )}
+   351→                          </div>
+   352→                          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+   353→                            <span className="flex items-center gap-0.5">
+   354→                              <Clock className="h-3 w-3" /> {formatTime(v.iniciadaEn)}
+   355→                              {v.cerradaEn ? ` → ${formatTime(v.cerradaEn)}` : " · en curso"}
+   356→                            </span>
+   357→                            <span>·</span>
+   358→                            <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(v.litros, 0)} L</span>
+   359→                            {v.cantidadEntregas > 0 && <><span>·</span><span>{v.cantidadEntregas} entrega(s)</span></>}
+   360→                            {v.capacidadCamion > 0 && (
+   361→                              <span className={completada ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}>
+   362→                                · {porcentaje.toFixed(0)}% de {formatNumber(v.capacidadCamion, 0)} L
+   363→                              </span>
+   364→                            )}
+   365→                          </div>
+   366→                        </div>
+   367→                        <div className="shrink-0 text-right">
+   368→                          {v.ventas > 0 && <p className="font-semibold tabular-nums text-sm">{formatCurrency(v.ventas)}</p>}
+   369→                          {v.efectivoRecibido > 0 && <p className="text-xs text-emerald-600 dark:text-emerald-400 tabular-nums">Efect: {formatCurrency(v.efectivoRecibido)}</p>}
+   370→                        </div>
+   371→                        {abierta ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
+   372→                      </button>
+   373→
+   374→                      {/* Banner de vuelta no completada con botón Retomar */}
+   375→                      {puedeReabrir && (
+   376→                        <div className="border-t border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+   377→                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+   378→                            <p className="text-xs text-amber-900 dark:text-amber-200">
+   379→                              <AlertTriangle className="mr-1 inline h-3 w-3" />
+   380→                              Vuelta cerrada sin completar ({porcentaje.toFixed(0)}% de {formatNumber(v.capacidadCamion, 0)} L).
+   381→                              {" "}Faltaron {formatNumber(Math.max(0, umbralLitros - v.litros), 0)} L para ser válida.
+   382→                              {" "}No cuenta para la liquidación.
+   383→                            </p>
+   384→                            <Button
+   385→                              size="sm"
+   386→                              variant="outline"
+   387→                              className="border-amber-400 bg-white text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50"
+   388→                              onClick={(e) => {
+   389→                                e.stopPropagation();
+   390→                                setReabrirConfirm(v);
+   391→                              }}
+   392→                            >
+   393→                              <RotateCcw className="mr-1 h-3 w-3" /> Retomar vuelta
+   394→                            </Button>
+   395→                          </div>
+   396→                        </div>
+   397→                      )}
+   398→
+   399→                      {/* Detalle de entregas de la vuelta */}
+   400→                      {abierta && (
+   401→                        <div className="border-t border-border bg-muted/10 p-3 space-y-2">
+   402→                          {cargando ? (
+   403→                            <div className="flex items-center justify-center py-4">
+   404→                              <Skeleton className="h-16 w-full rounded-lg" />
+   405→                            </div>
+   406→                          ) : entregas.length === 0 ? (
+   407→                            <p className="py-4 text-center text-sm text-muted-foreground">Esta vuelta no tiene entregas registradas.</p>
+   408→                          ) : (
+   409→                            <>
+   410→                              {entregas.map((e) => (
+   411→                                <div key={e.id} className="rounded-lg border border-border bg-background p-3 text-sm">
+   412→                                  <div className="flex items-center justify-between gap-2">
+   413→                                    <div className="min-w-0 flex-1">
+   414→                                      <div className="flex flex-wrap items-center gap-1.5">
+   415→                                        <span className="font-medium">{e.clienteNombre}</span>
+   416→                                        {e.clienteZona && <Badge variant="outline" className="text-[10px]">{e.clienteZona}</Badge>}
+   417→                                        <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+   418→                                          e.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+   419→                                          : e.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+   420→                                          : "bg-muted text-muted-foreground"
+   421→                                        }`}>
+   422→                                          {labelEstadoPago(e.estadoPago)}
+   423→                                        </span>
+   424→                                      </div>
+   425→                                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+   426→                                        <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(e.litros, 0)} L</span>
+   427→                                        <span>·</span>
+   428→                                        <span>{labelMetodoPago(e.metodoPago)}</span>
+   429→                                        <span>·</span>
+   430→                                        <span className="tabular-nums">{formatCurrency(e.total)}</span>
+   431→                                        {e.montoEfectivo > 0 && <><span>·</span><span className="text-emerald-600 dark:text-emerald-400">Efect: {formatCurrency(e.montoEfectivo)}</span></>}
+   432→                                        {e.montoTransferencia > 0 && <><span>·</span><span className="text-blue-600 dark:text-blue-400">Trans: {formatCurrency(e.montoTransferencia)}</span></>}
+   433→                                        {e.total - e.montoRecibido > 0 && <><span>·</span><span className="text-amber-600 dark:text-amber-400">Saldo: {formatCurrency(e.total - e.montoRecibido)}</span></>}
+   434→                                      </div>
+   435→
+   436→                                      {/* Detalle de estanques si existe */}
+   437→                                      {e.detalleEstanquesJson && (() => {
+   438→                                        let estanques: any[] = [];
+   439→                                        try { estanques = JSON.parse(e.detalleEstanquesJson); } catch { return null; }
+   440→                                        if (estanques.length === 0) return null;
+   441→                                        return (
+   442→                                          <div className="mt-1 rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-1.5 text-[11px]">
+   443→                                            {estanques.map((est, i) => (
+   444→                                              <div key={i} className="flex items-center justify-between">
+   445→                                                <span className="text-amber-900 dark:text-amber-200">{est.nombre}: {formatNumber(est.litros, 0)} L</span>
+   446→                                                <span className="tabular-nums">{formatCurrency(est.total)}</span>
+   447→                                              </div>
+   448→                                            ))}
+   449→                                          </div>
+   450→                                        );
+   451→                                      })()}
+   452→                                    </div>
+   453→                                  </div>
+   454→                                </div>
+   455→                              ))}
+   456→
+   457→                              {/* Totales de la vuelta */}
+   458→                              <div className="rounded-lg bg-muted/40 p-2 text-center text-sm">
+   459→                                <div className="grid grid-cols-4 gap-2">
+   460→                                  <div>
+   461→                                    <p className="text-[10px] uppercase text-muted-foreground">Entregas</p>
+   462→                                    <p className="font-bold">{entregas.length}</p>
+   463→                                  </div>
+   464→                                  <div>
+   465→                                    <p className="text-[10px] uppercase text-muted-foreground">Litros</p>
+   466→                                    <p className="font-bold tabular-nums">{formatNumber(entregas.reduce((s, e) => s + e.litros, 0), 0)} L</p>
+   467→                                  </div>
+   468→                                  <div>
+   469→                                    <p className="text-[10px] uppercase text-muted-foreground">Ventas</p>
+   470→                                    <p className="font-bold tabular-nums">{formatCurrency(entregas.reduce((s, e) => s + e.total, 0))}</p>
+   471→                                  </div>
+   472→                                  <div>
+   473→                                    <p className="text-[10px] uppercase text-muted-foreground">Efectivo</p>
+   474→                                    <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(entregas.reduce((s, e) => s + e.montoEfectivo, 0))}</p>
+   475→                                  </div>
+   476→                                </div>
+   477→                              </div>
+   478→                            </>
+   479→                          )}
+   480→                        </div>
+   481→                      )}
+   482→                    </Card>
+   483→                  );
+   484→                })}
+   485→              </div>
+   486→            );
+   487→          })}
+   488→        </div>
+   489→      )}
+   490→
+   491→      {/* Diálogo de confirmación para reabrir vuelta */}
+   492→      <Dialog open={!!reabrirConfirm} onOpenChange={(o) => !o && setReabrirConfirm(null)}>
+   493→        <DialogContent className="max-w-md">
+   494→          <DialogHeader>
+   495→            <DialogTitle>Retomar Vuelta #{reabrirConfirm?.numero}</DialogTitle>
+   496→            <DialogDescription>
+   497→              Esta vuelta fue cerrada sin completar (solo {reabrirConfirm ? (reabrirConfirm.capacidadCamion > 0 ? ((reabrirConfirm.litros / reabrirConfirm.capacidadCamion) * 100).toFixed(0) : "0") : "0"}% de {formatNumber(reabrirConfirm?.capacidadCamion ?? 0, 0)} L).
+   498→              {" "}Al retomarla volverá a ser la vuelta activa y podrás seguir registrando entregas.
+   499→            </DialogDescription>
+   500→          </DialogHeader>
+   501→          {reabrirConfirm && (
+   502→            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs dark:border-amber-800 dark:bg-amber-900/20">
+   503→              <div className="flex items-start gap-2 text-amber-900 dark:text-amber-200">
+   504→                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+   505→                <div>
+   506→                  <p>Si hay otra vuelta activa actualmente, se cerrará automáticamente.</p>
+   507→                  <p className="mt-1">Para que esta vuelta cuente en la liquidación, debes entregar al menos{" "}
+   508→                    <strong>{formatNumber(reabrirConfirm.capacidadCamion > 0 ? Math.ceil(reabrirConfirm.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0, 0)} L</strong> en total (97.5% de la capacidad del camión).
+   509→                  </p>
+   510→                </div>
+   511→              </div>
+   512→            </div>
+   513→          )}
+   514→          <DialogFooter className="flex-col gap-2 sm:flex-row">
+   515→            <Button variant="outline" onClick={() => setReabrirConfirm(null)} className="w-full sm:w-auto">
+   516→              Cancelar
+   517→            </Button>
+   518→            <Button onClick={reabrirVuelta} disabled={reabriendo} className="w-full sm:w-auto">
+   519→              <RotateCcw className="mr-2 h-4 w-4" /> {reabriendo ? "Reabriendo…" : "Retomar vuelta"}
+   520→            </Button>
+   521→          </DialogFooter>
+   522→        </DialogContent>
+   523→      </Dialog>
+   524→    </div>
+   525→  );
+   526→}
+   527→

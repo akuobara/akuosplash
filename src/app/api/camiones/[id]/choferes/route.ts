@@ -79,7 +79,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   // Verificar que el chofer pertenece al dueño (o es el dueño mismo)
-  const chofer = await db.usuario.findUnique({ where: { id: choferId } });
+  const chofer = await db.usuario.findUnique({ where: { id: choferId }, select: { id: true, role: true, duenoId: true, activo: true } });
   if (!chofer) {
     return NextResponse.json({ error: "Chofer no encontrado" }, { status: 404 });
   }
@@ -87,6 +87,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const esValido = chofer.id === session.userId || (chofer.role === "chofer" && chofer.duenoId === session.userId);
   if (!esValido) {
     return NextResponse.json({ error: "Chofer no autorizado" }, { status: 403 });
+  }
+
+  // No permitir asignar choferes inactivos (soft-deleted)
+  if (chofer.role === "chofer" && !chofer.activo) {
+    return NextResponse.json({ error: "Este chofer está inactivo. Actívalo en la pestaña Equipo antes de asignarlo." }, { status: 400 });
   }
 
   // Crear asignación (si ya existe, no falla)

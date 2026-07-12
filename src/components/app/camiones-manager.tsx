@@ -419,7 +419,7 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                 No hay usuarios. Crea choferes en la pestaña Equipo.
               </p>
             ) : (
-              usuarios.map((u) => (
+              usuarios.filter((u) => u.activo || choferesSeleccionados.has(u.id)).map((u) => (
                 <label
                   key={u.id}
                   className="flex items-center gap-3 rounded-lg border border-border p-3 cursor-pointer hover:bg-muted/30"

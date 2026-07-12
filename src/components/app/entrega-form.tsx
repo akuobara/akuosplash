@@ -429,9 +429,30 @@ export function EntregaForm({
         toast.error("Ingresa al menos litros en un estanque");
         return;
       }
-      const totalVentaEst = estanquesConLitros.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
-      const totalEfectivoEst = estanquesConLitros.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
-      const totalTransferenciaEst = estanquesConLitros.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+
+      // Normalizar montoRecibido por estanque: si es efectivo/transferencia y está vacío,
+      // usar el total calculado (litros × precio). Si es credito, queda 0 (deuda).
+      const estanquesNormalizados = estanquesConLitros.map((e) => {
+        const litrosNum = Number(e.litros) || 0;
+        const precioNum = Number(e.precio) || 0;
+        const totalEstCalc = litrosNum * precioNum;
+        let montoRecibidoNum = Number(e.montoRecibido) || 0;
+        if (e.metodoPago !== "credito" && montoRecibidoNum === 0 && totalEstCalc > 0) {
+          // Auto-llenar montoRecibido con el total si el usuario no lo editó manualmente
+          montoRecibidoNum = Math.round(totalEstCalc);
+        }
+        return {
+          ...e,
+          litros: litrosNum,
+          precio: precioNum,
+          montoRecibido: montoRecibidoNum,
+          total: totalEstCalc,
+        };
+      });
+
+      const totalVentaEst = estanquesNormalizados.reduce((s, e) => s + e.total, 0);
+      const totalEfectivoEst = estanquesNormalizados.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + e.montoRecibido, 0);
+      const totalTransferenciaEst = estanquesNormalizados.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + e.montoRecibido, 0);
       const totalRecibidoEst = totalEfectivoEst + totalTransferenciaEst;
 
       let estadoPagoEst = "pendiente";
@@ -455,13 +476,13 @@ export function EntregaForm({
           estadoPago: estadoPagoEst,
           fotoMedidorUrl: fotoUrl,
           nota: nota.trim() || null,
-          detalleEstanquesJson: JSON.stringify(estanquesConLitros.map((e) => ({
+          detalleEstanquesJson: JSON.stringify(estanquesNormalizados.map((e) => ({
             nombre: e.nombre,
-            litros: Number(e.litros) || 0,
-            precioPorLitro: Number(e.precio) || 0,
-            total: (Number(e.litros) || 0) * (Number(e.precio) || 0),
+            litros: e.litros,
+            precioPorLitro: e.precio,
+            total: e.total,
             metodoPago: e.metodoPago,
-            montoRecibido: Number(e.montoRecibido) || 0,
+            montoRecibido: e.montoRecibido,
           }))),
         };
         if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;

@@ -127,6 +127,7 @@ interface ClienteOption {
   requiereClientePresente: boolean;
   indicacionesAcceso: string | null;
   estanquesJson: string | null;
+  choferPreferidoId: string | null;
 }
 
 interface PedidosTabProps {
@@ -419,9 +420,23 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         toast.error("Ingresa al menos litros en un estanque");
         return;
       }
-      const totalVentaEst = estanquesConvertir.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
-      const totalEfectivoEst = estanquesConvertir.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
-      const totalTransferenciaEst = estanquesConvertir.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+
+      // Normalizar montoRecibido por estanque: si es efectivo/transferencia y está vacío,
+      // usar el total calculado (litros × precio). Si es credito, queda 0 (deuda).
+      const estanquesNormalizados = estanquesConvertir.map((e) => {
+        const litrosNum = Number(e.litros) || 0;
+        const precioNum = Number(e.precio) || 0;
+        const totalEstCalc = litrosNum * precioNum;
+        let montoRecibidoNum = Number(e.montoRecibido) || 0;
+        if (e.metodoPago !== "credito" && montoRecibidoNum === 0 && totalEstCalc > 0) {
+          montoRecibidoNum = Math.round(totalEstCalc);
+        }
+        return { ...e, litros: litrosNum, precio: precioNum, montoRecibido: montoRecibidoNum, total: totalEstCalc };
+      });
+
+      const totalVentaEst = estanquesNormalizados.reduce((s, e) => s + e.total, 0);
+      const totalEfectivoEst = estanquesNormalizados.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + e.montoRecibido, 0);
+      const totalTransferenciaEst = estanquesNormalizados.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + e.montoRecibido, 0);
 
       setSaving(true);
       try {
@@ -430,13 +445,13 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
           precioPorLitro: 0,
           montoEfectivo: totalEfectivoEst,
           montoTransferencia: totalTransferenciaEst,
-          detalleEstanquesJson: JSON.stringify(estanquesConvertir.map((e) => ({
+          detalleEstanquesJson: JSON.stringify(estanquesNormalizados.map((e) => ({
             nombre: e.nombre,
-            litros: Number(e.litros) || 0,
-            precioPorLitro: Number(e.precio) || 0,
-            total: (Number(e.litros) || 0) * (Number(e.precio) || 0),
+            litros: e.litros,
+            precioPorLitro: e.precio,
+            total: e.total,
             metodoPago: e.metodoPago,
-            montoRecibido: Number(e.montoRecibido) || 0,
+            montoRecibido: e.montoRecibido,
           }))),
         });
         toast.success("Pedido convertido en entrega");
@@ -703,9 +718,20 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                           </DropdownMenuItem>
                           {canCreate && p.estado !== "entregado" && p.estado !== "cancelado" && (
                             <>
-                              <DropdownMenuItem onClick={() => abrirConvertir(p)}>
-                                <CheckCircle2 className="mr-2 h-4 w-4" /> Convertir en entrega
-                              </DropdownMenuItem>
+                              {/* Solo mostrar "Convertir en entrega" si:
+                                  - El usuario es el chofer preferido del cliente, OR
+                                  - El cliente no tiene chofer preferido (cualquiera puede entregar) */}
+                              {(() => {
+                                const clientePedido = p.clienteId ? clientes.find(c => c.id === p.clienteId) : null;
+                                const choferPrefId = clientePedido?.choferPreferidoId;
+                                const puedeConvertir = !choferPrefId || choferPrefId === currentUserId;
+                                if (!puedeConvertir) return null;
+                                return (
+                                  <DropdownMenuItem onClick={() => abrirConvertir(p)}>
+                                    <CheckCircle2 className="mr-2 h-4 w-4" /> Convertir en entrega
+                                  </DropdownMenuItem>
+                                );
+                              })()}
                               <DropdownMenuItem onClick={() => abrirEditar(p)}>
                                 <Pencil className="mr-2 h-4 w-4" /> Editar
                               </DropdownMenuItem>
@@ -1144,11 +1170,23 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
             <Button variant="outline" onClick={() => setDetalle(null)}>
               Cerrar
             </Button>
-            {canCreate && detalle && detalle.estado !== "entregado" && detalle.estado !== "cancelado" && (
-              <Button onClick={() => { abrirConvertir(detalle); setDetalle(null); }}>
-                <CheckCircle2 className="mr-1 h-4 w-4" /> Convertir en entrega
-              </Button>
-            )}
+            {canCreate && detalle && detalle.estado !== "entregado" && detalle.estado !== "cancelado" && (() => {
+              const clienteDetalle = detalle.clienteId ? clientes.find(c => c.id === detalle.clienteId) : null;
+              const choferPrefId = clienteDetalle?.choferPreferidoId;
+              const puedeConvertir = !choferPrefId || choferPrefId === currentUserId;
+              if (!puedeConvertir) {
+                return (
+                  <Button variant="outline" disabled className="opacity-50">
+                    <CheckCircle2 className="mr-1 h-4 w-4" /> Solo el chofer preferido puede entregar
+                  </Button>
+                );
+              }
+              return (
+                <Button onClick={() => { abrirConvertir(detalle); setDetalle(null); }}>
+                  <CheckCircle2 className="mr-1 h-4 w-4" /> Convertir en entrega
+                </Button>
+              );
+            })()}
           </DialogFooter>
         </DialogContent>
       </Dialog>

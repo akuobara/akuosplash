@@ -39,6 +39,39 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "No se puede entregar un pedido cancelado" }, { status: 400 });
   }
 
+  // Si el cliente tiene chofer preferido, solo ese chofer puede entregar el pedido
+  // (el dueño no puede convertirlo a menos que él mismo sea el chofer preferido)
+  if (pedido.clienteId) {
+    const cliente = await db.cliente.findUnique({
+      where: { id: pedido.clienteId },
+      select: { choferPreferidoId: true, nombre: true },
+    });
+    if (cliente?.choferPreferidoId) {
+      // El chofer preferido puede convertir
+      if (session.role === "chofer" && session.userId !== cliente.choferPreferidoId) {
+        const choferPreferido = await db.usuario.findUnique({
+          where: { id: cliente.choferPreferidoId },
+          select: { nombre: true },
+        });
+        return NextResponse.json(
+          { error: `Este pedido solo puede ser entregado por ${choferPreferido?.nombre ?? "el chofer preferido"} del cliente ${cliente.nombre}.` },
+          { status: 403 }
+        );
+      }
+      // El dueño no puede convertir si hay un chofer preferido (a menos que sea él mismo)
+      if (session.role === "dueno" && session.userId !== cliente.choferPreferidoId) {
+        const choferPreferido = await db.usuario.findUnique({
+          where: { id: cliente.choferPreferidoId },
+          select: { nombre: true },
+        });
+        return NextResponse.json(
+          { error: `Este cliente tiene a ${choferPreferido?.nombre ?? "un chofer preferido"} asignado. Solo ese chofer puede entregar el pedido. Si necesitas entregarlo tú, cambia el chofer preferido del cliente o reasigna el pedido.` },
+          { status: 403 }
+        );
+      }
+    }
+  }
+
   try {
     const body = await req.json().catch(() => ({}));
 
