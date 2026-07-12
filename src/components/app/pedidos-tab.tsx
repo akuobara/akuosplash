@@ -482,14 +482,19 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       onRefresh();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "No se pudo convertir";
-      // Si el error es por falta de vuelta activa, abrir diálogo para iniciar vuelta
+      // Si el error es por falta de vuelta activa, cerrar el diálogo de convertir
+      // y abrir el overlay de vuelta faltante
       if (msg.includes("No hay vuelta activa") || msg.includes("vuelta")) {
         const camionesActivos = (camiones ?? []).filter(c => c.activo);
         if (camionesActivos.length === 0) {
           toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
         } else {
-          // Abrir diálogo de selección de vuelta directamente
-          setVueltaFaltante(convirtiendo);
+          // Guardar referencia al pedido antes de cerrar el diálogo
+          const pedidoAConvertir = convirtiendo;
+          // Cerrar el diálogo de convertir PRIMERO
+          setConvirtiendo(null);
+          // Abrir el overlay de vuelta faltante DESPUÉS (en el próximo render)
+          setTimeout(() => setVueltaFaltante(pedidoAConvertir), 50);
         }
       } else {
         toast.error(msg);
@@ -518,16 +523,15 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       toast.success("Vuelta iniciada");
       onRefresh();
 
-      // 2. Reintentar la conversión automáticamente
+      // 2. Reintentar la conversión automáticamente con los datos del pedido
       await apiPost(`/api/pedidos/${vueltaFaltante.id}/convertir`, {
-        litrosReales: Number(litrosReales) || vueltaFaltante.litrosSolicitados,
+        litrosReales: vueltaFaltante.litrosSolicitados,
         precioPorLitro: Number(precioPorLitro) || undefined,
         montoEfectivo: Number(montoEfectivo) || 0,
         montoTransferencia: Number(montoTransferencia) || 0,
       });
       toast.success("Pedido convertido en entrega");
       setVueltaFaltante(null);
-      setConvirtiendo(null);
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo completar");
