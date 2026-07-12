@@ -307,14 +307,18 @@ export function EntregaForm({
 
   // Helper: aplicar precio según método de pago
   function aplicarPrecioSegunMetodo(metodo: string, cliente: ClienteOption | null) {
+    const precioEfectivo = cliente?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+    const precioTransferencia = cliente?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
     let precio = 0;
     if (metodo === "efectivo") {
-      precio = cliente?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+      precio = precioEfectivo;
     } else if (metodo === "transferencia") {
-      precio = cliente?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
+      precio = precioTransferencia;
     } else {
-      // mixto o crédito: usar precio efectivo como base
-      precio = cliente?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+      // mixto o crédito (sin pago): usar el precio MÁS ALTO como base
+      // — para "sin pago" esto genera la deuda correcta desde el inicio,
+      //   y el usuario puede ajustar el precio al momento de cobrar
+      precio = Math.max(precioEfectivo, precioTransferencia);
     }
     // Siempre setear el precio (incluso si es 0, para que el usuario vea que no hay configurado)
     setPrecioPorLitro(precio > 0 ? String(precio) : "");
@@ -1137,20 +1141,24 @@ export function EntregaForm({
                           onChange={(e) => {
                             const nuevoMetodo = e.target.value;
                             const c = clientes.find(cl => cl.id === clienteId);
+                            const precioEfectivo = c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
+                            const precioTransferencia = c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
                             let nuevoPrecio = est.precio;
                             if (nuevoMetodo === "efectivo") {
-                              nuevoPrecio = String(c?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0);
+                              nuevoPrecio = String(precioEfectivo || 0);
                             } else if (nuevoMetodo === "transferencia") {
-                              nuevoPrecio = String(c?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0);
+                              nuevoPrecio = String(precioTransferencia || 0);
                             } else {
-                              // Sin pago: precio se definirá al cobrar
-                              nuevoPrecio = "";
+                              // Sin pago: usar el precio MÁS ALTO para generar deuda correcta
+                              // El usuario puede ajustar al momento de cobrar
+                              nuevoPrecio = String(Math.max(precioEfectivo, precioTransferencia) || 0);
                             }
                             const totalEstCalc = (Number(est.litros) || 0) * (Number(nuevoPrecio) || 0);
                             setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? {
                               ...est2,
                               metodoPago: nuevoMetodo,
                               precio: nuevoPrecio,
+                              // Sin pago: NO auto-llenar montoRecibido (queda vacío = 0 = deuda)
                               montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
                             } : est2));
                           }}
@@ -1302,8 +1310,10 @@ export function EntregaForm({
                   setMetodoPago("credito");
                   setMontoEfectivo("");
                   setMontoTransferencia("");
-                  // Sin pago = sin método definido. El precio se define al cobrar.
-                  // Dejar el precio que tenía el usuario (no forzar efectivo ni transferencia).
+                  // Sin pago: usar el precio MÁS ALTO para generar deuda correcta
+                  // El usuario puede ajustar el precio al momento de cobrar
+                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  aplicarPrecioSegunMetodo("credito", clienteActual);
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
                   recibidoFinal === 0
@@ -1313,7 +1323,7 @@ export function EntregaForm({
               >
                 <Clock className="h-5 w-5" />
                 <span className="text-sm font-medium">Sin pago</span>
-                <span className="text-xs text-muted-foreground">Pendiente</span>
+                <span className="text-xs text-muted-foreground">Genera deuda</span>
               </button>
             </div>
 
