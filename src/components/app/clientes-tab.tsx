@@ -57,7 +57,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
-import { formatCurrency, formatNumber, formatDate, USOS_AGUA, TIPOS_ESTANQUE, labelUsoAgua, labelTipoEstanque } from "@/lib/helpers";
+import { formatCurrency, formatNumber, formatDate, formatTime, labelMetodoPago, labelEstadoPago, USOS_AGUA, TIPOS_ESTANQUE, labelUsoAgua, labelTipoEstanque } from "@/lib/helpers";
 import { MapPicker } from "./map-picker";
 
 interface Cliente {
@@ -1132,134 +1132,51 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   </DialogDescription>
                 </DialogHeader>
 
-                {/* Resumen rápido */}
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  <div className="rounded-lg bg-muted/30 p-2 text-center">
-                    <p className="text-[10px] uppercase text-muted-foreground">Entregas</p>
-                    <p className="text-lg font-bold">{totalEntregas}</p>
-                  </div>
-                  <div className="rounded-lg bg-muted/30 p-2 text-center">
-                    <p className="text-[10px] uppercase text-muted-foreground">Litros totales</p>
-                    <p className="text-lg font-bold tabular-nums">{formatNumber(totalLitros, 0)}</p>
-                  </div>
-                  <div className="rounded-lg bg-muted/30 p-2 text-center">
-                    <p className="text-[10px] uppercase text-muted-foreground">Total ventas</p>
-                    <p className="text-sm font-bold tabular-nums">{formatCurrency(totalVentas)}</p>
-                  </div>
-                  <div className={`rounded-lg p-2 text-center ${
-                    tieneDeuda ? "bg-red-50 dark:bg-red-900/20"
-                    : tieneSaldoFavor ? "bg-blue-50 dark:bg-blue-900/20"
-                    : "bg-emerald-50 dark:bg-emerald-900/20"
-                  }`}>
-                    <p className="text-[10px] uppercase text-muted-foreground">
-                      {tieneDeuda ? "Deuda" : tieneSaldoFavor ? "Saldo a favor" : "Al día"}
-                    </p>
-                    <p className={`text-sm font-bold tabular-nums ${
-                      tieneDeuda ? "text-red-600 dark:text-red-400"
-                      : tieneSaldoFavor ? "text-blue-600 dark:text-blue-400"
-                      : "text-emerald-600 dark:text-emerald-400"
-                    }`}>
-                      {formatCurrency(Math.abs(totalPorCobrar))}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Última entrega y último pago */}
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <div className="rounded-lg border border-border bg-muted/20 p-3">
-                    <p className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase text-muted-foreground">
-                      <Truck className="h-3 w-3" /> Última entrega
-                    </p>
-                    {ultimaEntrega ? (
-                      <div className="space-y-0.5 text-sm">
-                        <p className="font-medium">{ultimaEntregaFecha}</p>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(ultimaEntrega.litros, 0)} L</span>
-                          <span>Total: <strong className="text-foreground tabular-nums">{formatCurrency(ultimaEntrega.total)}</strong></span>
-                        </div>
-                        <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                          ultimaEntrega.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-                          : ultimaEntrega.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                          : "bg-muted text-muted-foreground"
-                        }`}>
-                          {ultimaEntrega.estadoPago}
-                        </span>
+                {/* Deuda destacada (si existe) */}
+                {tieneDeuda && (
+                  <div className="flex items-center justify-between rounded-lg border border-red-300 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+                    <div className="flex items-center gap-2">
+                      <Banknote className="h-5 w-5 text-red-600 dark:text-red-400" />
+                      <div>
+                        <p className="text-sm font-semibold text-red-900 dark:text-red-200">Deuda pendiente</p>
+                        <p className="text-xs text-red-700 dark:text-red-300">
+                          {totalVentas > 0 ? `${formatCurrency(totalVentas)} en ventas · ` : ""}
+                          {totalRecibido > 0 ? `${formatCurrency(totalRecibido)} recibido · ` : ""}
+                          {totalPagosSueltos > 0 ? `${formatCurrency(totalPagosSueltos)} en pagos sueltos` : ""}
+                        </p>
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Sin entregas</p>
-                    )}
-                  </div>
-
-                  <div className="rounded-lg border border-border bg-muted/20 p-3">
-                    <p className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase text-muted-foreground">
-                      <Banknote className="h-3 w-3" /> Último pago
-                    </p>
-                    {ultimaConPago ? (
-                      <div className="space-y-0.5 text-sm">
-                        <p className="font-medium">{ultimoPagoFecha}</p>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span>Monto: <strong className="text-foreground tabular-nums">{formatCurrency(ultimoPagoMonto)}</strong></span>
-                          <span className="rounded bg-muted px-1.5 py-0.5">{ultimoPagoMetodo}</span>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Sin pagos registrados</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Promedios */}
-                {totalEntregas > 0 && (
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
-                      <p className="text-[10px] uppercase text-muted-foreground">Promedio litros/entrega</p>
-                      <p className="text-lg font-bold tabular-nums text-primary">{formatNumber(promedioLitros, 0)} L</p>
                     </div>
-                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
-                      <p className="text-[10px] uppercase text-muted-foreground">Promedio monto/entrega</p>
-                      <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(promedioMonto)}</p>
+                    <div className="text-right">
+                      <p className="text-xl font-bold tabular-nums text-red-600 dark:text-red-400">
+                        {formatCurrency(totalPorCobrar)}
+                      </p>
+                      <Button
+                        size="sm"
+                        className="mt-1 bg-emerald-600 hover:bg-emerald-700"
+                        onClick={() => {
+                          setPagoOpen(true);
+                          setPagoMonto(String(Math.round(totalPorCobrar)));
+                        }}
+                      >
+                        <Banknote className="mr-1 h-3 w-3" /> Cobrar
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {tieneSaldoFavor && (
+                  <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+                    <Banknote className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900 dark:text-blue-200">Saldo a favor del cliente</p>
+                      <p className="text-lg font-bold tabular-nums text-blue-600 dark:text-blue-400">
+                        {formatCurrency(Math.abs(totalPorCobrar))}
+                      </p>
                     </div>
                   </div>
                 )}
 
-                {/* Botones de acción */}
-                <div className="flex flex-wrap gap-2">
-                  {onAgendarPedido && (
-                    <Button size="sm" onClick={() => { onAgendarPedido(clienteDetalle.id); setClienteDetalle(null); }}>
-                      <ClipboardList className="mr-1 h-4 w-4" /> Agendar pedido
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant={tieneDeuda ? "default" : "outline"}
-                    onClick={() => {
-                      setPagoOpen(true);
-                      if (tieneDeuda) setPagoMonto(String(Math.round(totalPorCobrar)));
-                    }}
-                    className={tieneDeuda ? "bg-emerald-600 hover:bg-emerald-700" : ""}
-                  >
-                    <Banknote className="mr-1 h-4 w-4" /> Registrar pago
-                  </Button>
-                  {!readOnly && (
-                    <Button size="sm" variant="outline" onClick={() => { abrirEditar(clienteDetalle); setClienteDetalle(null); }}>
-                      <Pencil className="mr-1 h-4 w-4" /> Editar ficha
-                    </Button>
-                  )}
-                  {clienteDetalle.lat != null && clienteDetalle.lng != null && (
-                    <a
-                      href={`https://www.google.com/maps?q=${clienteDetalle.lat},${clienteDetalle.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button size="sm" variant="outline">
-                        <Navigation className="mr-1 h-4 w-4" /> Cómo llegar
-                      </Button>
-                    </a>
-                  )}
-                </div>
-
-                {/* Tabs internos */}
-                <div className="flex gap-1 rounded-lg bg-muted/40 p-1">
+                {/* Tabs internos — al inicio para fácil acceso */}
+                <div className="sticky top-0 z-10 flex gap-1 rounded-lg bg-muted/40 p-1">
                   <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-7">
                     Info
                   </Button>
@@ -1396,35 +1313,124 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                         <p className="mt-1 rounded-lg bg-muted/40 p-2 text-xs">{clienteDetalle.nota}</p>
                       </div>
                     )}
+
+                    {/* Resumen de actividad */}
+                    {totalEntregas > 0 && (
+                      <div className="grid grid-cols-2 gap-2 border-t border-border pt-3">
+                        <div className="rounded-lg bg-muted/30 p-2 text-center">
+                          <p className="text-[10px] uppercase text-muted-foreground">Litros totales</p>
+                          <p className="text-lg font-bold tabular-nums">{formatNumber(totalLitros, 0)}</p>
+                        </div>
+                        <div className="rounded-lg bg-muted/30 p-2 text-center">
+                          <p className="text-[10px] uppercase text-muted-foreground">Total ventas</p>
+                          <p className="text-sm font-bold tabular-nums">{formatCurrency(totalVentas)}</p>
+                        </div>
+                        <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
+                          <p className="text-[10px] uppercase text-muted-foreground">Promedio L/entrega</p>
+                          <p className="text-lg font-bold tabular-nums text-primary">{formatNumber(promedioLitros, 0)} L</p>
+                        </div>
+                        <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-center">
+                          <p className="text-[10px] uppercase text-muted-foreground">Promedio $/entrega</p>
+                          <p className="text-sm font-bold tabular-nums text-primary">{formatCurrency(promedioMonto)}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Última entrega */}
+                    {ultimaEntrega && (
+                      <div className="rounded-lg border border-border bg-muted/20 p-3">
+                        <p className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase text-muted-foreground">
+                          <Truck className="h-3 w-3" /> Última entrega
+                        </p>
+                        <div className="space-y-0.5 text-sm">
+                          <p className="font-medium">{ultimaEntregaFecha}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(ultimaEntrega.litros, 0)} L</span>
+                            <span>Total: <strong className="text-foreground tabular-nums">{formatCurrency(ultimaEntrega.total)}</strong></span>
+                          </div>
+                          <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                            ultimaEntrega.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                            : ultimaEntrega.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+                            : "bg-muted text-muted-foreground"
+                          }`}>
+                            {ultimaEntrega.estadoPago}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Botones de acción */}
+                    <div className="flex flex-wrap gap-2 border-t border-border pt-3">
+                      {onAgendarPedido && (
+                        <Button size="sm" onClick={() => { onAgendarPedido(clienteDetalle.id); setClienteDetalle(null); }}>
+                          <ClipboardList className="mr-1 h-4 w-4" /> Agendar pedido
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setPagoOpen(true);
+                          if (!tieneDeuda) setPagoMonto("");
+                        }}
+                      >
+                        <Banknote className="mr-1 h-4 w-4" /> Registrar pago
+                      </Button>
+                      {!readOnly && (
+                        <Button size="sm" variant="outline" onClick={() => { abrirEditar(clienteDetalle); setClienteDetalle(null); }}>
+                          <Pencil className="mr-1 h-4 w-4" /> Editar ficha
+                        </Button>
+                      )}
+                      {clienteDetalle.lat != null && clienteDetalle.lng != null && (
+                        <a
+                          href={`https://www.google.com/maps?q=${clienteDetalle.lat},${clienteDetalle.lng}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button size="sm" variant="outline">
+                            <Navigation className="mr-1 h-4 w-4" /> Cómo llegar
+                          </Button>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 ) : detalleTab === "entregas" ? (
                   detalleEntregas.length === 0 ? (
                     <p className="py-8 text-center text-sm text-muted-foreground">No hay entregas registradas para este cliente.</p>
                   ) : (
-                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
                       {detalleEntregas.map((e: any) => (
                         <div key={e.id} className="rounded-lg border border-border p-3 text-sm">
                           <div className="flex items-center justify-between gap-2">
-                            <div>
+                            <div className="flex items-center gap-2">
                               <span className="font-medium">{formatDate(e.fecha)}</span>
-                              {e.vuelta && <Badge variant="outline" className="ml-2 text-[10px]">Vuelta #{e.vuelta.numero}</Badge>}
+                              <span className="text-xs text-muted-foreground">{formatTime(e.fecha)}</span>
+                              {e.vuelta && <Badge variant="outline" className="text-[10px]">Vuelta #{e.vuelta.numero}</Badge>}
                             </div>
                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                               e.estadoPago === "pagado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
                               : e.estadoPago === "parcial" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
                               : "bg-muted text-muted-foreground"
                             }`}>
-                              {e.estadoPago}
+                              {labelEstadoPago(e.estadoPago)}
                             </span>
                           </div>
-                          <div className="mt-1 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                          <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                             <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(e.litros, 0)} L</span>
+                            <span>·</span>
+                            <span>{labelMetodoPago(e.metodoPago)}</span>
+                            <span>·</span>
                             <span>Total: <strong className="text-foreground tabular-nums">{formatCurrency(e.total)}</strong></span>
-                            <span>Recibido: <strong className="text-foreground tabular-nums">{formatCurrency(e.montoRecibido)}</strong></span>
+                            {e.montoRecibido > 0 && (
+                              <>
+                                <span>·</span>
+                                <span>Recibido: <strong className="text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(e.montoRecibido)}</strong></span>
+                              </>
+                            )}
                           </div>
                           {e.total - e.montoRecibido > 0 && (
                             <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
-                              Saldo: {formatCurrency(e.total - e.montoRecibido)}
+                              Saldo pendiente: {formatCurrency(e.total - e.montoRecibido)}
                             </p>
                           )}
 
@@ -1438,7 +1444,9 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                                 <p className="text-[10px] font-medium text-amber-900 dark:text-amber-200">Detalle por estanque:</p>
                                 {estanques.map((est, i) => (
                                   <div key={i} className="flex items-center justify-between text-[11px]">
-                                    <span className="text-amber-900 dark:text-amber-200">{est.nombre}: {formatNumber(est.litros, 0)} L</span>
+                                    <span className="text-amber-900 dark:text-amber-200">
+                                      {est.nombre}: {formatNumber(est.litros, 0)} L · {labelMetodoPago(est.metodoPago)}
+                                    </span>
                                     <div className="flex items-center gap-2 text-muted-foreground">
                                       <span className="tabular-nums">{formatCurrency(est.total)}</span>
                                       {est.montoRecibido > 0 && <span className="text-emerald-600">✓{formatCurrency(est.montoRecibido)}</span>}
@@ -1458,11 +1466,14 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   detallePedidos.length === 0 ? (
                     <p className="py-8 text-center text-sm text-muted-foreground">No hay pedidos registrados para este cliente.</p>
                   ) : (
-                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto">
                       {detallePedidos.map((p: any) => (
                         <div key={p.id} className="rounded-lg border border-border p-3 text-sm">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="font-medium">{formatDate(p.creadoEn)}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{formatDate(p.creadoEn)}</span>
+                              <span className="text-xs text-muted-foreground">{formatTime(p.creadoEn)}</span>
+                            </div>
                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                               p.estado === "entregado" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
                               : p.estado === "pendiente" ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
@@ -1472,11 +1483,27 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                               {p.estado}
                             </span>
                           </div>
-                          <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                          <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                             <span><Droplets className="mr-0.5 inline h-3 w-3" />{formatNumber(p.litrosSolicitados, 0)} L</span>
-                            {p.fechaSolicitada && <span>📅 {formatDate(p.fechaSolicitada)}</span>}
+                            <span>·</span>
+                            <span>{labelMetodoPago(p.metodoPagoPreferido)}</span>
+                            {p.fechaSolicitada && (
+                              <>
+                                <span>·</span>
+                                <span>Entrega: {formatDate(p.fechaSolicitada)}</span>
+                              </>
+                            )}
                             {p.pedidoRecurrenteId && <Badge variant="outline" className="text-[10px]">Recurrente</Badge>}
                           </div>
+                          {p.entrega && (
+                            <div className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                              ✓ Entregado: {formatNumber(p.entrega.litros, 0)} L · {formatCurrency(p.entrega.total)}
+                              {p.entrega.vuelta && <span> · Vuelta #{p.entrega.vuelta.numero}</span>}
+                            </div>
+                          )}
+                          {p.nota && (
+                            <p className="mt-1 text-xs text-muted-foreground italic">"{p.nota}"</p>
+                          )}
                         </div>
                       ))}
                     </div>

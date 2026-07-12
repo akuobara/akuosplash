@@ -85,7 +85,15 @@ export async function GET(req: NextRequest) {
       choferAsignado: { select: { id: true, nombre: true } },
       tomadoPorChofer: { select: { id: true, nombre: true } },
       prioridadChofer: { select: { id: true, nombre: true } },
-      entrega: { select: { id: true, litros: true, total: true, fecha: true } },
+      entrega: {
+        select: {
+          id: true,
+          litros: true,
+          total: true,
+          fecha: true,
+          vuelta: { select: { id: true, numero: true } },
+        },
+      },
       vuelta: { select: { id: true, numero: true } },
     },
   });
