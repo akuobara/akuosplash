@@ -86,6 +86,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     include: { vuelta: { select: { id: true, numero: true, activa: true } } },
   });
 
+  // Si viene de un pedido (en creación desde PATCH raro, o edición), vincularlo
+  if (body.pedidoId) {
+    try {
+      await db.pedido.update({
+        where: { id: body.pedidoId },
+        data: {
+          estado: "entregado",
+          entregaId: actualizada.id,
+          ...(body.vueltaId !== undefined && { vueltaId: body.vueltaId || null }),
+        },
+      });
+    } catch (e) {
+      console.error("No se pudo vincular el pedido:", e);
+    }
+  }
+
   return NextResponse.json({ entrega: actualizada });
 }
 

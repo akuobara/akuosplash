@@ -121,6 +121,22 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Si viene de un pedido, vincularlo y marcarlo como entregado
+    if (body.pedidoId) {
+      try {
+        await db.pedido.update({
+          where: { id: body.pedidoId },
+          data: {
+            estado: "entregado",
+            entregaId: nueva.id,
+            vueltaId: vueltaId,
+          },
+        });
+      } catch (e) {
+        console.error("No se pudo vincular el pedido:", e);
+      }
+    }
+
     return NextResponse.json({ entrega: nueva }, { status: 201 });
   } catch (err) {
     console.error(err);

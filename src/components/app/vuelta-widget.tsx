@@ -18,11 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle } from "lucide-react";
+import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost } from "@/lib/api-client";
-import { formatNumber, formatTime, esVueltaCompletada, UMBRAL_COMPLETACION_VUELTA } from "@/lib/helpers";
+import { formatNumber, formatTime, formatCurrency, esVueltaCompletada, UMBRAL_COMPLETACION_VUELTA, labelMetodoPago } from "@/lib/helpers";
+import { Label } from "@/components/ui/label";
 import type { VueltaActual } from "./entrega-form";
 
 export interface CamionOption {
@@ -51,6 +51,7 @@ export function VueltaWidget({
   const [confirmarCerrar, setConfirmarCerrar] = useState(false);
   const [confirmarNueva, setConfirmarNueva] = useState(false);
   const [camionSeleccionado, setCamionSeleccionado] = useState<string>("");
+  const [mostrarEntregas, setMostrarEntregas] = useState(false);
 
   const camionesActivos = (camiones ?? []).filter((c) => c.activo);
 
@@ -264,6 +265,105 @@ export function VueltaWidget({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Lista de entregas de la vuelta (expandible) */}
+          {vueltaActual.entregas && vueltaActual.entregas.length > 0 && (
+            <div className="mt-3 border-t border-border pt-3">
+              <button
+                type="button"
+                onClick={() => setMostrarEntregas(!mostrarEntregas)}
+                className="flex w-full items-center justify-between text-sm font-medium hover:text-primary"
+              >
+                <span className="flex items-center gap-1.5">
+                  {mostrarEntregas ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  Ver entregas de esta vuelta ({vueltaActual.entregas.length})
+                </span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {formatNumber(vueltaActual.litros, 0)} L · {formatCurrency(vueltaActual.ventas ?? 0)}
+                </span>
+              </button>
+
+              {mostrarEntregas && (
+                <div className="mt-2 space-y-1.5">
+                  {vueltaActual.entregas.map((e, idx) => (
+                    <div key={e.id} className="rounded-lg border border-border bg-background p-2.5 text-sm">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-muted-foreground">#{idx + 1}</span>
+                            <span className="font-medium truncate">{e.clienteNombre}</span>
+                          </div>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-0.5">
+                              <Droplets className="h-3 w-3" /> {formatNumber(e.litros, 0)} L
+                            </span>
+                            <span>·</span>
+                            <span>{labelMetodoPago(e.metodoPago)}</span>
+                            <span>·</span>
+                            <span className="tabular-nums">{formatCurrency(e.total)}</span>
+                            <span>·</span>
+                            <span className="flex items-center gap-0.5">
+                              <Clock className="h-3 w-3" /> {formatTime(e.fecha)}
+                            </span>
+                          </div>
+                          {(e.montoEfectivo > 0 || e.montoTransferencia > 0) && (
+                            <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs">
+                              {e.montoEfectivo > 0 && (
+                                <span className="text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                  Efect: {formatCurrency(e.montoEfectivo)}
+                                </span>
+                              )}
+                              {e.montoTransferencia > 0 && (
+                                <span className="text-blue-600 dark:text-blue-400 tabular-nums">
+                                  Trans: {formatCurrency(e.montoTransferencia)}
+                                </span>
+                              )}
+                              {e.total - e.montoRecibido > 0 && (
+                                <span className="text-amber-600 dark:text-amber-400 tabular-nums">
+                                  Saldo: {formatCurrency(e.total - e.montoRecibido)}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                          e.montoRecibido >= e.total && e.total > 0
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+                            : e.montoRecibido > 0
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                              : "bg-muted text-muted-foreground"
+                        }`}>
+                          {e.montoRecibido >= e.total && e.total > 0 ? "Pagado" : e.montoRecibido > 0 ? "Parcial" : "Pendiente"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Totales de la vuelta */}
+                  <div className="rounded-lg bg-muted/40 p-2 text-center text-xs">
+                    <div className="grid grid-cols-4 gap-2">
+                      <div>
+                        <p className="text-[10px] uppercase text-muted-foreground">Entregas</p>
+                        <p className="font-bold">{vueltaActual.entregas.length}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase text-muted-foreground">Litros</p>
+                        <p className="font-bold tabular-nums">{formatNumber(vueltaActual.litros, 0)} L</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase text-muted-foreground">Ventas</p>
+                        <p className="font-bold tabular-nums">{formatCurrency(vueltaActual.ventas ?? 0)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase text-muted-foreground">Efectivo</p>
+                        <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(vueltaActual.efectivoRecibido ?? 0)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </CardContent>

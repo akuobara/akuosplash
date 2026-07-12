@@ -69,12 +69,24 @@ export interface VueltaActual {
   capacidadCamion?: number;
   ventas?: number;
   efectivoRecibido?: number;
+  transferenciaRecibida?: number;
   camion?: {
     id: string;
     nombre: string;
     patente: string | null;
     capacidad: number;
   } | null;
+  entregas?: {
+    id: string;
+    litros: number;
+    total: number;
+    montoEfectivo: number;
+    montoTransferencia: number;
+    montoRecibido: number;
+    clienteNombre: string;
+    metodoPago: string;
+    fecha: string;
+  }[];
 }
 
 interface ClienteOption {
@@ -175,6 +187,9 @@ export function EntregaForm({
   const [iniciandoVuelta, setIniciandoVuelta] = useState(false);
   const [camionSeleccionado, setCamionSeleccionado] = useState<string>("");
 
+  // Pedido seleccionado (cuando se entrega desde un pedido pendiente)
+  const [pedidoSeleccionadoId, setPedidoSeleccionadoId] = useState<string | null>(null);
+
   // Reset al abrir / cambia entrega
   useEffect(() => {
     if (!open) return;
@@ -194,6 +209,7 @@ export function EntregaForm({
       setEstadoPago(entrega.estadoPago);
       setFotoUrl(entrega.fotoMedidorUrl);
       setNota(entrega.nota ?? "");
+      setPedidoSeleccionadoId(null);
     } else {
       setClienteId("");
       setClienteNombre("");
@@ -209,6 +225,7 @@ export function EntregaForm({
       setEstadoPago("pendiente");
       setFotoUrl(null);
       setNota("");
+      setPedidoSeleccionadoId(null);
       // Auto-llenar precio según método default (efectivo)
       const precioDefault = config.precioEfectivoPorLitro || 0;
       if (precioDefault > 0) {
@@ -222,6 +239,7 @@ export function EntregaForm({
   // Si el usuario selecciona un cliente del catálogo, autollenar datos y precio
   function onSelectCliente(id: string) {
     setClienteId(id);
+    setPedidoSeleccionadoId(null); // limpiar pedido seleccionado al cambiar cliente manualmente
     if (!id || id === "__manual") {
       aplicarPrecioSegunMetodo(metodoPago, null);
       setClienteDeuda(null);
@@ -424,11 +442,13 @@ export function EntregaForm({
           }))),
         };
         if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
+        if (pedidoSeleccionadoId) payload.pedidoId = pedidoSeleccionadoId;
 
         console.log("[guardarEntrega] guardando con estanques, payload:", {
           litros: totalLitrosEst,
           total: totalVentaEst,
           vueltaId: payload.vueltaId,
+          pedidoId: payload.pedidoId,
           estanquesCount: estanquesConLitros.length,
         });
 
@@ -477,11 +497,13 @@ export function EntregaForm({
         nota: nota.trim() || null,
       };
       if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
+      if (pedidoSeleccionadoId) payload.pedidoId = pedidoSeleccionadoId;
 
       console.log("[guardarEntrega] guardando sin estanques, payload:", {
         litros: litrosFinalLocal,
         total: totalCalculadoLocal,
         vueltaId: payload.vueltaId,
+        pedidoId: payload.pedidoId,
       });
 
       if (isEdit && entrega) {
@@ -661,6 +683,24 @@ export function EntregaForm({
             </div>
           )}
 
+          {/* Aviso de pedido seleccionado */}
+          {pedidoSeleccionadoId && !isEdit && (
+            <div className="flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+              <ClipboardList className="h-4 w-4 shrink-0" />
+              <span>
+                Esta entrega corresponde a un <strong>pedido pendiente</strong>.
+                {" "}Al guardar, el pedido se marcará automáticamente como <strong>entregado</strong>.
+              </span>
+              <button
+                type="button"
+                onClick={() => setPedidoSeleccionadoId(null)}
+                className="ml-auto shrink-0 text-xs text-blue-700 underline hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-100"
+              >
+                Desvincular
+              </button>
+            </div>
+          )}
+
           {/* Pedidos pendientes — PRIMERA OPCIÓN */}
           {pedidosPendientes.length > 0 && (
             <div className="rounded-lg border-2 border-blue-300 bg-blue-50 dark:bg-blue-900/20 p-3 space-y-2">
@@ -674,8 +714,11 @@ export function EntregaForm({
                     key={p.id}
                     type="button"
                     onClick={() => {
+                      setPedidoSeleccionadoId(p.id); // marcar que esta entrega viene de un pedido
                       if (p.clienteId) {
                         onSelectCliente(p.clienteId);
+                        // onSelectCliente limpia pedidoSeleccionadoId, así que lo volvemos a setear
+                        setPedidoSeleccionadoId(p.id);
                       } else {
                         setClienteId("__manual");
                         setClienteNombre(p.clienteNombre);
