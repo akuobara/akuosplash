@@ -231,9 +231,10 @@ export function porcentajeCompletado(
   return (litros / capacidadCamion) * 100;
 }
 
-// Devuelve un rango de fechas para el día/semana/mes actual
-export function getRange(period: "hoy" | "ayer" | "semana" | "mes" | "todo"): { start?: Date; end?: Date } {
+// Devuelve un rango de fechas para el período solicitado
+export function getRange(period: string): { start?: Date; end?: Date } {
   const now = new Date();
+
   if (period === "hoy") {
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
@@ -245,16 +246,45 @@ export function getRange(period: "hoy" | "ayer" | "semana" | "mes" | "todo"): { 
     return { start, end };
   }
   if (period === "semana") {
-    const day = now.getDay() === 0 ? 7 : now.getDay();
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1);
+    // Semana actual: domingo a sábado
+    const dayOfWeek = now.getDay(); // 0=domingo, 1=lunes, ...
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
     const end = new Date(start);
     end.setDate(start.getDate() + 7);
     return { start, end };
   }
+  if (period === "semana7") {
+    // Últimos 7 días
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    return { start, end };
+  }
   if (period === "mes") {
+    // Mes actual: día 1 al último día
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     return { start, end };
   }
+  if (period === "mes_anterior") {
+    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const end = new Date(now.getFullYear(), now.getMonth(), 1);
+    return { start, end };
+  }
+  if (period === "mes3") {
+    // Últimos 3 meses
+    const start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return { start, end };
+  }
+  if (period.startsWith("custom:")) {
+    // Formato: custom:YYYY-MM-DD:YYYY-MM-DD
+    const parts = period.split(":");
+    if (parts.length === 3) {
+      const start = new Date(parts[1] + "T00:00:00");
+      const end = new Date(parts[2] + "T23:59:59");
+      return { start, end };
+    }
+  }
+  // "todo" o desconocido
   return {};
 }

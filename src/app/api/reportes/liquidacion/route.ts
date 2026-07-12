@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const period = (searchParams.get("period") as "hoy" | "semana" | "mes" | "todo") || "mes";
+  const period = searchParams.get("period") || "mes";
   const { start, end } = getRange(period);
 
   const rangeFilter = {

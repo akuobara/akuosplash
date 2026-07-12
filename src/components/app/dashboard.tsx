@@ -43,7 +43,7 @@ import {
 import type { Entrega, VueltaActual } from "./entrega-form";
 import type { Gasto } from "./gasto-form";
 
-type Period = "hoy" | "semana" | "mes" | "todo";
+type Period = string;
 
 interface Resumen {
   period: string;
@@ -106,8 +106,12 @@ interface DashboardProps {
 
 const PERIODS: { value: Period; label: string }[] = [
   { value: "hoy", label: "Hoy" },
-  { value: "semana", label: "Esta semana" },
+  { value: "ayer", label: "Ayer" },
+  { value: "semana", label: "Esta semana (Dom-Sáb)" },
+  { value: "semana7", label: "Últimos 7 días" },
   { value: "mes", label: "Este mes" },
+  { value: "mes_anterior", label: "Mes anterior" },
+  { value: "mes3", label: "Últimos 3 meses" },
   { value: "todo", label: "Todo" },
 ];
 
@@ -128,6 +132,9 @@ export function Dashboard({
   const [recientes, setRecientes] = useState<Entrega[]>([]);
   const [gastosRecientes, setGastosRecientes] = useState<Gasto[]>([]);
   const [vueltaActual, setVueltaActual] = useState<VueltaActual | null>(null);
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
+  const [showCustom, setShowCustom] = useState(false);
 
   const [entregaFormOpen, setEntregaFormOpen] = useState(false);
   const [gastoFormOpen, setGastoFormOpen] = useState(false);
@@ -178,8 +185,8 @@ export function Dashboard({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
-            <SelectTrigger className="w-[150px]">
+          <Select value={period} onValueChange={(v) => { setPeriod(v); setShowCustom(false); }}>
+            <SelectTrigger className="w-[180px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -188,8 +195,26 @@ export function Dashboard({
                   {p.label}
                 </SelectItem>
               ))}
+              <SelectItem value="custom" onClick={() => setShowCustom(true)}>📅 Por fecha...</SelectItem>
             </SelectContent>
           </Select>
+          {showCustom && (
+            <div className="flex items-center gap-1">
+              <Input type="date" value={customStart} onChange={(e) => {
+                setCustomStart(e.target.value);
+                if (e.target.value && customEnd) {
+                  setPeriod(`custom:${e.target.value}:${customEnd}`);
+                }
+              }} className="w-[140px] h-8" />
+              <span className="text-xs text-muted-foreground">→</span>
+              <Input type="date" value={customEnd} onChange={(e) => {
+                setCustomEnd(e.target.value);
+                if (customStart && e.target.value) {
+                  setPeriod(`custom:${customStart}:${e.target.value}`);
+                }
+              }} className="w-[140px] h-8" />
+            </div>
+          )}
           <Button onClick={() => setGastoFormOpen(true)} variant="outline" size="sm">
             <Receipt className="mr-1 h-4 w-4" /> Gasto
           </Button>
