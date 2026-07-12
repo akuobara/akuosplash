@@ -116,6 +116,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         estadoPago,
         fotoMedidorUrl: body.fotoMedidorUrl || null,
         nota: body.nota?.trim() || pedido.nota || null,
+        detalleEstanquesJson: body.detalleEstanquesJson || null,
       },
     });
 
