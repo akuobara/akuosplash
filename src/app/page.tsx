@@ -25,6 +25,7 @@ import {
   User as UserIcon,
   Package,
   Repeat,
+  History,
 } from "lucide-react";
 import { Dashboard } from "@/components/app/dashboard";
 import { EntregasTab } from "@/components/app/entregas-tab";
@@ -35,6 +36,7 @@ import { ConfiguracionTab } from "@/components/app/configuracion-tab";
 import { EquipoTab } from "@/components/app/equipo-tab";
 import { PedidosTab } from "@/components/app/pedidos-tab";
 import { PedidosRecurrentesTab } from "@/components/app/pedidos-recurrentes-tab";
+import { HistorialVueltasTab } from "@/components/app/historial-vueltas-tab";
 import { AuthScreen, type SessionUser } from "@/components/app/auth-screen";
 import { apiGet, apiDelete, clearToken } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -105,7 +107,7 @@ interface VueltaActual {
   } | null;
 }
 
-type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "config" | "equipo";
+type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo";
 
 export default function Home() {
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -296,6 +298,11 @@ export default function Home() {
                 <span className="hidden sm:inline">Recurrentes</span>
               </TabsTrigger>
             )}
+            {/* Historial de vueltas */}
+            <TabsTrigger value="historial" className="flex-1 sm:flex-initial">
+              <History className="mr-1 h-4 w-4" />
+              <span className="hidden sm:inline">Historial</span>
+            </TabsTrigger>
             {/* Equipo y Ajustes: solo dueño */}
             {isDueno && (
               <TabsTrigger value="equipo" className="flex-1 sm:flex-initial">
@@ -396,6 +403,10 @@ export default function Home() {
               />
             </TabsContent>
           )}
+
+          <TabsContent value="historial" className="mt-0">
+            <HistorialVueltasTab refreshKey={refreshKey} onRefresh={refresh} />
+          </TabsContent>
 
           {isDueno && (
             <TabsContent value="equipo" className="mt-0">
