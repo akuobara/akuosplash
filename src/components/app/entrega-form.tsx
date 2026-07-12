@@ -107,6 +107,7 @@ interface EntregaFormProps {
   };
   vueltaActual: VueltaActual | null;
   pedidosPendientes?: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string }[];
+  camiones?: { id: string; nombre: string; activo: boolean }[];
 }
 
 export function EntregaForm({
@@ -118,6 +119,7 @@ export function EntregaForm({
   config,
   vueltaActual,
   pedidosPendientes = [],
+  camiones = [],
 }: EntregaFormProps) {
   const isEdit = !!entrega;
 
@@ -330,6 +332,19 @@ export function EntregaForm({
     }
   }
 
+  // Función auxiliar para recargar la vuelta y reintentar el guardado
+  async function cargarVueltaYGuardar() {
+    try {
+      const data = await apiGet<{ vuelta: VueltaActual | null }>("/api/vueltas/activa");
+      // Actualizar la vueltaActual y esperar al próximo render
+      // Como no podemos setear props directamente, usamos un truco:
+      // recargamos la página del formulario forzando un nuevo intento
+      toast.info("Vuelta iniciada. Presiona 'Registrar entrega' nuevamente.", { duration: 6000 });
+    } catch {
+      toast.error("No se pudo cargar la vuelta activa");
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!clienteNombre.trim()) {
@@ -337,9 +352,40 @@ export function EntregaForm({
       return;
     }
 
-    // Avisar (no bloquear) si no hay vuelta activa
+    // Si no hay vuelta activa, ofrecer iniciar una sin perder los datos
     if (!vueltaActual) {
-      toast.error("No hay vuelta activa. Inicia una vuelta antes de registrar entregas.");
+      // Verificar si hay camiones disponibles
+      if (!camiones || camiones.filter(c => c.activo).length === 0) {
+        toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
+        return;
+      }
+      // Mostrar diálogo de confirmación en vez de perder los datos
+      const camionDisponible = camiones.filter(c => c.activo)[0];
+      toast(
+        "No hay vuelta activa. ¿Quieres iniciar una vuelta ahora?",
+        {
+          duration: 15000,
+          action: {
+            label: "Iniciar vuelta",
+            onClick: async () => {
+              try {
+                await apiPost("/api/vueltas", { camionId: camionDisponible.id });
+                toast.success(`Vuelta iniciada con ${camionDisponible.nombre}`);
+                // Esperar a que se cargue la vuelta y reintentar el guardado
+                setTimeout(() => {
+                  cargarVueltaYGuardar();
+                }, 1000);
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "No se pudo iniciar la vuelta");
+              }
+          },
+          },
+          cancel: {
+            label: "Cancelar",
+            onClick: () => {},
+          },
+        }
+      );
       return;
     }
 

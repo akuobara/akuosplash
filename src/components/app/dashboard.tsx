@@ -477,6 +477,7 @@ export function Dashboard({
         config={config}
         vueltaActual={vueltaActual}
         pedidosPendientes={pedidosPendientes}
+        camiones={camiones}
       />
       <GastoForm open={gastoFormOpen} onOpenChange={setGastoFormOpen} onSaved={onRefresh} />
     </div>
