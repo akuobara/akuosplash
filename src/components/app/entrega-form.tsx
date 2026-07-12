@@ -502,20 +502,44 @@ export function EntregaForm({
 
           {/* Cliente */}
           <div className="space-y-2">
-            <Label htmlFor="clienteSelect">Cliente del catálogo (opcional)</Label>
+            <Label htmlFor="clienteSelect">Cliente del catálogo (opcional) · v2</Label>
             <select
               id="clienteSelect"
               value={clienteId || "__manual"}
-              onChange={(e) => onSelectCliente(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                toast.success("Seleccionaste: " + (val === "__manual" ? "manual" : val));
+                onSelectCliente(val);
+              }}
               className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
             >
               <option value="__manual">— Ingreso manual —</option>
               {clientes.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.nombre}{c.zona ? ` · ${c.zona}` : ""}
+                  {c.nombre}{c.zona ? ` · ${c.zona}` : ""}{c.estanquesJson ? " 🔄" : ""}
                 </option>
               ))}
             </select>
+
+            {/* Debug visible */}
+            {clienteId && clienteId !== "__manual" && (
+              <p className="text-[10px] text-muted-foreground bg-muted/30 rounded p-1">
+                ID: {clienteId} | Estanques cargados: {estanquesEntrega.length} | Modo: {modoEstanques ? "ON" : "OFF"} | JSON: {clientes.find(c => c.id === clienteId)?.estanquesJson ? "SÍ" : "NO"}
+              </p>
+            )}
+
+            {/* Botón manual para activar estanques */}
+            {clienteId && clienteId !== "__manual" && estanquesEntrega.length > 0 && !modoEstanques && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setModoEstanques(true)}
+                className="w-full border-amber-400 text-amber-800"
+              >
+                💧 Entregar por estanque ({estanquesEntrega.length} estanque(s))
+              </Button>
+            )}
 
             {/* Panel de info de acceso del cliente seleccionado */}
             {clienteId && clienteId !== "__manual" && (() => {
