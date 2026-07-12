@@ -311,10 +311,12 @@ export function EntregaForm({
         metodoPago: "credito",
         montoRecibido: "",
       })));
-      setModoEstanques(independientes.length > 0);
+      // NO forzar modoEstanques automáticamente — el usuario elige si quiere
+      // facturación por estanque o entrega simple (por litros o por precio)
+      setModoEstanques(false);
       if (independientes.length > 0) {
         toast.info(
-          `Cliente tiene ${estanquesCliente.length} estanque(s), ${independientes.length} con facturación independiente. Modo estanques activado.`,
+          `Cliente tiene ${estanquesCliente.length} estanque(s), ${independientes.length} con facturación independiente. Puedes activar "Entregar por estanque" si quieres cobro separado.`,
           { duration: 6000 }
         );
       }
