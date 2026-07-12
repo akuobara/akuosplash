@@ -163,6 +163,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [detalle, setDetalle] = useState<Pedido | null>(null);
   const [borrando, setBorrando] = useState<Pedido | null>(null);
   const [convirtiendo, setConvirtiendo] = useState<Pedido | null>(null);
+  const [soltandoPedido, setSoltandoPedido] = useState<Pedido | null>(null);
+  const [soltarPedidoReemplazo, setSoltarPedidoReemplazo] = useState("");
 
   // Campos del formulario
   const [clienteId, setClienteId] = useState<string>("__nuevo");
@@ -524,14 +526,27 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     }
   }
 
-  async function soltarPedido(p: Pedido) {
+  async function soltarPedido(p: Pedido, reemplazoChoferId?: string) {
     try {
-      await apiPost(`/api/pedidos/${p.id}/soltar`, {});
-      toast.success("Pedido soltado — ya no está asignado a ti");
+      const res = await apiPost<{ ok: boolean; reemplazo: boolean; publicado: boolean }>(`/api/pedidos/${p.id}/soltar`, {
+        reemplazoChoferId: reemplazoChoferId || null,
+      });
+      if (res.reemplazo) {
+        toast.success("Pedido reasignado al chofer de reemplazo");
+      } else {
+        toast.success("Pedido soltado — publicado al pool para que cualquier chofer lo tome");
+      }
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo soltar el pedido");
     }
+  }
+
+  // Verificar si el chofer actual es el preferido del cliente del pedido
+  function esChoferPreferidoDelPedido(p: Pedido): boolean {
+    if (!p.clienteId) return false;
+    const cliente = clientes.find(c => c.id === p.clienteId);
+    return cliente?.choferPreferidoId === currentUserId;
   }
 
   return (
@@ -774,7 +789,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 p.choferAsignado?.id === currentUserId ||
                                 (p.prioridadChofer?.id === currentUserId)
                               ) && (
-                                <DropdownMenuItem onClick={() => soltarPedido(p)} className="text-amber-600 focus:text-amber-600">
+                                <DropdownMenuItem onClick={() => setSoltandoPedido(p)} className="text-amber-600 focus:text-amber-600">
                                   <Hand className="mr-2 h-4 w-4" /> Soltar pedido
                                 </DropdownMenuItem>
                               )}
@@ -1208,6 +1223,69 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 </Button>
               );
             })()}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal soltar pedido */}
+      <Dialog open={!!soltandoPedido} onOpenChange={(o) => {
+        if (!o) {
+          setSoltandoPedido(null);
+          setSoltarPedidoReemplazo("");
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Soltar pedido de {soltandoPedido?.clienteNombre}</DialogTitle>
+            <DialogDescription>
+              {soltandoPedido && esChoferPreferidoDelPedido(soltandoPedido)
+                ? "Eres el chofer preferido de este cliente. Puedes elegir un reemplazo o soltar el pedido al pool."
+                : "No eres el chofer preferido de este cliente. Al soltar, el pedido irá al pool para que el dueño lo reasigne."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            {soltandoPedido && esChoferPreferidoDelPedido(soltandoPedido) && (
+              <div className="space-y-2">
+                <Label className="text-xs">Chofer de reemplazo (opcional)</Label>
+                <select
+                  value={soltarPedidoReemplazo || "__ninguno"}
+                  onChange={(e) => setSoltarPedidoReemplazo(e.target.value === "__ninguno" ? "" : e.target.value)}
+                  className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="__ninguno">— Sin reemplazo (al pool) —</option>
+                  {choferes.filter(c => c.id !== currentUserId).map((c) => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Con reemplazo: el pedido se asigna al nuevo chofer. Sin reemplazo: va al pool visible para todos.
+                </p>
+              </div>
+            )}
+            {soltandoPedido && !esChoferPreferidoDelPedido(soltandoPedido) && (
+              <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/20">
+                <p className="text-amber-900 dark:text-amber-200">
+                  El pedido se publicará al pool. El dueño podrá reasignarlo a otro chofer o cualquier chofer de la flota podrá tomarlo.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setSoltandoPedido(null); setSoltarPedidoReemplazo(""); }}>
+              Cancelar
+            </Button>
+            <Button
+              className="bg-amber-600 hover:bg-amber-700"
+              onClick={() => {
+                if (soltandoPedido) {
+                  soltarPedido(soltandoPedido, soltarPedidoReemplazo || undefined);
+                  setSoltandoPedido(null);
+                  setSoltarPedidoReemplazo("");
+                }
+              }}
+            >
+              <Hand className="mr-1 h-4 w-4" /> Soltar pedido
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -46,6 +46,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!reemplazo || reemplazo.role !== "chofer" || !reemplazo.activo) {
       return NextResponse.json({ error: "El chofer de reemplazo debe ser un chofer activo" }, { status: 400 });
     }
+    // Si es un chofer llamando para sí mismo, solo puede reasignar pedidos donde es el preferido.
+    // Los pedidos asignados por el dueño (no por preferencia) van al pool, no al reemplazo.
+    if (session.role === "chofer" && id === session.userId) {
+      // Verificar que el chofer es preferido de al menos un cliente (si no, el reemplazo no aplica)
+      const clientesPreferidos = await db.cliente.count({
+        where: { choferPreferidoId: id },
+      });
+      if (clientesPreferidos === 0) {
+        return NextResponse.json(
+          { error: "No eres el chofer preferido de ningún cliente. No puedes elegir un reemplazo. Los pedidos irán al pool para que el dueño los reasigne." },
+          { status: 403 }
+        );
+      }
+    }
   }
 
   // Construir filtro de pedidos
