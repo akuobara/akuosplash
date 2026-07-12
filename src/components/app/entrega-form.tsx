@@ -400,8 +400,22 @@ export function EntregaForm({
     }
   }
 
+  // Si estamos en modo estanques, sumar litros y total de los estanques
+  let litrosEstanquesTotal = 0;
+  let totalEstanquesRaw = 0;
+  if (modoEstanques && estanquesEntrega.length > 0) {
+    for (const est of estanquesEntrega) {
+      const litrosEst = Number(est.litros) || 0;
+      const precioEst = Number(est.precio) || 0;
+      litrosEstanquesTotal += litrosEst;
+      totalEstanquesRaw += litrosEst * precioEst;
+    }
+    // En modo estanques, usar los totales de estanques para el resumen
+    litrosFinal = litrosEstanquesTotal;
+  }
+
   // Total calculado con redondeo a $100 superior
-  let totalCalculado = litrosFinal * precioFinal;
+  let totalCalculado = modoEstanques ? totalEstanquesRaw : litrosFinal * precioFinal;
   if (totalCalculado > 0) {
     totalCalculado = Math.ceil(totalCalculado / 100) * 100;
   }
@@ -1100,8 +1114,8 @@ export function EntregaForm({
             </div>
           </div>
 
-          {/* Toggle: Por litros / Por precio */}
-          {!modoEstanques && (
+          {/* Toggle: Por litros / Por precio — siempre visible */}
+          {(
             <div className="flex gap-1 rounded-lg bg-muted/40 p-1">
               <Button
                 type="button"
@@ -1124,8 +1138,8 @@ export function EntregaForm({
             </div>
           )}
 
-          {/* Lecturas del medidor / Modo precio */}
-          {!modoEstanques && modoIngreso === "por_litros" && (
+          {/* Lecturas del medidor / Modo precio — siempre visible */}
+          {modoIngreso === "por_litros" && (
           <div className="rounded-lg border border-border bg-muted/30 p-3">
             <p className="mb-2 text-sm font-medium">Lecturas del medidor</p>
             <div className="grid gap-3 sm:grid-cols-3">
@@ -1189,8 +1203,8 @@ export function EntregaForm({
           </div>
           )}
 
-          {/* Modo precio: ingresar monto total */}
-          {!modoEstanques && modoIngreso === "por_precio" && (
+          {/* Modo precio: ingresar monto total — siempre visible */}
+          {modoIngreso === "por_precio" && (
             <div className="rounded-lg border border-blue-300 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
               <Label htmlFor="precioTotal" className="text-sm font-medium text-blue-900 dark:text-blue-200">
                 ¿Cuántos pesos de agua quiere el cliente?
@@ -1232,8 +1246,8 @@ export function EntregaForm({
             </p>
           </div>
 
-          {/* Descuento */}
-          {!modoEstanques && (
+          {/* Descuento — siempre visible */}
+          {(
             <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">Descuento</Label>
