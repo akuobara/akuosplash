@@ -170,6 +170,15 @@ export function EntregaForm({
   const [precioPorLitro, setPrecioPorLitro] = useState<string>("");
   const [metodoPago, setMetodoPago] = useState<string>("credito");
 
+  // Modo de ingreso: por litros o por precio
+  const [modoIngreso, setModoIngreso] = useState<"por_litros" | "por_precio">("por_litros");
+  const [precioTotalInput, setPrecioTotalInput] = useState<string>("");
+
+  // Descuento
+  const [descuentoTipo, setDescuentoTipo] = useState<string>("ninguno"); // ninguno | total | por_litro
+  const [descuentoMonto, setDescuentoMonto] = useState<string>(""); // monto del descuento
+  const [descuentoPorLitroInput, setDescuentoPorLitroInput] = useState<string>(""); // descuento por litro
+
   const [montoEfectivo, setMontoEfectivo] = useState<string>("");
   const [montoTransferencia, setMontoTransferencia] = useState<string>("");
   const [estadoPago, setEstadoPago] = useState<string>("pendiente");
@@ -375,24 +384,48 @@ export function EntregaForm({
       ? Number(lecturaActual) - Number(lecturaAnterior)
       : null;
 
-  const litrosFinal = litrosManual !== "" ? Number(litrosManual) : litrosCalculado ?? 0;
+  // === Cálculos con redondeo y descuento ===
+  let litrosFinal = litrosManual !== "" ? Number(litrosManual) : litrosCalculado ?? 0;
   const precioFinal = Number(precioPorLitro) || 0;
-  const totalCalculado = litrosFinal * precioFinal;
+
+  // Modo "por precio": calcular litros desde el precio total
+  if (modoIngreso === "por_precio" && precioTotalInput) {
+    const precioTotal = Number(precioTotalInput) || 0;
+    if (precioFinal > 0) {
+      litrosFinal = Math.round(precioTotal / precioFinal);
+    }
+  }
+
+  // Total calculado con redondeo a $100 superior
+  let totalCalculado = litrosFinal * precioFinal;
+  if (totalCalculado > 0) {
+    totalCalculado = Math.ceil(totalCalculado / 100) * 100;
+  }
+
+  // Descuento
+  let descuentoMontoFinal = 0;
+  if (descuentoTipo === "total") {
+    descuentoMontoFinal = Number(descuentoMonto) || 0;
+  } else if (descuentoTipo === "por_litro") {
+    descuentoMontoFinal = (Number(descuentoPorLitroInput) || 0) * litrosFinal;
+  }
+  const totalConDescuento = Math.max(0, totalCalculado - descuentoMontoFinal);
+
   const efectivoFinal = Number(montoEfectivo) || 0;
   const transferenciaFinal = Number(montoTransferencia) || 0;
   const recibidoFinal = efectivoFinal + transferenciaFinal;
-  const saldoFinal = totalCalculado - recibidoFinal;
+  const saldoFinal = totalConDescuento - recibidoFinal;
 
   // Auto-actualizar estadoPago según monto recibido (SIEMPRE automático, no manual)
   useEffect(() => {
     if (recibidoFinal === 0) {
       setEstadoPago("pendiente");
-    } else if (recibidoFinal >= totalCalculado && totalCalculado > 0) {
+    } else if (recibidoFinal >= totalConDescuento && totalConDescuento > 0) {
       setEstadoPago("pagado");
     } else {
       setEstadoPago("parcial");
     }
-  }, [recibidoFinal, totalCalculado]);
+  }, [recibidoFinal, totalConDescuento]);
 
   async function handleFoto(file: File) {
     setSubiendoFoto(true);
@@ -525,13 +558,22 @@ export function EntregaForm({
         litros: litrosFinalLocal,
         metodoPago,
         precioPorLitro: precioFinalLocal,
-        total: totalCalculadoLocal,
+        total: totalConDescuento,
         montoEfectivo: efectivoFinalLocal,
         montoTransferencia: transferenciaFinalLocal,
         estadoPago,
+        descuentoTipo,
+        descuento: descuentoTipo === "total" ? (Number(descuentoMonto) || 0) : 0,
+        descuentoPorLitro: descuentoTipo === "por_litro" ? (Number(descuentoPorLitroInput) || 0) : 0,
+        descuentoPor: "chofer", // el que entrega asume el descuento (el backend puede sobrescribir si es dueño)
         fotoMedidorUrl: fotoUrl,
         nota: nota.trim() || null,
       };
+      // Modo precio: enviar flag para que el backend calcule litros
+      if (modoIngreso === "por_precio" && precioTotalInput) {
+        payload.modoPrecio = "por_precio";
+        payload.precioTotal = Number(precioTotalInput) || 0;
+      }
       if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
       if (pedidoSeleccionadoId) payload.pedidoId = pedidoSeleccionadoId;
 
@@ -1053,7 +1095,32 @@ export function EntregaForm({
             </div>
           </div>
 
-          {/* Lecturas del medidor */}
+          {/* Toggle: Por litros / Por precio */}
+          {!modoEstanques && (
+            <div className="flex gap-1 rounded-lg bg-muted/40 p-1">
+              <Button
+                type="button"
+                size="sm"
+                variant={modoIngreso === "por_litros" ? "default" : "ghost"}
+                onClick={() => setModoIngreso("por_litros")}
+                className="h-7 flex-1"
+              >
+                Por litros
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={modoIngreso === "por_precio" ? "default" : "ghost"}
+                onClick={() => setModoIngreso("por_precio")}
+                className="h-7 flex-1"
+              >
+                Por precio ($)
+              </Button>
+            </div>
+          )}
+
+          {/* Lecturas del medidor / Modo precio */}
+          {!modoEstanques && modoIngreso === "por_litros" && (
           <div className="rounded-lg border border-border bg-muted/30 p-3">
             <p className="mb-2 text-sm font-medium">Lecturas del medidor</p>
             <div className="grid gap-3 sm:grid-cols-3">
@@ -1115,6 +1182,33 @@ export function EntregaForm({
               </p>
             )}
           </div>
+          )}
+
+          {/* Modo precio: ingresar monto total */}
+          {!modoEstanques && modoIngreso === "por_precio" && (
+            <div className="rounded-lg border border-blue-300 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
+              <Label htmlFor="precioTotal" className="text-sm font-medium text-blue-900 dark:text-blue-200">
+                ¿Cuántos pesos de agua quiere el cliente?
+              </Label>
+              <Input
+                id="precioTotal"
+                type="number"
+                inputMode="decimal"
+                step="any"
+                value={precioTotalInput}
+                onChange={(e) => setPrecioTotalInput(e.target.value)}
+                placeholder="Ej. 10000"
+                className="mt-1"
+              />
+              {precioTotalInput && precioFinal > 0 && (
+                <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
+                  Se entregarán <strong>{formatNumber(Math.round((Number(precioTotalInput) || 0) / precioFinal), 0)} L</strong>
+                  {" "}(a {formatCurrency(precioFinal)}/L)
+                  {metodoPago === "credito" && " · Se asume transferencia si no especifica pago"}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Precio por litro */}
           <div className="space-y-2">
@@ -1133,6 +1227,65 @@ export function EntregaForm({
             </p>
           </div>
 
+          {/* Descuento */}
+          {!modoEstanques && (
+            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Descuento</Label>
+                <select
+                  value={descuentoTipo}
+                  onChange={(e) => {
+                    setDescuentoTipo(e.target.value);
+                    setDescuentoMonto("");
+                    setDescuentoPorLitroInput("");
+                  }}
+                  className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                >
+                  <option value="ninguno">Sin descuento</option>
+                  <option value="total">Descuento sobre el total</option>
+                  <option value="por_litro">Descuento por litro</option>
+                </select>
+              </div>
+              {descuentoTipo === "total" && (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    value={descuentoMonto}
+                    onChange={(e) => setDescuentoMonto(e.target.value)}
+                    placeholder="Ej. 1200 (para redondear de 21200 a 20000)"
+                    className="h-8 text-sm"
+                  />
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    → {formatCurrency(Math.max(0, totalCalculado - (Number(descuentoMonto) || 0)))}
+                  </span>
+                </div>
+              )}
+              {descuentoTipo === "por_litro" && (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    value={descuentoPorLitroInput}
+                    onChange={(e) => setDescuentoPorLitroInput(e.target.value)}
+                    placeholder="Ej. 1 (bajar de 8 a 7 por litro)"
+                    className="h-8 text-sm w-32"
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {litrosFinal > 0 && `→ ${formatCurrency((Number(descuentoPorLitroInput) || 0) * litrosFinal)} off`}
+                  </span>
+                </div>
+              )}
+              {descuentoTipo !== "ninguno" && (
+                <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                  El descuento se descontará de tu pago en liquidación (si eres chofer) o de la utilidad (si eres dueño).
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Resumen de cálculo — siempre visible y automático */}
           <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3">
             <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase text-muted-foreground">
@@ -1148,24 +1301,30 @@ export function EntregaForm({
                 <p className="text-lg font-bold tabular-nums">{formatCurrency(precioFinal)}</p>
               </div>
               <div>
-                <span className="text-xs uppercase text-muted-foreground">Total</span>
-                <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(totalCalculado)}</p>
+                <span className="text-xs uppercase text-muted-foreground">Subtotal</span>
+                <p className="text-base font-bold tabular-nums text-muted-foreground">{formatCurrency(totalCalculado)}</p>
+                {descuentoMontoFinal > 0 && (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                    −{formatCurrency(descuentoMontoFinal)} desc.
+                  </p>
+                )}
               </div>
               <div>
-                <span className="text-xs uppercase text-muted-foreground">Saldo</span>
-                <p className={`text-lg font-bold tabular-nums ${saldoFinal > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}`}>
-                  {formatCurrency(saldoFinal)}
-                </p>
+                <span className="text-xs uppercase text-muted-foreground">Total final</span>
+                <p className="text-lg font-bold tabular-nums text-primary">{formatCurrency(totalConDescuento)}</p>
+                {saldoFinal > 0 && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400">Saldo: {formatCurrency(saldoFinal)}</p>
+                )}
               </div>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
               Recibido: <strong>{formatCurrency(recibidoFinal)}</strong> (efectivo + transferencia)
             </p>
             {/* Si hay deuda anterior y el cliente paga más del total */}
-            {clienteDeuda != null && clienteDeuda > 0 && recibidoFinal > totalCalculado && totalCalculado > 0 && (
+            {clienteDeuda != null && clienteDeuda > 0 && recibidoFinal > totalConDescuento && totalConDescuento > 0 && (
               <div className="mt-1 rounded bg-red-50 dark:bg-red-900/20 p-2 text-xs text-red-800 dark:text-red-300">
-                <p>Excedente para deuda anterior: <strong>{formatCurrency(recibidoFinal - totalCalculado)}</strong></p>
-                <p>Deuda total después de este pago: <strong>{formatCurrency(Math.max(0, clienteDeuda - (recibidoFinal - totalCalculado)))}</strong></p>
+                <p>Excedente para deuda anterior: <strong>{formatCurrency(recibidoFinal - totalConDescuento)}</strong></p>
+                <p>Deuda total después de este pago: <strong>{formatCurrency(Math.max(0, clienteDeuda - (recibidoFinal - totalConDescuento)))}</strong></p>
               </div>
             )}
             {/* Si el cliente tiene saldo a favor */}
@@ -1400,7 +1559,7 @@ export function EntregaForm({
                   aplicarPrecioSegunMetodo("efectivo", clienteActual);
                   // Si no hay efectivo ingresado, auto-llenar con el total
                   if (!montoEfectivo) {
-                    setMontoEfectivo(String(Math.round(totalCalculado)));
+                    setMontoEfectivo(String(Math.round(totalConDescuento)));
                   }
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
@@ -1427,7 +1586,7 @@ export function EntregaForm({
                   aplicarPrecioSegunMetodo("transferencia", clienteActual);
                   // Si no hay transferencia ingresada, auto-llenar con el total
                   if (!montoTransferencia) {
-                    setMontoTransferencia(String(Math.round(totalCalculado)));
+                    setMontoTransferencia(String(Math.round(totalConDescuento)));
                   }
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${

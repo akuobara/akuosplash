@@ -281,6 +281,11 @@ model Entrega {
 
   estadoPago        String   @default("pendiente")
 
+  // Descuento aplicado a esta entrega
+  descuento         Float    @default(0)   // monto del descuento en pesos
+  descuentoTipo     String   @default("ninguno")  // ninguno | total | por_litro
+  descuentoPor      String   @default("dueno")  // quien asume el costo: dueno | chofer
+
   // Desglose por estanque (cuando el cliente tiene facturación independiente por estanque)
   // JSON: [{ nombre, litros, precioPorLitro, total, metodoPago, montoRecibido }]
   detalleEstanquesJson String?

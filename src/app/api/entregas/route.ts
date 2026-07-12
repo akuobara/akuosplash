@@ -59,11 +59,44 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const litros = Number(body.litros) || 0;
-    const precioPorLitro = Number(body.precioPorLitro) || 0;
-    const total = Number(body.total) || litros * precioPorLitro;
+    // === MODO "POR PRECIO": si el usuario ingresa montoTotal en vez de litros ===
+    // Calcular litros desde el total + precioPorLitro
+    let litros = Number(body.litros) || 0;
+    let precioPorLitro = Number(body.precioPorLitro) || 0;
 
-    const metodoPago = body.metodoPago || "efectivo";
+    if (body.modoPrecio === "por_precio" && body.precioTotal) {
+      const precioTotal = Number(body.precioTotal) || 0;
+      if (precioPorLitro > 0) {
+        litros = Math.round(precioTotal / precioPorLitro);
+      }
+    }
+
+    // === CÁLCULO DE TOTAL ===
+    let totalCalculado = litros * precioPorLitro;
+
+    // Redondear a $100 superior (ej: 17448 → 17500)
+    if (totalCalculado > 0) {
+      totalCalculado = Math.ceil(totalCalculado / 100) * 100;
+    }
+
+    // === DESCUENTO ===
+    const descuentoTipo = body.descuentoTipo || "ninguno"; // ninguno | total | por_litro
+    const descuentoPor = body.descuentoPor || (session.role === "chofer" ? "chofer" : "dueno"); // dueno | chofer
+    let descuento = 0;
+
+    if (descuentoTipo === "total") {
+      // Descuento sobre el total (ej: redondear de 21200 a 20000 → descuento 1200)
+      descuento = Number(body.descuento) || 0;
+    } else if (descuentoTipo === "por_litro") {
+      // Descuento por litro (ej: 8$/L - 1$/L descuento = 7$/L)
+      const descuentoPorLitro = Number(body.descuentoPorLitro) || 0;
+      descuento = descuentoPorLitro * litros;
+    }
+
+    // Aplicar descuento al total
+    const total = Math.max(0, totalCalculado - descuento);
+
+    const metodoPago = body.metodoPago || "credito";
     const montoEfectivo = Number(body.montoEfectivo) || 0;
     const montoTransferencia = Number(body.montoTransferencia) || 0;
     const montoRecibido = montoEfectivo + montoTransferencia;
@@ -130,6 +163,9 @@ export async function POST(req: NextRequest) {
           montoTransferencia,
           montoRecibido,
           estadoPago,
+          descuento,
+          descuentoTipo,
+          descuentoPor,
           fotoMedidorUrl: body.fotoMedidorUrl || null,
           nota: body.nota?.trim() || null,
           detalleEstanquesJson: body.detalleEstanquesJson || null,

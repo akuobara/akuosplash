@@ -68,6 +68,15 @@ export async function GET(req: NextRequest) {
   const totalGastos = gastos.reduce((s, g) => s + g.monto, 0);
   const gastosChofer = gastos.filter((g) => g.pagadoPor === "chofer").reduce((s, g) => s + g.monto, 0);
   const gastosDueno = gastos.filter((g) => g.pagadoPor === "dueno").reduce((s, g) => s + g.monto, 0);
+
+  // Descuentos: separar por quién asume el costo
+  const descuentosChofer = entregas
+    .filter((e) => e.descuentoPor === "chofer")
+    .reduce((s, e) => s + (e.descuento || 0), 0);
+  const descuentosDueno = entregas
+    .filter((e) => e.descuentoPor === "dueno")
+    .reduce((s, e) => s + (e.descuento || 0), 0);
+
   const utilidadBruta = totalVentas - totalGastos;
 
   let pagoChofer = 0;
@@ -115,7 +124,8 @@ export async function GET(req: NextRequest) {
   const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (baseImponiblePositiva * cfg.porcentajeImpuesto) / 100;
   // El pago al chofer no puede ser negativo
   const pagoChoferPositivo = Math.max(0, pagoChofer);
-  const liquidoChoferAntesDeEfectivo = pagoChoferPositivo + gastosChofer - impuesto;
+  // El líquido del chofer descuenta los descuentos que él asumió
+  const liquidoChoferAntesDeEfectivo = pagoChoferPositivo + gastosChofer - impuesto - descuentosChofer;
   const saldoChofer = liquidoChoferAntesDeEfectivo - totalEfectivoRecibido;
 
   const gastosPorTipo: Record<string, number> = {};
@@ -139,6 +149,7 @@ export async function GET(req: NextRequest) {
     resumen: {
       totalVentas, totalEfectivoRecibido, totalTransferenciaRecibida, totalRecibido,
       totalPorCobrar, totalGastos, gastosChofer, gastosDueno, utilidadBruta,
+      descuentosChofer, descuentosDueno,
       pagoChofer, pagoDueno, baseImponible, impuesto, liquidoChoferAntesDeEfectivo,
       saldoChofer,
       cantidadVueltas: vueltas.length,
