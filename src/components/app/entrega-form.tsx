@@ -721,11 +721,24 @@ export function EntregaForm({
           {/* Pedidos pendientes — PRIMERA OPCIÓN */}
           {pedidosPendientes.length > 0 && (
             <div className="rounded-lg border-2 border-blue-300 bg-blue-50 dark:bg-blue-900/20 p-3 space-y-2">
-              <p className="flex items-center gap-1.5 text-sm font-medium text-blue-900 dark:text-blue-200">
-                <ClipboardList className="h-4 w-4" /> Pedidos pendientes — clic para entregar
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="flex items-center gap-1.5 text-sm font-medium text-blue-900 dark:text-blue-200">
+                  <ClipboardList className="h-4 w-4" /> Pedidos pendientes — clic para entregar
+                </p>
+                {vueltaActual && vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
+                  <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
+                    Agua disponible: {formatNumber(Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros), 0)} L
+                  </span>
+                )}
+              </div>
               {pedidosPendientes.map((p) => {
                 const clientePedido = p.clienteId ? clientes.find(c => c.id === p.clienteId) : null;
+                // Calcular agua disponible en la vuelta activa
+                const capacidadVuelta = vueltaActual?.capacidadCamion ?? 0;
+                const litrosEntregadosVuelta = vueltaActual?.litros ?? 0;
+                const aguaDisponible = Math.max(0, capacidadVuelta - litrosEntregadosVuelta);
+                const excedeAgua = capacidadVuelta > 0 && p.litrosSolicitados > aguaDisponible;
+                const litrosFaltantes = excedeAgua ? p.litrosSolicitados - aguaDisponible : 0;
                 return (
                   <button
                     key={p.id}
@@ -741,20 +754,42 @@ export function EntregaForm({
                       }
                       setLitrosManual(String(p.litrosSolicitados));
                       setMetodoPago(p.metodoPagoPreferido);
+                      // Aviso inmediato si no hay suficiente agua
+                      if (excedeAgua) {
+                        toast.warning(
+                          `Este pedido pide ${formatNumber(p.litrosSolicitados, 0)} L pero solo quedan ${formatNumber(aguaDisponible, 0)} L en la vuelta #${vueltaActual?.numero}. ` +
+                          `Faltan ${formatNumber(litrosFaltantes, 0)} L. ` +
+                          `Puedes entregar lo que queda y cerrar la vuelta, o cerrar la vuelta y empezar una nueva.`,
+                          { duration: 10000 }
+                        );
+                      }
                     }}
-                    className="flex w-full items-center justify-between rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-background p-3 text-left hover:bg-blue-100 dark:hover:bg-blue-900/30 transition"
+                    className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition ${
+                      excedeAgua
+                        ? "border-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                        : "border-blue-200 dark:border-blue-800 bg-white dark:bg-background hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                    }`}
                   >
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-sm">{p.clienteNombre}</p>
-                      <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="font-semibold text-blue-700 dark:text-blue-300">{formatNumber(p.litrosSolicitados, 0)} L</span>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span className={`font-semibold ${excedeAgua ? "text-amber-700 dark:text-amber-300" : "text-blue-700 dark:text-blue-300"}`}>
+                          {formatNumber(p.litrosSolicitados, 0)} L
+                        </span>
                         <span>·</span>
                         <span>{labelMetodoPago(p.metodoPagoPreferido)}</span>
                         {clientePedido?.estanquesJson && <span>· 🛢️ Estanques</span>}
+                        {excedeAgua && (
+                          <span className="inline-flex items-center gap-0.5 rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-medium text-amber-900 dark:bg-amber-800 dark:text-amber-100">
+                            <AlertTriangle className="h-2.5 w-2.5" /> Solo quedan {formatNumber(aguaDisponible, 0)} L
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <span className="ml-2 shrink-0 rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white">
-                      Entregar →
+                    <span className={`ml-2 shrink-0 rounded px-2 py-1 text-xs font-medium text-white ${
+                      excedeAgua ? "bg-amber-600" : "bg-blue-600"
+                    }`}>
+                      {excedeAgua ? "⚠ Entregar" : "Entregar →"}
                     </span>
                   </button>
                 );
