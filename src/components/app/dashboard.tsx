@@ -185,19 +185,25 @@ export function Dashboard({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Select value={period} onValueChange={(v) => { setPeriod(v); setShowCustom(false); }}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PERIODS.map((p) => (
-                <SelectItem key={p.value} value={p.value}>
-                  {p.label}
-                </SelectItem>
-              ))}
-              <SelectItem value="custom" onClick={() => setShowCustom(true)}>📅 Por fecha...</SelectItem>
-            </SelectContent>
-          </Select>
+          <select
+            value={period === "custom" || period.startsWith("custom:") ? "custom" : period}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "custom") {
+                setShowCustom(true);
+                // No cambiar period hasta que se seleccionen fechas
+              } else {
+                setShowCustom(false);
+                setPeriod(v);
+              }
+            }}
+            className="h-9 w-[200px] rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {PERIODS.map((p) => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+            <option value="custom">📅 Por fecha...</option>
+          </select>
           {showCustom && (
             <div className="flex items-center gap-1">
               <Input type="date" value={customStart} onChange={(e) => {
