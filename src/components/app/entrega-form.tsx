@@ -358,16 +358,39 @@ export function EntregaForm({
 
   // Guarda la entrega con un vueltaId opcional (cuando se inicia/reabre desde el diálogo)
   async function guardarEntrega(vueltaIdOverride?: string) {
-    // Si está en modo estanques, calcular totales desde el desglose
-    if (modoEstanques && estanquesEntrega.length > 0) {
-      const totalLitrosEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+    // Capturar el estado actual en variables locales para evitar problemas de stale closure
+    const modoEst = modoEstanques;
+    const estanques = estanquesEntrega;
+    const clienteNombreLocal = clienteNombre.trim();
+    const litrosFinalLocal = litrosFinal;
+    const precioFinalLocal = precioFinal;
+    const totalCalculadoLocal = totalCalculado;
+    const efectivoFinalLocal = efectivoFinal;
+    const transferenciaFinalLocal = transferenciaFinal;
+
+    // Debug: trace what we're about to save
+    console.log("[guardarEntrega] estado capturado:", {
+      modoEstanques: modoEst,
+      estanquesCount: estanques.length,
+      estanquesConLitros: estanques.filter(e => Number(e.litros) > 0).length,
+      clienteNombre: clienteNombreLocal,
+      litrosFinal: litrosFinalLocal,
+      vueltaIdOverride,
+    });
+
+    // Determinar si hay datos de estanques con litros > 0
+    const estanquesConLitros = estanques.filter((e) => Number(e.litros) > 0);
+
+    // Si está en modo estanques (o hay estanques con litros), usar el path de estanques
+    if ((modoEst || estanquesConLitros.length > 0) && estanques.length > 0) {
+      const totalLitrosEst = estanquesConLitros.reduce((s, e) => s + (Number(e.litros) || 0), 0);
       if (totalLitrosEst <= 0) {
         toast.error("Ingresa al menos litros en un estanque");
         return;
       }
-      const totalVentaEst = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
-      const totalEfectivoEst = estanquesEntrega.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
-      const totalTransferenciaEst = estanquesEntrega.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+      const totalVentaEst = estanquesConLitros.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+      const totalEfectivoEst = estanquesConLitros.filter((e) => e.metodoPago === "efectivo").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
+      const totalTransferenciaEst = estanquesConLitros.filter((e) => e.metodoPago === "transferencia").reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
       const totalRecibidoEst = totalEfectivoEst + totalTransferenciaEst;
 
       let estadoPagoEst = "pendiente";
@@ -378,7 +401,7 @@ export function EntregaForm({
       try {
         const payload: Record<string, unknown> = {
           clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
-          clienteNombre: clienteNombre.trim(),
+          clienteNombre: clienteNombreLocal,
           clienteDireccion: clienteDireccion.trim() || null,
           clienteTelefono: clienteTelefono.trim() || null,
           clienteZona: clienteZona.trim() || null,
@@ -391,7 +414,7 @@ export function EntregaForm({
           estadoPago: estadoPagoEst,
           fotoMedidorUrl: fotoUrl,
           nota: nota.trim() || null,
-          detalleEstanquesJson: JSON.stringify(estanquesEntrega.map((e) => ({
+          detalleEstanquesJson: JSON.stringify(estanquesConLitros.map((e) => ({
             nombre: e.nombre,
             litros: Number(e.litros) || 0,
             precioPorLitro: Number(e.precio) || 0,
@@ -401,6 +424,13 @@ export function EntregaForm({
           }))),
         };
         if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
+
+        console.log("[guardarEntrega] guardando con estanques, payload:", {
+          litros: totalLitrosEst,
+          total: totalVentaEst,
+          vueltaId: payload.vueltaId,
+          estanquesCount: estanquesConLitros.length,
+        });
 
         if (isEdit && entrega) {
           await apiPatch(`/api/entregas/${entrega.id}`, payload);
@@ -413,6 +443,7 @@ export function EntregaForm({
         onOpenChange(false);
         setDialogoVueltaAbierto(false);
       } catch (e) {
+        console.error("[guardarEntrega] error al guardar:", e);
         toast.error(e instanceof Error ? e.message : "No se pudo guardar");
       } finally {
         setSaving(false);
@@ -420,7 +451,7 @@ export function EntregaForm({
       return;
     }
 
-    if (litrosFinal <= 0) {
+    if (litrosFinalLocal <= 0) {
       toast.error("Los litros deben ser mayores a 0");
       return;
     }
@@ -429,23 +460,29 @@ export function EntregaForm({
     try {
       const payload: Record<string, unknown> = {
         clienteId: clienteId && clienteId !== "__manual" ? clienteId : null,
-        clienteNombre: clienteNombre.trim(),
+        clienteNombre: clienteNombreLocal,
         clienteDireccion: clienteDireccion.trim() || null,
         clienteTelefono: clienteTelefono.trim() || null,
         clienteZona: clienteZona.trim() || null,
         lecturaAnterior: lecturaAnterior !== "" ? Number(lecturaAnterior) : null,
         lecturaActual: lecturaActual !== "" ? Number(lecturaActual) : null,
-        litros: litrosFinal,
+        litros: litrosFinalLocal,
         metodoPago,
-        precioPorLitro: precioFinal,
-        total: totalCalculado,
-        montoEfectivo: efectivoFinal,
-        montoTransferencia: transferenciaFinal,
+        precioPorLitro: precioFinalLocal,
+        total: totalCalculadoLocal,
+        montoEfectivo: efectivoFinalLocal,
+        montoTransferencia: transferenciaFinalLocal,
         estadoPago,
         fotoMedidorUrl: fotoUrl,
         nota: nota.trim() || null,
       };
       if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
+
+      console.log("[guardarEntrega] guardando sin estanques, payload:", {
+        litros: litrosFinalLocal,
+        total: totalCalculadoLocal,
+        vueltaId: payload.vueltaId,
+      });
 
       if (isEdit && entrega) {
         await apiPatch(`/api/entregas/${entrega.id}`, payload);
@@ -458,6 +495,7 @@ export function EntregaForm({
       onOpenChange(false);
       setDialogoVueltaAbierto(false);
     } catch (e) {
+      console.error("[guardarEntrega] error al guardar:", e);
       toast.error(e instanceof Error ? e.message : "No se pudo guardar");
     } finally {
       setSaving(false);
@@ -492,12 +530,21 @@ export function EntregaForm({
     const camionId = camionSeleccionado || camionesActivos[0].id;
     setIniciandoVuelta(true);
     try {
+      console.log("[iniciarNuevaYGuardar] iniciando vuelta con camionId:", camionId);
+      console.log("[iniciarNuevaYGuardar] estado del formulario antes de iniciar:", {
+        modoEstanques,
+        estanquesCount: estanquesEntrega.length,
+        clienteNombre,
+        litrosFinal,
+      });
       const res = await apiPost<{ vuelta: { id: string; numero: number } }>("/api/vueltas", { camionId });
       toast.success(`Vuelta #${res.vuelta.numero} iniciada`);
-      onVueltaIniciada?.();
-      // Guardar la entrega con el nuevo vueltaId
+      console.log("[iniciarNuevaYGuardar] vuelta creada:", res.vuelta);
+      // Guardar la entrega PRIMERO (sin notificar al padre aún para evitar re-renders que puedan afectar el estado)
       await guardarEntrega(res.vuelta.id);
+      // Después de guardar, onSaved() ya se encargó de refrescar el padre
     } catch (e) {
+      console.error("[iniciarNuevaYGuardar] error:", e);
       toast.error(e instanceof Error ? e.message : "No se pudo iniciar la vuelta");
     } finally {
       setIniciandoVuelta(false);
@@ -508,12 +555,21 @@ export function EntregaForm({
   async function reabrirYGuardar(vuelta: VueltaReciente) {
     setIniciandoVuelta(true);
     try {
+      console.log("[reabrirYGuardar] reabriendo vuelta:", vuelta.id, "#"+vuelta.numero);
+      console.log("[reabrirYGuardar] estado del formulario antes de reabrir:", {
+        modoEstanques,
+        estanquesCount: estanquesEntrega.length,
+        clienteNombre,
+        litrosFinal,
+      });
       const res = await apiPost<{ vuelta: { id: string; numero: number } }>(`/api/vueltas/${vuelta.id}/reabrir`, {});
       toast.success(`Vuelta #${res.vuelta.numero} reabierta`);
-      onVueltaIniciada?.();
-      // Guardar la entrega con el vueltaId reabierto
+      console.log("[reabrirYGuardar] vuelta reabierta:", res.vuelta);
+      // Guardar la entrega PRIMERO
       await guardarEntrega(res.vuelta.id);
+      // Después de guardar, onSaved() ya se encargó de refrescar el padre
     } catch (e) {
+      console.error("[reabrirYGuardar] error:", e);
       toast.error(e instanceof Error ? e.message : "No se pudo reabrir la vuelta");
     } finally {
       setIniciandoVuelta(false);
