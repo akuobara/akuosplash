@@ -193,7 +193,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [montoTransferencia, setMontoTransferencia] = useState("");
   const [metodoPagoConvertir, setMetodoPagoConvertir] = useState<string>("credito");
   // Estanques para entrega por separado
-  const [estanquesConvertir, setEstanquesConvertir] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string }[]>([]);
+  const [estanquesConvertir, setEstanquesConvertir] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string; modoIngreso?: "por_litros" | "por_precio"; precioTotalInput?: string }[]>([]);
   const [modoEstanquesConvertir, setModoEstanquesConvertir] = useState(false);
   const [modoPrecioConvertir, setModoPrecioConvertir] = useState(false);
   const [precioTotalConvertir, setPrecioTotalConvertir] = useState("");
@@ -336,10 +336,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
             setEstanquesConvertir(lista.map((e: any) => ({
               nombre: e.nombre || e.tipo,
               litros: "",
-              // Para "sin pago" (credito) usar el precio MÁS ALTO
               precio: String(Math.max(c.precioEfectivoPorLitro || 0, c.precioTransferenciaPorLitro || 0)),
               metodoPago: "credito",
               montoRecibido: "",
+              modoIngreso: "por_litros" as const,
+              precioTotalInput: "",
             })));
             // Auto-activar si hay con factura separada
             setModoEstanquesConvertir(independientes.length > 0);
@@ -1475,35 +1476,84 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                   {estanquesConvertir.map((est, i) => {
                     const litrosEst = Number(est.litros) || 0;
                     const precioEst = Number(est.precio) || 0;
-                    const totalEst = litrosEst * precioEst;
+                    const totalEstRaw = litrosEst * precioEst;
+                    const totalEst = totalEstRaw > 0 ? Math.ceil(totalEstRaw / 100) * 100 : 0;
                     const recibidoEst = Number(est.montoRecibido) || 0;
                     return (
                       <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800 bg-white dark:bg-background p-2 space-y-2">
                         <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
                           {i + 1}. {est.nombre}
                         </p>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-[10px] text-muted-foreground">Litros</label>
-                            <Input type="number" inputMode="decimal" step="any" value={est.litros}
-                              onChange={(e) => {
-                                const nuevosLitros = e.target.value;
-                                const precioCalc = Number(est.precio) || 0;
-                                const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
-                                setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
-                                  ...est2, litros: nuevosLitros,
-                                  montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalCalc > 0 ? String(Math.round(totalCalc)) : "")),
-                                } : est2));
-                              }}
-                              placeholder="0" className="h-8 text-xs" />
-                          </div>
-                          <div>
-                            <label className="text-[10px] text-muted-foreground">Precio/L</label>
-                            <Input type="number" inputMode="decimal" step="any" value={est.precio}
-                              onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
-                              placeholder="0" className="h-8 text-xs" />
-                          </div>
+                        {/* Toggle por litros / por precio */}
+                        <div className="flex gap-1 rounded bg-amber-100/50 p-0.5 dark:bg-amber-900/30">
+                          <button type="button"
+                            onClick={() => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, litros: "", montoRecibido: "" } : est2))}
+                            className={`flex-1 rounded px-2 py-1 text-[10px] font-medium transition ${!est.modoIngreso || est.modoIngreso === "por_litros" ? "bg-white text-amber-900 dark:bg-background dark:text-amber-200 shadow-sm" : "text-amber-700 dark:text-amber-300"}`}>
+                            Por litros
+                          </button>
+                          <button type="button"
+                            onClick={() => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, modoIngreso: "por_precio" as const, litros: "", montoRecibido: "" } : est2))}
+                            className={`flex-1 rounded px-2 py-1 text-[10px] font-medium transition ${est.modoIngreso === "por_precio" ? "bg-white text-amber-900 dark:bg-background dark:text-amber-200 shadow-sm" : "text-amber-700 dark:text-amber-300"}`}>
+                            Por precio ($)
+                          </button>
                         </div>
+                        {/* Campos según modo */}
+                        {est.modoIngreso !== "por_precio" ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="text-[10px] text-muted-foreground">Litros</label>
+                              <Input type="number" inputMode="decimal" step="any" value={est.litros}
+                                onChange={(e) => {
+                                  const nuevosLitros = e.target.value;
+                                  const precioCalc = Number(est.precio) || 0;
+                                  const totalCalc = (Number(nuevosLitros) || 0) * precioCalc;
+                                  const totalRedondeado = totalCalc > 0 ? Math.ceil(totalCalc / 100) * 100 : 0;
+                                  setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
+                                    ...est2, litros: nuevosLitros,
+                                    montoRecibido: est2.metodoPago === "credito" ? "" : (est2.montoRecibido || (totalRedondeado > 0 ? String(totalRedondeado) : "")),
+                                  } : est2));
+                                }}
+                                placeholder="0" className="h-8 text-xs" />
+                            </div>
+                            <div>
+                              <label className="text-[10px] text-muted-foreground">Precio/L</label>
+                              <Input type="number" inputMode="decimal" step="any" value={est.precio}
+                                onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
+                                placeholder="0" className="h-8 text-xs" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div>
+                              <label className="text-[10px] text-muted-foreground">¿Cuántos pesos de agua?</label>
+                              <Input type="number" inputMode="decimal" step="any" value={est.precioTotalInput ?? ""}
+                                onChange={(e) => {
+                                  const precioTotalStr = e.target.value;
+                                  const precioCalc = Number(est.precio) || 0;
+                                  const litrosCalc = precioCalc > 0 ? Math.round((Number(precioTotalStr) || 0) / precioCalc) : 0;
+                                  const totalRedondeado = Number(precioTotalStr) > 0 ? Math.ceil(Number(precioTotalStr) / 100) * 100 : 0;
+                                  setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
+                                    ...est2,
+                                    precioTotalInput: precioTotalStr,
+                                    litros: litrosCalc > 0 ? String(litrosCalc) : "",
+                                    montoRecibido: est2.metodoPago === "credito" ? "" : (totalRedondeado > 0 ? String(totalRedondeado) : ""),
+                                  } : est2));
+                                }}
+                                placeholder="Ej. 5000" className="h-8 text-xs" />
+                            </div>
+                            {est.precioTotalInput && Number(est.precio) > 0 && (
+                              <p className="text-[10px] text-amber-700 dark:text-amber-300">
+                                → {formatNumber(Math.round((Number(est.precioTotalInput) || 0) / (Number(est.precio) || 1)), 0)} L a {formatCurrency(Number(est.precio))}/L
+                              </p>
+                            )}
+                            <div>
+                              <label className="text-[10px] text-muted-foreground">Precio/L (para cálculo)</label>
+                              <Input type="number" inputMode="decimal" step="any" value={est.precio}
+                                onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, precio: e.target.value } : est2))}
+                                placeholder="0" className="h-8 text-xs" />
+                            </div>
+                          </div>
+                        )}
                         <div className="grid grid-cols-2 gap-2">
                           <div>
                             <label className="text-[10px] text-muted-foreground">Método de pago</label>
@@ -1514,18 +1564,14 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 const precioEfectivo = c?.precioEfectivoPorLitro || 0;
                                 const precioTransferencia = c?.precioTransferenciaPorLitro || 0;
                                 let nuevoPrecio = est.precio;
-                                if (nuevoMetodo === "efectivo") {
-                                  nuevoPrecio = String(precioEfectivo);
-                                } else if (nuevoMetodo === "transferencia") {
-                                  nuevoPrecio = String(precioTransferencia);
-                                } else {
-                                  // Sin pago: precio MÁS ALTO para generar deuda
-                                  nuevoPrecio = String(Math.max(precioEfectivo, precioTransferencia));
-                                }
+                                if (nuevoMetodo === "efectivo") nuevoPrecio = String(precioEfectivo);
+                                else if (nuevoMetodo === "transferencia") nuevoPrecio = String(precioTransferencia);
+                                else nuevoPrecio = String(Math.max(precioEfectivo, precioTransferencia));
                                 const totalEstCalc = (Number(est.litros) || 0) * (Number(nuevoPrecio) || 0);
+                                const totalRedondeado = totalEstCalc > 0 ? Math.ceil(totalEstCalc / 100) * 100 : 0;
                                 setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? {
                                   ...est2, metodoPago: nuevoMetodo, precio: nuevoPrecio,
-                                  montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalEstCalc > 0 ? String(Math.round(totalEstCalc)) : "")),
+                                  montoRecibido: nuevoMetodo === "credito" ? "" : (est2.montoRecibido || (totalRedondeado > 0 ? String(totalRedondeado) : "")),
                                 } : est2));
                               }}
                               className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs">
@@ -1538,13 +1584,13 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                             <label className="text-[10px] text-muted-foreground">Monto recibido</label>
                             <Input type="number" inputMode="decimal" step="any" value={est.montoRecibido}
                               onChange={(e) => setEstanquesConvertir(estanquesConvertir.map((est2, j) => j === i ? { ...est2, montoRecibido: e.target.value } : est2))}
-                              placeholder={est.metodoPago === "credito" ? "—" : String(Math.round(totalEst))} disabled={est.metodoPago === "credito"} className="h-8 text-xs" />
+                              placeholder={est.metodoPago === "credito" ? "—" : String(totalEst)} disabled={est.metodoPago === "credito"} className="h-8 text-xs" />
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-[10px]">
                           {est.metodoPago === "credito" ? (
                             <>
-                              <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400">Se definirá al cobrar</strong></span>
+                              <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400">{formatCurrency(totalEst)}</strong></span>
                               <span className="text-amber-600 dark:text-amber-400">Pendiente</span>
                             </>
                           ) : (
@@ -1559,7 +1605,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                   })}
                   {(() => {
                     const totalLitros = estanquesConvertir.reduce((s, e) => s + (Number(e.litros) || 0), 0);
-                    const totalVenta = estanquesConvertir.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+                    const totalVentaRaw = estanquesConvertir.reduce((s, e) => s + (Number(e.litros) || 0) * (Number(e.precio) || 0), 0);
+                    const totalVenta = totalVentaRaw > 0 ? Math.ceil(totalVentaRaw / 100) * 100 : 0;
                     const totalRecibido = estanquesConvertir.reduce((s, e) => s + (Number(e.montoRecibido) || 0), 0);
                     return (
                       <div className="rounded-lg bg-amber-100 dark:bg-amber-900/40 p-2 text-center text-sm">
@@ -1571,6 +1618,32 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                       </div>
                     );
                   })()}
+
+                  {/* Descuento para modo estanques */}
+                  <div className="rounded-lg border border-border bg-white dark:bg-background p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">Descuento</Label>
+                      <select
+                        value={descuentoTipoConvertir}
+                        onChange={(e) => { setDescuentoTipoConvertir(e.target.value); setDescuentoMontoConvertir(""); }}
+                        className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        <option value="ninguno">Sin descuento</option>
+                        <option value="total">Descuento sobre el total</option>
+                      </select>
+                    </div>
+                    {descuentoTipoConvertir === "total" && (
+                      <Input type="number" inputMode="decimal" step="any" value={descuentoMontoConvertir}
+                        onChange={(e) => setDescuentoMontoConvertir(e.target.value)}
+                        placeholder="Ej. 1200 (para redondear de 21200 a 20000)"
+                        className="h-8 text-sm" />
+                    )}
+                    {descuentoTipoConvertir !== "ninguno" && (
+                      <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                        El descuento se descontará del pago en liquidación.
+                      </p>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <>
