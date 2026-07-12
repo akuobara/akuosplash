@@ -50,6 +50,7 @@ import {
   Droplets,
   UserCheck,
   Repeat,
+  Hand,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
@@ -523,6 +524,16 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     }
   }
 
+  async function soltarPedido(p: Pedido) {
+    try {
+      await apiPost(`/api/pedidos/${p.id}/soltar`, {});
+      toast.success("Pedido soltado — ya no está asignado a ti");
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo soltar el pedido");
+    }
+  }
+
   return (
     <div className="space-y-4">
       {/* Encabezado */}
@@ -755,6 +766,16 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                               {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
                                 <DropdownMenuItem onClick={() => cederPrioridad(p, true)}>
                                   <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (permanente)
+                                </DropdownMenuItem>
+                              )}
+                              {/* Soltar pedido: chofer que tiene el pedido asignado/tomado/prioridad */}
+                              {!isDueno && (
+                                p.tomadoPorChofer?.id === currentUserId ||
+                                p.choferAsignado?.id === currentUserId ||
+                                (p.prioridadChofer?.id === currentUserId)
+                              ) && (
+                                <DropdownMenuItem onClick={() => soltarPedido(p)} className="text-amber-600 focus:text-amber-600">
+                                  <Hand className="mr-2 h-4 w-4" /> Soltar pedido
                                 </DropdownMenuItem>
                               )}
 

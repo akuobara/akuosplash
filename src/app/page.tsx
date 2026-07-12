@@ -398,6 +398,8 @@ export default function Home() {
               onRefresh={refresh}
               readOnly={isDueno ? false : !config?.choferesPuedenEditarClientes}
               choferes={usuarios.filter((u) => (u.role === "chofer" || u.role === "dueno") && u.activo).map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))}
+              currentUserId={user.userId}
+              isDueno={isDueno}
               onAgendarPedido={(clienteId) => {
                 setPedidoClientePreselect(clienteId);
                 setTab("pedidos");

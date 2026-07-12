@@ -53,6 +53,7 @@ import {
   Mail,
   ClipboardList,
   X,
+  UserX,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -96,9 +97,11 @@ interface ClientesTabProps {
   readOnly?: boolean;
   choferes?: { id: string; nombre: string; email: string }[];
   onAgendarPedido?: (clienteId: string) => void;
+  currentUserId?: string;
+  isDueno?: boolean;
 }
 
-export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes = [], onAgendarPedido }: ClientesTabProps) {
+export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes = [], onAgendarPedido, currentUserId, isDueno }: ClientesTabProps) {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -230,6 +233,36 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   }
 
   // Abrir detalle del cliente con su historial
+  // Soltar cliente: el chofer preferido se elimina a sí mismo
+  async function soltarCliente(clienteId: string, clienteNombre: string) {
+    if (!confirm(`¿Soltar a ${clienteNombre}? Ya no serás su chofer preferido y no verás sus pedidos con prioridad.`)) return;
+    try {
+      await apiPost(`/api/clientes/${clienteId}/soltar-chofer`, {});
+      toast.success(`Te has eliminado como chofer preferido de ${clienteNombre}`);
+      onRefresh();
+      setClienteDetalle(null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo soltar el cliente");
+    }
+  }
+
+  // Dueño: cambiar chofer preferido
+  async function cambiarChoferPreferido(clienteId: string, nuevoChoferId: string | null) {
+    try {
+      await apiPatch(`/api/clientes/${clienteId}`, {
+        choferPreferidoId: nuevoChoferId && nuevoChoferId !== "__ninguno" ? nuevoChoferId : null,
+      });
+      toast.success(nuevoChoferId ? "Chofer preferido actualizado" : "Chofer preferido elimininado");
+      onRefresh();
+      // Actualizar el detalle si está abierto
+      if (clienteDetalle?.id === clienteId) {
+        setClienteDetalle({ ...clienteDetalle, choferPreferidoId: nuevoChoferId && nuevoChoferId !== "__ninguno" ? nuevoChoferId : null, choferPreferido: nuevoChoferId && nuevoChoferId !== "__ninguno" ? { id: nuevoChoferId, nombre: choferes.find(c => c.id === nuevoChoferId)?.nombre ?? "?" } : null });
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo cambiar el chofer preferido");
+    }
+  }
+
   async function abrirDetalle(c: Cliente) {
     setClienteDetalle(c);
     setDetalleTab("info");
@@ -1380,6 +1413,33 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                         <Button size="sm" variant="outline" onClick={() => { abrirEditar(clienteDetalle); setClienteDetalle(null); }}>
                           <Pencil className="mr-1 h-4 w-4" /> Editar ficha
                         </Button>
+                      )}
+                      {/* Chofer preferido puede soltar al cliente */}
+                      {!isDueno && clienteDetalle.choferPreferidoId === currentUserId && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-amber-400 text-amber-700 hover:bg-amber-50 dark:text-amber-300"
+                          onClick={() => soltarCliente(clienteDetalle.id, clienteDetalle.nombre)}
+                        >
+                          <UserX className="mr-1 h-4 w-4" /> Soltar cliente
+                        </Button>
+                      )}
+                      {/* Dueño puede cambiar chofer preferido */}
+                      {isDueno && choferes.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <Label className="text-xs text-muted-foreground whitespace-nowrap">Chofer pref.:</Label>
+                          <select
+                            value={clienteDetalle.choferPreferidoId || "__ninguno"}
+                            onChange={(e) => cambiarChoferPreferido(clienteDetalle.id, e.target.value === "__ninguno" ? null : e.target.value)}
+                            className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                          >
+                            <option value="__ninguno">— Sin preferido —</option>
+                            {choferes.map((c) => (
+                              <option key={c.id} value={c.id}>{c.nombre}</option>
+                            ))}
+                          </select>
+                        </div>
                       )}
                       {clienteDetalle.lat != null && clienteDetalle.lng != null && (
                         <a

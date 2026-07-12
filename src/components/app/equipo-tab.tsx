@@ -32,6 +32,7 @@ import {
   Phone,
   Users,
   Truck,
+  CalendarOff,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
@@ -65,6 +66,11 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
   const [formOpen, setFormOpen] = useState(false);
   const [editando, setEditando] = useState<Usuario | null>(null);
   const [borrando, setBorrando] = useState<Usuario | null>(null);
+  const [soltando, setSoltando] = useState<Usuario | null>(null);
+  const [soltarFechaInicio, setSoltarFechaInicio] = useState("");
+  const [soltarFechaFin, setSoltarFechaFin] = useState("");
+  const [soltarClientes, setSoltarClientes] = useState(false);
+  const [soltandoSaving, setSoltandoSaving] = useState(false);
 
   // Campos del formulario
   const [nombre, setNombre] = useState("");
@@ -161,6 +167,29 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
     }
   }
 
+  async function handleSoltarPedidos() {
+    if (!soltando) return;
+    setSoltandoSaving(true);
+    try {
+      const body: Record<string, unknown> = {};
+      if (soltarFechaInicio) body.fechaInicio = soltarFechaInicio;
+      if (soltarFechaFin) body.fechaFin = soltarFechaFin;
+      if (soltarClientes) body.soltarClientes = true;
+      const res = await apiPost<{ ok: boolean; pedidosPrioridad: number; pedidosTomados: number; pedidosAsignados: number; clientesSoltados: number }>(`/api/usuarios/${soltando.id}/soltar-pedidos`, body);
+      const total = (res.pedidosPrioridad || 0) + (res.pedidosTomados || 0) + (res.pedidosAsignados || 0);
+      toast.success(`Pedidos soltados: ${total}. Clientes soltados: ${res.clientesSoltados || 0}.`);
+      setSoltando(null);
+      setSoltarFechaInicio("");
+      setSoltarFechaFin("");
+      setSoltarClientes(false);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudieron soltar los pedidos");
+    } finally {
+      setSoltandoSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       {/* Encabezado */}
@@ -247,6 +276,9 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => abrirEditar(u)}>
                           <Pencil className="mr-2 h-4 w-4" /> Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setSoltando(u)}>
+                          <CalendarOff className="mr-2 h-4 w-4" /> Soltar pedidos (vacaciones)
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-destructive focus:text-destructive"
@@ -356,6 +388,68 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
             </Button>
             <Button variant="destructive" onClick={() => borrando && handleBorrar(borrando)}>
               <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Soltar pedidos (vacaciones / ausencia) */}
+      <Dialog open={!!soltando} onOpenChange={(o) => !o && setSoltando(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Soltar pedidos de {soltando?.nombre}</DialogTitle>
+            <DialogDescription>
+              Libera los pedidos asignados a este chofer para que otros puedan tomarlos.
+              Útil cuando el chofer está enfermo, de vacaciones, o no responde.
+              No afecta entregas ya realizadas.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Desde (opcional)</Label>
+                <Input
+                  type="date"
+                  value={soltarFechaInicio}
+                  onChange={(e) => setSoltarFechaInicio(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Hasta (opcional)</Label>
+                <Input
+                  type="date"
+                  value={soltarFechaFin}
+                  onChange={(e) => setSoltarFechaFin(e.target.value)}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Si dejas las fechas vacías, se sueltan <strong>todos</strong> los pedidos pendientes.
+              Si especificas fechas, solo se sueltan los pedidos programados en ese rango.
+            </p>
+            <label className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+              <Switch checked={soltarClientes} onCheckedChange={setSoltarClientes} />
+              <div>
+                <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+                  También soltar clientes preferidos
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-300">
+                  Elimina a este chofer como preferido de todos sus clientes.
+                  Los pedidos futuros no tendrán prioridad para él.
+                </p>
+              </div>
+            </label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSoltando(null)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSoltarPedidos}
+              disabled={soltandoSaving}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              {soltandoSaving ? "Soltando…" : "Soltar pedidos"}
             </Button>
           </DialogFooter>
         </DialogContent>
