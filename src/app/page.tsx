@@ -120,7 +120,7 @@ export default function Home() {
   const [camiones, setCamiones] = useState<Camion[]>([]);
   const [pedidoClientePreselect, setPedidoClientePreselect] = useState<string | null>(null);
   const [usuarios, setUsuarios] = useState<{ id: string; nombre: string; email: string; role: string }[]>([]);
-  const [todosPedidos, setTodosPedidos] = useState<{ id: string; clienteNombre: string; litrosSolicitados: number; fechaSolicitada: string | null; estado: string }[]>([]);
+  const [todosPedidos, setTodosPedidos] = useState<{ id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[]>([]);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
@@ -159,7 +159,7 @@ export default function Home() {
           try {
             const [u, peds] = await Promise.all([
               apiGet<{ usuarios: { id: string; nombre: string; email: string; role: string }[] }>("/api/usuarios"),
-              apiGet<{ pedidos: { id: string; clienteNombre: string; litrosSolicitados: number; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos"),
+              apiGet<{ pedidos: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos"),
             ]);
             setUsuarios(u.usuarios);
             setTodosPedidos(peds.pedidos);
@@ -325,6 +325,13 @@ export default function Home() {
               onGoToEntregas={() => setTab("entregas")}
               onGoToGastos={() => setTab("gastos")}
               onGoToLiquidacion={() => setTab("liquidacion")}
+              pedidosPendientes={todosPedidos.filter(p => p.estado === "pendiente" || p.estado === "programado").map(p => ({
+                id: p.id,
+                clienteNombre: p.clienteNombre,
+                clienteId: p.clienteId,
+                litrosSolicitados: p.litrosSolicitados,
+                metodoPagoPreferido: p.metodoPagoPreferido,
+              }))}
             />
           </TabsContent>
 

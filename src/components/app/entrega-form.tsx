@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink, Banknote, Smartphone, Clock } from "lucide-react";
+import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink, Banknote, Smartphone, Clock, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, uploadFile } from "@/lib/api-client";
 import {
@@ -28,6 +28,7 @@ import {
   METODOS_PAGO,
   formatCurrency,
   formatNumber,
+  labelMetodoPago,
 } from "@/lib/helpers";
 
 export interface Entrega {
@@ -105,6 +106,7 @@ interface EntregaFormProps {
     capacidadCamion: number;
   };
   vueltaActual: VueltaActual | null;
+  pedidosPendientes?: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string }[];
 }
 
 export function EntregaForm({
@@ -115,6 +117,7 @@ export function EntregaForm({
   clientes,
   config,
   vueltaActual,
+  pedidosPendientes = [],
 }: EntregaFormProps) {
   const isEdit = !!entrega;
 
@@ -519,7 +522,7 @@ export function EntregaForm({
               <option value="__manual">— Ingreso manual —</option>
               {clientes.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.nombre}{c.zona ? ` · ${c.zona}` : ""}{c.estanquesJson ? " 🔄" : ""}
+                  {c.nombre}{c.zona ? ` · ${c.zona}` : ""}{c.estanquesJson ? " 🛢️" : ""}
                 </option>
               ))}
             </select>
@@ -601,6 +604,33 @@ export function EntregaForm({
                 </div>
               );
             })()}
+
+            {/* Pedidos pendientes del cliente */}
+            {clienteId && clienteId !== "__manual" && pedidosPendientes.filter(p => p.clienteId === clienteId).length > 0 && (
+              <div className="mt-2 rounded-lg border border-blue-300 bg-blue-50 dark:bg-blue-900/20 p-3 space-y-2">
+                <p className="flex items-center gap-1.5 text-xs font-medium text-blue-900 dark:text-blue-200">
+                  <ClipboardList className="h-3.5 w-3.5" /> Pedidos pendientes de este cliente
+                </p>
+                {pedidosPendientes.filter(p => p.clienteId === clienteId).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setLitrosManual(String(p.litrosSolicitados));
+                      onSelectCliente(p.clienteId || "__manual");
+                      setMetodoPago(p.metodoPagoPreferido);
+                    }}
+                    className="flex w-full items-center justify-between rounded border border-blue-200 dark:border-blue-800 bg-white dark:bg-background p-2 text-left text-xs hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                  >
+                    <div>
+                      <span className="font-medium">{formatNumber(p.litrosSolicitados, 0)} L</span>
+                      <span className="ml-2 text-muted-foreground">{labelMetodoPago(p.metodoPagoPreferido)}</span>
+                    </div>
+                    <span className="text-blue-600 dark:text-blue-400">Usar →</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Panel de deuda del cliente */}
             {clienteId && clienteId !== "__manual" && clienteDeuda != null && clienteDeuda !== 0 && (

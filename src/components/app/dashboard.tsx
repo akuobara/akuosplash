@@ -101,6 +101,7 @@ interface DashboardProps {
   onGoToEntregas: () => void;
   onGoToGastos: () => void;
   onGoToLiquidacion: () => void;
+  pedidosPendientes?: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string }[];
 }
 
 const PERIODS: { value: Period; label: string }[] = [
@@ -119,6 +120,7 @@ export function Dashboard({
   onGoToEntregas,
   onGoToGastos,
   onGoToLiquidacion,
+  pedidosPendientes = [],
 }: DashboardProps) {
   const [period, setPeriod] = useState<Period>("hoy");
   const [resumen, setResumen] = useState<Resumen | null>(null);
@@ -474,6 +476,7 @@ export function Dashboard({
         clientes={clientes}
         config={config}
         vueltaActual={vueltaActual}
+        pedidosPendientes={pedidosPendientes}
       />
       <GastoForm open={gastoFormOpen} onOpenChange={setGastoFormOpen} onSaved={onRefresh} />
     </div>
