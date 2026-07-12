@@ -112,7 +112,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       litros = pedido.litrosSolicitados;
     }
 
-    const total = litros * precioPorLitro;
+    // Total con redondeo a $100 superior
+    let totalCalc = litros * precioPorLitro;
+    if (totalCalc > 0) totalCalc = Math.ceil(totalCalc / 100) * 100;
+
+    // Descuento
+    const descuentoTipo = body.descuentoTipo || "ninguno";
+    const descuentoPor = session.role === "chofer" ? "chofer" : "dueno";
+    let descuento = 0;
+    if (descuentoTipo === "total") {
+      descuento = Number(body.descuento) || 0;
+    }
+
+    const total = Math.max(0, totalCalc - descuento);
     const montoEfectivo = Number(body.montoEfectivo) || 0;
     const montoTransferencia = Number(body.montoTransferencia) || 0;
     const montoRecibido = montoEfectivo + montoTransferencia;
@@ -174,6 +186,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           montoTransferencia,
           montoRecibido,
           estadoPago,
+          descuento,
+          descuentoTipo,
+          descuentoPor,
           fotoMedidorUrl: body.fotoMedidorUrl || null,
           nota: body.nota?.trim() || pedido.nota || null,
           detalleEstanquesJson: body.detalleEstanquesJson || null,

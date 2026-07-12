@@ -192,6 +192,10 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   // Estanques para entrega por separado
   const [estanquesConvertir, setEstanquesConvertir] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string }[]>([]);
   const [modoEstanquesConvertir, setModoEstanquesConvertir] = useState(false);
+  const [modoPrecioConvertir, setModoPrecioConvertir] = useState(false);
+  const [precioTotalConvertir, setPrecioTotalConvertir] = useState("");
+  const [descuentoTipoConvertir, setDescuentoTipoConvertir] = useState("ninguno");
+  const [descuentoMontoConvertir, setDescuentoMontoConvertir] = useState("");
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -494,6 +498,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         precioPorLitro: Number(precioPorLitro) || undefined,
         montoEfectivo: Number(montoEfectivo) || 0,
         montoTransferencia: Number(montoTransferencia) || 0,
+        descuentoTipo: descuentoTipoConvertir,
+        descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
       });
       toast.success("Pedido convertido en entrega");
       setConvirtiendo(null);
@@ -547,6 +553,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         precioPorLitro: Number(precioPorLitro) || undefined,
         montoEfectivo: Number(montoEfectivo) || 0,
         montoTransferencia: Number(montoTransferencia) || 0,
+        descuentoTipo: descuentoTipoConvertir,
+        descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
       });
       toast.success("Pedido convertido en entrega");
       setVueltaFaltante(null);
@@ -1560,29 +1568,129 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 </div>
               ) : (
                 <>
-                  {/* Modo simple: campos normales */}
-                  <div className="space-y-2">
-                    <Label htmlFor="litrosReales">Litros entregados (reales)</Label>
-                    <Input id="litrosReales" type="number" inputMode="decimal" step="any" value={litrosReales}
-                      onChange={(e) => setLitrosReales(e.target.value)} placeholder={String(convirtiendo.litrosSolicitados)} />
-                    <p className="text-xs text-muted-foreground">Ajusta si entregaste una cantidad distinta a la pedida.</p>
+                  {/* Toggle: Por litros / Por precio */}
+                  <div className="flex gap-1 rounded-lg bg-muted/40 p-1">
+                    <Button type="button" size="sm" variant={!modoPrecioConvertir ? "default" : "ghost"} onClick={() => setModoPrecioConvertir(false)} className="h-7 flex-1">
+                      Por litros
+                    </Button>
+                    <Button type="button" size="sm" variant={modoPrecioConvertir ? "default" : "ghost"} onClick={() => setModoPrecioConvertir(true)} className="h-7 flex-1">
+                      Por precio ($)
+                    </Button>
                   </div>
 
+                  {!modoPrecioConvertir ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="litrosReales">Litros entregados (reales)</Label>
+                      <Input id="litrosReales" type="number" inputMode="decimal" step="any" value={litrosReales}
+                        onChange={(e) => setLitrosReales(e.target.value)} placeholder={String(convirtiendo.litrosSolicitados)} />
+                      <p className="text-xs text-muted-foreground">Ajusta si entregaste una cantidad distinta a la pedida.</p>
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border border-blue-300 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20 space-y-2">
+                      <Label htmlFor="precioTotalConvertir" className="text-sm font-medium text-blue-900 dark:text-blue-200">
+                        ¿Cuántos pesos de agua quiere el cliente?
+                      </Label>
+                      <Input id="precioTotalConvertir" type="number" inputMode="decimal" step="any" value={precioTotalConvertir}
+                        onChange={(e) => {
+                          setPrecioTotalConvertir(e.target.value);
+                          const precio = Number(precioPorLitro) || 0;
+                          if (precio > 0) {
+                            setLitrosReales(String(Math.round((Number(e.target.value) || 0) / precio)));
+                          }
+                        }}
+                        placeholder="Ej. 10000" />
+                      {precioTotalConvertir && (Number(precioPorLitro) || 0) > 0 && (
+                        <p className="text-xs text-blue-700 dark:text-blue-300">
+                          Se entregarán <strong>{formatNumber(Math.round((Number(precioTotalConvertir) || 0) / (Number(precioPorLitro) || 1)), 0)} L</strong>
+                          {" "}(a {formatCurrency(Number(precioPorLitro))}/L)
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-2">
-                    <Label htmlFor="precioPorLitro">Precio por litro (opcional)</Label>
-                    <Input id="precioPorLitro" type="number" inputMode="decimal" step="any" value={precioPorLitro}
-                      onChange={(e) => setPrecioPorLitro(e.target.value)} placeholder="Auto según método" />
+                    <Label htmlFor="precioPorLitroConvertir">Precio por litro</Label>
+                    <Input id="precioPorLitroConvertir" type="number" inputMode="decimal" step="any" value={precioPorLitro}
+                      onChange={(e) => {
+                        setPrecioPorLitro(e.target.value);
+                        // Recalcular litros si está en modo precio
+                        if (modoPrecioConvertir && precioTotalConvertir) {
+                          const precio = Number(e.target.value) || 0;
+                          if (precio > 0) {
+                            setLitrosReales(String(Math.round(Number(precioTotalConvertir) / precio)));
+                          }
+                        }
+                      }}
+                      placeholder="Auto según método" />
+                  </div>
+
+                  {/* Cálculo automático con redondeo */}
+                  {(() => {
+                    const litrosCalc = Number(litrosReales) || convirtiendo.litrosSolicitados;
+                    const precioCalc = Number(precioPorLitro) || 0;
+                    let subtotal = litrosCalc * precioCalc;
+                    if (subtotal > 0) subtotal = Math.ceil(subtotal / 100) * 100;
+                    let descuento = 0;
+                    if (descuentoTipoConvertir === "total") {
+                      descuento = Number(descuentoMontoConvertir) || 0;
+                    }
+                    const total = Math.max(0, subtotal - descuento);
+                    return (
+                      <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3 space-y-1">
+                        <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                          <div>
+                            <p className="text-[10px] uppercase text-muted-foreground">Litros</p>
+                            <p className="font-bold tabular-nums">{formatNumber(litrosCalc, 0)} L</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] uppercase text-muted-foreground">Subtotal</p>
+                            <p className="font-bold tabular-nums text-muted-foreground">{formatCurrency(subtotal)}</p>
+                            {descuento > 0 && <p className="text-xs text-emerald-600">−{formatCurrency(descuento)}</p>}
+                          </div>
+                          <div>
+                            <p className="text-[10px] uppercase text-muted-foreground">Total final</p>
+                            <p className="font-bold tabular-nums text-primary">{formatCurrency(total)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Descuento */}
+                  <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">Descuento</Label>
+                      <select
+                        value={descuentoTipoConvertir}
+                        onChange={(e) => { setDescuentoTipoConvertir(e.target.value); setDescuentoMontoConvertir(""); }}
+                        className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                      >
+                        <option value="ninguno">Sin descuento</option>
+                        <option value="total">Descuento sobre el total</option>
+                      </select>
+                    </div>
+                    {descuentoTipoConvertir === "total" && (
+                      <Input type="number" inputMode="decimal" step="any" value={descuentoMontoConvertir}
+                        onChange={(e) => setDescuentoMontoConvertir(e.target.value)}
+                        placeholder="Ej. 1200 (para redondear de 21200 a 20000)"
+                        className="h-8 text-sm" />
+                    )}
+                    {descuentoTipoConvertir !== "ninguno" && (
+                      <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                        El descuento se descontará del pago en liquidación.
+                      </p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label htmlFor="montoEfectivo" className="text-xs">Efectivo recibido</Label>
-                      <Input id="montoEfectivo" type="number" inputMode="decimal" step="any" value={montoEfectivo}
+                      <Label htmlFor="montoEfectivoC" className="text-xs">Efectivo recibido</Label>
+                      <Input id="montoEfectivoC" type="number" inputMode="decimal" step="any" value={montoEfectivo}
                         onChange={(e) => setMontoEfectivo(e.target.value)} placeholder="0" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="montoTransferencia" className="text-xs">Transferencia</Label>
-                      <Input id="montoTransferencia" type="number" inputMode="decimal" step="any" value={montoTransferencia}
+                      <Label htmlFor="montoTransferenciaC" className="text-xs">Transferencia</Label>
+                      <Input id="montoTransferenciaC" type="number" inputMode="decimal" step="any" value={montoTransferencia}
                         onChange={(e) => setMontoTransferencia(e.target.value)} placeholder="0" />
                     </div>
                   </div>
