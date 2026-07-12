@@ -233,16 +233,27 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   }
 
   // Abrir detalle del cliente con su historial
-  // Soltar cliente: el chofer preferido se elimina a sí mismo
+  // Soltar cliente: el chofer preferido se elimina a sí mismo (con o sin reemplazo)
+  const [soltandoCliente, setSoltandoCliente] = useState(false);
+  const [reemplazoChoferId, setReemplazoChoferId] = useState<string>("");
+
   async function soltarCliente(clienteId: string, clienteNombre: string) {
-    if (!confirm(`¿Soltar a ${clienteNombre}? Ya no serás su chofer preferido y no verás sus pedidos con prioridad.`)) return;
+    const reemplazo = reemplazoChoferId && reemplazoChoferId !== "__ninguno" ? reemplazoChoferId : null;
+    const msg = reemplazo
+      ? `¿Soltar a ${clienteNombre} y asignar a ${choferes.find(c => c.id === reemplazo)?.nombre ?? "otro chofer"} como reemplazo?`
+      : `¿Soltar a ${clienteNombre}? Sin reemplazo, los pedidos pendientes irán al pool visible para todos los choferes.`;
+    if (!confirm(msg)) return;
+    setSoltandoCliente(true);
     try {
-      await apiPost(`/api/clientes/${clienteId}/soltar-chofer`, {});
-      toast.success(`Te has eliminado como chofer preferido de ${clienteNombre}`);
+      await apiPost(`/api/clientes/${clienteId}/soltar-chofer`, { reemplazoChoferId: reemplazo });
+      toast.success(reemplazo ? `Cliente reasignado a ${choferes.find(c => c.id === reemplazo)?.nombre}` : `Cliente soltado — pedidos publicados al pool`);
+      setReemplazoChoferId("");
       onRefresh();
       setClienteDetalle(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo soltar el cliente");
+    } finally {
+      setSoltandoCliente(false);
     }
   }
 
@@ -1414,16 +1425,34 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                           <Pencil className="mr-1 h-4 w-4" /> Editar ficha
                         </Button>
                       )}
-                      {/* Chofer preferido puede soltar al cliente */}
+                      {/* Chofer preferido puede soltar al cliente (con o sin reemplazo) */}
                       {!isDueno && clienteDetalle.choferPreferidoId === currentUserId && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="border-amber-400 text-amber-700 hover:bg-amber-50 dark:text-amber-300"
-                          onClick={() => soltarCliente(clienteDetalle.id, clienteDetalle.nombre)}
-                        >
-                          <UserX className="mr-1 h-4 w-4" /> Soltar cliente
-                        </Button>
+                        <div className="flex flex-col gap-2 w-full sm:w-auto">
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={reemplazoChoferId || "__ninguno"}
+                              onChange={(e) => setReemplazoChoferId(e.target.value === "__ninguno" ? "" : e.target.value)}
+                              className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                            >
+                              <option value="__ninguno">Sin reemplazo (al pool)</option>
+                              {choferes.filter(c => c.id !== currentUserId).map((c) => (
+                                <option key={c.id} value={c.id}>Reemplazo: {c.nombre}</option>
+                              ))}
+                            </select>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-amber-400 text-amber-700 hover:bg-amber-50 dark:text-amber-300"
+                              disabled={soltandoCliente}
+                              onClick={() => soltarCliente(clienteDetalle.id, clienteDetalle.nombre)}
+                            >
+                              <UserX className="mr-1 h-4 w-4" /> {soltandoCliente ? "Soltando…" : "Soltar cliente"}
+                            </Button>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground">
+                            Sin reemplazo, los pedidos van al pool visible para todos. Con reemplazo, el nuevo chofer tiene prioridad.
+                          </p>
+                        </div>
                       )}
                       {/* Dueño puede cambiar chofer preferido */}
                       {isDueno && choferes.length > 0 && (

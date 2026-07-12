@@ -70,6 +70,7 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
   const [soltarFechaInicio, setSoltarFechaInicio] = useState("");
   const [soltarFechaFin, setSoltarFechaFin] = useState("");
   const [soltarClientes, setSoltarClientes] = useState(false);
+  const [soltarReemplazo, setSoltarReemplazo] = useState("");
   const [soltandoSaving, setSoltandoSaving] = useState(false);
 
   // Campos del formulario
@@ -175,13 +176,20 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
       if (soltarFechaInicio) body.fechaInicio = soltarFechaInicio;
       if (soltarFechaFin) body.fechaFin = soltarFechaFin;
       if (soltarClientes) body.soltarClientes = true;
-      const res = await apiPost<{ ok: boolean; pedidosPrioridad: number; pedidosTomados: number; pedidosAsignados: number; clientesSoltados: number }>(`/api/usuarios/${soltando.id}/soltar-pedidos`, body);
-      const total = (res.pedidosPrioridad || 0) + (res.pedidosTomados || 0) + (res.pedidosAsignados || 0);
-      toast.success(`Pedidos soltados: ${total}. Clientes soltados: ${res.clientesSoltados || 0}.`);
+      if (soltarReemplazo && soltarReemplazo !== "__ninguno") body.reemplazoChoferId = soltarReemplazo;
+      const res = await apiPost<{ ok: boolean; pedidosReasignados: number; pedidosPublicados: number; clientesSoltados: number; clientesReemplazados: number }>(`/api/usuarios/${soltando.id}/soltar-pedidos`, body);
+      const reasignados = res.pedidosReasignados || 0;
+      const publicados = res.pedidosPublicados || 0;
+      if (reasignados > 0) {
+        toast.success(`Pedidos reasignados al reemplazo: ${reasignados}. Clientes reasignados: ${res.clientesReemplazados || 0}.`);
+      } else {
+        toast.success(`Pedidos publicados al pool: ${publicados}. Clientes soltados: ${res.clientesSoltados || 0}.`);
+      }
       setSoltando(null);
       setSoltarFechaInicio("");
       setSoltarFechaFin("");
       setSoltarClientes(false);
+      setSoltarReemplazo("");
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudieron soltar los pedidos");
@@ -405,6 +413,24 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
+            {/* Selector de reemplazo */}
+            <div className="space-y-2">
+              <Label className="text-xs">Chofer de reemplazo (opcional)</Label>
+              <select
+                value={soltarReemplazo || "__ninguno"}
+                onChange={(e) => setSoltarReemplazo(e.target.value === "__ninguno" ? "" : e.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="__ninguno">— Sin reemplazo (publicar al pool) —</option>
+                {usuarios.filter(u => u.id !== soltando?.id && u.activo && u.role === "chofer").map((u) => (
+                  <option key={u.id} value={u.id}>{u.nombre} ({u.email})</option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Con reemplazo: los pedidos se reasignan al nuevo chofer. Sin reemplazo: van al pool visible para todos.
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Desde (opcional)</Label>
@@ -431,11 +457,12 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
               <Switch checked={soltarClientes} onCheckedChange={setSoltarClientes} />
               <div>
                 <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                  También soltar clientes preferidos
+                  También soltar/reemplazar clientes preferidos
                 </p>
                 <p className="text-xs text-amber-700 dark:text-amber-300">
-                  Elimina a este chofer como preferido de todos sus clientes.
-                  Los pedidos futuros no tendrán prioridad para él.
+                  {soltarReemplazo
+                    ? "Transfiere el cliente al chofer de reemplazo como nuevo preferido."
+                    : "Elimina a este chofer como preferido de todos sus clientes. Los pedidos futuros no tendrán prioridad."}
                 </p>
               </div>
             </label>
