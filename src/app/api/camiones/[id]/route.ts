@@ -29,6 +29,22 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.patente !== undefined && { patente: body.patente?.trim() || null }),
       ...(body.capacidad !== undefined && { capacidad: Number(body.capacidad) || 0 }),
       ...(body.activo !== undefined && { activo: !!body.activo }),
+      // Datos del vehículo
+      ...(body.marca !== undefined && { marca: body.marca?.trim() || null }),
+      ...(body.modelo !== undefined && { modelo: body.modelo?.trim() || null }),
+      ...(body.anio !== undefined && { anio: body.anio ? Number(body.anio) : null }),
+      ...(body.color !== undefined && { color: body.color?.trim() || null }),
+      ...(body.numeroMotor !== undefined && { numeroMotor: body.numeroMotor?.trim() || null }),
+      ...(body.numeroChasis !== undefined && { numeroChasis: body.numeroChasis?.trim() || null }),
+      // Documentos
+      ...(body.permisoCirculacionVencimiento !== undefined && { permisoCirculacionVencimiento: body.permisoCirculacionVencimiento ? new Date(body.permisoCirculacionVencimiento) : null }),
+      ...(body.permisoCirculacionFotoUrl !== undefined && { permisoCirculacionFotoUrl: body.permisoCirculacionFotoUrl || null }),
+      ...(body.revisionTecnicaVencimiento !== undefined && { revisionTecnicaVencimiento: body.revisionTecnicaVencimiento ? new Date(body.revisionTecnicaVencimiento) : null }),
+      ...(body.revisionTecnicaFotoUrl !== undefined && { revisionTecnicaFotoUrl: body.revisionTecnicaFotoUrl || null }),
+      ...(body.seguroVencimiento !== undefined && { seguroVencimiento: body.seguroVencimiento ? new Date(body.seguroVencimiento) : null }),
+      ...(body.seguroFotoUrl !== undefined && { seguroFotoUrl: body.seguroFotoUrl || null }),
+      ...(body.seguroCompania !== undefined && { seguroCompania: body.seguroCompania?.trim() || null }),
+      ...(body.seguroNumero !== undefined && { seguroNumero: body.seguroNumero?.trim() || null }),
     },
     include: {
       _count: { select: { vueltas: true } },

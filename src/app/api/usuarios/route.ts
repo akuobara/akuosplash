@@ -29,6 +29,10 @@ export async function GET() {
       activo: true,
       duenoId: true,
       creadoEn: true,
+      licenciaClase: true,
+      licenciaNumero: true,
+      licenciaVencimiento: true,
+      licenciaFotoUrl: true,
       _count: {
         select: {
           vueltasComoChofer: true,

@@ -103,6 +103,15 @@ export async function PUT(req: NextRequest) {
       ...(body.aplicaImpuestoSobre !== undefined && { aplicaImpuestoSobre: body.aplicaImpuestoSobre }),
       ...(body.choferesPuedenEditarClientes !== undefined && { choferesPuedenEditarClientes: !!body.choferesPuedenEditarClientes }),
       ...(body.choferesPuedenCrearPedidos !== undefined && { choferesPuedenCrearPedidos: !!body.choferesPuedenCrearPedidos }),
+      // Datos de empresa
+      ...(body.empresaRazonSocial !== undefined && { empresaRazonSocial: body.empresaRazonSocial?.trim() || null }),
+      ...(body.empresaRut !== undefined && { empresaRut: body.empresaRut?.trim() || null }),
+      ...(body.empresaDireccion !== undefined && { empresaDireccion: body.empresaDireccion?.trim() || null }),
+      ...(body.empresaTelefono !== undefined && { empresaTelefono: body.empresaTelefono?.trim() || null }),
+      ...(body.empresaEmail !== undefined && { empresaEmail: body.empresaEmail?.trim() || null }),
+      ...(body.empresaGiro !== undefined && { empresaGiro: body.empresaGiro?.trim() || null }),
+      ...(body.empresaComuna !== undefined && { empresaComuna: body.empresaComuna?.trim() || null }),
+      ...(body.empresaCiudad !== undefined && { empresaCiudad: body.empresaCiudad?.trim() || null }),
     },
     create: {
       duenoId: session.userId,

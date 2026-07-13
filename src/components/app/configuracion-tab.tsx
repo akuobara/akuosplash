@@ -42,6 +42,15 @@ interface Config {
   aplicaImpuestoSobre: string;
   choferesPuedenEditarClientes: boolean;
   choferesPuedenCrearPedidos: boolean;
+  // Empresa
+  empresaRazonSocial?: string | null;
+  empresaRut?: string | null;
+  empresaDireccion?: string | null;
+  empresaTelefono?: string | null;
+  empresaEmail?: string | null;
+  empresaGiro?: string | null;
+  empresaComuna?: string | null;
+  empresaCiudad?: string | null;
 }
 
 interface ConfiguracionTabProps {
@@ -61,6 +70,16 @@ export function ConfiguracionTab({
 }: ConfiguracionTabProps) {
   const [nombreChofer, setNombreChofer] = useState("");
   const [nombreDueno, setNombreDueno] = useState("");
+
+  // Datos de empresa
+  const [empresaRazonSocial, setEmpresaRazonSocial] = useState("");
+  const [empresaRut, setEmpresaRut] = useState("");
+  const [empresaDireccion, setEmpresaDireccion] = useState("");
+  const [empresaTelefono, setEmpresaTelefono] = useState("");
+  const [empresaEmail, setEmpresaEmail] = useState("");
+  const [empresaGiro, setEmpresaGiro] = useState("");
+  const [empresaComuna, setEmpresaComuna] = useState("");
+  const [empresaCiudad, setEmpresaCiudad] = useState("");
 
   const [modoLiquidacion, setModoLiquidacion] = useState("porcentaje");
 
@@ -100,6 +119,15 @@ export function ConfiguracionTab({
       setAplicaImpuestoSobre(config.aplicaImpuestoSobre || "pago_chofer");
       setChoferesPuedenEditarClientes(config.choferesPuedenEditarClientes ?? false);
       setChoferesPuedenCrearPedidos(config.choferesPuedenCrearPedidos ?? false);
+      // Empresa
+      setEmpresaRazonSocial(config.empresaRazonSocial ?? "");
+      setEmpresaRut(config.empresaRut ?? "");
+      setEmpresaDireccion(config.empresaDireccion ?? "");
+      setEmpresaTelefono(config.empresaTelefono ?? "");
+      setEmpresaEmail(config.empresaEmail ?? "");
+      setEmpresaGiro(config.empresaGiro ?? "");
+      setEmpresaComuna(config.empresaComuna ?? "");
+      setEmpresaCiudad(config.empresaCiudad ?? "");
     }
   }, [config]);
 
@@ -142,6 +170,14 @@ export function ConfiguracionTab({
         aplicaImpuestoSobre,
         choferesPuedenEditarClientes,
         choferesPuedenCrearPedidos,
+        empresaRazonSocial,
+        empresaRut,
+        empresaDireccion,
+        empresaTelefono,
+        empresaEmail,
+        empresaGiro,
+        empresaComuna,
+        empresaCiudad,
       });
       onConfigChange(r.configuracion);
       toast.success("Configuración guardada");
@@ -165,6 +201,59 @@ export function ConfiguracionTab({
           Datos del negocio, camiones, precios, reparto con el dueño e impuestos.
         </p>
       </div>
+
+      {/* Datos de la empresa */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-primary" />
+            <CardTitle className="text-base">Datos de la empresa</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="empresaRazonSocial" className="text-xs">Razón social</Label>
+              <Input id="empresaRazonSocial" value={empresaRazonSocial} onChange={(e) => setEmpresaRazonSocial(e.target.value)} placeholder="Transporte VM SPA" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="empresaRut" className="text-xs">RUT</Label>
+              <Input id="empresaRut" value={empresaRut} onChange={(e) => setEmpresaRut(e.target.value)} placeholder="77.123.456-7" />
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="empresaGiro" className="text-xs">Giro comercial</Label>
+              <Input id="empresaGiro" value={empresaGiro} onChange={(e) => setEmpresaGiro(e.target.value)} placeholder="Transporte de agua" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="empresaDireccion" className="text-xs">Dirección</Label>
+              <Input id="empresaDireccion" value={empresaDireccion} onChange={(e) => setEmpresaDireccion(e.target.value)} placeholder="Av. Principal 123" />
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="empresaComuna" className="text-xs">Comuna</Label>
+              <Input id="empresaComuna" value={empresaComuna} onChange={(e) => setEmpresaComuna(e.target.value)} placeholder="La Serena" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="empresaCiudad" className="text-xs">Ciudad</Label>
+              <Input id="empresaCiudad" value={empresaCiudad} onChange={(e) => setEmpresaCiudad(e.target.value)} placeholder="La Serena" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="empresaTelefono" className="text-xs">Teléfono</Label>
+              <Input id="empresaTelefono" value={empresaTelefono} onChange={(e) => setEmpresaTelefono(e.target.value)} placeholder="+56 51 123 4567" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="empresaEmail" className="text-xs">Email comercial</Label>
+            <Input id="empresaEmail" type="email" value={empresaEmail} onChange={(e) => setEmpresaEmail(e.target.value)} placeholder="contacto@transportevm.cl" />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Estos datos aparecerán en los reportes y facturas. Aparecen en la liquidación como el nombre de la empresa.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Datos del chofer y dueño */}
       <Card>

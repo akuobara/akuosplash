@@ -26,6 +26,12 @@ model Usuario {
   activo        Boolean  @default(true)
   creadoEn      DateTime @default(now())
 
+  // === Datos de licencia de chofer ===
+  licenciaClase        String?   // Clase de licencia (A1, A2, A3, A4, A5, B, C, D, E, F)
+  licenciaNumero       String?   // Número de licencia
+  licenciaVencimiento  DateTime? // Fecha de vencimiento de la licencia
+  licenciaFotoUrl      String?   // Foto/foto escaneada de la licencia
+
   // Relaciones con datos del negocio
   camionesDueno     Camion[]         @relation("CamionDueno")
   asignaciones      CamionChofer[]
@@ -204,6 +210,24 @@ model Camion {
   activo      Boolean  @default(true)
   creadoEn    DateTime @default(now())
 
+  // === Datos del vehículo ===
+  marca              String?   // Marca (Ford, Chevrolet, etc.)
+  modelo             String?   // Modelo
+  anio               Int?      // Año del vehículo
+  color              String?   // Color
+  numeroMotor        String?   // Número de motor
+  numeroChasis       String?   // Número de chasis/VIN
+
+  // === Documentos del vehículo ===
+  permisoCirculacionVencimiento  DateTime?  // Vencimiento permiso de circulación
+  permisoCirculacionFotoUrl      String?    // Foto del permiso
+  revisionTecnicaVencimiento     DateTime?  // Vencimiento revisión técnica
+  revisionTecnicaFotoUrl         String?    // Foto de la revisión
+  seguroVencimiento              DateTime?  // Vencimiento póliza de seguro
+  seguroFotoUrl                  String?    // Foto de la póliza
+  seguroCompania                 String?    // Compañía aseguradora
+  seguroNumero                   String?    // Número de póliza
+
   duenoId     String
   dueno       Usuario  @relation("CamionDueno", fields: [duenoId], references: [id])
 
@@ -345,6 +369,16 @@ model Configuracion {
 
   nombreChofer                String  @default("Chofer")
   nombreDueno                 String  @default("Dueño del Camión")
+
+  // === Datos de la empresa ===
+  empresaRazonSocial          String?  // Razón social (Transporte VM SPA)
+  empresaRut                  String?  // RUT de la empresa
+  empresaDireccion            String?  // Dirección comercial
+  empresaTelefono             String?  // Teléfono de la empresa
+  empresaEmail                String?  // Email comercial
+  empresaGiro                 String?  // Giro comercial
+  empresaComuna               String?  // Comuna
+  empresaCiudad               String?  // Ciudad
 
   capacidadCamion             Int     @default(17000)
 

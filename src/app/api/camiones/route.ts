@@ -81,6 +81,22 @@ export async function POST(req: NextRequest) {
         capacidad,
         activo: body.activo !== false,
         duenoId: session.userId,
+        // Datos del vehículo
+        marca: body.marca?.trim() || null,
+        modelo: body.modelo?.trim() || null,
+        anio: body.anio ? Number(body.anio) : null,
+        color: body.color?.trim() || null,
+        numeroMotor: body.numeroMotor?.trim() || null,
+        numeroChasis: body.numeroChasis?.trim() || null,
+        // Documentos
+        permisoCirculacionVencimiento: body.permisoCirculacionVencimiento ? new Date(body.permisoCirculacionVencimiento) : null,
+        permisoCirculacionFotoUrl: body.permisoCirculacionFotoUrl || null,
+        revisionTecnicaVencimiento: body.revisionTecnicaVencimiento ? new Date(body.revisionTecnicaVencimiento) : null,
+        revisionTecnicaFotoUrl: body.revisionTecnicaFotoUrl || null,
+        seguroVencimiento: body.seguroVencimiento ? new Date(body.seguroVencimiento) : null,
+        seguroFotoUrl: body.seguroFotoUrl || null,
+        seguroCompania: body.seguroCompania?.trim() || null,
+        seguroNumero: body.seguroNumero?.trim() || null,
       },
       include: {
         _count: { select: { vueltas: true } },

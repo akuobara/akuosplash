@@ -39,6 +39,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "No puedes desactivar tu propia cuenta" }, { status: 400 });
   }
 
+  // Datos de licencia de chofer
+  if (body.licenciaClase !== undefined) data.licenciaClase = body.licenciaClase || null;
+  if (body.licenciaNumero !== undefined) data.licenciaNumero = body.licenciaNumero?.trim() || null;
+  if (body.licenciaVencimiento !== undefined) data.licenciaVencimiento = body.licenciaVencimiento ? new Date(body.licenciaVencimiento) : null;
+  if (body.licenciaFotoUrl !== undefined) data.licenciaFotoUrl = body.licenciaFotoUrl || null;
+
   // Si se está desactivando un chofer (activo: false), limpiar referencias + cerrar vueltas activas
   if (data.activo === false && target.role === "chofer") {
     await db.$transaction(async (tx) => {
