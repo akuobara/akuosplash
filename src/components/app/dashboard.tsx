@@ -29,6 +29,9 @@ import {
   ChevronDown,
   ChevronRight,
   Clock,
+  Download,
+  FileText,
+  FileSpreadsheet,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { EntregaForm } from "./entrega-form";
@@ -269,6 +272,26 @@ export function Dashboard({
           <Button onClick={() => setEntregaFormOpen(true)} size="sm">
             <Plus className="mr-1 h-4 w-4" /> Entrega
           </Button>
+          {/* Botones de descarga */}
+          <div className="relative group">
+            <Button variant="outline" size="sm">
+              <Download className="mr-1 h-4 w-4" /> Descargar
+            </Button>
+            <div className="absolute right-0 top-full mt-1 z-20 hidden group-hover:flex flex-col gap-1 rounded-lg border border-border bg-background p-2 shadow-lg min-w-[180px]">
+              <a href={`/api/reportes/descargar?tipo=simple&formato=pdf&period=${period}`} className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2">
+                <FileText className="h-3.5 w-3.5" /> Reporte simple (PDF)
+              </a>
+              <a href={`/api/reportes/descargar?tipo=simple&formato=excel&period=${period}`} className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2">
+                <FileSpreadsheet className="h-3.5 w-3.5" /> Reporte simple (Excel)
+              </a>
+              <a href={`/api/reportes/descargar?tipo=completo&formato=pdf&period=${period}`} className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2">
+                <FileText className="h-3.5 w-3.5" /> Reporte completo (PDF)
+              </a>
+              <a href={`/api/reportes/descargar?tipo=completo&formato=excel&period=${period}`} className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2">
+                <FileSpreadsheet className="h-3.5 w-3.5" /> Reporte completo (Excel)
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 

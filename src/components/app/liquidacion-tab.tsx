@@ -36,6 +36,8 @@ import {
   Smartphone,
   AlertTriangle,
   CheckCircle2,
+  FileText,
+  FileSpreadsheet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPut } from "@/lib/api-client";
@@ -194,6 +196,16 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
           <Button variant="outline" size="sm" onClick={() => window.print()}>
             <Printer className="mr-1 h-4 w-4" /> Imprimir
           </Button>
+          <a href={`/api/reportes/descargar?tipo=completo&formato=pdf&period=${period}`} target="_blank">
+            <Button variant="outline" size="sm">
+              <FileText className="mr-1 h-4 w-4" /> PDF
+            </Button>
+          </a>
+          <a href={`/api/reportes/descargar?tipo=completo&formato=excel&period=${period}`} target="_blank">
+            <Button variant="outline" size="sm">
+              <FileSpreadsheet className="mr-1 h-4 w-4" /> Excel
+            </Button>
+          </a>
         </div>
       </div>
 
