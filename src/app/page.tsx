@@ -37,6 +37,7 @@ import { ConfiguracionTab } from "@/components/app/configuracion-tab";
 import { EquipoTab } from "@/components/app/equipo-tab";
 import { PedidosTab } from "@/components/app/pedidos-tab";
 import { PedidosRecurrentesTab } from "@/components/app/pedidos-recurrentes-tab";
+import { CuentaDialog } from "@/components/app/cuenta-dialog";
 import { HistorialVueltasTab } from "@/components/app/historial-vueltas-tab";
 import { AuthScreen, type SessionUser } from "@/components/app/auth-screen";
 import { apiGet, apiDelete, clearToken } from "@/lib/api-client";
@@ -127,6 +128,7 @@ export default function Home() {
 
   // Toggle de interfaz simple (para choferes con camión asignado)
   const [interfazSimple, setInterfazSimple] = useState(false);
+  const [cuentaOpen, setCuentaOpen] = useState(false);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
@@ -279,6 +281,9 @@ export default function Home() {
                   )}
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem onClick={() => setCuentaOpen(true)}>
+                <UserCog className="mr-2 h-4 w-4" /> Mi cuenta
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                 <LogOut className="mr-2 h-4 w-4" /> Cerrar sesión
               </DropdownMenuItem>
@@ -476,6 +481,22 @@ export default function Home() {
       </footer>
 
       <SonnerToaster richColors position="top-center" />
+
+      {/* Modal: Mi cuenta */}
+      <CuentaDialog
+        open={cuentaOpen}
+        onOpenChange={setCuentaOpen}
+        userId={user.userId}
+        nombreActual={user.nombre}
+        emailActual={user.email}
+        onUpdated={() => {
+          refresh();
+          // Recargar datos del usuario
+          apiGet<{ user: SessionUser | null }>("/api/auth/me").then((data) => {
+            if (data.user) setUser(data.user);
+          });
+        }}
+      />
     </div>
   );
 }
