@@ -1,0 +1,656 @@
+     1→     1→     1→"use client";
+     2→     2→     2→
+     3→     3→     3→import { useEffect, useState, useCallback } from "react";
+     4→     4→     4→import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+     5→     5→     5→import { Button } from "@/components/ui/button";
+     6→     6→     6→import { Input } from "@/components/ui/input";
+     7→     7→     7→import { Label } from "@/components/ui/label";
+     8→     8→     8→import { Switch } from "@/components/ui/switch";
+     9→     9→     9→import { Skeleton } from "@/components/ui/skeleton";
+    10→    10→    10→import { Badge } from "@/components/ui/badge";
+    11→    11→    11→import {
+    12→    12→    12→  Dialog,
+    13→    13→    13→  DialogContent,
+    14→    14→    14→  DialogHeader,
+    15→    15→    15→  DialogTitle,
+    16→    16→    16→  DialogDescription,
+    17→    17→    17→  DialogFooter,
+    18→    18→    18→} from "@/components/ui/dialog";
+    19→    19→    19→import {
+    20→    20→    20→  DropdownMenu,
+    21→    21→    21→  DropdownMenuContent,
+    22→    22→    22→  DropdownMenuItem,
+    23→    23→    23→  DropdownMenuTrigger,
+    24→    24→    24→} from "@/components/ui/dropdown-menu";
+    25→    25→    25→import {
+    26→    26→    26→  Checkbox,
+    27→    27→    27→} from "@/components/ui/checkbox";
+    28→    28→    28→import {
+    29→    29→    29→  Plus,
+    30→    30→    30→  MoreVertical,
+    31→    31→    31→  Pencil,
+    32→    32→    32→  Trash2,
+    33→    33→    33→  Truck,
+    34→    34→    34→  Droplets,
+    35→    35→    35→  User,
+    36→    36→    36→  Users,
+    37→    37→    37→} from "lucide-react";
+    38→    38→    38→import { toast } from "sonner";
+    39→    39→    39→import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
+    40→    40→    40→import { formatNumber } from "@/lib/helpers";
+    41→    41→    41→
+    42→    42→    42→interface Chofer {
+    43→    43→    43→  id: string;
+    44→    44→    44→  nombre: string;
+    45→    45→    45→  email: string;
+    46→    46→    46→  telefono: string | null;
+    47→    47→    47→  role: string;
+    48→    48→    48→  activo: boolean;
+    49→    49→    49→  asignadoEn?: string;
+    50→    50→    50→}
+    51→    51→    51→
+    52→    52→    52→interface Camion {
+    53→    53→    53→  id: string;
+    54→    54→    54→  nombre: string;
+    55→    55→    55→  patente: string | null;
+    56→    56→    56→  capacidad: number;
+    57→    57→    57→  activo: boolean;
+    58→    58→    58→  creadoEn: string;
+    59→    59→    59→  choferes?: Chofer[];
+    60→    60→    60→  _count?: { vueltas: number };
+    61→    61→    61→  marca?: string | null;
+    62→    62→    62→  modelo?: string | null;
+    63→    63→    63→  anio?: number | null;
+    64→    64→    64→  color?: string | null;
+    65→    65→    65→  numeroMotor?: string | null;
+    66→    66→    66→  numeroChasis?: string | null;
+    67→    67→    67→  permisoCirculacionVencimiento?: string | null;
+    68→    68→    68→  permisoCirculacionFotoUrl?: string | null;
+    69→    69→    69→  revisionTecnicaVencimiento?: string | null;
+    70→    70→    70→  revisionTecnicaFotoUrl?: string | null;
+    71→    71→    71→  seguroVencimiento?: string | null;
+    72→    72→    72→  seguroFotoUrl?: string | null;
+    73→    73→    73→  seguroCompania?: string | null;
+    74→    74→    74→  seguroNumero?: string | null;
+    75→    75→    75→}
+    76→    76→    76→
+    77→    77→    77→interface Usuario {
+    78→    78→    78→  id: string;
+    79→    79→    79→  nombre: string;
+    80→    80→    80→  email: string;
+    81→    81→    81→  telefono: string | null;
+    82→    82→    82→  role: string;
+    83→    83→    83→  activo: boolean;
+    84→    84→    84→}
+    85→    85→    85→
+    86→    86→    86→interface CamionesManagerProps {
+    87→    87→    87→  refreshKey: number;
+    88→    88→    88→  onRefresh: () => void;
+    89→    89→    89→  onCamionesChange: (camiones: Camion[]) => void;
+    90→    90→    90→  isDueno: boolean;
+    91→    91→    91→}
+    92→    92→    92→
+    93→    93→    93→export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDueno }: CamionesManagerProps) {
+    94→    94→    94→  const [camiones, setCamiones] = useState<Camion[]>([]);
+    95→    95→    95→  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+    96→    96→    96→  const [loading, setLoading] = useState(true);
+    97→    97→    97→
+    98→    98→    98→  const [formOpen, setFormOpen] = useState(false);
+    99→    99→    99→  const [editando, setEditando] = useState<Camion | null>(null);
+   100→   100→   100→  const [borrando, setBorrando] = useState<Camion | null>(null);
+   101→   101→   101→  const [asignando, setAsignando] = useState<Camion | null>(null);
+   102→   102→   102→
+   103→   103→   103→  // Campos del formulario
+   104→   104→   104→  const [nombre, setNombre] = useState("");
+   105→   105→   105→  const [patente, setPatente] = useState("");
+   106→   106→   106→  const [capacidad, setCapacidad] = useState("17000");
+   107→   107→   107→  const [activo, setActivo] = useState(true);
+   108→   108→   108→  const [autoAsignarDueno, setAutoAsignarDueno] = useState(true);
+   109→   109→   109→  const [saving, setSaving] = useState(false);
+   110→   110→   110→
+   111→   111→   111→  // Datos del vehículo
+   112→   112→   112→  const [marca, setMarca] = useState("");
+   113→   113→   113→  const [modelo, setModelo] = useState("");
+   114→   114→   114→  const [anio, setAnio] = useState("");
+   115→   115→   115→  const [color, setColor] = useState("");
+   116→   116→   116→  const [numeroMotor, setNumeroMotor] = useState("");
+   117→   117→   117→  const [numeroChasis, setNumeroChasis] = useState("");
+   118→   118→   118→
+   119→   119→   119→  // Documentos
+   120→   120→   120→  const [permisoCircVenc, setPermisoCircVenc] = useState("");
+   121→   121→   121→  const [revisionTecVenc, setRevisionTecVenc] = useState("");
+   122→   122→   122→  const [seguroVenc, setSeguroVenc] = useState("");
+   123→   123→   123→  const [seguroCompania, setSeguroCompania] = useState("");
+   124→   124→   124→  const [seguroNumero, setSeguroNumero] = useState("");
+   125→   125→   125→  const [subiendoDoc, setSubiendoDoc] = useState(false);
+   126→   126→   126→  const [permisoCircFoto, setPermisoCircFoto] = useState<string | null>(null);
+   127→   127→   127→  const [revisionTecFoto, setRevisionTecFoto] = useState<string | null>(null);
+   128→   128→   128→  const [seguroFoto, setSeguroFoto] = useState<string | null>(null);
+   129→   129→   129→
+   130→   130→   130→  // Choferes seleccionados para asignar
+   131→   131→   131→  const [choferesSeleccionados, setChoferesSeleccionados] = useState<Set<string>>(new Set());
+   132→   132→   132→
+   133→   133→   133→  const cargar = useCallback(async () => {
+   134→   134→   134→    setLoading(true);
+   135→   135→   135→    try {
+   136→   136→   136→      const data = await apiGet<{ camiones: Camion[] }>("/api/camiones");
+   137→   137→   137→      setCamiones(data.camiones);
+   138→   138→   138→      onCamionesChange(data.camiones);
+   139→   139→   139→      if (isDueno) {
+   140→   140→   140→        const userData = await apiGet<{ usuarios: Usuario[] }>("/api/usuarios");
+   141→   141→   141→        setUsuarios(userData.usuarios);
+   142→   142→   142→      }
+   143→   143→   143→    } catch (e) {
+   144→   144→   144→      console.error(e);
+   145→   145→   145→      toast.error("No se pudieron cargar los camiones");
+   146→   146→   146→    } finally {
+   147→   147→   147→      setLoading(false);
+   148→   148→   148→    }
+   149→   149→   149→  }, [onCamionesChange, isDueno]);
+   150→   150→   150→
+   151→   151→   151→  useEffect(() => {
+   152→   152→   152→    cargar();
+   153→   153→   153→  }, [cargar, refreshKey]);
+   154→   154→   154→
+   155→   155→   155→  function abrirNuevo() {
+   156→   156→   156→    setEditando(null);
+   157→   157→   157→    setNombre(""); setPatente(""); setCapacidad("17000"); setActivo(true); setAutoAsignarDueno(true);
+   158→   158→   158→    setMarca(""); setModelo(""); setAnio(""); setColor(""); setNumeroMotor(""); setNumeroChasis("");
+   159→   159→   159→    setPermisoCircVenc(""); setRevisionTecVenc(""); setSeguroVenc(""); setSeguroCompania(""); setSeguroNumero("");
+   160→   160→   160→    setPermisoCircFoto(null); setRevisionTecFoto(null); setSeguroFoto(null);
+   161→   161→   161→    setFormOpen(true);
+   162→   162→   162→  }
+   163→   163→   163→
+   164→   164→   164→  function abrirEditar(c: Camion) {
+   165→   165→   165→    setEditando(c);
+   166→   166→   166→    setNombre(c.nombre); setPatente(c.patente ?? ""); setCapacidad(String(c.capacidad)); setActivo(c.activo);
+   167→   167→   167→    setMarca(c.marca ?? ""); setModelo(c.modelo ?? ""); setAnio(c.anio ? String(c.anio) : ""); setColor(c.color ?? "");
+   168→   168→   168→    setNumeroMotor(c.numeroMotor ?? ""); setNumeroChasis(c.numeroChasis ?? "");
+   169→   169→   169→    setPermisoCircVenc(c.permisoCirculacionVencimiento ? c.permisoCirculacionVencimiento.split("T")[0] : "");
+   170→   170→   170→    setRevisionTecVenc(c.revisionTecnicaVencimiento ? c.revisionTecnicaVencimiento.split("T")[0] : "");
+   171→   171→   171→    setSeguroVenc(c.seguroVencimiento ? c.seguroVencimiento.split("T")[0] : "");
+   172→   172→   172→    setSeguroCompania(c.seguroCompania ?? ""); setSeguroNumero(c.seguroNumero ?? "");
+   173→   173→   173→    setPermisoCircFoto(c.permisoCirculacionFotoUrl ?? null);
+   174→   174→   174→    setRevisionTecFoto(c.revisionTecnicaFotoUrl ?? null);
+   175→   175→   175→    setSeguroFoto(c.seguroFotoUrl ?? null);
+   176→   176→   176→    setFormOpen(true);
+   177→   177→   177→  }
+   178→   178→   178→
+   179→   179→   179→  function abrirAsignar(c: Camion) {
+   180→   180→   180→    setAsignando(c);
+   181→   181→   181→    setChoferesSeleccionados(new Set((c.choferes ?? []).map((ch) => ch.id)));
+   182→   182→   182→  }
+   183→   183→   183→
+   184→   184→   184→  async function handleSave(e: React.FormEvent) {
+   185→   185→   185→    e.preventDefault();
+   186→   186→   186→    if (!nombre.trim()) {
+   187→   187→   187→      toast.error("El nombre es obligatorio");
+   188→   188→   188→      return;
+   189→   189→   189→    }
+   190→   190→   190→    const capacidadNum = Number(capacidad) || 0;
+   191→   191→   191→    if (capacidadNum <= 0) {
+   192→   192→   192→      toast.error("La capacidad debe ser mayor a 0");
+   193→   193→   193→      return;
+   194→   194→   194→    }
+   195→   195→   195→
+   196→   196→   196→    setSaving(true);
+   197→   197→   197→    try {
+   198→   198→   198→      const payload: Record<string, unknown> = {
+   199→   199→   199→        nombre: nombre.trim(),
+   200→   200→   200→        patente: patente.trim() || null,
+   201→   201→   201→        capacidad: capacidadNum,
+   202→   202→   202→        activo,
+   203→   203→   203→        autoAsignarDueno: !editando && autoAsignarDueno,
+   204→   204→   204→        marca: marca.trim() || null,
+   205→   205→   205→        modelo: modelo.trim() || null,
+   206→   206→   206→        anio: anio ? Number(anio) : null,
+   207→   207→   207→        color: color.trim() || null,
+   208→   208→   208→        numeroMotor: numeroMotor.trim() || null,
+   209→   209→   209→        numeroChasis: numeroChasis.trim() || null,
+   210→   210→   210→        permisoCirculacionVencimiento: permisoCircVenc || null,
+   211→   211→   211→        permisoCirculacionFotoUrl: permisoCircFoto,
+   212→   212→   212→        revisionTecnicaVencimiento: revisionTecVenc || null,
+   213→   213→   213→        revisionTecnicaFotoUrl: revisionTecFoto,
+   214→   214→   214→        seguroVencimiento: seguroVenc || null,
+   215→   215→   215→        seguroFotoUrl: seguroFoto,
+   216→   216→   216→        seguroCompania: seguroCompania.trim() || null,
+   217→   217→   217→        seguroNumero: seguroNumero.trim() || null,
+   218→   218→   218→      };
+   219→   219→   219→      if (editando) {
+   220→   220→   220→        await apiPatch(`/api/camiones/${editando.id}`, payload);
+   221→   221→   221→        toast.success("Camión actualizado");
+   222→   222→   222→      } else {
+   223→   223→   223→        await apiPost("/api/camiones", payload);
+   224→   224→   224→        toast.success("Camión creado");
+   225→   225→   225→      }
+   226→   226→   226→      setFormOpen(false);
+   227→   227→   227→      onRefresh();
+   228→   228→   228→    } catch (e) {
+   229→   229→   229→      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+   230→   230→   230→    } finally {
+   231→   231→   231→      setSaving(false);
+   232→   232→   232→    }
+   233→   233→   233→  }
+   234→   234→   234→
+   235→   235→   235→  async function handleBorrar(c: Camion) {
+   236→   236→   236→    try {
+   237→   237→   237→      await apiDelete(`/api/camiones/${c.id}`);
+   238→   238→   238→      toast.success("Camión eliminado");
+   239→   239→   239→      setBorrando(null);
+   240→   240→   240→      onRefresh();
+   241→   241→   241→    } catch (e) {
+   242→   242→   242→      toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+   243→   243→   243→    }
+   244→   244→   244→  }
+   245→   245→   245→
+   246→   246→   246→  async function guardarAsignacion() {
+   247→   247→   247→    if (!asignando) return;
+   248→   248→   248→
+   249→   249→   249→    const actuales = new Set((asignando.choferes ?? []).map((ch) => ch.id));
+   250→   250→   250→    const agregar = [...choferesSeleccionados].filter((id) => !actuales.has(id));
+   251→   251→   251→    const quitar = [...actuales].filter((id) => !choferesSeleccionados.has(id));
+   252→   252→   252→
+   253→   253→   253→    try {
+   254→   254→   254→      await Promise.all([
+   255→   255→   255→        ...agregar.map((choferId) =>
+   256→   256→   256→          apiPost(`/api/camiones/${asignando.id}/choferes`, { choferId })
+   257→   257→   257→        ),
+   258→   258→   258→        ...quitar.map((choferId) =>
+   259→   259→   259→          apiDelete(`/api/camiones/${asignando.id}/choferes?choferId=${choferId}`)
+   260→   260→   260→        ),
+   261→   261→   261→      ]);
+   262→   262→   262→      toast.success("Choferes asignados");
+   263→   263→   263→      setAsignando(null);
+   264→   264→   264→      onRefresh();
+   265→   265→   265→    } catch (e) {
+   266→   266→   266→      toast.error(e instanceof Error ? e.message : "No se pudo asignar");
+   267→   267→   267→    }
+   268→   268→   268→  }
+   269→   269→   269→
+   270→   270→   270→  function toggleChofer(id: string) {
+   271→   271→   271→    setChoferesSeleccionados((prev) => {
+   272→   272→   272→      const next = new Set(prev);
+   273→   273→   273→      if (next.has(id)) next.delete(id);
+   274→   274→   274→      else next.add(id);
+   275→   275→   275→      return next;
+   276→   276→   276→    });
+   277→   277→   277→  }
+   278→   278→   278→
+   279→   279→   279→  return (
+   280→   280→   280→    <Card>
+   281→   281→   281→      <CardHeader className="pb-3">
+   282→   282→   282→        <div className="flex items-center justify-between">
+   283→   283→   283→          <div className="flex items-center gap-2">
+   284→   284→   284→            <Truck className="h-4 w-4 text-primary" />
+   285→   285→   285→            <CardTitle className="text-base">Camiones ({camiones.length})</CardTitle>
+   286→   286→   286→          </div>
+   287→   287→   287→          {isDueno && (
+   288→   288→   288→            <Button onClick={abrirNuevo} size="sm" variant="outline">
+   289→   289→   289→              <Plus className="mr-1 h-4 w-4" /> Agregar
+   290→   290→   290→            </Button>
+   291→   291→   291→          )}
+   292→   292→   292→        </div>
+   293→   293→   293→        <p className="text-xs text-muted-foreground">
+   294→   294→   294→          Cada camión tiene su propia capacidad y choferes asignados.
+   295→   295→   295→        </p>
+   296→   296→   296→      </CardHeader>
+   297→   297→   297→      <CardContent>
+   298→   298→   298→        {loading ? (
+   299→   299→   299→          <div className="space-y-2">
+   300→   300→   300→            {Array.from({ length: 2 }).map((_, i) => (
+   301→   301→   301→              <Skeleton key={i} className="h-20 rounded-lg" />
+   302→   302→   302→            ))}
+   303→   303→   303→          </div>
+   304→   304→   304→        ) : camiones.length === 0 ? (
+   305→   305→   305→          <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+   306→   306→   306→            No hay camiones. {isDueno && "Agrega el primero."}
+   307→   307→   307→          </div>
+   308→   308→   308→        ) : (
+   309→   309→   309→          <ul className="space-y-2">
+   310→   310→   310→            {camiones.map((c) => (
+   311→   311→   311→              <li
+   312→   312→   312→                key={c.id}
+   313→   313→   313→                className="rounded-lg border border-border p-3"
+   314→   314→   314→              >
+   315→   315→   315→                <div className="flex items-center gap-3">
+   316→   316→   316→                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+   317→   317→   317→                    <Truck className="h-5 w-5" />
+   318→   318→   318→                  </div>
+   319→   319→   319→                  <div className="min-w-0 flex-1">
+   320→   320→   320→                    <div className="flex flex-wrap items-center gap-2">
+   321→   321→   321→                      <span className="font-medium">{c.nombre}</span>
+   322→   322→   322→                      {c.patente && (
+   323→   323→   323→                        <Badge variant="outline" className="text-[10px]">{c.patente}</Badge>
+   324→   324→   324→                      )}
+   325→   325→   325→                      {c.activo ? (
+   326→   326→   326→                        <Badge variant="secondary" className="text-[10px] text-emerald-700 dark:text-emerald-300">
+   327→   327→   327→                          Activo
+   328→   328→   328→                        </Badge>
+   329→   329→   329→                      ) : (
+   330→   330→   330→                        <Badge variant="outline" className="text-[10px] text-muted-foreground">
+   331→   331→   331→                          Inactivo
+   332→   332→   332→                        </Badge>
+   333→   333→   333→                      )}
+   334→   334→   334→                    </div>
+   335→   335→   335→                    <p className="text-xs text-muted-foreground">
+   336→   336→   336→                      <Droplets className="mr-1 inline h-3 w-3" />
+   337→   337→   337→                      Capacidad: <strong>{formatNumber(c.capacidad, 0)} L</strong>
+   338→   338→   338→                      {c._count && c._count.vueltas > 0 && ` · ${c._count.vueltas} vuelta(s)`}
+   339→   339→   339→                      {c.marca && ` · ${c.marca}${c.modelo ? ` ${c.modelo}` : ""}${c.anio ? ` ${c.anio}` : ""}`}
+   340→   340→   340→                    </p>
+   341→   341→   341→                    {/* Badges de documentos */}
+   342→   342→   342→                    {(() => {
+   343→   343→   343→                      const hoy = new Date();
+   344→   344→   344→                      const vencidos: string[] = [];
+   345→   345→   345→                      if (c.permisoCirculacionVencimiento && new Date(c.permisoCirculacionVencimiento) < hoy) vencidos.push("Perm. circ.");
+   346→   346→   346→                      if (c.revisionTecnicaVencimiento && new Date(c.revisionTecnicaVencimiento) < hoy) vencidos.push("Rev. técnica");
+   347→   347→   347→                      if (c.seguroVencimiento && new Date(c.seguroVencimiento) < hoy) vencidos.push("Seguro");
+   348→   348→   348→                      if (vencidos.length > 0) {
+   349→   349→   349→                        return (
+   350→   350→   350→                          <div className="mt-1 flex items-center gap-1">
+   351→   351→   351→                            <Badge variant="outline" className="text-[10px] text-red-600 border-red-300 dark:border-red-800">
+   352→   352→   352→                              ⚠ {vencidos.join(", ")} vencido(s)
+   353→   353→   353→                            </Badge>
+   354→   354→   354→                          </div>
+   355→   355→   355→                        );
+   356→   356→   356→                      }
+   357→   357→   357→                      return null;
+   358→   358→   358→                    })()}
+   359→   359→   359→                    {/* Choferes asignados */}
+   360→   360→   360→                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
+   361→   361→   361→                      <Users className="h-3 w-3 text-muted-foreground" />
+   362→   362→   362→                      {(c.choferes ?? []).length === 0 ? (
+   363→   363→   363→                        <span className="text-xs text-muted-foreground">Sin choferes asignados</span>
+   364→   364→   364→                      ) : (
+   365→   365→   365→                        (c.choferes ?? []).map((ch) => (
+   366→   366→   366→                          <Badge key={ch.id} variant="outline" className="text-[10px] gap-1">
+   367→   367→   367→                            <User className="h-2.5 w-2.5" />
+   368→   368→   368→                            {ch.nombre}
+   369→   369→   369→                            {ch.role === "dueno" && " (dueño)"}
+   370→   370→   370→                          </Badge>
+   371→   371→   371→                        ))
+   372→   372→   372→                      )}
+   373→   373→   373→                    </div>
+   374→   374→   374→                  </div>
+   375→   375→   375→                  {isDueno && (
+   376→   376→   376→                    <DropdownMenu>
+   377→   377→   377→                      <DropdownMenuTrigger asChild>
+   378→   378→   378→                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+   379→   379→   379→                          <MoreVertical className="h-4 w-4" />
+   380→   380→   380→                        </Button>
+   381→   381→   381→                      </DropdownMenuTrigger>
+   382→   382→   382→                      <DropdownMenuContent align="end">
+   383→   383→   383→                        <DropdownMenuItem onClick={() => abrirAsignar(c)}>
+   384→   384→   384→                          <Users className="mr-2 h-4 w-4" /> Asignar choferes
+   385→   385→   385→                        </DropdownMenuItem>
+   386→   386→   386→                        <DropdownMenuItem onClick={() => abrirEditar(c)}>
+   387→   387→   387→                          <Pencil className="mr-2 h-4 w-4" /> Editar
+   388→   388→   388→                        </DropdownMenuItem>
+   389→   389→   389→                        <DropdownMenuItem
+   390→   390→   390→                          className="text-destructive focus:text-destructive"
+   391→   391→   391→                          onClick={() => setBorrando(c)}
+   392→   392→   392→                        >
+   393→   393→   393→                          <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+   394→   394→   394→                        </DropdownMenuItem>
+   395→   395→   395→                      </DropdownMenuContent>
+   396→   396→   396→                    </DropdownMenu>
+   397→   397→   397→                  )}
+   398→   398→   398→                </div>
+   399→   399→   399→              </li>
+   400→   400→   400→            ))}
+   401→   401→   401→          </ul>
+   402→   402→   402→        )}
+   403→   403→   403→      </CardContent>
+   404→   404→   404→
+   405→   405→   405→      {/* Formulario crear/editar camión */}
+   406→   406→   406→      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+   407→   407→   407→        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
+   408→   408→   408→          <DialogHeader>
+   409→   409→   409→            <DialogTitle>{editando ? "Editar camión" : "Nuevo camión"}</DialogTitle>
+   410→   410→   410→            <DialogDescription>
+   411→   411→   411→              Datos del vehículo y documentos. Los documentos vencidos mostrarán una advertencia.
+   412→   412→   412→            </DialogDescription>
+   413→   413→   413→          </DialogHeader>
+   414→   414→   414→          <form onSubmit={handleSave} className="space-y-4">
+   415→   415→   415→            {/* Datos básicos */}
+   416→   416→   416→            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-3">
+   417→   417→   417→              <p className="text-xs font-medium uppercase text-muted-foreground">Datos básicos</p>
+   418→   418→   418→              <div className="grid gap-3 sm:grid-cols-2">
+   419→   419→   419→                <div className="space-y-2">
+   420→   420→   420→                  <Label htmlFor="camionNombre" className="text-xs">Nombre / alias *</Label>
+   421→   421→   421→                  <Input id="camionNombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Camión grande" required />
+   422→   422→   422→                </div>
+   423→   423→   423→                <div className="space-y-2">
+   424→   424→   424→                  <Label htmlFor="camionPatente" className="text-xs">Patente</Label>
+   425→   425→   425→                  <Input id="camionPatente" value={patente} onChange={(e) => setPatente(e.target.value.toUpperCase())} placeholder="ABCD12" />
+   426→   426→   426→                </div>
+   427→   427→   427→              </div>
+   428→   428→   428→              <div className="grid gap-3 sm:grid-cols-2">
+   429→   429→   429→                <div className="space-y-2">
+   430→   430→   430→                  <Label htmlFor="camionCapacidad" className="text-xs">Capacidad (litros) *</Label>
+   431→   431→   431→                  <Input id="camionCapacidad" type="number" value={capacidad} onChange={(e) => setCapacidad(e.target.value)} placeholder="17000" required />
+   432→   432→   432→                </div>
+   433→   433→   433→                <div className="flex items-center justify-between rounded-md border border-border p-2">
+   434→   434→   434→                  <Label htmlFor="camionActivo" className="text-xs">Activo</Label>
+   435→   435→   435→                  <Switch id="camionActivo" checked={activo} onCheckedChange={setActivo} />
+   436→   436→   436→                </div>
+   437→   437→   437→              </div>
+   438→   438→   438→            </div>
+   439→   439→   439→
+   440→   440→   440→            {/* Datos del vehículo */}
+   441→   441→   441→            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-3">
+   442→   442→   442→              <p className="text-xs font-medium uppercase text-muted-foreground">Datos del vehículo</p>
+   443→   443→   443→              <div className="grid gap-3 sm:grid-cols-3">
+   444→   444→   444→                <div className="space-y-2">
+   445→   445→   445→                  <Label htmlFor="camionMarca" className="text-xs">Marca</Label>
+   446→   446→   446→                  <Input id="camionMarca" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Ford" />
+   447→   447→   447→                </div>
+   448→   448→   448→                <div className="space-y-2">
+   449→   449→   449→                  <Label htmlFor="camionModelo" className="text-xs">Modelo</Label>
+   450→   450→   450→                  <Input id="camionModelo" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder="F-1000" />
+   451→   451→   451→                </div>
+   452→   452→   452→                <div className="space-y-2">
+   453→   453→   453→                  <Label htmlFor="camionAnio" className="text-xs">Año</Label>
+   454→   454→   454→                  <Input id="camionAnio" type="number" value={anio} onChange={(e) => setAnio(e.target.value)} placeholder="2015" />
+   455→   455→   455→                </div>
+   456→   456→   456→              </div>
+   457→   457→   457→              <div className="grid gap-3 sm:grid-cols-3">
+   458→   458→   458→                <div className="space-y-2">
+   459→   459→   459→                  <Label htmlFor="camionColor" className="text-xs">Color</Label>
+   460→   460→   460→                  <Input id="camionColor" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Azul" />
+   461→   461→   461→                </div>
+   462→   462→   462→                <div className="space-y-2">
+   463→   463→   463→                  <Label htmlFor="camionMotor" className="text-xs">N° Motor</Label>
+   464→   464→   464→                  <Input id="camionMotor" value={numeroMotor} onChange={(e) => setNumeroMotor(e.target.value)} placeholder="Motor123" />
+   465→   465→   465→                </div>
+   466→   466→   466→                <div className="space-y-2">
+   467→   467→   467→                  <Label htmlFor="camionChasis" className="text-xs">N° Chasis/VIN</Label>
+   468→   468→   468→                  <Input id="camionChasis" value={numeroChasis} onChange={(e) => setNumeroChasis(e.target.value)} placeholder="VIN123" />
+   469→   469→   469→                </div>
+   470→   470→   470→              </div>
+   471→   471→   471→            </div>
+   472→   472→   472→
+   473→   473→   473→            {/* Documentos */}
+   474→   474→   474→            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-3 dark:border-amber-800 dark:bg-amber-900/20">
+   475→   475→   475→              <p className="text-xs font-medium uppercase text-amber-900 dark:text-amber-200">Documentos del vehículo</p>
+   476→   476→   476→
+   477→   477→   477→              {/* Permiso de circulación */}
+   478→   478→   478→              <div className="grid gap-2 sm:grid-cols-2">
+   479→   479→   479→                <div className="space-y-1">
+   480→   480→   480→                  <Label htmlFor="permisoCircVenc" className="text-xs">Permiso circulación — vencimiento</Label>
+   481→   481→   481→                  <Input id="permisoCircVenc" type="date" value={permisoCircVenc} onChange={(e) => setPermisoCircVenc(e.target.value)} />
+   482→   482→   482→                </div>
+   483→   483→   483→                <div className="space-y-1">
+   484→   484→   484→                  <Label className="text-xs">Foto del permiso</Label>
+   485→   485→   485→                  <div className="flex gap-2">
+   486→   486→   486→                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+   487→   487→   487→                      const f = e.target.files?.[0]; if (!f) return;
+   488→   488→   488→                      setSubiendoDoc(true);
+   489→   489→   489→                      try {
+   490→   490→   490→                        const fd = new FormData(); fd.append("file", f);
+   491→   491→   491→                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
+   492→   492→   492→                        const d = await res.json(); setPermisoCircFoto(d.url);
+   493→   493→   493→                        toast.success("Foto subida");
+   494→   494→   494→                      } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
+   495→   495→   495→                    }} />
+   496→   496→   496→                    {permisoCircFoto && <a href={permisoCircFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
+   497→   497→   497→                  </div>
+   498→   498→   498→                </div>
+   499→   499→   499→              </div>
+   500→   500→   500→
+   501→   501→   501→              {/* Revisión técnica */}
+   502→   502→   502→              <div className="grid gap-2 sm:grid-cols-2">
+   503→   503→   503→                <div className="space-y-1">
+   504→   504→   504→                  <Label htmlFor="revisionTecVenc" className="text-xs">Revisión técnica — vencimiento</Label>
+   505→   505→   505→                  <Input id="revisionTecVenc" type="date" value={revisionTecVenc} onChange={(e) => setRevisionTecVenc(e.target.value)} />
+   506→   506→   506→                </div>
+   507→   507→   507→                <div className="space-y-1">
+   508→   508→   508→                  <Label className="text-xs">Foto de la revisión</Label>
+   509→   509→   509→                  <div className="flex gap-2">
+   510→   510→   510→                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+   511→   511→   511→                      const f = e.target.files?.[0]; if (!f) return;
+   512→   512→   512→                      setSubiendoDoc(true);
+   513→   513→   513→                      try {
+   514→   514→   514→                        const fd = new FormData(); fd.append("file", f);
+   515→   515→   515→                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
+   516→   516→   516→                        const d = await res.json(); setRevisionTecFoto(d.url);
+   517→   517→   517→                        toast.success("Foto subida");
+   518→   518→   518→                      } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
+   519→   519→   519→                    }} />
+   520→   520→   520→                    {revisionTecFoto && <a href={revisionTecFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
+   521→   521→   521→                  </div>
+   522→   522→   522→                </div>
+   523→   523→   523→              </div>
+   524→   524→   524→
+   525→   525→   525→              {/* Seguro */}
+   526→   526→   526→              <div className="grid gap-2 sm:grid-cols-2">
+   527→   527→   527→                <div className="space-y-1">
+   528→   528→   528→                  <Label htmlFor="seguroVenc" className="text-xs">Seguro — vencimiento</Label>
+   529→   529→   529→                  <Input id="seguroVenc" type="date" value={seguroVenc} onChange={(e) => setSeguroVenc(e.target.value)} />
+   530→   530→   530→                </div>
+   531→   531→   531→                <div className="space-y-1">
+   532→   532→   532→                  <Label className="text-xs">Foto de la póliza</Label>
+   533→   533→   533→                  <div className="flex gap-2">
+   534→   534→   534→                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+   535→   535→   535→                      const f = e.target.files?.[0]; if (!f) return;
+   536→   536→   536→                      setSubiendoDoc(true);
+   537→   537→   537→                      try {
+   538→   538→   538→                        const fd = new FormData(); fd.append("file", f);
+   539→   539→   539→                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
+   540→   540→   540→                        const d = await res.json(); setSeguroFoto(d.url);
+   541→   541→   541→                        toast.success("Foto subida");
+   542→   542→   542→                      } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
+   543→   543→   543→                    }} />
+   544→   544→   544→                    {seguroFoto && <a href={seguroFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
+   545→   545→   545→                  </div>
+   546→   546→   546→                </div>
+   547→   547→   547→              </div>
+   548→   548→   548→              <div className="grid gap-2 sm:grid-cols-2">
+   549→   549→   549→                <div className="space-y-1">
+   550→   550→   550→                  <Label htmlFor="seguroCompania" className="text-xs">Compañía aseguradora</Label>
+   551→   551→   551→                  <Input id="seguroCompania" value={seguroCompania} onChange={(e) => setSeguroCompania(e.target.value)} placeholder="Mutual de Seguridad" />
+   552→   552→   552→                </div>
+   553→   553→   553→                <div className="space-y-1">
+   554→   554→   554→                  <Label htmlFor="seguroNumero" className="text-xs">N° de póliza</Label>
+   555→   555→   555→                  <Input id="seguroNumero" value={seguroNumero} onChange={(e) => setSeguroNumero(e.target.value)} placeholder="POL-12345" />
+   556→   556→   556→                </div>
+   557→   557→   557→              </div>
+   558→   558→   558→            </div>
+   559→   559→   559→
+   560→   560→   560→            {!editando && (
+   561→   561→   561→              <div className="flex items-center justify-between rounded-lg border border-border p-3">
+   562→   562→   562→                <div>
+   563→   563→   563→                  <Label htmlFor="autoAsignar" className="text-sm font-medium">Asignarme como chofer</Label>
+   564→   564→   564→                  <p className="text-xs text-muted-foreground">Te asigna automáticamente a ti (dueño) como chofer de este camión.</p>
+   565→   565→   565→                </div>
+   566→   566→   566→                <Switch id="autoAsignar" checked={autoAsignarDueno} onCheckedChange={setAutoAsignarDueno} />
+   567→   567→   567→              </div>
+   568→   568→   568→            )}
+   569→   569→   569→            {subiendoDoc && <p className="text-xs text-muted-foreground text-center">Subiendo documento…</p>}
+   570→   570→   570→            <DialogFooter>
+   571→   571→   571→              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>Cancelar</Button>
+   572→   572→   572→              <Button type="submit" disabled={saving || subiendoDoc}>
+   573→   573→   573→                {saving ? "Guardando…" : editando ? "Guardar cambios" : "Crear camión"}
+   574→   574→   574→              </Button>
+   575→   575→   575→            </DialogFooter>
+   576→   576→   576→          </form>
+   577→   577→   577→        </DialogContent>
+   578→   578→   578→      </Dialog>
+   579→   579→   579→
+   580→   580→   580→      {/* Diálogo asignar choferes */}
+   581→   581→   581→      <Dialog open={!!asignando} onOpenChange={(o) => !o && setAsignando(null)}>
+   582→   582→   582→        <DialogContent className="max-w-md">
+   583→   583→   583→          <DialogHeader>
+   584→   584→   584→            <DialogTitle>Asignar choferes a {asignando?.nombre}</DialogTitle>
+   585→   585→   585→            <DialogDescription>
+   586→   586→   586→              Selecciona quiénes pueden conducir este camión. Un camión puede tener varios choferes.
+   587→   587→   587→            </DialogDescription>
+   588→   588→   588→          </DialogHeader>
+   589→   589→   589→          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+   590→   590→   590→            {usuarios.length === 0 ? (
+   591→   591→   591→              <p className="text-sm text-muted-foreground text-center p-4">
+   592→   592→   592→                No hay usuarios. Crea choferes en la pestaña Equipo.
+   593→   593→   593→              </p>
+   594→   594→   594→            ) : (
+   595→   595→   595→              usuarios.filter((u) => u.activo || choferesSeleccionados.has(u.id)).map((u) => (
+   596→   596→   596→                <label
+   597→   597→   597→                  key={u.id}
+   598→   598→   598→                  className="flex items-center gap-3 rounded-lg border border-border p-3 cursor-pointer hover:bg-muted/30"
+   599→   599→   599→                >
+   600→   600→   600→                  <Checkbox
+   601→   601→   601→                    checked={choferesSeleccionados.has(u.id)}
+   602→   602→   602→                    onCheckedChange={() => toggleChofer(u.id)}
+   603→   603→   603→                  />
+   604→   604→   604→                  <div className="flex-1 min-w-0">
+   605→   605→   605→                    <div className="flex items-center gap-2">
+   606→   606→   606→                      <span className="font-medium">{u.nombre}</span>
+   607→   607→   607→                      <Badge variant="outline" className="text-[10px]">
+   608→   608→   608→                        {u.role === "dueno" ? "Dueño" : "Chofer"}
+   609→   609→   609→                      </Badge>
+   610→   610→   610→                      {!u.activo && (
+   611→   611→   611→                        <Badge variant="outline" className="text-[10px] text-muted-foreground">
+   612→   612→   612→                          Inactivo
+   613→   613→   613→                        </Badge>
+   614→   614→   614→                      )}
+   615→   615→   615→                    </div>
+   616→   616→   616→                    <p className="text-xs text-muted-foreground">{u.email}</p>
+   617→   617→   617→                  </div>
+   618→   618→   618→                </label>
+   619→   619→   619→              ))
+   620→   620→   620→            )}
+   621→   621→   621→          </div>
+   622→   622→   622→          <DialogFooter>
+   623→   623→   623→            <Button variant="outline" onClick={() => setAsignando(null)}>
+   624→   624→   624→              Cancelar
+   625→   625→   625→            </Button>
+   626→   626→   626→            <Button onClick={guardarAsignacion}>
+   627→   627→   627→              Guardar asignación
+   628→   628→   628→            </Button>
+   629→   629→   629→          </DialogFooter>
+   630→   630→   630→        </DialogContent>
+   631→   631→   631→      </Dialog>
+   632→   632→   632→
+   633→   633→   633→      {/* Confirmar borrado */}
+   634→   634→   634→      <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>
+   635→   635→   635→        <DialogContent className="max-w-sm">
+   636→   636→   636→          <DialogHeader>
+   637→   637→   637→            <DialogTitle>Eliminar camión</DialogTitle>
+   638→   638→   638→            <DialogDescription>
+   639→   639→   639→              ¿Eliminar el camión <strong>{borrando?.nombre}</strong>? Las vueltas ya registradas
+   640→   640→   640→              se conservan pero quedarán sin camión asociado.
+   641→   641→   641→            </DialogDescription>
+   642→   642→   642→          </DialogHeader>
+   643→   643→   643→          <DialogFooter>
+   644→   644→   644→            <Button variant="outline" onClick={() => setBorrando(null)}>
+   645→   645→   645→              Cancelar
+   646→   646→   646→            </Button>
+   647→   647→   647→            <Button variant="destructive" onClick={() => borrando && handleBorrar(borrando)}>
+   648→   648→   648→              <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+   649→   649→   649→            </Button>
+   650→   650→   650→          </DialogFooter>
+   651→   651→   651→        </DialogContent>
+   652→   652→   652→      </Dialog>
+   653→   653→   653→    </Card>
+   654→   654→   654→  );
+   655→   655→   655→}
+   656→   656→   656→

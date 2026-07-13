@@ -36,7 +36,7 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
-import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
+import { apiGet, apiPost, apiPatch, apiDelete, uploadFile } from "@/lib/api-client";
 import { formatNumber } from "@/lib/helpers";
 
 interface Chofer {
@@ -342,19 +342,32 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                     {(() => {
                       const hoy = new Date();
                       const vencidos: string[] = [];
-                      if (c.permisoCirculacionVencimiento && new Date(c.permisoCirculacionVencimiento) < hoy) vencidos.push("Perm. circ.");
-                      if (c.revisionTecnicaVencimiento && new Date(c.revisionTecnicaVencimiento) < hoy) vencidos.push("Rev. técnica");
-                      if (c.seguroVencimiento && new Date(c.seguroVencimiento) < hoy) vencidos.push("Seguro");
-                      if (vencidos.length > 0) {
-                        return (
-                          <div className="mt-1 flex items-center gap-1">
+                      const porVencer: string[] = [];
+                      const checkDoc = (label: string, fecha?: string | null) => {
+                        if (!fecha) return;
+                        const venc = new Date(fecha);
+                        const dias = Math.ceil((venc.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                        if (dias < 0) vencidos.push(label);
+                        else if (dias <= 30) porVencer.push(`${label} (${dias}d)`);
+                      };
+                      checkDoc("Perm. circ.", c.permisoCirculacionVencimiento);
+                      checkDoc("Rev. técnica", c.revisionTecnicaVencimiento);
+                      checkDoc("Seguro", c.seguroVencimiento);
+                      if (vencidos.length === 0 && porVencer.length === 0) return null;
+                      return (
+                        <div className="mt-1 flex flex-wrap items-center gap-1">
+                          {vencidos.length > 0 && (
                             <Badge variant="outline" className="text-[10px] text-red-600 border-red-300 dark:border-red-800">
                               ⚠ {vencidos.join(", ")} vencido(s)
                             </Badge>
-                          </div>
-                        );
-                      }
-                      return null;
+                          )}
+                          {porVencer.length > 0 && (
+                            <Badge variant="outline" className="text-[10px] text-amber-700 border-amber-300 dark:border-amber-700 dark:text-amber-300">
+                              ⚠ {porVencer.join(", ")} por vencer
+                            </Badge>
+                          )}
+                        </div>
+                      );
                     })()}
                     {/* Choferes asignados */}
                     <div className="mt-1.5 flex flex-wrap items-center gap-1">
@@ -487,9 +500,8 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
-                        const fd = new FormData(); fd.append("file", f);
-                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
-                        const d = await res.json(); setPermisoCircFoto(d.url);
+                        const url = await uploadFile(f);
+                        setPermisoCircFoto(url);
                         toast.success("Foto subida");
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
@@ -511,9 +523,8 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
-                        const fd = new FormData(); fd.append("file", f);
-                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
-                        const d = await res.json(); setRevisionTecFoto(d.url);
+                        const url = await uploadFile(f);
+                        setRevisionTecFoto(url);
                         toast.success("Foto subida");
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
@@ -535,9 +546,8 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
-                        const fd = new FormData(); fd.append("file", f);
-                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
-                        const d = await res.json(); setSeguroFoto(d.url);
+                        const url = await uploadFile(f);
+                        setSeguroFoto(url);
                         toast.success("Foto subida");
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />

@@ -35,7 +35,7 @@ import {
   CalendarOff,
 } from "lucide-react";
 import { toast } from "sonner";
-import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
+import { apiGet, apiPost, apiPatch, apiDelete, uploadFile } from "@/lib/api-client";
 import { formatDateTime } from "@/lib/helpers";
 
 interface Usuario {
@@ -285,6 +285,46 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
                         {u._count.asignaciones} camión(es) · {u._count.entregasComoChofer} entrega(s) · {u._count.vueltasComoChofer} vuelta(s)
                       </p>
                     )}
+                    {/* Licencia de conducir */}
+                    {u.role === "chofer" && (u.licenciaClase || u.licenciaNumero || u.licenciaVencimiento) && (
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                        {u.licenciaClase && (
+                          <Badge variant="outline" className="text-[10px] gap-1">
+                            <span className="text-muted-foreground">Lic.</span>
+                            <span className="font-medium">{u.licenciaClase}</span>
+                          </Badge>
+                        )}
+                        {u.licenciaNumero && (
+                          <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                            N° {u.licenciaNumero}
+                          </Badge>
+                        )}
+                        {u.licenciaVencimiento && (() => {
+                          const venc = new Date(u.licenciaVencimiento);
+                          const hoy = new Date();
+                          const diasParaVencer = Math.ceil((venc.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                          if (diasParaVencer < 0) {
+                            return (
+                              <Badge variant="outline" className="text-[10px] text-red-600 border-red-300 dark:border-red-800">
+                                ⚠ Licencia vencida
+                              </Badge>
+                            );
+                          }
+                          if (diasParaVencer <= 30) {
+                            return (
+                              <Badge variant="outline" className="text-[10px] text-amber-700 border-amber-300 dark:border-amber-700 dark:text-amber-300">
+                                ⚠ Vence en {diasParaVencer}d
+                              </Badge>
+                            );
+                          }
+                          return (
+                            <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                              Vence: {venc.toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
                   {u.role !== "dueno" && (
                     <DropdownMenu>
@@ -419,9 +459,8 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
-                        const fd = new FormData(); fd.append("file", f);
-                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
-                        const d = await res.json(); setLicenciaFoto(d.url);
+                        const url = await uploadFile(f);
+                        setLicenciaFoto(url);
                         toast.success("Foto subida");
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />

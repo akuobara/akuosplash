@@ -75,6 +75,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       activo: true,
       duenoId: true,
       creadoEn: true,
+      licenciaClase: true,
+      licenciaNumero: true,
+      licenciaVencimiento: true,
+      licenciaFotoUrl: true,
     },
   });
 

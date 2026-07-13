@@ -86,6 +86,11 @@ export async function POST(req: NextRequest) {
         telefono: telefono?.trim() || null,
         role: "chofer",
         duenoId: session.userId,
+        // Datos de licencia (opcional al crear)
+        licenciaClase: body.licenciaClase || null,
+        licenciaNumero: body.licenciaNumero?.trim() || null,
+        licenciaVencimiento: body.licenciaVencimiento ? new Date(body.licenciaVencimiento) : null,
+        licenciaFotoUrl: body.licenciaFotoUrl || null,
       },
       select: {
         id: true,
@@ -96,6 +101,10 @@ export async function POST(req: NextRequest) {
         activo: true,
         duenoId: true,
         creadoEn: true,
+        licenciaClase: true,
+        licenciaNumero: true,
+        licenciaVencimiento: true,
+        licenciaFotoUrl: true,
       },
     });
 
