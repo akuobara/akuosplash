@@ -58,6 +58,20 @@ interface Camion {
   creadoEn: string;
   choferes?: Chofer[];
   _count?: { vueltas: number };
+  marca?: string | null;
+  modelo?: string | null;
+  anio?: number | null;
+  color?: string | null;
+  numeroMotor?: string | null;
+  numeroChasis?: string | null;
+  permisoCirculacionVencimiento?: string | null;
+  permisoCirculacionFotoUrl?: string | null;
+  revisionTecnicaVencimiento?: string | null;
+  revisionTecnicaFotoUrl?: string | null;
+  seguroVencimiento?: string | null;
+  seguroFotoUrl?: string | null;
+  seguroCompania?: string | null;
+  seguroNumero?: string | null;
 }
 
 interface Usuario {
@@ -94,6 +108,25 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
   const [autoAsignarDueno, setAutoAsignarDueno] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Datos del vehículo
+  const [marca, setMarca] = useState("");
+  const [modelo, setModelo] = useState("");
+  const [anio, setAnio] = useState("");
+  const [color, setColor] = useState("");
+  const [numeroMotor, setNumeroMotor] = useState("");
+  const [numeroChasis, setNumeroChasis] = useState("");
+
+  // Documentos
+  const [permisoCircVenc, setPermisoCircVenc] = useState("");
+  const [revisionTecVenc, setRevisionTecVenc] = useState("");
+  const [seguroVenc, setSeguroVenc] = useState("");
+  const [seguroCompania, setSeguroCompania] = useState("");
+  const [seguroNumero, setSeguroNumero] = useState("");
+  const [subiendoDoc, setSubiendoDoc] = useState(false);
+  const [permisoCircFoto, setPermisoCircFoto] = useState<string | null>(null);
+  const [revisionTecFoto, setRevisionTecFoto] = useState<string | null>(null);
+  const [seguroFoto, setSeguroFoto] = useState<string | null>(null);
+
   // Choferes seleccionados para asignar
   const [choferesSeleccionados, setChoferesSeleccionados] = useState<Set<string>>(new Set());
 
@@ -121,20 +154,25 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
 
   function abrirNuevo() {
     setEditando(null);
-    setNombre("");
-    setPatente("");
-    setCapacidad("17000");
-    setActivo(true);
-    setAutoAsignarDueno(true);
+    setNombre(""); setPatente(""); setCapacidad("17000"); setActivo(true); setAutoAsignarDueno(true);
+    setMarca(""); setModelo(""); setAnio(""); setColor(""); setNumeroMotor(""); setNumeroChasis("");
+    setPermisoCircVenc(""); setRevisionTecVenc(""); setSeguroVenc(""); setSeguroCompania(""); setSeguroNumero("");
+    setPermisoCircFoto(null); setRevisionTecFoto(null); setSeguroFoto(null);
     setFormOpen(true);
   }
 
   function abrirEditar(c: Camion) {
     setEditando(c);
-    setNombre(c.nombre);
-    setPatente(c.patente ?? "");
-    setCapacidad(String(c.capacidad));
-    setActivo(c.activo);
+    setNombre(c.nombre); setPatente(c.patente ?? ""); setCapacidad(String(c.capacidad)); setActivo(c.activo);
+    setMarca(c.marca ?? ""); setModelo(c.modelo ?? ""); setAnio(c.anio ? String(c.anio) : ""); setColor(c.color ?? "");
+    setNumeroMotor(c.numeroMotor ?? ""); setNumeroChasis(c.numeroChasis ?? "");
+    setPermisoCircVenc(c.permisoCirculacionVencimiento ? c.permisoCirculacionVencimiento.split("T")[0] : "");
+    setRevisionTecVenc(c.revisionTecnicaVencimiento ? c.revisionTecnicaVencimiento.split("T")[0] : "");
+    setSeguroVenc(c.seguroVencimiento ? c.seguroVencimiento.split("T")[0] : "");
+    setSeguroCompania(c.seguroCompania ?? ""); setSeguroNumero(c.seguroNumero ?? "");
+    setPermisoCircFoto(c.permisoCirculacionFotoUrl ?? null);
+    setRevisionTecFoto(c.revisionTecnicaFotoUrl ?? null);
+    setSeguroFoto(c.seguroFotoUrl ?? null);
     setFormOpen(true);
   }
 
@@ -157,12 +195,26 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
 
     setSaving(true);
     try {
-      const payload = {
+      const payload: Record<string, unknown> = {
         nombre: nombre.trim(),
         patente: patente.trim() || null,
         capacidad: capacidadNum,
         activo,
         autoAsignarDueno: !editando && autoAsignarDueno,
+        marca: marca.trim() || null,
+        modelo: modelo.trim() || null,
+        anio: anio ? Number(anio) : null,
+        color: color.trim() || null,
+        numeroMotor: numeroMotor.trim() || null,
+        numeroChasis: numeroChasis.trim() || null,
+        permisoCirculacionVencimiento: permisoCircVenc || null,
+        permisoCirculacionFotoUrl: permisoCircFoto,
+        revisionTecnicaVencimiento: revisionTecVenc || null,
+        revisionTecnicaFotoUrl: revisionTecFoto,
+        seguroVencimiento: seguroVenc || null,
+        seguroFotoUrl: seguroFoto,
+        seguroCompania: seguroCompania.trim() || null,
+        seguroNumero: seguroNumero.trim() || null,
       };
       if (editando) {
         await apiPatch(`/api/camiones/${editando.id}`, payload);
@@ -284,7 +336,26 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                       <Droplets className="mr-1 inline h-3 w-3" />
                       Capacidad: <strong>{formatNumber(c.capacidad, 0)} L</strong>
                       {c._count && c._count.vueltas > 0 && ` · ${c._count.vueltas} vuelta(s)`}
+                      {c.marca && ` · ${c.marca}${c.modelo ? ` ${c.modelo}` : ""}${c.anio ? ` ${c.anio}` : ""}`}
                     </p>
+                    {/* Badges de documentos */}
+                    {(() => {
+                      const hoy = new Date();
+                      const vencidos: string[] = [];
+                      if (c.permisoCirculacionVencimiento && new Date(c.permisoCirculacionVencimiento) < hoy) vencidos.push("Perm. circ.");
+                      if (c.revisionTecnicaVencimiento && new Date(c.revisionTecnicaVencimiento) < hoy) vencidos.push("Rev. técnica");
+                      if (c.seguroVencimiento && new Date(c.seguroVencimiento) < hoy) vencidos.push("Seguro");
+                      if (vencidos.length > 0) {
+                        return (
+                          <div className="mt-1 flex items-center gap-1">
+                            <Badge variant="outline" className="text-[10px] text-red-600 border-red-300 dark:border-red-800">
+                              ⚠ {vencidos.join(", ")} vencido(s)
+                            </Badge>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                     {/* Choferes asignados */}
                     <div className="mt-1.5 flex flex-wrap items-center gap-1">
                       <Users className="h-3 w-3 text-muted-foreground" />
@@ -333,70 +404,172 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
 
       {/* Formulario crear/editar camión */}
       <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editando ? "Editar camión" : "Nuevo camión"}</DialogTitle>
             <DialogDescription>
-              Define el nombre (alias) y la capacidad del estanque en litros.
+              Datos del vehículo y documentos. Los documentos vencidos mostrarán una advertencia.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="camionNombre">Nombre / alias *</Label>
-              <Input
-                id="camionNombre"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                placeholder="Ej. Camión grande, Camión azul, Unidad 1"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="camionPatente">Patente (opcional)</Label>
-              <Input
-                id="camionPatente"
-                value={patente}
-                onChange={(e) => setPatente(e.target.value.toUpperCase())}
-                placeholder="Ej. ABCD12"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="camionCapacidad">Capacidad del estanque (litros) *</Label>
-              <Input
-                id="camionCapacidad"
-                type="number"
-                inputMode="numeric"
-                value={capacidad}
-                onChange={(e) => setCapacidad(e.target.value)}
-                placeholder="17000"
-                required
-              />
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-border p-3">
-              <div>
-                <Label htmlFor="camionActivo" className="text-sm font-medium">Camión activo</Label>
-                <p className="text-xs text-muted-foreground">
-                  Los inactivos no aparecen al iniciar vueltas.
-                </p>
+            {/* Datos básicos */}
+            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-3">
+              <p className="text-xs font-medium uppercase text-muted-foreground">Datos básicos</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="camionNombre" className="text-xs">Nombre / alias *</Label>
+                  <Input id="camionNombre" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej. Camión grande" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="camionPatente" className="text-xs">Patente</Label>
+                  <Input id="camionPatente" value={patente} onChange={(e) => setPatente(e.target.value.toUpperCase())} placeholder="ABCD12" />
+                </div>
               </div>
-              <Switch id="camionActivo" checked={activo} onCheckedChange={setActivo} />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="camionCapacidad" className="text-xs">Capacidad (litros) *</Label>
+                  <Input id="camionCapacidad" type="number" value={capacidad} onChange={(e) => setCapacidad(e.target.value)} placeholder="17000" required />
+                </div>
+                <div className="flex items-center justify-between rounded-md border border-border p-2">
+                  <Label htmlFor="camionActivo" className="text-xs">Activo</Label>
+                  <Switch id="camionActivo" checked={activo} onCheckedChange={setActivo} />
+                </div>
+              </div>
             </div>
+
+            {/* Datos del vehículo */}
+            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-3">
+              <p className="text-xs font-medium uppercase text-muted-foreground">Datos del vehículo</p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="camionMarca" className="text-xs">Marca</Label>
+                  <Input id="camionMarca" value={marca} onChange={(e) => setMarca(e.target.value)} placeholder="Ford" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="camionModelo" className="text-xs">Modelo</Label>
+                  <Input id="camionModelo" value={modelo} onChange={(e) => setModelo(e.target.value)} placeholder="F-1000" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="camionAnio" className="text-xs">Año</Label>
+                  <Input id="camionAnio" type="number" value={anio} onChange={(e) => setAnio(e.target.value)} placeholder="2015" />
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="camionColor" className="text-xs">Color</Label>
+                  <Input id="camionColor" value={color} onChange={(e) => setColor(e.target.value)} placeholder="Azul" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="camionMotor" className="text-xs">N° Motor</Label>
+                  <Input id="camionMotor" value={numeroMotor} onChange={(e) => setNumeroMotor(e.target.value)} placeholder="Motor123" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="camionChasis" className="text-xs">N° Chasis/VIN</Label>
+                  <Input id="camionChasis" value={numeroChasis} onChange={(e) => setNumeroChasis(e.target.value)} placeholder="VIN123" />
+                </div>
+              </div>
+            </div>
+
+            {/* Documentos */}
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-3 dark:border-amber-800 dark:bg-amber-900/20">
+              <p className="text-xs font-medium uppercase text-amber-900 dark:text-amber-200">Documentos del vehículo</p>
+
+              {/* Permiso de circulación */}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="permisoCircVenc" className="text-xs">Permiso circulación — vencimiento</Label>
+                  <Input id="permisoCircVenc" type="date" value={permisoCircVenc} onChange={(e) => setPermisoCircVenc(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Foto del permiso</Label>
+                  <div className="flex gap-2">
+                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+                      const f = e.target.files?.[0]; if (!f) return;
+                      setSubiendoDoc(true);
+                      try {
+                        const fd = new FormData(); fd.append("file", f);
+                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
+                        const d = await res.json(); setPermisoCircFoto(d.url);
+                        toast.success("Foto subida");
+                      } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
+                    }} />
+                    {permisoCircFoto && <a href={permisoCircFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Revisión técnica */}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="revisionTecVenc" className="text-xs">Revisión técnica — vencimiento</Label>
+                  <Input id="revisionTecVenc" type="date" value={revisionTecVenc} onChange={(e) => setRevisionTecVenc(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Foto de la revisión</Label>
+                  <div className="flex gap-2">
+                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+                      const f = e.target.files?.[0]; if (!f) return;
+                      setSubiendoDoc(true);
+                      try {
+                        const fd = new FormData(); fd.append("file", f);
+                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
+                        const d = await res.json(); setRevisionTecFoto(d.url);
+                        toast.success("Foto subida");
+                      } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
+                    }} />
+                    {revisionTecFoto && <a href={revisionTecFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Seguro */}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="seguroVenc" className="text-xs">Seguro — vencimiento</Label>
+                  <Input id="seguroVenc" type="date" value={seguroVenc} onChange={(e) => setSeguroVenc(e.target.value)} />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Foto de la póliza</Label>
+                  <div className="flex gap-2">
+                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+                      const f = e.target.files?.[0]; if (!f) return;
+                      setSubiendoDoc(true);
+                      try {
+                        const fd = new FormData(); fd.append("file", f);
+                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
+                        const d = await res.json(); setSeguroFoto(d.url);
+                        toast.success("Foto subida");
+                      } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
+                    }} />
+                    {seguroFoto && <a href={seguroFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
+                  </div>
+                </div>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="seguroCompania" className="text-xs">Compañía aseguradora</Label>
+                  <Input id="seguroCompania" value={seguroCompania} onChange={(e) => setSeguroCompania(e.target.value)} placeholder="Mutual de Seguridad" />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="seguroNumero" className="text-xs">N° de póliza</Label>
+                  <Input id="seguroNumero" value={seguroNumero} onChange={(e) => setSeguroNumero(e.target.value)} placeholder="POL-12345" />
+                </div>
+              </div>
+            </div>
+
             {!editando && (
               <div className="flex items-center justify-between rounded-lg border border-border p-3">
                 <div>
                   <Label htmlFor="autoAsignar" className="text-sm font-medium">Asignarme como chofer</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Te asigna automáticamente a ti (dueño) como chofer de este camión.
-                  </p>
+                  <p className="text-xs text-muted-foreground">Te asigna automáticamente a ti (dueño) como chofer de este camión.</p>
                 </div>
                 <Switch id="autoAsignar" checked={autoAsignarDueno} onCheckedChange={setAutoAsignarDueno} />
               </div>
             )}
+            {subiendoDoc && <p className="text-xs text-muted-foreground text-center">Subiendo documento…</p>}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={saving}>
+              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>Cancelar</Button>
+              <Button type="submit" disabled={saving || subiendoDoc}>
                 {saving ? "Guardando…" : editando ? "Guardar cambios" : "Crear camión"}
               </Button>
             </DialogFooter>

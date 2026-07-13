@@ -47,6 +47,10 @@ interface Usuario {
   activo: boolean;
   duenoId: string | null;
   creadoEn: string;
+  licenciaClase?: string | null;
+  licenciaNumero?: string | null;
+  licenciaVencimiento?: string | null;
+  licenciaFotoUrl?: string | null;
   _count?: {
     vueltasComoChofer: number;
     entregasComoChofer: number;
@@ -81,6 +85,13 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
   const [activo, setActivo] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Licencia de chofer
+  const [licenciaClase, setLicenciaClase] = useState("");
+  const [licenciaNumero, setLicenciaNumero] = useState("");
+  const [licenciaVenc, setLicenciaVenc] = useState("");
+  const [licenciaFoto, setLicenciaFoto] = useState<string | null>(null);
+  const [subiendoDoc, setSubiendoDoc] = useState(false);
+
   const cargar = useCallback(async () => {
     setLoading(true);
     try {
@@ -100,21 +111,18 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
 
   function abrirNuevo() {
     setEditando(null);
-    setNombre("");
-    setEmail("");
-    setPassword("");
-    setTelefono("");
-    setActivo(true);
+    setNombre(""); setEmail(""); setPassword(""); setTelefono(""); setActivo(true);
+    setLicenciaClase(""); setLicenciaNumero(""); setLicenciaVenc(""); setLicenciaFoto(null);
     setFormOpen(true);
   }
 
   function abrirEditar(u: Usuario) {
     setEditando(u);
-    setNombre(u.nombre);
-    setEmail(u.email);
-    setPassword("");
-    setTelefono(u.telefono ?? "");
-    setActivo(u.activo);
+    setNombre(u.nombre); setEmail(u.email); setPassword(""); setTelefono(u.telefono ?? ""); setActivo(u.activo);
+    setLicenciaClase(u.licenciaClase ?? "");
+    setLicenciaNumero(u.licenciaNumero ?? "");
+    setLicenciaVenc(u.licenciaVencimiento ? u.licenciaVencimiento.split("T")[0] : "");
+    setLicenciaFoto(u.licenciaFotoUrl ?? null);
     setFormOpen(true);
   }
 
@@ -136,6 +144,10 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
         email: email.trim(),
         telefono: telefono.trim() || null,
         activo,
+        licenciaClase: licenciaClase || null,
+        licenciaNumero: licenciaNumero.trim() || null,
+        licenciaVencimiento: licenciaVenc || null,
+        licenciaFotoUrl: licenciaFoto,
       };
       if (password) {
         payload.password = password;
@@ -368,6 +380,58 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
               </div>
               <Switch id="choferActivo" checked={activo} onCheckedChange={setActivo} />
             </div>
+
+            {/* Licencia de conducir */}
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-3 dark:border-amber-800 dark:bg-amber-900/20">
+              <p className="text-xs font-medium uppercase text-amber-900 dark:text-amber-200">Licencia de conducir</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="licenciaClase" className="text-xs">Clase</Label>
+                  <select id="licenciaClase" value={licenciaClase} onChange={(e) => setLicenciaClase(e.target.value)}
+                    className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+                    <option value="">— Sin licencia —</option>
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="A3">A3</option>
+                    <option value="A4">A4</option>
+                    <option value="A5">A5</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="licenciaNumero" className="text-xs">N° licencia</Label>
+                  <Input id="licenciaNumero" value={licenciaNumero} onChange={(e) => setLicenciaNumero(e.target.value)} placeholder="12345678-9" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="licenciaVenc" className="text-xs">Vencimiento</Label>
+                  <Input id="licenciaVenc" type="date" value={licenciaVenc} onChange={(e) => setLicenciaVenc(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Foto de la licencia</Label>
+                  <div className="flex gap-2">
+                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+                      const f = e.target.files?.[0]; if (!f) return;
+                      setSubiendoDoc(true);
+                      try {
+                        const fd = new FormData(); fd.append("file", f);
+                        const res = await fetch("/api/upload", { method: "POST", body: fd, credentials: "include" });
+                        const d = await res.json(); setLicenciaFoto(d.url);
+                        toast.success("Foto subida");
+                      } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
+                    }} />
+                    {licenciaFoto && <a href={licenciaFoto} target="_blank" className="text-xs text-primary hover:underline self-center">Ver</a>}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {subiendoDoc && <p className="text-xs text-muted-foreground text-center">Subiendo documento…</p>}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
                 Cancelar
