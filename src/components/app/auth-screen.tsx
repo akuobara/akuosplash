@@ -65,6 +65,9 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Tipo de cuenta al registrarse (solo si ya hay usuarios)
+  const [registerRole, setRegisterRole] = useState<"dueno" | "chofer">("dueno");
+
   // Recuperación
   const [recoveryToken, setRecoveryToken] = useState("");
   const [recoveryUserId, setRecoveryUserId] = useState("");
@@ -196,7 +199,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
         const res = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nombre, email, password, telefono }),
+          body: JSON.stringify({ nombre, email, password, telefono, role: registerRole }),
           credentials: "include",
         });
         const data = await res.json();
@@ -341,6 +344,44 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Registro: tipo de cuenta (solo si ya hay usuarios — primer usuario siempre es dueño) */}
+              {screen === "register" && hasUsers && (
+                <div className="space-y-2">
+                  <Label>Tipo de cuenta</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setRegisterRole("dueno")}
+                      className={`rounded-lg border-2 p-3 text-left transition ${
+                        registerRole === "dueno"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <p className="text-sm font-medium">Dueño / Operador</p>
+                      <p className="text-[10px] text-muted-foreground">Gestiona camiones, choferes y clientes</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRegisterRole("chofer")}
+                      className={`rounded-lg border-2 p-3 text-left transition ${
+                        registerRole === "chofer"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      <p className="text-sm font-medium">Chofer</p>
+                      <p className="text-[10px] text-muted-foreground">Entrega agua en ruta</p>
+                    </button>
+                  </div>
+                  {registerRole === "chofer" && (
+                    <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                      Tu cuenta deberá ser aprobada por un dueño antes de poder usar la app.
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Registro: nombre */}
               {screen === "register" && (
                 <div className="space-y-2">

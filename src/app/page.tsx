@@ -21,6 +21,7 @@ import {
   CalendarClock,
   UserCog,
   Settings,
+  Smartphone,
   LogOut,
   User as UserIcon,
   Package,
@@ -123,6 +124,9 @@ export default function Home() {
   const [pedidoClientePreselect, setPedidoClientePreselect] = useState<string | null>(null);
   const [usuarios, setUsuarios] = useState<{ id: string; nombre: string; email: string; role: string; activo: boolean }[]>([]);
   const [todosPedidos, setTodosPedidos] = useState<{ id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[]>([]);
+
+  // Toggle de interfaz simple (para choferes con camión asignado)
+  const [interfazSimple, setInterfazSimple] = useState(false);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
@@ -265,6 +269,16 @@ export default function Home() {
                   </span>
                 </p>
               </div>
+              {/* Toggle interfaz simple/completa (choferes) */}
+              {!isDueno && (
+                <DropdownMenuItem onClick={() => setInterfazSimple(!interfazSimple)}>
+                  {interfazSimple ? (
+                    <><LayoutDashboard className="mr-2 h-4 w-4" /> Ver interfaz completa</>
+                  ) : (
+                    <><Smartphone className="mr-2 h-4 w-4" /> Ver interfaz simple</>
+                  )}
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                 <LogOut className="mr-2 h-4 w-4" /> Cerrar sesión
               </DropdownMenuItem>
@@ -276,32 +290,40 @@ export default function Home() {
       {/* Main con tabs */}
       <main className="mx-auto w-full max-w-6xl flex-1 px-3 py-4 sm:px-6 sm:py-6">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="space-y-4">
+          {/* En interfaz simple, los choferes solo ven: Panel, Entregas, Liquidación */}
+          {/* En interfaz completa, ven todos los tabs */}
           <TabsList className="flex w-full flex-wrap justify-start gap-1 h-auto bg-muted/40 p-1">
             <TabsTrigger value="dashboard" className="flex-1 sm:flex-initial">
               <LayoutDashboard className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Panel</span>
             </TabsTrigger>
+            {(!interfazSimple || isDueno) && (
             <TabsTrigger value="pedidos" className="flex-1 sm:flex-initial">
               <ClipboardList className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Pedidos</span>
             </TabsTrigger>
+            )}
             <TabsTrigger value="entregas" className="flex-1 sm:flex-initial">
               <Truck className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Entregas</span>
             </TabsTrigger>
+            {(!interfazSimple || isDueno) && (
             <TabsTrigger value="gastos" className="flex-1 sm:flex-initial">
               <Receipt className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Gastos</span>
             </TabsTrigger>
+            )}
             <TabsTrigger value="liquidacion" className="flex-1 sm:flex-initial">
               <Calculator className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Liquidación</span>
             </TabsTrigger>
-            {/* Clientes: dueño ve todo, chofer solo lectura */}
+            {/* Clientes: visible en completa */}
+            {(!interfazSimple || isDueno) && (
             <TabsTrigger value="clientes" className="flex-1 sm:flex-initial">
               <Users className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Clientes</span>
             </TabsTrigger>
+            )}
             {/* Recurrentes: solo dueño */}
             {isDueno && (
               <TabsTrigger value="recurrentes" className="flex-1 sm:flex-initial">
@@ -309,11 +331,13 @@ export default function Home() {
                 <span className="hidden sm:inline">Recurrentes</span>
               </TabsTrigger>
             )}
-            {/* Historial de vueltas */}
+            {/* Historial: visible en completa */}
+            {(!interfazSimple || isDueno) && (
             <TabsTrigger value="historial" className="flex-1 sm:flex-initial">
               <History className="mr-1 h-4 w-4" />
               <span className="hidden sm:inline">Historial</span>
             </TabsTrigger>
+            )}
             {/* Equipo y Ajustes: solo dueño */}
             {isDueno && (
               <TabsTrigger value="equipo" className="flex-1 sm:flex-initial">

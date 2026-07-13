@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { nombre, email, password, telefono } = body;
+    const requestedRole = body.role === "chofer" ? "chofer" : "dueno";
 
     if (!nombre?.trim() || !email?.trim() || !password) {
       return NextResponse.json(
@@ -30,6 +31,8 @@ export async function POST(req: NextRequest) {
       const user = await db.$transaction(async (tx) => {
         const userCount = await tx.usuario.count();
         if (userCount > 0) {
+          // Si ya hay usuarios y el que se registra es chofer, permitirlo
+          // (a futuro: el dueño aprueba). Por ahora, no permitir registro público de chofer.
           throw new Error("ALREADY_REGISTERED");
         }
 
@@ -39,7 +42,7 @@ export async function POST(req: NextRequest) {
           throw new Error("EMAIL_EXISTS");
         }
 
-        // Crear el primer usuario como dueño
+        // Crear el primer usuario como dueño (siempre dueño el primero)
         const newUser = await tx.usuario.create({
           data: {
             nombre: nombre.trim(),
