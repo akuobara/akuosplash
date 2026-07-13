@@ -104,16 +104,33 @@ function generarPDF(tipo: string, period: string, data: any) {
       ["Litros entregados", `${formatNumber(data.totalLitros, 0)} L`],
       ["Entregas", String(data.entregas.length)],
       ["Vueltas", String(data.vueltas.length)],
+      ["Gastos pagados por chofer", formatCurrency(data.gastosChofer)],
     ],
     theme: "striped",
     headStyles: { fillColor: [37, 99, 235] },
   });
   y = (doc as any).lastAutoTable.finalY + 10;
 
-  if (tipo === "completo") {
-    // Gastos
+  // Gastos del chofer (siempre visibles, incluso en reporte simple)
+  if (data.gastos.filter((g: any) => g.pagadoPor === "chofer").length > 0) {
     doc.setFontSize(12);
-    doc.text("Gastos", 14, y);
+    doc.text("Gastos del chofer (reembolsables)", 14, y);
+    y += 5;
+    autoTable(doc, {
+      startY: y,
+      head: [["Fecha", "Tipo", "Descripción", "Monto"]],
+      body: data.gastos.filter((g: any) => g.pagadoPor === "chofer").map((g: any) => [formatDate(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "-", formatCurrency(g.monto)]),
+      theme: "striped",
+      headStyles: { fillColor: [220, 38, 38] },
+      foot: [["", "", "Total", formatCurrency(data.gastosChofer)]],
+    });
+    y = (doc as any).lastAutoTable.finalY + 10;
+  }
+
+  if (tipo === "completo") {
+    // Gastos completos (incluye los del dueño)
+    doc.setFontSize(12);
+    doc.text("Gastos (completos)", 14, y);
     y += 5;
     autoTable(doc, {
       startY: y,
@@ -222,6 +239,7 @@ function generarExcel(tipo: string, period: string, data: any) {
     ["Litros entregados", data.totalLitros],
     ["Entregas", data.entregas.length],
     ["Vueltas", data.vueltas.length],
+    ["Gastos pagados por chofer", data.gastosChofer],
   ];
 
   if (tipo === "completo") {
@@ -264,16 +282,26 @@ function generarExcel(tipo: string, period: string, data: any) {
   const wsVueltas = XLSX.utils.aoa_to_sheet(vueltasRows);
   XLSX.utils.book_append_sheet(wb, wsVueltas, "Vueltas");
 
-  // Hoja: Gastos (solo completo)
-  if (tipo === "completo" && data.gastos.length > 0) {
+  // Hoja: Gastos del chofer (siempre visible, incluso en reporte simple)
+  const gastosChoferList = data.gastos.filter((g: any) => g.pagadoPor === "chofer");
+  if (gastosChoferList.length > 0) {
     const gastosRows = [
-      ["Fecha", "Tipo", "Descripción", "Monto", "Pagado por"],
-      ...data.gastos.map((g: any) => [formatDate(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "", g.monto, g.pagadoPor === "chofer" ? "Chofer" : "Dueño"]),
+      ["Fecha", "Tipo", "Descripción", "Monto"],
+      ...gastosChoferList.map((g: any) => [formatDate(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "", g.monto]),
       [],
-      ["Total gastos", "", "", data.totalGastos, ""],
-      ["Gastos chofer", "", "", data.gastosChofer, ""],
-      ["Gastos dueño", "", "", data.gastosDueno, ""],
+      ["Total gastos chofer", "", "", data.gastosChofer],
     ];
+
+    if (tipo === "completo" && data.gastos.length > 0) {
+      // En completo, añadir también gastos del dueño
+      gastosRows.push([], ["GASTOS DEL DUEÑO"], ["Fecha", "Tipo", "Descripción", "Monto"]);
+      data.gastos.filter((g: any) => g.pagadoPor === "dueno").forEach((g: any) => {
+        gastosRows.push([formatDate(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "", g.monto]);
+      });
+      gastosRows.push([], ["Total gastos dueño", "", "", data.gastosDueno]);
+      gastosRows.push([], ["TOTAL GASTOS", "", "", data.totalGastos]);
+    }
+
     const wsGastos = XLSX.utils.aoa_to_sheet(gastosRows);
     XLSX.utils.book_append_sheet(wb, wsGastos, "Gastos");
   }
