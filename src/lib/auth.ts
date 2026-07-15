@@ -8,7 +8,7 @@ export interface SessionUser {
   userId: string;
   email: string;
   nombre: string;
-  role: "dueno" | "chofer";
+  role: "dueno" | "chofer" | "super_admin";
   duenoId: string | null; // si es chofer, apunta al dueño; si es dueño, es su propio id
 }
 
@@ -115,6 +115,11 @@ export async function getSession(): Promise<SessionUser | null> {
       // El rol cambió — invalidar sesión forzando re-login
       // NO cachear negativo para permitir re-login inmediato tras corrección
       return null;
+    }
+    // Súper admin: siempre permitir
+    if (user.role === "super_admin") {
+      activoCache.set(payload.userId, { activo: true, ts: now });
+      return payload;
     }
     activoCache.set(payload.userId, { activo: true, ts: now });
     return payload;
