@@ -3,11 +3,12 @@
 
 generator client {
   provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:dummy"
 }
 
 // Usuario — puede ser dueño o chofer
