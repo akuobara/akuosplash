@@ -587,14 +587,15 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
                 </button>
               )}
 
-              {/* Login: info para choferes */}
+              {/* Login: link a registrar */}
               {screen === "login" && hasUsers && (
-                <p>
-                  ¿Eres chofer?{" "}
-                  <span className="text-muted-foreground">
-                    Pídeele al dueño que te agregue desde la sección Equipo.
-                  </span>
-                </p>
+                <button
+                  type="button"
+                  onClick={() => { setScreen("register"); setPassword(""); }}
+                  className="block w-full font-medium text-primary hover:underline"
+                >
+                  ¿No tienes cuenta? Regístrate
+                </button>
               )}
 
               {/* Register: volver a login */}
