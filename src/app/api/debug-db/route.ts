@@ -7,22 +7,26 @@ export async function GET() {
     const url = process.env.DATABASE_URL
     const authToken = process.env.DATABASE_AUTH_TOKEN
     
-    if (!url || !authToken) {
-      return Response.json({ ok: false, error: 'Missing env vars', url: !!url, authToken: !!authToken })
-    }
+    // Log detallado
+    console.log('URL:', url)
+    console.log('TOKEN length:', authToken?.length)
     
-    const libsql = createClient({ url, authToken })
+    const libsql = createClient({ url: url!, authToken })
     const adapter = new PrismaLibSQL(libsql)
     const prisma = new PrismaClient({ adapter })
     
     const count = await prisma.usuario.count()
     await prisma.$disconnect()
     
-    return Response.json({ ok: true, usuarios: count })
+    return Response.json({ ok: true, usuarios: count, urlUsed: url?.substring(0, 40) })
   } catch (e) {
+    const err = e as any
     return Response.json({ 
       ok: false, 
-      error: e instanceof Error ? e.message : String(e) 
+      error: err.message,
+      stack: err.stack?.substring(0, 500),
+      url: process.env.DATABASE_URL,
+      token: process.env.DATABASE_AUTH_TOKEN ? 'SET' : 'NOT SET',
     }, { status: 500 })
   }
 }
