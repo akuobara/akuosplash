@@ -13,7 +13,7 @@ export interface SessionUser {
   userId: string;
   email: string;
   nombre: string;
-  role: "dueno" | "chofer";
+  role: "dueno" | "chofer" | "super_admin";
   duenoId: string | null;
 }
 
@@ -231,6 +231,10 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
         }
         toast.success(`¡Bienvenido, ${data.user.nombre}!`);
         if (data.token) saveToken(data.token);
+        if (data.user.role === "super_admin") {
+          window.location.href = "/super-admin";
+          return;
+        }
         onAuthSuccess(data.user);
       } else if (screen === "recuperar") {
         if (!email.trim()) {

@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       userId: user.id,
       email: user.email,
       nombre: user.nombre,
-      role: user.role as "dueno" | "chofer",
+      role: user.role as "dueno" | "chofer" | "super_admin",
       duenoId: user.duenoId,
     };
 
