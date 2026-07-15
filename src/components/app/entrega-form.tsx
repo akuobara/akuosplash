@@ -125,6 +125,7 @@ interface EntregaFormProps {
   vueltaActual: VueltaActual | null;
   pedidosPendientes?: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string }[];
   camiones?: { id: string; nombre: string; activo: boolean }[];
+  isDueno?: boolean;
 }
 
 interface VueltaReciente {
@@ -150,6 +151,7 @@ export function EntregaForm({
   vueltaActual,
   pedidosPendientes = [],
   camiones = [],
+  isDueno = false,
 }: EntregaFormProps) {
   const isEdit = !!entrega;
 
@@ -661,7 +663,11 @@ export function EntregaForm({
 
     const camionesActivos = (camiones ?? []).filter((c) => c.activo);
     if (camionesActivos.length === 0) {
-      toast.error("No hay camiones activos. Agrega uno en Ajustes primero.");
+      toast.error(
+        isDueno
+          ? "No hay camiones activos. Agrega uno en Ajustes primero."
+          : "No tienes camiones asignados. Pídele al dueño que te asigne uno en Ajustes → Camiones."
+      );
       return;
     }
     const camionId = camionSeleccionado || camionesActivos[0].id;
@@ -709,7 +715,12 @@ export function EntregaForm({
     if (!vueltaActual) {
       // Verificar si hay camiones disponibles
       if (!camiones || camiones.filter(c => c.activo).length === 0) {
-        toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
+        toast.error(
+          isDueno
+            ? "No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero."
+            : "No tienes camiones asignados. Pídele al dueño que te asigne uno en Ajustes → Camiones para poder iniciar una vuelta y registrar entregas.",
+          { duration: 8000 }
+        );
         return;
       }
       // No validar litros aquí — se validarán al hacer clic en "Iniciar nueva" o "Retomar"

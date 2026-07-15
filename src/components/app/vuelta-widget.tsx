@@ -36,6 +36,7 @@ export interface CamionOption {
 interface VueltaWidgetProps {
   vueltaActual: VueltaActual | null;
   camiones: CamionOption[];
+  isDueno?: boolean;
   onVueltaChange: () => void;
   onRegistrarEntrega: () => void;
 }
@@ -43,6 +44,7 @@ interface VueltaWidgetProps {
 export function VueltaWidget({
   vueltaActual,
   camiones,
+  isDueno = false,
   onVueltaChange,
   onRegistrarEntrega,
 }: VueltaWidgetProps) {
@@ -71,14 +73,22 @@ export function VueltaWidget({
                 <p className="font-semibold">No hay vuelta activa</p>
                 <p className="text-sm text-muted-foreground">
                   Inicia una vuelta para registrar entregas.
-                  {camionesActivos.length === 0 && " Primero agrega un camión en Ajustes."}
+                  {camionesActivos.length === 0 && (
+                    isDueno
+                      ? " Primero agrega un camión en Ajustes."
+                      : " No tienes camiones asignados. Pídele al dueño que te asigne uno en Ajustes → Camiones."
+                  )}
                 </p>
               </div>
             </div>
             <Button
               onClick={() => {
                 if (camionesActivos.length === 0) {
-                  toast.error("Primero agrega un camión en Ajustes");
+                  toast.error(
+                    isDueno
+                      ? "Primero agrega un camión en Ajustes"
+                      : "No tienes camiones asignados. Pídele al dueño que te asigne uno en Ajustes → Camiones."
+                  );
                   return;
                 }
                 if (camionesActivos.length === 1) {

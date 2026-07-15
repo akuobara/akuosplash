@@ -372,6 +372,7 @@ export default function Home() {
               onGoToEntregas={() => setTab("entregas")}
               onGoToGastos={() => setTab("gastos")}
               onGoToLiquidacion={() => setTab("liquidacion")}
+              isDueno={isDueno}
               pedidosPendientes={todosPedidos.filter(p => p.estado === "pendiente" || p.estado === "programado").map(p => ({
                 id: p.id,
                 clienteNombre: p.clienteNombre,

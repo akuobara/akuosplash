@@ -32,6 +32,7 @@ import {
   Download,
   FileText,
   FileSpreadsheet,
+  AlertTriangle,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { EntregaForm } from "./entrega-form";
@@ -120,6 +121,7 @@ interface DashboardProps {
   onGoToGastos: () => void;
   onGoToLiquidacion: () => void;
   pedidosPendientes?: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string }[];
+  isDueno?: boolean;
 }
 
 const PERIODS: { value: Period; label: string }[] = [
@@ -143,6 +145,7 @@ export function Dashboard({
   onGoToGastos,
   onGoToLiquidacion,
   pedidosPendientes = [],
+  isDueno = false,
 }: DashboardProps) {
   const [period, setPeriod] = useState<Period>("hoy");
   const [resumen, setResumen] = useState<Resumen | null>(null);
@@ -295,10 +298,26 @@ export function Dashboard({
         </div>
       </div>
 
+      {/* Aviso para chofer sin camiones asignados */}
+      {!isDueno && camiones.filter((c) => c.activo).length === 0 && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="flex-1">
+            <p className="font-semibold text-amber-900 dark:text-amber-200">
+              No tienes camiones asignados
+            </p>
+            <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
+              Para registrar entregas necesitas un camión asignado. Pídele al dueño de la flota que te asigne uno desde <strong>Ajustes → Camiones → Asignar choferes</strong>. Una vez asignado, podrás iniciar vueltas y registrar entregas.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Vuelta actual */}
       <VueltaWidget
         vueltaActual={vueltaActual}
         camiones={camiones}
+        isDueno={isDueno}
         onVueltaChange={() => {
           cargarVuelta();
           onRefresh();
@@ -737,6 +756,7 @@ export function Dashboard({
         vueltaActual={vueltaActual}
         pedidosPendientes={pedidosPendientes}
         camiones={camiones}
+        isDueno={isDueno}
       />
       <GastoForm open={gastoFormOpen} onOpenChange={setGastoFormOpen} onSaved={onRefresh} />
     </div>
