@@ -61,7 +61,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo dueños" }, { status: 403 });
+    return NextResponse.json({ error: "Solo administradores" }, { status: 403 });
   }
 
   const { id } = await params;
@@ -116,7 +116,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo dueños" }, { status: 403 });
+    return NextResponse.json({ error: "Solo administradores" }, { status: 403 });
   }
 
   const { id } = await params;

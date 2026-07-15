@@ -261,7 +261,7 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
                         variant={u.role === "dueno" ? "default" : "secondary"}
                         className="text-[10px]"
                       >
-                        {u.role === "dueno" ? "Dueño" : "Chofer"}
+                        {u.role === "dueno" ? "Administrador" : "Chofer"}
                       </Badge>
                       {!u.activo && (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground">

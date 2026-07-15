@@ -307,7 +307,7 @@ export function Dashboard({
               No tienes camiones asignados
             </p>
             <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
-              Para registrar entregas necesitas un camión asignado. Pídele al dueño de la flota que te asigne uno desde <strong>Ajustes → Camiones → Asignar choferes</strong>. Una vez asignado, podrás iniciar vueltas y registrar entregas.
+              Para registrar entregas necesitas un camión asignado. Pídele al administrador de la flota que te asigne uno desde <strong>Ajustes → Camiones → Asignar choferes</strong>. Una vez asignado, podrás iniciar vueltas y registrar entregas.
             </p>
           </div>
         </div>
@@ -445,7 +445,7 @@ export function Dashboard({
             tone="warning"
           />
           <StatCard
-            label="Pagados por dueño"
+            label="Pagados por administración"
             value={formatCurrency(resumen.gastosDueno)}
             hint="No reembolsables"
             icon={Receipt}
@@ -575,7 +575,7 @@ export function Dashboard({
                                     </div>
                                     {e.descuento > 0 && (
                                       <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
-                                        Descuento: {formatCurrency(e.descuento)} ({e.descuentoPor === "chofer" ? "asumido por chofer" : "asumido por dueño"})
+                                        Descuento: {formatCurrency(e.descuento)} ({e.descuentoPor === "chofer" ? "asumido por chofer" : "asumido por administración"})
                                       </p>
                                     )}
                                   </div>
@@ -726,7 +726,7 @@ export function Dashboard({
                       <p className="truncate text-xs text-muted-foreground">{g.descripcion}</p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {formatDate(g.fecha)} · Pagó: {g.pagadoPor === "chofer" ? "Chofer" : "Dueño"}
+                      {formatDate(g.fecha)} · Pagó: {g.pagadoPor === "chofer" ? "Chofer" : "Administrador"}
                     </p>
                   </div>
                   <span className="font-semibold tabular-nums text-red-600 dark:text-red-400">

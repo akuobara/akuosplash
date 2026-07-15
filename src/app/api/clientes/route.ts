@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     const permitido = await choferPuedeEditarClientes(duenoId);
     if (!permitido) {
       return NextResponse.json(
-        { error: "No tienes permiso para crear clientes. Pídele al dueño que habilite esta opción." },
+        { error: "No tienes permiso para crear clientes. Pídele al administrador que habilite esta opción." },
         { status: 403 }
       );
     }

@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
     const config = await db.configuracion.findUnique({ where: { duenoId } });
     if (!config?.choferesPuedenCrearPedidos) {
       return NextResponse.json(
-        { error: "No tienes permiso para crear pedidos. Pídele al dueño que habilite esta opción." },
+        { error: "No tienes permiso para crear pedidos. Pídele al administrador que habilite esta opción." },
         { status: 403 }
       );
     }

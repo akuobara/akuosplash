@@ -11,7 +11,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo dueños pueden publicar pedidos" }, { status: 403 });
+    return NextResponse.json({ error: "Solo administradores pueden publicar pedidos" }, { status: 403 });
   }
 
   const { id } = await params;

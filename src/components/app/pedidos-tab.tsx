@@ -1388,7 +1388,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
             <DialogDescription>
               {soltandoPedido && esChoferPreferidoDelPedido(soltandoPedido)
                 ? "Eres el chofer preferido de este cliente. Puedes elegir un reemplazo o soltar el pedido al pool."
-                : "No eres el chofer preferido de este cliente. Al soltar, el pedido irá al pool para que el dueño lo reasigne."}
+                : "No eres el chofer preferido de este cliente. Al soltar, el pedido irá al pool para que el administrador lo reasigne."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -1413,7 +1413,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
             {soltandoPedido && !esChoferPreferidoDelPedido(soltandoPedido) && (
               <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-900/20">
                 <p className="text-amber-900 dark:text-amber-200">
-                  El pedido se publicará al pool. El dueño podrá reasignarlo a otro chofer o cualquier chofer de la flota podrá tomarlo.
+                  El pedido se publicará al pool. El administrador podrá reasignarlo a otro chofer o cualquier chofer de la flota podrá tomarlo.
                 </p>
               </div>
             )}

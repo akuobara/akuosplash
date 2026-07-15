@@ -233,7 +233,7 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
         </Card>
         <Card>
           <CardContent className="p-3">
-            <p className="text-xs uppercase text-muted-foreground">Pagó dueño</p>
+            <p className="text-xs uppercase text-muted-foreground">Pagó administración</p>
             <p className="text-base font-bold tabular-nums sm:text-lg">{formatCurrency(totalDueno)}</p>
           </CardContent>
         </Card>

@@ -208,7 +208,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
           setLoading(false);
           return;
         }
-        toast.success(`¡Bienvenido, ${data.user.nombre}! Tu cuenta de dueño está lista.`);
+        toast.success(`¡Bienvenido, ${data.user.nombre}! Tu cuenta de administrador está lista.`);
         if (data.token) saveToken(data.token);
         onAuthSuccess(data.user);
       } else if (screen === "login") {
@@ -313,14 +313,14 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
         <Card>
           <CardHeader>
             <CardTitle className="text-center">
-              {screen === "register" && (hasUsers ? "Crear cuenta" : "Crear cuenta de dueño")}
+              {screen === "register" && (hasUsers ? "Crear cuenta" : "Crear cuenta de administrador")}
               {screen === "login" && "Iniciar sesión"}
               {screen === "recuperar" && "Recuperar contraseña"}
               {screen === "reset" && `Nueva contraseña${recoveryUserName ? ` — ${recoveryUserName}` : ""}`}
             </CardTitle>
             {!hasUsers && screen === "register" && (
               <p className="text-center text-sm text-muted-foreground">
-                Esta será la primera cuenta y se creará como <strong>dueño</strong>. Podrás agregar choferes después.
+                Esta será la primera cuenta y se creará como <strong>administrador</strong>. Podrás agregar choferes después.
               </p>
             )}
           </CardHeader>
@@ -344,7 +344,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Registro: tipo de cuenta (solo si ya hay usuarios — primer usuario siempre es dueño) */}
+              {/* Registro: tipo de cuenta (solo si ya hay usuarios — primer usuario siempre es administrador) */}
               {screen === "register" && hasUsers && (
                 <div className="space-y-2">
                   <Label>Tipo de cuenta</Label>
@@ -358,7 +358,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
                           : "border-border hover:border-primary/50"
                       }`}
                     >
-                      <p className="text-sm font-medium">Dueño / Operador</p>
+                      <p className="text-sm font-medium">Administrador</p>
                       <p className="text-[10px] text-muted-foreground">Gestiona camiones, choferes y clientes</p>
                     </button>
                     <button
@@ -376,7 +376,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
                   </div>
                   {registerRole === "chofer" && (
                     <p className="text-[10px] text-amber-600 dark:text-amber-400">
-                      Tu cuenta deberá ser aprobada por un dueño antes de poder usar la app.
+                      Tu cuenta deberá ser aprobada por un administrador antes de poder usar la app.
                     </p>
                   )}
                 </div>
@@ -619,8 +619,8 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
           {hasUsers
             ? googleConfig.enabled
               ? "Puedes ingresar con Google si tu email coincide con una cuenta existente."
-              : "Si eres chofer, pídeele al dueño tu email y contraseña."
-            : "Primera vez: crea la cuenta del dueño del camión."}
+              : "Si eres chofer, pídeele al administrador tu email y contraseña."
+            : "Primera vez: crea la cuenta del administrador."}
         </p>
       </div>
     </div>

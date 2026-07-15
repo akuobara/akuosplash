@@ -22,7 +22,7 @@ async function checkOwnership(id: string) {
     if (!config?.choferesPuedenEditarClientes) {
       return {
         error: NextResponse.json(
-          { error: "No tienes permiso para editar clientes. Pídele al dueño que habilite esta opción." },
+          { error: "No tienes permiso para editar clientes. Pídele al administrador que habilite esta opción." },
           { status: 403 }
         ),
         session: null,

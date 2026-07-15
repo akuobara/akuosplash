@@ -168,7 +168,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
       {/* Encabezado */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold sm:text-xl">Liquidación con el dueño</h2>
+          <h2 className="text-lg font-semibold sm:text-xl">Liquidación con la administración</h2>
           <p className="text-sm text-muted-foreground">
             {cfg ? (
               <>Modo: <strong>{labelModoLiquidacion(cfg.modoLiquidacion)}</strong></>
@@ -264,7 +264,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
             tone="warning"
           />
           <StatCard
-            label="Pagados por dueño"
+            label="Pagados por administración"
             value={formatCurrency(r.gastosDueno)}
             icon={Receipt}
           />
@@ -512,7 +512,7 @@ function LiquidacionPorcentaje({
                 <Row label="Efectivo ya recibido por chofer" value={formatCurrency(r.totalEfectivoRecibido)} />
                 <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
                   <Row
-                    label={r.saldoChofer >= 0 ? "El dueño le debe al chofer" : "El chofer le debe al dueño"}
+                    label={r.saldoChofer >= 0 ? "El administrador le debe al chofer" : "El chofer le debe al administrador"}
                     value={formatCurrency(Math.abs(r.saldoChofer))}
                     strong
                     tone={r.saldoChofer >= 0 ? "positive" : "negative"}
@@ -526,7 +526,7 @@ function LiquidacionPorcentaje({
         <p className="mt-4 text-xs text-muted-foreground">
           <strong>Cómo se calcula:</strong> La utilidad bruta (ventas − gastos) se reparte en{" "}
           <strong>{cfg.porcentajeComisionChofer}%</strong> para el chofer y{" "}
-          <strong>{cfg.porcentajeComisionDueno}%</strong> para el dueño.
+          <strong>{cfg.porcentajeComisionDueno}%</strong> para el administrador.
           {r.impuesto > 0 && (
             <> Se descuenta el impuesto ({cfg.porcentajeImpuesto}% sobre {cfg.aplicaImpuestoSobre === "pago_chofer" ? "el pago del chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "la utilidad bruta" : "las ventas brutas"}).</>
           )}{" "}
@@ -583,7 +583,7 @@ function LiquidacionVuelta({
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Gastos</p>
             <div className="space-y-2 text-sm">
               <Row label="Gastos pagados por chofer (reembolsables)" value={formatCurrency(r.gastosChofer)} tone="warning" />
-              <Row label="Gastos pagados por dueño" value={formatCurrency(r.gastosDueno)} />
+              <Row label="Gastos pagados por administración" value={formatCurrency(r.gastosDueno)} />
               <div className="border-t border-border pt-2">
                 <Row label="Total gastos" value={formatCurrency(r.totalGastos)} tone="negative" />
               </div>
@@ -626,7 +626,7 @@ function LiquidacionVuelta({
               <Row label="− Efectivo ya recibido en ruta" value={formatCurrency(r.totalEfectivoRecibido)} tone="negative" />
               <div className="mt-2 rounded-md bg-amber-100/60 p-2 dark:bg-amber-900/30">
                 <Row
-                  label={r.saldoChofer >= 0 ? "El dueño le debe al chofer" : "El chofer le debe al dueño"}
+                  label={r.saldoChofer >= 0 ? "El administrador le debe al chofer" : "El chofer le debe al administrador"}
                   value={formatCurrency(Math.abs(r.saldoChofer))}
                   strong
                   tone={r.saldoChofer >= 0 ? "positive" : "negative"}
@@ -648,7 +648,7 @@ function LiquidacionVuelta({
           {r.impuesto > 0 && (
             <> Se descuenta el impuesto ({cfg.porcentajeImpuesto}% sobre {cfg.aplicaImpuestoSobre === "pago_chofer" ? "el pago del chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "la utilidad bruta" : "las ventas brutas"}).</>
           )}{" "}
-          Se descuenta el efectivo que ya recibiste en ruta. El saldo es lo que el dueño te debe (positivo) o lo que tú le debes (negativo).
+          Se descuenta el efectivo que ya recibiste en ruta. El saldo es lo que el administrador te debe (positivo) o lo que tú le debes (negativo).
         </p>
       </CardContent>
     </Card>
@@ -718,7 +718,7 @@ function ConfigModal({
         <DialogHeader>
           <DialogTitle>Cambiar modo de liquidación</DialogTitle>
           <DialogDescription>
-            Elige cómo se reparte la utilidad con el dueño del camión. Puedes configurar los
+            Elige cómo se reparte la utilidad con la administración. Puedes configurar los
             detalles en la pestaña Ajustes.
           </DialogDescription>
         </DialogHeader>
@@ -740,7 +740,7 @@ function ConfigModal({
           </div>
           <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
             {modo === "porcentaje" ? (
-              <p>La utilidad bruta (ventas − gastos) se reparte por porcentaje entre chofer y dueño.</p>
+              <p>La utilidad bruta (ventas − gastos) se reparte por porcentaje entre chofer y administrador.</p>
             ) : (
               <p>El chofer recibe un pago fijo por cada vuelta, dependiendo de si entrega a 1 o múltiples clientes.</p>
             )}

@@ -256,7 +256,7 @@ export default function Home() {
                 <div className="hidden text-right text-xs sm:block">
                   <p className="font-medium leading-tight">{user.nombre}</p>
                   <p className="text-muted-foreground leading-tight">
-                    {isDueno ? "Dueño" : "Chofer"}
+                    {isDueno ? "Administrador" : "Chofer"}
                   </p>
                 </div>
               </Button>
@@ -267,7 +267,7 @@ export default function Home() {
                 <p className="text-muted-foreground">{user.email}</p>
                 <p className="mt-1">
                   <span className="rounded bg-primary/10 px-1.5 py-0.5 font-medium text-primary">
-                    {isDueno ? "Dueño" : "Chofer"}
+                    {isDueno ? "Administrador" : "Chofer"}
                   </span>
                 </p>
               </div>
@@ -477,7 +477,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="mt-auto border-t border-border bg-muted/20 py-3">
         <div className="mx-auto w-full max-w-6xl px-3 text-center text-xs text-muted-foreground sm:px-6">
-          Aljibe App · {isDueno ? "Dueño" : "Chofer"}: {user.nombre} · {camiones.length} camión(es)
+          Aljibe App · {isDueno ? "Administrador" : "Chofer"}: {user.nombre} · {camiones.length} camión(es)
         </div>
       </footer>
 

@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
       } catch (err) {
         if (err instanceof Error && err.message === "ALREADY_HAS_USERS") {
           return NextResponse.json(
-            { error: "Ya existe una cuenta registrada. Pídele al dueño que te agregue como chofer." },
+            { error: "Ya existe una cuenta registrada. Pídele al administrador que te agregue como chofer." },
             { status: 403 }
           );
         }

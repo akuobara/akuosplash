@@ -176,7 +176,7 @@ export function GastoForm({ open, onOpenChange, onSaved, gasto }: GastoFormProps
               <p className="text-xs text-muted-foreground">
                 {pagadoPor === "chofer"
                   ? "Lo pagaste tú — se reembolsa en la liquidación."
-                  : "Lo pagó el dueño — no se reembolsa."}
+                  : "Lo pagó el administrador — no se reembolsa."}
               </p>
             </div>
           </div>

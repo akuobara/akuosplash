@@ -35,7 +35,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo dueños pueden cambiar la configuración" }, { status: 403 });
+    return NextResponse.json({ error: "Solo administradores pueden cambiar la configuración" }, { status: 403 });
   }
 
   const body = await req.json();

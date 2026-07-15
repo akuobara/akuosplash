@@ -76,7 +76,7 @@ export function VueltaWidget({
                   {camionesActivos.length === 0 && (
                     isDueno
                       ? " Primero agrega un camión en Ajustes."
-                      : " No tienes camiones asignados. Pídele al dueño que te asigne uno en Ajustes → Camiones."
+                      : " No tienes camiones asignados. Pídele al administrador que te asigne uno en Ajustes → Camiones."
                   )}
                 </p>
               </div>
@@ -87,7 +87,7 @@ export function VueltaWidget({
                   toast.error(
                     isDueno
                       ? "Primero agrega un camión en Ajustes"
-                      : "No tienes camiones asignados. Pídele al dueño que te asigne uno en Ajustes → Camiones."
+                      : "No tienes camiones asignados. Pídele al administrador que te asigne uno en Ajustes → Camiones."
                   );
                   return;
                 }

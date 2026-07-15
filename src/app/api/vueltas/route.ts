@@ -135,7 +135,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!camionId) {
-      return NextResponse.json({ error: "No hay camión disponible. Pídele al dueño que te asigne uno." }, { status: 400 });
+      return NextResponse.json({ error: "No hay camión disponible. Pídele al administrador que te asigne uno." }, { status: 400 });
     }
 
     // TRANSACCIÓN: cerrar vuelta activa previa + crear nueva (atómico para evitar race condition)

@@ -125,7 +125,7 @@ export function CuentaDialog({ open, onOpenChange, userId, nombreActual, emailAc
               <Label htmlFor="cuentaEmail" className="text-xs">Email</Label>
               <Input id="cuentaEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" />
               <p className="text-[10px] text-muted-foreground">
-                Si vas a traspasar la cuenta al dueño, cambia el email por el suyo aquí.
+                Si vas a traspasar la cuenta al administrador, cambia el email por el suyo aquí.
               </p>
             </div>
 

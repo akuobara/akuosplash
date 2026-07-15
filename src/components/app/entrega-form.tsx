@@ -666,7 +666,7 @@ export function EntregaForm({
       toast.error(
         isDueno
           ? "No hay camiones activos. Agrega uno en Ajustes primero."
-          : "No tienes camiones asignados. Pídele al dueño que te asigne uno en Ajustes → Camiones."
+          : "No tienes camiones asignados. Pídele al administrador que te asigne uno en Ajustes → Camiones."
       );
       return;
     }
@@ -718,7 +718,7 @@ export function EntregaForm({
         toast.error(
           isDueno
             ? "No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero."
-            : "No tienes camiones asignados. Pídele al dueño que te asigne uno en Ajustes → Camiones para poder iniciar una vuelta y registrar entregas.",
+            : "No tienes camiones asignados. Pídele al administrador que te asigne uno en Ajustes → Camiones para poder iniciar una vuelta y registrar entregas.",
           { duration: 8000 }
         );
         return;
@@ -1310,7 +1310,7 @@ export function EntregaForm({
               )}
               {descuentoTipo !== "ninguno" && (
                 <p className="text-[10px] text-amber-600 dark:text-amber-400">
-                  El descuento se descontará de tu pago en liquidación (si eres chofer) o de la utilidad (si eres dueño).
+                  El descuento se descontará de tu pago en liquidación (si eres chofer) o de la utilidad (si eres administrador).
                 </p>
               )}
             </div>

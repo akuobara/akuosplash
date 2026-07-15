@@ -411,7 +411,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
           <h2 className="text-lg font-semibold sm:text-xl">Clientes</h2>
           <p className="text-sm text-muted-foreground">
             {readOnly
-              ? "Catálogo de clientes del dueño (solo lectura)."
+              ? "Catálogo de clientes del administrador (solo lectura)."
               : "Catálogo de clientes frecuentes con precios por método de pago y por zona."}
           </p>
         </div>

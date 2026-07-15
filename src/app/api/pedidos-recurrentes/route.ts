@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo dueños pueden crear pedidos recurrentes" }, { status: 403 });
+    return NextResponse.json({ error: "Solo administradores pueden crear pedidos recurrentes" }, { status: 403 });
   }
 
   try {

@@ -571,7 +571,7 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
               <div className="flex items-center justify-between rounded-lg border border-border p-3">
                 <div>
                   <Label htmlFor="autoAsignar" className="text-sm font-medium">Asignarme como chofer</Label>
-                  <p className="text-xs text-muted-foreground">Te asigna automáticamente a ti (dueño) como chofer de este camión.</p>
+                  <p className="text-xs text-muted-foreground">Te asigna automáticamente a ti (administrador) como chofer de este camión.</p>
                 </div>
                 <Switch id="autoAsignar" checked={autoAsignarDueno} onCheckedChange={setAutoAsignarDueno} />
               </div>

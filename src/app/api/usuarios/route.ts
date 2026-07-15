@@ -9,7 +9,7 @@ export async function GET() {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo dueños" }, { status: 403 });
+    return NextResponse.json({ error: "Solo administradores" }, { status: 403 });
   }
 
   const usuarios = await db.usuario.findMany({
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
   if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo dueños pueden crear choferes" }, { status: 403 });
+    return NextResponse.json({ error: "Solo administradores pueden crear choferes" }, { status: 403 });
   }
 
   try {

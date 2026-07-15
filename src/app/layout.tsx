@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Aljibe App — Registro de Entregas de Agua",
-  description: "Lleva el control de entregas, pagos en efectivo, gastos y liquidación con el dueño del camión aljibe.",
+  description: "Lleva el control de entregas, pagos en efectivo, gastos y liquidación con la administración aljibe.",
   keywords: ["camión aljibe", "agua", "entregas", "registro", "chofer"],
   authors: [{ name: "Aljibe App" }],
 };

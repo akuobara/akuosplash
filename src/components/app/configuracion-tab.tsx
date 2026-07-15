@@ -198,7 +198,7 @@ export function ConfiguracionTab({
       <div>
         <h2 className="text-lg font-semibold sm:text-xl">Configuración</h2>
         <p className="text-sm text-muted-foreground">
-          Datos del negocio, camiones, precios, reparto con el dueño e impuestos.
+          Datos del negocio, camiones, precios, reparto con la administración e impuestos.
         </p>
       </div>
 
@@ -348,7 +348,7 @@ export function ConfiguracionTab({
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
             <HandCoins className="h-4 w-4 text-primary" />
-            <CardTitle className="text-base">Modo de liquidación con el dueño</CardTitle>
+            <CardTitle className="text-base">Modo de liquidación con la administración</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -383,7 +383,7 @@ export function ConfiguracionTab({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="cfgPctDueno">% para el dueño</Label>
+                  <Label htmlFor="cfgPctDueno">% para el administrador</Label>
                   <Input
                     id="cfgPctDueno"
                     type="number"
@@ -394,7 +394,7 @@ export function ConfiguracionTab({
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                La utilidad bruta (ventas − gastos) se reparte entre chofer y dueño según estos porcentajes.
+                La utilidad bruta (ventas − gastos) se reparte entre chofer y administrador según estos porcentajes.
               </p>
             </div>
           )}
@@ -599,9 +599,9 @@ export function ConfiguracionTab({
           <ul className="list-disc space-y-1 pl-5">
             <li>Venta de agua directa desde la app (clientes pueden pedir y pagar online).</li>
             <li>Recordatorios automáticos a clientes con saldo pendiente.</li>
-            <li>Exportación de reportes a PDF/Excel para compartir con el dueño.</li>
-            <li>Múltiples dueños/chóferes con login — cada uno ve solo lo suyo.</li>
-            <li>Asignar camiones a dueños específicos (cuando manejes flota de varios dueños).</li>
+            <li>Exportación de reportes a PDF/Excel para compartir con el administrador.</li>
+            <li>Múltiples administradores/chóferes con login — cada uno ve solo lo suyo.</li>
+            <li>Asignar camiones a administradores específicos (cuando manejes flota de varios administradores).</li>
           </ul>
         </CardContent>
       </Card>
