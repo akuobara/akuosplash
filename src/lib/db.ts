@@ -6,19 +6,25 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-function createPrismaClient() {
+export function getDb() {
+  if (globalForPrisma.prisma) return globalForPrisma.prisma
+  
   const url = process.env.DATABASE_URL
   const authToken = process.env.DATABASE_AUTH_TOKEN
   
-  if (!url) {
-    throw new Error('DATABASE_URL is not set')
-  }
+  if (!url) throw new Error('DATABASE_URL not set')
   
   const libsql = createClient({ url, authToken })
   const adapter = new PrismaLibSql(libsql)
-  return new PrismaClient({ adapter, log: ['error', 'warn'] })
+  const client = new PrismaClient({ adapter, log: ['error'] })
+  
+  if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = client
+  return client
 }
 
-export const db = globalForPrisma.prisma ?? createPrismaClient()
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+// Exportar como db para compatibilidad
+export const db = new Proxy({} as PrismaClient, {
+  get(_, prop) {
+    return (getDb() as any)[prop]
+  }
+})
