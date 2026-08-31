@@ -132,7 +132,8 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
       toast.error("Nombre y email son obligatorios");
       return;
     }
-    if (!editando && (!password || password.length < 4)) {
+    // Contraseña opcional: si no se proporciona, el backend busca si el usuario ya existe
+    if (!editando && password && password.length < 4) {
       toast.error("La contraseña debe tener al menos 4 caracteres");
       return;
     }
@@ -391,7 +392,7 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="choferPassword">
-                Contraseña {editando && "(dejar vacío para no cambiar)"}
+                Contraseña {editando && "(dejar vacío para no cambiar)"} — dejar vacío si el chofer ya tiene cuenta
               </Label>
               <Input
                 id="choferPassword"
@@ -399,7 +400,7 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••"
-                required={!editando}
+                required={false}
               />
             </div>
             <div className="space-y-2">

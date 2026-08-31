@@ -60,8 +60,12 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { nombre, email, password, telefono, esDuenoAsignadoComoChofer } = body;
 
-    if (!nombre?.trim() || !email?.trim()) {
-      return NextResponse.json({ error: "Nombre y email son obligatorios" }, { status: 400 });
+    if (!nombre?.trim()) {
+      return NextResponse.json({ error: "Nombre es obligatorio" }, { status: 400 });
+    }
+
+    if (!email?.trim() && !telefono?.trim()) {
+      return NextResponse.json({ error: "Email o teléfono es obligatorio" }, { status: 400 });
     }
 
     // Si es dueño asignándose a sí mismo como chofer de un camión, no necesita crear usuario
@@ -69,42 +73,105 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ usuario: { id: session.userId, nombre: session.nombre, email: session.email, role: "dueno" } });
     }
 
-    if (!password || password.length < 4) {
-      return NextResponse.json({ error: "Contraseña mínima de 4 caracteres" }, { status: 400 });
+    // Normalizar teléfono
+    let telefonoNormalizado: string | null = null;
+    if (telefono?.trim()) {
+      const digits = telefono.trim().replace(/\D/g, "");
+      if (digits.length >= 8) telefonoNormalizado = "+" + digits;
     }
 
-    const existing = await db.usuario.findUnique({ where: { email: email.trim().toLowerCase() } });
-    if (existing) {
-      return NextResponse.json({ error: "Email ya registrado" }, { status: 409 });
+    // Normalizar email (puede no venir)
+    let emailFinal: string | null = null;
+    if (email?.trim()) {
+      emailFinal = email.trim().toLowerCase();
+    }
+
+    // Buscar usuario existente por email o teléfono
+    let existingUser = null;
+    if (emailFinal) {
+      existingUser = await db.usuario.findUnique({ where: { email: emailFinal } });
+    }
+    if (!existingUser && telefonoNormalizado) {
+      existingUser = await db.usuario.findFirst({ where: { telefono: telefonoNormalizado } });
+    }
+
+    if (existingUser) {
+      // El usuario ya existe — vincularlo como chofer de este administrador
+      if (existingUser.role === "dueno" && existingUser.id !== session.userId) {
+        return NextResponse.json({ error: "Este usuario ya es administrador de otra cuenta" }, { status: 409 });
+      }
+      if (existingUser.role === "super_admin") {
+        return NextResponse.json({ error: "No puedes agregar a un súper administrador como chofer" }, { status: 409 });
+      }
+
+      // Si ya es chofer de este dueño, no hacer nada
+      if (existingUser.role === "chofer" && existingUser.duenoId === session.userId) {
+        return NextResponse.json({ 
+          usuario: { 
+            id: existingUser.id, 
+            nombre: existingUser.nombre, 
+            email: existingUser.email, 
+            telefono: existingUser.telefono,
+            role: existingUser.role,
+            activo: existingUser.activo,
+            duenoId: existingUser.duenoId,
+          },
+          mensaje: "Este chofer ya está agregado a tu cuenta",
+        });
+      }
+
+      // Si es chofer de otro dueño o no tiene dueño, reasignarlo
+      const actualizado = await db.usuario.update({
+        where: { id: existingUser.id },
+        data: {
+          duenoId: session.userId,
+          role: "chofer",
+          activo: true,
+          // Actualizar nombre y licencia si vienen
+          ...(nombre.trim() && { nombre: nombre.trim() }),
+          ...(telefonoNormalizado && { telefono: telefonoNormalizado }),
+          ...(body.licenciaClase && { licenciaClase: body.licenciaClase }),
+          ...(body.licenciaNumero?.trim() && { licenciaNumero: body.licenciaNumero.trim() }),
+          ...(body.licenciaVencimiento && { licenciaVencimiento: new Date(body.licenciaVencimiento) }),
+          ...(body.licenciaFotoUrl && { licenciaFotoUrl: body.licenciaFotoUrl }),
+        },
+        select: {
+          id: true, email: true, nombre: true, telefono: true, role: true, activo: true, duenoId: true, creadoEn: true,
+          licenciaClase: true, licenciaNumero: true, licenciaVencimiento: true, licenciaFotoUrl: true,
+          _count: { select: { vueltasComoChofer: true, entregasComoChofer: true, asignaciones: true } },
+        },
+      });
+
+      return NextResponse.json({ usuario: actualizado, mensaje: "Chofer existente vinculado a tu cuenta" });
+    }
+
+    // No existe — crear nuevo usuario
+    // Generar email ficticio si no viene
+    if (!emailFinal && telefonoNormalizado) {
+      emailFinal = `phone_${telefonoNormalizado.replace(/\D/g, "")}@aljibeapp.local`;
+    }
+
+    if (!password || password.length < 4) {
+      return NextResponse.json({ error: "Contraseña mínima de 4 caracteres (requerida para usuarios nuevos)" }, { status: 400 });
     }
 
     const nuevo = await db.usuario.create({
       data: {
         nombre: nombre.trim(),
-        email: email.trim().toLowerCase(),
+        email: emailFinal!,
         passwordHash: hashPassword(password),
-        telefono: telefono?.trim() ? "+" + telefono.trim().replace(/\D/g, "") : null,
+        telefono: telefonoNormalizado,
         role: "chofer",
         duenoId: session.userId,
-        // Datos de licencia (opcional al crear)
         licenciaClase: body.licenciaClase || null,
         licenciaNumero: body.licenciaNumero?.trim() || null,
         licenciaVencimiento: body.licenciaVencimiento ? new Date(body.licenciaVencimiento) : null,
         licenciaFotoUrl: body.licenciaFotoUrl || null,
       },
       select: {
-        id: true,
-        email: true,
-        nombre: true,
-        telefono: true,
-        role: true,
-        activo: true,
-        duenoId: true,
-        creadoEn: true,
-        licenciaClase: true,
-        licenciaNumero: true,
-        licenciaVencimiento: true,
-        licenciaFotoUrl: true,
+        id: true, email: true, nombre: true, telefono: true, role: true, activo: true, duenoId: true, creadoEn: true,
+        licenciaClase: true, licenciaNumero: true, licenciaVencimiento: true, licenciaFotoUrl: true,
+        _count: { select: { vueltasComoChofer: true, entregasComoChofer: true, asignaciones: true } },
       },
     });
 
