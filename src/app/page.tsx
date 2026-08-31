@@ -431,6 +431,13 @@ export default function Home() {
               choferes={usuarios.filter((u) => (u.role === "chofer" || u.role === "dueno") && u.activo).map((u) => ({ id: u.id, nombre: u.nombre, email: u.email }))}
               currentUserId={user.userId}
               isDueno={isDueno}
+              config={config ? {
+                precioEfectivoPorLitro: config.precioEfectivoPorLitro ?? 0,
+                precioTransferenciaPorLitro: config.precioTransferenciaPorLitro ?? 0,
+                capacidadCamion: config.capacidadCamion ?? 17000,
+              } : null}
+              vueltaActual={vueltaActual}
+              camiones={camiones}
               onAgendarPedido={(clienteId) => {
                 setPedidoClientePreselect(clienteId);
                 setTab("pedidos");

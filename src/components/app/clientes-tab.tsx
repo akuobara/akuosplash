@@ -60,6 +60,7 @@ import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
 import { formatCurrency, formatNumber, formatDate, formatTime, labelMetodoPago, labelEstadoPago, USOS_AGUA, TIPOS_ESTANQUE, labelUsoAgua, labelTipoEstanque } from "@/lib/helpers";
 import { MapPicker } from "./map-picker";
+import { EntregaForm, type Entrega, type VueltaActual, type ClienteOption } from "./entrega-form";
 
 interface Cliente {
   id: string;
@@ -99,9 +100,16 @@ interface ClientesTabProps {
   onAgendarPedido?: (clienteId: string) => void;
   currentUserId?: string;
   isDueno?: boolean;
+  config?: {
+    precioEfectivoPorLitro: number;
+    precioTransferenciaPorLitro: number;
+    capacidadCamion: number;
+  } | null;
+  vueltaActual?: VueltaActual | null;
+  camiones?: { id: string; nombre: string; activo: boolean }[];
 }
 
-export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes = [], onAgendarPedido, currentUserId, isDueno }: ClientesTabProps) {
+export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes = [], onAgendarPedido, currentUserId, isDueno, config = null, vueltaActual = null, camiones = [] }: ClientesTabProps) {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -125,6 +133,10 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [pagoNota, setPagoNota] = useState("");
   const [pagoPrecioEfectivo, setPagoPrecioEfectivo] = useState(false);
   const [pagoSaving, setPagoSaving] = useState(false);
+
+  // Estado para editar una entrega desde el detalle del cliente
+  const [editandoEntrega, setEditandoEntrega] = useState<Entrega | null>(null);
+  const [formEntregaOpen, setFormEntregaOpen] = useState(false);
 
   // Campos del formulario
   const [nombre, setNombre] = useState("");
@@ -1562,6 +1574,21 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                               </div>
                             );
                           })()}
+
+                          {/* Botón editar entrega */}
+                          <div className="mt-2 flex justify-end">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-xs"
+                              onClick={() => {
+                                setEditandoEntrega(e as Entrega);
+                                setFormEntregaOpen(true);
+                              }}
+                            >
+                              <Pencil className="mr-1 h-3 w-3" /> Editar entrega
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1643,6 +1670,46 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
           })()}
         </DialogContent>
       </Dialog>
+
+      {/* Formulario para editar una entrega desde el detalle del cliente */}
+      <EntregaForm
+        open={formEntregaOpen}
+        onOpenChange={(o) => {
+          setFormEntregaOpen(o);
+          if (!o) setEditandoEntrega(null);
+        }}
+        onSaved={() => {
+          // Recargar entregas del cliente que está en detalle
+          if (clienteDetalle) {
+            apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${clienteDetalle.id}`)
+              .then((ents) => setDetalleEntregas(ents.entregas || []))
+              .catch((e) => console.error("Error al recargar entregas:", e));
+          }
+          onRefresh();
+        }}
+        entrega={editandoEntrega}
+        clientes={clientes.map((c): ClienteOption => ({
+          id: c.id,
+          nombre: c.nombre,
+          direccion: c.direccion,
+          telefono: c.telefono,
+          zona: c.zona,
+          precioEfectivoPorLitro: c.precioEfectivoPorLitro,
+          precioTransferenciaPorLitro: c.precioTransferenciaPorLitro,
+          lat: c.lat,
+          lng: c.lng,
+          requiereIngresoPropiedad: c.requiereIngresoPropiedad,
+          entregaDesdeAfuera: c.entregaDesdeAfuera,
+          conexionExterna: c.conexionExterna,
+          requiereClientePresente: c.requiereClientePresente,
+          indicacionesAcceso: c.indicacionesAcceso,
+          estanquesJson: c.estanquesJson,
+        }))}
+        config={config ?? { precioEfectivoPorLitro: 0, precioTransferenciaPorLitro: 0, capacidadCamion: 17000 }}
+        vueltaActual={vueltaActual}
+        camiones={camiones}
+        isDueno={isDueno}
+      />
     </div>
   );
 }

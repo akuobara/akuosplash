@@ -110,6 +110,8 @@ interface ClienteOption {
   estanquesJson: string | null;
 }
 
+export type { ClienteOption };
+
 interface EntregaFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
