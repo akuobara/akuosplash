@@ -162,6 +162,7 @@ export function Dashboard({
 
   const [entregaFormOpen, setEntregaFormOpen] = useState(false);
   const [gastoFormOpen, setGastoFormOpen] = useState(false);
+  const [descargarOpen, setDescargarOpen] = useState(false);
 
   const cargarVuelta = useCallback(async () => {
     try {
@@ -276,24 +277,50 @@ export function Dashboard({
             <Plus className="mr-1 h-4 w-4" /> Entrega
           </Button>
           {/* Botones de descarga */}
-          <div className="relative group">
-            <Button variant="outline" size="sm">
+          <div className="relative">
+            <Button variant="outline" size="sm" onClick={() => setDescargarOpen(v => !v)} className="flex items-center gap-1">
               <Download className="mr-1 h-4 w-4" /> Descargar
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-0.5"><path d="m6 9 6 6 6-6"/></svg>
             </Button>
-            <div className="absolute right-0 top-full mt-1 z-20 hidden group-hover:flex flex-col gap-1 rounded-lg border border-border bg-background p-2 shadow-lg min-w-[180px]">
-              <a href={`/api/reportes/descargar?tipo=simple&formato=pdf&period=${period}`} className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2">
-                <FileText className="h-3.5 w-3.5" /> Reporte simple (PDF)
-              </a>
-              <a href={`/api/reportes/descargar?tipo=simple&formato=excel&period=${period}`} className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2">
-                <FileSpreadsheet className="h-3.5 w-3.5" /> Reporte simple (Excel)
-              </a>
-              <a href={`/api/reportes/descargar?tipo=completo&formato=pdf&period=${period}`} className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2">
-                <FileText className="h-3.5 w-3.5" /> Reporte completo (PDF)
-              </a>
-              <a href={`/api/reportes/descargar?tipo=completo&formato=excel&period=${period}`} className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2">
-                <FileSpreadsheet className="h-3.5 w-3.5" /> Reporte completo (Excel)
-              </a>
-            </div>
+            {descargarOpen && (
+              <>
+                {/* Overlay invisible para cerrar el menú al hacer clic fuera */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setDescargarOpen(false)}
+                />
+                <div className="absolute right-0 top-full mt-1 z-50 flex flex-col gap-1 rounded-lg border border-border bg-background p-2 shadow-lg min-w-[200px]">
+                  <a
+                    href={`/api/reportes/descargar?tipo=simple&formato=pdf&period=${period}`}
+                    onClick={() => setDescargarOpen(false)}
+                    className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2"
+                  >
+                    <FileText className="h-3.5 w-3.5" /> Reporte simple (PDF)
+                  </a>
+                  <a
+                    href={`/api/reportes/descargar?tipo=simple&formato=excel&period=${period}`}
+                    onClick={() => setDescargarOpen(false)}
+                    className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2"
+                  >
+                    <FileSpreadsheet className="h-3.5 w-3.5" /> Reporte simple (Excel)
+                  </a>
+                  <a
+                    href={`/api/reportes/descargar?tipo=completo&formato=pdf&period=${period}`}
+                    onClick={() => setDescargarOpen(false)}
+                    className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2"
+                  >
+                    <FileText className="h-3.5 w-3.5" /> Reporte completo (PDF)
+                  </a>
+                  <a
+                    href={`/api/reportes/descargar?tipo=completo&formato=excel&period=${period}`}
+                    onClick={() => setDescargarOpen(false)}
+                    className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2"
+                  >
+                    <FileSpreadsheet className="h-3.5 w-3.5" /> Reporte completo (Excel)
+                  </a>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
