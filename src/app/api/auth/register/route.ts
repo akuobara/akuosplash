@@ -52,17 +52,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verificar si ya hay usuarios registrados — usar transacción para evitar race condition
-    // que podría crear dos dueños si dos registros llegan simultáneamente.
     try {
       const user = await db.$transaction(async (tx) => {
-        const userCount = await tx.usuario.count();
-        if (userCount > 0) {
-          // Si ya hay usuarios y el que se registra es chofer, permitirlo
-          // (a futuro: el dueño aprueba). Por ahora, no permitir registro público de chofer.
-          throw new Error("ALREADY_REGISTERED");
-        }
-
         // Verificar email único
         const existing = await tx.usuario.findUnique({ where: { email: emailFinal } });
         if (existing) {
@@ -77,26 +68,30 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // Crear el primer usuario como dueño (siempre dueño el primero)
+        const userCount = await tx.usuario.count();
+        const role = userCount === 0 ? "dueno" : (requestedRole === "chofer" ? "chofer" : "dueno");
+
         const newUser = await tx.usuario.create({
           data: {
             nombre: nombre.trim(),
             email: emailFinal,
             passwordHash: hashPassword(password),
             telefono: telefonoNormalizado,
-            role: "dueno",
+            role,
             duenoId: null,
           },
         });
 
         // Crear configuración por defecto para este dueño
-        await tx.configuracion.create({
-          data: {
-            duenoId: newUser.id,
-            nombreDueno: newUser.nombre,
-            nombreChofer: newUser.nombre, // el dueño puede ser su propio chofer
-          },
-        });
+        if (role === "dueno") {
+          await tx.configuracion.create({
+            data: {
+              duenoId: newUser.id,
+              nombreDueno: newUser.nombre,
+              nombreChofer: newUser.nombre,
+            },
+          });
+        }
 
         return newUser;
       });
@@ -106,7 +101,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         email: user.email,
         nombre: user.nombre,
-        role: "dueno" as const,
+        role: user.role as "dueno" | "chofer" | "super_admin",
         duenoId: null,
       };
       const token = await signToken(sessionUser);
@@ -115,14 +110,11 @@ export async function POST(req: NextRequest) {
 
       return NextResponse.json({ user: sessionUser, token }, { status: 201 });
     } catch (err) {
-      if (err instanceof Error && err.message === "ALREADY_REGISTERED") {
-        return NextResponse.json(
-          { error: "Ya existe una cuenta registrada. Usa el login o pide al dueño que te agregue como chofer." },
-          { status: 403 }
-        );
-      }
       if (err instanceof Error && err.message === "EMAIL_EXISTS") {
         return NextResponse.json({ error: "Email ya registrado" }, { status: 409 });
+      }
+      if (err instanceof Error && err.message === "PHONE_EXISTS") {
+        return NextResponse.json({ error: "Teléfono ya registrado" }, { status: 409 });
       }
       throw err;
     }
