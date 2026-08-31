@@ -711,6 +711,24 @@ export function EntregaForm({
       return;
     }
 
+    // === MODO EDICIÓN ===
+    // Al editar una entrega existente, guardar directamente sin requerir vuelta activa.
+    // La entrega ya tiene su propia vueltaId asociada (se mantiene la original).
+    if (isEdit) {
+      // Validar litros > 0
+      let litrosAEntregarEdit = litrosFinal;
+      if (modoEstanques && estanquesEntrega.length > 0) {
+        litrosAEntregarEdit = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
+      }
+      if (litrosAEntregarEdit <= 0) {
+        toast.error("Los litros deben ser mayores a 0");
+        return;
+      }
+      await guardarEntrega();
+      return;
+    }
+
+    // === MODO CREACIÓN ===
     // Si no hay vuelta activa, validar litros ANTES de abrir el diálogo
     if (!vueltaActual) {
       // Verificar si hay camiones disponibles
