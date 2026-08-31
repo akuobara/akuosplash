@@ -1651,11 +1651,11 @@ export function EntregaForm({
                   setMontoTransferencia("");
                   // Actualizar precio según método
                   const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  const precioEfectivo = clienteActual?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
                   aplicarPrecioSegunMetodo("efectivo", clienteActual);
-                  // Si no hay efectivo ingresado, auto-llenar con el total
-                  if (!montoEfectivo) {
-                    setMontoEfectivo(String(Math.round(totalConDescuento)));
-                  }
+                  // Calcular el total con el precio efectivo y auto-llenar
+                  const nuevoTotal = Math.ceil((litrosFinal * precioEfectivo) / 100) * 100;
+                  setMontoEfectivo(String(Math.max(0, nuevoTotal - descuentoMontoFinal)));
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
                   metodoPago === "efectivo" && efectivoFinal > 0
@@ -1676,13 +1676,11 @@ export function EntregaForm({
                 onClick={() => {
                   setMetodoPago("transferencia");
                   setMontoEfectivo("");
-                  // Actualizar precio según método
                   const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  const precioTransf = clienteActual?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
                   aplicarPrecioSegunMetodo("transferencia", clienteActual);
-                  // Si no hay transferencia ingresada, auto-llenar con el total
-                  if (!montoTransferencia) {
-                    setMontoTransferencia(String(Math.round(totalConDescuento)));
-                  }
+                  const nuevoTotal = Math.ceil((litrosFinal * precioTransf) / 100) * 100;
+                  setMontoTransferencia(String(Math.max(0, nuevoTotal - descuentoMontoFinal)));
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
                   metodoPago === "transferencia" && transferenciaFinal > 0
