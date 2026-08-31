@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       // Ver todos los pedidos pendientes/programados/en_ruta del administrador
       // + los que él tomó o creó (incluso entregados)
       where.OR = [
-        { estado: { in: ["pendiente", "programado", "en_ruta"] } },
+        { estado: { in: ["pendiente", "programado", "en_ruta", "entregado"] } },
         { tomadoPorChoferId: session.userId },
         { choferId: session.userId },
       ];
