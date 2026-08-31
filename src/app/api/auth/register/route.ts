@@ -11,9 +11,13 @@ export async function POST(req: NextRequest) {
     const { nombre, email, password, telefono } = body;
     const requestedRole = body.role === "chofer" ? "chofer" : "dueno";
 
-    if (!nombre?.trim() || !email?.trim() || !password) {
+    // Al menos uno de los dos (email o teléfono) es obligatorio
+    const hasEmail = email?.trim();
+    const hasPhone = telefono?.trim();
+    
+    if (!nombre?.trim() || !password || (!hasEmail && !hasPhone)) {
       return NextResponse.json(
-        { error: "Nombre, email y contraseña son obligatorios" },
+        { error: "Nombre, contraseña y email o teléfono son obligatorios" },
         { status: 400 }
       );
     }
@@ -27,11 +31,25 @@ export async function POST(req: NextRequest) {
 
     // Normalizar teléfono: solo dígitos con + al inicio
     let telefonoNormalizado: string | null = null;
-    if (telefono?.trim()) {
+    if (hasPhone) {
       const digits = telefono.trim().replace(/\D/g, "");
       if (digits.length >= 8) {
         telefonoNormalizado = "+" + digits;
       }
+    }
+
+    // Email: si viene, normalizar; si no viene, generar uno ficticio basado en el teléfono
+    let emailFinal: string;
+    if (hasEmail) {
+      emailFinal = email.trim().toLowerCase();
+    } else if (telefonoNormalizado) {
+      // Generar email ficticio basado en el teléfono para cumplir con el constraint UNIQUE
+      emailFinal = `phone_${telefonoNormalizado.replace(/\D/g, "")}@aljibeapp.local`;
+    } else {
+      return NextResponse.json(
+        { error: "Email o teléfono válido es obligatorio" },
+        { status: 400 }
+      );
     }
 
     // Verificar si ya hay usuarios registrados — usar transacción para evitar race condition
@@ -46,16 +64,24 @@ export async function POST(req: NextRequest) {
         }
 
         // Verificar email único
-        const existing = await tx.usuario.findUnique({ where: { email: email.trim().toLowerCase() } });
+        const existing = await tx.usuario.findUnique({ where: { email: emailFinal } });
         if (existing) {
           throw new Error("EMAIL_EXISTS");
+        }
+
+        // Verificar teléfono único si viene
+        if (telefonoNormalizado) {
+          const existingPhone = await tx.usuario.findFirst({ where: { telefono: telefonoNormalizado } });
+          if (existingPhone) {
+            throw new Error("PHONE_EXISTS");
+          }
         }
 
         // Crear el primer usuario como dueño (siempre dueño el primero)
         const newUser = await tx.usuario.create({
           data: {
             nombre: nombre.trim(),
-            email: email.trim().toLowerCase(),
+            email: emailFinal,
             passwordHash: hashPassword(password),
             telefono: telefonoNormalizado,
             role: "dueno",

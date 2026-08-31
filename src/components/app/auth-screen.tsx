@@ -186,8 +186,8 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
     setLoading(true);
     try {
       if (screen === "register") {
-        if (!nombre.trim() || !email.trim() || !password) {
-          toast.error("Completa todos los campos");
+        if (!nombre.trim() || !password || (!email.trim() && !telefono.trim())) {
+          toast.error("Completa nombre, contraseña y email o teléfono");
           setLoading(false);
           return;
         }
@@ -400,19 +400,19 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
                 </div>
               )}
 
-              {/* Email o teléfono (login, register, recuperar) */}
+              {/* Email (login, register, recuperar) */}
               {screen !== "reset" && (
                 <div className="space-y-2">
                   <Label htmlFor="email">
-                    {screen === "login" ? "Email o teléfono" : "Email"}
+                    {screen === "login" ? "Email o teléfono" : screen === "register" ? "Email (opcional)" : "Email"}
                   </Label>
                   <Input
                     id="email"
                     type={screen === "login" ? "text" : "email"}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={screen === "login" ? "tu@email.com o +56912345678" : "tu@email.com"}
-                    required
+                    placeholder={screen === "login" ? "tu@email.com o +56912345678" : "tu@email.com (opcional si das teléfono)"}
+                    required={screen === "login" || screen === "recuperar"}
                     disabled={screen === "recuperar" && !!recoveryToken}
                   />
                 </div>
@@ -504,13 +504,17 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
               {/* Teléfono (registro) */}
               {screen === "register" && (
                 <div className="space-y-2">
-                  <Label htmlFor="telefono">Teléfono (opcional)</Label>
+                  <Label htmlFor="telefono">Teléfono</Label>
                   <Input
                     id="telefono"
+                    type="tel"
                     value={telefono}
                     onChange={(e) => setTelefono(e.target.value)}
-                    placeholder="+56 9 1234 5678"
+                    placeholder="+56 9 1234 5678 (obligatorio si no das email)"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Puedes registrarte con email o teléfono. Al menos uno es obligatorio.
+                  </p>
                 </div>
               )}
 
