@@ -257,6 +257,7 @@ model Vuelta {
   cerradaEn   DateTime?
   nota        String?
   activa      Boolean  @default(true)
+  validadaManualmente Boolean? @default(null)
 
   camionId    String?
   camion      Camion?  @relation(fields: [camionId], references: [id])
@@ -401,4 +402,7 @@ model Configuracion {
   // Permisos para choferes
   choferesPuedenEditarClientes Boolean @default(false)
   choferesPuedenCrearPedidos   Boolean @default(false)
+
+  // Umbral de completación de vuelta (porcentaje 0-1, default 0.975 = 97.5%)
+  umbralCompletacionVuelta    Float   @default(0.975)
 }

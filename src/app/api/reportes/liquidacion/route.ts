@@ -94,19 +94,23 @@ export async function GET(req: NextRequest) {
       const efectivo = v.entregas.reduce((s, e) => s + e.montoEfectivo, 0);
       const transferencia = v.entregas.reduce((s, e) => s + e.montoTransferencia, 0);
       const capacidadCamion = v.camion?.capacidad ?? cfg.capacidadCamion ?? 0;
-      const completada = esVueltaCompletada(litros, capacidadCamion, numEntregas);
+      const umbral = (cfg as any).umbralCompletacionVuelta || 0.975;
+      const completadaAuto = esVueltaCompletada(litros, capacidadCamion, numEntregas, umbral);
+      const validadaManualmente = (v as any).validadaManualmente;
+      const esValida = validadaManualmente !== null && validadaManualmente !== undefined ? validadaManualmente : completadaAuto;
       return {
         id: v.id, numero: v.numero, iniciadaEn: v.iniciadaEn, cerradaEn: v.cerradaEn,
         camion: v.camion, chofer: v.chofer,
         cantidadEntregas: numEntregas, esMultiple, litros,
         litrosRestantes: Math.max(0, capacidadCamion - litros), capacidadCamion,
         ventas, efectivo, transferencia, montoPago: monto,
-        completada, porcentajeCompletado: capacidadCamion > 0 ? (litros / capacidadCamion) * 100 : 0,
+        completada: esValida, completadaAuto, validadaManualmente,
+        porcentajeCompletado: capacidadCamion > 0 ? (litros / capacidadCamion) * 100 : 0,
       };
     });
-    // Separar vueltas válidas (completadas) de excluidas (no completadas)
-    const vueltasValidas = vueltasDetalle.filter((v) => v.completada);
-    vueltasExcluidas = vueltasDetalle.filter((v) => !v.completada);
+    // Separar vueltas válidas de excluidas (con al menos 1 entrega)
+    const vueltasValidas = vueltasDetalle.filter((v) => v.completada && v.cantidadEntregas > 0);
+    vueltasExcluidas = vueltasDetalle.filter((v) => !v.completada || v.cantidadEntregas === 0);
     vueltasDetalle = vueltasValidas;
     pagoChofer = vueltasValidas.reduce((s, v) => s + v.montoPago, 0);
   } else {

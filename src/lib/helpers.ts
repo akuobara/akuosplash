@@ -213,13 +213,12 @@ export const UMBRAL_COMPLETACION_VUELTA = 0.975;
 export function esVueltaCompletada(
   litros: number,
   capacidadCamion: number | null | undefined,
-  cantidadEntregas: number = 0
+  cantidadEntregas: number = 0,
+  umbral: number = UMBRAL_COMPLETACION_VUELTA
 ): boolean {
   if (capacidadCamion && capacidadCamion > 0) {
-    return litros >= capacidadCamion * UMBRAL_COMPLETACION_VUELTA;
+    return litros >= capacidadCamion * umbral;
   }
-  // Sin info de capacidad: NO se considera completada (evita que 1L cuente como vuelta válida)
-  // Solo se considera completada si entregó al menos 1000L (mínimo razonable)
   return litros >= 1000 && cantidadEntregas > 0;
 }
 

@@ -371,7 +371,7 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
                         {abierta ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
                       </button>
 
-                      {/* Banner de vuelta no completada con botón Retomar */}
+                      {/* Banner de vuelta no completada con botones */}
                       {puedeReabrir && (
                         <div className="border-t border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -381,18 +381,58 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
                               {" "}Faltaron {formatNumber(Math.max(0, umbralLitros - v.litros), 0)} L para ser válida.
                               {" "}No cuenta para la liquidación.
                             </p>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-amber-400 bg-white text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setReabrirConfirm(v);
-                              }}
-                            >
-                              <RotateCcw className="mr-1 h-3 w-3" /> Retomar vuelta
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-emerald-400 bg-white text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  fetch(`/api/vueltas/${v.id}/validar`, {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json", ...((typeof window !== "undefined" && localStorage.getItem("aljibe-token")) ? { Authorization: `Bearer ${localStorage.getItem("aljibe-token")}` } : {}) },
+                                    body: JSON.stringify({ validada: true }),
+                                    credentials: "include",
+                                  }).then(() => { toast.success(`Vuelta #${v.numero} validada manualmente`); cargar(); });
+                                }}
+                              >
+                                ✓ Validar
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-amber-400 bg-white text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setReabrirConfirm(v);
+                                }}
+                              >
+                                <RotateCcw className="mr-1 h-3 w-3" /> Retomar
+                              </Button>
+                            </div>
                           </div>
+                        </div>
+                      )}
+
+                      {/* Botón invalidar si está validada manualmente o completada automáticamente */}
+                      {!v.activa && completada && (
+                        <div className="border-t border-border px-3 py-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-xs text-destructive hover:text-destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              fetch(`/api/vueltas/${v.id}/validar`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json", ...((typeof window !== "undefined" && localStorage.getItem("aljibe-token")) ? { Authorization: `Bearer ${localStorage.getItem("aljibe-token")}` } : {}) },
+                                body: JSON.stringify({ validada: false }),
+                                credentials: "include",
+                              }).then(() => { toast.success(`Vuelta #${v.numero} invalidada`); cargar(); });
+                            }}
+                          >
+                            ✗ Invalidar vuelta
+                          </Button>
                         </div>
                       )}
 

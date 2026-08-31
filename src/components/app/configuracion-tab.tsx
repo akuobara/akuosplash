@@ -100,6 +100,7 @@ export function ConfiguracionTab({
   // Permisos para choferes
   const [choferesPuedenEditarClientes, setChoferesPuedenEditarClientes] = useState(false);
   const [choferesPuedenCrearPedidos, setChoferesPuedenCrearPedidos] = useState(false);
+  const [umbralCompletacion, setUmbralCompletacion] = useState("97.5");
 
   const [saving, setSaving] = useState(false);
 
@@ -119,6 +120,8 @@ export function ConfiguracionTab({
       setAplicaImpuestoSobre(config.aplicaImpuestoSobre || "pago_chofer");
       setChoferesPuedenEditarClientes(config.choferesPuedenEditarClientes ?? false);
       setChoferesPuedenCrearPedidos(config.choferesPuedenCrearPedidos ?? false);
+      const umbral = (config as any).umbralCompletacionVuelta ?? 0.975;
+      setUmbralCompletacion(String(Math.round(umbral * 1000) / 10));
       // Empresa
       setEmpresaRazonSocial(config.empresaRazonSocial ?? "");
       setEmpresaRut(config.empresaRut ?? "");
@@ -170,6 +173,7 @@ export function ConfiguracionTab({
         aplicaImpuestoSobre,
         choferesPuedenEditarClientes,
         choferesPuedenCrearPedidos,
+        umbralCompletacionVuelta: (Number(umbralCompletacion) || 97.5) / 100,
         empresaRazonSocial,
         empresaRut,
         empresaDireccion,
@@ -441,6 +445,24 @@ export function ConfiguracionTab({
                   <li>El efectivo que recibiste en ruta se descuenta de tu pago total.</li>
                   <li>Se descuentan los impuestos según la configuración de abajo.</li>
                 </ul>
+              </div>
+              <Separator className="my-2" />
+              <div className="space-y-2">
+                <Label htmlFor="cfgUmbral">Umbral de completación de vuelta (%)</Label>
+                <Input
+                  id="cfgUmbral"
+                  type="number"
+                  inputMode="decimal"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  value={umbralCompletacion}
+                  onChange={(e) => setUmbralCompletacion(e.target.value)}
+                  placeholder="97.5"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Porcentaje mínimo de agua entregada para que una vuelta cuente como válida automáticamente. Default: 97.5%. También puedes validar o invalidar vueltas manualmente desde el Historial.
+                </p>
               </div>
             </div>
           )}
