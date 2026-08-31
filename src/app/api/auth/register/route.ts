@@ -25,6 +25,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Normalizar teléfono: solo dígitos con + al inicio
+    let telefonoNormalizado: string | null = null;
+    if (telefono?.trim()) {
+      const digits = telefono.trim().replace(/\D/g, "");
+      if (digits.length >= 8) {
+        telefonoNormalizado = "+" + digits;
+      }
+    }
+
     // Verificar si ya hay usuarios registrados — usar transacción para evitar race condition
     // que podría crear dos dueños si dos registros llegan simultáneamente.
     try {
@@ -48,7 +57,7 @@ export async function POST(req: NextRequest) {
             nombre: nombre.trim(),
             email: email.trim().toLowerCase(),
             passwordHash: hashPassword(password),
-            telefono: telefono?.trim() || null,
+            telefono: telefonoNormalizado,
             role: "dueno",
             duenoId: null,
           },

@@ -213,7 +213,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
         onAuthSuccess(data.user);
       } else if (screen === "login") {
         if (!email.trim() || !password) {
-          toast.error("Ingresa email y contraseña");
+          toast.error("Ingresa tu email o teléfono y contraseña");
           setLoading(false);
           return;
         }
@@ -400,16 +400,18 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
                 </div>
               )}
 
-              {/* Email (login, register, recuperar) */}
+              {/* Email o teléfono (login, register, recuperar) */}
               {screen !== "reset" && (
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">
+                    {screen === "login" ? "Email o teléfono" : "Email"}
+                  </Label>
                   <Input
                     id="email"
-                    type="email"
+                    type={screen === "login" ? "text" : "email"}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="tu@email.com"
+                    placeholder={screen === "login" ? "tu@email.com o +56912345678" : "tu@email.com"}
                     required
                     disabled={screen === "recuperar" && !!recoveryToken}
                   />

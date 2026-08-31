@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         nombre: nombre.trim(),
         email: email.trim().toLowerCase(),
         passwordHash: hashPassword(password),
-        telefono: telefono?.trim() || null,
+        telefono: telefono?.trim() ? "+" + telefono.trim().replace(/\D/g, "") : null,
         role: "chofer",
         duenoId: session.userId,
         // Datos de licencia (opcional al crear)

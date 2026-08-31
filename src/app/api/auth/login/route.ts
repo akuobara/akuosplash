@@ -10,14 +10,33 @@ export async function POST(req: NextRequest) {
 
     if (!email?.trim() || !password) {
       return NextResponse.json(
-        { error: "Email y contraseña son obligatorios" },
+        { error: "Email o teléfono y contraseña son obligatorios" },
         { status: 400 }
       );
     }
 
-    const user = await db.usuario.findUnique({
-      where: { email: email.trim().toLowerCase() },
-    });
+    const input = email.trim();
+    const isPhone = /^[+]?[\d\s-]+$/.test(input) && input.replace(/\D/g, "").length >= 8;
+
+    let user;
+    if (isPhone) {
+      // Buscar por teléfono (normalizar: solo dígitos)
+      const phoneDigits = input.replace(/\D/g, "");
+      user = await db.usuario.findFirst({
+        where: {
+          OR: [
+            { telefono: phoneDigits },
+            { telefono: "+" + phoneDigits },
+            { telefono: input },
+          ],
+        },
+      });
+    } else {
+      // Buscar por email
+      user = await db.usuario.findUnique({
+        where: { email: input.toLowerCase() },
+      });
+    }
 
     if (!user || !user.activo) {
       return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
