@@ -104,7 +104,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
     }
 
-    // Litros: usar litrosReales si se envió explícitamente (incluyendo 0), sino litrosSolicitados
+    // Litros: usar litrosReales si se envió explícitamente, sino litrosSolicitados
+    // Si litrosSolicitados es 0, estimar con promedio de entregas anteriores al cliente
     let litros: number;
     if (body.litrosReales != null && body.litrosReales !== "") {
       litros = Number(body.litrosReales);
@@ -113,6 +114,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
     } else {
       litros = pedido.litrosSolicitados;
+    }
+
+    // Si los litros son 0, estimar con promedio de entregas anteriores al cliente
+    if (litros === 0 && pedido.clienteId) {
+      const entregasAnteriores = await db.entrega.findMany({
+        where: { clienteId: pedido.clienteId, litros: { gt: 0 } },
+        select: { litros: true },
+        orderBy: { fecha: "desc" },
+        take: 5,
+      });
+      if (entregasAnteriores.length > 0) {
+        const promedio = entregasAnteriores.reduce((s, e) => s + e.litros, 0) / entregasAnteriores.length;
+        litros = Math.round(promedio);
+      }
     }
 
     // Total con redondeo a $100 superior

@@ -375,10 +375,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       return;
     }
     const litros = Number(litrosSolicitados) || 0;
-    if (litros <= 0) {
-      toast.error("Los litros solicitados deben ser mayores a 0");
-      return;
-    }
+    // Litros NO es obligatorio — el cliente puede pedir agua sin saber la cantidad
+    // Si es 0, se estimará con el promedio de entregas anteriores al convertir
 
     setSaving(true);
     try {
@@ -794,7 +792,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                           </div>
                           <p className="truncate text-xs text-muted-foreground">
                             <Droplets className="mr-1 inline h-3 w-3" />
-                            {formatNumber(p.litrosSolicitados, 0)} L · {labelMetodoPago(p.metodoPagoPreferido)}
+                            {p.litrosSolicitados > 0 ? `${formatNumber(p.litrosSolicitados, 0)} L` : "Sin cantidad"} · {labelMetodoPago(p.metodoPagoPreferido)}
                             {p.fechaSolicitada && (
                               <>
                                 <Calendar className="ml-2 inline h-3 w-3" />
@@ -1068,7 +1066,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="litrosSolicitados">Litros solicitados *</Label>
+                <Label htmlFor="litrosSolicitados">Litros solicitados (opcional)</Label>
                 <Input
                   id="litrosSolicitados"
                   type="number"
@@ -1076,9 +1074,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                   step="any"
                   value={litrosSolicitados}
                   onChange={(e) => setLitrosSolicitados(e.target.value)}
-                  placeholder="5000"
-                  required
+                  placeholder="Dejar vacío si no sabe la cantidad"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Si no sabes la cantidad, se estimará con el promedio de entregas anteriores al momento de convertir.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fechaSolicitada">Fecha solicitada (opcional)</Label>
@@ -1227,7 +1227,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 <Field label="Estado" value={labelEstadoPedido(detalle.estado)} />
                 <Field label="Teléfono" value={detalle.clienteTelefono || "—"} />
                 <Field label="Zona" value={detalle.clienteZona || "—"} />
-                <Field label="Litros solicitados" value={`${formatNumber(detalle.litrosSolicitados, 0)} L`} />
+                <Field label="Litros solicitados" value={detalle.litrosSolicitados > 0 ? `${formatNumber(detalle.litrosSolicitados, 0)} L` : "Sin cantidad (se estimará al convertir)"} />
                 <Field label="Método de pago" value={labelMetodoPago(detalle.metodoPagoPreferido)} />
                 {detalle.fechaSolicitada && (
                   <Field label="Fecha solicitada" value={formatDateTime(detalle.fechaSolicitada)} />
@@ -1444,14 +1444,14 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
           <DialogHeader>
             <DialogTitle>Convertir pedido en entrega</DialogTitle>
             <DialogDescription>
-              {convirtiendo && `Pedido de ${convirtiendo.clienteNombre} · ${formatNumber(convirtiendo.litrosSolicitados, 0)} L`}
+              {convirtiendo && `Pedido de ${convirtiendo.clienteNombre}${convirtiendo.litrosSolicitados > 0 ? ` · ${formatNumber(convirtiendo.litrosSolicitados, 0)} L` : " · Sin cantidad"}`}
             </DialogDescription>
           </DialogHeader>
           {convirtiendo && (
             <form onSubmit={handleConvertir} className="space-y-4">
               <div className="rounded-lg bg-muted/30 p-3 text-xs space-y-1">
                 <p><strong>Cliente:</strong> {convirtiendo.clienteNombre}</p>
-                <p><strong>Litros pedidos:</strong> {formatNumber(convirtiendo.litrosSolicitados, 0)} L</p>
+                <p><strong>Litros pedidos:</strong> {convirtiendo.litrosSolicitados > 0 ? `${formatNumber(convirtiendo.litrosSolicitados, 0)} L` : "Sin cantidad (se estimará con el promedio)"}</p>
                 <p><strong>Pago:</strong> {labelMetodoPago(convirtiendo.metodoPagoPreferido)}</p>
               </div>
 
