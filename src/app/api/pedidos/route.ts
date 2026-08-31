@@ -27,11 +27,8 @@ export async function GET(req: NextRequest) {
   if (clienteId) where.clienteId = clienteId;
 
   if (session.role === "chofer") {
-    // Choferes ven:
-    // - Pedidos asignados a ellos (choferAsignadoId = su id)
-    // - Pedidos publicados sin tomar (asignacionTipo = "publicado" AND tomadoPorChoferId IS NULL)
-    // - Pedidos que ellos crearon
-    // - Pedidos donde tienen prioridad
+    // Choferes ven TODOS los pedidos del administrador (pendientes, programados, en_ruta)
+    // más los que ellos tomaron o crearon (incluso entregados/cancelados)
     if (soloDisponibles) {
       // Solo pedidos disponibles para tomar (publicados y sin tomar)
       where.AND = [
@@ -40,17 +37,12 @@ export async function GET(req: NextRequest) {
         { estado: { in: ["pendiente", "programado"] } },
       ];
     } else {
+      // Ver todos los pedidos pendientes/programados/en_ruta del administrador
+      // + los que él tomó o creó (incluso entregados)
       where.OR = [
-        { choferAsignadoId: session.userId },
+        { estado: { in: ["pendiente", "programado", "en_ruta"] } },
         { tomadoPorChoferId: session.userId },
         { choferId: session.userId },
-        { prioridadChoferId: session.userId },
-        {
-          AND: [
-            { asignacionTipo: "publicado" },
-            { tomadoPorChoferId: null },
-          ],
-        },
       ];
     }
   } else if (soloDisponibles) {
