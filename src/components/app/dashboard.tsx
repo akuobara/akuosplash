@@ -33,6 +33,7 @@ import {
   FileText,
   FileSpreadsheet,
   AlertTriangle,
+  Loader2,
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { EntregaForm } from "./entrega-form";
@@ -162,7 +163,6 @@ export function Dashboard({
 
   const [entregaFormOpen, setEntregaFormOpen] = useState(false);
   const [gastoFormOpen, setGastoFormOpen] = useState(false);
-  const [descargarOpen, setDescargarOpen] = useState(false);
 
   const cargarVuelta = useCallback(async () => {
     try {
@@ -276,52 +276,31 @@ export function Dashboard({
           <Button onClick={() => setEntregaFormOpen(true)} size="sm">
             <Plus className="mr-1 h-4 w-4" /> Entrega
           </Button>
-          {/* Botones de descarga */}
-          <div className="relative">
-            <Button variant="outline" size="sm" onClick={() => setDescargarOpen(v => !v)} className="flex items-center gap-1">
-              <Download className="mr-1 h-4 w-4" /> Descargar
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-0.5"><path d="m6 9 6 6 6-6"/></svg>
-            </Button>
-            {descargarOpen && (
-              <>
-                {/* Overlay invisible para cerrar el menú al hacer clic fuera */}
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setDescargarOpen(false)}
-                />
-                <div className="absolute right-0 top-full mt-1 z-50 flex flex-col gap-1 rounded-lg border border-border bg-background p-2 shadow-lg min-w-[200px]">
-                  <a
-                    href={`/api/reportes/descargar?tipo=simple&formato=pdf&period=${period}`}
-                    onClick={() => setDescargarOpen(false)}
-                    className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2"
-                  >
-                    <FileText className="h-3.5 w-3.5" /> Reporte simple (PDF)
-                  </a>
-                  <a
-                    href={`/api/reportes/descargar?tipo=simple&formato=excel&period=${period}`}
-                    onClick={() => setDescargarOpen(false)}
-                    className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2"
-                  >
-                    <FileSpreadsheet className="h-3.5 w-3.5" /> Reporte simple (Excel)
-                  </a>
-                  <a
-                    href={`/api/reportes/descargar?tipo=completo&formato=pdf&period=${period}`}
-                    onClick={() => setDescargarOpen(false)}
-                    className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2"
-                  >
-                    <FileText className="h-3.5 w-3.5" /> Reporte completo (PDF)
-                  </a>
-                  <a
-                    href={`/api/reportes/descargar?tipo=completo&formato=excel&period=${period}`}
-                    onClick={() => setDescargarOpen(false)}
-                    className="rounded px-3 py-1.5 text-xs hover:bg-muted flex items-center gap-2"
-                  >
-                    <FileSpreadsheet className="h-3.5 w-3.5" /> Reporte completo (Excel)
-                  </a>
-                </div>
-              </>
-            )}
-          </div>
+          {/* Botones de descarga directos (usan fetch con token para autenticar) */}
+          <DownloadButton
+            label="PDF simple"
+            icon={<FileText className="mr-1 h-3.5 w-3.5" />}
+            url={`/api/reportes/descargar?tipo=simple&formato=pdf&period=${period}`}
+            filename={`reporte-${period}-simple.pdf`}
+          />
+          <DownloadButton
+            label="PDF completo"
+            icon={<FileText className="mr-1 h-3.5 w-3.5" />}
+            url={`/api/reportes/descargar?tipo=completo&formato=pdf&period=${period}`}
+            filename={`reporte-${period}-completo.pdf`}
+          />
+          <DownloadButton
+            label="Excel simple"
+            icon={<FileSpreadsheet className="mr-1 h-3.5 w-3.5" />}
+            url={`/api/reportes/descargar?tipo=simple&formato=excel&period=${period}`}
+            filename={`reporte-${period}-simple.xlsx`}
+          />
+          <DownloadButton
+            label="Excel completo"
+            icon={<FileSpreadsheet className="mr-1 h-3.5 w-3.5" />}
+            url={`/api/reportes/descargar?tipo=completo&formato=excel&period=${period}`}
+            filename={`reporte-${period}-completo.xlsx`}
+          />
         </div>
       </div>
 
@@ -787,5 +766,57 @@ export function Dashboard({
       />
       <GastoForm open={gastoFormOpen} onOpenChange={setGastoFormOpen} onSaved={onRefresh} />
     </div>
+  );
+}
+
+// Botón de descarga que usa fetch con token de autenticación (no depende de cookies)
+function DownloadButton({ label, icon, url, filename }: { label: string; icon: React.ReactNode; url: string; filename: string }) {
+  const [loading, setLoading] = useState(false);
+
+  async function handleDownload() {
+    setLoading(true);
+    try {
+      // Obtener token del localStorage (mismo mecanismo que api-client)
+      const token = typeof window !== "undefined" ? localStorage.getItem("aljibe-token") : null;
+      const res = await fetch(url, {
+        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt || res.statusText}`);
+      }
+      const blob = await res.blob();
+      // Crear URL temporal y disparar descarga
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      // Limpiar URL temporal después de un momento
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (e) {
+      console.error("[DownloadButton] error:", e);
+      alert(e instanceof Error ? e.message : "No se pudo descargar el archivo");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={loading}
+      className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium hover:bg-muted disabled:opacity-50"
+    >
+      {loading ? (
+        <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> Descargando…</>
+      ) : (
+        <>{icon} {label}</>
+      )}
+    </button>
   );
 }
