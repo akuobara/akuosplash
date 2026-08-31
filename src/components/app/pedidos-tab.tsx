@@ -68,6 +68,7 @@ import {
   METODOS_PAGO,
   toDateTimeLocalInput,
 } from "@/lib/helpers";
+import { EntregaForm, type Entrega as EntregaType } from "./entrega-form";
 
 interface Pedido {
   id: string;
@@ -169,6 +170,39 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [convirtiendo, setConvirtiendo] = useState<Pedido | null>(null);
   const [soltandoPedido, setSoltandoPedido] = useState<Pedido | null>(null);
   const [soltarPedidoReemplazo, setSoltarPedidoReemplazo] = useState("");
+
+  // Estado para editar la entrega asociada a un pedido ya entregado
+  const [editandoEntrega, setEditandoEntrega] = useState<EntregaType | null>(null);
+  const [formEntregaOpen, setFormEntregaOpen] = useState(false);
+
+  // Abrir formulario para editar la entrega vinculada a un pedido
+  async function abrirEditarEntrega(p: Pedido) {
+    if (!p.entregaId) {
+      toast.error("Este pedido no tiene entrega asociada");
+      return;
+    }
+    try {
+      // Buscar la entrega por clienteId (si existe) + filtro por ID
+      let encontrada: EntregaType | null = null;
+      if (p.clienteId) {
+        const res = await apiGet<{ entregas: EntregaType[] }>(`/api/entregas?period=todo&clienteId=${p.clienteId}`);
+        encontrada = res.entregas?.find((e) => e.id === p.entregaId) ?? null;
+      }
+      // Fallback: buscar en todas las entregas
+      if (!encontrada) {
+        const res = await apiGet<{ entregas: EntregaType[] }>(`/api/entregas?period=todo`);
+        encontrada = res.entregas?.find((e) => e.id === p.entregaId) ?? null;
+      }
+      if (!encontrada) {
+        toast.error("No se encontró la entrega vinculada");
+        return;
+      }
+      setEditandoEntrega(encontrada);
+      setFormEntregaOpen(true);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo cargar la entrega");
+    }
+  }
 
   // Campos del formulario
   const [clienteId, setClienteId] = useState<string>("__nuevo");
@@ -830,6 +864,12 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                           <DropdownMenuItem onClick={() => setDetalle(p)}>
                             <Eye className="mr-2 h-4 w-4" /> Ver detalle
                           </DropdownMenuItem>
+                          {/* Si el pedido ya tiene entrega vinculada, permitir editarla directamente */}
+                          {p.entregaId && (
+                            <DropdownMenuItem onClick={() => abrirEditarEntrega(p)}>
+                              <Pencil className="mr-2 h-4 w-4" /> Editar entrega
+                            </DropdownMenuItem>
+                          )}
                           {canCreate && p.estado !== "entregado" && p.estado !== "cancelado" && (
                             <>
                               {/* Solo mostrar "Convertir en entrega" si:
@@ -1912,6 +1952,51 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Formulario para editar la entrega asociada a un pedido */}
+      <EntregaForm
+        open={formEntregaOpen}
+        onOpenChange={(o) => {
+          setFormEntregaOpen(o);
+          if (!o) setEditandoEntrega(null);
+        }}
+        onSaved={() => {
+          onRefresh();
+        }}
+        entrega={editandoEntrega}
+        clientes={clientes.map((c) => ({
+          id: c.id,
+          nombre: c.nombre,
+          direccion: c.direccion,
+          telefono: c.telefono,
+          zona: c.zona,
+          precioEfectivoPorLitro: c.precioEfectivoPorLitro,
+          precioTransferenciaPorLitro: c.precioTransferenciaPorLitro,
+          lat: c.lat,
+          lng: c.lng,
+          requiereIngresoPropiedad: c.requiereIngresoPropiedad,
+          entregaDesdeAfuera: c.entregaDesdeAfuera,
+          conexionExterna: c.conexionExterna,
+          requiereClientePresente: c.requiereClientePresente,
+          indicacionesAcceso: c.indicacionesAcceso,
+          estanquesJson: c.estanquesJson,
+        }))}
+        config={{
+          precioEfectivoPorLitro: clientes[0]?.precioEfectivoPorLitro ?? 0,
+          precioTransferenciaPorLitro: clientes[0]?.precioTransferenciaPorLitro ?? 0,
+          capacidadCamion: vueltaActual?.capacidadCamion ?? 17000,
+        }}
+        vueltaActual={vueltaActual ? {
+          id: "",
+          numero: vueltaActual.numero,
+          iniciadaEn: "",
+          cantidadEntregas: 0,
+          litros: vueltaActual.litros,
+          capacidadCamion: vueltaActual.capacidadCamion ?? 17000,
+        } : null}
+        camiones={camiones}
+        isDueno={isDueno}
+      />
     </div>
   );
 }

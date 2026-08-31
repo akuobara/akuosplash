@@ -297,63 +297,63 @@ export default function Home() {
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="space-y-4">
           {/* En interfaz simple, los choferes solo ven: Panel, Entregas, Liquidación */}
           {/* En interfaz completa, ven todos los tabs */}
-          <TabsList className="flex w-full flex-wrap justify-start gap-1 h-auto bg-muted/40 p-1">
-            <TabsTrigger value="dashboard" className="flex-1 sm:flex-initial">
+          <TabsList className="flex w-full gap-1 h-auto bg-muted/40 p-1 overflow-x-auto flex-nowrap">
+            <TabsTrigger value="dashboard" className="flex-initial shrink-0">
               <LayoutDashboard className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Panel</span>
+              <span className="inline">Panel</span>
             </TabsTrigger>
             {(!interfazSimple || isDueno) && (
-            <TabsTrigger value="pedidos" className="flex-1 sm:flex-initial">
+            <TabsTrigger value="pedidos" className="flex-initial shrink-0">
               <ClipboardList className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Pedidos</span>
+              <span className="inline">Pedidos</span>
             </TabsTrigger>
             )}
-            <TabsTrigger value="entregas" className="flex-1 sm:flex-initial">
+            <TabsTrigger value="entregas" className="flex-initial shrink-0">
               <Truck className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Entregas</span>
+              <span className="inline">Entregas</span>
             </TabsTrigger>
             {(!interfazSimple || isDueno) && (
-            <TabsTrigger value="gastos" className="flex-1 sm:flex-initial">
+            <TabsTrigger value="gastos" className="flex-initial shrink-0">
               <Receipt className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Gastos</span>
+              <span className="inline">Gastos</span>
             </TabsTrigger>
             )}
-            <TabsTrigger value="liquidacion" className="flex-1 sm:flex-initial">
+            <TabsTrigger value="liquidacion" className="flex-initial shrink-0">
               <Calculator className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Liquidación</span>
+              <span className="inline">Liquidación</span>
             </TabsTrigger>
             {/* Clientes: visible en completa */}
             {(!interfazSimple || isDueno) && (
-            <TabsTrigger value="clientes" className="flex-1 sm:flex-initial">
+            <TabsTrigger value="clientes" className="flex-initial shrink-0">
               <Users className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Clientes</span>
+              <span className="inline">Clientes</span>
             </TabsTrigger>
             )}
             {/* Recurrentes: solo dueño */}
             {isDueno && (
-              <TabsTrigger value="recurrentes" className="flex-1 sm:flex-initial">
+              <TabsTrigger value="recurrentes" className="flex-initial shrink-0">
                 <CalendarClock className="mr-1 h-4 w-4" />
-                <span className="hidden sm:inline">Recurrentes</span>
+                <span className="inline">Recurrentes</span>
               </TabsTrigger>
             )}
             {/* Historial: visible en completa */}
             {(!interfazSimple || isDueno) && (
-            <TabsTrigger value="historial" className="flex-1 sm:flex-initial">
+            <TabsTrigger value="historial" className="flex-initial shrink-0">
               <History className="mr-1 h-4 w-4" />
-              <span className="hidden sm:inline">Historial</span>
+              <span className="inline">Historial</span>
             </TabsTrigger>
             )}
             {/* Equipo y Ajustes: solo dueño */}
             {isDueno && (
-              <TabsTrigger value="equipo" className="flex-1 sm:flex-initial">
+              <TabsTrigger value="equipo" className="flex-initial shrink-0">
                 <UserCog className="mr-1 h-4 w-4" />
-                <span className="hidden sm:inline">Equipo</span>
+                <span className="inline">Equipo</span>
               </TabsTrigger>
             )}
             {isDueno && (
-              <TabsTrigger value="config" className="flex-1 sm:flex-initial">
+              <TabsTrigger value="config" className="flex-initial shrink-0">
                 <Settings className="mr-1 h-4 w-4" />
-                <span className="hidden sm:inline">Ajustes</span>
+                <span className="inline">Ajustes</span>
               </TabsTrigger>
             )}
           </TabsList>
