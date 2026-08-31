@@ -123,6 +123,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [pagoMonto, setPagoMonto] = useState("");
   const [pagoMetodo, setPagoMetodo] = useState("efectivo");
   const [pagoNota, setPagoNota] = useState("");
+  const [pagoPrecioEfectivo, setPagoPrecioEfectivo] = useState(false);
   const [pagoSaving, setPagoSaving] = useState(false);
 
   // Campos del formulario
@@ -388,12 +389,13 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         monto,
         metodoPago: pagoMetodo,
         nota: pagoNota.trim() || null,
+        precioEfectivo: pagoPrecioEfectivo,
       });
       toast.success("Pago registrado");
       setPagoOpen(false);
       setPagoMonto("");
       setPagoNota("");
-      // Recargar detalle
+      setPagoPrecioEfectivo(false);
       abrirDetalle(clienteDetalle);
       onRefresh();
     } catch (e) {
@@ -1100,6 +1102,20 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                 placeholder="Ej. Pago de deuda anterior"
               />
             </div>
+            {clienteDetalle && (clienteDetalle.precioEfectivoPorLitro > 0) && (clienteDetalle.precioEfectivoPorLitro < (clienteDetalle.precioTransferenciaPorLitro || 0)) && (
+              <label className="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+                <Switch checked={pagoPrecioEfectivo} onCheckedChange={setPagoPrecioEfectivo} />
+                <div>
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+                    Cobrar a precio efectivo
+                  </p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300">
+                    Marca esta opción si el cliente paga en efectivo pero la deuda se generó al precio transferencia (más alto).
+                    El sistema recalculará la deuda al precio efectivo ({formatCurrency(clienteDetalle.precioEfectivoPorLitro)}/L).
+                  </p>
+                </div>
+              </label>
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setPagoOpen(false)}>
                 Cancelar

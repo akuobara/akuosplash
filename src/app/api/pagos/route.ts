@@ -61,6 +61,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
     }
 
+    // Si se seleccionó "precio efectivo", recalcular las entregas impagas al precio efectivo
+    if (body.precioEfectivo && cliente.precioEfectivoPorLitro > 0) {
+      const precioEfectivo = cliente.precioEfectivoPorLitro;
+      const precioTransferencia = cliente.precioTransferenciaPorLitro || precioEfectivo;
+
+      // Buscar entregas del cliente que están pendientes o parcialmente pagadas
+      // y que tienen precioPorLitro = precioTransferencia (deuda generada al precio más alto)
+      const entregasImpagas = await db.entrega.findMany({
+        where: {
+          clienteId: body.clienteId,
+          estadoPago: { in: ["pendiente", "parcial"] },
+          precioPorLitro: precioTransferencia,
+        },
+        select: { id: true, litros: true, precioPorLitro: true, montoRecibido: true, descuento: true },
+      });
+
+      // Recalcular cada entrega al precio efectivo
+      for (const entrega of entregasImpagas) {
+        const nuevoTotal = Math.ceil((entrega.litros * precioEfectivo - (entrega.descuento || 0)) / 100) * 100;
+        await db.entrega.update({
+          where: { id: entrega.id },
+          data: {
+            precioPorLitro: precioEfectivo,
+            total: Math.max(0, nuevoTotal),
+          },
+        });
+      }
+    }
+
     const nuevo = await db.pago.create({
       data: {
         clienteId: body.clienteId,
