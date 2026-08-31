@@ -257,7 +257,7 @@ model Vuelta {
   cerradaEn   DateTime?
   nota        String?
   activa      Boolean  @default(true)
-  validadaManualmente Boolean? @default(null)
+  validadaManualmente Boolean?
 
   camionId    String?
   camion      Camion?  @relation(fields: [camionId], references: [id])
