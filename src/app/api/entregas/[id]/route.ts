@@ -36,11 +36,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   const litros = body.litros != null ? Number(body.litros) : undefined;
-  const precioPorLitro = body.precioPorLitro != null ? Number(body.precioPorLitro) : undefined;
+  let precioPorLitro = body.precioPorLitro != null ? Number(body.precioPorLitro) : undefined;
 
+  // Total: recalcular si viene litros o precio o total
   let total: number | undefined;
-  if (litros != null && precioPorLitro != null) {
+  if (typeof body.total === "number" && body.total > 0) {
+    total = body.total;
+  } else if (litros != null && precioPorLitro != null) {
     total = litros * precioPorLitro;
+    if (total > 0) total = Math.ceil(total / 100) * 100;
+  } else if (litros != null) {
+    // Si solo viene litros, usar el precio existente
+    const actual = await db.entrega.findUnique({ where: { id }, select: { precioPorLitro: true } });
+    const precio = precioPorLitro ?? actual?.precioPorLitro ?? 0;
+    if (precio > 0) {
+      total = litros * precio;
+      if (total > 0) total = Math.ceil(total / 100) * 100;
+      precioPorLitro = precio;
+    }
   }
 
   const montoEfectivo = body.montoEfectivo != null ? Number(body.montoEfectivo) : undefined;
