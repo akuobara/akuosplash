@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText } from "lucide-react";
+import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import { apiPut } from "@/lib/api-client";
 import {
@@ -42,6 +42,10 @@ interface Config {
   aplicaImpuestoSobre: string;
   choferesPuedenEditarClientes: boolean;
   choferesPuedenCrearPedidos: boolean;
+  // Periodo de liquidación
+  periodoLiquidacion?: string;
+  diaCierreMes?: number;
+  diaCierreSemana?: number;
   // Empresa
   empresaRazonSocial?: string | null;
   empresaRut?: string | null;
@@ -102,6 +106,11 @@ export function ConfiguracionTab({
   const [choferesPuedenCrearPedidos, setChoferesPuedenCrearPedidos] = useState(false);
   const [umbralCompletacion, setUmbralCompletacion] = useState("97.5");
 
+  // Periodo de liquidación
+  const [periodoLiquidacion, setPeriodoLiquidacion] = useState("mensual");
+  const [diaCierreMes, setDiaCierreMes] = useState("0");
+  const [diaCierreSemana, setDiaCierreSemana] = useState("6");
+
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -122,6 +131,10 @@ export function ConfiguracionTab({
       setChoferesPuedenCrearPedidos(config.choferesPuedenCrearPedidos ?? false);
       const umbral = (config as any).umbralCompletacionVuelta ?? 0.975;
       setUmbralCompletacion(String(Math.round(umbral * 1000) / 10));
+      // Periodo de liquidación
+      setPeriodoLiquidacion(config.periodoLiquidacion || "mensual");
+      setDiaCierreMes(String(config.diaCierreMes ?? 0));
+      setDiaCierreSemana(String(config.diaCierreSemana ?? 6));
       // Empresa
       setEmpresaRazonSocial(config.empresaRazonSocial ?? "");
       setEmpresaRut(config.empresaRut ?? "");
@@ -174,6 +187,9 @@ export function ConfiguracionTab({
         choferesPuedenEditarClientes,
         choferesPuedenCrearPedidos,
         umbralCompletacionVuelta: (Number(umbralCompletacion) || 97.5) / 100,
+        periodoLiquidacion,
+        diaCierreMes: Number(diaCierreMes) || 0,
+        diaCierreSemana: Number(diaCierreSemana) || 6,
         empresaRazonSocial,
         empresaRut,
         empresaDireccion,
@@ -464,6 +480,74 @@ export function ConfiguracionTab({
                   Porcentaje mínimo de agua entregada para que una vuelta cuente como válida automáticamente. Default: 97.5%. También puedes validar o invalidar vueltas manualmente desde el Historial.
                 </p>
               </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* PERÍODO DE LIQUIDACIÓN */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-primary" />
+            <CardTitle className="text-base">Período de liquidación</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="cfgPeriodo">Tipo de período</Label>
+            <Select value={periodoLiquidacion} onValueChange={setPeriodoLiquidacion}>
+              <SelectTrigger id="cfgPeriodo">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mensual">Mensual (día 1 al último día del mes)</SelectItem>
+                <SelectItem value="semanal">Semanal (domingo a sábado)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Define cómo se agrupan las liquidaciones. El período actual y los anteriores aparecen en la pestaña Liquidación.
+            </p>
+          </div>
+
+          {periodoLiquidacion === "mensual" && (
+            <div className="space-y-2">
+              <Label htmlFor="cfgDiaCierreMes">Día de cierre del mes</Label>
+              <Input
+                id="cfgDiaCierreMes"
+                type="number"
+                min="0"
+                max="31"
+                value={diaCierreMes}
+                onChange={(e) => setDiaCierreMes(e.target.value)}
+                placeholder="0"
+              />
+              <p className="text-xs text-muted-foreground">
+                0 = último día del mes (default). 1-31 = día específico del mes.
+              </p>
+            </div>
+          )}
+
+          {periodoLiquidacion === "semanal" && (
+            <div className="space-y-2">
+              <Label htmlFor="cfgDiaCierreSemana">Día de cierre de la semana</Label>
+              <Select value={diaCierreSemana} onValueChange={setDiaCierreSemana}>
+                <SelectTrigger id="cfgDiaCierreSemana">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Domingo</SelectItem>
+                  <SelectItem value="1">Lunes</SelectItem>
+                  <SelectItem value="2">Martes</SelectItem>
+                  <SelectItem value="3">Miércoles</SelectItem>
+                  <SelectItem value="4">Jueves</SelectItem>
+                  <SelectItem value="5">Viernes</SelectItem>
+                  <SelectItem value="6">Sábado (default)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                La semana cierra ese día en la noche. Por defecto sábado.
+              </p>
             </div>
           )}
         </CardContent>

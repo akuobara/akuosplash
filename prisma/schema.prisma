@@ -425,4 +425,12 @@ model Configuracion {
 
   // Umbral de completación de vuelta (porcentaje 0-1, default 0.975 = 97.5%)
   umbralCompletacionVuelta    Float   @default(0.975)
+
+  // === Periodo de liquidación ===
+  // "mensual" o "semanal"
+  periodoLiquidacion          String  @default("mensual")
+  // Dia de cierre del mes (1-31). Por defecto 0 = último día del mes
+  diaCierreMes                Int     @default(0)
+  // Dia de cierre de la semana (0=domingo, 1=lunes, ..., 6=sabado). Por defecto 6 (sabado)
+  diaCierreSemana             Int     @default(6)
 }

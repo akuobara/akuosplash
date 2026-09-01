@@ -103,6 +103,10 @@ export async function PUT(req: NextRequest) {
       ...(body.aplicaImpuestoSobre !== undefined && { aplicaImpuestoSobre: body.aplicaImpuestoSobre }),
       ...(body.choferesPuedenEditarClientes !== undefined && { choferesPuedenEditarClientes: !!body.choferesPuedenEditarClientes }),
       ...(body.choferesPuedenCrearPedidos !== undefined && { choferesPuedenCrearPedidos: !!body.choferesPuedenCrearPedidos }),
+      ...(body.umbralCompletacionVuelta !== undefined && { umbralCompletacionVuelta: Number(body.umbralCompletacionVuelta) }),
+      ...(body.periodoLiquidacion !== undefined && { periodoLiquidacion: body.periodoLiquidacion }),
+      ...(body.diaCierreMes !== undefined && { diaCierreMes: Number(body.diaCierreMes) || 0 }),
+      ...(body.diaCierreSemana !== undefined && { diaCierreSemana: Number(body.diaCierreSemana) || 6 }),
       // Datos de empresa
       ...(body.empresaRazonSocial !== undefined && { empresaRazonSocial: body.empresaRazonSocial?.trim() || null }),
       ...(body.empresaRut !== undefined && { empresaRut: body.empresaRut?.trim() || null }),
@@ -130,6 +134,10 @@ export async function PUT(req: NextRequest) {
       aplicaImpuestoSobre: body.aplicaImpuestoSobre || "pago_chofer",
       choferesPuedenEditarClientes: body.choferesPuedenEditarClientes !== undefined ? !!body.choferesPuedenEditarClientes : false,
       choferesPuedenCrearPedidos: body.choferesPuedenCrearPedidos !== undefined ? !!body.choferesPuedenCrearPedidos : false,
+      umbralCompletacionVuelta: body.umbralCompletacionVuelta !== undefined ? Number(body.umbralCompletacionVuelta) : 0.975,
+      periodoLiquidacion: body.periodoLiquidacion || "mensual",
+      diaCierreMes: Number(body.diaCierreMes) || 0,
+      diaCierreSemana: Number(body.diaCierreSemana) || 6,
     },
   });
 

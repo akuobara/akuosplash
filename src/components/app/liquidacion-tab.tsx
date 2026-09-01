@@ -38,6 +38,9 @@ import {
   CheckCircle2,
   FileText,
   FileSpreadsheet,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPut } from "@/lib/api-client";
@@ -142,6 +145,45 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
   const [loading, setLoading] = useState(true);
   const [configOpen, setConfigOpen] = useState(false);
 
+  // Estado para resumen mensual descargable
+  const now = new Date();
+  const [resumenYear, setResumenYear] = useState(now.getFullYear());
+  const [resumenMonth, setResumenMonth] = useState(now.getMonth()); // 0-indexed
+  const [descargandoResumen, setDescargandoResumen] = useState(false);
+
+  const MONTH_NAMES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+  async function descargarResumenMensual(formato: "pdf" | "excel") {
+    setDescargandoResumen(true);
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("aljibe-token") : null;
+      if (!token) throw new Error("No hay sesión activa");
+      const url = `/api/liquidacion/resumen-mensual?year=${resumenYear}&month=${resumenMonth}&formato=${formato}&_t=${Date.now()}`;
+      const res = await fetch(url, {
+        credentials: "include",
+        cache: "no-store",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt}`);
+      }
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `liquidacion-${MONTH_NAMES[resumenMonth]}-${resumenYear}.${formato === "pdf" ? "pdf" : "xlsx"}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "No se pudo descargar");
+    } finally {
+      setDescargandoResumen(false);
+    }
+  }
+
   const cargar = useCallback(async () => {
     setLoading(true);
     try {
@@ -165,6 +207,55 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
 
   return (
     <div className="space-y-5">
+      {/* Resumen mensual descargable */}
+      <Card>
+        <CardContent className="p-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs uppercase text-muted-foreground">Resumen mensual de liquidación</p>
+              <p className="text-sm font-medium">Descargá el resumen de cualquier mes para imposiciones y pagos</p>
+            </div>
+            <div className="flex flex-wrap items-end gap-2">
+              <div>
+                <Label className="text-xs">Mes</Label>
+                <select
+                  value={resumenMonth}
+                  onChange={(e) => setResumenMonth(Number(e.target.value))}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                >
+                  {MONTH_NAMES.map((m, i) => <option key={i} value={i}>{m}</option>)}
+                </select>
+              </div>
+              <div>
+                <Label className="text-xs">Año</Label>
+                <Input
+                  type="number"
+                  value={resumenYear}
+                  onChange={(e) => setResumenYear(Number(e.target.value))}
+                  className="w-[100px] h-9"
+                />
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => descargarResumenMensual("pdf")}
+                disabled={descargandoResumen}
+              >
+                {descargandoResumen ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <FileText className="mr-1 h-4 w-4" />} PDF
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => descargarResumenMensual("excel")}
+                disabled={descargandoResumen}
+              >
+                {descargandoResumen ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <FileSpreadsheet className="mr-1 h-4 w-4" />} Excel
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Encabezado */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
