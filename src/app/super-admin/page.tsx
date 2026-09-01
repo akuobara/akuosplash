@@ -104,6 +104,13 @@ export default function SuperAdminPage() {
       const msg = e instanceof Error ? e.message : "No se pudieron cargar los datos";
       setError(msg);
       toast.error(msg);
+      // Si es "No autorizado" o "Sesión expirada", redirigir al login después de 1.5s
+      if (msg.toLowerCase().includes("autorizado") || msg.toLowerCase().includes("sesión expirada") || msg.toLowerCase().includes("sesion expirada")) {
+        clearToken();
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1500);
+      }
     } finally {
       setLoading(false);
     }
