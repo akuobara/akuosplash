@@ -145,6 +145,12 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
   const [loading, setLoading] = useState(true);
   const [configOpen, setConfigOpen] = useState(false);
 
+  // === Nuevo: liquidación por período configurado (semanal/mensual) ===
+  const [periodoOffset, setPeriodoOffset] = useState(0); // 0 = actual, -1 = anterior, etc.
+  const [periodoData, setPeriodoData] = useState<any>(null);
+  const [periodoLoading, setPeriodoLoading] = useState(false);
+  const [vistaPeriodo, setVistaPeriodo] = useState(false); // false = vista vieja, true = vista por período
+
   // Estado para resumen mensual descargable
   const now = new Date();
   const [resumenYear, setResumenYear] = useState(now.getFullYear());
@@ -201,12 +207,254 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
     cargar();
   }, [cargar, refreshKey]);
 
+  // === Cargar período configurado (semanal/mensual) ===
+  const cargarPeriodo = useCallback(async () => {
+    setPeriodoLoading(true);
+    try {
+      const r = await apiGet<any>(`/api/liquidacion/periodo?offset=${periodoOffset}`);
+      setPeriodoData(r);
+    } catch (e) {
+      console.error(e);
+      toast.error("No se pudo cargar el período");
+    } finally {
+      setPeriodoLoading(false);
+    }
+  }, [periodoOffset]);
+
+  useEffect(() => {
+    if (vistaPeriodo) cargarPeriodo();
+  }, [vistaPeriodo, cargarPeriodo, refreshKey]);
+
   const r = data?.resumen;
   const cfg = data?.config;
   const esModoVuelta = cfg?.modoLiquidacion === "vuelta";
 
   return (
     <div className="space-y-5">
+      {/* Selector de vista: período configurado vs libre */}
+      <Card>
+        <CardContent className="p-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={vistaPeriodo ? "default" : "outline"}
+                onClick={() => setVistaPeriodo(true)}
+              >
+                Por período configurado
+              </Button>
+              <Button
+                size="sm"
+                variant={!vistaPeriodo ? "default" : "outline"}
+                onClick={() => setVistaPeriodo(false)}
+              >
+                Vista libre
+              </Button>
+            </div>
+            {vistaPeriodo && periodoData?.periodo && (
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" onClick={() => setPeriodoOffset(o => o - 1)}>
+                  <ChevronLeft className="h-4 w-4" /> Anterior
+                </Button>
+                <div className="text-center min-w-[180px]">
+                  <p className="text-xs text-muted-foreground">
+                    {periodoData.config?.periodoLiquidacion === "semanal" ? "Semana" : "Mes"}
+                  </p>
+                  <p className="text-sm font-semibold">{periodoData.periodo.label}</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setPeriodoOffset(o => Math.min(0, o + 1))}
+                  disabled={periodoOffset >= 0}
+                >
+                  Siguiente <ChevronRight className="h-4 w-4" />
+                </Button>
+                {periodoOffset !== 0 && (
+                  <Button size="sm" variant="ghost" onClick={() => setPeriodoOffset(0)}>
+                    Actual
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+          {vistaPeriodo && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {periodoData?.config?.periodoLiquidacion === "semanal"
+                ? "Semana de domingo a sábado. Configurá el día de cierre en Ajustes."
+                : "Mes calendario (día 1 al último día del mes)."}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Vista por período configurado */}
+      {vistaPeriodo && periodoData && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">
+              Liquidación — {periodoData.periodo.label}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {periodoLoading ? (
+              <Skeleton className="h-40 rounded" />
+            ) : (
+              <>
+                {/* Resumen del período */}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 text-sm">
+                  <div className="rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Ventas</p>
+                    <p className="font-bold">{formatCurrency(periodoData.resumen.totalVentas)}</p>
+                  </div>
+                  <div className="rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Litros</p>
+                    <p className="font-bold">{formatNumber(periodoData.resumen.totalLitros, 0)} L</p>
+                  </div>
+                  <div className="rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Efectivo</p>
+                    <p className="font-bold">{formatCurrency(periodoData.resumen.totalEfectivo)}</p>
+                  </div>
+                  <div className="rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Transferencia</p>
+                    <p className="font-bold">{formatCurrency(periodoData.resumen.totalTransferencia)}</p>
+                  </div>
+                </div>
+
+                {/* Gastos y liquidación */}
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Gastos totales</p>
+                    <p className="font-bold">{formatCurrency(periodoData.resumen.totalGastos)}</p>
+                    <p className="text-xs text-muted-foreground">Chofer: {formatCurrency(periodoData.resumen.gastosChofer)}</p>
+                    <p className="text-xs text-muted-foreground">Dueño: {formatCurrency(periodoData.resumen.gastosDueno)}</p>
+                  </div>
+                  <div className="rounded border p-2">
+                    <p className="text-xs text-muted-foreground">Utilidad bruta</p>
+                    <p className="font-bold">{formatCurrency(periodoData.resumen.utilidadBruta)}</p>
+                  </div>
+                </div>
+
+                {/* Liquidación chofer */}
+                <div className="rounded border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/10 p-3 space-y-1 text-sm">
+                  <p className="font-medium text-emerald-800 dark:text-emerald-300">
+                    Liquidación del chofer ({labelModoLiquidacion(periodoData.config.modoLiquidacion)})
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Pago chofer</p>
+                      <p className="font-bold">{formatCurrency(periodoData.resumen.pagoChofer)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Gastos reembolsables</p>
+                      <p className="font-bold">{formatCurrency(periodoData.resumen.gastosChofer)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Descuentos</p>
+                      <p className="font-bold">{formatCurrency(periodoData.resumen.descuentosChofer)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Impuesto</p>
+                      <p className="font-bold">{formatCurrency(periodoData.resumen.impuesto)}</p>
+                    </div>
+                  </div>
+                  <div className="border-t border-emerald-300 pt-2 mt-2">
+                    <p className="text-xs text-muted-foreground">Líquido chofer (antes de efectivo)</p>
+                    <p className="text-lg font-bold">{formatCurrency(periodoData.resumen.liquidoChofer)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      − Efectivo recibido: {formatCurrency(periodoData.resumen.totalEfectivo)}
+                    </p>
+                    <p className={`text-base font-bold ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
+                      {periodoData.resumen.saldoChofer >= 0
+                        ? `Dueño debe al chofer: ${formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}`
+                        : `Chofer debe al dueño: ${formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Vueltas del período */}
+                <div>
+                  <p className="text-xs font-medium uppercase text-muted-foreground mb-2">
+                    Vueltas ({periodoData.vueltas?.length || 0} totales, {periodoData.resumen.vueltasCompletadas} completadas)
+                  </p>
+                  {periodoData.vueltas && periodoData.vueltas.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b text-left text-muted-foreground">
+                            <th className="p-2">#</th>
+                            <th className="p-2">Inicio</th>
+                            <th className="p-2">Cierre</th>
+                            <th className="p-2">Camión</th>
+                            <th className="p-2">Chofer</th>
+                            <th className="p-2">Entregas</th>
+                            <th className="p-2">Litros</th>
+                            <th className="p-2">Ventas</th>
+                            <th className="p-2">Compl.</th>
+                            <th className="p-2">Pago</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {periodoData.vueltas.map((v: any) => (
+                            <tr key={v.id} className="border-b last:border-0">
+                              <td className="p-2">{v.numero}</td>
+                              <td className="p-2 whitespace-nowrap">{formatDateTime(v.iniciadaEn)}</td>
+                              <td className="p-2 whitespace-nowrap">{v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso"}</td>
+                              <td className="p-2">{v.camion}</td>
+                              <td className="p-2">{v.chofer}</td>
+                              <td className="p-2">{v.cantidadEntregas}</td>
+                              <td className="p-2">{formatNumber(v.litros, 0)} L</td>
+                              <td className="p-2">{formatCurrency(v.ventas)}</td>
+                              <td className="p-2">{v.completada ? "Sí" : "No"}</td>
+                              <td className="p-2">{formatCurrency(v.pagoVuelta)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground py-2">Sin vueltas en este período.</p>
+                  )}
+                </div>
+
+                {/* Gastos del período */}
+                {periodoData.gastos && periodoData.gastos.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium uppercase text-muted-foreground mb-2">
+                      Gastos del período ({periodoData.gastos.length})
+                    </p>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b text-left text-muted-foreground">
+                            <th className="p-2">Fecha</th>
+                            <th className="p-2">Tipo</th>
+                            <th className="p-2">Descripción</th>
+                            <th className="p-2">Monto</th>
+                            <th className="p-2">Pagado por</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {periodoData.gastos.map((g: any) => (
+                            <tr key={g.id} className="border-b last:border-0">
+                              <td className="p-2 whitespace-nowrap">{formatDateTime(g.fecha)}</td>
+                              <td className="p-2">{labelTipoGasto(g.tipo)}</td>
+                              <td className="p-2">{g.descripcion || "—"}</td>
+                              <td className="p-2">{formatCurrency(g.monto)}</td>
+                              <td className="p-2">{g.pagadoPor === "chofer" ? "Chofer" : "Dueño"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Resumen mensual descargable */}
       <Card>
         <CardContent className="p-3">
