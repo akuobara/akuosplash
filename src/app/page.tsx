@@ -297,7 +297,26 @@ export default function Home() {
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="space-y-4">
           {/* En interfaz simple, los choferes solo ven: Panel, Entregas, Liquidación */}
           {/* En interfaz completa, ven todos los tabs */}
-          <TabsList className="flex w-full gap-1 h-auto bg-muted/40 p-1 overflow-x-auto flex-nowrap">
+          {/* Menú desplegable en celular */}
+          <select
+            value={tab}
+            onChange={(e) => setTab(e.target.value as TabKey)}
+            className="sm:hidden w-full h-10 rounded-md border border-input bg-background px-3 text-sm font-medium"
+          >
+            <option value="dashboard">📊 Panel</option>
+            {(!interfazSimple || isDueno) && <option value="pedidos">📋 Pedidos</option>}
+            <option value="entregas">🚚 Entregas</option>
+            {(!interfazSimple || isDueno) && <option value="gastos">💵 Gastos</option>}
+            <option value="liquidacion">🧮 Liquidación</option>
+            {(!interfazSimple || isDueno) && <option value="clientes">👥 Clientes</option>}
+            {isDueno && <option value="recurrentes">🔁 Recurrentes</option>}
+            {(!interfazSimple || isDueno) && <option value="historial">📜 Historial</option>}
+            {isDueno && <option value="equipo">👥 Equipo</option>}
+            {isDueno && <option value="config">⚙️ Ajustes</option>}
+          </select>
+
+          {/* Fila de tabs en desktop */}
+          <TabsList className="hidden sm:flex sm:w-full sm:gap-1 sm:h-auto bg-muted/40 p-1">
             <TabsTrigger value="dashboard" className="flex-initial shrink-0">
               <LayoutDashboard className="mr-1 h-4 w-4" />
               <span className="inline">Panel</span>
