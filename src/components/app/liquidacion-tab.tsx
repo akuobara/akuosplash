@@ -149,7 +149,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
   const [periodoOffset, setPeriodoOffset] = useState(0); // 0 = actual, -1 = anterior, etc.
   const [periodoData, setPeriodoData] = useState<any>(null);
   const [periodoLoading, setPeriodoLoading] = useState(false);
-  const [vistaPeriodo, setVistaPeriodo] = useState(false); // false = vista vieja, true = vista por período
+  const [vistaPeriodo, setVistaPeriodo] = useState(true); // true = vista por período configurado (default)
 
   // Estado para resumen mensual descargable
   const now = new Date();

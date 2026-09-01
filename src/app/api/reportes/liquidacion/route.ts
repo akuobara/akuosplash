@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
       const transferencia = v.entregas.reduce((s, e) => s + e.montoTransferencia, 0);
       const capacidadCamion = v.camion?.capacidad ?? cfg.capacidadCamion ?? 0;
       const umbral = (cfg as any).umbralCompletacionVuelta || 0.975;
-      const completadaAuto = esVueltaCompletada(litros, capacidadCamion, numEntregas, umbral);
+      const completadaAuto = esVueltaCompletada(litros, capacidadCamion, numEntregas, umbral, v.cerradaEn, (v as any).validadaManualmente);
       const validadaManualmente = (v as any).validadaManualmente;
       const esValida = validadaManualmente !== null && validadaManualmente !== undefined ? validadaManualmente : completadaAuto;
       return {

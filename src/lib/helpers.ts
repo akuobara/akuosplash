@@ -228,8 +228,16 @@ export function esVueltaCompletada(
   litros: number,
   capacidadCamion: number | null | undefined,
   cantidadEntregas: number = 0,
-  umbral: number = UMBRAL_COMPLETACION_VUELTA
+  umbral: number = UMBRAL_COMPLETACION_VUELTA,
+  // Nuevos parámetros opcionales para considerar vuelta cerrada o validada manualmente
+  cerradaEn?: Date | string | null,
+  validadaManualmente?: boolean | null,
 ): boolean {
+  // Si la vuelta está cerrada, cuenta como completada (sin importar el %)
+  if (cerradaEn) return true;
+  // Si fue validada manualmente, cuenta como completada
+  if (validadaManualmente) return true;
+  // Si no está cerrada ni validada, aplicar umbral
   if (capacidadCamion && capacidadCamion > 0) {
     return litros >= capacidadCamion * umbral;
   }
