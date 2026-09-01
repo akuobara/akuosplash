@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Users, Truck, Droplets, DollarSign, TrendingUp,
-  Activity, Shield, Search, UserCheck, UserX, ArrowLeft, LogOut,
-  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2,
+  Activity, Shield, Search, UserCheck, UserX, ArrowLeft, LogOut, Clock,
+  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
@@ -77,7 +77,7 @@ export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas">("dashboard");
 
   const [detalleOpen, setDetalleOpen] = useState(false);
   const [detalleId, setDetalleId] = useState<string | null>(null);
@@ -250,6 +250,7 @@ export default function SuperAdminPage() {
             <option value="buscar">🔍 Buscar</option>
             <option value="entregas">💧 Entregas global</option>
             <option value="pendientes">💰 Pagos pendientes</option>
+            <option value="cargas">⏳ Cargas de saldo</option>
           </select>
 
           <div className="hidden sm:flex sm:flex-wrap sm:gap-2">
@@ -270,6 +271,9 @@ export default function SuperAdminPage() {
             </Button>
             <Button size="sm" variant={tab === "pendientes" ? "default" : "outline"} onClick={() => setTab("pendientes")}>
               <DollarSign className="mr-1 h-4 w-4" /> Pagos pendientes
+            </Button>
+            <Button size="sm" variant={tab === "cargas" ? "default" : "outline"} onClick={() => setTab("cargas")}>
+              <Clock className="mr-1 h-4 w-4" /> Cargas de saldo
             </Button>
           </div>
         </div>
@@ -438,6 +442,11 @@ export default function SuperAdminPage() {
         {/* Pagos pendientes global */}
         {tab === "pendientes" && (
           <PendientesGlobal />
+        )}
+
+        {/* Cargas de saldo pendientes */}
+        {tab === "cargas" && (
+          <CargasPendientesGlobal />
         )}
       </main>
 
@@ -1592,6 +1601,110 @@ function FormField({ label, value, onChange, type = "text" }: { label: string; v
     <div>
       <Label className="text-xs">{label}</Label>
       <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+// === Cargas de saldo pendientes ===
+function CargasPendientesGlobal() {
+  const [cargas, setCargas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalPendiente, setTotalPendiente] = useState(0);
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await apiGet<{ pendientes: any[]; totalPendiente: number }>("/api/super-admin/saldo/pendientes");
+      setCargas(r.pendientes || []);
+      setTotalPendiente(r.totalPendiente || 0);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al cargar");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  async function confirmar(id: string) {
+    try {
+      await apiPost(`/api/super-admin/saldo/${id}/confirmar`, {});
+      toast.success("Carga confirmada — saldo acreditado al cliente");
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo confirmar");
+    }
+  }
+
+  async function rechazar(id: string) {
+    const motivo = prompt("Motivo de rechazo (opcional):") || "";
+    try {
+      await apiPost(`/api/super-admin/saldo/${id}/rechazar`, { motivo });
+      toast.success("Carga rechazada");
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo rechazar");
+    }
+  }
+
+  if (loading) return <Skeleton className="h-40 rounded" />;
+
+  return (
+    <div className="space-y-3">
+      <Card className="border-amber-300 bg-amber-50 dark:bg-amber-900/10">
+        <CardContent className="p-3">
+          <p className="text-xs uppercase text-muted-foreground">Total pendiente de confirmar</p>
+          <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">{formatCurrency(totalPendiente)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{cargas.length} cargas por confirmar</p>
+        </CardContent>
+      </Card>
+
+      {cargas.length === 0 ? (
+        <Card>
+          <CardContent className="p-6 text-center text-sm text-muted-foreground">
+            No hay cargas de saldo pendientes. Todo al día.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {cargas.map((c) => (
+            <Card key={c.id}>
+              <CardContent className="p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-lg">{formatCurrency(c.monto)}</span>
+                      <Badge variant="outline" className="text-[10px]">{c.metodoCarga}</Badge>
+                    </div>
+                    <p className="text-sm font-medium mt-1">{c.cliente?.nombre}</p>
+                    <p className="text-xs text-muted-foreground">{c.cliente?.email}</p>
+                    {c.cliente?.telefono && <p className="text-xs text-muted-foreground">{c.cliente.telefono}</p>}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Saldo actual del cliente: <strong>{formatCurrency(c.cliente?.saldo || 0)}</strong>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Solicitada: {new Date(c.creadoEn).toLocaleString("es-CL", { timeZone: "America/Santiago" })}
+                    </p>
+                    {c.comprobanteUrl && (
+                      <a href={c.comprobanteUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-1 text-xs text-primary underline">
+                        Ver comprobante
+                      </a>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 shrink-0">
+                    <Button size="sm" onClick={() => confirmar(c.id)}>
+                      <CheckCircle2 className="mr-1 h-3 w-3" /> Confirmar
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-destructive" onClick={() => rechazar(c.id)}>
+                      <X className="mr-1 h-3 w-3" /> Rechazar
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

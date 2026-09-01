@@ -177,7 +177,7 @@ export default function ClienteDashboardPage() {
                 <p className="text-lg font-bold tabular-nums text-emerald-600">{formatCurrency(cliente.saldo)}</p>
               </div>
             </div>
-            <Button size="sm" variant="outline" onClick={() => toast.info("Próximamente: cargar saldo")}>
+            <Button size="sm" variant="outline" onClick={() => router.push("/cliente/saldo")}>
               Cargar saldo
             </Button>
           </CardContent>
