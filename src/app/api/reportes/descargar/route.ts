@@ -1,8 +1,8 @@
 // Resumen diario — 4 secciones:
 //   1. Ventas
-//   2. Efectivo / pagos recibidos
+//   2. Pagos (efectivo recibido, transferencia a administración, pendientes)
 //   3. Clientes con cantidad entregada
-//   4. Gastos (tipo + monto)
+//   4. Gastos (tipo + monto, agrupado)
 // GET /api/reportes/descargar?formato=pdf|excel&period=...
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
@@ -127,18 +127,18 @@ function generarPDF(period: string, data: any) {
   });
   y = (doc as any).lastAutoTable.finalY + 8;
 
-  // === 2. EFECTIVO / PAGOS RECIBIDOS ===
+  // === 2. PAGOS ===
   if (y > 250) { doc.addPage(); y = 20; }
   doc.setFontSize(14);
-  doc.text("2. Efectivo / pagos recibidos", 14, y);
+  doc.text("2. Pagos", 14, y);
   y += 5;
   autoTable(doc, {
     startY: y,
     head: [["Concepto", "Valor"]],
     body: [
-      ["Efectivo", formatCurrency(data.efectivoTotal)],
-      ["Transferencia", formatCurrency(data.transferenciaTotal)],
-      ["TOTAL cobrado", formatCurrency(data.totalCobrado)],
+      ["Efectivo recibido", formatCurrency(data.efectivoTotal)],
+      ["Transferencia (a cuenta de administración)", formatCurrency(data.transferenciaTotal)],
+      ["Pagos pendientes (saldo por cobrar del día)", formatCurrency(data.totalPorCobrar)],
     ],
     theme: "striped",
     headStyles: { fillColor: [16, 185, 129], fontSize: 10 },
@@ -228,11 +228,11 @@ function generarExcel(period: string, data: any) {
     ["Cantidad de entregas", data.entregas.length],
     ["Por cobrar del día (saldo)", data.totalPorCobrar],
     [],
-    ["2. EFECTIVO / PAGOS RECIBIDOS"],
+    ["2. PAGOS"],
     ["Concepto", "Valor"],
-    ["Efectivo", data.efectivoTotal],
-    ["Transferencia", data.transferenciaTotal],
-    ["TOTAL cobrado", data.totalCobrado],
+    ["Efectivo recibido", data.efectivoTotal],
+    ["Transferencia (a cuenta de administración)", data.transferenciaTotal],
+    ["Pagos pendientes (saldo por cobrar del día)", data.totalPorCobrar],
     [],
     ["4. GASTOS (por tipo)"],
     ["Tipo de gasto", "Monto"],
