@@ -56,6 +56,10 @@ model Usuario {
   configuracion     Configuracion?   @relation("ConfigDueno")
   bitacoraAutor     BitacoraCamion[] @relation("BitacoraAutor")
   bitacoraResueltas BitacoraCamion[] @relation("BitacoraResueltaPor")
+  // App cliente
+  clientesAppPreferidos  ClienteApp[]      @relation("ClienteAppProveedorPreferido")
+  pedidosAppTomados      PedidoApp[]       @relation("PedidoAppTomadoPor")
+  facturasAdmin          FacturaAdmin[]    @relation("FacturaAdminDueno")
 }
 
 // Catálogo de clientes
@@ -98,10 +102,6 @@ model Cliente {
 
   duenoId       String
   dueno         Usuario  @relation("ClienteDueno", fields: [duenoId], references: [id])
-
-  // === Acceso cliente (app /cliente) ===
-  passwordHash  String?  // null = no puede loguearse en la app cliente
-  activo        Boolean  @default(true)
 
   entregas      Entrega[]
   pedidos       Pedido[]
@@ -438,6 +438,205 @@ model Configuracion {
   // Dia de cierre de la semana (0=domingo, 1=lunes, ..., 6=sabado). Por defecto 6 (sabado)
   diaCierreSemana             Int     @default(6)
 
-  // === Codigo de vinculación para que clientes se registren ===
-  codigoVinculacion           String?  // codigo unico que el dueño comparte a sus clientes
+  // === Plan (suscripción mensual) ===
+  planId                      String?  // free | premium | pro (referencia a Plan.id)
+  plan                        Plan?    @relation("ConfigPlan", fields: [planId], references: [id])
+}
+
+// =====================================================
+// === App Cliente — tablas independientes ===
+// =====================================================
+
+// Plan de suscripción para administradores (free | premium | pro | custom)
+model Plan {
+  id              String   @id
+  nombre          String
+  descripcion     String?
+  precioMensual   Float    @default(0)
+  // Límites del plan
+  maxCamiones     Int      @default(1)        // -1 = ilimitado
+  maxChoferes     Int      @default(0)        // -1 = ilimitado
+  accesoPool      Boolean  @default(false)     // puede ver/tomar pedidos del pool
+  // Costos extra para Pro
+  costoExtraCamion    Float?  // costo por camión adicional
+  costoExtraChofer    Float?  // costo por chofer adicional
+  activo          Boolean  @default(true)
+
+  configuraciones Configuracion[] @relation("ConfigPlan")
+  creadoEn        DateTime @default(now())
+}
+
+// Zona geográfica con precio definido por el súper admin
+// El polígono se guarda como GeoJSON (string JSON) en campo zonaGeoJson
+model Zona {
+  id              String   @id @default(cuid())
+  nombre          String   // Ej: "Las Condes", "Maipú Norte"
+  descripcion     String?
+  // Polígono en formato GeoJSON: {"type":"Polygon","coordinates":[[[lng,lat],[lng,lat],...]]}
+  // El cliente cae en una zona si su lat/lng está dentro del polígono
+  zonaGeoJson     String
+  // Centro aproximado para mostrar en mapa
+  centroLat       Float?
+  centroLng       Float?
+  // Precio por litro en esta zona (incluye 10% comisión app)
+  precioPorLitro  Float
+  // Radio de cobertura (km) si no hay polígono
+  radioKm         Float?
+  activa          Boolean  @default(true)
+  creadoEn        DateTime @default(now())
+  actualizadoEn   DateTime @updatedAt
+
+  clientesApp     ClienteApp[]
+  pedidosApp      PedidoApp[]
+}
+
+// Cliente de la app (distinto de Cliente que pertenece a un admin)
+// Los clientes de la app NO tienen duenoId — pertenecen a la APP
+model ClienteApp {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String
+  nombre          String
+  rut             String?
+  telefono        String?
+  // Ubicación
+  direccion       String?
+  zonaId          String?   // zona donde suele pedir
+  zona            Zona?     @relation(fields: [zonaId], references: [id])
+  lat             Float?
+  lng             Float?
+  // Acceso a la propiedad
+  requiereIngresoPropiedad Boolean @default(false)
+  entregaDesdeAfuera       Boolean @default(false)
+  conexionExterna          Boolean @default(false)
+  requiereClientePresente  Boolean @default(true)
+  indicacionesAcceso       String?
+  // Uso del agua
+  usoAgua          String   @default("consumo")
+  usoAguaNota      String?
+  estanquesJson    String?
+  // Preferencias
+  // Tiempo (minutos) que el cliente da a su proveedor preferido para aceptar antes de caer al pool
+  tiempoAceptacionPreferidoMin  Int @default(15)
+  // Proveedor preferido (admin que ya le entregó antes)
+  proveedorPreferidoId  String?
+  proveedorPreferido    Usuario? @relation("ClienteAppProveedorPreferido", fields: [proveedorPreferidoId], references: [id])
+  // Contadores para habilitar pago efectivo (requiere min 10 entregas exitosas)
+  entregasExitosas      Int @default(0)
+  // Saldo: positivo = saldo a favor del cliente (prepago o reembolso)
+  saldo                 Float @default(0)
+  // Estado
+  activo                Boolean @default(true)
+  creadoEn              DateTime @default(now())
+  actualizadoEn         DateTime @updatedAt
+
+  pedidos               PedidoApp[]
+  movimientosSaldo      MovimientoSaldoClienteApp[]
+}
+
+// Pedido generado desde la app cliente (DISTINTO del modelo Pedido actual)
+model PedidoApp {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  actualizadoEn   DateTime @updatedAt
+
+  // Cliente
+  clienteId       String
+  cliente         ClienteApp @relation(fields: [clienteId], references: [id])
+
+  // Detalle del pedido
+  litros          Int
+  zonaId          String
+  zona            Zona @relation(fields: [zonaId], references: [id])
+  direccion       String
+  lat             Float?
+  lng             Float?
+  indicacionesAcceso String?
+
+  // Pago
+  // metodo: portal | transferencia | efectivo | saldo | mensual
+  metodoPago      String
+  monto           Float   // total pagado por el cliente (incluye 10% comisión)
+  comisionApp     Float   // 10% del monto (lo que se queda la app)
+  montoProveedor  Float   // 90% del monto (lo que recibe el admin que tomó el pedido)
+  estadoPago      String  @default("pendiente") // pendiente | confirmado | rechazado | reembolsado
+  // Para transferencias: comprobante subido, requiere confirmación manual
+  comprobanteUrl  String?
+  confirmadoEn    DateTime?
+
+  // Asignación
+  // estado: en_pool | preferido_notificado | asignado | en_camino | entregado | cancelado | expirado
+  estado          String  @default("en_pool")
+  // Si el cliente eligió proveedor preferido, se le notifica primero
+  proveedorPreferidoNotificadoEn DateTime?
+  // Tiempo límite para que el preferido acepte (calculado al notificar)
+  plazoAceptacionPreferido DateTime?
+  // Quién tomó el pedido (chofer o admin)
+  tomadoPorId     String?
+  tomadoPor       Usuario? @relation("PedidoAppTomadoPor", fields: [tomadoPorId], references: [id])
+  tomadoEn        DateTime?
+  // Entrega
+  entregadoEn     DateTime?
+  entregaAdminId  String?  // referencia a Entrega en la base del admin que entregó
+  // Cancelación
+  canceladoEn     DateTime?
+  canceladoPor    String?  // cliente | admin | sistema
+  motivoCancelacion String?
+  // Reembolso
+  reembolsoMonto  Float?
+  // Si se cancela después de tomado, el cliente pierde 50% (costos admin)
+  penalizacionCancelacion Float?
+
+  // Historial de estado (JSON: [{estado, fecha, por}])
+  historialJson   String?
+
+  nota            String?
+}
+
+// Movimientos de saldo del cliente-app
+// Tipos: carga (saldo prepago), pago_pedido, reembolso, saldo_a_favor, ajuste
+model MovimientoSaldoClienteApp {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  clienteId       String
+  cliente         ClienteApp @relation(fields: [clienteId], references: [id])
+  tipo            String   // carga | pago_pedido | reembolso | saldo_a_favor | ajuste
+  monto           Float    // positivo = entra al saldo, negativo = sale
+  saldoResultante Float    // saldo del cliente después del movimiento
+  descripcion     String?
+  // Referencias opcionales
+  pedidoAppId     String?
+  // Para cargas: método (portal, transferencia, efectivo_admin)
+  metodoCarga     String?
+  comprobanteUrl  String?
+  // Para transferencias: requiere confirmación
+  confirmado      Boolean  @default(false)
+  confirmadoEn    DateTime?
+}
+
+// Factura del admin a la app (por el 90% de lo vendido)
+model FacturaAdmin {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  // Periodo facturado
+  periodoStart    DateTime
+  periodoEnd      DateTime
+  // Admin que factura
+  duenoId         String
+  dueno           Usuario  @relation("FacturaAdminDueno", fields: [duenoId], references: [id])
+  // Montos
+  totalVentas     Float    // suma de montoProveedor de los PedidoApp entregados
+  comisionApp     Float    // 10% (ya descontado del totalVentas)
+  montoFacturado  Float    // = totalVentas (el admin factura 90% de lo cobrado al cliente)
+  montoPagado     Float    // lo que la app ya le pagó (0 al inicio)
+  saldoPendiente  Float    // montoFacturado - montoPagado
+  // Estado
+  estado          String   @default("pendiente") // pendiente | pagada | parcial | rechazada
+  // Datos factura
+  numeroFactura   String?
+  fechaEmision    DateTime?
+  fechaPago       DateTime?
+  // Detalle de pedidos incluidos (JSON)
+  pedidosJson     String?
+  nota            String?
 }
