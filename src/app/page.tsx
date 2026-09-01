@@ -109,7 +109,7 @@ interface VueltaActual {
   } | null;
 }
 
-type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo";
+type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo" | "pool";
 
 export default function Home() {
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -311,6 +311,7 @@ export default function Home() {
             {(!interfazSimple || isDueno) && <option value="clientes">👥 Clientes</option>}
             {isDueno && <option value="recurrentes">🔁 Recurrentes</option>}
             {(!interfazSimple || isDueno) && <option value="historial">📜 Historial</option>}
+            <option value="pool">🌊 Pool de pedidos</option>
             {isDueno && <option value="equipo">👥 Equipo</option>}
             {isDueno && <option value="config">⚙️ Ajustes</option>}
           </select>
@@ -362,6 +363,11 @@ export default function Home() {
               <span className="inline">Historial</span>
             </TabsTrigger>
             )}
+            {/* Pool de pedidos de la app cliente */}
+            <TabsTrigger value="pool" className="flex-initial shrink-0">
+              <Droplets className="mr-1 h-4 w-4" />
+              <span className="inline">Pool</span>
+            </TabsTrigger>
             {/* Equipo y Ajustes: solo dueño */}
             {isDueno && (
               <TabsTrigger value="equipo" className="flex-initial shrink-0">
