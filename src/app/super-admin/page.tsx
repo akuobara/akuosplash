@@ -75,6 +75,7 @@ export default function SuperAdminPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios">("dashboard");
 
@@ -91,6 +92,7 @@ export default function SuperAdminPage() {
 
   const cargar = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const [s, u] = await Promise.all([
         apiGet<Stats>("/api/super-admin/stats"),
@@ -99,7 +101,9 @@ export default function SuperAdminPage() {
       setStats(s);
       setUsuarios(u.usuarios);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudieron cargar los datos");
+      const msg = e instanceof Error ? e.message : "No se pudieron cargar los datos";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -184,6 +188,22 @@ export default function SuperAdminPage() {
           <Skeleton className="h-12 rounded-lg" />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-lg" />)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="mx-auto max-w-5xl">
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center space-y-3">
+            <p className="text-sm text-destructive font-medium">No se pudieron cargar los datos</p>
+            <p className="text-xs text-muted-foreground">{error}</p>
+            <Button onClick={cargar} size="sm" variant="outline">
+              Reintentar
+            </Button>
           </div>
         </div>
       </div>
