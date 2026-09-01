@@ -276,30 +276,18 @@ export function Dashboard({
           <Button onClick={() => setEntregaFormOpen(true)} size="sm">
             <Plus className="mr-1 h-4 w-4" /> Entrega
           </Button>
-          {/* Botones de descarga directos (usan fetch con token para autenticar) */}
+          {/* Botones de descarga: un solo resumen diario en PDF o Excel */}
           <DownloadButton
-            label="PDF simple"
+            label="Resumen PDF"
             icon={<FileText className="mr-1 h-3.5 w-3.5" />}
-            url={`/api/reportes/descargar?tipo=simple&formato=pdf&period=${period}`}
-            filename={`reporte-${period}-simple.pdf`}
+            url={`/api/reportes/descargar?formato=pdf&period=${period}`}
+            filename={`resumen-${period}.pdf`}
           />
           <DownloadButton
-            label="PDF completo"
-            icon={<FileText className="mr-1 h-3.5 w-3.5" />}
-            url={`/api/reportes/descargar?tipo=completo&formato=pdf&period=${period}`}
-            filename={`reporte-${period}-completo.pdf`}
-          />
-          <DownloadButton
-            label="Excel simple"
+            label="Resumen Excel"
             icon={<FileSpreadsheet className="mr-1 h-3.5 w-3.5" />}
-            url={`/api/reportes/descargar?tipo=simple&formato=excel&period=${period}`}
-            filename={`reporte-${period}-simple.xlsx`}
-          />
-          <DownloadButton
-            label="Excel completo"
-            icon={<FileSpreadsheet className="mr-1 h-3.5 w-3.5" />}
-            url={`/api/reportes/descargar?tipo=completo&formato=excel&period=${period}`}
-            filename={`reporte-${period}-completo.xlsx`}
+            url={`/api/reportes/descargar?formato=excel&period=${period}`}
+            filename={`resumen-${period}.xlsx`}
           />
         </div>
       </div>
