@@ -77,7 +77,7 @@ export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes">("dashboard");
 
   const [detalleOpen, setDetalleOpen] = useState(false);
   const [detalleId, setDetalleId] = useState<string | null>(null);
@@ -238,7 +238,7 @@ export default function SuperAdminPage() {
 
       <main className="mx-auto max-w-5xl px-4 py-6 space-y-6">
         {/* Tabs */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button size="sm" variant={tab === "dashboard" ? "default" : "outline"} onClick={() => setTab("dashboard")}>
             <Activity className="mr-1 h-4 w-4" /> Resumen
           </Button>
@@ -247,6 +247,15 @@ export default function SuperAdminPage() {
           </Button>
           <Button size="sm" variant={tab === "usuarios" ? "default" : "outline"} onClick={() => setTab("usuarios")}>
             <UserCheck className="mr-1 h-4 w-4" /> Usuarios
+          </Button>
+          <Button size="sm" variant={tab === "buscar" ? "default" : "outline"} onClick={() => setTab("buscar")}>
+            <Search className="mr-1 h-4 w-4" /> Buscar
+          </Button>
+          <Button size="sm" variant={tab === "entregas" ? "default" : "outline"} onClick={() => setTab("entregas")}>
+            <Droplets className="mr-1 h-4 w-4" /> Entregas global
+          </Button>
+          <Button size="sm" variant={tab === "pendientes" ? "default" : "outline"} onClick={() => setTab("pendientes")}>
+            <DollarSign className="mr-1 h-4 w-4" /> Pagos pendientes
           </Button>
         </div>
 
@@ -400,6 +409,21 @@ export default function SuperAdminPage() {
             </Card>
           </div>
         )}
+
+        {/* Buscar global */}
+        {tab === "buscar" && (
+          <BuscarGlobal onAbrirAdmin={(id) => abrirDetalle(id)} />
+        )}
+
+        {/* Todas las entregas */}
+        {tab === "entregas" && (
+          <EntregasGlobal />
+        )}
+
+        {/* Pagos pendientes global */}
+        {tab === "pendientes" && (
+          <PendientesGlobal />
+        )}
       </main>
 
       {/* Modal: Detalle admin */}
@@ -418,7 +442,7 @@ export default function SuperAdminPage() {
               <Skeleton className="h-12 rounded" />
             </div>
           ) : detalle ? (
-            <AdminDetalleView detalle={detalle} />
+            <AdminDetalleView detalle={detalle} onRecargar={() => detalleId && abrirDetalle(detalleId)} />
           ) : null}
         </DialogContent>
       </Dialog>
@@ -474,8 +498,22 @@ function StatCard({ icon, label, value, highlight }: { icon?: React.ReactNode; l
 }
 
 // === Vista de detalle con tabs internas ===
-function AdminDetalleView({ detalle }: { detalle: AdminDetalle }) {
+function AdminDetalleView({ detalle, onRecargar }: { detalle: AdminDetalle; onRecargar: () => void }) {
   const [subtab, setSubtab] = useState<"info" | "choferes" | "camiones" | "clientes" | "entregas" | "vueltas" | "gastos" | "pagos" | "config">("info");
+  const [editando, setEditando] = useState<{ tipo: string; item: any } | null>(null);
+  const [creando, setCreando] = useState<string | null>(null);
+  const [editandoConfig, setEditandoConfig] = useState(false);
+
+  async function eliminarRecurso(tipo: string, itemId: string, label: string) {
+    if (!confirm(`¿Eliminar ${label}? Esta acción no se puede deshacer.`)) return;
+    try {
+      await apiDelete(`/api/super-admin/administradores/${detalle.admin.id}/recurso?tipo=${tipo}&itemId=${itemId}`);
+      toast.success("Eliminado");
+      onRecargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+    }
+  }
 
   const tabs: { key: typeof subtab; label: string; count?: number }[] = [
     { key: "info", label: "Info" },
@@ -525,52 +563,73 @@ function AdminDetalleView({ detalle }: { detalle: AdminDetalle }) {
 
       {/* Choferes */}
       {subtab === "choferes" && (
-        <ListaSimple
-          items={detalle.choferes}
-          emptyText="Sin choferes"
-          columns={[
-            { key: "nombre", label: "Nombre" },
-            { key: "email", label: "Email" },
-            { key: "telefono", label: "Teléfono" },
-            { key: "activo", label: "Estado", render: (v: boolean) => v ? "Activo" : "Inactivo" },
-          ]}
-        />
+        <div className="space-y-2">
+          <div className="flex justify-end">
+            <Button size="sm" variant="outline" onClick={() => setCreando("chofer")}><Plus className="mr-1 h-3 w-3" /> Nuevo chofer</Button>
+          </div>
+          <ListaConAcciones
+            items={detalle.choferes}
+            emptyText="Sin choferes"
+            columns={[
+              { key: "nombre", label: "Nombre" },
+              { key: "email", label: "Email" },
+              { key: "telefono", label: "Teléfono" },
+              { key: "activo", label: "Estado", render: (v: boolean) => v ? "Activo" : "Inactivo" },
+            ]}
+            onEditar={(item) => setEditando({ tipo: "chofer", item })}
+            onEliminar={(item) => eliminarRecurso("chofer", item.id, item.nombre)}
+          />
+        </div>
       )}
 
       {/* Camiones */}
       {subtab === "camiones" && (
-        <ListaSimple
-          items={detalle.camiones}
-          emptyText="Sin camiones"
-          columns={[
-            { key: "nombre", label: "Nombre" },
-            { key: "patente", label: "Patente" },
-            { key: "capacidad", label: "Capacidad", render: (v: number) => `${formatNumber(v, 0)} L` },
-            { key: "marca", label: "Marca" },
-            { key: "modelo", label: "Modelo" },
-            { key: "activo", label: "Estado", render: (v: boolean) => v ? "Activo" : "Inactivo" },
-          ]}
-        />
+        <div className="space-y-2">
+          <div className="flex justify-end">
+            <Button size="sm" variant="outline" onClick={() => setCreando("camion")}><Plus className="mr-1 h-3 w-3" /> Nuevo camión</Button>
+          </div>
+          <ListaConAcciones
+            items={detalle.camiones}
+            emptyText="Sin camiones"
+            columns={[
+              { key: "nombre", label: "Nombre" },
+              { key: "patente", label: "Patente" },
+              { key: "capacidad", label: "Capacidad", render: (v: number) => `${formatNumber(v, 0)} L` },
+              { key: "marca", label: "Marca" },
+              { key: "modelo", label: "Modelo" },
+              { key: "activo", label: "Estado", render: (v: boolean) => v ? "Activo" : "Inactivo" },
+            ]}
+            onEditar={(item) => setEditando({ tipo: "camion", item })}
+            onEliminar={(item) => eliminarRecurso("camion", item.id, item.nombre)}
+          />
+        </div>
       )}
 
       {/* Clientes */}
       {subtab === "clientes" && (
-        <ListaSimple
-          items={detalle.clientes}
-          emptyText="Sin clientes"
-          columns={[
-            { key: "nombre", label: "Nombre" },
-            { key: "telefono", label: "Teléfono" },
-            { key: "zona", label: "Zona" },
-            { key: "direccion", label: "Dirección" },
-            { key: "_count.entregas", label: "Entregas" },
-          ]}
-        />
+        <div className="space-y-2">
+          <div className="flex justify-end">
+            <Button size="sm" variant="outline" onClick={() => setCreando("cliente")}><Plus className="mr-1 h-3 w-3" /> Nuevo cliente</Button>
+          </div>
+          <ListaConAcciones
+            items={detalle.clientes}
+            emptyText="Sin clientes"
+            columns={[
+              { key: "nombre", label: "Nombre" },
+              { key: "telefono", label: "Teléfono" },
+              { key: "zona", label: "Zona" },
+              { key: "direccion", label: "Dirección" },
+              { key: "_count.entregas", label: "Entregas" },
+            ]}
+            onEditar={(item) => setEditando({ tipo: "cliente", item })}
+            onEliminar={(item) => eliminarRecurso("cliente", item.id, item.nombre)}
+          />
+        </div>
       )}
 
       {/* Entregas */}
       {subtab === "entregas" && (
-        <ListaSimple
+        <ListaConAcciones
           items={detalle.entregas}
           emptyText="Sin entregas"
           columns={[
@@ -580,12 +639,14 @@ function AdminDetalleView({ detalle }: { detalle: AdminDetalle }) {
             { key: "total", label: "Total", render: (v: number) => formatCurrency(v) },
             { key: "estadoPago", label: "Estado", render: (v: string) => labelEstadoPago(v) },
           ]}
+          onEditar={(item) => setEditando({ tipo: "entrega", item })}
+          onEliminar={(item) => eliminarRecurso("entrega", item.id, `entrega de ${item.clienteNombre}`)}
         />
       )}
 
       {/* Vueltas */}
       {subtab === "vueltas" && (
-        <ListaSimple
+        <ListaConAcciones
           items={detalle.vueltas}
           emptyText="Sin vueltas"
           columns={[
@@ -596,12 +657,13 @@ function AdminDetalleView({ detalle }: { detalle: AdminDetalle }) {
             { key: "chofer.nombre", label: "Chofer" },
             { key: "_count.entregas", label: "Entregas" },
           ]}
+          onEliminar={(item) => eliminarRecurso("vuelta", item.id, `vuelta #${item.numero}`)}
         />
       )}
 
       {/* Gastos */}
       {subtab === "gastos" && (
-        <ListaSimple
+        <ListaConAcciones
           items={detalle.gastos}
           emptyText="Sin gastos"
           columns={[
@@ -611,12 +673,14 @@ function AdminDetalleView({ detalle }: { detalle: AdminDetalle }) {
             { key: "monto", label: "Monto", render: (v: number) => formatCurrency(v) },
             { key: "pagadoPor", label: "Pagado por" },
           ]}
+          onEditar={(item) => setEditando({ tipo: "gasto", item })}
+          onEliminar={(item) => eliminarRecurso("gasto", item.id, "gasto")}
         />
       )}
 
       {/* Pagos */}
       {subtab === "pagos" && (
-        <ListaSimple
+        <ListaConAcciones
           items={detalle.pagos}
           emptyText="Sin pagos sueltos"
           columns={[
@@ -626,12 +690,19 @@ function AdminDetalleView({ detalle }: { detalle: AdminDetalle }) {
             { key: "monto", label: "Monto", render: (v: number) => formatCurrency(v) },
             { key: "nota", label: "Nota" },
           ]}
+          onEditar={(item) => setEditando({ tipo: "pago", item })}
+          onEliminar={(item) => eliminarRecurso("pago", item.id, "pago")}
         />
       )}
 
       {/* Config */}
       {subtab === "config" && (
         <div className="space-y-3 text-sm">
+          <div className="flex justify-end">
+            <Button size="sm" variant="outline" onClick={() => setEditandoConfig(true)}>
+              <Pencil className="mr-1 h-3 w-3" /> Editar configuración
+            </Button>
+          </div>
           {detalle.config ? (
             <>
               <div>
@@ -682,6 +753,37 @@ function AdminDetalleView({ detalle }: { detalle: AdminDetalle }) {
             <p className="text-sm text-muted-foreground">Sin configuración</p>
           )}
         </div>
+      )}
+
+      {/* Modal: Editar recurso */}
+      {editando && (
+        <EditarRecursoDialog
+          tipo={editando.tipo}
+          item={editando.item}
+          adminId={detalle.admin.id}
+          onOpenChange={(o) => !o && setEditando(null)}
+          onSaved={() => { setEditando(null); onRecargar(); }}
+        />
+      )}
+
+      {/* Modal: Crear recurso */}
+      {creando && (
+        <CrearRecursoDialog
+          tipo={creando}
+          adminId={detalle.admin.id}
+          onOpenChange={(o) => !o && setCreando(null)}
+          onSaved={() => { setCreando(null); onRecargar(); }}
+        />
+      )}
+
+      {/* Modal: Editar config */}
+      {editandoConfig && (
+        <EditarConfigDialog
+          config={detalle.config}
+          adminId={detalle.admin.id}
+          onOpenChange={(o) => !o && setEditandoConfig(false)}
+          onSaved={() => { setEditandoConfig(false); onRecargar(); }}
+        />
       )}
     </div>
   );
@@ -866,5 +968,615 @@ function EditarAdminDialog({ open, onOpenChange, target, onSaved }: { open: bool
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// === Lista con botones de editar/eliminar ===
+function ListaConAcciones<T extends Record<string, any>>({
+  items, emptyText, columns, onEditar, onEliminar,
+}: {
+  items: T[];
+  emptyText: string;
+  columns: { key: string; label: string; render?: (v: any) => string }[];
+  onEditar?: (item: T) => void;
+  onEliminar?: (item: T) => void;
+}) {
+  if (items.length === 0) {
+    return <p className="py-4 text-center text-sm text-muted-foreground">{emptyText}</p>;
+  }
+  function getValue(obj: any, path: string) {
+    return path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), obj);
+  }
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b text-left text-muted-foreground">
+            {columns.map(c => <th key={c.key} className="p-2">{c.label}</th>)}
+            {(onEditar || onEliminar) && <th className="p-2"></th>}
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, i) => (
+            <tr key={i} className="border-b last:border-0">
+              {columns.map(c => {
+                const v = getValue(item, c.key);
+                return <td key={c.key} className="p-2">{c.render ? c.render(v) : (v == null ? "—" : String(v))}</td>;
+              })}
+              {(onEditar || onEliminar) && (
+                <td className="p-2 whitespace-nowrap">
+                  <div className="flex gap-1">
+                    {onEditar && (
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => onEditar(item)}>
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                    )}
+                    {onEliminar && (
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive" onClick={() => onEliminar(item)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// === Buscar global ===
+function BuscarGlobal({ onAbrirAdmin }: { onAbrirAdmin: (id: string) => void }) {
+  const [q, setQ] = useState("");
+  const [resultados, setResultados] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function buscar() {
+    if (q.trim().length < 2) {
+      setResultados(null);
+      return;
+    }
+    setLoading(true);
+    try {
+      const r = await apiGet<{ resultados: any }>(`/api/super-admin/global/buscar?q=${encodeURIComponent(q.trim())}`);
+      setResultados(r.resultados);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al buscar");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="relative max-w-md">
+        <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && buscar()}
+          placeholder="Buscar cliente, chofer, camión, admin..."
+          className="pl-8 h-9"
+        />
+      </div>
+      <Button size="sm" onClick={buscar} disabled={loading || q.trim().length < 2}>
+        {loading && <Loader2 className="mr-1 h-3 w-3 animate-spin" />} Buscar
+      </Button>
+
+      {resultados && (
+        <div className="space-y-4">
+          {resultados.admins?.length > 0 && (
+            <div>
+              <p className="text-xs font-medium uppercase text-muted-foreground mb-1">Administradores ({resultados.admins.length})</p>
+              <div className="space-y-1">
+                {resultados.admins.map((a: any) => (
+                  <button key={a.id} type="button" onClick={() => onAbrirAdmin(a.id)}
+                    className="block w-full text-left rounded border p-2 text-sm hover:bg-muted">
+                    <strong>{a.nombre}</strong> · {a.email} {a.telefono ? `· ${a.telefono}` : ""}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {resultados.clientes?.length > 0 && (
+            <div>
+              <p className="text-xs font-medium uppercase text-muted-foreground mb-1">Clientes ({resultados.clientes.length})</p>
+              <div className="space-y-1">
+                {resultados.clientes.map((c: any) => (
+                  <button key={c.id} type="button" onClick={() => onAbrirAdmin(c.dueno.id)}
+                    className="block w-full text-left rounded border p-2 text-sm hover:bg-muted">
+                    <strong>{c.nombre}</strong> · {c.telefono || "—"} · {c.zona || "—"}
+                    <span className="block text-xs text-muted-foreground">Admin: {c.dueno.nombre}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {resultados.choferes?.length > 0 && (
+            <div>
+              <p className="text-xs font-medium uppercase text-muted-foreground mb-1">Choferes ({resultados.choferes.length})</p>
+              <div className="space-y-1">
+                {resultados.choferes.map((c: any) => (
+                  <button key={c.id} type="button" onClick={() => c.dueno?.id && onAbrirAdmin(c.dueno.id)}
+                    className="block w-full text-left rounded border p-2 text-sm hover:bg-muted">
+                    <strong>{c.nombre}</strong> · {c.email} {c.telefono ? `· ${c.telefono}` : ""}
+                    {c.dueno && <span className="block text-xs text-muted-foreground">Admin: {c.dueno.nombre}</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {resultados.camiones?.length > 0 && (
+            <div>
+              <p className="text-xs font-medium uppercase text-muted-foreground mb-1">Camiones ({resultados.camiones.length})</p>
+              <div className="space-y-1">
+                {resultados.camiones.map((c: any) => (
+                  <button key={c.id} type="button" onClick={() => onAbrirAdmin(c.dueno.id)}
+                    className="block w-full text-left rounded border p-2 text-sm hover:bg-muted">
+                    <strong>{c.nombre}</strong> · {c.patente || "—"} · {c.capacidad} L
+                    <span className="block text-xs text-muted-foreground">Admin: {c.dueno.nombre}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {resultados.admins?.length === 0 && resultados.clientes?.length === 0 && resultados.choferes?.length === 0 && resultados.camiones?.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">Sin resultados para "{q}"</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// === Todas las entregas (global) ===
+function EntregasGlobal() {
+  const [entregas, setEntregas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiGet<{ entregas: any[] }>("/api/super-admin/global/entregas?limit=200")
+      .then((r) => setEntregas(r.entregas))
+      .catch((e) => toast.error(e instanceof Error ? e.message : "Error"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <Skeleton className="h-40 rounded" />;
+
+  const totalVentas = entregas.reduce((s, e) => s + e.total, 0);
+  const totalEfectivo = entregas.reduce((s, e) => s + e.montoEfectivo, 0);
+  const totalTransferencia = entregas.reduce((s, e) => s + e.montoTransferencia, 0);
+  const totalLitros = entregas.reduce((s, e) => s + e.litros, 0);
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 text-xs">
+        <Card><CardContent className="p-2"><p className="text-muted-foreground">Entregas</p><p className="font-bold">{entregas.length}</p></CardContent></Card>
+        <Card><CardContent className="p-2"><p className="text-muted-foreground">Litros</p><p className="font-bold">{formatNumber(totalLitros, 0)} L</p></CardContent></Card>
+        <Card><CardContent className="p-2"><p className="text-muted-foreground">Ventas</p><p className="font-bold">{formatCurrency(totalVentas)}</p></CardContent></Card>
+        <Card><CardContent className="p-2"><p className="text-muted-foreground">Efectivo</p><p className="font-bold">{formatCurrency(totalEfectivo)}</p></CardContent></Card>
+      </div>
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b text-left text-muted-foreground">
+                  <th className="p-2">Fecha</th>
+                  <th className="p-2">Cliente</th>
+                  <th className="p-2">Admin</th>
+                  <th className="p-2">Chofer</th>
+                  <th className="p-2">Litros</th>
+                  <th className="p-2">Total</th>
+                  <th className="p-2">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entregas.map((e) => (
+                  <tr key={e.id} className="border-b last:border-0">
+                    <td className="p-2 whitespace-nowrap">{formatDateTime(e.fecha)}</td>
+                    <td className="p-2">{e.clienteNombre}</td>
+                    <td className="p-2">{e.dueno?.nombre || "—"}</td>
+                    <td className="p-2">{e.chofer?.nombre || "—"}</td>
+                    <td className="p-2">{formatNumber(e.litros, 0)} L</td>
+                    <td className="p-2">{formatCurrency(e.total)}</td>
+                    <td className="p-2">{labelEstadoPago(e.estadoPago)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// === Pagos pendientes global ===
+function PendientesGlobal() {
+  const [pendientes, setPendientes] = useState<any[]>([]);
+  const [totalPendiente, setTotalPendiente] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiGet<{ pendientes: any[]; totalPendiente: number }>("/api/super-admin/global/pendientes")
+      .then((r) => { setPendientes(r.pendientes); setTotalPendiente(r.totalPendiente); })
+      .catch((e) => toast.error(e instanceof Error ? e.message : "Error"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <Skeleton className="h-40 rounded" />;
+
+  return (
+    <div className="space-y-3">
+      <Card className="border-amber-300 bg-amber-50 dark:bg-amber-900/10">
+        <CardContent className="p-3">
+          <p className="text-xs uppercase text-muted-foreground">Total pendiente de cobro</p>
+          <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">{formatCurrency(totalPendiente)}</p>
+          <p className="text-xs text-muted-foreground mt-1">{pendientes.length} clientes con saldo</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b text-left text-muted-foreground">
+                  <th className="p-2">Cliente</th>
+                  <th className="p-2">Teléfono</th>
+                  <th className="p-2">Zona</th>
+                  <th className="p-2">Admin</th>
+                  <th className="p-2">Ventas</th>
+                  <th className="p-2">Recibido</th>
+                  <th className="p-2">Saldo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendientes.map((c) => (
+                  <tr key={c.id} className="border-b last:border-0">
+                    <td className="p-2 font-medium">{c.nombre}</td>
+                    <td className="p-2">{c.telefono || "—"}</td>
+                    <td className="p-2">{c.zona || "—"}</td>
+                    <td className="p-2">{c.admin?.nombre || "—"}</td>
+                    <td className="p-2">{formatCurrency(c.totalVentas)}</td>
+                    <td className="p-2">{formatCurrency(c.totalRecibido)}</td>
+                    <td className="p-2 font-bold text-amber-600">{formatCurrency(c.saldo)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// === Editar recurso (cliente, chofer, camion, entrega, gasto, pago) ===
+function EditarRecursoDialog({ tipo, item, adminId, onOpenChange, onSaved }: {
+  tipo: string; item: any; adminId: string;
+  onOpenChange: (o: boolean) => void; onSaved: () => void;
+}) {
+  const [data, setData] = useState<Record<string, any>>({});
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    // Inicializar con los valores del item
+    if (tipo === "cliente") setData({ nombre: item.nombre || "", rut: item.rut || "", direccion: item.direccion || "", telefono: item.telefono || "", email: item.email || "", zona: item.zona || "", precioEfectivoPorLitro: item.precioEfectivoPorLitro || 0, precioTransferenciaPorLitro: item.precioTransferenciaPorLitro || 0 });
+    else if (tipo === "chofer") setData({ nombre: item.nombre || "", email: item.email || "", telefono: item.telefono || "", activo: item.activo, password: "" });
+    else if (tipo === "camion") setData({ nombre: item.nombre || "", patente: item.patente || "", capacidad: item.capacidad || 17000, activo: item.activo, marca: item.marca || "", modelo: item.modelo || "", anio: item.anio || "", color: item.color || "" });
+    else if (tipo === "entrega") setData({ litros: item.litros || 0, total: item.total || 0, montoEfectivo: item.montoEfectivo || 0, montoTransferencia: item.montoTransferencia || 0, estadoPago: item.estadoPago || "pendiente", nota: item.nota || "" });
+    else if (tipo === "gasto") setData({ tipo: item.tipo || "", descripcion: item.descripcion || "", monto: item.monto || 0, pagadoPor: item.pagadoPor || "chofer" });
+    else if (tipo === "pago") setData({ monto: item.monto || 0, metodoPago: item.metodoPago || "efectivo", nota: item.nota || "" });
+  }, [item, tipo]);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await apiPatch(`/api/super-admin/administradores/${adminId}/recurso?tipo=${tipo}&itemId=${item.id}`, data);
+      toast.success("Actualizado");
+      onSaved();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo actualizar");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const titles: Record<string, string> = {
+    cliente: "Editar cliente", chofer: "Editar chofer", camion: "Editar camión",
+    entrega: "Editar entrega", gasto: "Editar gasto", pago: "Editar pago",
+  };
+
+  return (
+    <Dialog open onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{titles[tipo] || "Editar"}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          {tipo === "cliente" && (
+            <>
+              <FormField label="Nombre" value={data.nombre} onChange={(v) => setData({ ...data, nombre: v })} />
+              <FormField label="RUT" value={data.rut} onChange={(v) => setData({ ...data, rut: v })} />
+              <FormField label="Teléfono" value={data.telefono} onChange={(v) => setData({ ...data, telefono: v })} />
+              <FormField label="Email" value={data.email} onChange={(v) => setData({ ...data, email: v })} />
+              <FormField label="Zona" value={data.zona} onChange={(v) => setData({ ...data, zona: v })} />
+              <FormField label="Dirección" value={data.direccion} onChange={(v) => setData({ ...data, direccion: v })} />
+              <FormField label="Precio efectivo/L" value={String(data.precioEfectivoPorLitro)} onChange={(v) => setData({ ...data, precioEfectivoPorLitro: Number(v) || 0 })} type="number" />
+              <FormField label="Precio transferencia/L" value={String(data.precioTransferenciaPorLitro)} onChange={(v) => setData({ ...data, precioTransferenciaPorLitro: Number(v) || 0 })} type="number" />
+            </>
+          )}
+          {tipo === "chofer" && (
+            <>
+              <FormField label="Nombre" value={data.nombre} onChange={(v) => setData({ ...data, nombre: v })} />
+              <FormField label="Email" value={data.email} onChange={(v) => setData({ ...data, email: v })} />
+              <FormField label="Teléfono" value={data.telefono} onChange={(v) => setData({ ...data, telefono: v })} />
+              <FormField label="Password nuevo (vacío = no cambiar)" value={data.password} onChange={(v) => setData({ ...data, password: v })} type="password" />
+              <label className="flex items-center gap-2 text-xs">
+                <input type="checkbox" checked={!!data.activo} onChange={(e) => setData({ ...data, activo: e.target.checked })} /> Activo
+              </label>
+            </>
+          )}
+          {tipo === "camion" && (
+            <>
+              <FormField label="Nombre" value={data.nombre} onChange={(v) => setData({ ...data, nombre: v })} />
+              <FormField label="Patente" value={data.patente} onChange={(v) => setData({ ...data, patente: v })} />
+              <FormField label="Capacidad (L)" value={String(data.capacidad)} onChange={(v) => setData({ ...data, capacidad: Number(v) || 17000 })} type="number" />
+              <FormField label="Marca" value={data.marca} onChange={(v) => setData({ ...data, marca: v })} />
+              <FormField label="Modelo" value={data.modelo} onChange={(v) => setData({ ...data, modelo: v })} />
+              <FormField label="Año" value={String(data.anio)} onChange={(v) => setData({ ...data, anio: Number(v) || null })} type="number" />
+              <FormField label="Color" value={data.color} onChange={(v) => setData({ ...data, color: v })} />
+              <label className="flex items-center gap-2 text-xs">
+                <input type="checkbox" checked={!!data.activo} onChange={(e) => setData({ ...data, activo: e.target.checked })} /> Activo
+              </label>
+            </>
+          )}
+          {tipo === "entrega" && (
+            <>
+              <FormField label="Litros" value={String(data.litros)} onChange={(v) => setData({ ...data, litros: Number(v) || 0 })} type="number" />
+              <FormField label="Total" value={String(data.total)} onChange={(v) => setData({ ...data, total: Number(v) || 0 })} type="number" />
+              <FormField label="Efectivo" value={String(data.montoEfectivo)} onChange={(v) => setData({ ...data, montoEfectivo: Number(v) || 0 })} type="number" />
+              <FormField label="Transferencia" value={String(data.montoTransferencia)} onChange={(v) => setData({ ...data, montoTransferencia: Number(v) || 0 })} type="number" />
+              <div>
+                <Label className="text-xs">Estado de pago</Label>
+                <select className="w-full h-9 rounded border bg-background px-2 text-sm" value={data.estadoPago} onChange={(e) => setData({ ...data, estadoPago: e.target.value })}>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="parcial">Parcial</option>
+                  <option value="pagado">Pagado</option>
+                </select>
+              </div>
+              <FormField label="Nota" value={data.nota} onChange={(v) => setData({ ...data, nota: v })} />
+            </>
+          )}
+          {tipo === "gasto" && (
+            <>
+              <div>
+                <Label className="text-xs">Tipo</Label>
+                <select className="w-full h-9 rounded border bg-background px-2 text-sm" value={data.tipo} onChange={(e) => setData({ ...data, tipo: e.target.value })}>
+                  <option value="combustible">Combustible</option>
+                  <option value="mantenimiento">Mantenimiento</option>
+                  <option value="peaje">Peaje</option>
+                  <option value="comida">Comida</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <FormField label="Descripción" value={data.descripcion} onChange={(v) => setData({ ...data, descripcion: v })} />
+              <FormField label="Monto" value={String(data.monto)} onChange={(v) => setData({ ...data, monto: Number(v) || 0 })} type="number" />
+              <div>
+                <Label className="text-xs">Pagado por</Label>
+                <select className="w-full h-9 rounded border bg-background px-2 text-sm" value={data.pagadoPor} onChange={(e) => setData({ ...data, pagadoPor: e.target.value })}>
+                  <option value="chofer">Chofer</option>
+                  <option value="dueno">Dueño</option>
+                </select>
+              </div>
+            </>
+          )}
+          {tipo === "pago" && (
+            <>
+              <FormField label="Monto" value={String(data.monto)} onChange={(v) => setData({ ...data, monto: Number(v) || 0 })} type="number" />
+              <div>
+                <Label className="text-xs">Método de pago</Label>
+                <select className="w-full h-9 rounded border bg-background px-2 text-sm" value={data.metodoPago} onChange={(e) => setData({ ...data, metodoPago: e.target.value })}>
+                  <option value="efectivo">Efectivo</option>
+                  <option value="transferencia">Transferencia</option>
+                  <option value="mixto">Mixto</option>
+                </select>
+              </div>
+              <FormField label="Nota" value={data.nota} onChange={(v) => setData({ ...data, nota: v })} />
+            </>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />} Guardar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// === Crear recurso (cliente, chofer, camion) ===
+function CrearRecursoDialog({ tipo, adminId, onOpenChange, onSaved }: {
+  tipo: string; adminId: string;
+  onOpenChange: (o: boolean) => void; onSaved: () => void;
+}) {
+  const [data, setData] = useState<Record<string, any>>({});
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (tipo === "cliente") setData({ nombre: "", rut: "", telefono: "", direccion: "", zona: "", email: "", precioEfectivoPorLitro: 0, precioTransferenciaPorLitro: 0 });
+    else if (tipo === "chofer") setData({ nombre: "", email: "", telefono: "", password: "", activo: true });
+    else if (tipo === "camion") setData({ nombre: "", patente: "", capacidad: 17000, activo: true, marca: "", modelo: "", anio: "", color: "" });
+  }, [tipo]);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await apiPost(`/api/super-admin/administradores/${adminId}/recurso?tipo=${tipo}`, data);
+      toast.success("Creado");
+      onSaved();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo crear");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const titles: Record<string, string> = { cliente: "Nuevo cliente", chofer: "Nuevo chofer", camion: "Nuevo camión" };
+
+  return (
+    <Dialog open onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{titles[tipo] || "Nuevo"}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          {tipo === "cliente" && (
+            <>
+              <FormField label="Nombre *" value={data.nombre} onChange={(v) => setData({ ...data, nombre: v })} />
+              <FormField label="RUT" value={data.rut} onChange={(v) => setData({ ...data, rut: v })} />
+              <FormField label="Teléfono" value={data.telefono} onChange={(v) => setData({ ...data, telefono: v })} />
+              <FormField label="Email" value={data.email} onChange={(v) => setData({ ...data, email: v })} />
+              <FormField label="Zona" value={data.zona} onChange={(v) => setData({ ...data, zona: v })} />
+              <FormField label="Dirección" value={data.direccion} onChange={(v) => setData({ ...data, direccion: v })} />
+              <FormField label="Precio efectivo/L" value={String(data.precioEfectivoPorLitro)} onChange={(v) => setData({ ...data, precioEfectivoPorLitro: Number(v) || 0 })} type="number" />
+              <FormField label="Precio transferencia/L" value={String(data.precioTransferenciaPorLitro)} onChange={(v) => setData({ ...data, precioTransferenciaPorLitro: Number(v) || 0 })} type="number" />
+            </>
+          )}
+          {tipo === "chofer" && (
+            <>
+              <FormField label="Nombre *" value={data.nombre} onChange={(v) => setData({ ...data, nombre: v })} />
+              <FormField label="Email *" value={data.email} onChange={(v) => setData({ ...data, email: v })} />
+              <FormField label="Teléfono" value={data.telefono} onChange={(v) => setData({ ...data, telefono: v })} />
+              <FormField label="Password *" value={data.password} onChange={(v) => setData({ ...data, password: v })} type="password" />
+            </>
+          )}
+          {tipo === "camion" && (
+            <>
+              <FormField label="Nombre *" value={data.nombre} onChange={(v) => setData({ ...data, nombre: v })} />
+              <FormField label="Patente" value={data.patente} onChange={(v) => setData({ ...data, patente: v })} />
+              <FormField label="Capacidad (L) *" value={String(data.capacidad)} onChange={(v) => setData({ ...data, capacidad: Number(v) || 17000 })} type="number" />
+              <FormField label="Marca" value={data.marca} onChange={(v) => setData({ ...data, marca: v })} />
+              <FormField label="Modelo" value={data.modelo} onChange={(v) => setData({ ...data, modelo: v })} />
+              <FormField label="Color" value={data.color} onChange={(v) => setData({ ...data, color: v })} />
+            </>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />} Crear
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// === Editar configuración del admin ===
+function EditarConfigDialog({ config, adminId, onOpenChange, onSaved }: {
+  config: any; adminId: string;
+  onOpenChange: (o: boolean) => void; onSaved: () => void;
+}) {
+  const [data, setData] = useState<Record<string, any>>({});
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (config) {
+      setData({
+        nombreDueno: config.nombreDueno || "",
+        nombreChofer: config.nombreChofer || "",
+        empresaRazonSocial: config.empresaRazonSocial || "",
+        empresaRut: config.empresaRut || "",
+        capacidadCamion: config.capacidadCamion || 17000,
+        modoLiquidacion: config.modoLiquidacion || "porcentaje",
+        porcentajeComisionChofer: config.porcentajeComisionChofer || 0,
+        porcentajeComisionDueno: config.porcentajeComisionDueno || 0,
+        montoPorVueltaUnicoCliente: config.montoPorVueltaUnicoCliente || 0,
+        montoPorVueltaMultiple: config.montoPorVueltaMultiple || 0,
+        precioEfectivoPorLitro: config.precioEfectivoPorLitro || 0,
+        precioTransferenciaPorLitro: config.precioTransferenciaPorLitro || 0,
+      });
+    }
+  }, [config]);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await apiPatch(`/api/super-admin/administradores/${adminId}/config`, data);
+      toast.success("Configuración guardada");
+      onSaved();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Editar configuración</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <p className="text-xs font-medium uppercase text-muted-foreground">Datos</p>
+          <FormField label="Nombre dueño" value={data.nombreDueno} onChange={(v) => setData({ ...data, nombreDueno: v })} />
+          <FormField label="Nombre chofer" value={data.nombreChofer} onChange={(v) => setData({ ...data, nombreChofer: v })} />
+          <FormField label="Empresa" value={data.empresaRazonSocial} onChange={(v) => setData({ ...data, empresaRazonSocial: v })} />
+          <FormField label="RUT empresa" value={data.empresaRut} onChange={(v) => setData({ ...data, empresaRut: v })} />
+          <FormField label="Capacidad camión (L)" value={String(data.capacidadCamion)} onChange={(v) => setData({ ...data, capacidadCamion: Number(v) || 17000 })} type="number" />
+
+          <p className="text-xs font-medium uppercase text-muted-foreground pt-2">Precios</p>
+          <FormField label="Precio efectivo/L" value={String(data.precioEfectivoPorLitro)} onChange={(v) => setData({ ...data, precioEfectivoPorLitro: Number(v) || 0 })} type="number" />
+          <FormField label="Precio transferencia/L" value={String(data.precioTransferenciaPorLitro)} onChange={(v) => setData({ ...data, precioTransferenciaPorLitro: Number(v) || 0 })} type="number" />
+
+          <p className="text-xs font-medium uppercase text-muted-foreground pt-2">Pago al chofer</p>
+          <div>
+            <Label className="text-xs">Modo de liquidación</Label>
+            <select className="w-full h-9 rounded border bg-background px-2 text-sm" value={data.modoLiquidacion} onChange={(e) => setData({ ...data, modoLiquidacion: e.target.value })}>
+              <option value="porcentaje">Porcentaje de utilidad</option>
+              <option value="vuelta">Pago por vuelta completada</option>
+            </select>
+          </div>
+          {data.modoLiquidacion === "vuelta" ? (
+            <>
+              <FormField label="Monto por vuelta (1 cliente)" value={String(data.montoPorVueltaUnicoCliente)} onChange={(v) => setData({ ...data, montoPorVueltaUnicoCliente: Number(v) || 0 })} type="number" />
+              <FormField label="Monto por vuelta (varios clientes)" value={String(data.montoPorVueltaMultiple)} onChange={(v) => setData({ ...data, montoPorVueltaMultiple: Number(v) || 0 })} type="number" />
+            </>
+          ) : (
+            <>
+              <FormField label="% comisión chofer" value={String(data.porcentajeComisionChofer)} onChange={(v) => setData({ ...data, porcentajeComisionChofer: Number(v) || 0 })} type="number" />
+              <FormField label="% comisión dueño" value={String(data.porcentajeComisionDueno)} onChange={(v) => setData({ ...data, porcentajeComisionDueno: Number(v) || 0 })} type="number" />
+            </>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving && <Loader2 className="mr-1 h-4 w-4 animate-spin" />} Guardar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// === Helper: campo de formulario ===
+function FormField({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
+  return (
+    <div>
+      <Label className="text-xs">{label}</Label>
+      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} />
+    </div>
   );
 }
