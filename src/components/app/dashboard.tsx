@@ -767,16 +767,35 @@ function DownloadButton({ label, icon, url, filename }: { label: string; icon: R
     try {
       // Obtener token del localStorage (mismo mecanismo que api-client)
       const token = typeof window !== "undefined" ? localStorage.getItem("aljibe-token") : null;
-      const res = await fetch(`${url}&_t=${Date.now()}`, {
+      if (!token) {
+        throw new Error("No hay sesión activa. Cerrá sesión y volvé a entrar.");
+      }
+      // Asegurar que la URL tenga el parámetro cache-buster correctamente
+      const separator = url.includes("?") ? "&" : "?";
+      const finalUrl = `${url}${separator}_t=${Date.now()}`;
+      const res = await fetch(finalUrl, {
         credentials: "include",
         cache: "no-store",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt || res.statusText}`);
+        let msg = `Error ${res.status}`;
+        try {
+          const j = JSON.parse(txt);
+          msg += `: ${j.error || j.message || ""}`;
+        } catch {
+          if (txt) msg += `: ${txt.slice(0, 200)}`;
+        }
+        if (res.status === 401) {
+          msg += "\n\nTu sesión expiró. Cerrá sesión y volvé a entrar.";
+        }
+        throw new Error(msg);
       }
       const blob = await res.blob();
+      if (blob.size === 0) {
+        throw new Error("El servidor devolvió un archivo vacío");
+      }
       // Crear URL temporal y disparar descarga
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
