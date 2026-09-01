@@ -53,6 +53,20 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
 
+  // Si el cliente no trae precios propios, heredar los del admin (config)
+  let precioEfectivo = Number(body.precioEfectivoPorLitro) || 0;
+  let precioTransferencia = Number(body.precioTransferenciaPorLitro) || 0;
+  if (precioEfectivo === 0 || precioTransferencia === 0) {
+    const config = await db.configuracion.findUnique({
+      where: { duenoId },
+      select: { precioEfectivoPorLitro: true, precioTransferenciaPorLitro: true },
+    });
+    if (config) {
+      if (precioEfectivo === 0) precioEfectivo = config.precioEfectivoPorLitro;
+      if (precioTransferencia === 0) precioTransferencia = config.precioTransferenciaPorLitro;
+    }
+  }
+
   const nuevo = await db.cliente.create({
     data: {
       nombre: body.nombre?.trim() || "Sin nombre",
@@ -61,8 +75,8 @@ export async function POST(req: NextRequest) {
       telefono: body.telefono?.trim() || null,
       email: body.email?.trim() || null,
       zona: body.zona?.trim() || null,
-      precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0,
-      precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0,
+      precioEfectivoPorLitro: precioEfectivo,
+      precioTransferenciaPorLitro: precioTransferencia,
       nota: body.nota?.trim() || null,
       lat: body.lat != null && body.lat !== "" ? Number(body.lat) : null,
       lng: body.lng != null && body.lng !== "" ? Number(body.lng) : null,
