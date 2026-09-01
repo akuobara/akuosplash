@@ -5,6 +5,9 @@
 //   4. Gastos (tipo + monto, agrupado)
 // GET /api/reportes/descargar?formato=pdf|excel&period=...
 import { NextRequest, NextResponse } from "next/server";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 import { getRange, formatCurrency, formatNumber, formatDateTime, formatNowCL, labelTipoGasto } from "@/lib/helpers";
@@ -93,8 +96,6 @@ export async function GET(req: NextRequest) {
 }
 
 function generarPDF(period: string, data: any) {
-  const { jsPDF } = require("jspdf");
-  const autoTable = require("jspdf-autotable");
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
   // Encabezado
