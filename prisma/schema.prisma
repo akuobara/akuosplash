@@ -54,6 +54,8 @@ model Usuario {
   pagosComoChofer     Pago[]           @relation("PagoChofer")
   pagosComoDueno      Pago[]           @relation("PagoDueno")
   configuracion     Configuracion?   @relation("ConfigDueno")
+  bitacoraAutor     BitacoraCamion[] @relation("BitacoraAutor")
+  bitacoraResueltas BitacoraCamion[] @relation("BitacoraResueltaPor")
 }
 
 // Catálogo de clientes
@@ -234,6 +236,24 @@ model Camion {
 
   vueltas     Vuelta[]
   choferes    CamionChofer[]
+  bitacora    BitacoraCamion[]
+}
+
+// Bitácora de camión: registro de fallas, mantenimiento y observaciones
+model BitacoraCamion {
+  id            String   @id @default(cuid())
+  camionId      String
+  camion        Camion   @relation(fields: [camionId], references: [id], onDelete: Cascade)
+  autorId       String
+  autor         Usuario  @relation("BitacoraAutor", fields: [autorId], references: [id])
+  tipo          String   @default("observacion")  // falla_mecanica | mantenimiento | observacion | otro
+  descripcion   String
+  severidad     String?  // baja | media | alta | critica
+  resuelta      Boolean  @default(false)
+  resueltaEn    DateTime?
+  resueltaPorId String?
+  resueltaPor   Usuario? @relation("BitacoraResueltaPor", fields: [resueltaPorId], references: [id])
+  creadoEn      DateTime @default(now())
 }
 
 // Asignación chofer ↔ camión (muchos a muchos)

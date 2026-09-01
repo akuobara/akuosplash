@@ -373,7 +373,7 @@ export function EntregaForm({
     setMetodoPago(nuevoMetodo);
     // Solo recalcular si el precio actual coincide con el del método anterior
     // (es decir, el usuario no lo modificó manualmente)
-    const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+    const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) ?? null : null;
     const precioEsperadoAnterior =
       metodoAnterior === "efectivo"
         ? clienteActual?.precioEfectivoPorLitro || config.precioEfectivoPorLitro
@@ -1670,7 +1670,7 @@ export function EntregaForm({
                   setMetodoPago("efectivo");
                   setMontoTransferencia("");
                   // Actualizar precio según método
-                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) ?? null : null;
                   const precioEfectivo = clienteActual?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
                   aplicarPrecioSegunMetodo("efectivo", clienteActual);
                   // Calcular el total con el precio efectivo y auto-llenar
@@ -1696,7 +1696,7 @@ export function EntregaForm({
                 onClick={() => {
                   setMetodoPago("transferencia");
                   setMontoEfectivo("");
-                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) ?? null : null;
                   const precioTransf = clienteActual?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
                   aplicarPrecioSegunMetodo("transferencia", clienteActual);
                   const nuevoTotal = Math.ceil((litrosFinal * precioTransf) / 100) * 100;
@@ -1724,7 +1724,7 @@ export function EntregaForm({
                   setMontoTransferencia("");
                   // Sin pago: usar el precio MÁS ALTO para generar deuda correcta
                   // El usuario puede ajustar el precio al momento de cobrar
-                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+                  const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) ?? null : null;
                   aplicarPrecioSegunMetodo("credito", clienteActual);
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${

@@ -44,6 +44,8 @@ export async function GET(req: NextRequest) {
     montoPorVueltaUnicoCliente: 20000,
     montoPorVueltaMultiple: 25000,
     capacidadCamion: 17000,
+    porcentajeComisionChofer: 50,
+    porcentajeComisionDueno: 50,
   };
 
   const totalVentas = entregas.reduce((s, e) => s + e.total, 0);

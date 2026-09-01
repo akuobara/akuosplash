@@ -121,7 +121,25 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // Si es cliente existente, autollenar datos
-    let clienteData: Record<string, unknown> = {};
+    let clienteData: {
+      clienteId: string | null;
+      clienteNombre: string;
+      clienteDireccion: string | null;
+      clienteTelefono: string | null;
+      clienteZona: string | null;
+      clienteLat: number | null;
+      clienteLng: number | null;
+      indicacionesAcceso: string | null;
+    } = {
+      clienteId: null,
+      clienteNombre: "Sin nombre",
+      clienteDireccion: null,
+      clienteTelefono: null,
+      clienteZona: null,
+      clienteLat: null,
+      clienteLng: null,
+      indicacionesAcceso: null,
+    };
     let clienteId: string | null = null;
     if (body.clienteId && body.clienteId !== "__nuevo") {
       const cliente = await db.cliente.findUnique({ where: { id: body.clienteId } });

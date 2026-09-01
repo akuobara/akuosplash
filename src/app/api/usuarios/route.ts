@@ -87,9 +87,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Buscar usuario existente por email o teléfono
-    let existingUser = null;
+    let existingUser: Awaited<ReturnType<typeof db.usuario.findUnique>> = null;
     if (emailFinal) {
-      existingUser = await db.usuario.findUnique({ where: { email: emailFinal } });
+      existingUser = await db.usuario.findUnique({ where: { email: emailFinal as string } });
     }
     if (!existingUser && telefonoNormalizado) {
       existingUser = await db.usuario.findFirst({ where: { telefono: telefonoNormalizado } });
