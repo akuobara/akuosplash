@@ -9,19 +9,22 @@ export async function GET() {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const cliente = await db.cliente.findUnique({
+  const cliente = await db.clienteApp.findUnique({
     where: { id: session.clienteId },
     select: {
       id: true, nombre: true, email: true, telefono: true, rut: true,
-      direccion: true, zona: true,
+      direccion: true,
       lat: true, lng: true,
       requiereIngresoPropiedad: true, entregaDesdeAfuera: true, conexionExterna: true,
       requiereClientePresente: true, indicacionesAcceso: true,
       usoAgua: true, usoAguaNota: true,
       estanquesJson: true,
-      precioEfectivoPorLitro: true, precioTransferenciaPorLitro: true,
+      tiempoAceptacionPreferidoMin: true,
+      entregasExitosas: true,
+      saldo: true,
       activo: true,
-      dueno: { select: { id: true, nombre: true } },
+      zona: { select: { id: true, nombre: true, precioPorLitro: true } },
+      proveedorPreferido: { select: { id: true, nombre: true } },
     },
   });
 
@@ -29,5 +32,13 @@ export async function GET() {
     return NextResponse.json({ error: "Cuenta no disponible" }, { status: 403 });
   }
 
-  return NextResponse.json({ cliente });
+  // El cliente puede pagar en efectivo solo si tiene >= 10 entregas exitosas
+  const puedePagarEfectivo = cliente.entregasExitosas >= 10;
+
+  return NextResponse.json({
+    cliente: {
+      ...cliente,
+      puedePagarEfectivo,
+    },
+  });
 }

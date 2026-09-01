@@ -7,18 +7,16 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     if (!body.email?.trim() || !body.password) {
-      return NextResponse.json({ error: "Email y password son obligatorios" }, { status: 400 });
+      return NextResponse.json({ error: "Email y contraseña son obligatorios" }, { status: 400 });
     }
 
     const emailNorm = body.email.trim().toLowerCase();
-    const cliente = await db.cliente.findFirst({
-      where: { email: emailNorm, passwordHash: { not: null } },
-    });
+    const cliente = await db.clienteApp.findUnique({ where: { email: emailNorm } });
     if (!cliente || !cliente.passwordHash) {
       return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
     }
     if (!cliente.activo) {
-      return NextResponse.json({ error: "Tu cuenta está desactivada. Contactá a tu proveedor." }, { status: 403 });
+      return NextResponse.json({ error: "Tu cuenta está desactivada." }, { status: 403 });
     }
     if (!verifyPasswordCliente(String(body.password), cliente.passwordHash)) {
       return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 });
@@ -29,7 +27,7 @@ export async function POST(req: NextRequest) {
       clienteId: cliente.id,
       email: emailNorm,
       nombre: cliente.nombre,
-      duenoId: cliente.duenoId,
+      duenoId: cliente.proveedorPreferidoId || "",
     });
     await setSessionCookieCliente(token, isHttps);
 
@@ -38,6 +36,7 @@ export async function POST(req: NextRequest) {
         id: cliente.id,
         nombre: cliente.nombre,
         email: cliente.email,
+        saldo: cliente.saldo,
       },
       token,
     });

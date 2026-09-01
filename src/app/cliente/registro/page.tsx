@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Droplets, User, MapPin, Truck, Phone, Mail, Lock, KeyRound, Home } from "lucide-react";
+import { Droplets, User, MapPin, Phone, KeyRound, Home, Wallet } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { formatCurrency } from "@/lib/helpers";
 
 const USOS_AGUA = [
   { value: "consumo", label: "Consumo humano" },
@@ -21,9 +22,18 @@ const USOS_AGUA = [
   { value: "otro", label: "Otro" },
 ];
 
+interface Zona {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  precioPorLitro: number;
+}
+
 export default function RegistroClientePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [zonas, setZonas] = useState<Zona[]>([]);
+  const [cargandoZonas, setCargandoZonas] = useState(true);
 
   // Campos básicos
   const [nombre, setNombre] = useState("");
@@ -31,11 +41,10 @@ export default function RegistroClientePage() {
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [password, setPassword] = useState("");
-  const [codigoAdmin, setCodigoAdmin] = useState("");
+  const [zonaId, setZonaId] = useState("");
 
   // Ubicación
   const [direccion, setDireccion] = useState("");
-  const [zona, setZona] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
 
@@ -49,6 +58,17 @@ export default function RegistroClientePage() {
   // Uso del agua
   const [usoAgua, setUsoAgua] = useState("consumo");
   const [usoAguaNota, setUsoAguaNota] = useState("");
+
+  // Preferencia
+  const [tiempoAceptacionPreferidoMin, setTiempoAceptacionPreferidoMin] = useState("15");
+
+  useEffect(() => {
+    fetch("/api/cliente/zonas")
+      .then(r => r.json())
+      .then(data => setZonas(data.zonas || []))
+      .catch(() => toast.error("No se pudieron cargar las zonas"))
+      .finally(() => setCargandoZonas(false));
+  }, []);
 
   async function obtenerUbicacion() {
     if (!navigator.geolocation) {
@@ -67,8 +87,8 @@ export default function RegistroClientePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!nombre.trim() || !email.trim() || !password || !codigoAdmin.trim()) {
-      toast.error("Nombre, email, contraseña y código de administrador son obligatorios");
+    if (!nombre.trim() || !email.trim() || !password || !zonaId) {
+      toast.error("Nombre, email, contraseña y zona son obligatorios");
       return;
     }
 
@@ -78,17 +98,17 @@ export default function RegistroClientePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre, rut, email, telefono, password, codigoAdmin,
-          direccion, zona, lat, lng,
+          nombre, rut, email, telefono, password, zonaId,
+          direccion, lat, lng,
           requiereIngresoPropiedad, entregaDesdeAfuera, conexionExterna, requiereClientePresente,
           indicacionesAcceso,
           usoAgua, usoAguaNota,
+          tiempoAceptacionPreferidoMin,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudo registrar");
 
-      // Guardar token del cliente en localStorage
       if (data.token && typeof window !== "undefined") {
         localStorage.setItem("aljibe-cliente-token", data.token);
       }
@@ -100,6 +120,8 @@ export default function RegistroClientePage() {
       setLoading(false);
     }
   }
+
+  const zonaSeleccionada = zonas.find(z => z.id === zonaId);
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -121,7 +143,7 @@ export default function RegistroClientePage() {
         <div>
           <h1 className="text-xl font-bold">Crear cuenta de cliente</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Completá tus datos. Vas a poder ver tu historial de entregas.
+            Completá tus datos para pedir agua y ver tu historial.
           </p>
         </div>
 
@@ -157,35 +179,41 @@ export default function RegistroClientePage() {
             </CardContent>
           </Card>
 
-          {/* Vinculación con admin */}
+          {/* Zona */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><KeyRound className="h-4 w-4" /> Vincular con tu proveedor</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" /> Tu zona</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <div>
-                <Label className="text-xs">Código de administrador *</Label>
-                <Input value={codigoAdmin} onChange={(e) => setCodigoAdmin(e.target.value)} placeholder="Ej: ALJIBE-VM" className="uppercase" />
+                <Label className="text-xs">Zona *</Label>
+                {cargandoZonas ? (
+                  <p className="text-xs text-muted-foreground">Cargando zonas…</p>
+                ) : zonas.length === 0 ? (
+                  <p className="text-xs text-amber-600">No hay zonas configuradas todavía. Volvé más tarde.</p>
+                ) : (
+                  <select
+                    value={zonaId}
+                    onChange={(e) => setZonaId(e.target.value)}
+                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="">Elegí tu zona…</option>
+                    {zonas.map(z => (
+                      <option key={z.id} value={z.id}>
+                        {z.nombre} — {formatCurrency(z.precioPorLitro)}/L
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Pedile a tu proveedor de agua su código único para vincular tu cuenta con él.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Ubicación */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" /> Ubicación</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+              {zonaSeleccionada && (
+                <p className="text-xs text-muted-foreground">
+                  Precio en tu zona: <strong>{formatCurrency(zonaSeleccionada.precioPorLitro)}</strong> por litro (incluye 10% comisión de la app).
+                </p>
+              )}
               <div>
                 <Label className="text-xs">Dirección</Label>
                 <Input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Calle, número, depto" />
-              </div>
-              <div>
-                <Label className="text-xs">Zona / Población</Label>
-                <Input value={zona} onChange={(e) => setZona(e.target.value)} placeholder="Ej: Villa Los Alerces" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -227,7 +255,7 @@ export default function RegistroClientePage() {
                 <Switch checked={conexionExterna} onCheckedChange={setConexionExterna} />
                 <div>
                   <p className="font-medium">Hay conexión/llave de paso externa</p>
-                  <p className="text-xs text-muted-foreground">Llave accesible desde afuera, no hace falta entrar</p>
+                  <p className="text-xs text-muted-foreground">Llave accesible desde afuera</p>
                 </div>
               </label>
               <label className="flex items-start gap-3 text-sm">
@@ -239,7 +267,7 @@ export default function RegistroClientePage() {
               </label>
               <div>
                 <Label className="text-xs">Indicaciones de acceso</Label>
-                <Textarea value={indicacionesAcceso} onChange={(e) => setIndicacionesAcceso(e.target.value)} placeholder="Ej: Portón verde, el estanque está atrás, llave bajo la maceta..." rows={3} />
+                <Textarea value={indicacionesAcceso} onChange={(e) => setIndicacionesAcceso(e.target.value)} placeholder="Ej: Portón verde, el estanque está atrás…" rows={3} />
               </div>
             </CardContent>
           </Card>
@@ -261,18 +289,41 @@ export default function RegistroClientePage() {
                 </select>
               </div>
               <div>
-                <Label className="text-xs">Detalle del uso (opcional)</Label>
+                <Label className="text-xs">Detalle (opcional)</Label>
                 <Input value={usoAguaNota} onChange={(e) => setUsoAguaNota(e.target.value)} placeholder="Ej: 2 estanques de 5000 L" />
               </div>
             </CardContent>
           </Card>
 
-          <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {/* Preferencias */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2"><KeyRound className="h-4 w-4" /> Preferencias de pedido</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div>
+                <Label className="text-xs">Tiempo para que tu proveedor preferido acepte (minutos)</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="120"
+                  value={tiempoAceptacionPreferidoMin}
+                  onChange={(e) => setTiempoAceptacionPreferidoMin(e.target.value)}
+                  placeholder="15"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Si ya tenés un proveedor preferido (alguien que ya te entregó), tendrá este tiempo para aceptar tu pedido antes de que caiga al pool general.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Button type="submit" size="lg" className="w-full" disabled={loading || !zonaId}>
             {loading ? "Creando cuenta..." : "Crear cuenta"}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground pb-4">
-            Al registrarte aceptás compartir estos datos con tu proveedor de agua para que pueda gestionar tus entregas.
+            Al registrarte aceptás los términos de uso del servicio.
           </p>
         </form>
       </main>
