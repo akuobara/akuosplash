@@ -767,8 +767,9 @@ function DownloadButton({ label, icon, url, filename }: { label: string; icon: R
     try {
       // Obtener token del localStorage (mismo mecanismo que api-client)
       const token = typeof window !== "undefined" ? localStorage.getItem("aljibe-token") : null;
-      const res = await fetch(url, {
+      const res = await fetch(`${url}&_t=${Date.now()}`, {
         credentials: "include",
+        cache: "no-store",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) {
