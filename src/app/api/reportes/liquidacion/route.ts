@@ -97,7 +97,12 @@ export async function GET(req: NextRequest) {
       const umbral = (cfg as any).umbralCompletacionVuelta || 0.975;
       const completadaAuto = esVueltaCompletada(litros, capacidadCamion, numEntregas, umbral, v.cerradaEn, (v as any).validadaManualmente);
       const validadaManualmente = (v as any).validadaManualmente;
-      const esValida = validadaManualmente !== null && validadaManualmente !== undefined ? validadaManualmente : completadaAuto;
+      // Una vuelta es válida para pago si:
+      // - fue validada manualmente (true), O
+      // - está cerrada (cerradaEn no es null), O
+      // - cumple el umbral automático
+      // (completadaAuto ya considera cerradaEn y validadaManualmente internamente)
+      const esValida = validadaManualmente === true || !!v.cerradaEn || completadaAuto;
       return {
         id: v.id, numero: v.numero, iniciadaEn: v.iniciadaEn, cerradaEn: v.cerradaEn,
         camion: v.camion, chofer: v.chofer,

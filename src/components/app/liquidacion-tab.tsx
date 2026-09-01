@@ -231,480 +231,256 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
 
   return (
     <div className="space-y-5">
-      {/* Selector de vista: período configurado vs libre */}
+      {/* Selector de período */}
       <Card>
         <CardContent className="p-3">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant={vistaPeriodo ? "default" : "outline"}
-                onClick={() => setVistaPeriodo(true)}
-              >
-                Por período configurado
-              </Button>
-              <Button
-                size="sm"
-                variant={!vistaPeriodo ? "default" : "outline"}
-                onClick={() => setVistaPeriodo(false)}
-              >
-                Vista libre
+          <div className="flex items-center justify-between gap-2">
+            <Button size="sm" variant="outline" onClick={() => setPeriodoOffset(o => o - 1)}>
+              <ChevronLeft className="h-4 w-4" /> Anterior
+            </Button>
+            <div className="text-center min-w-[180px]">
+              <p className="text-xs text-muted-foreground">
+                {periodoData?.config?.periodoLiquidacion === "semanal" ? "Semana" : "Mes"}
+              </p>
+              <p className="text-sm font-semibold">
+                {periodoData?.periodo?.label || "Cargando..."}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setPeriodoOffset(o => Math.min(0, o + 1))}
+              disabled={periodoOffset >= 0}
+            >
+              Siguiente <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          {periodoOffset !== 0 && (
+            <div className="mt-2 text-center">
+              <Button size="sm" variant="ghost" onClick={() => setPeriodoOffset(0)}>
+                Volver al período actual
               </Button>
             </div>
-            {vistaPeriodo && periodoData?.periodo && (
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => setPeriodoOffset(o => o - 1)}>
-                  <ChevronLeft className="h-4 w-4" /> Anterior
-                </Button>
-                <div className="text-center min-w-[180px]">
-                  <p className="text-xs text-muted-foreground">
-                    {periodoData.config?.periodoLiquidacion === "semanal" ? "Semana" : "Mes"}
-                  </p>
-                  <p className="text-sm font-semibold">{periodoData.periodo.label}</p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setPeriodoOffset(o => Math.min(0, o + 1))}
-                  disabled={periodoOffset >= 0}
-                >
-                  Siguiente <ChevronRight className="h-4 w-4" />
-                </Button>
-                {periodoOffset !== 0 && (
-                  <Button size="sm" variant="ghost" onClick={() => setPeriodoOffset(0)}>
-                    Actual
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-          {vistaPeriodo && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              {periodoData?.config?.periodoLiquidacion === "semanal"
-                ? "Semana de domingo a sábado. Configurá el día de cierre en Ajustes."
-                : "Mes calendario (día 1 al último día del mes)."}
-            </p>
           )}
         </CardContent>
       </Card>
 
-      {/* Vista por período configurado */}
-      {vistaPeriodo && periodoData && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">
-              Liquidación — {periodoData.periodo.label}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {periodoLoading ? (
-              <Skeleton className="h-40 rounded" />
-            ) : (
-              <>
-                {/* Resumen del período */}
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 text-sm">
-                  <div className="rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Ventas</p>
-                    <p className="font-bold">{formatCurrency(periodoData.resumen.totalVentas)}</p>
-                  </div>
-                  <div className="rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Litros</p>
-                    <p className="font-bold">{formatNumber(periodoData.resumen.totalLitros, 0)} L</p>
-                  </div>
-                  <div className="rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Efectivo</p>
-                    <p className="font-bold">{formatCurrency(periodoData.resumen.totalEfectivo)}</p>
-                  </div>
-                  <div className="rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Transferencia</p>
-                    <p className="font-bold">{formatCurrency(periodoData.resumen.totalTransferencia)}</p>
-                  </div>
-                </div>
-
-                {/* Gastos y liquidación */}
+      {periodoLoading || !periodoData ? (
+        <Skeleton className="h-64 rounded-xl" />
+      ) : (
+        <>
+          {/* Resumen de vueltas y pago al chofer */}
+          <Card className="border-primary/30 bg-primary/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Liquidación del chofer</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {/* Vueltas válidas */}
+              <div className="space-y-2">
+                <p className="text-xs font-medium uppercase text-muted-foreground">Vueltas del período</p>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div className="rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Gastos totales</p>
-                    <p className="font-bold">{formatCurrency(periodoData.resumen.totalGastos)}</p>
-                    <p className="text-xs text-muted-foreground">Chofer: {formatCurrency(periodoData.resumen.gastosChofer)}</p>
-                    <p className="text-xs text-muted-foreground">Dueño: {formatCurrency(periodoData.resumen.gastosDueno)}</p>
+                    <p className="text-xs text-muted-foreground">Vueltas válidas</p>
+                    <p className="text-lg font-bold text-emerald-600">{periodoData.resumen.vueltasCompletadas}</p>
                   </div>
                   <div className="rounded border p-2">
-                    <p className="text-xs text-muted-foreground">Utilidad bruta</p>
-                    <p className="font-bold">{formatCurrency(periodoData.resumen.utilidadBruta)}</p>
+                    <p className="text-xs text-muted-foreground">Total vueltas</p>
+                    <p className="text-lg font-bold">{periodoData.resumen.vueltasTotal}</p>
                   </div>
                 </div>
-
-                {/* Liquidación chofer */}
-                <div className="rounded border border-emerald-300 bg-emerald-50 dark:bg-emerald-900/10 p-3 space-y-1 text-sm">
-                  <p className="font-medium text-emerald-800 dark:text-emerald-300">
-                    Liquidación del chofer ({labelModoLiquidacion(periodoData.config.modoLiquidacion)})
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Pago chofer</p>
-                      <p className="font-bold">{formatCurrency(periodoData.resumen.pagoChofer)}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Gastos reembolsables</p>
-                      <p className="font-bold">{formatCurrency(periodoData.resumen.gastosChofer)}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Descuentos</p>
-                      <p className="font-bold">{formatCurrency(periodoData.resumen.descuentosChofer)}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Impuesto</p>
-                      <p className="font-bold">{formatCurrency(periodoData.resumen.impuesto)}</p>
-                    </div>
-                  </div>
-                  <div className="border-t border-emerald-300 pt-2 mt-2">
-                    <p className="text-xs text-muted-foreground">Líquido chofer (antes de efectivo)</p>
-                    <p className="text-lg font-bold">{formatCurrency(periodoData.resumen.liquidoChofer)}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      − Efectivo recibido: {formatCurrency(periodoData.resumen.totalEfectivo)}
-                    </p>
-                    <p className={`text-base font-bold ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
-                      {periodoData.resumen.saldoChofer >= 0
-                        ? `Dueño debe al chofer: ${formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}`
-                        : `Chofer debe al dueño: ${formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}`}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Vueltas del período */}
-                <div>
-                  <p className="text-xs font-medium uppercase text-muted-foreground mb-2">
-                    Vueltas ({periodoData.vueltas?.length || 0} totales, {periodoData.resumen.vueltasCompletadas} completadas)
-                  </p>
-                  {periodoData.vueltas && periodoData.vueltas.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="border-b text-left text-muted-foreground">
-                            <th className="p-2">#</th>
-                            <th className="p-2">Inicio</th>
-                            <th className="p-2">Cierre</th>
-                            <th className="p-2">Camión</th>
-                            <th className="p-2">Chofer</th>
-                            <th className="p-2">Entregas</th>
-                            <th className="p-2">Litros</th>
-                            <th className="p-2">Ventas</th>
-                            <th className="p-2">Compl.</th>
-                            <th className="p-2">Pago</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {periodoData.vueltas.map((v: any) => (
-                            <tr key={v.id} className="border-b last:border-0">
-                              <td className="p-2">{v.numero}</td>
-                              <td className="p-2 whitespace-nowrap">{formatDateTime(v.iniciadaEn)}</td>
-                              <td className="p-2 whitespace-nowrap">{v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso"}</td>
-                              <td className="p-2">{v.camion}</td>
-                              <td className="p-2">{v.chofer}</td>
-                              <td className="p-2">{v.cantidadEntregas}</td>
-                              <td className="p-2">{formatNumber(v.litros, 0)} L</td>
-                              <td className="p-2">{formatCurrency(v.ventas)}</td>
-                              <td className="p-2">{v.completada ? "Sí" : "No"}</td>
-                              <td className="p-2">{formatCurrency(v.pagoVuelta)}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground py-2">Sin vueltas en este período.</p>
-                  )}
-                </div>
-
-                {/* Gastos del período */}
-                {periodoData.gastos && periodoData.gastos.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium uppercase text-muted-foreground mb-2">
-                      Gastos del período ({periodoData.gastos.length})
-                    </p>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="border-b text-left text-muted-foreground">
-                            <th className="p-2">Fecha</th>
-                            <th className="p-2">Tipo</th>
-                            <th className="p-2">Descripción</th>
-                            <th className="p-2">Monto</th>
-                            <th className="p-2">Pagado por</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {periodoData.gastos.map((g: any) => (
-                            <tr key={g.id} className="border-b last:border-0">
-                              <td className="p-2 whitespace-nowrap">{formatDateTime(g.fecha)}</td>
-                              <td className="p-2">{labelTipoGasto(g.tipo)}</td>
-                              <td className="p-2">{g.descripcion || "—"}</td>
-                              <td className="p-2">{formatCurrency(g.monto)}</td>
-                              <td className="p-2">{g.pagadoPor === "chofer" ? "Chofer" : "Dueño"}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Resumen mensual descargable */}
-      <Card>
-        <CardContent className="p-3">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs uppercase text-muted-foreground">Resumen mensual de liquidación</p>
-              <p className="text-sm font-medium">Descargá el resumen de cualquier mes para imposiciones y pagos</p>
-            </div>
-            <div className="flex flex-wrap items-end gap-2">
-              <div>
-                <Label className="text-xs">Mes</Label>
-                <select
-                  value={resumenMonth}
-                  onChange={(e) => setResumenMonth(Number(e.target.value))}
-                  className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-                >
-                  {MONTH_NAMES.map((m, i) => <option key={i} value={i}>{m}</option>)}
-                </select>
               </div>
-              <div>
-                <Label className="text-xs">Año</Label>
-                <Input
-                  type="number"
-                  value={resumenYear}
-                  onChange={(e) => setResumenYear(Number(e.target.value))}
-                  className="w-[100px] h-9"
-                />
+
+              {/* Pago al chofer según modo */}
+              {periodoData.config.modoLiquidacion === "vuelta" ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">Pago por vueltas válidas</p>
+                  <div className="rounded border p-2 space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Pago al chofer ({periodoData.resumen.vueltasCompletadas} vueltas)</span>
+                      <strong>{formatCurrency(periodoData.resumen.pagoChofer)}</strong>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>+ Gastos reembolsables (chofer)</span>
+                      <span>{formatCurrency(periodoData.resumen.gastosChofer)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>- Descuentos chofer</span>
+                      <span>{formatCurrency(periodoData.resumen.descuentosChofer)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>- Impuesto</span>
+                      <span>{formatCurrency(periodoData.resumen.impuesto)}</span>
+                    </div>
+                    <div className="border-t pt-1 flex justify-between font-medium">
+                      <span>Líquido chofer</span>
+                      <span>{formatCurrency(periodoData.resumen.liquidoChofer)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>- Efectivo recibido en ruta</span>
+                      <span>{formatCurrency(periodoData.resumen.totalEfectivo)}</span>
+                    </div>
+                    <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
+                      <span>{periodoData.resumen.saldoChofer >= 0 ? "Te deben" : "Debés"}</span>
+                      <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">Pago por porcentaje</p>
+                  <div className="rounded border p-2 space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Ventas</span>
+                      <span>{formatCurrency(periodoData.resumen.totalVentas)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>- Gastos</span>
+                      <span>{formatCurrency(periodoData.resumen.totalGastos)}</span>
+                    </div>
+                    <div className="flex justify-between font-medium">
+                      <span>Utilidad bruta</span>
+                      <span>{formatCurrency(periodoData.resumen.utilidadBruta)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Pago chofer ({periodoData.config.porcentajeComisionChofer}%)</span>
+                      <strong>{formatCurrency(periodoData.resumen.pagoChofer)}</strong>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>+ Gastos reembolsables</span>
+                      <span>{formatCurrency(periodoData.resumen.gastosChofer)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>- Impuesto</span>
+                      <span>{formatCurrency(periodoData.resumen.impuesto)}</span>
+                    </div>
+                    <div className="border-t pt-1 flex justify-between font-medium">
+                      <span>Líquido chofer</span>
+                      <span>{formatCurrency(periodoData.resumen.liquidoChofer)}</span>
+                    </div>
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>- Efectivo recibido</span>
+                      <span>{formatCurrency(periodoData.resumen.totalEfectivo)}</span>
+                    </div>
+                    <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
+                      <span>{periodoData.resumen.saldoChofer >= 0 ? "Te deben" : "Debés"}</span>
+                      <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Resumen financiero */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Resumen financiero del período</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+                <div className="rounded border p-2">
+                  <p className="text-xs text-muted-foreground">Ventas</p>
+                  <p className="font-bold">{formatCurrency(periodoData.resumen.totalVentas)}</p>
+                </div>
+                <div className="rounded border p-2">
+                  <p className="text-xs text-muted-foreground">Litros</p>
+                  <p className="font-bold">{formatNumber(periodoData.resumen.totalLitros, 0)} L</p>
+                </div>
+                <div className="rounded border p-2">
+                  <p className="text-xs text-muted-foreground">Efectivo</p>
+                  <p className="font-bold">{formatCurrency(periodoData.resumen.totalEfectivo)}</p>
+                </div>
+                <div className="rounded border p-2">
+                  <p className="text-xs text-muted-foreground">Transferencia</p>
+                  <p className="font-bold">{formatCurrency(periodoData.resumen.totalTransferencia)}</p>
+                </div>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => descargarResumenMensual("pdf")}
-                disabled={descargandoResumen}
-              >
-                {descargandoResumen ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <FileText className="mr-1 h-4 w-4" />} PDF
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => descargarResumenMensual("excel")}
-                disabled={descargandoResumen}
-              >
-                {descargandoResumen ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <FileSpreadsheet className="mr-1 h-4 w-4" />} Excel
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-      {/* Encabezado */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold sm:text-xl">Liquidación con la administración</h2>
-          <p className="text-sm text-muted-foreground">
-            {cfg ? (
-              <>Modo: <strong>{labelModoLiquidacion(cfg.modoLiquidacion)}</strong></>
-            ) : (
-              "Cargando…"
-            )}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={period} onValueChange={(v) => setPeriod(v as Period)}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PERIODS.map((p) => (
-                <SelectItem key={p.value} value={p.value}>
-                  {p.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="sm" onClick={() => setConfigOpen(true)}>
-            <Receipt className="mr-1 h-4 w-4" /> Cambiar modo
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => window.print()}>
-            <Printer className="mr-1 h-4 w-4" /> Imprimir
-          </Button>
-          <a href={`/api/reportes/descargar?tipo=completo&formato=pdf&period=${period}`} target="_blank">
-            <Button variant="outline" size="sm">
-              <FileText className="mr-1 h-4 w-4" /> PDF
-            </Button>
-          </a>
-          <a href={`/api/reportes/descargar?tipo=completo&formato=excel&period=${period}`} target="_blank">
-            <Button variant="outline" size="sm">
-              <FileSpreadsheet className="mr-1 h-4 w-4" /> Excel
-            </Button>
-          </a>
-        </div>
-      </div>
-
-      {/* Tarjeta principal de liquidación */}
-      {loading || !r || !cfg ? (
-        <Skeleton className="h-64 rounded-xl" />
-      ) : esModoVuelta ? (
-        <LiquidacionVuelta r={r} cfg={cfg} period={period} />
-      ) : (
-        <LiquidacionPorcentaje r={r} cfg={cfg} period={period} />
-      )}
-
-      {/* KPIs secundarios */}
-      {r && (
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <StatCard
-            label="Ventas totales"
-            value={formatCurrency(r.totalVentas)}
-            icon={TrendingUp}
-            tone="positive"
-          />
-          <StatCard
-            label="Efectivo en ruta"
-            value={formatCurrency(r.totalEfectivoRecibido)}
-            icon={Banknote}
-            tone="accent"
-          />
-          <StatCard
-            label="Transferencia"
-            value={formatCurrency(r.totalTransferenciaRecibida)}
-            icon={Smartphone}
-          />
-          <StatCard
-            label="Por cobrar"
-            value={formatCurrency(r.totalPorCobrar)}
-            icon={HandCoins}
-            tone={r.totalPorCobrar > 0 ? "warning" : "default"}
-          />
-        </div>
-      )}
-
-      {/* Gastos por pagador */}
-      {r && r.totalGastos > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatCard
-            label="Gastos totales"
-            value={formatCurrency(r.totalGastos)}
-            icon={TrendingDown}
-            tone="negative"
-          />
-          <StatCard
-            label="Pagados por chofer"
-            value={formatCurrency(r.gastosChofer)}
-            hint={esModoVuelta ? "Reembolsables" : undefined}
-            icon={Wallet}
-            tone="warning"
-          />
-          <StatCard
-            label="Pagados por administración"
-            value={formatCurrency(r.gastosDueno)}
-            icon={Receipt}
-          />
-        </div>
-      )}
-
-      {/* Detalle de vueltas (solo en modo vuelta) */}
-      {esModoVuelta && data && (
-        <>
-          {/* Aviso de vueltas excluidas */}
-          {data.vueltasExcluidas && data.vueltasExcluidas.length > 0 && (
-            <Card className="border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-2">
-                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-                      {data.vueltasExcluidas.length} vuelta{data.vueltasExcluidas.length !== 1 ? "s" : ""} sin completar — no cuentan para el pago
-                    </p>
-                    <p className="mt-0.5 text-xs text-amber-900 dark:text-amber-200">
-                      Una vuelta se considera válida cuando se entrega al menos el 97.5% de la capacidad del camión.
-                      {" "}Las vueltas listadas abajo se cerraron sin alcanzar ese umbral.
-                    </p>
-                    <ul className="mt-2 space-y-1 text-xs">
-                      {data.vueltasExcluidas.map((v) => (
-                        <li key={v.id} className="flex items-center justify-between gap-2 rounded bg-white/60 px-2 py-1 dark:bg-black/20">
-                          <span className="text-amber-900 dark:text-amber-200">
-                            <strong>#{v.numero}</strong> · {v.cantidadEntregas} entrega(s) ·{" "}
-                            {formatNumber(v.litros, 0)} L de {formatNumber(v.capacidadCamion, 0)} L
-                            {" ("}{v.porcentajeCompletado?.toFixed(0) ?? 0}%{")"}
-                          </span>
-                          <span className="text-amber-700 dark:text-amber-300 tabular-nums">
-                            Excluida — {formatCurrency(v.montoPago)}
-                          </span>
-                        </li>
+          {/* Vueltas del período */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">
+                Vueltas ({periodoData.vueltas?.length || 0})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {periodoData.vueltas && periodoData.vueltas.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="p-2">#</th>
+                        <th className="p-2">Inicio</th>
+                        <th className="p-2">Cierre</th>
+                        <th className="p-2">Camión</th>
+                        <th className="p-2">Entregas</th>
+                        <th className="p-2">Litros</th>
+                        <th className="p-2">Ventas</th>
+                        <th className="p-2">¿Válida?</th>
+                        <th className="p-2">Pago</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {periodoData.vueltas.map((v: any) => (
+                        <tr key={v.id} className="border-b last:border-0">
+                          <td className="p-2">{v.numero}</td>
+                          <td className="p-2 whitespace-nowrap">{formatDateTime(v.iniciadaEn)}</td>
+                          <td className="p-2 whitespace-nowrap">{v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso"}</td>
+                          <td className="p-2">{v.camion}</td>
+                          <td className="p-2">{v.cantidadEntregas}</td>
+                          <td className="p-2">{formatNumber(v.litros, 0)} L</td>
+                          <td className="p-2">{formatCurrency(v.ventas)}</td>
+                          <td className="p-2">
+                            {v.completada
+                              ? <span className="text-emerald-600 font-medium">Sí</span>
+                              : <span className="text-amber-600">No</span>}
+                          </td>
+                          <td className="p-2 font-medium">{formatCurrency(v.pagoVuelta)}</td>
+                        </tr>
                       ))}
-                    </ul>
-                  </div>
+                    </tbody>
+                  </table>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              ) : (
+                <p className="text-sm text-muted-foreground py-4 text-center">Sin vueltas en este período.</p>
+              )}
+            </CardContent>
+          </Card>
 
-          {data.vueltas.length > 0 && (
+          {/* Gastos del período */}
+          {periodoData.gastos && periodoData.gastos.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <Repeat className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-base">
-                    Vueltas válidas para liquidación ({data.vueltas.length})
-                  </CardTitle>
-                </div>
+                <CardTitle className="text-base">
+                  Gastos del período ({periodoData.gastos.length})
+                </CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
-                <ul className="divide-y divide-border">
-                  {data.vueltas.map((v) => (
-                    <li key={v.id} className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg font-bold ${
-                          v.esMultiple
-                            ? "bg-primary/10 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}>
-                          #{v.numero}
-                        </div>
-                        <div>
-                          <p className="font-medium flex items-center gap-1.5 flex-wrap">
-                            Vuelta #{v.numero}
-                            <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                              <CheckCircle2 className="h-2.5 w-2.5" /> Completada
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              ({v.esMultiple ? "múltiples clientes" : "cliente único"})
-                            </span>
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDateTime(v.iniciadaEn)}
-                            {v.cerradaEn ? ` → ${formatDateTime(v.cerradaEn)}` : " · En curso"}
-                            {v.camion && ` · ${v.camion.nombre}`}
-                            {" · "}
-                            {v.cantidadEntregas} entrega(s) · {formatNumber(v.litros, 0)} L entregados
-                            {v.capacidadCamion > 0 && (
-                              <> de {formatNumber(v.capacidadCamion, 0)} L ({v.porcentajeCompletado?.toFixed(0) ?? 100}%)</>
-                            )}
-                            {" · "}
-                            {formatCurrency(v.ventas)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs uppercase text-muted-foreground">Pago al chofer</p>
-                        <p className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
-                          {formatCurrency(v.montoPago)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <div className="border-t border-border bg-muted/30 p-3 text-right text-sm">
-                  <span className="text-muted-foreground">Total pago al chofer por vueltas válidas: </span>
-                  <span className="font-bold tabular-nums">{formatCurrency(r?.pagoChofer ?? 0)}</span>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="p-2">Fecha</th>
+                        <th className="p-2">Tipo</th>
+                        <th className="p-2">Descripción</th>
+                        <th className="p-2">Monto</th>
+                        <th className="p-2">Pagado por</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {periodoData.gastos.map((g: any) => (
+                        <tr key={g.id} className="border-b last:border-0">
+                          <td className="p-2 whitespace-nowrap">{formatDateTime(g.fecha)}</td>
+                          <td className="p-2">{labelTipoGasto(g.tipo)}</td>
+                          <td className="p-2">{g.descripcion || "—"}</td>
+                          <td className="p-2">{formatCurrency(g.monto)}</td>
+                          <td className="p-2">{g.pagadoPor === "chofer" ? "Chofer" : "Dueño"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </CardContent>
             </Card>
@@ -712,55 +488,6 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
         </>
       )}
 
-      {/* Desglose de gastos por tipo */}
-      {data && data.gastosPorTipo.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Gastos por tipo</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {data.gastosPorTipo.map((g) => (
-              <div
-                key={g.tipo}
-                className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3"
-              >
-                <span className="text-sm">{g.label}</span>
-                <span className="font-semibold tabular-nums">{formatCurrency(g.monto)}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Top clientes */}
-      {data && data.topClientes.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-primary" />
-              <CardTitle className="text-base">Top clientes del período</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ul className="divide-y divide-border">
-              {data.topClientes.map((c, i) => (
-                <li key={c.nombre} className="flex items-center gap-3 p-3 sm:p-4">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{c.nombre}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {c.entregas} entrega{c.entregas !== 1 ? "s" : ""} · {formatNumber(c.litros, 0)} L
-                    </p>
-                  </div>
-                  <span className="font-semibold tabular-nums">{formatCurrency(c.total)}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Modal de configuración rápida */}
       <ConfigModal
