@@ -214,8 +214,8 @@ function generarExcel(period: string, data: any) {
     ws["!cols"] = widths.map(w => ({ wch: w }));
   }
 
-  // === HOJA 1: Resumen (ventas + cobros + gastos) ===
-  const resumenRows = [
+  // === TODO EN UNA SOLA HOJA ===
+  const rows: any[] = [
     ["Resumen diario - Aljibe App"],
     [`Periodo: ${period}`],
     [`Generado: ${formatNowCL()} (hora Chile)`],
@@ -234,38 +234,21 @@ function generarExcel(period: string, data: any) {
     ["Transferencia", data.transferenciaTotal],
     ["Pendiente", data.totalPorCobrar],
     [],
+    ["3. CLIENTES CON CANTIDAD ENTREGADA"],
+    ["Cliente", "Entregas", "Litros", "Total vendido", "Recibido", "Saldo"],
+    ...data.clientesEntrega.map((c: any) => [c.nombre, c.entregas, c.litros, c.ventas, c.recibido, c.saldo]),
+    ["TOTAL", data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0), data.totalLitros, data.totalVentas, data.totalRecibido, data.totalPorCobrar],
+    [],
     ["4. GASTOS"],
     ["Tipo de gasto", "Monto"],
     ...data.gastosPorTipo.map((g: any) => [g.tipo, g.monto]),
     ["Total", data.totalGastos],
   ];
-  const wsResumen = XLSX.utils.aoa_to_sheet(resumenRows);
-  setColWidths(wsResumen, [40, 18]);
-  XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen");
 
-  // === HOJA 2: Clientes con cantidad entregada ===
-  const clientesRows = [
-    ["Cliente", "Entregas", "Litros", "Total vendido", "Recibido", "Saldo"],
-    ...data.clientesEntrega.map((c: any) => [c.nombre, c.entregas, c.litros, c.ventas, c.recibido, c.saldo]),
-    [],
-    ["TOTAL", data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0), data.totalLitros, data.totalVentas, data.totalRecibido, data.totalPorCobrar],
-  ];
-  const wsClientes = XLSX.utils.aoa_to_sheet(clientesRows);
-  setColWidths(wsClientes, [24, 10, 10, 14, 14, 14]);
-  XLSX.utils.book_append_sheet(wb, wsClientes, "Clientes");
-
-  // === HOJA 3: Gastos detallados (por si quiere ver el detalle) ===
-  if (data.gastos.length > 0) {
-    const gastosRows = [
-      ["Fecha", "Tipo", "Descripción", "Monto"],
-      ...data.gastos.map((g: any) => [formatDateTime(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "", g.monto]),
-      [],
-      ["Total", "", "", data.totalGastos],
-    ];
-    const wsGastos = XLSX.utils.aoa_to_sheet(gastosRows);
-    setColWidths(wsGastos, [18, 16, 30, 12]);
-    XLSX.utils.book_append_sheet(wb, wsGastos, "Gastos detalle");
-  }
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // Anchos de columna para que se vea todo sin cortar
+  setColWidths(ws, [24, 14, 10, 14, 14, 14]);
+  XLSX.utils.book_append_sheet(wb, ws, "Resumen");
 
   const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
   return new NextResponse(buffer, {
