@@ -38,19 +38,18 @@ export async function GET(req: NextRequest) {
   function getPeriodoRange(offsetNum: number): { start: Date; end: Date; label: string } {
     const now = new Date();
     if (periodo === "semanal") {
-      // Semana domingo a sábado. offset=-1 = semana anterior
-      const diaCierre = cfg.diaCierreSemana ?? 6; // 6 = sábado
-      // Encontrar el último día de cierre <= hoy
+      // Semana de domingo a sábado. offset=0 = semana actual (la que contiene hoy)
+      // offset=-1 = semana anterior, etc.
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const todayDow = today.getDay();
-      let diff = todayDow - diaCierre;
-      if (diff < 0) diff += 7;
-      const endCierre = new Date(today);
-      endCierre.setDate(today.getDate() - diff + 7 * offsetNum);
-      const start = new Date(endCierre);
-      start.setDate(endCierre.getDate() - 6);
+      const todayDow = today.getDay(); // 0=domingo, 1=lunes, ..., 6=sabado
+      // Inicio de la semana actual = hoy - todayDow (domingo)
+      const startCurrent = new Date(today);
+      startCurrent.setDate(today.getDate() - todayDow + 7 * offsetNum);
+      const start = startCurrent;
+      const endCierre = new Date(start);
+      endCierre.setDate(start.getDate() + 6); // sábado
       const end = new Date(endCierre);
-      end.setDate(endCierre.getDate() + 1); // exclusive
+      end.setDate(endCierre.getDate() + 1); // exclusive (domingo siguiente)
       const label = `Semana ${start.getDate()}/${start.getMonth() + 1} - ${endCierre.getDate()}/${endCierre.getMonth() + 1}/${endCierre.getFullYear()}`;
       return { start, end, label };
     } else {
@@ -58,8 +57,10 @@ export async function GET(req: NextRequest) {
       // offset=0 = mes actual, offset=-1 = mes anterior
       const baseMonth = now.getMonth() + offsetNum;
       const baseYear = now.getFullYear();
-      const start = new Date(baseYear, baseMonth, 1);
-      const end = new Date(baseYear, baseMonth + 1, 1);
+      // Ajustar año si el mes se va de rango
+      const adjustedDate = new Date(baseYear, baseMonth, 1);
+      const start = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), 1);
+      const end = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth() + 1, 1);
       const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
       const label = `${monthNames[start.getMonth()]} ${start.getFullYear()}`;
       return { start, end, label };
