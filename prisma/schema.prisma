@@ -99,6 +99,10 @@ model Cliente {
   duenoId       String
   dueno         Usuario  @relation("ClienteDueno", fields: [duenoId], references: [id])
 
+  // === Acceso cliente (app /cliente) ===
+  passwordHash  String?  // null = no puede loguearse en la app cliente
+  activo        Boolean  @default(true)
+
   entregas      Entrega[]
   pedidos       Pedido[]
   pedidosRecurrentes PedidoRecurrente[]
@@ -433,4 +437,7 @@ model Configuracion {
   diaCierreMes                Int     @default(0)
   // Dia de cierre de la semana (0=domingo, 1=lunes, ..., 6=sabado). Por defecto 6 (sabado)
   diaCierreSemana             Int     @default(6)
+
+  // === Codigo de vinculación para que clientes se registren ===
+  codigoVinculacion           String?  // codigo unico que el dueño comparte a sus clientes
 }
