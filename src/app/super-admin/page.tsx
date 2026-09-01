@@ -237,26 +237,41 @@ export default function SuperAdminPage() {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-6 space-y-6">
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant={tab === "dashboard" ? "default" : "outline"} onClick={() => setTab("dashboard")}>
-            <Activity className="mr-1 h-4 w-4" /> Resumen
-          </Button>
-          <Button size="sm" variant={tab === "administradores" ? "default" : "outline"} onClick={() => setTab("administradores")}>
-            <Users className="mr-1 h-4 w-4" /> Administradores
-          </Button>
-          <Button size="sm" variant={tab === "usuarios" ? "default" : "outline"} onClick={() => setTab("usuarios")}>
-            <UserCheck className="mr-1 h-4 w-4" /> Usuarios
-          </Button>
-          <Button size="sm" variant={tab === "buscar" ? "default" : "outline"} onClick={() => setTab("buscar")}>
-            <Search className="mr-1 h-4 w-4" /> Buscar
-          </Button>
-          <Button size="sm" variant={tab === "entregas" ? "default" : "outline"} onClick={() => setTab("entregas")}>
-            <Droplets className="mr-1 h-4 w-4" /> Entregas global
-          </Button>
-          <Button size="sm" variant={tab === "pendientes" ? "default" : "outline"} onClick={() => setTab("pendientes")}>
-            <DollarSign className="mr-1 h-4 w-4" /> Pagos pendientes
-          </Button>
+        {/* Tabs - menú desplegable en celular, fila en desktop */}
+        <div className="flex gap-2">
+          <select
+            value={tab}
+            onChange={(e) => setTab(e.target.value as any)}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm font-medium sm:hidden"
+          >
+            <option value="dashboard">📊 Resumen</option>
+            <option value="administradores">👥 Administradores</option>
+            <option value="usuarios">👤 Usuarios</option>
+            <option value="buscar">🔍 Buscar</option>
+            <option value="entregas">💧 Entregas global</option>
+            <option value="pendientes">💰 Pagos pendientes</option>
+          </select>
+
+          <div className="hidden sm:flex sm:flex-wrap sm:gap-2">
+            <Button size="sm" variant={tab === "dashboard" ? "default" : "outline"} onClick={() => setTab("dashboard")}>
+              <Activity className="mr-1 h-4 w-4" /> Resumen
+            </Button>
+            <Button size="sm" variant={tab === "administradores" ? "default" : "outline"} onClick={() => setTab("administradores")}>
+              <Users className="mr-1 h-4 w-4" /> Administradores
+            </Button>
+            <Button size="sm" variant={tab === "usuarios" ? "default" : "outline"} onClick={() => setTab("usuarios")}>
+              <UserCheck className="mr-1 h-4 w-4" /> Usuarios
+            </Button>
+            <Button size="sm" variant={tab === "buscar" ? "default" : "outline"} onClick={() => setTab("buscar")}>
+              <Search className="mr-1 h-4 w-4" /> Buscar
+            </Button>
+            <Button size="sm" variant={tab === "entregas" ? "default" : "outline"} onClick={() => setTab("entregas")}>
+              <Droplets className="mr-1 h-4 w-4" /> Entregas global
+            </Button>
+            <Button size="sm" variant={tab === "pendientes" ? "default" : "outline"} onClick={() => setTab("pendientes")}>
+              <DollarSign className="mr-1 h-4 w-4" /> Pagos pendientes
+            </Button>
+          </div>
         </div>
 
         {/* Dashboard */}
