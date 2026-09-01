@@ -245,56 +245,62 @@ export function porcentajeCompletado(
 }
 
 // Devuelve un rango de fechas para el período solicitado
+// IMPORTANTE: usa zona horaria de Chile (America/Santiago) para que "hoy"
+// coincida con el día local del usuario, no con el día UTC del servidor.
 export function getRange(period: string): { start?: Date; end?: Date } {
-  const now = new Date();
+  // Obtener "hoy" en zona horaria Chile
+  const nowCL = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Santiago" }));
+  const year = nowCL.getFullYear();
+  const month = nowCL.getMonth();
+  const date = nowCL.getDate();
 
   if (period === "hoy") {
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const start = new Date(year, month, date);
+    const end = new Date(year, month, date + 1);
     return { start, end };
   }
   if (period === "ayer") {
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const start = new Date(year, month, date - 1);
+    const end = new Date(year, month, date);
     return { start, end };
   }
   if (period === "semana") {
     // Semana actual: domingo a sábado
-    const dayOfWeek = now.getDay(); // 0=domingo, 1=lunes, ...
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
+    const dayOfWeek = nowCL.getDay(); // 0=domingo, 1=lunes, ...
+    const start = new Date(year, month, date - dayOfWeek);
     const end = new Date(start);
     end.setDate(start.getDate() + 7);
     return { start, end };
   }
   if (period === "semana7") {
     // Últimos 7 días
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
-    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const start = new Date(year, month, date - 6);
+    const end = new Date(year, month, date + 1);
     return { start, end };
   }
   if (period === "mes") {
     // Mes actual: día 1 al último día
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const start = new Date(year, month, 1);
+    const end = new Date(year, month + 1, 1);
     return { start, end };
   }
   if (period === "mes_anterior") {
-    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const end = new Date(now.getFullYear(), now.getMonth(), 1);
+    const start = new Date(year, month - 1, 1);
+    const end = new Date(year, month, 1);
     return { start, end };
   }
   if (period === "mes3") {
     // Últimos 3 meses
-    const start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const start = new Date(year, month - 2, 1);
+    const end = new Date(year, month + 1, 1);
     return { start, end };
   }
   if (period.startsWith("custom:")) {
     // Formato: custom:YYYY-MM-DD:YYYY-MM-DD
     const parts = period.split(":");
     if (parts.length === 3) {
-      const start = new Date(parts[1] + "T00:00:00");
-      const end = new Date(parts[2] + "T23:59:59");
+      const start = new Date(parts[1] + "T00:00:00-04:00"); // hora Chile
+      const end = new Date(parts[2] + "T23:59:59-04:00");
       return { start, end };
     }
   }
