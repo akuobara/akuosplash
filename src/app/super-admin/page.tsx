@@ -631,22 +631,55 @@ function AdminDetalleView({ detalle }: { detalle: AdminDetalle }) {
 
       {/* Config */}
       {subtab === "config" && (
-        <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="space-y-3 text-sm">
           {detalle.config ? (
             <>
-              <Field label="Nombre dueño" value={detalle.config.nombreDueno || "—"} />
-              <Field label="Nombre chofer" value={detalle.config.nombreChofer || "—"} />
-              <Field label="Empresa" value={detalle.config.empresaRazonSocial || "—"} />
-              <Field label="RUT empresa" value={detalle.config.empresaRut || "—"} />
-              <Field label="Precio efectivo/L" value={formatCurrency(detalle.config.precioEfectivoPorLitro || 0)} />
-              <Field label="Precio transferencia/L" value={formatCurrency(detalle.config.precioTransferenciaPorLitro || 0)} />
-              <Field label="Capacidad camión" value={`${formatNumber(detalle.config.capacidadCamion || 0, 0)} L`} />
-              <Field label="Modo liquidación" value={detalle.config.modoLiquidacion || "—"} />
-              <Field label="% comisión chofer" value={`${detalle.config.porcentajeComisionChofer || 0}%`} />
-              <Field label="% comisión dueño" value={`${detalle.config.porcentajeComisionDueno || 0}%`} />
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Datos</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Field label="Nombre dueño" value={detalle.config.nombreDueno || "—"} />
+                  <Field label="Nombre chofer" value={detalle.config.nombreChofer || "—"} />
+                  <Field label="Empresa" value={detalle.config.empresaRazonSocial || "—"} />
+                  <Field label="RUT empresa" value={detalle.config.empresaRut || "—"} />
+                  <Field label="Capacidad camión" value={`${formatNumber(detalle.config.capacidadCamion || 0, 0)} L`} />
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Precios</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Field label="Precio efectivo/L" value={formatCurrency(detalle.config.precioEfectivoPorLitro || 0)} />
+                  <Field label="Precio transferencia/L" value={formatCurrency(detalle.config.precioTransferenciaPorLitro || 0)} />
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Pago al chofer</p>
+                <div className="rounded border p-2 space-y-1">
+                  {detalle.config.modoLiquidacion === "vuelta" ? (
+                    <>
+                      <p className="font-medium">Modo: Pago por vuelta completada</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Field label="Monto por vuelta (1 cliente)" value={formatCurrency(detalle.config.montoPorVueltaUnicoCliente || 0)} />
+                        <Field label="Monto por vuelta (varios clientes)" value={formatCurrency(detalle.config.montoPorVueltaMultiple || 0)} />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1">El chofer cobra un monto fijo por cada vuelta completada, según si entregó a 1 o varios clientes.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-medium">Modo: Porcentaje de utilidad</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Field label="% comisión chofer" value={`${detalle.config.porcentajeComisionChofer || 0}%`} />
+                        <Field label="% comisión dueño" value={`${detalle.config.porcentajeComisionDueno || 0}%`} />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1">El chofer cobra un porcentaje de la utilidad bruta (ventas - gastos).</p>
+                    </>
+                  )}
+                </div>
+              </div>
             </>
           ) : (
-            <p className="col-span-2 text-sm text-muted-foreground">Sin configuración</p>
+            <p className="text-sm text-muted-foreground">Sin configuración</p>
           )}
         </div>
       )}
