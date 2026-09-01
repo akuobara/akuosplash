@@ -90,6 +90,8 @@ interface Cliente {
   choferPreferidoId: string | null;
   choferPreferido?: { id: string; nombre: string } | null;
   _count?: { entregas: number };
+  // Deuda anterior a la app
+  deudaInicial?: number;
 }
 
 interface ClientesTabProps {
@@ -129,6 +131,8 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   // Estado para formulario de pago
   const [pagoOpen, setPagoOpen] = useState(false);
   const [pagoMonto, setPagoMonto] = useState("");
+  const [deudaInicialOpen, setDeudaInicialOpen] = useState(false);
+  const [deudaInicialMonto, setDeudaInicialMonto] = useState("");
   const [pagoMetodo, setPagoMetodo] = useState("efectivo");
   const [pagoNota, setPagoNota] = useState("");
   const [pagoPrecioEfectivo, setPagoPrecioEfectivo] = useState(false);
@@ -412,6 +416,31 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
       onRefresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo registrar el pago");
+    } finally {
+      setPagoSaving(false);
+    }
+  }
+
+  async function handleDeudaInicial(e: React.FormEvent) {
+    e.preventDefault();
+    if (!clienteDetalle) return;
+    const monto = Number(deudaInicialMonto) || 0;
+    if (monto < 0) {
+      toast.error("La deuda no puede ser negativa");
+      return;
+    }
+    setPagoSaving(true);
+    try {
+      await apiPatch(`/api/clientes/${clienteDetalle.id}`, { deudaInicial: monto });
+      toast.success(monto > 0 ? "Deuda anterior registrada" : "Deuda anterior eliminada");
+      setDeudaInicialOpen(false);
+      setDeudaInicialMonto("");
+      // Actualizar el clienteDetalle localmente
+      setClienteDetalle({ ...clienteDetalle, deudaInicial: monto } as any);
+      abrirDetalle(clienteDetalle);
+      onRefresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo registrar la deuda");
     } finally {
       setPagoSaving(false);
     }
@@ -1140,6 +1169,43 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         </DialogContent>
       </Dialog>
 
+      {/* Dialog: Registrar deuda anterior a la app */}
+      <Dialog open={deudaInicialOpen} onOpenChange={setDeudaInicialOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Deuda anterior a la app</DialogTitle>
+            <DialogDescription>
+              Registra lo que te debe el cliente de antes de usar la app. Así los pagos que recibas van a descontar de esta deuda en vez de quedar como saldo a favor.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleDeudaInicial} className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="deudaInicialMonto">Monto de la deuda ($)</Label>
+              <Input
+                id="deudaInicialMonto"
+                type="number"
+                min="0"
+                step="100"
+                value={deudaInicialMonto}
+                onChange={(e) => setDeudaInicialMonto(e.target.value)}
+                placeholder="Ej: 50000"
+              />
+              <p className="text-xs text-muted-foreground">
+                Poné 0 para eliminar la deuda anterior si ya está saldada.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setDeudaInicialOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={pagoSaving}>
+                {pagoSaving ? "Guardando…" : "Guardar"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Confirmar borrado */}
       <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>
         <DialogContent className="max-w-sm">
@@ -1170,7 +1236,8 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             const totalVentas = detalleEntregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
             const totalRecibido = detalleEntregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
             const totalPagosSueltos = detallePagos.reduce((s: number, p: any) => s + (p.monto || 0), 0);
-            const totalPorCobrar = totalVentas - totalRecibido - totalPagosSueltos;
+            const deudaInicial = (clienteDetalle as any).deudaInicial || 0;
+            const totalPorCobrar = deudaInicial + totalVentas - totalRecibido - totalPagosSueltos;
             const tieneDeuda = totalPorCobrar > 0.5; // tolerance
             const tieneSaldoFavor = totalPorCobrar < -0.5;
             const pedidosPendientes = detallePedidos.filter((p: any) => p.estado === "pendiente" || p.estado === "programado").length;
@@ -1212,6 +1279,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       <div>
                         <p className="text-sm font-semibold text-red-900 dark:text-red-200">Deuda pendiente</p>
                         <p className="text-xs text-red-700 dark:text-red-300">
+                          {deudaInicial > 0 ? `${formatCurrency(deudaInicial)} deuda anterior · ` : ""}
                           {totalVentas > 0 ? `${formatCurrency(totalVentas)} en ventas · ` : ""}
                           {totalRecibido > 0 ? `${formatCurrency(totalRecibido)} recibido · ` : ""}
                           {totalPagosSueltos > 0 ? `${formatCurrency(totalPagosSueltos)} en pagos sueltos` : ""}
@@ -1222,16 +1290,28 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       <p className="text-xl font-bold tabular-nums text-red-600 dark:text-red-400">
                         {formatCurrency(totalPorCobrar)}
                       </p>
-                      <Button
-                        size="sm"
-                        className="mt-1 bg-emerald-600 hover:bg-emerald-700"
-                        onClick={() => {
-                          setPagoOpen(true);
-                          setPagoMonto(String(Math.round(totalPorCobrar)));
-                        }}
-                      >
-                        <Banknote className="mr-1 h-3 w-3" /> Cobrar
-                      </Button>
+                      <div className="mt-1 flex gap-1 justify-end">
+                        <Button
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                          onClick={() => {
+                            setPagoOpen(true);
+                            setPagoMonto(String(Math.round(totalPorCobrar)));
+                          }}
+                        >
+                          <Banknote className="mr-1 h-3 w-3" /> Cobrar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setDeudaInicialMonto(String(clienteDetalle.deudaInicial || 0));
+                            setDeudaInicialOpen(true);
+                          }}
+                        >
+                          Deuda anterior
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1313,6 +1393,26 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                         )}
                       </div>
                     )}
+
+                    {/* Deuda anterior */}
+                    <div className="flex items-center justify-between rounded border p-2">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Deuda anterior a la app</p>
+                        <p className={`font-bold ${(clienteDetalle.deudaInicial || 0) > 0 ? "text-red-600" : "text-muted-foreground"}`}>
+                          {formatCurrency(clienteDetalle.deudaInicial || 0)}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setDeudaInicialMonto(String(clienteDetalle.deudaInicial || 0));
+                          setDeudaInicialOpen(true);
+                        }}
+                      >
+                        {clienteDetalle.deudaInicial ? "Editar" : "Registrar"}
+                      </Button>
+                    </div>
 
                     {/* Acceso */}
                     {(clienteDetalle.requiereIngresoPropiedad || clienteDetalle.entregaDesdeAfuera || clienteDetalle.conexionExterna || clienteDetalle.requiereClientePresente === false) && (

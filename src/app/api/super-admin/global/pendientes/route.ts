@@ -17,7 +17,7 @@ export async function GET() {
   try {
     const clientes = await db.cliente.findMany({
       select: {
-        id: true, nombre: true, telefono: true, zona: true, direccion: true,
+        id: true, nombre: true, telefono: true, zona: true, direccion: true, deudaInicial: true,
         dueno: { select: { id: true, nombre: true } },
         entregas: { select: { total: true, montoRecibido: true } },
         pagos: { select: { monto: true } },
@@ -29,7 +29,7 @@ export async function GET() {
         const totalVentas = c.entregas.reduce((s, e) => s + e.total, 0);
         const totalRecibido = c.entregas.reduce((s, e) => s + e.montoRecibido, 0);
         const totalPagos = c.pagos.reduce((s, p) => s + p.monto, 0);
-        const saldo = Math.max(0, totalVentas - totalRecibido - totalPagos);
+        const saldo = Math.max(0, (c.deudaInicial || 0) + totalVentas - totalRecibido - totalPagos);
         return {
           id: c.id,
           nombre: c.nombre,

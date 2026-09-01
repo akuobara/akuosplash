@@ -76,6 +76,10 @@ model Cliente {
   nota          String?
   creadoEn      DateTime @default(now())
 
+  // Deuda anterior a la app (lo que debía antes de usar el sistema)
+  // Se usa para que los pagos sueltos descuenten de esta deuda en vez de generar saldo a favor
+  deudaInicial  Float   @default(0)
+
   // Ubicación GPS (para navegación y futura venta online)
   lat           Float?
   lng           Float?
