@@ -154,6 +154,7 @@ export function formatDate(date: Date | string): string {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: "America/Santiago",
   });
 }
 
@@ -165,6 +166,19 @@ export function formatDateTime(date: Date | string): string {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "America/Santiago",
+  });
+}
+
+// Hora actual en Chile con formato legible (para reportes)
+export function formatNowCL(): string {
+  return new Date().toLocaleString("es-CL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "America/Santiago",
   });
 }
 

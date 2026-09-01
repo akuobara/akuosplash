@@ -1,9 +1,18 @@
-// Genera un reporte en PDF o Excel
+// Genera un reporte COMPLETO en PDF o Excel
 // GET /api/reportes/descargar?tipo=simple|completo&formato=pdf|excel&period=...
+//
+// Ahora incluye:
+//   - Resumen ejecutivo con hora CL correcta
+//   - Vueltas del período (con chofer, camión, litros, ventas, efectivo, transferencia)
+//   - Entregas detalladas
+//   - Pagos sueltos recibidos (no asociados a entregas)
+//   - Pagos pendientes por cliente (saldo acumulado histórico)
+//   - Gastos (chofer y dueño)
+//   - Liquidación del chofer (en modo completo)
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
-import { getRange, formatCurrency, formatNumber, formatDate, formatDateTime, labelTipoGasto, labelMetodoPago, labelEstadoPago, labelModoLiquidacion, esVueltaCompletada } from "@/lib/helpers";
+import { getRange, formatCurrency, formatNumber, formatDate, formatDateTime, formatNowCL, labelTipoGasto, labelMetodoPago, labelEstadoPago, labelModoLiquidacion, esVueltaCompletada } from "@/lib/helpers";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -19,14 +28,18 @@ export async function GET(req: NextRequest) {
 
   const rangeFilter = { AND: [start ? { fecha: { gte: start } } : {}, end ? { fecha: { lt: end } } : {}] };
   const rangeFilterVuelta = { AND: [start ? { iniciadaEn: { gte: start } } : {}, end ? { iniciadaEn: { lt: end } } : {}] };
+  const rangeFilterPago = { AND: [start ? { fecha: { gte: start } } : {}, end ? { fecha: { lt: end } } : {}] };
   const entregaWhere = { ...rangeFilter, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
   const gastoWhere = { ...rangeFilter, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
   const vueltaWhere = { ...rangeFilterVuelta, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
+  const pagoWhere = { ...rangeFilterPago, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
 
-  const [entregas, gastos, vueltas, config] = await Promise.all([
-    db.entrega.findMany({ where: entregaWhere, orderBy: { fecha: "desc" }, include: { vuelta: { select: { numero: true } } } }),
+  const [entregas, gastos, vueltas, pagos, clientes, config] = await Promise.all([
+    db.entrega.findMany({ where: entregaWhere, orderBy: { fecha: "desc" }, include: { vuelta: { select: { numero: true } }, cliente: { select: { nombre: true, telefono: true, zona: true, direccion: true } } } }),
     db.gasto.findMany({ where: gastoWhere, orderBy: { fecha: "desc" } }),
     db.vuelta.findMany({ where: vueltaWhere, include: { camion: { select: { nombre: true, capacidad: true } }, chofer: { select: { nombre: true } }, entregas: { select: { litros: true, total: true, montoEfectivo: true, montoTransferencia: true, montoRecibido: true, clienteNombre: true, metodoPago: true, estadoPago: true, fecha: true, descuento: true, detalleEstanquesJson: true } } }, orderBy: { iniciadaEn: "desc" } }),
+    db.pago.findMany({ where: pagoWhere, orderBy: { fecha: "desc" }, include: { cliente: { select: { nombre: true } } } }),
+    db.cliente.findMany({ where: { duenoId }, orderBy: { nombre: "asc" }, select: { id: true, nombre: true, telefono: true, zona: true, direccion: true, _count: { select: { entregas: true } } } }),
     db.configuracion.findUnique({ where: { duenoId } }),
   ]);
 
@@ -43,6 +56,59 @@ export async function GET(req: NextRequest) {
   const gastosDueno = gastos.filter(g => g.pagadoPor === "dueno").reduce((s, g) => s + g.monto, 0);
   const descuentosChofer = entregas.filter(e => e.descuentoPor === "chofer").reduce((s, e) => s + (e.descuento || 0), 0);
   const utilidadBruta = totalVentas - totalGastos;
+
+  // Pagos sueltos (no asociados a entregas — son abonos a cuenta corriente)
+  const totalPagosSueltos = pagos.reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosEfectivo = pagos.filter(p => p.metodoPago === "efectivo").reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosTransferencia = pagos.filter(p => p.metodoPago === "transferencia").reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosMixto = pagos.filter(p => p.metodoPago === "mixto").reduce((s, p) => s + p.monto, 0);
+
+  // Pagos pendientes por cliente (saldo acumulado histórico)
+  // Para cada cliente activo, calcular su deuda total (entregas no pagadas - pagos sueltos)
+  const clienteIds = new Set<string>(clientes.map(c => c.id));
+  const saldosPorCliente = new Map<string, { nombre: string; telefono: string | null; zona: string | null; direccion: string | null; totalVentas: number; totalRecibido: number; pagosSueltos: number; saldo: number; entregasCount: number }>();
+
+  // Cargar todas las entregas de los clientes activos (sin filtro de período) para calcular saldo histórico
+  const entregasHistoricas = await db.entrega.findMany({
+    where: { duenoId, clienteId: { in: Array.from(clienteIds) } },
+    select: { clienteId: true, total: true, montoRecibido: true },
+  });
+  const pagosHistoricos = await db.pago.findMany({
+    where: { duenoId, clienteId: { in: Array.from(clienteIds) } },
+    select: { clienteId: true, monto: true },
+  });
+
+  for (const c of clientes) {
+    saldosPorCliente.set(c.id, {
+      nombre: c.nombre,
+      telefono: c.telefono,
+      zona: c.zona,
+      direccion: c.direccion,
+      totalVentas: 0,
+      totalRecibido: 0,
+      pagosSueltos: 0,
+      saldo: 0,
+      entregasCount: c._count.entregas,
+    });
+  }
+  for (const e of entregasHistoricas) {
+    if (!e.clienteId) continue;
+    const s = saldosPorCliente.get(e.clienteId);
+    if (!s) continue;
+    s.totalVentas += e.total;
+    s.totalRecibido += e.montoRecibido;
+  }
+  for (const p of pagosHistoricos) {
+    const s = saldosPorCliente.get(p.clienteId);
+    if (!s) continue;
+    s.pagosSueltos += p.monto;
+  }
+  // Saldo = (ventas - recibido en entregas) - pagos sueltos
+  for (const s of saldosPorCliente.values()) {
+    s.saldo = Math.max(0, s.totalVentas - s.totalRecibido - s.pagosSueltos);
+  }
+  const clientesConSaldo = Array.from(saldosPorCliente.values()).filter(s => s.saldo > 0).sort((a, b) => b.saldo - a.saldo);
+  const totalSaldoPendiente = clientesConSaldo.reduce((s, c) => s + c.saldo, 0);
 
   let pagoChofer = 0;
   if (cfg.modoLiquidacion === "vuelta") {
@@ -66,10 +132,20 @@ export async function GET(req: NextRequest) {
 
   const periodLabel = period.startsWith("custom:") ? `${period.split(":")[1]} a ${period.split(":")[2]}` : period;
 
+  const data = {
+    entregas, gastos, vueltas, pagos, clientes: clientesConSaldo, cfg,
+    totalVentas, totalEfectivo, totalTransferencia, totalRecibido, totalPorCobrar,
+    totalLitros, totalGastos, gastosChofer, gastosDueno, descuentosChofer, utilidadBruta,
+    pagoChofer, impuesto, liquidoChofer, saldoChofer,
+    totalPagosSueltos, pagosSueltosEfectivo, pagosSueltosTransferencia, pagosSueltosMixto,
+    totalSaldoPendiente,
+    clientesActivosCount: clientes.length,
+  };
+
   if (formato === "excel") {
-    return generarExcel(tipo, periodLabel, { entregas, gastos, vueltas, cfg, totalVentas, totalEfectivo, totalTransferencia, totalRecibido, totalPorCobrar, totalLitros, totalGastos, gastosChofer, gastosDueno, descuentosChofer, utilidadBruta, pagoChofer, impuesto, liquidoChofer, saldoChofer });
+    return generarExcel(tipo, periodLabel, data);
   }
-  return generarPDF(tipo, periodLabel, { entregas, gastos, vueltas, cfg, totalVentas, totalEfectivo, totalTransferencia, totalRecibido, totalPorCobrar, totalLitros, totalGastos, gastosChofer, gastosDueno, descuentosChofer, utilidadBruta, pagoChofer, impuesto, liquidoChofer, saldoChofer });
+  return generarPDF(tipo, periodLabel, data);
 }
 
 function generarPDF(tipo: string, period: string, data: any) {
@@ -78,48 +154,58 @@ function generarPDF(tipo: string, period: string, data: any) {
   const autoTable = require("jspdf-autotable");
   const doc = new jsPDF();
 
-  // Encabezado
+  // Encabezado — usar hora de Chile
   doc.setFontSize(16);
-  doc.text("Reporte de Agua - Aljibe App", 14, 20);
+  doc.text("Reporte Diario - Aljibe App", 14, 20);
   doc.setFontSize(10);
   doc.text(`Periodo: ${period}`, 14, 27);
-  doc.text(`Generado: ${new Date().toLocaleString("es-CL")}`, 14, 32);
+  doc.text(`Generado: ${formatNowCL()} (hora Chile)`, 14, 32);
   doc.text(`Empresa: ${data.cfg.nombreDueno ?? "N/A"}`, 14, 37);
 
   let y = 45;
 
-  // Resumen
+  // Resumen ejecutivo
   doc.setFontSize(12);
-  doc.text("Resumen", 14, y);
+  doc.text("Resumen ejecutivo", 14, y);
   y += 5;
   autoTable(doc, {
     startY: y,
     head: [["Concepto", "Valor"]],
     body: [
-      ["Total ventas", formatCurrency(data.totalVentas)],
-      ["Efectivo recibido", formatCurrency(data.totalEfectivo)],
-      ["Transferencia recibida", formatCurrency(data.totalTransferencia)],
-      ["Total recibido", formatCurrency(data.totalRecibido)],
-      ["Por cobrar", formatCurrency(data.totalPorCobrar)],
+      ["Total ventas del período", formatCurrency(data.totalVentas)],
+      ["Efectivo recibido (entregas)", formatCurrency(data.totalEfectivo)],
+      ["Transferencia recibida (entregas)", formatCurrency(data.totalTransferencia)],
+      ["Total recibido en entregas", formatCurrency(data.totalRecibido)],
+      ["Pagos sueltos recibidos (abonos a cuenta)", formatCurrency(data.totalPagosSueltos)],
+      ["  · Efectivo", formatCurrency(data.pagosSueltosEfectivo)],
+      ["  · Transferencia", formatCurrency(data.pagosSueltosTransferencia)],
+      ["Por cobrar del período", formatCurrency(data.totalPorCobrar)],
+      ["Saldo pendiente total (histórico)", formatCurrency(data.totalSaldoPendiente)],
       ["Litros entregados", `${formatNumber(data.totalLitros, 0)} L`],
       ["Entregas", String(data.entregas.length)],
       ["Vueltas", String(data.vueltas.length)],
-      ["Gastos pagados por chofer", formatCurrency(data.gastosChofer)],
+      ["Pagos sueltos", String(data.pagos.length)],
+      ["Clientes activos", String(data.clientesActivosCount)],
+      ["Gastos totales", formatCurrency(data.totalGastos)],
+      ["  · Pagados por chofer", formatCurrency(data.gastosChofer)],
+      ["  · Pagados por dueño", formatCurrency(data.gastosDueno)],
+      ["Utilidad bruta", formatCurrency(data.utilidadBruta)],
     ],
     theme: "striped",
     headStyles: { fillColor: [37, 99, 235] },
   });
   y = (doc as any).lastAutoTable.finalY + 10;
 
-  // Gastos del chofer (siempre visibles, incluso en reporte simple)
+  // Gastos del chofer (reembolsables)
   if (data.gastos.filter((g: any) => g.pagadoPor === "chofer").length > 0) {
+    if (y > 240) { doc.addPage(); y = 20; }
     doc.setFontSize(12);
     doc.text("Gastos del chofer (reembolsables)", 14, y);
     y += 5;
     autoTable(doc, {
       startY: y,
       head: [["Fecha", "Tipo", "Descripción", "Monto"]],
-      body: data.gastos.filter((g: any) => g.pagadoPor === "chofer").map((g: any) => [formatDate(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "-", formatCurrency(g.monto)]),
+      body: data.gastos.filter((g: any) => g.pagadoPor === "chofer").map((g: any) => [formatDateTime(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "-", formatCurrency(g.monto)]),
       theme: "striped",
       headStyles: { fillColor: [220, 38, 38] },
       foot: [["", "", "Total", formatCurrency(data.gastosChofer)]],
@@ -127,30 +213,66 @@ function generarPDF(tipo: string, period: string, data: any) {
     y = (doc as any).lastAutoTable.finalY + 10;
   }
 
+  // Pagos sueltos recibidos en el período
+  if (data.pagos.length > 0) {
+    if (y > 240) { doc.addPage(); y = 20; }
+    doc.setFontSize(12);
+    doc.text("Pagos sueltos recibidos (abonos a cuenta)", 14, y);
+    y += 5;
+    autoTable(doc, {
+      startY: y,
+      head: [["Fecha", "Cliente", "Método", "Monto", "Nota"]],
+      body: data.pagos.map((p: any) => [formatDateTime(p.fecha), p.cliente?.nombre || "—", p.metodoPago, formatCurrency(p.monto), p.nota || "—"]),
+      theme: "striped",
+      headStyles: { fillColor: [16, 185, 129] },
+      foot: [["", "", "Total", formatCurrency(data.totalPagosSueltos), ""]],
+    });
+    y = (doc as any).lastAutoTable.finalY + 10;
+  }
+
+  // Pagos pendientes por cliente (saldo histórico)
+  if (data.clientes.length > 0) {
+    if (y > 240) { doc.addPage(); y = 20; }
+    doc.setFontSize(12);
+    doc.text(`Pagos pendientes por cliente (${data.clientes.length} con saldo)`, 14, y);
+    y += 5;
+    autoTable(doc, {
+      startY: y,
+      head: [["Cliente", "Teléfono", "Zona", "Dirección", "Saldo pendiente"]],
+      body: data.clientes.map((c: any) => [c.nombre, c.telefono || "—", c.zona || "—", c.direccion || "—", formatCurrency(c.saldo)]),
+      theme: "striped",
+      headStyles: { fillColor: [245, 158, 11] },
+      foot: [["", "", "", "Total", formatCurrency(data.totalSaldoPendiente)]],
+    });
+    y = (doc as any).lastAutoTable.finalY + 10;
+  }
+
   if (tipo === "completo") {
     // Gastos completos (incluye los del dueño)
+    if (y > 240) { doc.addPage(); y = 20; }
     doc.setFontSize(12);
-    doc.text("Gastos (completos)", 14, y);
+    doc.text("Gastos completos", 14, y);
     y += 5;
     autoTable(doc, {
       startY: y,
       head: [["Fecha", "Tipo", "Descripción", "Monto", "Pagado por"]],
-      body: data.gastos.map((g: any) => [formatDate(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "-", formatCurrency(g.monto), g.pagadoPor === "chofer" ? "Chofer" : "Dueño"]),
+      body: data.gastos.map((g: any) => [formatDateTime(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "-", formatCurrency(g.monto), g.pagadoPor === "chofer" ? "Chofer" : "Dueño"]),
       theme: "striped",
       headStyles: { fillColor: [220, 38, 38] },
-      foot: [["", "", "Total gastos", formatCurrency(data.totalGastos), ""]],
+      foot: [["", "", "Total", formatCurrency(data.totalGastos), ""]],
     });
     y = (doc as any).lastAutoTable.finalY + 10;
 
     // Liquidación
+    if (y > 240) { doc.addPage(); y = 20; }
     doc.setFontSize(12);
-    doc.text("Liquidación", 14, y);
+    doc.text("Liquidación del chofer", 14, y);
     y += 5;
     autoTable(doc, {
       startY: y,
       head: [["Concepto", "Valor"]],
       body: [
-        ["Modo", labelModoLiquidacion(data.cfg.modoLiquidacion)],
+        ["Modo de liquidación", labelModoLiquidacion(data.cfg.modoLiquidacion)],
         ["Utilidad bruta", formatCurrency(data.utilidadBruta)],
         ["Pago al chofer", formatCurrency(data.pagoChofer)],
         ["Gastos del chofer (reembolsables)", formatCurrency(data.gastosChofer)],
@@ -169,33 +291,33 @@ function generarPDF(tipo: string, period: string, data: any) {
   // Vueltas
   if (y > 240) { doc.addPage(); y = 20; }
   doc.setFontSize(12);
-  doc.text("Vueltas", 14, y);
+  doc.text("Vueltas del período", 14, y);
   y += 5;
   autoTable(doc, {
     startY: y,
-    head: [["#", "Inicio", "Cierre", "Entregas", "Litros", "Ventas", "Efectivo", "Transf."]],
+    head: [["#", "Inicio", "Cierre", "Chofer", "Camión", "Entregas", "Litros", "Ventas", "Efectivo", "Transf."]],
     body: data.vueltas.map((v: any) => {
       const litros = v.entregas.reduce((s: number, e: any) => s + e.litros, 0);
       const ventas = v.entregas.reduce((s: number, e: any) => s + e.total, 0);
       const efectivo = v.entregas.reduce((s: number, e: any) => s + e.montoEfectivo, 0);
       const transf = v.entregas.reduce((s: number, e: any) => s + e.montoTransferencia, 0);
-      return [String(v.numero), formatDate(v.iniciadaEn), v.cerradaEn ? formatDate(v.cerradaEn) : "En curso", String(v.entregas.length), `${formatNumber(litros, 0)} L`, formatCurrency(ventas), formatCurrency(efectivo), formatCurrency(transf)];
+      return [String(v.numero), formatDateTime(v.iniciadaEn), v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso", v.chofer?.nombre || "—", v.camion?.nombre || "—", String(v.entregas.length), `${formatNumber(litros, 0)} L`, formatCurrency(ventas), formatCurrency(efectivo), formatCurrency(transf)];
     }),
     theme: "striped",
     headStyles: { fillColor: [37, 99, 235] },
   });
   y = (doc as any).lastAutoTable.finalY + 10;
 
-  // Entregas
+  // Entregas detalladas
   if (y > 240) { doc.addPage(); y = 20; }
   doc.setFontSize(12);
-  doc.text("Entregas", 14, y);
+  doc.text("Entregas del período", 14, y);
   y += 5;
   autoTable(doc, {
     startY: y,
     head: [["Fecha", "Cliente", "Litros", "Método", "Total", "Efectivo", "Transf.", "Saldo", "Estado"]],
     body: data.entregas.map((e: any) => [
-      formatDate(e.fecha),
+      formatDateTime(e.fecha),
       e.clienteNombre,
       `${formatNumber(e.litros, 0)} L`,
       labelMetodoPago(e.metodoPago),
@@ -225,25 +347,34 @@ function generarExcel(tipo: string, period: string, data: any) {
 
   // Hoja: Resumen
   const resumenRows = [
-    ["Reporte de Agua - Aljibe App"],
+    ["Reporte Diario - Aljibe App"],
     [`Periodo: ${period}`],
-    [`Generado: ${new Date().toLocaleString("es-CL")}`],
+    [`Generado: ${formatNowCL()} (hora Chile)`],
     [`Empresa: ${data.cfg.nombreDueno ?? "N/A"}`],
     [],
     ["Concepto", "Valor"],
-    ["Total ventas", data.totalVentas],
-    ["Efectivo recibido", data.totalEfectivo],
-    ["Transferencia recibida", data.totalTransferencia],
-    ["Total recibido", data.totalRecibido],
-    ["Por cobrar", data.totalPorCobrar],
+    ["Total ventas del período", data.totalVentas],
+    ["Efectivo recibido (entregas)", data.totalEfectivo],
+    ["Transferencia recibida (entregas)", data.totalTransferencia],
+    ["Total recibido en entregas", data.totalRecibido],
+    ["Pagos sueltos recibidos", data.totalPagosSueltos],
+    ["  · Efectivo", data.pagosSueltosEfectivo],
+    ["  · Transferencia", data.pagosSueltosTransferencia],
+    ["Por cobrar del período", data.totalPorCobrar],
+    ["Saldo pendiente total (histórico)", data.totalSaldoPendiente],
     ["Litros entregados", data.totalLitros],
     ["Entregas", data.entregas.length],
     ["Vueltas", data.vueltas.length],
-    ["Gastos pagados por chofer", data.gastosChofer],
+    ["Pagos sueltos", data.pagos.length],
+    ["Clientes activos", data.clientesActivosCount],
+    ["Gastos totales", data.totalGastos],
+    ["  · Pagados por chofer", data.gastosChofer],
+    ["  · Pagados por dueño", data.gastosDueno],
+    ["Utilidad bruta", data.utilidadBruta],
   ];
 
   if (tipo === "completo") {
-    resumenRows.push([], ["LIQUIDACIÓN"]);
+    resumenRows.push([], ["LIQUIDACIÓN DEL CHOFER"]);
     resumenRows.push(["Modo", labelModoLiquidacion(data.cfg.modoLiquidacion)]);
     resumenRows.push(["Utilidad bruta", data.utilidadBruta]);
     resumenRows.push(["Pago al chofer", data.pagoChofer]);
@@ -258,50 +389,64 @@ function generarExcel(tipo: string, period: string, data: any) {
   const wsResumen = XLSX.utils.aoa_to_sheet(resumenRows);
   XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen");
 
-  // Hoja: Entregas
-  const entregasRows = [
-    ["Fecha", "Cliente", "Litros", "Método", "Total", "Efectivo", "Transferencia", "Recibido", "Saldo", "Estado", "Descuento", "Vuelta #"],
-    ...data.entregas.map((e: any) => [
-      formatDate(e.fecha), e.clienteNombre, e.litros, labelMetodoPago(e.metodoPago), e.total, e.montoEfectivo, e.montoTransferencia, e.montoRecibido, Math.max(0, e.total - e.montoRecibido), labelEstadoPago(e.estadoPago), e.descuento || 0, e.vuelta?.numero || "-",
-    ]),
-  ];
-  const wsEntregas = XLSX.utils.aoa_to_sheet(entregasRows);
-  XLSX.utils.book_append_sheet(wb, wsEntregas, "Entregas");
-
   // Hoja: Vueltas
   const vueltasRows = [
-    ["#", "Inicio", "Cierre", "Entregas", "Litros", "Ventas", "Efectivo", "Transferencia", "Camión", "Chofer"],
+    ["#", "Inicio", "Cierre", "Chofer", "Camión", "Entregas", "Litros", "Ventas", "Efectivo", "Transferencia"],
     ...data.vueltas.map((v: any) => {
       const litros = v.entregas.reduce((s: number, e: any) => s + e.litros, 0);
       const ventas = v.entregas.reduce((s: number, e: any) => s + e.total, 0);
       const efectivo = v.entregas.reduce((s: number, e: any) => s + e.montoEfectivo, 0);
       const transf = v.entregas.reduce((s: number, e: any) => s + e.montoTransferencia, 0);
-      return [v.numero, formatDate(v.iniciadaEn), v.cerradaEn ? formatDate(v.cerradaEn) : "En curso", v.entregas.length, litros, ventas, efectivo, transf, v.camion?.nombre || "-", v.chofer?.nombre || "-"];
+      return [v.numero, formatDateTime(v.iniciadaEn), v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso", v.chofer?.nombre || "-", v.camion?.nombre || "-", v.entregas.length, litros, ventas, efectivo, transf];
     }),
   ];
   const wsVueltas = XLSX.utils.aoa_to_sheet(vueltasRows);
   XLSX.utils.book_append_sheet(wb, wsVueltas, "Vueltas");
 
-  // Hoja: Gastos del chofer (siempre visible, incluso en reporte simple)
-  const gastosChoferList = data.gastos.filter((g: any) => g.pagadoPor === "chofer");
-  if (gastosChoferList.length > 0) {
-    const gastosRows = [
-      ["Fecha", "Tipo", "Descripción", "Monto"],
-      ...gastosChoferList.map((g: any) => [formatDate(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "", g.monto]),
+  // Hoja: Entregas
+  const entregasRows = [
+    ["Fecha", "Cliente", "Teléfono", "Zona", "Litros", "Método", "Total", "Efectivo", "Transferencia", "Recibido", "Saldo", "Estado", "Descuento", "Vuelta #"],
+    ...data.entregas.map((e: any) => [
+      formatDateTime(e.fecha), e.clienteNombre, e.cliente?.telefono || "-", e.cliente?.zona || "-", e.litros, labelMetodoPago(e.metodoPago), e.total, e.montoEfectivo, e.montoTransferencia, e.montoRecibido, Math.max(0, e.total - e.montoRecibido), labelEstadoPago(e.estadoPago), e.descuento || 0, e.vuelta?.numero || "-",
+    ]),
+  ];
+  const wsEntregas = XLSX.utils.aoa_to_sheet(entregasRows);
+  XLSX.utils.book_append_sheet(wb, wsEntregas, "Entregas");
+
+  // Hoja: Pagos sueltos recibidos
+  if (data.pagos.length > 0) {
+    const pagosRows = [
+      ["Fecha", "Cliente", "Método", "Monto", "Nota"],
+      ...data.pagos.map((p: any) => [formatDateTime(p.fecha), p.cliente?.nombre || "-", p.metodoPago, p.monto, p.nota || ""]),
       [],
-      ["Total gastos chofer", "", "", data.gastosChofer],
+      ["Total pagos sueltos", "", "", data.totalPagosSueltos, ""],
     ];
+    const wsPagos = XLSX.utils.aoa_to_sheet(pagosRows);
+    XLSX.utils.book_append_sheet(wb, wsPagos, "Pagos sueltos");
+  }
 
-    if (tipo === "completo" && data.gastos.length > 0) {
-      // En completo, añadir también gastos del dueño
-      gastosRows.push([], ["GASTOS DEL DUEÑO"], ["Fecha", "Tipo", "Descripción", "Monto"]);
-      data.gastos.filter((g: any) => g.pagadoPor === "dueno").forEach((g: any) => {
-        gastosRows.push([formatDate(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "", g.monto]);
-      });
-      gastosRows.push([], ["Total gastos dueño", "", "", data.gastosDueno]);
-      gastosRows.push([], ["TOTAL GASTOS", "", "", data.totalGastos]);
-    }
+  // Hoja: Pagos pendientes por cliente (saldo histórico)
+  if (data.clientes.length > 0) {
+    const pendientesRows = [
+      ["Cliente", "Teléfono", "Zona", "Dirección", "Total ventas histórico", "Total recibido histórico", "Pagos sueltos histórico", "Saldo pendiente"],
+      ...data.clientes.map((c: any) => [c.nombre, c.telefono || "", c.zona || "", c.direccion || "", c.totalVentas, c.totalRecibido, c.pagosSueltos, c.saldo]),
+      [],
+      ["TOTAL saldo pendiente", "", "", "", "", "", "", data.totalSaldoPendiente],
+    ];
+    const wsPendientes = XLSX.utils.aoa_to_sheet(pendientesRows);
+    XLSX.utils.book_append_sheet(wb, wsPendientes, "Pagos pendientes");
+  }
 
+  // Hoja: Gastos
+  if (data.gastos.length > 0) {
+    const gastosRows = [
+      ["Fecha", "Tipo", "Descripción", "Monto", "Pagado por"],
+      ...data.gastos.map((g: any) => [formatDateTime(g.fecha), labelTipoGasto(g.tipo), g.descripcion || "", g.monto, g.pagadoPor === "chofer" ? "Chofer" : "Dueño"]),
+      [],
+      ["Total gastos chofer", "", "", data.gastosChofer, ""],
+      ["Total gastos dueño", "", "", data.gastosDueno, ""],
+      ["TOTAL GASTOS", "", "", data.totalGastos, ""],
+    ];
     const wsGastos = XLSX.utils.aoa_to_sheet(gastosRows);
     XLSX.utils.book_append_sheet(wb, wsGastos, "Gastos");
   }
