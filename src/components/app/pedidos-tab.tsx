@@ -160,7 +160,7 @@ const ESTADO_COLORS: Record<string, string> = {
 export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes, clientePreselect, onPreselectConsumed, vueltaActual, camiones }: PedidosTabProps) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filtroEstado, setFiltroEstado] = useState<string>("todos");
+  const [filtroEstado, setFiltroEstado] = useState<string>("pendiente");
   const [vista, setVista] = useState<"lista" | "ruta">("lista");
 
   const [formOpen, setFormOpen] = useState(false);
