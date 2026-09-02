@@ -203,7 +203,7 @@ function generarPDF(period: string, data: any) {
       head: [["Fecha", "Cliente", "Método", "Monto", "Nota"]],
       body: data.pagos.map((p: any) => [
         formatDateTime(p.fecha),
-        p.cliente?.nombre || "—",
+        p.cliente?.nombre || p.descripcion || "Sin cliente",
         p.metodoPago,
         formatCurrency(p.monto),
         p.nota || "—",
@@ -280,7 +280,7 @@ function generarExcel(period: string, data: any) {
     [],
     ["4. PAGOS RECIBIDOS"],
     ["Fecha", "Cliente", "Método", "Monto", "Nota"],
-    ...(data.pagos || []).map((p: any) => [formatDateTime(p.fecha), p.cliente?.nombre || "—", p.metodoPago, p.monto, p.nota || ""]),
+    ...(data.pagos || []).map((p: any) => [formatDateTime(p.fecha), p.cliente?.nombre || p.descripcion || "Sin cliente", p.metodoPago, p.monto, p.nota || ""]),
     ["", "", "Total", data.totalPagosSueltos, ""],
     [],
     ["5. GASTOS"],

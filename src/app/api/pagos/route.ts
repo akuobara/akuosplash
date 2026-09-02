@@ -46,13 +46,28 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    if (!body.clienteId) {
-      return NextResponse.json({ error: "Cliente es obligatorio" }, { status: 400 });
-    }
-
     const monto = Number(body.monto) || 0;
     if (monto <= 0) {
       return NextResponse.json({ error: "El monto debe ser mayor a 0" }, { status: 400 });
+    }
+
+    // Pago sin cliente (pago general: alquiler, reembolso, etc.)
+    if (!body.clienteId) {
+      if (!body.descripcion?.trim()) {
+        return NextResponse.json({ error: "Para pagos sin cliente, la descripción es obligatoria" }, { status: 400 });
+      }
+      const nuevo = await db.pago.create({
+        data: {
+          clienteId: null,
+          monto,
+          metodoPago: body.metodoPago || "efectivo",
+          descripcion: body.descripcion?.trim() || null,
+          nota: body.nota?.trim() || null,
+          choferId: session.userId,
+          duenoId,
+        },
+      });
+      return NextResponse.json({ pago: nuevo }, { status: 201 });
     }
 
     // Verificar que el cliente pertenece al dueño
@@ -95,6 +110,7 @@ export async function POST(req: NextRequest) {
         clienteId: body.clienteId,
         monto,
         metodoPago: body.metodoPago || "efectivo",
+        descripcion: body.descripcion?.trim() || null,
         nota: body.nota?.trim() || null,
         choferId: session.userId,
         duenoId,

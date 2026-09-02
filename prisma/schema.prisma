@@ -357,12 +357,13 @@ model Pago {
   id              String   @id @default(cuid())
   fecha           DateTime @default(now())
 
-  clienteId       String
-  cliente         Cliente  @relation(fields: [clienteId], references: [id])
+  clienteId       String?
+  cliente         Cliente?  @relation(fields: [clienteId], references: [id])
 
   monto           Float
   metodoPago      String   @default("credito")  // efectivo | transferencia | mixto
   nota            String?
+  descripcion     String?  // para pagos que no son de cliente (ej: pago de alquiler, reembolso, etc.)
 
   choferId        String?
   chofer          Usuario? @relation("PagoChofer", fields: [choferId], references: [id])

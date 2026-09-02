@@ -220,7 +220,7 @@ export async function GET(req: NextRequest) {
     pagosSueltos: pagosSueltos.map(p => ({
       id: p.id,
       fecha: p.fecha,
-      cliente: p.cliente?.nombre || "—",
+      cliente: p.cliente?.nombre || p.descripcion || "Sin cliente",
       monto: p.monto,
       metodoPago: p.metodoPago,
       nota: p.nota,
