@@ -955,7 +955,7 @@ function PagoDirectoForm({ clientes, onSaved }: { clientes: any[]; onSaved: () =
       {/* Monto */}
       <div>
         <Label className="text-xs">Monto *</Label>
-        <Input type="number" min="1" step="100" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="Ej: 25000" />
+        <Input type="number" min="1" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="Ej: 25000" />
       </div>
 
       {/* Método */}
