@@ -106,7 +106,10 @@ export async function GET(req: NextRequest) {
 
   const pedidos = await db.pedido.findMany({
     where,
-    orderBy: { creadoEn: "desc" },
+    orderBy: [
+      { fechaSolicitada: "asc" },
+      { creadoEn: "desc" },
+    ],
     include: {
       cliente: {
         select: {
