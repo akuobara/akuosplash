@@ -309,7 +309,7 @@ export default function Home() {
             {(!interfazSimple || isDueno) && <option value="gastos">💵 Gastos</option>}
             <option value="liquidacion">🧮 Liquidación</option>
             {(!interfazSimple || isDueno) && <option value="clientes">👥 Clientes</option>}
-            {isDueno && <option value="recurrentes">🔁 Recurrentes</option>}
+            {(!interfazSimple || isDueno) && <option value="recurrentes">🔁 Recurrentes</option>}
             {(!interfazSimple || isDueno) && <option value="historial">📜 Historial</option>}
             <option value="pool">🌊 Pool de pedidos</option>
             {isDueno && <option value="equipo">👥 Equipo</option>}
@@ -349,8 +349,8 @@ export default function Home() {
               <span className="inline">Clientes</span>
             </TabsTrigger>
             )}
-            {/* Recurrentes: solo dueño */}
-            {isDueno && (
+            {/* Recurrentes: admin y chofer */}
+            {(!interfazSimple || isDueno) && (
               <TabsTrigger value="recurrentes" className="flex-initial shrink-0">
                 <CalendarClock className="mr-1 h-4 w-4" />
                 <span className="inline">Recurrentes</span>
@@ -470,7 +470,7 @@ export default function Home() {
             />
           </TabsContent>
 
-          {isDueno && (
+          {(!interfazSimple || isDueno) && (
             <TabsContent value="recurrentes" className="mt-0">
               <PedidosRecurrentesTab
                 refreshKey={refreshKey}
