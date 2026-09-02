@@ -17,6 +17,57 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
+  // === GENERAR PEDIDOS RECURRENTES VENCIDOS ===
+  const ahora = new Date();
+  const recurrentesVencidos = await db.pedidoRecurrente.findMany({
+    where: {
+      duenoId,
+      activo: true,
+      fechaProximaGeneracion: { lte: ahora },
+    },
+    include: { cliente: true },
+  });
+
+  for (const rec of recurrentesVencidos) {
+    const existente = await db.pedido.findFirst({
+      where: {
+        pedidoRecurrenteId: rec.id,
+        creadoEn: { gte: new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()) },
+      },
+    });
+    if (existente) continue;
+
+    await db.pedido.create({
+      data: {
+        clienteNombre: rec.cliente.nombre,
+        clienteDireccion: rec.cliente.direccion,
+        clienteTelefono: rec.cliente.telefono,
+        clienteZona: rec.cliente.zona,
+        clienteLat: rec.cliente.lat,
+        clienteLng: rec.cliente.lng,
+        clienteId: rec.clienteId,
+        litrosSolicitados: rec.litrosSolicitados,
+        fechaSolicitada: rec.fechaProximaGeneracion,
+        metodoPagoPreferido: rec.metodoPagoPreferido,
+        nota: rec.nota,
+        estado: "pendiente",
+        choferId: session.userId,
+        duenoId,
+        asignacionTipo: rec.asignacionTipo,
+        choferAsignadoId: rec.choferAsignadoId,
+        prioridadTipo: "ninguna",
+        pedidoRecurrenteId: rec.id,
+      },
+    });
+
+    const proxima = new Date(rec.fechaProximaGeneracion);
+    proxima.setDate(proxima.getDate() + rec.frecuenciaDias);
+    await db.pedidoRecurrente.update({
+      where: { id: rec.id },
+      data: { fechaProximaGeneracion: proxima },
+    });
+  }
+
   const { searchParams } = new URL(req.url);
   const estado = searchParams.get("estado");
   const clienteId = searchParams.get("clienteId");
@@ -40,7 +91,7 @@ export async function GET(req: NextRequest) {
       // Ver todos los pedidos pendientes/programados/en_ruta del administrador
       // + los que él tomó o creó (incluso entregados)
       where.OR = [
-        { estado: { in: ["pendiente", "programado", "en_ruta", "entregado"] } },
+        { estado: { in: ["pendiente", "programado", "en_ruta"] } },
         { tomadoPorChoferId: session.userId },
         { choferId: session.userId },
       ];
