@@ -519,6 +519,8 @@ model ClienteApp {
   usoAgua          String   @default("consumo")
   usoAguaNota      String?
   estanquesJson    String?
+  // Nota interna (también usada temporalmente para tokens de reset)
+  nota             String?
   // Preferencias
   // Tiempo (minutos) que el cliente da a su proveedor preferido para aceptar antes de caer al pool
   tiempoAceptacionPreferidoMin  Int @default(15)
