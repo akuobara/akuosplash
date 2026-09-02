@@ -210,7 +210,7 @@ function generarPDF(period: string, data: any) {
   return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="resumen-${periodLabel}.pdf"`,
+      "Content-Disposition": `attachment; filename="resumen-${period}.pdf"`,
     },
   });
 }
@@ -261,7 +261,7 @@ function generarExcel(period: string, data: any) {
   return new NextResponse(buffer, {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="resumen-${periodLabel}.xlsx"`,
+      "Content-Disposition": `attachment; filename="resumen-${period}.xlsx"`,
     },
   });
 }
