@@ -4,8 +4,16 @@ import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -40,7 +48,8 @@ import { StatCard } from "./stat-card";
 import { EntregaForm } from "./entrega-form";
 import { GastoForm } from "./gasto-form";
 import { VueltaWidget } from "./vuelta-widget";
-import { apiGet } from "@/lib/api-client";
+import { apiGet, apiPost } from "@/lib/api-client";
+import { toast } from "sonner";
 import {
   formatCurrency,
   formatNumber,
@@ -164,6 +173,7 @@ export function Dashboard({
 
   const [entregaFormOpen, setEntregaFormOpen] = useState(false);
   const [gastoFormOpen, setGastoFormOpen] = useState(false);
+  const [pagoFormOpen, setPagoFormOpen] = useState(false);
 
   const cargarVuelta = useCallback(async () => {
     try {
@@ -273,6 +283,9 @@ export function Dashboard({
           )}
           <Button onClick={() => setGastoFormOpen(true)} variant="outline" size="sm">
             <Receipt className="mr-1 h-4 w-4" /> Gasto
+          </Button>
+          <Button onClick={() => setPagoFormOpen(true)} variant="outline" size="sm" className="bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-300">
+            <Banknote className="mr-1 h-4 w-4" /> Recibir pago
           </Button>
           <Button onClick={() => setEntregaFormOpen(true)} size="sm">
             <Plus className="mr-1 h-4 w-4" /> Entrega
@@ -753,6 +766,25 @@ export function Dashboard({
         camiones={camiones}
         isDueno={isDueno}
       />
+      {/* Diálogo: Recibir pago */}
+      <Dialog open={pagoFormOpen} onOpenChange={setPagoFormOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Recibir pago</DialogTitle>
+            <DialogDescription>
+              Registrá un pago recibido. Podés elegir un cliente o registrar un pago sin cliente.
+            </DialogDescription>
+          </DialogHeader>
+          <PagoDirectoForm
+            clientes={clientes}
+            onSaved={() => {
+              setPagoFormOpen(false);
+              onRefresh();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
       <GastoForm open={gastoFormOpen} onOpenChange={setGastoFormOpen} onSaved={onRefresh} />
     </div>
   );
@@ -831,5 +863,124 @@ function DownloadButton({ label, icon, url, filename }: { label: string; icon: R
         <>{icon} {label}</>
       )}
     </button>
+  );
+}
+
+// === Formulario de pago directo (con o sin cliente) ===
+function PagoDirectoForm({ clientes, onSaved }: { clientes: any[]; onSaved: () => void }) {
+  const [tipo, setTipo] = useState<"cliente" | "general">("cliente");
+  const [clienteId, setClienteId] = useState("");
+  const [monto, setMonto] = useState("");
+  const [metodo, setMetodo] = useState("efectivo");
+  const [descripcion, setDescripcion] = useState("");
+  const [nota, setNota] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const montoNum = Number(monto);
+    if (!montoNum || montoNum <= 0) {
+      toast.error("El monto debe ser mayor a 0");
+      return;
+    }
+    if (tipo === "cliente" && !clienteId) {
+      toast.error("Elegí un cliente o cambiá a 'Pago sin cliente'");
+      return;
+    }
+    if (tipo === "general" && !descripcion.trim()) {
+      toast.error("La descripción es obligatoria para pagos sin cliente");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await apiPost("/api/pagos", {
+        clienteId: tipo === "cliente" ? clienteId : null,
+        monto: montoNum,
+        metodoPago: metodo,
+        descripcion: tipo === "general" ? descripcion.trim() : undefined,
+        nota: nota.trim() || null,
+      });
+      toast.success("Pago registrado");
+      onSaved();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo registrar");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Tipo de pago */}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => setTipo("cliente")}
+          className={`flex-1 rounded-md border p-2 text-sm ${tipo === "cliente" ? "border-primary bg-primary/5 font-medium" : ""}`}
+        >
+          Pago de cliente
+        </button>
+        <button
+          type="button"
+          onClick={() => setTipo("general")}
+          className={`flex-1 rounded-md border p-2 text-sm ${tipo === "general" ? "border-primary bg-primary/5 font-medium" : ""}`}
+        >
+          Pago sin cliente
+        </button>
+      </div>
+
+      {/* Cliente o descripción */}
+      {tipo === "cliente" ? (
+        <div>
+          <Label className="text-xs">Cliente *</Label>
+          <select
+            value={clienteId}
+            onChange={(e) => setClienteId(e.target.value)}
+            className="w-full h-9 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            <option value="">Elegir cliente…</option>
+            {clientes.map((c: any) => (
+              <option key={c.id} value={c.id}>{c.nombre}</option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div>
+          <Label className="text-xs">Descripción *</Label>
+          <Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Ej: Pago de alquiler, reembolso, etc." />
+        </div>
+      )}
+
+      {/* Monto */}
+      <div>
+        <Label className="text-xs">Monto *</Label>
+        <Input type="number" min="1" step="100" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="Ej: 25000" />
+      </div>
+
+      {/* Método */}
+      <div>
+        <Label className="text-xs">Método de pago</Label>
+        <select
+          value={metodo}
+          onChange={(e) => setMetodo(e.target.value)}
+          className="w-full h-9 rounded-md border border-input bg-background px-2 text-sm"
+        >
+          <option value="efectivo">Efectivo</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="mixto">Mixto</option>
+        </select>
+      </div>
+
+      {/* Nota */}
+      <div>
+        <Label className="text-xs">Nota (opcional)</Label>
+        <Input value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Ej: Pago de agosto" />
+      </div>
+
+      <Button type="submit" className="w-full" disabled={saving}>
+        {saving ? <><Loader2 className="mr-1 h-4 w-4 animate-spin" /> Guardando…</> : "Registrar pago"}
+      </Button>
+    </form>
   );
 }
