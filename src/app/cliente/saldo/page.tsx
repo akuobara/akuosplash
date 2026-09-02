@@ -48,7 +48,7 @@ export default function ClienteSaldoPage() {
 
   // Form de carga
   const [monto, setMonto] = useState("");
-  const [metodo, setMetodo] = useState<"transferencia" | "efectivo">("transferencia");
+  const [metodo, setMetodo] = useState<"mercadopago" | "transferencia" | "efectivo">("mercadopago");
   const [comprobanteUrl, setComprobanteUrl] = useState("");
   const [subiendo, setSubiendo] = useState(false);
   const [cargando, setCargando] = useState(false);
@@ -118,6 +118,27 @@ export default function ClienteSaldoPage() {
     setCargando(true);
     try {
       const token = getToken();
+
+      if (metodo === "mercadopago") {
+        // Crear preferencia de MercadoPago
+        const res = await fetch("/api/cliente/saldo/carga-online", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ monto: montoNum }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "No se pudo crear el pago");
+
+        // Redirigir a MercadoPago
+        const isSandbox = data.sandboxInitPoint && process.env.NODE_ENV !== "production";
+        window.location.href = isSandbox ? data.sandboxInitPoint : data.initPoint;
+        return;
+      }
+
+      // Transferencia o efectivo: flujo existente
       const res = await fetch("/api/cliente/saldo/carga", {
         method: "POST",
         headers: {
@@ -216,20 +237,45 @@ export default function ClienteSaldoPage() {
 
             <div>
               <Label className="text-xs">Método</Label>
-              <div className="flex gap-2 mt-1">
+              <div className="flex flex-col gap-2 mt-1">
+                <button
+                  type="button"
+                  onClick={() => setMetodo("mercadopago")}
+                  className={`w-full text-left rounded-md border p-3 ${metodo === "mercadopago" ? "border-primary bg-primary/5" : ""}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">MercadoPago</p>
+                      <p className="text-xs text-muted-foreground">Tarjeta, transferencia o saldo MP — se acredita automático</p>
+                    </div>
+                    {metodo === "mercadopago" && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                  </div>
+                </button>
                 <button
                   type="button"
                   onClick={() => setMetodo("transferencia")}
-                  className={`flex-1 rounded-md border px-3 py-2 text-sm ${metodo === "transferencia" ? "border-primary bg-primary/5 font-medium" : ""}`}
+                  className={`w-full text-left rounded-md border p-3 ${metodo === "transferencia" ? "border-primary bg-primary/5" : ""}`}
                 >
-                  Transferencia
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Transferencia</p>
+                      <p className="text-xs text-muted-foreground">Subir comprobante — confirmación manual</p>
+                    </div>
+                    {metodo === "transferencia" && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                  </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setMetodo("efectivo")}
-                  className={`flex-1 rounded-md border px-3 py-2 text-sm ${metodo === "efectivo" ? "border-primary bg-primary/5 font-medium" : ""}`}
+                  className={`w-full text-left rounded-md border p-3 ${metodo === "efectivo" ? "border-primary bg-primary/5" : ""}`}
                 >
-                  Efectivo (admin)
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm">Efectivo (admin)</p>
+                      <p className="text-xs text-muted-foreground">Lo confirma el administrador</p>
+                    </div>
+                    {metodo === "efectivo" && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                  </div>
                 </button>
               </div>
               {metodo === "efectivo" && (
