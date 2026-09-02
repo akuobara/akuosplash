@@ -17,8 +17,9 @@ import {
 import {
   Users, Truck, Droplets, DollarSign, TrendingUp,
   Activity, Shield, Search, UserCheck, UserX, ArrowLeft, LogOut, Clock,
-  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2,
+  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2, MapPin, Package, Receipt,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
 import { formatCurrency, formatNumber, formatDate, formatDateTime, labelTipoGasto, labelMetodoPago, labelEstadoPago } from "@/lib/helpers";
@@ -77,7 +78,7 @@ export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas" | "zonas" | "planes" | "facturas">("dashboard");
 
   const [detalleOpen, setDetalleOpen] = useState(false);
   const [detalleId, setDetalleId] = useState<string | null>(null);
@@ -251,6 +252,9 @@ export default function SuperAdminPage() {
             <option value="entregas">💧 Entregas global</option>
             <option value="pendientes">💰 Pagos pendientes</option>
             <option value="cargas">⏳ Cargas de saldo</option>
+            <option value="zonas">📍 Zonas</option>
+            <option value="planes">📦 Planes</option>
+            <option value="facturas">🧾 Facturas</option>
           </select>
 
           <div className="hidden sm:flex sm:flex-wrap sm:gap-2">
@@ -274,6 +278,15 @@ export default function SuperAdminPage() {
             </Button>
             <Button size="sm" variant={tab === "cargas" ? "default" : "outline"} onClick={() => setTab("cargas")}>
               <Clock className="mr-1 h-4 w-4" /> Cargas de saldo
+            </Button>
+            <Button size="sm" variant={tab === "zonas" ? "default" : "outline"} onClick={() => setTab("zonas")}>
+              <MapPin className="mr-1 h-4 w-4" /> Zonas
+            </Button>
+            <Button size="sm" variant={tab === "planes" ? "default" : "outline"} onClick={() => setTab("planes")}>
+              <Package className="mr-1 h-4 w-4" /> Planes
+            </Button>
+            <Button size="sm" variant={tab === "facturas" ? "default" : "outline"} onClick={() => setTab("facturas")}>
+              <Receipt className="mr-1 h-4 w-4" /> Facturas
             </Button>
           </div>
         </div>
@@ -447,6 +460,21 @@ export default function SuperAdminPage() {
         {/* Cargas de saldo pendientes */}
         {tab === "cargas" && (
           <CargasPendientesGlobal />
+        )}
+
+        {/* Zonas */}
+        {tab === "zonas" && (
+          <ZonasAdmin />
+        )}
+
+        {/* Planes */}
+        {tab === "planes" && (
+          <PlanesAdmin />
+        )}
+
+        {/* Facturas */}
+        {tab === "facturas" && (
+          <FacturasAdmin />
         )}
       </main>
 
@@ -1698,6 +1726,314 @@ function CargasPendientesGlobal() {
                     <Button size="sm" variant="outline" className="text-destructive" onClick={() => rechazar(c.id)}>
                       <X className="mr-1 h-3 w-3" /> Rechazar
                     </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// === Zonas Admin ===
+function ZonasAdmin() {
+  const [zonas, setZonas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creando, setCreando] = useState(false);
+  const [editando, setEditando] = useState<any | null>(null);
+
+  // Form
+  const [nombre, setNombre] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [precioPorLitro, setPrecioPorLitro] = useState("");
+  const [centroLat, setCentroLat] = useState("");
+  const [centroLng, setCentroLng] = useState("");
+  const [radioKm, setRadioKm] = useState("");
+  const [activa, setActiva] = useState(true);
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await apiGet<{ zonas: any[] }>("/api/super-admin/zonas");
+      setZonas(r.zonas || []);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al cargar");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  function abrirCrear() {
+    setNombre(""); setDescripcion(""); setPrecioPorLitro(""); setCentroLat(""); setCentroLng(""); setRadioKm(""); setActiva(true);
+    setCreando(true);
+  }
+
+  function abrirEditar(z: any) {
+    setNombre(z.nombre); setDescripcion(z.descripcion || ""); setPrecioPorLitro(String(z.precioPorLitro));
+    setCentroLat(z.centroLat ? String(z.centroLat) : ""); setCentroLng(z.centroLng ? String(z.centroLng) : "");
+    setRadioKm(z.radioKm ? String(z.radioKm) : ""); setActiva(z.activa);
+    setEditando(z);
+  }
+
+  async function guardar() {
+    if (!nombre.trim() || !precioPorLitro) {
+      toast.error("Nombre y precio son obligatorios");
+      return;
+    }
+    const data = {
+      nombre, descripcion, precioPorLitro: Number(precioPorLitro),
+      centroLat: centroLat ? Number(centroLat) : null,
+      centroLng: centroLng ? Number(centroLng) : null,
+      radioKm: radioKm ? Number(radioKm) : null, activa,
+    };
+    try {
+      if (editando) {
+        await apiPatch(`/api/super-admin/zonas/${editando.id}`, data);
+        toast.success("Zona actualizada");
+        setEditando(null);
+      } else {
+        await apiPost("/api/super-admin/zonas", data);
+        toast.success("Zona creada");
+        setCreando(false);
+      }
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+    }
+  }
+
+  async function eliminar(z: any) {
+    if (!confirm(`¿Eliminar zona ${z.nombre}?`)) return;
+    try {
+      await apiDelete(`/api/super-admin/zonas/${z.id}`);
+      toast.success("Zona eliminada");
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+    }
+  }
+
+  if (loading) return <Skeleton className="h-40 rounded" />;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-end">
+        <Button size="sm" onClick={abrirCrear}><Plus className="mr-1 h-4 w-4" /> Nueva zona</Button>
+      </div>
+
+      {zonas.length === 0 ? (
+        <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No hay zonas creadas.</CardContent></Card>
+      ) : (
+        <div className="space-y-2">
+          {zonas.map(z => (
+            <Card key={z.id} className={!z.activa ? "opacity-60" : ""}>
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">{z.nombre}</span>
+                      {!z.activa && <Badge variant="outline" className="text-[10px]">Inactiva</Badge>}
+                    </div>
+                    {z.descripcion && <p className="text-xs text-muted-foreground mt-0.5">{z.descripcion}</p>}
+                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      <span>Precio: <strong>{formatCurrency(z.precioPorLitro)}/L</strong></span>
+                      {z.centroLat && z.centroLng && <span>Centro: {z.centroLat}, {z.centroLng}</span>}
+                      {z.radioKm && <span>Radio: {z.radioKm} km</span>}
+                      <span>Clientes: {z._count?.clientesApp || 0}</span>
+                      <span>Pedidos: {z._count?.pedidosApp || 0}</span>
+                    </div>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => abrirEditar(z)}><Pencil className="mr-2 h-4 w-4" /> Editar</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => eliminar(z)}><Trash2 className="mr-2 h-4 w-4" /> Eliminar</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Dialog crear/editar */}
+      <Dialog open={creando || !!editando} onOpenChange={(o) => { if (!o) { setCreando(false); setEditando(null); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editando ? "Editar zona" : "Nueva zona"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div><Label className="text-xs">Nombre *</Label><Input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Las Condes" /></div>
+            <div><Label className="text-xs">Descripción</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} /></div>
+            <div><Label className="text-xs">Precio por litro (incluye 10% comisión) *</Label><Input type="number" step="0.1" value={precioPorLitro} onChange={(e) => setPrecioPorLitro(e.target.value)} placeholder="Ej: 8.7" /></div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><Label className="text-xs">Latitud centro</Label><Input value={centroLat} onChange={(e) => setCentroLat(e.target.value)} placeholder="-33.45" /></div>
+              <div><Label className="text-xs">Longitud centro</Label><Input value={centroLng} onChange={(e) => setCentroLng(e.target.value)} placeholder="-70.66" /></div>
+            </div>
+            <div><Label className="text-xs">Radio de cobertura (km)</Label><Input type="number" step="0.5" value={radioKm} onChange={(e) => setRadioKm(e.target.value)} placeholder="Ej: 10" /></div>
+            <label className="flex items-center gap-2 text-sm"><Switch checked={activa} onCheckedChange={setActiva} /> Activa</label>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setCreando(false); setEditando(null); }}>Cancelar</Button>
+            <Button onClick={guardar}>Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// === Planes Admin ===
+function PlanesAdmin() {
+  const [planes, setPlanes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [admins, setAdmins] = useState<any[]>([]);
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [p, s] = await Promise.all([
+        apiGet<{ planes: any[] }>("/api/super-admin/planes"),
+        apiGet<any>("/api/super-admin/stats"),
+      ]);
+      setPlanes(p.planes || []);
+      setAdmins(s.administradores || []);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  async function cambiarPlan(duenoId: string, planId: string) {
+    try {
+      await apiPatch(`/api/super-admin/administradores/${duenoId}/config`, { planId });
+      toast.success("Plan actualizado");
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo cambiar");
+    }
+  }
+
+  if (loading) return <Skeleton className="h-40 rounded" />;
+
+  return (
+    <div className="space-y-4">
+      {/* Lista de planes */}
+      <div>
+        <h3 className="text-sm font-semibold mb-2">Planes disponibles</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {planes.map(p => (
+            <Card key={p.id} className={p.id === "pro" ? "border-primary" : ""}>
+              <CardContent className="p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-base">{p.nombre}</span>
+                  {p.id === "pro" && <Badge className="text-[10px]">Recomendado</Badge>}
+                </div>
+                <p className="text-2xl font-bold tabular-nums">{formatCurrency(p.precioMensual)}<span className="text-xs text-muted-foreground">/mes</span></p>
+                <div className="space-y-1 text-xs">
+                  <p>Camiones: {p.maxCamiones === -1 ? "Ilimitados" : p.maxCamiones}</p>
+                  <p>Choferes: {p.maxChoferes === -1 ? "Ilimitados" : p.maxChoferes}</p>
+                  <p>Pool de pedidos: {p.accesoPool ? "✓" : "✗"}</p>
+                  {p.costoExtraCamion && <p>Extra camión: {formatCurrency(p.costoExtraCamion)}</p>}
+                  {p.costoExtraChofer && <p>Extra chofer: {formatCurrency(p.costoExtraChofer)}</p>}
+                </div>
+                <p className="text-xs text-muted-foreground">{p._count?.configuraciones || 0} admin(s) con este plan</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Asignar plan a admins */}
+      <div>
+        <h3 className="text-sm font-semibold mb-2">Asignar plan a administradores</h3>
+        <div className="space-y-2">
+          {admins.map(a => (
+            <Card key={a.id}>
+              <CardContent className="p-3 flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm">{a.nombre}</p>
+                  <p className="text-xs text-muted-foreground">{a.email}</p>
+                </div>
+                <select
+                  defaultValue=""
+                  onChange={(e) => e.target.value && cambiarPlan(a.id, e.target.value)}
+                  className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                >
+                  <option value="">Cambiar plan…</option>
+                  {planes.map(p => <option key={p.id} value={p.id}>{p.nombre} ({formatCurrency(p.precioMensual)}/mes)</option>)}
+                </select>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// === Facturas Admin ===
+function FacturasAdmin() {
+  const [facturas, setFacturas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await apiGet<{ facturas: any[] }>("/api/super-admin/facturas");
+      setFacturas(r.facturas || []);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  if (loading) return <Skeleton className="h-40 rounded" />;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">Facturas de administradores</h3>
+        <p className="text-xs text-muted-foreground">{facturas.length} factura(s)</p>
+      </div>
+
+      {facturas.length === 0 ? (
+        <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No hay facturas generadas todavía.</CardContent></Card>
+      ) : (
+        <div className="space-y-2">
+          {facturas.map(f => (
+            <Card key={f.id}>
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{f.dueno?.nombre || "—"}</span>
+                      <Badge variant="outline" className="text-[10px]">{f.estado}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Período: {formatDate(f.periodoStart)} a {formatDate(f.periodoEnd)}
+                    </p>
+                    <div className="mt-1 flex flex-wrap gap-3 text-xs">
+                      <span>Total vendido: <strong>{formatCurrency(f.totalVentas)}</strong></span>
+                      <span>Comisión app: <strong>{formatCurrency(f.comisionApp)}</strong></span>
+                      <span>Monto facturado: <strong>{formatCurrency(f.montoFacturado)}</strong></span>
+                      <span>Pagado: <strong>{formatCurrency(f.montoPagado)}</strong></span>
+                      <span className="text-amber-600">Pendiente: <strong>{formatCurrency(f.saldoPendiente)}</strong></span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
