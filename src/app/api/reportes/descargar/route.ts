@@ -79,7 +79,17 @@ export async function GET(req: NextRequest) {
     .map(([tipo, monto]) => ({ tipo, monto }))
     .sort((a, b) => b.monto - a.monto);
 
-  const periodLabel = period.startsWith("custom:") ? `${period.split(":")[1]} a ${period.split(":")[2]}` : period;
+  // Generar label con fecha real del período
+  let periodLabel: string;
+  if (period.startsWith("custom:")) {
+    periodLabel = `${period.split(":")[1]} a ${period.split(":")[2]}`;
+  } else if (start && end) {
+    // Formatear la fecha del período
+    const fechaInicio = new Date(start).toLocaleDateString("es-CL", { timeZone: "America/Santiago", day: "2-digit", month: "2-digit", year: "numeric" });
+    periodLabel = fechaInicio;
+  } else {
+    periodLabel = "Todo";
+  }
 
   const data = {
     entregas, gastos, pagos, clientesEntrega, gastosPorTipo, cfg,
@@ -100,13 +110,11 @@ function generarPDF(period: string, data: any) {
 
   // Encabezado
   doc.setFontSize(18);
-  doc.text("Resumen diario", 14, 18);
+  doc.text(`Resumen — ${period}`, 14, 18);
   doc.setFontSize(10);
-  doc.text(`Periodo: ${period}`, 14, 25);
-  doc.text(`Generado: ${formatNowCL()} (hora Chile)`, 14, 30);
-  doc.text(`Empresa: ${data.cfg.nombreDueno ?? "N/A"}`, 14, 35);
+  doc.text(`Empresa: ${data.cfg.nombreDueno ?? "N/A"}`, 14, 25);
 
-  let y = 42;
+  let y = 32;
 
   // === 1. VENTAS ===
   doc.setFontSize(14);
@@ -217,9 +225,7 @@ function generarExcel(period: string, data: any) {
 
   // === TODO EN UNA SOLA HOJA ===
   const rows: any[] = [
-    ["Resumen diario - Aljibe App"],
-    [`Periodo: ${period}`],
-    [`Generado: ${formatNowCL()} (hora Chile)`],
+    [`Resumen — ${period}`],
     [`Empresa: ${data.cfg.nombreDueno ?? "N/A"}`],
     [],
     ["1. VENTAS"],
