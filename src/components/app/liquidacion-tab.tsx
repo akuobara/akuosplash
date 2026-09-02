@@ -321,7 +321,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                     </div>
                     {periodoData.resumen.totalPagosSueltos > 0 && (
                       <div className="flex justify-between text-muted-foreground">
-                        <span>- Efectivo de pagos sueltos (deudas)</span>
+                        <span>- Efectivo de pagos recibidos</span>
                         <span>{formatCurrency(periodoData.resumen.pagosSueltosEfectivo)}</span>
                       </div>
                     )}
@@ -375,7 +375,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                     </div>
                     {periodoData.resumen.totalPagosSueltos > 0 && (
                       <div className="flex justify-between text-muted-foreground">
-                        <span>- Efectivo de pagos sueltos (deudas)</span>
+                        <span>- Efectivo de pagos recibidos</span>
                         <span>{formatCurrency(periodoData.resumen.pagosSueltosEfectivo)}</span>
                       </div>
                     )}
@@ -510,12 +510,12 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
             </Card>
           )}
 
-          {/* Pagos sueltos del período */}
+          {/* Pagos recibidos del período */}
           {periodoData.pagosSueltos && periodoData.pagosSueltos.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">
-                  Pagos sueltos recibidos ({periodoData.pagosSueltos.length})
+                  Pagos recibidos ({periodoData.pagosSueltos.length})
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -543,7 +543,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                     </tbody>
                     <tfoot>
                       <tr className="border-t font-bold">
-                        <td className="p-2" colSpan={3}>Total pagos sueltos</td>
+                        <td className="p-2" colSpan={3}>Total pagos recibidos</td>
                         <td className="p-2">{formatCurrency(periodoData.resumen.totalPagosSueltos)}</td>
                         <td className="p-2"></td>
                       </tr>

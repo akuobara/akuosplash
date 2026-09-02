@@ -107,11 +107,11 @@ export async function GET(req: NextRequest) {
   const totalEfectivo = entregas.reduce((s, e) => s + e.montoEfectivo, 0);
   const totalTransferencia = entregas.reduce((s, e) => s + e.montoTransferencia, 0);
   const totalRecibido = totalEfectivo + totalTransferencia;
-  // Pagos sueltos (cobros de deudas anteriores)
+  // Pagos recibidos (cobros de deudas)
   const totalPagosSueltos = pagosSueltos.reduce((s, p) => s + p.monto, 0);
   const pagosSueltosEfectivo = pagosSueltos.filter(p => p.metodoPago === "efectivo").reduce((s, p) => s + p.monto, 0);
   const pagosSueltosTransferencia = pagosSueltos.filter(p => p.metodoPago === "transferencia").reduce((s, p) => s + p.monto, 0);
-  // Efectivo total = efectivo de entregas + efectivo de pagos sueltos
+  // Efectivo total = efectivo de entregas + efectivo de pagos recibidos
   const efectivoTotal = totalEfectivo + pagosSueltosEfectivo;
   const totalLitros = entregas.reduce((s, e) => s + e.litros, 0);
   const totalGastos = gastos.reduce((s, g) => s + g.monto, 0);
@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
   const baseImponible = cfg.aplicaImpuestoSobre === "pago_chofer" ? pagoChofer : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? utilidadBruta : totalVentas;
   const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (Math.max(0, baseImponible) * cfg.porcentajeImpuesto) / 100;
   const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
-  // El saldo del chofer descuenta TODO el efectivo que tiene en mano (entregas + pagos sueltos)
+  // El saldo del chofer descuenta TODO el efectivo que tiene en mano (entregas + pagos recibidos)
   const saldoChofer = liquidoChofer - efectivoTotal;
 
   // Detalle de vueltas para la liquidación

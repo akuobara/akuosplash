@@ -1271,7 +1271,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                           {deudaInicial > 0 ? `${formatCurrency(deudaInicial)} deuda anterior · ` : ""}
                           {totalVentas > 0 ? `${formatCurrency(totalVentas)} en ventas · ` : ""}
                           {totalRecibido > 0 ? `${formatCurrency(totalRecibido)} recibido · ` : ""}
-                          {totalPagosSueltos > 0 ? `${formatCurrency(totalPagosSueltos)} en pagos sueltos` : ""}
+                          {totalPagosSueltos > 0 ? `${formatCurrency(totalPagosSueltos)} en pagos recibidos` : ""}
                         </p>
                       </div>
                     </div>

@@ -146,10 +146,10 @@ function generarPDF(period: string, data: any) {
     head: [["Concepto", "Valor"]],
     body: [
       ["Efectivo de entregas", formatCurrency(data.totalEfectivo)],
-      ["Efectivo de pagos sueltos (deudas)", formatCurrency(data.pagosSueltosEfectivo)],
+      ["Efectivo de pagos recibidos", formatCurrency(data.pagosSueltosEfectivo)],
       ["Total efectivo", formatCurrency(data.efectivoTotal)],
       ["Transferencia de entregas", formatCurrency(data.totalTransferencia)],
-      ["Transferencia de pagos sueltos", formatCurrency(data.pagosSueltosTransferencia)],
+      ["Transferencia de pagos recibidos", formatCurrency(data.pagosSueltosTransferencia)],
       ["Total transferencia", formatCurrency(data.transferenciaTotal)],
       ["Pendiente", formatCurrency(data.totalPorCobrar)],
     ],
@@ -196,7 +196,7 @@ function generarPDF(period: string, data: any) {
   if (data.pagos && data.pagos.length > 0) {
     if (y > 250) { doc.addPage(); y = 20; }
     doc.setFontSize(14);
-    doc.text("4. Pagos sueltos recibidos", 14, y);
+    doc.text("4. Pagos recibidos", 14, y);
     y += 5;
     autoTable(doc, {
       startY: y,
@@ -266,10 +266,10 @@ function generarExcel(period: string, data: any) {
     ["2. PAGOS"],
     ["Concepto", "Valor"],
     ["Efectivo de entregas", data.totalEfectivo],
-    ["Efectivo de pagos sueltos (deudas)", data.pagosSueltosEfectivo],
+    ["Efectivo de pagos recibidos", data.pagosSueltosEfectivo],
     ["Total efectivo", data.efectivoTotal],
     ["Transferencia de entregas", data.totalTransferencia],
-    ["Transferencia de pagos sueltos", data.pagosSueltosTransferencia],
+    ["Transferencia de pagos recibidos", data.pagosSueltosTransferencia],
     ["Total transferencia", data.transferenciaTotal],
     ["Pendiente", data.totalPorCobrar],
     [],
@@ -278,7 +278,7 @@ function generarExcel(period: string, data: any) {
     ...data.clientesEntrega.map((c: any) => [c.nombre, c.entregas, c.litros, c.ventas, c.recibido, c.saldo]),
     ["TOTAL", data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0), data.totalLitros, data.totalVentas, data.totalRecibido, data.totalPorCobrar],
     [],
-    ["4. PAGOS SUELTOS RECIBIDOS"],
+    ["4. PAGOS RECIBIDOS"],
     ["Fecha", "Cliente", "Método", "Monto", "Nota"],
     ...(data.pagos || []).map((p: any) => [formatDateTime(p.fecha), p.cliente?.nombre || "—", p.metodoPago, p.monto, p.nota || ""]),
     ["", "", "Total", data.totalPagosSueltos, ""],
