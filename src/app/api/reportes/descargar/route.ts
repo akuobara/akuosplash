@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
   const rangeFilter = { AND: [start ? { fecha: { gte: start } } : {}, end ? { fecha: { lt: end } } : {}] };
   const entregaWhere = { ...rangeFilter, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
   const gastoWhere = { ...rangeFilter, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
-  const pagoWhere = { ...rangeFilter, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
+  const pagoWhere = { ...rangeFilter, duenoId };
 
   const [entregas, gastos, pagos, config] = await Promise.all([
     db.entrega.findMany({ where: entregaWhere, orderBy: { fecha: "desc" } }),
