@@ -282,13 +282,13 @@ export function Dashboard({
             label="Resumen PDF"
             icon={<FileText className="mr-1 h-3.5 w-3.5" />}
             url={`/api/reportes/descargar?formato=pdf&period=${period}`}
-            filename={`resumen-${period}.pdf`}
+            filename={`resumen-${new Date().toLocaleDateString("es-CL", { timeZone: "America/Santiago", day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-")}.pdf`}
           />
           <DownloadButton
             label="Resumen Excel"
             icon={<FileSpreadsheet className="mr-1 h-3.5 w-3.5" />}
             url={`/api/reportes/descargar?formato=excel&period=${period}`}
-            filename={`resumen-${period}.xlsx`}
+            filename={`resumen-${new Date().toLocaleDateString("es-CL", { timeZone: "America/Santiago", day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-")}.xlsx`}
           />
         </div>
       </div>
