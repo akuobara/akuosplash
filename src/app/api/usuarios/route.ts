@@ -73,6 +73,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ usuario: { id: session.userId, nombre: session.nombre, email: session.email, role: "dueno" } });
     }
 
+    // === Validar límite del plan ===
+    const config = await db.configuracion.findUnique({
+      where: { duenoId: session.userId },
+      select: { planId: true },
+    });
+    const planId = config?.planId || "free";
+    const plan = await db.plan.findUnique({
+      where: { id: planId },
+      select: { maxChoferes: true },
+    });
+    if (plan && plan.maxChoferes >= 0) {
+      const choferesActuales = await db.usuario.count({
+        where: { duenoId: session.userId, role: "chofer" },
+      });
+      if (choferesActuales >= plan.maxChoferes) {
+        return NextResponse.json({
+          error: `Tu plan ${planId} permite máximo ${plan.maxChoferes} chofer(es). Actualizá tu plan para agregar más.`,
+        }, { status: 403 });
+      }
+    }
+
     // Normalizar teléfono
     let telefonoNormalizado: string | null = null;
     if (telefono?.trim()) {

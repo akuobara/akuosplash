@@ -74,6 +74,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "La capacidad debe ser mayor a 0" }, { status: 400 });
     }
 
+    // === Validar límite del plan ===
+    const config = await db.configuracion.findUnique({
+      where: { duenoId: session.userId },
+      select: { planId: true },
+    });
+    const planId = config?.planId || "free";
+    const plan = await db.plan.findUnique({
+      where: { id: planId },
+      select: { maxCamiones: true },
+    });
+    if (plan && plan.maxCamiones >= 0) {
+      const camionesActuales = await db.camion.count({
+        where: { duenoId: session.userId },
+      });
+      if (camionesActuales >= plan.maxCamiones) {
+        return NextResponse.json({
+          error: `Tu plan ${planId} permite máximo ${plan.maxCamiones} camión(es). Actualizá tu plan para agregar más.`,
+        }, { status: 403 });
+      }
+    }
+
     const nuevo = await db.camion.create({
       data: {
         nombre: body.nombre.trim(),
