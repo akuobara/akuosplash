@@ -145,8 +145,12 @@ function generarPDF(period: string, data: any) {
     startY: y,
     head: [["Concepto", "Valor"]],
     body: [
-      ["Efectivo", formatCurrency(data.efectivoTotal)],
-      ["Transferencia", formatCurrency(data.transferenciaTotal)],
+      ["Efectivo de entregas", formatCurrency(data.totalEfectivo)],
+      ["Efectivo de pagos sueltos (deudas)", formatCurrency(data.pagosSueltosEfectivo)],
+      ["Total efectivo", formatCurrency(data.efectivoTotal)],
+      ["Transferencia de entregas", formatCurrency(data.totalTransferencia)],
+      ["Transferencia de pagos sueltos", formatCurrency(data.pagosSueltosTransferencia)],
+      ["Total transferencia", formatCurrency(data.transferenciaTotal)],
       ["Pendiente", formatCurrency(data.totalPorCobrar)],
     ],
     theme: "striped",
@@ -188,11 +192,35 @@ function generarPDF(period: string, data: any) {
     y = (doc as any).lastAutoTable.finalY + 8;
   }
 
-  // === 4. GASTOS (tipo + monto, agrupado) ===
+  // === 4. PAGOS SUELTOS (detalle) ===
+  if (data.pagos && data.pagos.length > 0) {
+    if (y > 250) { doc.addPage(); y = 20; }
+    doc.setFontSize(14);
+    doc.text("4. Pagos sueltos recibidos", 14, y);
+    y += 5;
+    autoTable(doc, {
+      startY: y,
+      head: [["Fecha", "Cliente", "Método", "Monto", "Nota"]],
+      body: data.pagos.map((p: any) => [
+        formatDateTime(p.fecha),
+        p.cliente?.nombre || "—",
+        p.metodoPago,
+        formatCurrency(p.monto),
+        p.nota || "—",
+      ]),
+      theme: "striped",
+      headStyles: { fillColor: [16, 185, 129], fontSize: 9 },
+      bodyStyles: { fontSize: 8 },
+      foot: [["", "", "Total", formatCurrency(data.totalPagosSueltos), ""]],
+    });
+    y = (doc as any).lastAutoTable.finalY + 8;
+  }
+
+  // === 5. GASTOS (tipo + monto, agrupado) ===
   if (data.gastosPorTipo.length > 0) {
     if (y > 250) { doc.addPage(); y = 20; }
     doc.setFontSize(14);
-    doc.text("4. Gastos", 14, y);
+    doc.text("5. Gastos", 14, y);
     y += 5;
     autoTable(doc, {
       startY: y,
@@ -237,8 +265,12 @@ function generarExcel(period: string, data: any) {
     [],
     ["2. PAGOS"],
     ["Concepto", "Valor"],
-    ["Efectivo", data.efectivoTotal],
-    ["Transferencia", data.transferenciaTotal],
+    ["Efectivo de entregas", data.totalEfectivo],
+    ["Efectivo de pagos sueltos (deudas)", data.pagosSueltosEfectivo],
+    ["Total efectivo", data.efectivoTotal],
+    ["Transferencia de entregas", data.totalTransferencia],
+    ["Transferencia de pagos sueltos", data.pagosSueltosTransferencia],
+    ["Total transferencia", data.transferenciaTotal],
     ["Pendiente", data.totalPorCobrar],
     [],
     ["3. CLIENTES CON CANTIDAD ENTREGADA"],
@@ -246,7 +278,12 @@ function generarExcel(period: string, data: any) {
     ...data.clientesEntrega.map((c: any) => [c.nombre, c.entregas, c.litros, c.ventas, c.recibido, c.saldo]),
     ["TOTAL", data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0), data.totalLitros, data.totalVentas, data.totalRecibido, data.totalPorCobrar],
     [],
-    ["4. GASTOS"],
+    ["4. PAGOS SUELTOS RECIBIDOS"],
+    ["Fecha", "Cliente", "Método", "Monto", "Nota"],
+    ...(data.pagos || []).map((p: any) => [formatDateTime(p.fecha), p.cliente?.nombre || "—", p.metodoPago, p.monto, p.nota || ""]),
+    ["", "", "Total", data.totalPagosSueltos, ""],
+    [],
+    ["5. GASTOS"],
     ["Tipo de gasto", "Monto"],
     ...data.gastosPorTipo.map((g: any) => [g.tipo, g.monto]),
     ["Total", data.totalGastos],

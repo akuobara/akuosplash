@@ -316,9 +316,21 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                       <span>{formatCurrency(periodoData.resumen.liquidoChofer)}</span>
                     </div>
                     <div className="flex justify-between text-muted-foreground">
-                      <span>- Efectivo recibido en ruta</span>
+                      <span>- Efectivo de entregas</span>
                       <span>{formatCurrency(periodoData.resumen.totalEfectivo)}</span>
                     </div>
+                    {periodoData.resumen.totalPagosSueltos > 0 && (
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>- Efectivo de pagos sueltos (deudas)</span>
+                        <span>{formatCurrency(periodoData.resumen.pagosSueltosEfectivo)}</span>
+                      </div>
+                    )}
+                    {periodoData.resumen.totalPagosSueltos > 0 && (
+                      <div className="flex justify-between text-muted-foreground border-t pt-1">
+                        <span>Total efectivo en mano</span>
+                        <span>{formatCurrency(periodoData.resumen.efectivoTotal)}</span>
+                      </div>
+                    )}
                     <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
                       <span>{periodoData.resumen.saldoChofer >= 0 ? "Te deben" : "Debés"}</span>
                       <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}</span>
@@ -358,9 +370,21 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                       <span>{formatCurrency(periodoData.resumen.liquidoChofer)}</span>
                     </div>
                     <div className="flex justify-between text-muted-foreground">
-                      <span>- Efectivo recibido</span>
+                      <span>- Efectivo de entregas</span>
                       <span>{formatCurrency(periodoData.resumen.totalEfectivo)}</span>
                     </div>
+                    {periodoData.resumen.totalPagosSueltos > 0 && (
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>- Efectivo de pagos sueltos (deudas)</span>
+                        <span>{formatCurrency(periodoData.resumen.pagosSueltosEfectivo)}</span>
+                      </div>
+                    )}
+                    {periodoData.resumen.totalPagosSueltos > 0 && (
+                      <div className="flex justify-between text-muted-foreground border-t pt-1">
+                        <span>Total efectivo en mano</span>
+                        <span>{formatCurrency(periodoData.resumen.efectivoTotal)}</span>
+                      </div>
+                    )}
                     <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
                       <span>{periodoData.resumen.saldoChofer >= 0 ? "Te deben" : "Debés"}</span>
                       <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}</span>
@@ -480,6 +504,50 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                         </tr>
                       ))}
                     </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Pagos sueltos del período */}
+          {periodoData.pagosSueltos && periodoData.pagosSueltos.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">
+                  Pagos sueltos recibidos ({periodoData.pagosSueltos.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="p-2">Fecha</th>
+                        <th className="p-2">Cliente</th>
+                        <th className="p-2">Método</th>
+                        <th className="p-2">Monto</th>
+                        <th className="p-2">Nota</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {periodoData.pagosSueltos.map((p: any) => (
+                        <tr key={p.id} className="border-b last:border-0">
+                          <td className="p-2 whitespace-nowrap">{formatDateTime(p.fecha)}</td>
+                          <td className="p-2">{p.cliente}</td>
+                          <td className="p-2">{p.metodoPago}</td>
+                          <td className="p-2 font-medium">{formatCurrency(p.monto)}</td>
+                          <td className="p-2">{p.nota || "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t font-bold">
+                        <td className="p-2" colSpan={3}>Total pagos sueltos</td>
+                        <td className="p-2">{formatCurrency(periodoData.resumen.totalPagosSueltos)}</td>
+                        <td className="p-2"></td>
+                      </tr>
+                    </tfoot>
                   </table>
                 </div>
               </CardContent>

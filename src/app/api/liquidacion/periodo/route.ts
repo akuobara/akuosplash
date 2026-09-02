@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Buscar entregas, gastos, vueltas del período
-  const [entregas, gastos, vueltas] = await Promise.all([
+  const [entregas, gastos, vueltas, pagosSueltos] = await Promise.all([
     db.entrega.findMany({
       where: { duenoId, fecha: { gte: start, lt: end } },
       orderBy: { fecha: "desc" },
@@ -96,12 +96,23 @@ export async function GET(req: NextRequest) {
       },
       orderBy: { iniciadaEn: "desc" },
     }),
+    db.pago.findMany({
+      where: { duenoId, fecha: { gte: start, lt: end } },
+      orderBy: { fecha: "desc" },
+      include: { cliente: { select: { nombre: true } } },
+    }),
   ]);
 
   const totalVentas = entregas.reduce((s, e) => s + e.total, 0);
   const totalEfectivo = entregas.reduce((s, e) => s + e.montoEfectivo, 0);
   const totalTransferencia = entregas.reduce((s, e) => s + e.montoTransferencia, 0);
   const totalRecibido = totalEfectivo + totalTransferencia;
+  // Pagos sueltos (cobros de deudas anteriores)
+  const totalPagosSueltos = pagosSueltos.reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosEfectivo = pagosSueltos.filter(p => p.metodoPago === "efectivo").reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosTransferencia = pagosSueltos.filter(p => p.metodoPago === "transferencia").reduce((s, p) => s + p.monto, 0);
+  // Efectivo total = efectivo de entregas + efectivo de pagos sueltos
+  const efectivoTotal = totalEfectivo + pagosSueltosEfectivo;
   const totalLitros = entregas.reduce((s, e) => s + e.litros, 0);
   const totalGastos = gastos.reduce((s, g) => s + g.monto, 0);
   const gastosChofer = gastos.filter(g => g.pagadoPor === "chofer").reduce((s, g) => s + g.monto, 0);
@@ -129,7 +140,8 @@ export async function GET(req: NextRequest) {
   const baseImponible = cfg.aplicaImpuestoSobre === "pago_chofer" ? pagoChofer : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? utilidadBruta : totalVentas;
   const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (Math.max(0, baseImponible) * cfg.porcentajeImpuesto) / 100;
   const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
-  const saldoChofer = liquidoChofer - totalEfectivo;
+  // El saldo del chofer descuenta TODO el efectivo que tiene en mano (entregas + pagos sueltos)
+  const saldoChofer = liquidoChofer - efectivoTotal;
 
   // Detalle de vueltas para la liquidación
   const vueltasDetalle = vueltas.map(v => {
@@ -199,7 +211,20 @@ export async function GET(req: NextRequest) {
       saldoChofer,
       vueltasCompletadas: vueltasValidas.length,
       vueltasTotal: vueltas.length,
+      // Pagos sueltos
+      totalPagosSueltos,
+      pagosSueltosEfectivo,
+      pagosSueltosTransferencia,
+      efectivoTotal,
     },
+    pagosSueltos: pagosSueltos.map(p => ({
+      id: p.id,
+      fecha: p.fecha,
+      cliente: p.cliente?.nombre || "—",
+      monto: p.monto,
+      metodoPago: p.metodoPago,
+      nota: p.nota,
+    })),
     vueltas: vueltasDetalle,
     entregas: entregas.map(e => ({
       id: e.id,
