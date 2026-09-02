@@ -73,6 +73,7 @@ model Cliente {
   zona          String?
   precioEfectivoPorLitro       Float @default(0)
   precioTransferenciaPorLitro  Float @default(0)
+  precioCamionCompleto         Float @default(0)  // precio fijo por camión completo (ej: 17000L)
   nota          String?
   creadoEn      DateTime @default(now())
 
@@ -423,6 +424,7 @@ model Configuracion {
 
   precioEfectivoPorLitro      Float   @default(0)
   precioTransferenciaPorLitro Float   @default(0)
+  precioCamionCompleto        Float   @default(0)  // precio fijo por camión completo
 
   tipoTributo                 String  @default("boleta_honorarios")
   porcentajeImpuesto          Float   @default(15.25)
