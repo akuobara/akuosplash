@@ -282,13 +282,13 @@ export function Dashboard({
             label="Resumen PDF"
             icon={<FileText className="mr-1 h-3.5 w-3.5" />}
             url={`/api/reportes/descargar?formato=pdf&period=${period}`}
-            filename={`resumen-${new Date().toLocaleDateString("es-CL", { timeZone: "America/Santiago", day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-")}.pdf`}
+            filename={`resumen-${period}.pdf`}
           />
           <DownloadButton
             label="Resumen Excel"
             icon={<FileSpreadsheet className="mr-1 h-3.5 w-3.5" />}
             url={`/api/reportes/descargar?formato=excel&period=${period}`}
-            filename={`resumen-${new Date().toLocaleDateString("es-CL", { timeZone: "America/Santiago", day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, "-")}.xlsx`}
+            filename={`resumen-${period}.xlsx`}
           />
         </div>
       </div>
@@ -797,10 +797,14 @@ function DownloadButton({ label, icon, url, filename }: { label: string; icon: R
         throw new Error("El servidor devolvió un archivo vacío");
       }
       // Crear URL temporal y disparar descarga
+      // Usar el filename que viene del backend (Content-Disposition) si está disponible
+      const disposition = res.headers.get("Content-Disposition") || "";
+      const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+      const finalFilename = filenameMatch ? filenameMatch[1] : filename;
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download = filename;
+      a.download = finalFilename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
