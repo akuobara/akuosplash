@@ -9,9 +9,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // Campos obligatorios
-    if (!body.email?.trim() || !body.password || !body.nombre?.trim() || !body.zonaId) {
+    if (!body.email?.trim() || !body.password || !body.nombre?.trim() || !body.zonaId || !body.rut?.trim() || !body.telefono?.trim()) {
       return NextResponse.json(
-        { error: "Nombre, email, contraseña y zona son obligatorios" },
+        { error: "Nombre, RUT, teléfono, email, contraseña y zona son obligatorios" },
         { status: 400 }
       );
     }

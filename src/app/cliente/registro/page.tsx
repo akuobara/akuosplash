@@ -87,8 +87,8 @@ export default function RegistroClientePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!nombre.trim() || !email.trim() || !password || !zonaId) {
-      toast.error("Nombre, email, contraseña y zona son obligatorios");
+    if (!nombre.trim() || !email.trim() || !password || !zonaId || !rut.trim() || !telefono.trim()) {
+      toast.error("Todos los campos marcados con * son obligatorios");
       return;
     }
 
@@ -160,11 +160,11 @@ export default function RegistroClientePage() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs">RUT</Label>
+                  <Label className="text-xs">RUT *</Label>
                   <Input value={rut} onChange={(e) => setRut(e.target.value)} placeholder="12.345.678-9" />
                 </div>
                 <div>
-                  <Label className="text-xs">Teléfono</Label>
+                  <Label className="text-xs">Teléfono *</Label>
                   <Input value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+56 9 1234 5678" />
                 </div>
               </div>

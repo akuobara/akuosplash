@@ -79,6 +79,11 @@ export default function LoginClientePage() {
                   {loading ? "Entrando..." : "Iniciar sesión"}
                 </Button>
               </form>
+              <div className="mt-2 text-right">
+                <Link href="/cliente/recuperar" className="text-xs text-muted-foreground hover:text-primary">
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
             </CardContent>
           </Card>
 
