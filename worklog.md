@@ -69,3 +69,23 @@ Stage Summary:
 - Funcionalidad "precio por camión completo" operativa en producción
 - App cliente y portal de pago NO fueron modificados (siguen intactos)
 - Próximo paso: pruebas en producción por el usuario
+
+---
+Task ID: rollback-deploy-broken
+Agent: main
+Task: Rollback de deploy porque la DB de producción no tenía el campo precioCamionCompleto.
+
+Work Log:
+- Deploy 0f29e28 (precioCamionCompleto) → HTTP 500 en /api/clientes, /api/configuracion, /api/liquidacion/periodo, /api/reportes/*
+- Error: "no such column: main.Configuracion.precioCamionCompleto" y "main.Cliente.precioCamionCompleto"
+- Causa raíz: el schema de Prisma tiene el campo, pero la DB de producción (Turso/libSQL) no fue migrada con `prisma db push`
+- El build de Vercel solo corre `prisma generate` (en postinstall), NO corre `prisma db push`
+- Rollback ejecutado: promoted my-project-b2o6nii4f (deploy de 11h atrás, anterior al cambio)
+- Verificación: /api/clientes vuelve a dar 401 (correcto, no 500), /api/config/public 200
+- Estado de producción: RESTAURADO a versión funcional
+
+Stage Summary:
+- Producción operativa de nuevo (versión anterior al cambio)
+- Cambios precioCamionCompleto siguen en GitHub pero NO en producción
+- Para re-deployar hace falta: (1) obtener credenciales de Turso, (2) correr prisma db push contra prod, (3) deployar de nuevo
+- Alternativa: agregar `prisma db push` al build script (más arriesgado, hace migración automática en cada deploy)
