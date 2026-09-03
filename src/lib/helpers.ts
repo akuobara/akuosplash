@@ -158,6 +158,19 @@ export function formatDate(date: Date | string): string {
   });
 }
 
+// Versión de formatDate que interpreta la fecha como "el día del ISO string" (YYYY-MM-DD)
+// sin convertirla a zona horaria local. Útil para fechas que se guardan como
+// "YYYY-MM-DDT00:00:00Z" y que el usuario quiere ver como "el día YYYY-MM-DD"
+// (sin importar su zona horaria). Ej: pedido recurrente para "4 de septiembre"
+// se guarda como 2026-09-04T00:00:00Z y debe mostrarse como "04-09-2024", no "03-09".
+export function formatDateUTC(date: Date | string): string {
+  const isoStr = typeof date === "string" ? date : date.toISOString();
+  const yyyyMmDd = isoStr.split("T")[0];
+  if (!yyyyMmDd) return formatDate(date);
+  const [y, m, d] = yyyyMmDd.split("-");
+  return `${d}-${m}-${y}`;
+}
+
 export function formatDateTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleString("es-CL", {

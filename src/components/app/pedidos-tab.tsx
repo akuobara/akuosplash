@@ -63,6 +63,7 @@ import {
   formatCurrency,
   formatDateTime,
   formatDate,
+  formatDateUTC,
   labelEstadoPedido,
   labelMetodoPago,
   ESTADOS_PEDIDO,
@@ -246,9 +247,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   });
 
   // Agrupar y ordenar por fecha (Atrasados, Hoy, Mañana, Pasado mañana, Próximos)
-  // IMPORTANTE: las fechas de los pedidos se guardan como "YYYY-MM-DDT00:00:00.000Z" (UTC),
-  // pero queremos agrupar por fecha en la zona horaria local del usuario.
-  // Usamos toLocaleDateString() para normalizar a la fecha local (sin hora).
+  // IMPORTANTE: las fechas de los pedidos se guardan como "YYYY-MM-DDT00:00:00.000Z" (UTC).
+  // Cuando el usuario selecciona "4 de septiembre" como fecha del pedido, se guarda como
+  // 2026-09-04T00:00:00Z que en Chile (UTC-4) es 2026-09-03 20:00.
+  // Para que el pedido se muestre en el día correcto ("Mañana" = 4 de sep), interpretamos
+  // la fecha del pedido como la parte YYYY-MM-DD del ISO string (ignorando la zona horaria).
   function fechaLocal(d: Date): string {
     return d.toLocaleDateString("en-CA"); // formato YYYY-MM-DD en zona horaria local
   }
@@ -259,7 +262,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
 
   function fechaGrupo(p: Pedido): { key: string; order: number } {
     if (!p.fechaSolicitada) return { key: "hoy", order: 1 };  // Sin fecha → asumir hoy
-    const fStr = fechaLocal(new Date(p.fechaSolicitada));
+    // Extraer YYYY-MM-DD del ISO string (parte antes de la 'T')
+    // Esto interpreta la fecha como "el día que el usuario quería", sin conversión de zona horaria.
+    const fStr = p.fechaSolicitada.split("T")[0];
     if (fStr < hoyStr) return { key: "atrasados", order: 0 };
     if (fStr === hoyStr) return { key: "hoy", order: 1 };
     if (fStr === mananaStr) return { key: "manana", order: 2 };
@@ -830,8 +835,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                     fHoy.setHours(0, 0, 0, 0);
                                     if (fecha > fHoy) {
                                       return (
-                                        <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Programado para ${formatDate(p.fechaSolicitada!)}`}>
-                                          <Clock className="h-2.5 w-2.5" /> {formatDate(p.fechaSolicitada!)}
+                                        <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Programado para ${formatDateUTC(p.fechaSolicitada!)}`}>
+                                          <Clock className="h-2.5 w-2.5" /> {formatDateUTC(p.fechaSolicitada!)}
                                         </Badge>
                                       );
                                     }
@@ -865,7 +870,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                   {p.fechaSolicitada && (
                                     <>
                                       <Calendar className="ml-2 inline h-3 w-3" />
-                                      {formatDate(p.fechaSolicitada)}
+                                      {formatDateUTC(p.fechaSolicitada)}
                                     </>
                                   )}
                                   {p.clienteTelefono && (
@@ -1055,7 +1060,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 </div>
                                 <p className="truncate text-xs text-muted-foreground">
                                   {p.clienteDireccion || "Sin dirección"}
-                                  {p.fechaSolicitada && ` · ${formatDate(p.fechaSolicitada)}`}
+                                  {p.fechaSolicitada && ` · ${formatDateUTC(p.fechaSolicitada)}`}
                                 </p>
                               </div>
                             </button>
