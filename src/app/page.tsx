@@ -85,6 +85,7 @@ interface Config {
   aplicaImpuestoSobre: string;
   choferesPuedenEditarClientes: boolean;
   choferesPuedenCrearPedidos: boolean;
+  umbralCompletacionVuelta?: number | null;
 }
 
 interface Camion {

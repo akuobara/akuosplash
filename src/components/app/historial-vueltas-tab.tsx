@@ -95,6 +95,7 @@ const PERIODS: { value: Period; label: string }[] = [
 export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: number; onRefresh: () => void }) {
   const [vueltas, setVueltas] = useState<Vuelta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [umbralCompletacion, setUmbralCompletacion] = useState<number>(0.975);
   const [period, setPeriod] = useState<Period>("semana");
   const [vueltasAbiertas, setVueltasAbiertas] = useState<Set<string>>(new Set());
   const [entregasPorVuelta, setEntregasPorVuelta] = useState<Record<string, EntregaVuelta[]>>({});
@@ -103,6 +104,16 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
   const [reabriendo, setReabriendo] = useState(false);
   // Cache de todas las entregas para no hacer N+1 requests
   const [cacheEntregas, setCacheEntregas] = useState<EntregaVuelta[] | null>(null);
+
+  // Cargar umbral de completación desde la configuración
+  useEffect(() => {
+    apiGet<{ configuracion: { umbralCompletacionVuelta?: number | null } }>("/api/configuracion")
+      .then(data => {
+        const u = data.configuracion?.umbralCompletacionVuelta;
+        if (typeof u === "number" && u > 0) setUmbralCompletacion(u);
+      })
+      .catch(() => {});
+  }, []);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -300,9 +311,9 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
                   const abierta = vueltasAbiertas.has(v.id);
                   const entregas = entregasPorVuelta[v.id] || [];
                   const cargando = cargandoEntregas.has(v.id);
-                  const completada = esVueltaCompletada(v.litros, v.capacidadCamion, v.cantidadEntregas);
+                  const completada = esVueltaCompletada(v.litros, v.capacidadCamion, v.cantidadEntregas, umbralCompletacion);
                   const porcentaje = v.capacidadCamion > 0 ? (v.litros / v.capacidadCamion) * 100 : 0;
-                  const umbralLitros = v.capacidadCamion > 0 ? Math.ceil(v.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
+                  const umbralLitros = v.capacidadCamion > 0 ? Math.ceil(v.capacidadCamion * umbralCompletacion) : 0;
                   const puedeReabrir = !v.activa && !completada;
 
                   return (
@@ -545,7 +556,7 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
                 <div>
                   <p>Si hay otra vuelta activa actualmente, se cerrará automáticamente.</p>
                   <p className="mt-1">Para que esta vuelta cuente en la liquidación, debes entregar al menos{" "}
-                    <strong>{formatNumber(reabrirConfirm.capacidadCamion > 0 ? Math.ceil(reabrirConfirm.capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0, 0)} L</strong> en total (97.5% de la capacidad del camión).
+                    <strong>{formatNumber(reabrirConfirm.capacidadCamion > 0 ? Math.ceil(reabrirConfirm.capacidadCamion * umbralCompletacion) : 0, 0)} L</strong> en total ({(umbralCompletacion * 100).toFixed(1)}% de la capacidad del camión).
                   </p>
                 </div>
               </div>

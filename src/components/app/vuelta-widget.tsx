@@ -37,6 +37,7 @@ interface VueltaWidgetProps {
   vueltaActual: VueltaActual | null;
   camiones: CamionOption[];
   isDueno?: boolean;
+  umbralCompletacionVuelta?: number | null;
   onVueltaChange: () => void;
   onRegistrarEntrega: () => void;
 }
@@ -45,6 +46,7 @@ export function VueltaWidget({
   vueltaActual,
   camiones,
   isDueno = false,
+  umbralCompletacionVuelta = 0.975,
   onVueltaChange,
   onRegistrarEntrega,
 }: VueltaWidgetProps) {
@@ -153,8 +155,10 @@ export function VueltaWidget({
   const litrosRestantes = Math.max(0, capacidadCamion - litrosEntregados);
   const porcentajeUsado = capacidadCamion > 0 ? (litrosEntregados / capacidadCamion) * 100 : 0;
   const excede = litrosEntregados > capacidadCamion && capacidadCamion > 0;
-  const vueltaCompletada = esVueltaCompletada(litrosEntregados, capacidadCamion, vueltaActual.cantidadEntregas);
-  const umbralLitros = capacidadCamion > 0 ? Math.ceil(capacidadCamion * UMBRAL_COMPLETACION_VUELTA) : 0;
+  const umbralEfectivo = umbralCompletacionVuelta ?? 0.975;
+  const umbralPorcentaje = umbralEfectivo * 100; // ej: 95 o 97.5
+  const vueltaCompletada = esVueltaCompletada(litrosEntregados, capacidadCamion, vueltaActual.cantidadEntregas, umbralEfectivo);
+  const umbralLitros = capacidadCamion > 0 ? Math.ceil(capacidadCamion * umbralEfectivo) : 0;
 
   async function iniciarVuelta() {
     setIniciando(true);
@@ -244,7 +248,7 @@ export function VueltaWidget({
                   <span className={excede ? "font-medium text-red-600 dark:text-red-400" : "text-muted-foreground"}>
                     {porcentajeUsado.toFixed(0)}%
                     {!vueltaCompletada && !excede && (
-                      <span className="ml-1 text-amber-600 dark:text-amber-400">· falta {Math.max(0, 97.5 - porcentajeUsado).toFixed(1)}% para validar</span>
+                      <span className="ml-1 text-amber-600 dark:text-amber-400">· falta {Math.max(0, umbralPorcentaje - porcentajeUsado).toFixed(1)}% para validar</span>
                     )}
                   </span>
                 </div>
@@ -253,11 +257,11 @@ export function VueltaWidget({
                     className={`h-full rounded-full transition-all ${excede ? "bg-red-500" : vueltaCompletada ? "bg-emerald-500" : porcentajeUsado >= 90 ? "bg-amber-500" : "bg-primary"}`}
                     style={{ width: `${Math.min(100, porcentajeUsado)}%` }}
                   />
-                  {/* Marcador del 97.5% */}
+                  {/* Marcador del umbral */}
                   <div
                     className="absolute top-0 h-full w-0.5 bg-emerald-600/70"
-                    style={{ left: "97.5%" }}
-                    title="Umbral 97.5% para vuelta válida"
+                    style={{ left: `${umbralPorcentaje}%` }}
+                    title={`Umbral ${umbralPorcentaje}% para vuelta válida`}
                   />
                 </div>
                 {excede && (
@@ -399,7 +403,7 @@ export function VueltaWidget({
                     Has entregado <strong>{formatNumber(litrosEntregados, 0)} L</strong> de{" "}
                     <strong>{formatNumber(capacidadCamion, 0)} L</strong> ({porcentajeUsado.toFixed(0)}%).
                     {" "}Para que la vuelta cuente como válida en la liquidación debes entregar al menos{" "}
-                    <strong>{formatNumber(umbralLitros, 0)} L</strong> (97.5% de la capacidad).
+                    <strong>{formatNumber(umbralLitros, 0)} L</strong> ({umbralPorcentaje}% de la capacidad).
                   </p>
                   <p className="text-xs">
                     Si cierras ahora, esta vuelta <strong>no se contabilizará</strong> para el pago al chofer.

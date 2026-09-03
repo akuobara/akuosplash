@@ -122,6 +122,7 @@ interface DashboardProps {
     precioTransferenciaPorLitro: number;
     precioCamionCompleto: number;
     capacidadCamion: number;
+    umbralCompletacionVuelta?: number | null;
   };
   camiones: {
     id: string;
@@ -328,6 +329,7 @@ export function Dashboard({
         vueltaActual={vueltaActual}
         camiones={camiones}
         isDueno={isDueno}
+        umbralCompletacionVuelta={config?.umbralCompletacionVuelta ?? 0.975}
         onVueltaChange={() => {
           cargarVuelta();
           onRefresh();
