@@ -19,3 +19,28 @@ Stage Summary:
 - Backend ahora persiste correctamente todos los campos de licencia al crear/editar choferes.
 - UI de equipo y camiones ahora muestra advertencias tempranas (30 días antes del vencimiento) para licencias y documentos, no solo cuando ya están vencidos.
 - No se introdujeron nuevos errores de TypeScript; los 20 errores restantes son preexistentes en otros archivos (pedidos/route, reportes/resumen, dashboard.tsx, entrega-form.tsx, pedidos-tab.tsx) y no están relacionados con esta tarea.
+
+---
+Task ID: github-sync-setup
+Agent: main
+Task: Configurar repo en GitHub y sincronización automática del código fuente.
+
+Work Log:
+- Creado repo privado `akuobara/aljibe-app` vía API de GitHub.
+- Configurado remote `origin` con token embebido en `.git-credentials` (chmod 600).
+- ⚠️ INCIDENTE: el primer commit automático subió accidentalmente `.git-credentials` a GitHub (token expuesto ~2 minutos).
+- Mitigación aplicada:
+  * `git filter-branch` para remover `.git-credentials` de TODO el historial.
+  * Force push para sobrescribir refs en GitHub.
+  * `git gc --prune=now --aggressive` para limpiar objetos colgantes locales.
+  * Untracked: `.git-credentials`, `.env`, `.vercel-token`, `db/custom.db`.
+  * Endurecido `.gitignore` con todos los patrones sensibles.
+  * Patcheado `sync-now.sh` con capa de protección que aborta commit si archivos sensibles quedan staged.
+- Daemon Node.js (`sync-daemon.js`) arrancado en background (PID 7872), intervalo 30 min.
+- Scripts creados: setup-github-remote.sh, sync-now.sh, sync-daemon.js, start-daemon.sh, stop-daemon.sh, status.sh.
+
+Stage Summary:
+- Repo GitHub: https://github.com/akuobara/aljibe-app (privado)
+- Sync automática cada 30 min activa y funcionando.
+- Historial de git limpio (sin credenciales).
+- ⚠️ ACCIÓN REQUERIDA POR EL USUARIO: rotar el PAT de GitHub porque estuvo expuesto ~2 min en el historial pushado. Aunque el repo era privado, recomendación de seguridad es rotar.
