@@ -124,12 +124,17 @@ export async function GET(req: NextRequest) {
   // Pago al chofer según modo
   let pagoChofer = 0;
   let vueltasValidas: typeof vueltas = [];
+  let vueltasUnicoCliente = 0;
+  let vueltasMultiple = 0;
   if (cfg.modoLiquidacion === "vuelta") {
     vueltasValidas = vueltas.filter(v => {
       const litros = v.entregas.reduce((s, e) => s + e.litros, 0);
       const cap = v.camion?.capacidad ?? cfg.capacidadCamion ?? 0;
       return esVueltaCompletada(litros, cap, v.entregas.length, cfg.umbralCompletacionVuelta ?? 0.975, (v as any).validadaManualmente);
     });
+    // Contar tipos de vueltas válidas
+    vueltasUnicoCliente = vueltasValidas.filter(v => v.entregas.length <= 1).length;
+    vueltasMultiple = vueltasValidas.filter(v => v.entregas.length > 1).length;
     pagoChofer = vueltasValidas.reduce((s, v) => {
       const esMultiple = v.entregas.length > 1;
       return s + (esMultiple ? cfg.montoPorVueltaMultiple : cfg.montoPorVueltaUnicoCliente);
@@ -212,6 +217,8 @@ export async function GET(req: NextRequest) {
       saldoChofer,
       vueltasCompletadas: vueltasValidas.length,
       vueltasTotal: vueltas.length,
+      vueltasUnicoCliente,
+      vueltasMultiple,
       // Pagos sueltos
       totalPagosSueltos,
       pagosSueltosEfectivo,
