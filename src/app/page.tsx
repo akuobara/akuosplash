@@ -390,6 +390,7 @@ export default function Home() {
                 precioTransferenciaPorLitro: config?.precioTransferenciaPorLitro ?? 0,
                 precioCamionCompleto: config?.precioCamionCompleto ?? 0,
                 capacidadCamion: config?.capacidadCamion ?? 17000,
+                umbralCompletacionVuelta: config?.umbralCompletacionVuelta ?? 0.975,
               }}
               camiones={camiones}
               onGoToEntregas={() => setTab("entregas")}
