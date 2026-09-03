@@ -290,6 +290,57 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                 </div>
               </div>
 
+              {/* Tabla detallada de vueltas — movida aquí arriba para que sea visible sin scrollear */}
+              {periodoData.vueltas && periodoData.vueltas.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
+                    Detalle de vueltas ({periodoData.vueltas.length})
+                  </p>
+                  <div className="overflow-x-auto rounded-lg border border-border">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b text-left text-muted-foreground bg-muted/30">
+                          <th className="p-2">#</th>
+                          <th className="p-2">Inicio</th>
+                          <th className="p-2">Cierre</th>
+                          <th className="p-2">Camión</th>
+                          <th className="p-2">Tipo</th>
+                          <th className="p-2">Entregas</th>
+                          <th className="p-2">Litros</th>
+                          <th className="p-2">Ventas</th>
+                          <th className="p-2">¿Válida?</th>
+                          <th className="p-2">Pago</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {periodoData.vueltas.map((v: any) => (
+                          <tr key={v.id} className="border-b last:border-0">
+                            <td className="p-2 font-medium">#{v.numero}</td>
+                            <td className="p-2 whitespace-nowrap">{formatDateTime(v.iniciadaEn)}</td>
+                            <td className="p-2 whitespace-nowrap">{v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso"}</td>
+                            <td className="p-2">{v.camion}</td>
+                            <td className="p-2">
+                              {v.cantidadEntregas <= 1
+                                ? <span className="text-blue-600 dark:text-blue-400">Cliente único</span>
+                                : <span className="text-purple-600 dark:text-purple-400">Múltiples clientes</span>}
+                            </td>
+                            <td className="p-2">{v.cantidadEntregas}</td>
+                            <td className="p-2">{formatNumber(v.litros, 0)} L</td>
+                            <td className="p-2">{formatCurrency(v.ventas)}</td>
+                            <td className="p-2">
+                              {v.completada
+                                ? <span className="text-emerald-600 font-medium">Sí</span>
+                                : <span className="text-amber-600">No</span>}
+                            </td>
+                            <td className="p-2 font-medium">{formatCurrency(v.pagoVuelta)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
               {/* Pago al chofer según modo */}
               {periodoData.config.modoLiquidacion === "vuelta" ? (
                 <div className="space-y-2">
