@@ -53,3 +53,13 @@ server.log
 # Skills directory
 /skills/.vercel-token
 .git-credentials
+.env
+.env.local
+.vercel-token
+db/*.db
+db/*.db-journal
+*.key
+upload/
+public/uploads/
+tool-results/
+.zscripts/
