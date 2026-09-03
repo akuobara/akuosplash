@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
     vueltas: detalle,
     resumen: {
       totalVueltas: detalle.length,
-      validasConUmbralConfig,
-      validasConUmbralDefault,
+      validasConUmbralConfig: detalle.filter(d => d.completadaConUmbralConfig).length,
+      validasConUmbralDefault: detalle.filter(d => d.completadaConUmbralDefault).length,
     },
   });
 }
