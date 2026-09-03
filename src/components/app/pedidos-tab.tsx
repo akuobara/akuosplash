@@ -245,6 +245,64 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     return true;
   });
 
+  // Agrupar y ordenar por fecha (Vencidos, Hoy, Mañana, Pasado mañana, Próximos, Sin fecha)
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const manana = new Date(hoy);
+  manana.setDate(hoy.getDate() + 1);
+  const pasadoManana = new Date(hoy);
+  pasadoManana.setDate(hoy.getDate() + 2);
+  const en7dias = new Date(hoy);
+  en7dias.setDate(hoy.getDate() + 7);
+
+  function fechaGrupo(p: Pedido): { key: string; order: number } {
+    if (!p.fechaSolicitada) return { key: "sin_fecha", order: 99 };
+    const f = new Date(p.fechaSolicitada);
+    f.setHours(0, 0, 0, 0);
+    if (f < hoy) return { key: "vencidos", order: 0 };
+    if (f.getTime() === hoy.getTime()) return { key: "hoy", order: 1 };
+    if (f.getTime() === manana.getTime()) return { key: "manana", order: 2 };
+    if (f.getTime() === pasadoManana.getTime()) return { key: "pasado_manana", order: 3 };
+    if (f <= en7dias) return { key: "esta_semana", order: 4 };
+    return { key: "proximos", order: 5 };
+  }
+
+  const GRUPO_LABELS: Record<string, { label: string; emoji: string; color: string }> = {
+    vencidos: { label: "Vencidos", emoji: "⚠️", color: "text-red-600 dark:text-red-400" },
+    hoy: { label: "Hoy", emoji: "📌", color: "text-emerald-600 dark:text-emerald-400" },
+    manana: { label: "Mañana", emoji: "➡️", color: "text-blue-600 dark:text-blue-400" },
+    pasado_manana: { label: "Pasado mañana", emoji: "📅", color: "text-blue-600 dark:text-blue-400" },
+    esta_semana: { label: "Esta semana", emoji: "🗓️", color: "text-purple-600 dark:text-purple-400" },
+    proximos: { label: "Próximos", emoji: "📆", color: "text-muted-foreground" },
+    sin_fecha: { label: "Sin fecha programada", emoji: "❓", color: "text-muted-foreground" },
+  };
+
+  // Agrupar pedidos por fecha
+  const grupos: { key: string; label: string; emoji: string; color: string; pedidos: Pedido[] }[] = [];
+  const porGrupo: Record<string, Pedido[]> = {};
+  for (const p of filtrados) {
+    const { key } = fechaGrupo(p);
+    if (!porGrupo[key]) porGrupo[key] = [];
+    porGrupo[key].push(p);
+  }
+  for (const key of Object.keys(porGrupo)) {
+    // Ordenar dentro del grupo: por fecha (asc), luego por nombre
+    porGrupo[key].sort((a, b) => {
+      const fa = a.fechaSolicitada ? new Date(a.fechaSolicitada).getTime() : 0;
+      const fb = b.fechaSolicitada ? new Date(b.fechaSolicitada).getTime() : 0;
+      if (fa !== fb) return fa - fb;
+      return a.clienteNombre.localeCompare(b.clienteNombre);
+    });
+    const meta = GRUPO_LABELS[key];
+    grupos.push({ key, ...meta, pedidos: porGrupo[key] });
+  }
+  // Ordenar grupos por su orden lógico (vencidos, hoy, mañana, ...)
+  grupos.sort((a, b) => {
+    const oa = GRUPO_LABELS[a.key] ? Object.keys(GRUPO_LABELS).indexOf(a.key) : 99;
+    const ob = GRUPO_LABELS[b.key] ? Object.keys(GRUPO_LABELS).indexOf(b.key) : 99;
+    return oa - ob;
+  });
+
   // Para la vista de planificación de ruta
   const pendientesYProgramados = pedidos.filter(
     (p) => p.estado === "pendiente" || p.estado === "programado"
@@ -727,116 +785,126 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardContent className="p-0">
-                <ul className="divide-y divide-border">
-                  {filtrados.map((p) => (
-                    <li key={p.id} className="flex items-center gap-3 p-3 sm:p-4">
-                      <button
-                        type="button"
-                        onClick={() => setDetalle(p)}
-                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                      >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                          <Package className="h-5 w-5" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="truncate font-medium">{p.clienteNombre}</span>
-                            <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ESTADO_COLORS[p.estado] || ""}`}>
-                              {labelEstadoPedido(p.estado)}
-                            </span>
-                            {p.clienteZona && (
-                              <Badge variant="outline" className="text-[10px]">{p.clienteZona}</Badge>
-                            )}
-                            {/* Badge: pedido recurrente */}
-                            {p.pedidoRecurrenteId && (
-                              <Badge variant="outline" className="text-[10px] gap-0.5 bg-primary/10 text-primary border-primary/30" title="Pedido generado desde una regla recurrente">
-                                <Repeat className="h-2.5 w-2.5" /> Recurrente
-                              </Badge>
-                            )}
-                            {/* Badge: programado para fecha futura */}
-                            {p.fechaSolicitada && (() => {
-                              const fecha = new Date(p.fechaSolicitada);
-                              const hoy = new Date();
-                              hoy.setHours(0, 0, 0, 0);
-                              if (fecha > hoy) {
-                                return (
-                                  <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Programado para ${formatDate(p.fechaSolicitada!)}`}>
-                                    <Clock className="h-2.5 w-2.5" /> {formatDate(p.fechaSolicitada!)}
-                                  </Badge>
-                                );
-                              }
-                              return null;
-                            })()}
-                            {/* Badges de asignación */}
-                            {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
-                              <Badge variant="outline" className="text-[10px] gap-0.5 text-purple-700 dark:text-purple-300">
-                                <Package className="h-2.5 w-2.5" /> Publicado
-                              </Badge>
-                            )}
-                            {p.tomadoPorChofer && (
-                              <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
-                                <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre}
-                              </Badge>
-                            )}
-                            {p.choferAsignado && !p.tomadoPorChofer && (
-                              <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
-                                <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
-                              </Badge>
-                            )}
-                            {p.prioridadChofer && p.prioridadTipo !== "ninguna" && (
-                              <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300" title={`Prioridad ${p.prioridadTipo} para ${p.prioridadChofer.nombre}`}>
-                                <UserCheck className="h-2.5 w-2.5" /> {p.prioridadChofer.nombre}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="truncate text-xs text-muted-foreground">
-                            <Droplets className="mr-1 inline h-3 w-3" />
-                            {p.litrosSolicitados > 0 ? `${formatNumber(p.litrosSolicitados, 0)} L` : "Sin cantidad"} · {labelMetodoPago(p.metodoPagoPreferido)}
-                            {p.fechaSolicitada && (
-                              <>
-                                <Calendar className="ml-2 inline h-3 w-3" />
-                                {formatDate(p.fechaSolicitada)}
-                              </>
-                            )}
-                            {p.clienteTelefono && (
-                              <>
-                                <Phone className="ml-2 inline h-3 w-3" />
-                                {p.clienteTelefono}
-                              </>
-                            )}
-                          </p>
-                        </div>
-                        {p.clienteLat != null && p.clienteLng != null && (
-                          <a
-                            href={`https://www.google.com/maps?q=${p.clienteLat},${p.clienteLng}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="shrink-0 rounded-md p-1.5 text-primary hover:bg-primary/10"
-                            title="Ver ubicación en Google Maps"
-                          >
-                            <Navigation className="h-4 w-4" />
-                          </a>
-                        )}
-                      </button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setDetalle(p)}>
-                            <Eye className="mr-2 h-4 w-4" /> Ver detalle
-                          </DropdownMenuItem>
-                          {canCreate && p.estado !== "entregado" && p.estado !== "cancelado" && (
-                            <>
-                              {/* Solo mostrar "Convertir en entrega" si:
-                                  - El usuario es el chofer preferido del cliente, OR
-                                  - El cliente no tiene chofer preferido (cualquiera puede entregar) */}
-                              {(() => {
+            <div className="space-y-4">
+              {grupos.map((grupo) => (
+                <div key={grupo.key}>
+                  {/* Header del grupo */}
+                  <div className="sticky top-0 z-10 flex items-center gap-2 bg-background/95 backdrop-blur px-1 py-1.5 border-b">
+                    <span className="text-base">{grupo.emoji}</span>
+                    <h3 className={`text-sm font-semibold ${grupo.color}`}>{grupo.label}</h3>
+                    <Badge variant="secondary" className="text-[10px]">{grupo.pedidos.length}</Badge>
+                  </div>
+                  {/* Lista de pedidos del grupo */}
+                  <Card>
+                    <CardContent className="p-0">
+                      <ul className="divide-y divide-border">
+                        {grupo.pedidos.map((p) => (
+                          <li key={p.id} className="flex items-center gap-3 p-3 sm:p-4">
+                            <button
+                              type="button"
+                              onClick={() => setDetalle(p)}
+                              className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                            >
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <Package className="h-5 w-5" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="truncate font-medium">{p.clienteNombre}</span>
+                                  <span className={`inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${ESTADO_COLORS[p.estado] || ""}`}>
+                                    {labelEstadoPedido(p.estado)}
+                                  </span>
+                                  {p.clienteZona && (
+                                    <Badge variant="outline" className="text-[10px]">{p.clienteZona}</Badge>
+                                  )}
+                                  {/* Badge: pedido recurrente */}
+                                  {p.pedidoRecurrenteId && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-primary/10 text-primary border-primary/30" title="Pedido generado desde una regla recurrente">
+                                      <Repeat className="h-2.5 w-2.5" /> Recurrente
+                                    </Badge>
+                                  )}
+                                  {/* Badge: programado para fecha futura */}
+                                  {p.fechaSolicitada && (() => {
+                                    const fecha = new Date(p.fechaSolicitada);
+                                    const fHoy = new Date();
+                                    fHoy.setHours(0, 0, 0, 0);
+                                    if (fecha > fHoy) {
+                                      return (
+                                        <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Programado para ${formatDate(p.fechaSolicitada!)}`}>
+                                          <Clock className="h-2.5 w-2.5" /> {formatDate(p.fechaSolicitada!)}
+                                        </Badge>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
+                                  {/* Badges de asignación */}
+                                  {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-purple-700 dark:text-purple-300">
+                                      <Package className="h-2.5 w-2.5" /> Publicado
+                                    </Badge>
+                                  )}
+                                  {p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
+                                      <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre}
+                                    </Badge>
+                                  )}
+                                  {p.choferAsignado && !p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
+                                      <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
+                                    </Badge>
+                                  )}
+                                  {p.prioridadChofer && p.prioridadTipo !== "ninguna" && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300" title={`Prioridad ${p.prioridadTipo} para ${p.prioridadChofer.nombre}`}>
+                                      <UserCheck className="h-2.5 w-2.5" /> {p.prioridadChofer.nombre}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="truncate text-xs text-muted-foreground">
+                                  <Droplets className="mr-1 inline h-3 w-3" />
+                                  {p.litrosSolicitados > 0 ? `${formatNumber(p.litrosSolicitados, 0)} L` : "Sin cantidad"} · {labelMetodoPago(p.metodoPagoPreferido)}
+                                  {p.fechaSolicitada && (
+                                    <>
+                                      <Calendar className="ml-2 inline h-3 w-3" />
+                                      {formatDate(p.fechaSolicitada)}
+                                    </>
+                                  )}
+                                  {p.clienteTelefono && (
+                                    <>
+                                      <Phone className="ml-2 inline h-3 w-3" />
+                                      {p.clienteTelefono}
+                                    </>
+                                  )}
+                                </p>
+                              </div>
+                              {p.clienteLat != null && p.clienteLng != null && (
+                                <a
+                                  href={`https://www.google.com/maps?q=${p.clienteLat},${p.clienteLng}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="shrink-0 rounded-md p-1.5 text-primary hover:bg-primary/10"
+                                  title="Ver ubicación en Google Maps"
+                                >
+                                  <Navigation className="h-4 w-4" />
+                                </a>
+                              )}
+                            </button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setDetalle(p)}>
+                                  <Eye className="mr-2 h-4 w-4" /> Ver detalle
+                                </DropdownMenuItem>
+                                {canCreate && p.estado !== "entregado" && p.estado !== "cancelado" && (
+                                  <>
+                                    {/* Solo mostrar "Convertir en entrega" si:
+                                        - El usuario es el chofer preferido del cliente, OR
+                                        - El cliente no tiene chofer preferido (cualquiera puede entregar) */}
+                                    {(() => {
                                 const clientePedido = p.clienteId ? clientes.find(c => c.id === p.clienteId) : null;
                                 const choferPrefId = clientePedido?.choferPreferidoId;
                                 const puedeConvertir = !choferPrefId || choferPrefId === currentUserId;
@@ -906,6 +974,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 </ul>
               </CardContent>
             </Card>
+                </div>
+              ))}
+            </div>
           )}
         </>
       )}
