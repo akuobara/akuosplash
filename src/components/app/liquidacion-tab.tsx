@@ -288,6 +288,41 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                     <p className="text-lg font-bold">{periodoData.resumen.vueltasTotal}</p>
                   </div>
                 </div>
+
+                {/* Desglose por tipo de vuelta válida */}
+                {periodoData.config.modoLiquidacion === "vuelta" && (
+                  <div className="rounded border border-primary/30 bg-primary/5 p-2 space-y-1.5 text-sm">
+                    <p className="text-xs font-medium uppercase text-muted-foreground">Desglose de vueltas válidas</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 rounded-full bg-blue-500" />
+                        <span>Cliente único</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({formatCurrency(periodoData.config.montoPorVueltaUnicoCliente)} c/u)
+                        </span>
+                      </div>
+                      <span className="font-medium">
+                        {periodoData.resumen.vueltasUnicoCliente} × {formatCurrency(periodoData.config.montoPorVueltaUnicoCliente)} = <strong>{formatCurrency(periodoData.resumen.vueltasUnicoCliente * periodoData.config.montoPorVueltaUnicoCliente)}</strong>
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="inline-block h-2 w-2 rounded-full bg-purple-500" />
+                        <span>Múltiples clientes</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({formatCurrency(periodoData.config.montoPorVueltaMultiple)} c/u)
+                        </span>
+                      </div>
+                      <span className="font-medium">
+                        {periodoData.resumen.vueltasMultiple} × {formatCurrency(periodoData.config.montoPorVueltaMultiple)} = <strong>{formatCurrency(periodoData.resumen.vueltasMultiple * periodoData.config.montoPorVueltaMultiple)}</strong>
+                      </span>
+                    </div>
+                    <div className="border-t pt-1 flex justify-between font-bold">
+                      <span>Total pago por vueltas</span>
+                      <span>{formatCurrency(periodoData.resumen.pagoChofer)}</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Pago al chofer según modo */}
@@ -419,108 +454,6 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                   <p className="font-bold">{formatCurrency(periodoData.resumen.totalTransferencia)}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Vueltas del período */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
-                Vueltas ({periodoData.vueltas?.length || 0})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {periodoData.vueltas && periodoData.vueltas.length > 0 ? (
-                <>
-                  {/* Vista mobile: tarjetas apiladas con info clave incluyendo Tipo */}
-                  <div className="space-y-2 sm:hidden">
-                    {periodoData.vueltas.map((v: any) => {
-                      const esUnica = v.cantidadEntregas <= 1;
-                      return (
-                        <div key={v.id} className={`rounded-lg border p-3 space-y-1.5 ${v.completada ? "border-emerald-300 dark:border-emerald-800" : "border-amber-300 dark:border-amber-800"}`}>
-                          {/* Header: # + tipo + válida */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold">#{v.numero}</span>
-                              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${esUnica ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"}`}>
-                                {esUnica ? "Cliente único" : "Múltiples"}
-                              </span>
-                            </div>
-                            <span className={`text-xs font-medium ${v.completada ? "text-emerald-600" : "text-amber-600"}`}>
-                              {v.completada ? "✓ Válida" : "✗ No válida"}
-                            </span>
-                          </div>
-                          {/* Datos: litros, ventas, pago */}
-                          <div className="grid grid-cols-3 gap-2 text-xs">
-                            <div>
-                              <p className="text-muted-foreground">Litros</p>
-                              <p className="font-medium">{formatNumber(v.litros, 0)} L</p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">Ventas</p>
-                              <p className="font-medium">{formatCurrency(v.ventas)}</p>
-                            </div>
-                            <div>
-                              <p className="text-muted-foreground">Pago</p>
-                              <p className="font-medium">{formatCurrency(v.pagoVuelta)}</p>
-                            </div>
-                          </div>
-                          {/* Fechas */}
-                          <p className="text-[10px] text-muted-foreground">
-                            {formatDateTime(v.iniciadaEn)} → {v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso"}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Vista desktop: tabla completa con columna Tipo */}
-                  <div className="hidden sm:block overflow-x-auto">
-                    <table className="w-full text-xs">
-                      <thead>
-                        <tr className="border-b text-left text-muted-foreground">
-                          <th className="p-2">#</th>
-                          <th className="p-2">Inicio</th>
-                          <th className="p-2">Cierre</th>
-                          <th className="p-2">Camión</th>
-                          <th className="p-2">Tipo</th>
-                          <th className="p-2">Entregas</th>
-                          <th className="p-2">Litros</th>
-                          <th className="p-2">Ventas</th>
-                          <th className="p-2">¿Válida?</th>
-                          <th className="p-2">Pago</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {periodoData.vueltas.map((v: any) => (
-                          <tr key={v.id} className="border-b last:border-0">
-                            <td className="p-2 font-medium">#{v.numero}</td>
-                            <td className="p-2 whitespace-nowrap">{formatDateTime(v.iniciadaEn)}</td>
-                            <td className="p-2 whitespace-nowrap">{v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso"}</td>
-                            <td className="p-2">{v.camion}</td>
-                            <td className="p-2">
-                              {v.cantidadEntregas <= 1
-                                ? <span className="text-blue-600 dark:text-blue-400">Cliente único</span>
-                                : <span className="text-purple-600 dark:text-purple-400">Múltiples clientes</span>}
-                            </td>
-                            <td className="p-2">{v.cantidadEntregas}</td>
-                            <td className="p-2">{formatNumber(v.litros, 0)} L</td>
-                            <td className="p-2">{formatCurrency(v.ventas)}</td>
-                            <td className="p-2">
-                              {v.completada
-                                ? <span className="text-emerald-600 font-medium">Sí</span>
-                                : <span className="text-amber-600">No</span>}
-                            </td>
-                            <td className="p-2 font-medium">{formatCurrency(v.pagoVuelta)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-muted-foreground py-4 text-center">Sin vueltas en este período.</p>
-              )}
             </CardContent>
           </Card>
 
