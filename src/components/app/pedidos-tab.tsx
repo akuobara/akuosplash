@@ -259,7 +259,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     if (!p.fechaSolicitada) return { key: "hoy", order: 1 };  // Sin fecha → asumir hoy
     const f = new Date(p.fechaSolicitada);
     f.setHours(0, 0, 0, 0);
-    if (f < hoy) return { key: "vencidos", order: 0 };
+    if (f < hoy) return { key: "atrasados", order: 0 };
     if (f.getTime() === hoy.getTime()) return { key: "hoy", order: 1 };
     if (f.getTime() === manana.getTime()) return { key: "manana", order: 2 };
     if (f.getTime() === pasadoManana.getTime()) return { key: "pasado_manana", order: 3 };
@@ -268,7 +268,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   }
 
   const GRUPO_LABELS: Record<string, { label: string; emoji: string; color: string }> = {
-    vencidos: { label: "Vencidos", emoji: "⚠️", color: "text-red-600 dark:text-red-400" },
+    atrasados: { label: "Atrasados", emoji: "⏰", color: "text-amber-600 dark:text-amber-400" },
     hoy: { label: "Hoy", emoji: "📌", color: "text-emerald-600 dark:text-emerald-400" },
     manana: { label: "Mañana", emoji: "➡️", color: "text-blue-600 dark:text-blue-400" },
     pasado_manana: { label: "Pasado mañana", emoji: "📅", color: "text-blue-600 dark:text-blue-400" },
