@@ -69,18 +69,34 @@ export async function POST(req: NextRequest) {
         select: { id: true, litros: true, total: true, fecha: true },
       });
 
-      // Si hay alguna entrega que coincide en litros (tolerancia 50L), vincular
-      const matchExacto = entregasCandidatas.find(e =>
-        Math.abs(e.litros - pedido.litrosSolicitados) < 50
-      );
+      if (entregasCandidatas.length === 0) continue;
 
-      if (matchExacto) {
+      // Estrategia:
+      // 1. Si el pedido tiene litros>0, buscar entrega que coincida (tolerancia 50L)
+      // 2. Si el pedido tiene litros=0, tomar la entrega más reciente (últimos 3 días)
+      //    siempre que sea posterior a la fecha del pedido (o sin fecha)
+      let match: typeof entregasCandidatas[0] | undefined;
+      if (pedido.litrosSolicitados > 0) {
+        match = entregasCandidatas.find(e =>
+          Math.abs(e.litros - pedido.litrosSolicitados) < 50
+        );
+      } else {
+        // Pedido sin litros especificados: tomar la más reciente
+        // Si el pedido tiene fecha, la entrega debe ser posterior
+        if (pedido.fechaSolicitada) {
+          match = entregasCandidatas.find(e => e.fecha > pedido.fechaSolicitada!);
+        } else {
+          match = entregasCandidatas[0]; // más reciente
+        }
+      }
+
+      if (match) {
         await db.pedido.update({
           where: { id: pedido.id },
-          data: { estado: "entregado", entregaId: matchExacto.id },
+          data: { estado: "entregado", entregaId: match.id },
         });
         marcadosEntregado++;
-        resultados.push(`Vinculado pedido ${pedido.id} (${pedido.clienteNombre}) a entrega ${matchExacto.id} (${matchExacto.litros}L)`);
+        resultados.push(`Vinculado pedido ${pedido.id} (${pedido.clienteNombre}) a entrega ${match.id} (${match.litros}L, ${match.fecha})`);
       }
     }
 
