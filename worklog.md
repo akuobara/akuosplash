@@ -89,3 +89,32 @@ Stage Summary:
 - Cambios precioCamionCompleto siguen en GitHub pero NO en producción
 - Para re-deployar hace falta: (1) obtener credenciales de Turso, (2) correr prisma db push contra prod, (3) deployar de nuevo
 - Alternativa: agregar `prisma db push` al build script (más arriesgado, hace migración automática en cada deploy)
+
+---
+Task ID: deploy-precio-camion-incompleto
+Agent: main
+Task: Deploy final del código con precioCamionCompleto a Vercel producción.
+
+Work Log:
+- Migración DB ejecutada exitosamente vía endpoint temporal /api/admin/migrate-db
+  * Cliente.precioCamionCompleto: columna agregada
+  * Configuracion.precioCamionCompleto: columna agregada
+- Endpoint /api/admin/migrate-db borrado del código (commit afc1f4d)
+- Intentos de deploy sucesivos FALLAN con estado BLOCKED:
+  * errorLink: vercel.com/docs/deployments/troubleshoot-project-collaboration#account-configuration
+  * buildSkipped: true
+- Investigación:
+  * GitHub App de Vercel tiene "All repositories" access (confirmado por usuario)
+  * gitCredentialId cred_9a8d9c7d791ebbd21607112c3a37b80193250774 sigue siendo el mismo
+  * Proyectos duplicados aljibe-app y aljibeapp (conectados a repo viejo Aljibeapp inexistente) fueron borrados
+  * Link del proyecto my-project reseteado y recreado, pero gitCredentialId no cambia
+- Producción sigue funcionando con deploy viejo (9nvsnjwa8, sin precioCamionCompleto)
+- Cambios precioCamionCompleto siguen en GitHub main branch pero NO en producción
+
+Stage Summary:
+- ⚠️ PRODUCCIÓN OPERATIVA PERO SIN precioCamionCompleto
+- ✅ DB de producción ya tiene las columnas (migración aplicada)
+- ✅ Código nuevo está en GitHub main
+- ❌ No se pudo deployar el código nuevo a Vercel
+- Causa raíz probable: gitCredentialId obsoleto asociado a repo Aljibeapp (mayúscula) inexistente
+- Solución pendiente: usuario debe contactar soporte Vercel o re-configurar GitHub App desde dashboard Vercel
