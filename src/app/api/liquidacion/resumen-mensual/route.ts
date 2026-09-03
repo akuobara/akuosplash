@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
     vueltasValidas = vueltas.filter(v => {
       const litros = v.entregas.reduce((s, e) => s + e.litros, 0);
       const cap = v.camion?.capacidad ?? cfg.capacidadCamion ?? 0;
-      return esVueltaCompletada(litros, cap, v.entregas.length, cfg.umbralCompletacionVuelta, (v as any).validadaManualmente);
+      return esVueltaCompletada(litros, cap, v.entregas.length, cfg.umbralCompletacionVuelta ?? 0.975, (v as any).validadaManualmente);
     });
     pagoChofer = vueltasValidas.reduce((s, v) => {
       const esMultiple = v.entregas.length > 1;
@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
     const efectivo = v.entregas.reduce((s, e) => s + e.montoEfectivo, 0);
     const transf = v.entregas.reduce((s, e) => s + e.montoTransferencia, 0);
     const cap = v.camion?.capacidad ?? cfg.capacidadCamion ?? 0;
-    const completada = esVueltaCompletada(litros, cap, v.entregas.length, cfg.umbralCompletacionVuelta, (v as any).validadaManualmente);
+    const completada = esVueltaCompletada(litros, cap, v.entregas.length, cfg.umbralCompletacionVuelta ?? 0.975, (v as any).validadaManualmente);
     const pagoVuelta = cfg.modoLiquidacion === "vuelta" && completada
       ? (v.entregas.length > 1 ? cfg.montoPorVueltaMultiple : cfg.montoPorVueltaUnicoCliente)
       : 0;
