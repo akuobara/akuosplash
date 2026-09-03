@@ -1687,10 +1687,23 @@ export function EntregaForm({
                   setMontoTransferencia("");
                   // Actualizar precio según método
                   const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) ?? null : null;
+                  const precioEfectivoNuevo = clienteActual?.precioEfectivoPorLitro || config.precioEfectivoPorLitro || 0;
                   aplicarPrecioSegunMetodo("efectivo", clienteActual);
-                  // Si no hay efectivo ingresado, auto-llenar con el total
+                  // Calcular el nuevo total con el precio efectivo (no usar totalConDescuento que tiene precio viejo)
+                  let nuevoTotal = esCamionCompleto && precioCamionCompletoVal > 0
+                    ? precioCamionCompletoVal
+                    : (litrosFinal || 0) * precioEfectivoNuevo;
+                  if (nuevoTotal > 0) {
+                    nuevoTotal = Math.ceil(nuevoTotal / 100) * 100;
+                  }
+                  // Aplicar descuento si existe
+                  let descuentoAplicar = 0;
+                  if (descuentoTipo === "total") descuentoAplicar = Number(descuentoMonto) || 0;
+                  else if (descuentoTipo === "por_litro") descuentoAplicar = (Number(descuentoPorLitroInput) || 0) * litrosFinal;
+                  const nuevoTotalConDescuento = Math.max(0, nuevoTotal - descuentoAplicar);
+                  // Si no hay efectivo ingresado, auto-llenar con el total NUEVO
                   if (!montoEfectivo) {
-                    setMontoEfectivo(String(Math.round(totalConDescuento)));
+                    setMontoEfectivo(String(Math.round(nuevoTotalConDescuento)));
                   }
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
@@ -1714,10 +1727,23 @@ export function EntregaForm({
                   setMontoEfectivo("");
                   // Actualizar precio según método
                   const clienteActual = clienteId ? clientes.find((c) => c.id === clienteId) ?? null : null;
+                  const precioTransfNuevo = clienteActual?.precioTransferenciaPorLitro || config.precioTransferenciaPorLitro || 0;
                   aplicarPrecioSegunMetodo("transferencia", clienteActual);
-                  // Si no hay transferencia ingresada, auto-llenar con el total
+                  // Calcular el nuevo total con el precio transferencia (no usar totalConDescuento que tiene precio viejo)
+                  let nuevoTotal = esCamionCompleto && precioCamionCompletoVal > 0
+                    ? precioCamionCompletoVal
+                    : (litrosFinal || 0) * precioTransfNuevo;
+                  if (nuevoTotal > 0) {
+                    nuevoTotal = Math.ceil(nuevoTotal / 100) * 100;
+                  }
+                  // Aplicar descuento si existe
+                  let descuentoAplicar = 0;
+                  if (descuentoTipo === "total") descuentoAplicar = Number(descuentoMonto) || 0;
+                  else if (descuentoTipo === "por_litro") descuentoAplicar = (Number(descuentoPorLitroInput) || 0) * litrosFinal;
+                  const nuevoTotalConDescuento = Math.max(0, nuevoTotal - descuentoAplicar);
+                  // Si no hay transferencia ingresada, auto-llenar con el total NUEVO
                   if (!montoTransferencia) {
-                    setMontoTransferencia(String(Math.round(totalConDescuento)));
+                    setMontoTransferencia(String(Math.round(nuevoTotalConDescuento)));
                   }
                 }}
                 className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${

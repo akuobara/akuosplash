@@ -327,7 +327,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                     )}
                     {periodoData.resumen.totalPagosSueltos > 0 && (
                       <div className="flex justify-between text-muted-foreground border-t pt-1">
-                        <span>Total efectivo en mano</span>
+                        <span>Total efectivo recibido</span>
                         <span>{formatCurrency(periodoData.resumen.efectivoTotal)}</span>
                       </div>
                     )}
@@ -381,7 +381,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                     )}
                     {periodoData.resumen.totalPagosSueltos > 0 && (
                       <div className="flex justify-between text-muted-foreground border-t pt-1">
-                        <span>Total efectivo en mano</span>
+                        <span>Total efectivo recibido</span>
                         <span>{formatCurrency(periodoData.resumen.efectivoTotal)}</span>
                       </div>
                     )}
@@ -439,6 +439,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                         <th className="p-2">Inicio</th>
                         <th className="p-2">Cierre</th>
                         <th className="p-2">Camión</th>
+                        <th className="p-2">Tipo</th>
                         <th className="p-2">Entregas</th>
                         <th className="p-2">Litros</th>
                         <th className="p-2">Ventas</th>
@@ -453,6 +454,11 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
                           <td className="p-2 whitespace-nowrap">{formatDateTime(v.iniciadaEn)}</td>
                           <td className="p-2 whitespace-nowrap">{v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso"}</td>
                           <td className="p-2">{v.camion}</td>
+                          <td className="p-2">
+                            {v.cantidadEntregas <= 1
+                              ? <span className="text-blue-600 dark:text-blue-400">Cliente único</span>
+                              : <span className="text-purple-600 dark:text-purple-400">Múltiples clientes</span>}
+                          </td>
                           <td className="p-2">{v.cantidadEntregas}</td>
                           <td className="p-2">{formatNumber(v.litros, 0)} L</td>
                           <td className="p-2">{formatCurrency(v.ventas)}</td>
