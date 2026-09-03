@@ -44,3 +44,28 @@ Stage Summary:
 - Sync automática cada 30 min activa y funcionando.
 - Historial de git limpio (sin credenciales).
 - ⚠️ ACCIÓN REQUERIDA POR EL USUARIO: rotar el PAT de GitHub porque estuvo expuesto ~2 min en el historial pushado. Aunque el repo era privado, recomendación de seguridad es rotar.
+
+---
+Task ID: precio-camion-completo-deploy
+Agent: main
+Task: Cablear campo precioCamionCompleto en API/UI/entrega-form y hacer deploy a producción.
+
+Work Log:
+- API /api/clientes POST: hereda precioCamionCompleto de configuracion si viene 0
+- API /api/clientes/[id] PATCH: actualiza precioCamionCompleto
+- API /api/configuracion PUT: valida (no negativo) + persiste en update y create
+- ClientesTab: agregado input "Precio camión completo ($ fijo)" en form + badge en lista
+- ConfiguracionTab: agregado input en card "Precios por litro"
+- EntregaForm: agregado toggle "Camión completo" que usa tarifa fija como total
+- Dashboard/EntregasTab/page.tsx: interfaces y props actualizadas
+- TypeScript: 0 errores en src/
+- Commit: 0f29e28
+- Push a GitHub: OK
+- Deploy a Vercel producción: OK (1m, Ready)
+- Producción verificada: HTTP 200 en todas las rutas (admin, /cliente, /suscripcion, webhook MP)
+- Daemon de sync GitHub reiniciado (PID 10645)
+
+Stage Summary:
+- Funcionalidad "precio por camión completo" operativa en producción
+- App cliente y portal de pago NO fueron modificados (siguen intactos)
+- Próximo paso: pruebas en producción por el usuario
