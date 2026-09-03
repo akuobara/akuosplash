@@ -41,13 +41,6 @@ export async function POST(req: NextRequest) {
     // Duplicada encontrada - borrar la más nueva (curr)
     const detalles = `cliente='${curr.clienteNombre}', ${curr.litros}L, $${curr.total}, vuelta=${curr.vueltaId}, fecha=${curr.fecha.toISOString()}`;
 
-    // Verificar que no tenga un pago asociado (no queremos borrar entregas con pagos)
-    const pagosAsociados = await db.pago.count({ where: { entregaId: curr.id } });
-    if (pagosAsociados > 0) {
-      resultados.push(`SKIP ${curr.id} (${detalles}) - tiene ${pagosAsociados} pago(s) asociado(s)`);
-      continue;
-    }
-
     // Verificar si la entrega está vinculada a un pedido
     const pedidoVinculado = await db.pedido.findFirst({ where: { entregaId: curr.id } });
     if (pedidoVinculado) {
