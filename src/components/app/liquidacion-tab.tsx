@@ -682,10 +682,12 @@ function LiquidacionVuelta({
   r,
   cfg,
   period,
+  vueltas,
 }: {
   r: NonNullable<LiquidacionData["resumen"]>;
   cfg: Config;
   period: string;
+  vueltas?: VueltaDetalle[];
 }) {
   return (
     <Card className="overflow-hidden border-primary/20">
@@ -790,6 +792,57 @@ function LiquidacionVuelta({
           )}{" "}
           Se descuenta el efectivo que ya recibiste en ruta. El saldo es lo que el administrador te debe (positivo) o lo que tú le debes (negativo).
         </p>
+
+        {/* Tabla detallada de vueltas del período */}
+        {vueltas && vueltas.length > 0 && (
+          <div className="mt-5">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Detalle de vueltas ({vueltas.length})
+            </p>
+            <div className="overflow-x-auto rounded-lg border border-border">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b text-left text-muted-foreground bg-muted/30">
+                    <th className="p-2">#</th>
+                    <th className="p-2">Inicio</th>
+                    <th className="p-2">Cierre</th>
+                    <th className="p-2">Camión</th>
+                    <th className="p-2">Tipo</th>
+                    <th className="p-2">Entregas</th>
+                    <th className="p-2">Litros</th>
+                    <th className="p-2">Ventas</th>
+                    <th className="p-2">¿Válida?</th>
+                    <th className="p-2">Pago</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vueltas.map((v: any) => (
+                    <tr key={v.id} className="border-b last:border-0">
+                      <td className="p-2 font-medium">#{v.numero}</td>
+                      <td className="p-2 whitespace-nowrap">{formatDateTime(v.iniciadaEn)}</td>
+                      <td className="p-2 whitespace-nowrap">{v.cerradaEn ? formatDateTime(v.cerradaEn) : "En curso"}</td>
+                      <td className="p-2">{v.camion}</td>
+                      <td className="p-2">
+                        {v.cantidadEntregas <= 1
+                          ? <span className="text-blue-600 dark:text-blue-400">Cliente único</span>
+                          : <span className="text-purple-600 dark:text-purple-400">Múltiples clientes</span>}
+                      </td>
+                      <td className="p-2">{v.cantidadEntregas}</td>
+                      <td className="p-2">{formatNumber(v.litros, 0)} L</td>
+                      <td className="p-2">{formatCurrency(v.ventas)}</td>
+                      <td className="p-2">
+                        {v.completada
+                          ? <span className="text-emerald-600 font-medium">Sí</span>
+                          : <span className="text-amber-600">No</span>}
+                      </td>
+                      <td className="p-2 font-medium">{formatCurrency(v.pagoVuelta)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -245,25 +245,26 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     return true;
   });
 
-  // Agrupar y ordenar por fecha (Vencidos, Hoy, Mañana, Pasado mañana, Próximos, Sin fecha)
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const manana = new Date(hoy);
-  manana.setDate(hoy.getDate() + 1);
-  const pasadoManana = new Date(hoy);
-  pasadoManana.setDate(hoy.getDate() + 2);
-  const en7dias = new Date(hoy);
-  en7dias.setDate(hoy.getDate() + 7);
+  // Agrupar y ordenar por fecha (Atrasados, Hoy, Mañana, Pasado mañana, Próximos)
+  // IMPORTANTE: las fechas de los pedidos se guardan como "YYYY-MM-DDT00:00:00.000Z" (UTC),
+  // pero queremos agrupar por fecha en la zona horaria local del usuario.
+  // Usamos toLocaleDateString() para normalizar a la fecha local (sin hora).
+  function fechaLocal(d: Date): string {
+    return d.toLocaleDateString("en-CA"); // formato YYYY-MM-DD en zona horaria local
+  }
+  const hoyStr = fechaLocal(new Date());
+  const mananaStr = fechaLocal(new Date(Date.now() + 86400000));
+  const pasadoMananaStr = fechaLocal(new Date(Date.now() + 2 * 86400000));
+  const en7diasStr = fechaLocal(new Date(Date.now() + 7 * 86400000));
 
   function fechaGrupo(p: Pedido): { key: string; order: number } {
     if (!p.fechaSolicitada) return { key: "hoy", order: 1 };  // Sin fecha → asumir hoy
-    const f = new Date(p.fechaSolicitada);
-    f.setHours(0, 0, 0, 0);
-    if (f < hoy) return { key: "atrasados", order: 0 };
-    if (f.getTime() === hoy.getTime()) return { key: "hoy", order: 1 };
-    if (f.getTime() === manana.getTime()) return { key: "manana", order: 2 };
-    if (f.getTime() === pasadoManana.getTime()) return { key: "pasado_manana", order: 3 };
-    if (f <= en7dias) return { key: "esta_semana", order: 4 };
+    const fStr = fechaLocal(new Date(p.fechaSolicitada));
+    if (fStr < hoyStr) return { key: "atrasados", order: 0 };
+    if (fStr === hoyStr) return { key: "hoy", order: 1 };
+    if (fStr === mananaStr) return { key: "manana", order: 2 };
+    if (fStr === pasadoMananaStr) return { key: "pasado_manana", order: 3 };
+    if (fStr <= en7diasStr) return { key: "esta_semana", order: 4 };
     return { key: "proximos", order: 5 };
   }
 
