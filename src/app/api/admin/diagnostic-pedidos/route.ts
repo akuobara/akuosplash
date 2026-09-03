@@ -55,6 +55,18 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // 5. Entregas recientes (últimos 3 días) para diagnóstico
+    const hace3dias = new Date();
+    hace3dias.setDate(hace3dias.getDate() - 3);
+    const entregasRecientes = await db.entrega.findMany({
+      where: { fecha: { gte: hace3dias } },
+      orderBy: { fecha: "desc" },
+      select: {
+        id: true, clienteNombre: true, clienteId: true, litros: true,
+        total: true, fecha: true, estadoPago: true,
+      },
+    });
+
     return NextResponse.json({
       totalPedidos: pedidos.length,
       pedidos: pedidos.map(p => ({
@@ -86,6 +98,15 @@ export async function POST(req: NextRequest) {
         litrosSolicitados: r.litrosSolicitados,
         frecuenciaDias: r.frecuenciaDias,
         fechaProximaGeneracion: r.fechaProximaGeneracion,
+      })),
+      entregasRecientes: entregasRecientes.map(e => ({
+        id: e.id,
+        clienteNombre: e.clienteNombre,
+        clienteId: e.clienteId,
+        litros: e.litros,
+        total: e.total,
+        fecha: e.fecha,
+        estadoPago: e.estadoPago,
       })),
     });
   } catch (err) {
