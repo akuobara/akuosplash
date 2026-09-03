@@ -141,6 +141,29 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // === IDEMPOTENCIA: evitar entregas duplicadas por doble-click ===
+    // Si en los últimos 30 segundos ya se creó una entrega idéntica (mismo cliente, vuelta, litros, total),
+    // rechazar para prevenir duplicados.
+    const hace30seg = new Date(Date.now() - 30 * 1000);
+    const duplicada = await db.entrega.findFirst({
+      where: {
+        choferId: session.userId,
+        duenoId,
+        vueltaId: vueltaId ?? undefined,
+        clienteId: body.clienteId || null,
+        litros: litrosFinal,
+        total,
+        fecha: { gte: hace30seg },
+      },
+      select: { id: true },
+    });
+    if (duplicada) {
+      return NextResponse.json(
+        { error: "Ya registraste una entrega idéntica en los últimos 30 segundos. Espera un momento si quieres registrar otra." },
+        { status: 409 }
+      );
+    }
+
     const nueva = await db.$transaction(async (tx) => {
       const creada = await tx.entrega.create({
         data: {

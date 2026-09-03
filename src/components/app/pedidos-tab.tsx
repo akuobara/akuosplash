@@ -256,7 +256,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   en7dias.setDate(hoy.getDate() + 7);
 
   function fechaGrupo(p: Pedido): { key: string; order: number } {
-    if (!p.fechaSolicitada) return { key: "sin_fecha", order: 99 };
+    if (!p.fechaSolicitada) return { key: "hoy", order: 1 };  // Sin fecha → asumir hoy
     const f = new Date(p.fechaSolicitada);
     f.setHours(0, 0, 0, 0);
     if (f < hoy) return { key: "vencidos", order: 0 };
@@ -274,7 +274,6 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     pasado_manana: { label: "Pasado mañana", emoji: "📅", color: "text-blue-600 dark:text-blue-400" },
     esta_semana: { label: "Esta semana", emoji: "🗓️", color: "text-purple-600 dark:text-purple-400" },
     proximos: { label: "Próximos", emoji: "📆", color: "text-muted-foreground" },
-    sin_fecha: { label: "Sin fecha programada", emoji: "❓", color: "text-muted-foreground" },
   };
 
   // Agrupar pedidos por fecha

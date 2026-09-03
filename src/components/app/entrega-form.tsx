@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
   Dialog,
@@ -196,6 +196,7 @@ export function EntregaForm({
 
   const [nota, setNota] = useState("");
   const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);  // Guard contra double-submit (más rápido que setSaving)
 
   // Diálogo de selección de vuelta (cuando no hay vuelta activa)
   const [dialogoVueltaAbierto, setDialogoVueltaAbierto] = useState(false);
@@ -477,6 +478,12 @@ export function EntregaForm({
 
   // Guarda la entrega con un vueltaId opcional (cuando se inicia/reabre desde el diálogo)
   async function guardarEntrega(vueltaIdOverride?: string) {
+    // Guard contra double-submit: si ya estamos guardando, ignorar
+    if (savingRef.current) {
+      console.warn("[guardarEntrega] ya hay un guardado en curso, ignorando");
+      return;
+    }
+    savingRef.current = true;
     // Capturar el estado actual en variables locales para evitar problemas de stale closure
     const modoEst = modoEstanques;
     const estanques = estanquesEntrega;
@@ -495,6 +502,7 @@ export function EntregaForm({
       const totalLitrosEst = estanquesConLitros.reduce((s, e) => s + (Number(e.litros) || 0), 0);
       if (totalLitrosEst <= 0) {
         toast.error("Ingresa al menos litros en un estanque");
+        savingRef.current = false;
         return;
       }
 
@@ -571,6 +579,7 @@ export function EntregaForm({
         console.error("[guardarEntrega] error al guardar:", e);
         toast.error(e instanceof Error ? e.message : "No se pudo guardar");
       } finally {
+        savingRef.current = false;
         setSaving(false);
       }
       return;
@@ -578,6 +587,7 @@ export function EntregaForm({
 
     if (litrosFinalLocal <= 0) {
       toast.error("Los litros deben ser mayores a 0");
+      savingRef.current = false;
       return;
     }
 
