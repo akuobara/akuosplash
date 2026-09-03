@@ -1256,7 +1256,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
 
       {/* Dialog de detalle del cliente */}
       <Dialog open={!!clienteDetalle} onOpenChange={(o) => !o && setClienteDetalle(null)}>
-        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
+        <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto overflow-x-hidden">
           {clienteDetalle && (() => {
             const totalEntregas = detalleEntregas.length;
             const totalLitros = detalleEntregas.reduce((s: number, e: any) => s + (e.litros || 0), 0);
