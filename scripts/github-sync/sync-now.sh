@@ -26,6 +26,36 @@ fi
 # 3. Stage cambios (respetando .gitignore)
 git add -A
 
+# 3b. PROTECCIÓN: nunca commitear archivos sensibles (aunque estén staged)
+SENSITIVE_PATTERNS=(
+  '.git-credentials'
+  '.env'
+  '.env.local'
+  '.env.*.local'
+  '.vercel-token'
+  'db/*.db'
+  'db/*.db-journal'
+  '*.pem'
+  '*.key'
+  'upload/'
+  'public/uploads/'
+  'tool-results/'
+  'download/*.zip'
+)
+for pat in "${SENSITIVE_PATTERNS[@]}"; do
+  if git ls-files --cached -- "$pat" | grep -q .; then
+    echo "[$TS] WARN: removiendo del stage archivo sensible: $pat" >> "$LOG"
+    git ls-files --cached -- "$pat" | xargs -r git reset -q HEAD --
+  fi
+done
+
+# 3c. Verificación final: abortar si todavía quedan staged archivos sensibles
+STAGED_SENSITIVE=$(git diff --cached --name-only | grep -E '^(\.git-credentials|\.env|\.vercel-token|.*\.pem|.*\.key)$' || true)
+if [[ -n "$STAGED_SENSITIVE" ]]; then
+  echo "[$TS] ABORT: archivos sensibles quedaron staged: $STAGED_SENSITIVE" >> "$LOG"
+  exit 2
+fi
+
 # 4. Si hay cambios, commit
 if ! git diff --cached --quiet; then
   MSG="auto-sync ${TS}"
