@@ -118,3 +118,28 @@ Stage Summary:
 - ❌ No se pudo deployar el código nuevo a Vercel
 - Causa raíz probable: gitCredentialId obsoleto asociado a repo Aljibeapp (mayúscula) inexistente
 - Solución pendiente: usuario debe contactar soporte Vercel o re-configurar GitHub App desde dashboard Vercel
+
+---
+Task ID: deploy-precio-camion-exitoso
+Agent: main
+Task: Deploy final del código con precioCamionCompleto a Vercel producción (después de reconectar Git).
+
+Work Log:
+- Usuario reconectó Git repo desde Vercel dashboard (disconnect + connect aljibe-app)
+- Deploy ejecutado: my-project-fvz6rh87z-aljibeapp.vercel.app
+- Build exitoso en 58s
+- Alias asignado: https://e-five-82.vercel.app
+- Verificación completa:
+  * /, /cliente, /cliente/saldo, /suscripcion → HTTP 200
+  * /api/clientes, /api/configuracion, /api/liquidacion/periodo, /api/reportes/resumen → HTTP 401 (correcto, no 500)
+  * Login API devuelve JSON correctamente
+  * Endpoint migrate-db borrado (HTTP 404)
+- Daemon sync GitHub reiniciado (PID 3809)
+- Sin deploys BLOCKED en cola
+
+Stage Summary:
+- ✅ Deploy exitoso con precioCamionCompleto en producción
+- ✅ DB de producción tiene las columnas
+- ✅ App admin funciona con nueva funcionalidad
+- ✅ App cliente y portal de pago sin cambios (siguen operativos)
+- ✅ Producción 100% funcional
