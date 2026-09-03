@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
     diaCierreSemana: 6,
     nombreDueno: "Dueño",
     nombreChofer: "Chofer",
+    umbralCompletacionVuelta: 0.975,
   };
 
   const periodo = cfg.periodoLiquidacion || "mensual";

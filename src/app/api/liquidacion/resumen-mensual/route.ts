@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
     nombreChofer: "Chofer",
     modoLiquidacion: "porcentaje",
     porcentajeComisionChofer: 50,
+    umbralCompletacionVuelta: 0.975,
     porcentajeComisionDueno: 50,
     montoPorVueltaUnicoCliente: 20000,
     montoPorVueltaMultiple: 25000,
