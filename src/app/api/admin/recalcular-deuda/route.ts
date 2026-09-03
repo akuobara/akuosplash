@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 // POST /api/admin/recalcular-deuda
-// Endpoint temporal: revierte recalculos hechos masivamente.
-// Cambia las entregas que tenían precioPorLitro = 8 (efectivo) pero que fueron
-// registradas originalmente como transferencia (precioPorLitro = 8.7) de vuelta a 8.7.
+// Endpoint temporal: corrige entregas con precioPorLitro=0 pero total>0.
+// Esto pasa cuando una entrega se registró como "Sin pago" pero el total se calculó
+// correctamente con el precio transferencia. Al pagar con "precio efectivo", el backend
+// no encontraba estas entregas porque buscaba por precioPorLitro=transferencia, no =0.
 //
-// Solo aplica a entregas pendientes/parciales (no a las ya pagadas).
-// Solo aplica si el cliente tiene pagos por transferencia asociados.
+// Estrategia: para cada entrega pendiente/parcial con precioPorLitro=0 Y total>0:
+// 1. Calcular cuál fue el precio original (total / litros)
+// 2. Si el pago reciente fue "precio efectivo", recalcular al precio efectivo
 export async function POST(req: NextRequest) {
   const secret = req.headers.get("x-recalc-secret");
   if (secret !== "aljibe-recalc-2026") {
@@ -15,7 +17,7 @@ export async function POST(req: NextRequest) {
   }
 
   const resultados: string[] = [];
-  let totalRevertidas = 0;
+  let totalCorregidas = 0;
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -43,44 +45,68 @@ export async function POST(req: NextRequest) {
       const precioEfectivo = cliente.precioEfectivoPorLitro || config?.precioEfectivoPorLitro || 0;
       const precioTransferencia = cliente.precioTransferenciaPorLitro || config?.precioTransferenciaPorLitro || 0;
 
-      if (precioEfectivo <= 0 || precioTransferencia <= precioEfectivo) continue;
+      if (precioEfectivo <= 0) continue;
 
-      // Buscar entregas pendientes/parciales que fueron recalculadas a efectivo
-      // pero el cliente tiene pagos por transferencia (deberían estar a precio transferencia)
-      const entregasARevertir = await db.entrega.findMany({
+      // Buscar entregas pendientes/parciales con precioPorLitro=0 Y total>0
+      // Estas son entregas que se registraron como "Sin pago" pero tienen un total calculado
+      const entregasRaras = await db.entrega.findMany({
         where: {
           clienteId: cliente.id,
           estadoPago: { in: ["pendiente", "parcial"] },
-          precioPorLitro: precioEfectivo,  // Las que fueron bajadas a precio efectivo
+          precioPorLitro: 0,
+          total: { gt: 0 },
         },
-        select: { id: true, litros: true, precioPorLitro: true, descuento: true, metodoPago: true },
+        select: { id: true, litros: true, precioPorLitro: true, total: true, descuento: true, metodoPago: true },
       });
 
-      if (entregasARevertir.length === 0) continue;
+      for (const entrega of entregasRaras) {
+        if (entrega.litros <= 0) continue;
 
-      for (const entrega of entregasARevertir) {
-        // Revertir a precio transferencia
-        const nuevoTotal = Math.ceil((entrega.litros * precioTransferencia - (entrega.descuento || 0)) / 100) * 100;
+        // Detectar el precio original: si total/litros ≈ precioEfectivo → era efectivo
+        // Si total/litros ≈ precioTransferencia → era transferencia
+        const precioCalculado = (entrega.total + (entrega.descuento || 0)) / entrega.litros;
+        const eraTransferencia = Math.abs(precioCalculado - precioTransferencia) < 0.5;
+        const eraEfectivo = Math.abs(precioCalculado - precioEfectivo) < 0.5;
+
+        let nuevoPrecio: number;
+        let nuevoTotal: number;
+
+        if (eraTransferencia) {
+          // Era transferencia, recalcular a efectivo (porque el usuario pago con "precio efectivo")
+          nuevoPrecio = precioEfectivo;
+          nuevoTotal = Math.ceil((entrega.litros * precioEfectivo - (entrega.descuento || 0)) / 100) * 100;
+          nuevoTotal = Math.max(0, nuevoTotal);
+        } else if (eraEfectivo) {
+          // Ya estaba al precio efectivo, solo fix el precioPorLitro
+          nuevoPrecio = precioEfectivo;
+          nuevoTotal = entrega.total;
+        } else {
+          // No coincide con ninguno, usar el efectivo como default
+          nuevoPrecio = precioEfectivo;
+          nuevoTotal = Math.ceil((entrega.litros * precioEfectivo - (entrega.descuento || 0)) / 100) * 100;
+          nuevoTotal = Math.max(0, nuevoTotal);
+        }
+
         await db.entrega.update({
           where: { id: entrega.id },
           data: {
-            precioPorLitro: precioTransferencia,
-            total: Math.max(0, nuevoTotal),
+            precioPorLitro: nuevoPrecio,
+            total: nuevoTotal,
           },
         });
-        totalRevertidas++;
-        resultados.push(`Revertida entrega ${entrega.id} de ${cliente.nombre}: ${entrega.litros}L × $${precioTransferencia} = $${nuevoTotal}`);
+        totalCorregidas++;
+        resultados.push(`Corregida entrega ${entrega.id} de ${cliente.nombre}: ${entrega.litros}L, antes $${entrega.total} (precio=$0), ahora $${nuevoTotal} (precio=$${nuevoPrecio})`);
       }
     }
 
     return NextResponse.json({
       ok: true,
-      totalRevertidas,
+      totalCorregidas,
       resultados,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: "revert failed", details: msg }, { status: 500 });
+    return NextResponse.json({ error: "fix failed", details: msg }, { status: 500 });
   }
 }
