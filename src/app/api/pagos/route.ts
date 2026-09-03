@@ -78,30 +78,36 @@ export async function POST(req: NextRequest) {
 
     // Si se seleccionó "precio efectivo", recalcular las entregas impagas al precio efectivo
     if (body.precioEfectivo && cliente.precioEfectivoPorLitro > 0) {
-      const precioEfectivo = cliente.precioEfectivoPorLitro;
-      const precioTransferencia = cliente.precioTransferenciaPorLitro || precioEfectivo;
+      // Usar el precio efectivo del cliente, o si es 0, el del global (configuración)
+      // Para conseguir el global, buscamos la configuración del dueño
+      const config = await db.configuracion.findUnique({ where: { duenoId } });
+      const precioEfectivo = cliente.precioEfectivoPorLitro || config?.precioEfectivoPorLitro || 0;
+      const precioTransferencia = cliente.precioTransferenciaPorLitro || config?.precioTransferenciaPorLitro || precioEfectivo;
 
-      // Buscar entregas del cliente que están pendientes o parcialmente pagadas
-      // y que tienen precioPorLitro = precioTransferencia (deuda generada al precio más alto)
-      const entregasImpagas = await db.entrega.findMany({
-        where: {
-          clienteId: body.clienteId,
-          estadoPago: { in: ["pendiente", "parcial"] },
-          precioPorLitro: precioTransferencia,
-        },
-        select: { id: true, litros: true, precioPorLitro: true, montoRecibido: true, descuento: true },
-      });
-
-      // Recalcular cada entrega al precio efectivo
-      for (const entrega of entregasImpagas) {
-        const nuevoTotal = Math.ceil((entrega.litros * precioEfectivo - (entrega.descuento || 0)) / 100) * 100;
-        await db.entrega.update({
-          where: { id: entrega.id },
-          data: {
-            precioPorLitro: precioEfectivo,
-            total: Math.max(0, nuevoTotal),
+      if (precioEfectivo > 0 && precioTransferencia > precioEfectivo) {
+        // Buscar entregas del cliente que están pendientes o parcialmente pagadas
+        // y que tienen precioPorLitro > precioEfectivo (fueron generadas al precio más alto).
+        // Usamos > precioEfectivo para incluir cualquier entrega que se pueda recalcular a efectivo.
+        const entregasImpagas = await db.entrega.findMany({
+          where: {
+            clienteId: body.clienteId,
+            estadoPago: { in: ["pendiente", "parcial"] },
+            precioPorLitro: { gt: precioEfectivo },
           },
+          select: { id: true, litros: true, precioPorLitro: true, montoRecibido: true, descuento: true },
         });
+
+        // Recalcular cada entrega al precio efectivo
+        for (const entrega of entregasImpagas) {
+          const nuevoTotal = Math.ceil((entrega.litros * precioEfectivo - (entrega.descuento || 0)) / 100) * 100;
+          await db.entrega.update({
+            where: { id: entrega.id },
+            data: {
+              precioPorLitro: precioEfectivo,
+              total: Math.max(0, nuevoTotal),
+            },
+          });
+        }
       }
     }
 

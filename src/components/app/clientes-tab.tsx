@@ -1157,20 +1157,33 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                 placeholder="Ej. Pago de deuda anterior"
               />
             </div>
-            {clienteDetalle && (clienteDetalle.precioEfectivoPorLitro > 0) && (clienteDetalle.precioEfectivoPorLitro < (clienteDetalle.precioTransferenciaPorLitro || 0)) && (
-              <label className="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
-                <Switch checked={pagoPrecioEfectivo} onCheckedChange={setPagoPrecioEfectivo} />
-                <div>
-                  <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                    Cobrar a precio efectivo
-                  </p>
-                  <p className="text-xs text-amber-700 dark:text-amber-300">
-                    Marca esta opción si el cliente paga en efectivo pero la deuda se generó al precio transferencia (más alto).
-                    El sistema recalculará la deuda al precio efectivo ({formatCurrency(clienteDetalle.precioEfectivoPorLitro)}/L).
-                  </p>
-                </div>
-              </label>
-            )}
+            {clienteDetalle && (() => {
+              // Mostrar el toggle si el cliente tiene precios propios O si hereda del global (ambos 0)
+              // En el último caso, el backend usará los precios globales
+              const tienePreciosPropios = clienteDetalle.precioEfectivoPorLitro > 0 || clienteDetalle.precioTransferenciaPorLitro > 0;
+              const efectivo = clienteDetalle.precioEfectivoPorLitro;
+              const transferencia = clienteDetalle.precioTransferenciaPorLitro || 0;
+              // Mostrar si hay precios propios con efectivo < transferencia,
+              // o si ambos son 0 (hereda global - el backend resolverá)
+              const mostrarToggle = (tienePreciosPropios && efectivo > 0 && efectivo < transferencia)
+                || (!tienePreciosPropios);
+              if (!mostrarToggle) return null;
+              const precioEfectivoDisplay = efectivo > 0 ? formatCurrency(efectivo) : "precio efectivo global";
+              return (
+                <label className="flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+                  <Switch checked={pagoPrecioEfectivo} onCheckedChange={setPagoPrecioEfectivo} />
+                  <div>
+                    <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+                      Cobrar a precio efectivo
+                    </p>
+                    <p className="text-xs text-amber-700 dark:text-amber-300">
+                      Marca esta opción si el cliente paga en efectivo pero la deuda se generó al precio transferencia (más alto).
+                      El sistema recalculará la deuda al precio efectivo ({precioEfectivoDisplay}/L).
+                    </p>
+                  </div>
+                </label>
+              );
+            })()}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setPagoOpen(false)}>
                 Cancelar
