@@ -107,6 +107,7 @@ interface DashboardProps {
     zona: string | null;
     precioEfectivoPorLitro: number;
     precioTransferenciaPorLitro: number;
+    precioCamionCompleto: number;
     lat: number | null;
     lng: number | null;
     requiereIngresoPropiedad: boolean;
@@ -119,6 +120,7 @@ interface DashboardProps {
   config: {
     precioEfectivoPorLitro: number;
     precioTransferenciaPorLitro: number;
+    precioCamionCompleto: number;
     capacidadCamion: number;
   };
   camiones: {

@@ -53,6 +53,7 @@ interface Cliente {
   zona: string | null;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  precioCamionCompleto: number;
   lat: number | null;
   lng: number | null;
   requiereIngresoPropiedad: boolean;
@@ -78,6 +79,7 @@ interface Config {
   montoPorVueltaMultiple: number;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  precioCamionCompleto: number;
   tipoTributo: string;
   porcentajeImpuesto: number;
   aplicaImpuestoSobre: string;
@@ -385,6 +387,7 @@ export default function Home() {
               config={{
                 precioEfectivoPorLitro: config?.precioEfectivoPorLitro ?? 0,
                 precioTransferenciaPorLitro: config?.precioTransferenciaPorLitro ?? 0,
+                precioCamionCompleto: config?.precioCamionCompleto ?? 0,
                 capacidadCamion: config?.capacidadCamion ?? 17000,
               }}
               camiones={camiones}
@@ -427,6 +430,7 @@ export default function Home() {
               config={{
                 precioEfectivoPorLitro: config?.precioEfectivoPorLitro ?? 0,
                 precioTransferenciaPorLitro: config?.precioTransferenciaPorLitro ?? 0,
+                precioCamionCompleto: config?.precioCamionCompleto ?? 0,
                 capacidadCamion: config?.capacidadCamion ?? 17000,
               }}
               vueltaActual={vueltaActual}
@@ -453,6 +457,7 @@ export default function Home() {
               config={config ? {
                 precioEfectivoPorLitro: config.precioEfectivoPorLitro ?? 0,
                 precioTransferenciaPorLitro: config.precioTransferenciaPorLitro ?? 0,
+                precioCamionCompleto: config.precioCamionCompleto ?? 0,
                 capacidadCamion: config.capacidadCamion ?? 17000,
               } : null}
               vueltaActual={vueltaActual}

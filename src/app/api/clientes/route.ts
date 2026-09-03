@@ -56,14 +56,16 @@ export async function POST(req: NextRequest) {
   // Si el cliente no trae precios propios, heredar los del admin (config)
   let precioEfectivo = Number(body.precioEfectivoPorLitro) || 0;
   let precioTransferencia = Number(body.precioTransferenciaPorLitro) || 0;
-  if (precioEfectivo === 0 || precioTransferencia === 0) {
+  let precioCamionCompleto = Number(body.precioCamionCompleto) || 0;
+  if (precioEfectivo === 0 || precioTransferencia === 0 || precioCamionCompleto === 0) {
     const config = await db.configuracion.findUnique({
       where: { duenoId },
-      select: { precioEfectivoPorLitro: true, precioTransferenciaPorLitro: true },
+      select: { precioEfectivoPorLitro: true, precioTransferenciaPorLitro: true, precioCamionCompleto: true },
     });
     if (config) {
       if (precioEfectivo === 0) precioEfectivo = config.precioEfectivoPorLitro;
       if (precioTransferencia === 0) precioTransferencia = config.precioTransferenciaPorLitro;
+      if (precioCamionCompleto === 0) precioCamionCompleto = config.precioCamionCompleto;
     }
   }
 
@@ -77,6 +79,7 @@ export async function POST(req: NextRequest) {
       zona: body.zona?.trim() || null,
       precioEfectivoPorLitro: precioEfectivo,
       precioTransferenciaPorLitro: precioTransferencia,
+      precioCamionCompleto,
       nota: body.nota?.trim() || null,
       lat: body.lat != null && body.lat !== "" ? Number(body.lat) : null,
       lng: body.lng != null && body.lng !== "" ? Number(body.lng) : null,

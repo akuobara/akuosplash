@@ -98,6 +98,7 @@ interface ClienteOption {
   zona: string | null;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  precioCamionCompleto: number;
   // GPS y acceso
   lat: number | null;
   lng: number | null;
@@ -120,6 +121,7 @@ interface EntregaFormProps {
   config: {
     precioEfectivoPorLitro: number;
     precioTransferenciaPorLitro: number;
+    precioCamionCompleto: number;
     capacidadCamion: number;
   };
   vueltaActual: VueltaActual | null;
@@ -176,6 +178,9 @@ export function EntregaForm({
   // Modo de ingreso: por litros o por precio
   const [modoIngreso, setModoIngreso] = useState<"por_litros" | "por_precio">("por_litros");
   const [precioTotalInput, setPrecioTotalInput] = useState<string>("");
+
+  // Modo camión completo: tarifa fija (anula precio por litro)
+  const [esCamionCompleto, setEsCamionCompleto] = useState(false);
 
   // Descuento
   const [descuentoTipo, setDescuentoTipo] = useState<string>("ninguno"); // ninguno | total | por_litro
@@ -417,7 +422,17 @@ export function EntregaForm({
   }
 
   // Total calculado con redondeo a $100 superior
-  let totalCalculado = modoEstanques ? totalEstanquesRaw : litrosFinal * precioFinal;
+  // Si es camión completo, usar el precio fijo (del cliente o de la config)
+  const clienteActualCalc = clienteId ? clientes.find((c) => c.id === clienteId) : null;
+  const precioCamionCompletoVal =
+    (clienteActualCalc?.precioCamionCompleto ?? 0) ||
+    config.precioCamionCompleto ||
+    0;
+  let totalCalculado = esCamionCompleto && precioCamionCompletoVal > 0
+    ? precioCamionCompletoVal
+    : modoEstanques
+      ? totalEstanquesRaw
+      : litrosFinal * precioFinal;
   if (totalCalculado > 0) {
     totalCalculado = Math.ceil(totalCalculado / 100) * 100;
   }
@@ -1251,10 +1266,31 @@ export function EntregaForm({
               value={precioPorLitro}
               onChange={(e) => setPrecioPorLitro(e.target.value)}
               placeholder="0"
+              disabled={esCamionCompleto}
             />
             <p className="text-xs text-muted-foreground">
               Default: {formatCurrency(config.precioEfectivoPorLitro)}/L efectivo · {formatCurrency(config.precioTransferenciaPorLitro)}/L transferencia
             </p>
+            {precioCamionCompletoVal > 0 && (
+              <label className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 p-2 dark:border-amber-800 dark:bg-amber-900/20">
+                <input
+                  type="checkbox"
+                  checked={esCamionCompleto}
+                  onChange={(e) => {
+                    setEsCamionCompleto(e.target.checked);
+                    if (e.target.checked) {
+                      // Al activar camión completo, pasar a modo por litros (no usa precio total)
+                      setModoIngreso("por_litros");
+                      setPrecioTotalInput("");
+                    }
+                  }}
+                  className="h-4 w-4"
+                />
+                <span className="text-xs text-amber-900 dark:text-amber-200">
+                  <strong>Camión completo</strong> — tarifa fija {formatCurrency(precioCamionCompletoVal)} (independiente de litros)
+                </span>
+              </label>
+            )}
           </div>
 
           {/* Descuento — siempre visible */}

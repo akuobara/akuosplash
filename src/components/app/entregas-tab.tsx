@@ -65,6 +65,7 @@ interface EntregasTabProps {
     zona: string | null;
     precioEfectivoPorLitro: number;
     precioTransferenciaPorLitro: number;
+    precioCamionCompleto: number;
     lat: number | null;
     lng: number | null;
     requiereIngresoPropiedad: boolean;
@@ -77,6 +78,7 @@ interface EntregasTabProps {
   config: {
     precioEfectivoPorLitro: number;
     precioTransferenciaPorLitro: number;
+    precioCamionCompleto: number;
     capacidadCamion: number;
   };
   vueltaActual: VueltaActual | null;

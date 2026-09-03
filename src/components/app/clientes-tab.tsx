@@ -71,6 +71,7 @@ interface Cliente {
   zona: string | null;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  precioCamionCompleto: number;
   nota: string | null;
   // GPS
   lat: number | null;
@@ -141,6 +142,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [zona, setZona] = useState("");
   const [precioEfectivo, setPrecioEfectivo] = useState("");
   const [precioTransferencia, setPrecioTransferencia] = useState("");
+  const [precioCamionCompleto, setPrecioCamionCompleto] = useState("");
   const [nota, setNota] = useState("");
   // GPS
   const [lat, setLat] = useState("");
@@ -197,6 +199,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     setZona("");
     setPrecioEfectivo("");
     setPrecioTransferencia("");
+    setPrecioCamionCompleto("");
     setNota("");
     setLat("");
     setLng("");
@@ -222,6 +225,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     setZona(c.zona ?? "");
     setPrecioEfectivo(c.precioEfectivoPorLitro ? String(c.precioEfectivoPorLitro) : "");
     setPrecioTransferencia(c.precioTransferenciaPorLitro ? String(c.precioTransferenciaPorLitro) : "");
+    setPrecioCamionCompleto(c.precioCamionCompleto ? String(c.precioCamionCompleto) : "");
     setNota(c.nota ?? "");
     setLat(c.lat != null ? String(c.lat) : "");
     setLng(c.lng != null ? String(c.lng) : "");
@@ -340,6 +344,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         zona: zona.trim() || null,
         precioEfectivoPorLitro: Number(precioEfectivo) || 0,
         precioTransferenciaPorLitro: Number(precioTransferencia) || 0,
+        precioCamionCompleto: Number(precioCamionCompleto) || 0,
         nota: nota.trim() || null,
         lat: lat.trim() === "" ? null : Number(lat),
         lng: lng.trim() === "" ? null : Number(lng),
@@ -543,7 +548,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   )}
                 </div>
                 {/* Precios por método */}
-                {(c.precioEfectivoPorLitro > 0 || c.precioTransferenciaPorLitro > 0) && (
+                {(c.precioEfectivoPorLitro > 0 || c.precioTransferenciaPorLitro > 0 || c.precioCamionCompleto > 0) && (
                   <div className="mt-1 flex flex-wrap gap-2">
                     {c.precioEfectivoPorLitro > 0 && (
                       <Badge variant="secondary" className="text-[11px]">
@@ -555,6 +560,12 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       <Badge variant="secondary" className="text-[11px]">
                         <Smartphone className="mr-1 h-3 w-3" />
                         {formatCurrency(c.precioTransferenciaPorLitro)}/L
+                      </Badge>
+                    )}
+                    {c.precioCamionCompleto > 0 && (
+                      <Badge variant="secondary" className="text-[11px]">
+                        <Truck className="mr-1 h-3 w-3" />
+                        {formatCurrency(c.precioCamionCompleto)} / camión
                       </Badge>
                     )}
                   </div>
@@ -726,6 +737,20 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                     value={precioTransferencia}
                     onChange={(e) => setPrecioTransferencia(e.target.value)}
                     placeholder="0 = global"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="precioCamionCompletoCliente" className="text-xs">
+                    <Truck className="mr-1 inline h-3 w-3" /> Precio camión completo ($ fijo)
+                  </Label>
+                  <Input
+                    id="precioCamionCompletoCliente"
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    value={precioCamionCompleto}
+                    onChange={(e) => setPrecioCamionCompleto(e.target.value)}
+                    placeholder="0 = global. Precio fijo por camión completo (ej: 17000L)"
                   />
                 </div>
               </div>

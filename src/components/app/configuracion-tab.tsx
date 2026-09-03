@@ -37,6 +37,7 @@ interface Config {
   montoPorVueltaMultiple: number;
   precioEfectivoPorLitro: number;
   precioTransferenciaPorLitro: number;
+  precioCamionCompleto: number;
   tipoTributo: string;
   porcentajeImpuesto: number;
   aplicaImpuestoSobre: string;
@@ -95,6 +96,7 @@ export function ConfiguracionTab({
 
   const [precioEfectivo, setPrecioEfectivo] = useState("0");
   const [precioTransferencia, setPrecioTransferencia] = useState("0");
+  const [precioCamionCompleto, setPrecioCamionCompleto] = useState("0");
 
   // Impuestos
   const [tipoTributo, setTipoTributo] = useState("boleta_honorarios");
@@ -124,6 +126,7 @@ export function ConfiguracionTab({
       setMontoVueltaMultiple(String(config.montoPorVueltaMultiple));
       setPrecioEfectivo(String(config.precioEfectivoPorLitro));
       setPrecioTransferencia(String(config.precioTransferenciaPorLitro));
+      setPrecioCamionCompleto(String(config.precioCamionCompleto ?? 0));
       setTipoTributo(config.tipoTributo || "boleta_honorarios");
       setPorcentajeImpuesto(String(config.porcentajeImpuesto ?? 15.25));
       setAplicaImpuestoSobre(config.aplicaImpuestoSobre || "pago_chofer");
@@ -181,6 +184,7 @@ export function ConfiguracionTab({
         montoPorVueltaMultiple: Number(montoVueltaMultiple),
         precioEfectivoPorLitro: Number(precioEfectivo),
         precioTransferenciaPorLitro: Number(precioTransferencia),
+        precioCamionCompleto: Number(precioCamionCompleto),
         tipoTributo,
         porcentajeImpuesto: Number(porcentajeImpuesto),
         aplicaImpuestoSobre,
@@ -359,6 +363,21 @@ export function ConfiguracionTab({
             <strong>Cómo se calcula:</strong> Al registrar una entrega, el precio se autocompleta según el método de pago elegido.
             Puedes modificarlo manualmente en cada entrega. Si un cliente tiene su propio precio configurado en su ficha,
             ese precio tiene prioridad sobre estos defaults.
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cfgPrecioCamionCompleto">Precio camión completo ($ fijo)</Label>
+            <Input
+              id="cfgPrecioCamionCompleto"
+              type="number"
+              inputMode="decimal"
+              step="any"
+              value={precioCamionCompleto}
+              onChange={(e) => setPrecioCamionCompleto(e.target.value)}
+              placeholder="0"
+            />
+            <p className="text-xs text-muted-foreground">
+              Precio fijo por camión completo (independiente del método de pago). Útil para clientes con tarifa plana por viaje.
+            </p>
           </div>
         </CardContent>
       </Card>

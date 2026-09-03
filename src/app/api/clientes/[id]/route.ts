@@ -51,6 +51,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.zona !== undefined && { zona: body.zona?.trim() || null }),
       ...(body.precioEfectivoPorLitro !== undefined && { precioEfectivoPorLitro: Number(body.precioEfectivoPorLitro) || 0 }),
       ...(body.precioTransferenciaPorLitro !== undefined && { precioTransferenciaPorLitro: Number(body.precioTransferenciaPorLitro) || 0 }),
+      ...(body.precioCamionCompleto !== undefined && { precioCamionCompleto: Number(body.precioCamionCompleto) || 0 }),
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),
       ...(body.deudaInicial !== undefined && { deudaInicial: Number(body.deudaInicial) || 0 }),
       ...(body.lat !== undefined && { lat: body.lat === null || body.lat === "" ? null : Number(body.lat) }),
