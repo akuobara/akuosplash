@@ -245,7 +245,7 @@ function generarPDF(period: string, data: any) {
   return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="resumen-${period}.pdf"`,
+      "Content-Disposition": `attachment; filename="resumen-${period}-${Date.now()}.pdf"`,
     },
   });
 }
