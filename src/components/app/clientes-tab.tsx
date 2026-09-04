@@ -39,6 +39,7 @@ import {
   MapPin,
   Droplets,
   Users,
+  User,
   Banknote,
   Smartphone,
   Truck,
@@ -126,6 +127,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
 
   // Estado para formulario de pago
   const [pagoOpen, setPagoOpen] = useState(false);
+  const [pagoEditando, setPagoEditando] = useState<any | null>(null);
   const [pagoMonto, setPagoMonto] = useState("");
   const [deudaInicialOpen, setDeudaInicialOpen] = useState(false);
   const [deudaInicialMonto, setDeudaInicialMonto] = useState("");
@@ -1270,6 +1272,105 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         </DialogContent>
       </Dialog>
 
+      {/* Diálogo: Editar pago */}
+      <Dialog open={!!pagoEditando} onOpenChange={(o) => !o && setPagoEditando(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Editar pago</DialogTitle>
+            <DialogDescription>
+              Podés corregir el monto, método de pago, o quién lo recibió.
+            </DialogDescription>
+          </DialogHeader>
+          {pagoEditando && (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const data: Record<string, unknown> = {};
+                const monto = Number((document.getElementById("editPagoMonto") as HTMLInputElement)?.value);
+                const metodo = (document.getElementById("editPagoMetodo") as HTMLSelectElement)?.value;
+                const nota = (document.getElementById("editPagoNota") as HTMLInputElement)?.value;
+                const choferSelect = (document.getElementById("editPagoChofer") as HTMLSelectElement)?.value;
+                if (monto > 0 && monto !== pagoEditando.monto) data.monto = monto;
+                if (metodo && metodo !== pagoEditando.metodoPago) data.metodoPago = metodo;
+                if (nota !== undefined && nota !== (pagoEditando.nota || "")) data.nota = nota;
+                if (choferSelect !== undefined) {
+                  // "" = admin (null), "choferId" = ese chofer
+                  const newChoferId = choferSelect === "" ? null : choferSelect;
+                  if (newChoferId !== pagoEditando.choferId) data.choferId = choferSelect === "" ? null : choferSelect;
+                }
+                if (Object.keys(data).length === 0) {
+                  toast.info("No hay cambios para guardar");
+                  return;
+                }
+                try {
+                  await apiPatch(`/api/pagos/${pagoEditando.id}`, data);
+                  toast.success("Pago actualizado");
+                  setPagoEditando(null);
+                  if (clienteDetalle) abrirDetalle(clienteDetalle);
+                  onRefresh();
+                } catch (err) {
+                  toast.error("No se pudo actualizar el pago");
+                }
+              }}
+              className="space-y-3"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="editPagoMonto">Monto ($)</Label>
+                <Input
+                  id="editPagoMonto"
+                  type="number"
+                  step="100"
+                  defaultValue={pagoEditando.monto}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editPagoMetodo">Método de pago</Label>
+                <select
+                  id="editPagoMetodo"
+                  defaultValue={pagoEditando.metodoPago}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                >
+                  <option value="efectivo">Efectivo</option>
+                  <option value="transferencia">Transferencia</option>
+                  <option value="mixto">Mixto</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editPagoChofer">¿Quién lo recibió?</Label>
+                <select
+                  id="editPagoChofer"
+                  defaultValue={pagoEditando.choferId || ""}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                >
+                  <option value="">Admin (no lo recibió el chofer)</option>
+                  {choferes.map((c) => (
+                    <option key={c.id} value={c.id}>{c.nombre}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  Si lo recibió el admin, no aparece en la liquidación del chofer.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="editPagoNota">Nota</Label>
+                <Input
+                  id="editPagoNota"
+                  defaultValue={pagoEditando.nota || ""}
+                  placeholder="Ej. Pago de deuda anterior"
+                />
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setPagoEditando(null)}>
+                  Cancelar
+                </Button>
+                <Button type="submit">Guardar cambios</Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Confirmar borrado */}
       <Dialog open={!!borrando} onOpenChange={(o) => !o && setBorrando(null)}>
         <DialogContent className="max-w-sm">
@@ -1395,17 +1496,17 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                 )}
 
                 {/* Tabs internos — al inicio para fácil acceso */}
-                <div className="sticky top-0 z-10 flex items-center gap-1 overflow-x-auto rounded-lg bg-muted/40 p-1">
-                  <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-7 shrink-0">
+                <div className="sticky top-0 z-10 flex items-center gap-1 overflow-x-auto rounded-lg bg-muted/60 p-1 shadow-sm">
+                  <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-8 shrink-0 font-medium">
                     Info
                   </Button>
-                  <Button size="sm" variant={detalleTab === "entregas" ? "default" : "ghost"} onClick={() => setDetalleTab("entregas")} className="h-7 shrink-0">
+                  <Button size="sm" variant={detalleTab === "entregas" ? "default" : "ghost"} onClick={() => setDetalleTab("entregas")} className="h-8 shrink-0 font-medium">
                     Entregas ({totalEntregas})
                   </Button>
-                  <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-7 shrink-0">
+                  <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-8 shrink-0 font-medium">
                     Pedidos ({detallePedidos.length})
                   </Button>
-                  <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-7 shrink-0">
+                  <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-8 shrink-0 font-medium">
                     Pagos ({detallePagos.length})
                   </Button>
                 </div>
@@ -1799,14 +1900,54 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                         <div key={p.id} className="rounded-lg border border-border p-3 text-sm">
                           <div className="flex items-center justify-between gap-2">
                             <span className="font-medium">{formatDate(p.fecha)}</span>
-                            <span className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
-                              +{formatCurrency(p.monto)}
-                            </span>
+                            <div className="flex items-center gap-1">
+                              <span className="font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                                +{formatCurrency(p.monto)}
+                              </span>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6"
+                                onClick={() => setPagoEditando(p)}
+                                title="Editar pago"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6 text-red-600 hover:text-red-700"
+                                onClick={async () => {
+                                  if (!confirm("¿Eliminar este pago?")) return;
+                                  try {
+                                    await apiDelete(`/api/pagos/${p.id}`);
+                                    toast.success("Pago eliminado");
+                                    if (clienteDetalle) abrirDetalle(clienteDetalle);
+                                    onRefresh();
+                                  } catch (e) {
+                                    toast.error("No se pudo eliminar");
+                                  }
+                                }}
+                                title="Eliminar pago"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                           <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                             <Badge variant="outline" className="text-[10px]">
                               {p.metodoPago === "efectivo" ? "Efectivo" : p.metodoPago === "transferencia" ? "Transferencia" : "Mixto"}
                             </Badge>
+                            {p.chofer && (
+                              <Badge variant="outline" className="text-[10px] gap-0.5">
+                                <User className="h-2 w-2" /> {p.chofer.nombre}
+                              </Badge>
+                            )}
+                            {!p.chofer && (
+                              <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300">
+                                <User className="h-2 w-2" /> Admin
+                              </Badge>
+                            )}
                             {p.nota && <span className="truncate">{p.nota}</span>}
                           </div>
                         </div>
