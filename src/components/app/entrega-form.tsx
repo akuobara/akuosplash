@@ -901,8 +901,8 @@ export function EntregaForm({
             </div>
           )}
 
-          {/* Pedidos pendientes — PRIMERA OPCIÓN */}
-          {pedidosPendientes.length > 0 && (
+          {/* Pedidos pendientes — PRIMERA OPCIÓN — solo si no hay cliente seleccionado */}
+          {pedidosPendientes.length > 0 && !clienteId && (
             <div className="rounded-lg border-2 border-blue-300 bg-blue-50 dark:bg-blue-900/20 p-3 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <p className="flex items-center gap-1.5 text-sm font-medium text-blue-900 dark:text-blue-200">
@@ -975,7 +975,7 @@ export function EntregaForm({
           )}
 
           {/* Separador */}
-          {pedidosPendientes.length > 0 && (
+          {pedidosPendientes.length > 0 && !clienteId && (
             <div className="flex items-center gap-2">
               <div className="h-px flex-1 bg-border" />
               <span className="text-xs text-muted-foreground">o entrega sin pedido</span>
