@@ -215,6 +215,28 @@ export async function POST(req: NextRequest) {
             vueltaId: vueltaId,
           },
         });
+      } else if (body.clienteId) {
+        // Auto-vincular: buscar pedido pendiente/programado para este cliente
+        // (el más reciente, sin importar la fecha exacta)
+        const pedidoPendiente = await tx.pedido.findFirst({
+          where: {
+            clienteId: body.clienteId,
+            duenoId,
+            estado: { in: ["pendiente", "programado"] },
+            entregaId: null,
+          },
+          orderBy: { fechaSolicitada: "asc" }, // el más antiguo primero
+        });
+        if (pedidoPendiente) {
+          await tx.pedido.update({
+            where: { id: pedidoPendiente.id },
+            data: {
+              estado: "entregado",
+              entregaId: creada.id,
+              vueltaId: vueltaId,
+            },
+          });
+        }
       }
 
       return creada;

@@ -7,20 +7,39 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // Buscar pedidos de Milko
-  const pedidos = await db.pedido.findMany({
-    where: { clienteNombre: { contains: "Milko" } },
-    select: { id: true, clienteNombre: true, estado: true, entregaId: true, litrosSolicitados: true, fechaSolicitada: true, creadoEn: true },
-    orderBy: { creadoEn: "desc" },
-  });
+  const resultados: string[] = [];
 
-  // Buscar entregas de Milko recientes
-  const entregas = await db.entrega.findMany({
-    where: { clienteNombre: { contains: "Milko" } },
-    select: { id: true, clienteNombre: true, litros: true, total: true, fecha: true, estadoPago: true },
+  // 1. Buscar entregas sin pedido vinculado que tengan clienteId
+  const entregasSinPedido = await db.entrega.findMany({
+    where: { clienteId: { not: null } },
+    select: { id: true, clienteId: true, clienteNombre: true, fecha: true },
     orderBy: { fecha: "desc" },
-    take: 5,
+    take: 50,
   });
 
-  return NextResponse.json({ pedidos, entregas });
+  let vinculados = 0;
+  for (const entrega of entregasSinPedido) {
+    // Buscar pedido pendiente para ese cliente
+    const pedidoPendiente = await db.pedido.findFirst({
+      where: {
+        clienteId: entrega.clienteId,
+        estado: { in: ["pendiente", "programado"] },
+        entregaId: null,
+      },
+      orderBy: { fechaSolicitada: "asc" },
+    });
+    if (pedidoPendiente) {
+      await db.pedido.update({
+        where: { id: pedidoPendiente.id },
+        data: {
+          estado: "entregado",
+          entregaId: entrega.id,
+        },
+      });
+      vinculados++;
+      resultados.push(`Vinculado: ${entrega.clienteNombre} → entrega ${entrega.id} → pedido ${pedidoPendiente.id}`);
+    }
+  }
+
+  return NextResponse.json({ ok: true, vinculados, resultados, timestamp: new Date().toISOString() });
 }
