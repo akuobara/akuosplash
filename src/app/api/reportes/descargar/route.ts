@@ -67,7 +67,10 @@ export async function GET(req: NextRequest) {
     existing.entregas += 1;
     clientesMap.set(key, existing);
   }
-  const clientesEntrega = Array.from(clientesMap.values()).sort((a, b) => b.ventas - a.ventas);
+  // Filtrar clientes sin entregas reales (0 litros y 0 ventas)
+  const clientesEntrega = Array.from(clientesMap.values())
+    .filter(c => c.litros > 0 || c.ventas > 0)
+    .sort((a, b) => b.ventas - a.ventas);
 
   // === GASTOS AGRUPADOS POR TIPO (tipo + monto) ===
   const gastosPorTipoMap = new Map<string, number>();
@@ -216,21 +219,25 @@ function generarPDF(period: string, data: any) {
     y = (doc as any).lastAutoTable.finalY + 8;
   }
 
-  // === 5. GASTOS (tipo + monto, agrupado) ===
-  if (data.gastosPorTipo.length > 0) {
+  // === 5. GASTOS (detalle individual con nota) ===
+  if (data.gastos.length > 0) {
     if (y > 250) { doc.addPage(); y = 20; }
     doc.setFontSize(14);
     doc.text("5. Gastos", 14, y);
     y += 5;
     autoTable(doc, {
       startY: y,
-      head: [["Tipo de gasto", "Monto"]],
-      body: data.gastosPorTipo.map((g: any) => [g.tipo, formatCurrency(g.monto)]),
+      head: [["Tipo", "Descripción/Nota", "Monto"]],
+      body: data.gastos.map((g: any) => {
+        const tipo = labelTipoGasto(g.tipo);
+        const nota = g.nota || g.descripcion || "";
+        return [tipo, nota, formatCurrency(g.monto)];
+      }),
       theme: "striped",
       headStyles: { fillColor: [220, 38, 38], fontSize: 10 },
       bodyStyles: { fontSize: 9 },
-      columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 60, halign: "right" } },
-      foot: [["Total", formatCurrency(data.totalGastos)]],
+      columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 80 }, 2: { cellWidth: 40, halign: "right" } },
+      foot: [["", "Total", formatCurrency(data.totalGastos)]],
     });
   }
 
@@ -284,9 +291,9 @@ function generarExcel(period: string, data: any) {
     ["", "", "Total", data.totalPagosSueltos, ""],
     [],
     ["5. GASTOS"],
-    ["Tipo de gasto", "Monto"],
-    ...data.gastosPorTipo.map((g: any) => [g.tipo, g.monto]),
-    ["Total", data.totalGastos],
+    ["Tipo", "Descripción/Nota", "Monto"],
+    ...data.gastos.map((g: any) => [labelTipoGasto(g.tipo), g.nota || g.descripcion || "", g.monto]),
+    ["", "Total", data.totalGastos],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
