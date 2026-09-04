@@ -290,9 +290,12 @@ export function Dashboard({
           <Button onClick={() => setPagoFormOpen(true)} variant="outline" size="sm" className="bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-300">
             <Banknote className="mr-1 h-4 w-4" /> Recibir pago
           </Button>
-          <Button onClick={() => setEntregaFormOpen(true)} size="sm">
-            <Plus className="mr-1 h-4 w-4" /> Entrega
-          </Button>
+          {/* Solo el chofer puede registrar entregas, no el admin */}
+          {!isDueno && (
+            <Button onClick={() => setEntregaFormOpen(true)} size="sm">
+              <Plus className="mr-1 h-4 w-4" /> Entrega
+            </Button>
+          )}
           {/* Botones de descarga: un solo resumen diario en PDF o Excel */}
           <DownloadButton
             label="Resumen PDF"
