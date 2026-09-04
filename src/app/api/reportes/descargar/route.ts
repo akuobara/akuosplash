@@ -219,20 +219,30 @@ function generarPDF(period: string, data: any) {
     y = (doc as any).lastAutoTable.finalY + 8;
   }
 
-  // === 5. GASTOS (detalle individual con nota) ===
+  // === 5. GASTOS (agrupado por tipo, una fila por tipo) ===
   if (data.gastos.length > 0) {
     if (y > 250) { doc.addPage(); y = 20; }
     doc.setFontSize(14);
     doc.text("5. Gastos", 14, y);
     y += 5;
+    // Agrupar por tipo, sumar montos, juntar notas
+    const gastosAgrupados = new Map<string, { monto: number; notas: string[] }>();
+    for (const g of data.gastos) {
+      const tipo = labelTipoGasto(g.tipo);
+      const existing = gastosAgrupados.get(tipo) ?? { monto: 0, notas: [] };
+      existing.monto += g.monto;
+      const nota = g.descripcion || "";
+      if (nota) existing.notas.push(nota);
+      gastosAgrupados.set(tipo, existing);
+    }
     autoTable(doc, {
       startY: y,
       head: [["Tipo", "Descripción/Nota", "Monto"]],
-      body: data.gastos.map((g: any) => {
-        const tipo = labelTipoGasto(g.tipo);
-        const nota = g.nota || g.descripcion || "";
-        return [tipo, nota, formatCurrency(g.monto)];
-      }),
+      body: Array.from(gastosAgrupados.entries()).map(([tipo, info]) => [
+        tipo,
+        info.notas.join("; "),
+        formatCurrency(info.monto),
+      ]),
       theme: "striped",
       headStyles: { fillColor: [220, 38, 38], fontSize: 10 },
       bodyStyles: { fontSize: 9 },
@@ -292,7 +302,17 @@ function generarExcel(period: string, data: any) {
     [],
     ["5. GASTOS"],
     ["Tipo", "Descripción/Nota", "Monto"],
-    ...data.gastos.map((g: any) => [labelTipoGasto(g.tipo), g.nota || g.descripcion || "", g.monto]),
+    ...(() => {
+      const agrupado = new Map<string, { monto: number; notas: string[] }>();
+      for (const g of data.gastos) {
+        const tipo = labelTipoGasto(g.tipo);
+        const ex = agrupado.get(tipo) ?? { monto: 0, notas: [] };
+        ex.monto += g.monto;
+        if (g.descripcion) ex.notas.push(g.descripcion);
+        agrupado.set(tipo, ex);
+      }
+      return Array.from(agrupado.entries()).map(([tipo, info]) => [tipo, info.notas.join("; "), info.monto]);
+    })(),
     ["", "Total", data.totalGastos],
   ];
 
