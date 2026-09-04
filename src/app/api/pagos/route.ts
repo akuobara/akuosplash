@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
     orderBy: { fecha: "desc" },
     include: {
       cliente: { select: { id: true, nombre: true } },
+      chofer: { select: { id: true, nombre: true } },
     },
   });
 

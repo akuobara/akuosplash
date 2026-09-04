@@ -110,7 +110,15 @@ export async function GET(req: NextRequest) {
   const totalRecibido = totalEfectivo + totalTransferencia;
   // Pagos recibidos (cobros de deudas)
   const totalPagosSueltos = pagosSueltos.reduce((s, p) => s + p.monto, 0);
-  const pagosSueltosEfectivo = pagosSueltos.filter(p => p.metodoPago === "efectivo").reduce((s, p) => s + p.monto, 0);
+  // IMPORTANTE: para la liquidación del chofer, solo contar los pagos en efectivo
+  // que recibió EL CHOFER (no los que recibió el admin/dueño).
+  // Si el admin registró un pago en efectivo, significa que lo recibió el admin,
+  // NO el chofer, así que no debe aparecer en la liquidación del chofer.
+  const esChofer = session.role === "chofer";
+  const pagosSueltosEfectivoChofer = pagosSueltos
+    .filter(p => p.metodoPago === "efectivo" && (esChofer ? p.choferId === session.userId : p.choferId && p.choferId !== session.userId))
+    .reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosEfectivo = pagosSueltosEfectivoChofer; // alias para no romper código existente
   const pagosSueltosTransferencia = pagosSueltos.filter(p => p.metodoPago === "transferencia").reduce((s, p) => s + p.monto, 0);
   // Efectivo total = efectivo de entregas + efectivo de pagos recibidos
   const efectivoTotal = totalEfectivo + pagosSueltosEfectivo;
