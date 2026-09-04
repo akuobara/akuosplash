@@ -397,13 +397,33 @@ export default function Home() {
               onGoToGastos={() => setTab("gastos")}
               onGoToLiquidacion={() => setTab("liquidacion")}
               isDueno={isDueno}
-              pedidosPendientes={todosPedidos.filter(p => p.estado === "pendiente" || p.estado === "programado").map(p => ({
-                id: p.id,
-                clienteNombre: p.clienteNombre,
-                clienteId: p.clienteId,
-                litrosSolicitados: p.litrosSolicitados,
-                metodoPagoPreferido: p.metodoPagoPreferido,
-              }))}
+              pedidosPendientes={(() => {
+                // Filtrar solo pendientes/programados
+                const pendientes = todosPedidos.filter(p => p.estado === "pendiente" || p.estado === "programado");
+                // Filtrar solo pedidos para hoy o sin fecha (no futuros)
+                const hoy = new Date();
+                const hoyStr = hoy.toISOString().split("T")[0]; // YYYY-MM-DD
+                const paraHoy = pendientes.filter(p => {
+                  if (!p.fechaSolicitada) return true; // sin fecha → incluir
+                  const fStr = p.fechaSolicitada.split("T")[0];
+                  return fStr <= hoyStr; // hoy o atrasados
+                });
+                // Eliminar duplicados (mismo clienteId + litros + fecha)
+                const vistos = new Set<string>();
+                const unicos = paraHoy.filter(p => {
+                  const key = `${p.clienteId || p.clienteNombre}|${p.litrosSolicitados}|${p.fechaSolicitada || ""}`;
+                  if (vistos.has(key)) return false;
+                  vistos.add(key);
+                  return true;
+                });
+                return unicos.map(p => ({
+                  id: p.id,
+                  clienteNombre: p.clienteNombre,
+                  clienteId: p.clienteId,
+                  litrosSolicitados: p.litrosSolicitados,
+                  metodoPagoPreferido: p.metodoPagoPreferido,
+                }));
+              })()}
             />
           </TabsContent>
 
