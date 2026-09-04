@@ -183,6 +183,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("credito");
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [nota, setNota] = useState("");
+  const [esCamionCompleto, setEsCamionCompleto] = useState(false);
+  const [cantidadCamiones, setCantidadCamiones] = useState(1);
   // Asignación
   const [asignacionTipo, setAsignacionTipo] = useState<string>("manual");
   const [choferAsignadoId, setChoferAsignadoId] = useState<string>("");
@@ -339,6 +341,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     setNota("");
     setAsignacionTipo("manual");
     setChoferAsignadoId("");
+    setEsCamionCompleto(false);
+    setCantidadCamiones(1);
     setFormOpen(true);
   }
 
@@ -438,7 +442,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       toast.error("Indica el nombre del cliente");
       return;
     }
-    const litros = Number(litrosSolicitados) || 0;
+    let litros = Number(litrosSolicitados) || 0;
+    // Si es camión completo, calcular litros = cantidad × capacidad
+    if (esCamionCompleto) {
+      litros = cantidadCamiones * (vueltaActual?.capacidadCamion || 17000);
+    }
     // Litros NO es obligatorio — el cliente puede pedir agua sin saber la cantidad
     // Si es 0, se estimará con el promedio de entregas anteriores al convertir
 
@@ -1143,18 +1151,43 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="litrosSolicitados">Litros solicitados (opcional)</Label>
-                <Input
-                  id="litrosSolicitados"
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  value={litrosSolicitados}
-                  onChange={(e) => setLitrosSolicitados(e.target.value)}
-                  placeholder="Dejar vacío si no sabe la cantidad"
-                />
+                <Label htmlFor="litrosSolicitados">Litros solicitados</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="litrosSolicitados"
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    value={litrosSolicitados}
+                    onChange={(e) => setLitrosSolicitados(e.target.value)}
+                    placeholder="Ej. 4000"
+                    disabled={esCamionCompleto}
+                  />
+                  <Button
+                    type="button"
+                    variant={esCamionCompleto ? "default" : "outline"}
+                    size="sm"
+                    className="shrink-0"
+                    onClick={() => {
+                      setEsCamionCompleto(!esCamionCompleto);
+                      if (!esCamionCompleto) setLitrosSolicitados("");
+                    }}
+                    title="Camión completo"
+                  >
+                    <Truck className="h-4 w-4" />
+                  </Button>
+                </div>
+                {esCamionCompleto && (
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs whitespace-nowrap">Camiones:</Label>
+                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.max(1, cantidadCamiones - 1))}>−</Button>
+                    <span className="font-bold w-8 text-center">{cantidadCamiones}</span>
+                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(cantidadCamiones + 1)}>+</Button>
+                    <span className="text-xs text-muted-foreground">= {formatNumber(cantidadCamiones * (vueltaActual?.capacidadCamion || 17000), 0)} L</span>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground">
-                  Si no sabes la cantidad, se estimará con el promedio de entregas anteriores al momento de convertir.
+                  {esCamionCompleto ? "Camión completo. Toca 🚛 para litros específicos." : "Toca 🚛 para camión completo."}
                 </p>
               </div>
               <div className="space-y-2">
@@ -1184,97 +1217,6 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="indicacionesAcceso">Indicaciones de acceso</Label>
-              <Textarea
-                id="indicacionesAcceso"
-                value={indicacionesAcceso}
-                onChange={(e) => setIndicacionesAcceso(e.target.value)}
-                placeholder="Ej. Portón verde, llamar al llegar. Estanque atrás."
-                rows={2}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notaPedido">Nota</Label>
-              <Textarea
-                id="notaPedido"
-                value={nota}
-                onChange={(e) => setNota(e.target.value)}
-                placeholder="Ej. Cliente llama temprano, pedir confirmación antes de salir"
-                rows={2}
-              />
-            </div>
-
-            {/* Asignación — solo dueño */}
-            {isDueno && (
-              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
-                <Label className="flex items-center gap-1.5 text-sm font-medium">
-                  <UserCheck className="h-4 w-4 text-primary" /> Asignación de chofer
-                </Label>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <Button
-                    type="button"
-                    variant={asignacionTipo === "manual" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setAsignacionTipo("manual")}
-                  >
-                    Asignar a chofer específico
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={asignacionTipo === "publicado" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setAsignacionTipo("publicado")}
-                  >
-                    Publicar para choferes
-                  </Button>
-                </div>
-
-                {asignacionTipo === "manual" && (
-                  <div className="space-y-1">
-                    <Label htmlFor="choferAsignado" className="text-xs">Chofer</Label>
-                    <Select value={choferAsignadoId || "__ninguno"} onValueChange={setChoferAsignadoId}>
-                      <SelectTrigger id="choferAsignado">
-                        <SelectValue placeholder="Sin asignar" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__ninguno">— Sin asignar —</SelectItem>
-                        {choferes.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.nombre}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {asignacionTipo === "publicado" && (
-                  <p className="text-xs text-muted-foreground">
-                    El pedido quedará disponible para que cualquier chofer lo tome.
-                    Si el cliente tiene chofer preferido, ese chofer tendrá prioridad.
-                  </p>
-                )}
-
-                {!isDueno && (
-                  <p className="text-xs text-muted-foreground">
-                    Como chofer, si el cliente es nuevo, tendrás prioridad permanente para atenderlo.
-                  </p>
-                )}
-              </div>
-            )}
-
-            {!isDueno && (
-              <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
-                <p className="font-medium">Asignación automática:</p>
-                <p className="mt-1 text-muted-foreground">
-                  {clienteId && clienteId !== "__nuevo"
-                    ? "Si el cliente tiene chofer preferido, el pedido se asignará a ese chofer."
-                    : "Como estás creando un cliente nuevo, tendrás prioridad permanente para atender pedidos de este cliente."}
-                </p>
-              </div>
-            )}
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
