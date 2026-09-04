@@ -108,34 +108,21 @@ export function labelEstadoPedido(estado: string): string {
 
 export function labelFranjaHoraria(franja: string | null | undefined): string {
   if (!franja) return "";
+  // Formato: "manana", "mediodia", "tarde", "antes:14", "despues:9"
+  if (franja.startsWith("antes:")) {
+    const hora = franja.split(":")[1];
+    return `Antes de las ${hora}:00`;
+  }
+  if (franja.startsWith("despues:")) {
+    const hora = franja.split(":")[1];
+    return `Después de las ${hora}:00`;
+  }
   const labels: Record<string, string> = {
-    "mañana": "Mañana (08-12)",
+    "manana": "Mañana (08-12)",
     "mediodia": "Mediodía (11-13)",
     "tarde": "Tarde (14-18)",
-    "antes-12": "Antes de 12:00",
-    "despues-12": "Después de 12:00",
-    "antes-14": "Antes de 14:00",
-    "despues-14": "Después de 14:00",
-    "primera-hora": "Primera hora",
-    "ultima-hora": "Última hora",
   };
   return labels[franja] || franja;
-}
-
-export function colorFranjaHoraria(franja: string | null | undefined): string {
-  if (!franja) return "";
-  const colores: Record<string, string> = {
-    "mañana": "text-amber-600 dark:text-amber-400",
-    "mediodia": "text-orange-600 dark:text-orange-400",
-    "tarde": "text-blue-600 dark:text-blue-400",
-    "antes-12": "text-amber-600 dark:text-amber-400",
-    "despues-12": "text-blue-600 dark:text-blue-400",
-    "antes-14": "text-amber-600 dark:text-amber-400",
-    "despues-14": "text-blue-600 dark:text-blue-400",
-    "primera-hora": "text-amber-600 dark:text-amber-400",
-    "ultima-hora": "text-purple-600 dark:text-purple-400",
-  };
-  return colores[franja] || "text-muted-foreground";
 }
 
 export function labelTipoAsignacion(tipo: string): string {

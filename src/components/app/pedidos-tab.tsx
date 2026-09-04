@@ -67,7 +67,6 @@ import {
   labelEstadoPedido,
   labelMetodoPago,
   labelFranjaHoraria,
-  colorFranjaHoraria,
   ESTADOS_PEDIDO,
   METODOS_PAGO,
   toDateTimeLocalInput,
@@ -858,7 +857,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                   })()}
                                   {/* Badge de franja horaria */}
                                   {p.franjaHoraria && (
-                                    <Badge variant="outline" className={`text-[10px] gap-0.5 ${colorFranjaHoraria(p.franjaHoraria)} border-current/30`} title={`Horario: ${labelFranjaHoraria(p.franjaHoraria)}`}>
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Horario: ${labelFranjaHoraria(p.franjaHoraria)}`}>
                                       <Clock className="h-2.5 w-2.5" /> {labelFranjaHoraria(p.franjaHoraria)}
                                     </Badge>
                                   )}
@@ -1214,21 +1213,45 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 <div className="space-y-1">
                   <Label className="text-xs">Hora aproximada (opcional)</Label>
                   <select
-                    value={franjaHoraria}
-                    onChange={(e) => setFranjaHoraria(e.target.value)}
+                    value={franjaHoraria.split(":")[0] || ""}
+                    onChange={(e) => {
+                      const tipo = e.target.value;
+                      if (!tipo) { setFranjaHoraria(""); return; }
+                      // Si es antes/después, necesita hora; usar la que ya tenía o default
+                      if (tipo === "antes" || tipo === "despues") {
+                        const horaActual = franjaHoraria.includes(":") ? franjaHoraria.split(":")[1] : "12";
+                        setFranjaHoraria(`${tipo}:${horaActual}`);
+                      } else {
+                        setFranjaHoraria(tipo);
+                      }
+                    }}
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
                   >
                     <option value="">Sin hora específica</option>
-                    <option value="mañana">Mañana (08:00 - 12:00)</option>
+                    <option value="manana">Mañana (08:00 - 12:00)</option>
                     <option value="mediodia">Mediodía (11:00 - 13:00)</option>
                     <option value="tarde">Tarde (14:00 - 18:00)</option>
-                    <option value="antes-12">Antes de las 12:00</option>
-                    <option value="despues-12">Después de las 12:00</option>
-                    <option value="antes-14">Antes de las 14:00</option>
-                    <option value="despues-14">Después de las 14:00</option>
-                    <option value="primera-hora">Primera hora de la mañana</option>
-                    <option value="ultima-hora">Última hora de la tarde</option>
+                    <option value="antes">Antes de cierta hora...</option>
+                    <option value="despues">Después de cierta hora...</option>
                   </select>
+                  {(franjaHoraria.startsWith("antes:") || franjaHoraria.startsWith("despues:")) && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {franjaHoraria.startsWith("antes:") ? "Antes de las" : "Después de las"}
+                      </span>
+                      <Input
+                        type="time"
+                        value={franjaHoraria.split(":")[1] ? `${franjaHoraria.split(":")[1].padStart(2, "0")}:00` : "12:00"}
+                        onChange={(e) => {
+                          const hora = e.target.value.split(":")[0];
+                          const tipo = franjaHoraria.split(":")[0];
+                          setFranjaHoraria(`${tipo}:${hora}`);
+                        }}
+                        className="h-8 w-24"
+                      />
+                      <span className="text-xs text-muted-foreground">hrs</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
