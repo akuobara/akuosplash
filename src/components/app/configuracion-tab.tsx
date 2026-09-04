@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText, Calendar } from "lucide-react";
+import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText, Calendar, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { apiPut } from "@/lib/api-client";
 import {
@@ -56,6 +56,14 @@ interface Config {
   empresaGiro?: string | null;
   empresaComuna?: string | null;
   empresaCiudad?: string | null;
+  // Datos para transferencias
+  transfBanco?: string | null;
+  transfTipoCuenta?: string | null;
+  transfNumeroCuenta?: string | null;
+  transfTitular?: string | null;
+  transfRutTitular?: string | null;
+  transfEmail?: string | null;
+  transfTelefono?: string | null;
 }
 
 interface ConfiguracionTabProps {
@@ -85,6 +93,15 @@ export function ConfiguracionTab({
   const [empresaGiro, setEmpresaGiro] = useState("");
   const [empresaComuna, setEmpresaComuna] = useState("");
   const [empresaCiudad, setEmpresaCiudad] = useState("");
+
+  // Datos para transferencias
+  const [transfBanco, setTransfBanco] = useState("");
+  const [transfTipoCuenta, setTransfTipoCuenta] = useState("");
+  const [transfNumeroCuenta, setTransfNumeroCuenta] = useState("");
+  const [transfTitular, setTransfTitular] = useState("");
+  const [transfRutTitular, setTransfRutTitular] = useState("");
+  const [transfEmail, setTransfEmail] = useState("");
+  const [transfTelefono, setTransfTelefono] = useState("");
 
   const [modoLiquidacion, setModoLiquidacion] = useState("porcentaje");
 
@@ -147,6 +164,15 @@ export function ConfiguracionTab({
       setEmpresaGiro(config.empresaGiro ?? "");
       setEmpresaComuna(config.empresaComuna ?? "");
       setEmpresaCiudad(config.empresaCiudad ?? "");
+
+      // Datos para transferencias
+      setTransfBanco((config as any).transfBanco ?? "");
+      setTransfTipoCuenta((config as any).transfTipoCuenta ?? "");
+      setTransfNumeroCuenta((config as any).transfNumeroCuenta ?? "");
+      setTransfTitular((config as any).transfTitular ?? "");
+      setTransfRutTitular((config as any).transfRutTitular ?? "");
+      setTransfEmail((config as any).transfEmail ?? "");
+      setTransfTelefono((config as any).transfTelefono ?? "");
     }
   }, [config]);
 
@@ -202,6 +228,14 @@ export function ConfiguracionTab({
         empresaGiro,
         empresaComuna,
         empresaCiudad,
+        // Datos para transferencias
+        transfBanco,
+        transfTipoCuenta,
+        transfNumeroCuenta,
+        transfTitular,
+        transfRutTitular,
+        transfEmail,
+        transfTelefono,
       });
       onConfigChange(r.configuracion);
       toast.success("Configuración guardada");
@@ -276,6 +310,56 @@ export function ConfiguracionTab({
           <p className="text-xs text-muted-foreground">
             Estos datos aparecerán en los reportes y facturas. Aparecen en la liquidación como el nombre de la empresa.
           </p>
+        </CardContent>
+      </Card>
+
+      {/* Datos para transferencias */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Smartphone className="h-4 w-4 text-primary" />
+            <CardTitle className="text-base">Datos para transferencias</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Estos datos van a aparecer cuando se registre un pago por transferencia
+            (en entregas o cobros de deudas) para que el cliente los copie rápidamente.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="transfBanco" className="text-xs">Banco</Label>
+              <Input id="transfBanco" value={transfBanco} onChange={(e) => setTransfBanco(e.target.value)} placeholder="BancoEstado" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="transfTipoCuenta" className="text-xs">Tipo de cuenta</Label>
+              <Input id="transfTipoCuenta" value={transfTipoCuenta} onChange={(e) => setTransfTipoCuenta(e.target.value)} placeholder="Cuenta Corriente" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="transfNumeroCuenta" className="text-xs">Número de cuenta</Label>
+            <Input id="transfNumeroCuenta" value={transfNumeroCuenta} onChange={(e) => setTransfNumeroCuenta(e.target.value)} placeholder="123456789" />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="transfTitular" className="text-xs">Titular</Label>
+              <Input id="transfTitular" value={transfTitular} onChange={(e) => setTransfTitular(e.target.value)} placeholder="Transporte VM SPA" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="transfRutTitular" className="text-xs">RUT del titular</Label>
+              <Input id="transfRutTitular" value={transfRutTitular} onChange={(e) => setTransfRutTitular(e.target.value)} placeholder="77.123.456-7" />
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="transfEmail" className="text-xs">Email para transferencias (opcional)</Label>
+              <Input id="transfEmail" type="email" value={transfEmail} onChange={(e) => setTransfEmail(e.target.value)} placeholder="pago@transportevm.cl" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="transfTelefono" className="text-xs">Teléfono PagoRUT (opcional)</Label>
+              <Input id="transfTelefono" value={transfTelefono} onChange={(e) => setTransfTelefono(e.target.value)} placeholder="+56 9 1234 5678" />
+            </div>
+          </div>
         </CardContent>
       </Card>
 

@@ -412,6 +412,15 @@ model Configuracion {
   empresaComuna               String?  // Comuna
   empresaCiudad               String?  // Ciudad
 
+  // === Datos para transferencias (pagos de pool / ventas) ===
+  transfBanco                 String?  // Banco (ej: BancoEstado, Santander)
+  transfTipoCuenta            String?  // Tipo de cuenta (Cuenta Corriente / Cuenta Vista / CuentaRUT)
+  transfNumeroCuenta          String?  // Número de cuenta
+  transfTitular               String?  // Titular de la cuenta
+  transfRutTitular            String?  // RUT del titular
+  transfEmail                 String?  // Email para transferencias (opcional)
+  transfTelefono              String?  // Teléfono para transferencias (opcional, ej: PagoRUT)
+
   capacidadCamion             Int     @default(17000)
 
   modoLiquidacion             String  @default("porcentaje")

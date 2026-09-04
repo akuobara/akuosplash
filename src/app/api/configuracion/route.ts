@@ -121,6 +121,14 @@ export async function PUT(req: NextRequest) {
       ...(body.empresaGiro !== undefined && { empresaGiro: body.empresaGiro?.trim() || null }),
       ...(body.empresaComuna !== undefined && { empresaComuna: body.empresaComuna?.trim() || null }),
       ...(body.empresaCiudad !== undefined && { empresaCiudad: body.empresaCiudad?.trim() || null }),
+      // Datos para transferencias
+      ...(body.transfBanco !== undefined && { transfBanco: body.transfBanco?.trim() || null }),
+      ...(body.transfTipoCuenta !== undefined && { transfTipoCuenta: body.transfTipoCuenta?.trim() || null }),
+      ...(body.transfNumeroCuenta !== undefined && { transfNumeroCuenta: body.transfNumeroCuenta?.trim() || null }),
+      ...(body.transfTitular !== undefined && { transfTitular: body.transfTitular?.trim() || null }),
+      ...(body.transfRutTitular !== undefined && { transfRutTitular: body.transfRutTitular?.trim() || null }),
+      ...(body.transfEmail !== undefined && { transfEmail: body.transfEmail?.trim() || null }),
+      ...(body.transfTelefono !== undefined && { transfTelefono: body.transfTelefono?.trim() || null }),
     },
     create: {
       duenoId: session.userId,

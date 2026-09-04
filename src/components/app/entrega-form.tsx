@@ -142,6 +142,65 @@ interface VueltaReciente {
   chofer?: { id: string; nombre: string } | null;
 }
 
+// Componente auxiliar: muestra datos de transferencia en un panel colapsable
+function DatosTransferenciaCollapsible() {
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    apiGet<{ transfData: any }>("/api/config/public?transfer=true")
+      .then(r => { if (r.transfData) setData(r.transfData); })
+      .catch(() => {});
+  }, []);
+
+  if (!data) return null;
+
+  return (
+    <details className="mt-2 rounded-md border border-blue-300 bg-blue-50/50 dark:border-blue-800 dark:bg-blue-900/20">
+      <summary className="cursor-pointer px-2 py-1 text-xs font-medium text-blue-700 dark:text-blue-300">
+        💳 Mostrar datos de transferencia
+      </summary>
+      <div className="space-y-1 px-2 pb-2 text-xs">
+        {data.transfBanco && (
+          <div><span className="text-muted-foreground">Banco:</span> <strong>{data.transfBanco}</strong></div>
+        )}
+        {data.transfTipoCuenta && (
+          <div><span className="text-muted-foreground">Tipo de cuenta:</span> <strong>{data.transfTipoCuenta}</strong></div>
+        )}
+        {data.transfNumeroCuenta && (
+          <div>
+            <span className="text-muted-foreground">N° cuenta:</span> <strong>{data.transfNumeroCuenta}</strong>
+            <button
+              type="button"
+              onClick={() => { navigator.clipboard?.writeText(data.transfNumeroCuenta); toast.success("Número de cuenta copiado"); }}
+              className="ml-1 text-blue-600 hover:underline"
+            >copiar</button>
+          </div>
+        )}
+        {data.transfTitular && (
+          <div><span className="text-muted-foreground">Titular:</span> <strong>{data.transfTitular}</strong></div>
+        )}
+        {data.transfRutTitular && (
+          <div><span className="text-muted-foreground">RUT:</span> <strong>{data.transfRutTitular}</strong></div>
+        )}
+        {data.transfEmail && (
+          <div>
+            <span className="text-muted-foreground">Email:</span> <strong>{data.transfEmail}</strong>
+            <button
+              type="button"
+              onClick={() => { navigator.clipboard?.writeText(data.transfEmail); toast.success("Email copiado"); }}
+              className="ml-1 text-blue-600 hover:underline"
+            >copiar</button>
+          </div>
+        )}
+        {data.transfTelefono && (
+          <div><span className="text-muted-foreground">Teléfono:</span> <strong>{data.transfTelefono}</strong></div>
+        )}
+      </div>
+    </details>
+  );
+}
+
 export function EntregaForm({
   open,
   onOpenChange,
@@ -1824,6 +1883,8 @@ export function EntregaForm({
                   onChange={(e) => setMontoTransferencia(e.target.value)}
                   placeholder="0"
                 />
+                {/* Mostrar datos de transferencia al chofer */}
+                <DatosTransferenciaCollapsible />
               </div>
             )}
 
