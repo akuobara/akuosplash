@@ -90,6 +90,7 @@ interface Cliente {
   choferPreferidoId: string | null;
   choferPreferido?: { id: string; nombre: string } | null;
   _count?: { entregas: number };
+  deuda?: number;
   deudaInicial?: number;
 }
 
@@ -494,7 +495,19 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               <CardContent className="flex flex-1 flex-col gap-2 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold">{c.nombre}</p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="truncate font-semibold">{c.nombre}</p>
+                      {/* Ícono de deuda pendiente */}
+                      {(c.deuda ?? 0) > 0.5 && (
+                        <span
+                          title={`Deuda pendiente: ${formatCurrency(c.deuda ?? 0)}`}
+                          className="inline-flex items-center justify-center rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 dark:bg-red-900/40 dark:text-red-300 shrink-0"
+                        >
+                          <Banknote className="mr-0.5 h-2.5 w-2.5" />
+                          {formatCurrency(c.deuda ?? 0)}
+                        </span>
+                      )}
+                    </div>
                     {c._count && (
                       <p className="text-xs text-muted-foreground">
                         {c._count.entregas} entrega{c._count.entregas !== 1 ? "s" : ""} registradas

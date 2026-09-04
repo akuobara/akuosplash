@@ -17,9 +17,32 @@ export async function GET() {
   const clientes = await db.cliente.findMany({
     where: { duenoId },
     orderBy: { nombre: "asc" },
-    include: { _count: { select: { entregas: true } } },
+    include: {
+      _count: { select: { entregas: true } },
+      entregas: {
+        select: { total: true, montoRecibido: true },
+      },
+      pagos: {
+        select: { monto: true },
+      },
+    },
   });
-  return NextResponse.json({ clientes });
+
+  // Calcular deuda por cliente: deudaInicial + ventas - recibido - pagos sueltos
+  const clientesConDeuda = clientes.map(c => {
+    const totalVentas = c.entregas.reduce((s, e) => s + (e.total || 0), 0);
+    const totalRecibido = c.entregas.reduce((s, e) => s + (e.montoRecibido || 0), 0);
+    const totalPagos = c.pagos.reduce((s, p) => s + (p.monto || 0), 0);
+    const deuda = (c as any).deudaInicial + totalVentas - totalRecibido - totalPagos;
+    // No devolver las entregas/pagos completos al frontend (pesado), solo el resumen
+    const { entregas, pagos, ...resto } = c;
+    return {
+      ...resto,
+      deuda: Math.round(deuda * 100) / 100, // redondear a 2 decimales
+    };
+  });
+
+  return NextResponse.json({ clientes: clientesConDeuda });
 }
 
 // Helper: ¿el chofer actual tiene permiso para editar clientes?
