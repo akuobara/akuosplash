@@ -397,7 +397,7 @@ export function EntregaForm({
       setEstanquesEntrega([]);
     }
 
-    // Cargar la deuda del cliente (en background) — incluye pagos sueltos
+    // Cargar la deuda del cliente (en background) — incluye deudaInicial + pagos sueltos
     Promise.all([
       apiGet<{ entregas: any[] }>(`/api/entregas?period=todo&clienteId=${id}`),
       apiGet<{ pagos: any[] }>(`/api/pagos?clienteId=${id}`),
@@ -406,7 +406,10 @@ export function EntregaForm({
         const totalVentas = dataEnt.entregas.reduce((s: number, e: any) => s + (e.total || 0), 0);
         const totalRecibido = dataEnt.entregas.reduce((s: number, e: any) => s + (e.montoRecibido || 0), 0);
         const totalPagosSueltos = (dataPag.pagos || []).reduce((s: number, p: any) => s + (p.monto || 0), 0);
-        setClienteDeuda(totalVentas - totalRecibido - totalPagosSueltos);
+        // Incluir deudaInicial del cliente (importante: la ficha del cliente lo incluye)
+        const c = clientes.find((cl) => cl.id === id);
+        const deudaInicial = (c as any)?.deudaInicial || 0;
+        setClienteDeuda(deudaInicial + totalVentas - totalRecibido - totalPagosSueltos);
       })
       .catch(() => setClienteDeuda(null));
   }

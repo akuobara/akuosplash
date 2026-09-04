@@ -62,6 +62,7 @@ interface Cliente {
   requiereClientePresente: boolean;
   indicacionesAcceso: string | null;
   usoAgua: string;
+  deudaInicial?: number;
   usoAguaNota: string | null;
   estanquesJson: string | null;
   choferPreferidoId: string | null;

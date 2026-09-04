@@ -116,6 +116,7 @@ interface DashboardProps {
     requiereClientePresente: boolean;
     indicacionesAcceso: string | null;
     estanquesJson: string | null;
+    deudaInicial?: number;
   }[];
   config: {
     precioEfectivoPorLitro: number;
