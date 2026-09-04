@@ -904,7 +904,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 <DropdownMenuItem onClick={() => setDetalle(p)}>
                                   <Eye className="mr-2 h-4 w-4" /> Ver detalle
                                 </DropdownMenuItem>
-                                {canCreate && p.estado !== "entregado" && p.estado !== "cancelado" && (
+                                {canCreate && !isDueno && p.estado !== "entregado" && p.estado !== "cancelado" && (
                                   <>
                                     {/* Solo mostrar "Convertir en entrega" si:
                                         - El usuario es el chofer preferido del cliente, OR
@@ -1373,7 +1373,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
             <Button variant="outline" onClick={() => setDetalle(null)}>
               Cerrar
             </Button>
-            {canCreate && detalle && detalle.estado !== "entregado" && detalle.estado !== "cancelado" && (() => {
+            {canCreate && !isDueno && detalle && detalle.estado !== "entregado" && detalle.estado !== "cancelado" && (() => {
               const clienteDetalle = detalle.clienteId ? clientes.find(c => c.id === detalle.clienteId) : null;
               const choferPrefId = clienteDetalle?.choferPreferidoId;
               const puedeConvertir = !choferPrefId || choferPrefId === currentUserId;

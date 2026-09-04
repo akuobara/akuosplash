@@ -29,13 +29,24 @@ export async function GET(req: NextRequest) {
   });
 
   for (const rec of recurrentesVencidos) {
+    // Check por fechaSolicitada (no creadoEn) para evitar duplicados
+    // incluso si dos requests se ejecutan concurrentemente
     const existente = await db.pedido.findFirst({
       where: {
         pedidoRecurrenteId: rec.id,
-        creadoEn: { gte: new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()) },
+        fechaSolicitada: rec.fechaProximaGeneracion,
       },
     });
-    if (existente) continue;
+    if (existente) {
+      // Ya existe un pedido para esta fecha — avanzar fechaProximaGeneracion igual
+      const proxima = new Date(rec.fechaProximaGeneracion);
+      proxima.setDate(proxima.getDate() + rec.frecuenciaDias);
+      await db.pedidoRecurrente.update({
+        where: { id: rec.id },
+        data: { fechaProximaGeneracion: proxima },
+      });
+      continue;
+    }
 
     await db.pedido.create({
       data: {
