@@ -7,11 +7,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const pedidos = await db.pedido.findMany({
-    where: { estado: { in: ["pendiente", "programado"] } },
-    select: { id: true, clienteNombre: true, estado: true, entregaId: true, litrosSolicitados: true, fechaSolicitada: true, creadoEn: true, pedidoRecurrenteId: true },
-    orderBy: { fechaSolicitada: "asc" },
+  // Buscar TODOS los pedidos de Susana García (cualquier estado)
+  const pedidosSusana = await db.pedido.findMany({
+    where: { clienteNombre: { contains: "Susana" } },
+    select: { id: true, clienteNombre: true, estado: true, entregaId: true, litrosSolicitados: true, fechaSolicitada: true, creadoEn: true },
+    orderBy: { creadoEn: "desc" },
   });
 
-  return NextResponse.json({ total: pedidos.length, pedidos });
+  // También buscar TODOS los pedidos creados hoy
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const pedidosHoy = await db.pedido.findMany({
+    where: { creadoEn: { gte: hoy } },
+    select: { id: true, clienteNombre: true, estado: true, litrosSolicitados: true, fechaSolicitada: true, creadoEn: true },
+    orderBy: { creadoEn: "desc" },
+  });
+
+  return NextResponse.json({ pedidosSusana, pedidosHoy });
 }
