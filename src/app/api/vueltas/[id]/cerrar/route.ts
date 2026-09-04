@@ -20,8 +20,13 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   if (!vuelta || vuelta.duenoId !== duenoId) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
-  if (session.role === "chofer" && vuelta.choferId !== session.userId) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  // Solo el chofer que inició la vuelta puede cerrarla
+  // (el admin no debería cerrar vueltas que no inició él)
+  if (vuelta.choferId !== session.userId) {
+    return NextResponse.json(
+      { error: "Solo el chofer que inició esta vuelta puede cerrarla" },
+      { status: 403 }
+    );
   }
 
   const actualizada = await db.vuelta.update({
