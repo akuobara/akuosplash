@@ -401,11 +401,12 @@ export default function Home() {
                 // Filtrar solo pendientes/programados
                 const pendientes = todosPedidos.filter(p => p.estado === "pendiente" || p.estado === "programado");
                 // Filtrar solo pedidos para hoy o sin fecha (no futuros)
+                // Usar fecha local (no UTC) para que coincida con el día del usuario
                 const hoy = new Date();
-                const hoyStr = hoy.toISOString().split("T")[0]; // YYYY-MM-DD
+                const hoyStr = hoy.toLocaleDateString("en-CA"); // YYYY-MM-DD en zona horaria local
                 const paraHoy = pendientes.filter(p => {
                   if (!p.fechaSolicitada) return true; // sin fecha → incluir
-                  const fStr = p.fechaSolicitada.split("T")[0];
+                  const fStr = p.fechaSolicitada.split("T")[0]; // YYYY-MM-DD del ISO string
                   return fStr <= hoyStr; // hoy o atrasados
                 });
                 // Eliminar duplicados (mismo clienteId + litros + fecha)
