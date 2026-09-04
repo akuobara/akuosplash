@@ -363,36 +363,6 @@ export function ConfiguracionTab({
         </CardContent>
       </Card>
 
-      {/* Datos del chofer y dueño */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" />
-            <CardTitle className="text-base">Partes involucradas</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="cfgNombreChofer">Tu nombre (chofer)</Label>
-            <Input
-              id="cfgNombreChofer"
-              value={nombreChofer}
-              onChange={(e) => setNombreChofer(e.target.value)}
-              placeholder="Ej. Pedro"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="cfgNombreDueno">Nombre del dueño del camión</Label>
-            <Input
-              id="cfgNombreDueno"
-              value={nombreDueno}
-              onChange={(e) => setNombreDueno(e.target.value)}
-              placeholder="Ej. Transportes Agua Ltda."
-            />
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Camiones — gestionar multiples */}
       <CamionesManager
         refreshKey={refreshKey}
@@ -793,25 +763,6 @@ export function ConfiguracionTab({
             de clientes directamente. Así registran el pedido en el momento y después lo convierten en
             entrega cuando lo llevan.
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Próximas funciones */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Próximas funciones</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>
-            Estas funciones están planificadas para siguientes versiones de la app:
-          </p>
-          <ul className="list-disc space-y-1 pl-5">
-            <li>Venta de agua directa desde la app (clientes pueden pedir y pagar online).</li>
-            <li>Recordatorios automáticos a clientes con saldo pendiente.</li>
-            <li>Exportación de reportes a PDF/Excel para compartir con el administrador.</li>
-            <li>Múltiples administradores/chóferes con login — cada uno ve solo lo suyo.</li>
-            <li>Asignar camiones a administradores específicos (cuando manejes flota de varios administradores).</li>
-          </ul>
         </CardContent>
       </Card>
 
