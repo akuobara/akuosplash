@@ -408,11 +408,17 @@ export default function Home() {
               pedidosPendientes={(() => {
                 // Filtrar solo pendientes/programados
                 const pendientes = todosPedidos.filter(p => p.estado === "pendiente" || p.estado === "programado");
-                // Mostrar TODOS los pendientes/programados (sin filtro de fecha)
-                // Los sin fecha se asumen para hoy, los con fecha futura también aparecen
-                // Eliminar duplicados (mismo clienteId + litros + fecha)
+                // Filtrar solo pedidos para hoy o sin fecha
+                const hoy = new Date();
+                const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+                const paraHoy = pendientes.filter(p => {
+                  if (!p.fechaSolicitada) return true; // sin fecha → hoy
+                  const fStr = p.fechaSolicitada.split("T")[0];
+                  return fStr <= hoyStr; // hoy o atrasados
+                });
+                // Eliminar duplicados
                 const vistos = new Set<string>();
-                const unicos = pendientes.filter(p => {
+                const unicos = paraHoy.filter(p => {
                   const key = `${p.clienteId || p.clienteNombre}|${p.litrosSolicitados}|${p.fechaSolicitada || ""}`;
                   if (vistos.has(key)) return false;
                   vistos.add(key);

@@ -947,32 +947,26 @@ export function EntregaForm({
                         );
                       }
                     }}
-                    className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition ${
-                      excedeAgua
-                        ? "border-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30"
-                        : "border-blue-200 dark:border-blue-800 bg-white dark:bg-background hover:bg-blue-100 dark:hover:bg-blue-900/30"
-                    }`}
+                    className="flex w-full items-center justify-between rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-background p-3 text-left transition hover:bg-blue-50 dark:hover:bg-blue-900/20"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-sm">{p.clienteNombre}</p>
                       <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <span className={`font-semibold ${excedeAgua ? "text-amber-700 dark:text-amber-300" : "text-blue-700 dark:text-blue-300"}`}>
-                          {formatNumber(p.litrosSolicitados, 0)} L
+                        <span className="font-semibold text-blue-700 dark:text-blue-300">
+                          {p.litrosSolicitados > 0 ? `${formatNumber(p.litrosSolicitados, 0)} L` : "Sin cantidad"}
                         </span>
                         <span>·</span>
                         <span>{labelMetodoPago(p.metodoPagoPreferido)}</span>
                         {clientePedido?.estanquesJson && <span>· 🛢️ Estanques</span>}
                         {excedeAgua && (
-                          <span className="inline-flex items-center gap-0.5 rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-medium text-amber-900 dark:bg-amber-800 dark:text-amber-100">
-                            <AlertTriangle className="h-2.5 w-2.5" /> Solo quedan {formatNumber(aguaDisponible, 0)} L
+                          <span className="text-amber-600 dark:text-amber-400">
+                            ⚠ Solo quedan {formatNumber(aguaDisponible, 0)} L
                           </span>
                         )}
                       </div>
                     </div>
-                    <span className={`ml-2 shrink-0 rounded px-2 py-1 text-xs font-medium text-white ${
-                      excedeAgua ? "bg-amber-600" : "bg-blue-600"
-                    }`}>
-                      {excedeAgua ? "⚠ Entregar" : "Entregar →"}
+                    <span className="ml-2 shrink-0 rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white">
+                      Entregar →
                     </span>
                   </button>
                 );
