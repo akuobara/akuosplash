@@ -214,9 +214,11 @@ export function VueltaWidget({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button onClick={onRegistrarEntrega} size="sm">
-                <Plus className="mr-1 h-4 w-4" /> Entrega
-              </Button>
+              {!isDueno && (
+                <Button onClick={onRegistrarEntrega} size="sm">
+                  <Plus className="mr-1 h-4 w-4" /> Entrega
+                </Button>
+              )}
               <Button onClick={() => setConfirmarCerrar(true)} variant="outline" size="sm" disabled={cerrando}>
                 <Square className="mr-1 h-4 w-4" /> Cerrar
               </Button>
