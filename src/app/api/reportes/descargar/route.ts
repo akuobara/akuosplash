@@ -139,23 +139,23 @@ function generarPDF(period: string, data: any) {
   });
   y = (doc as any).lastAutoTable.finalY + 8;
 
-  // === 2. PAGOS ===
+  // === 2. PAGOS (solo líneas con valor > 0) ===
   if (y > 250) { doc.addPage(); y = 20; }
   doc.setFontSize(14);
   doc.text("2. Pagos", 14, y);
   y += 5;
+  const pagosBody: any[] = [];
+  if (data.totalEfectivo > 0) pagosBody.push(["Efectivo de entregas", formatCurrency(data.totalEfectivo)]);
+  if (data.pagosSueltosEfectivo > 0) pagosBody.push(["Efectivo de pagos recibidos", formatCurrency(data.pagosSueltosEfectivo)]);
+  if (data.efectivoTotal > 0) pagosBody.push(["Total efectivo", formatCurrency(data.efectivoTotal)]);
+  if (data.totalTransferencia > 0) pagosBody.push(["Transferencia de entregas", formatCurrency(data.totalTransferencia)]);
+  if (data.pagosSueltosTransferencia > 0) pagosBody.push(["Transferencia de pagos recibidos", formatCurrency(data.pagosSueltosTransferencia)]);
+  if (data.transferenciaTotal > 0) pagosBody.push(["Total transferencia", formatCurrency(data.transferenciaTotal)]);
+  pagosBody.push(["Pendiente", formatCurrency(data.totalPorCobrar)]);
   autoTable(doc, {
     startY: y,
     head: [["Concepto", "Valor"]],
-    body: [
-      ["Efectivo de entregas", formatCurrency(data.totalEfectivo)],
-      ["Efectivo de pagos recibidos", formatCurrency(data.pagosSueltosEfectivo)],
-      ["Total efectivo", formatCurrency(data.efectivoTotal)],
-      ["Transferencia de entregas", formatCurrency(data.totalTransferencia)],
-      ["Transferencia de pagos recibidos", formatCurrency(data.pagosSueltosTransferencia)],
-      ["Total transferencia", formatCurrency(data.transferenciaTotal)],
-      ["Pendiente", formatCurrency(data.totalPorCobrar)],
-    ],
+    body: pagosBody,
     theme: "striped",
     headStyles: { fillColor: [16, 185, 129], fontSize: 10 },
     bodyStyles: { fontSize: 9 },
@@ -272,12 +272,12 @@ function generarExcel(period: string, data: any) {
     [],
     ["2. PAGOS"],
     ["Concepto", "Valor"],
-    ["Efectivo de entregas", data.totalEfectivo],
-    ["Efectivo de pagos recibidos", data.pagosSueltosEfectivo],
-    ["Total efectivo", data.efectivoTotal],
-    ["Transferencia de entregas", data.totalTransferencia],
-    ["Transferencia de pagos recibidos", data.pagosSueltosTransferencia],
-    ["Total transferencia", data.transferenciaTotal],
+    ...(data.totalEfectivo > 0 ? [["Efectivo de entregas", data.totalEfectivo]] : []),
+    ...(data.pagosSueltosEfectivo > 0 ? [["Efectivo de pagos recibidos", data.pagosSueltosEfectivo]] : []),
+    ...(data.efectivoTotal > 0 ? [["Total efectivo", data.efectivoTotal]] : []),
+    ...(data.totalTransferencia > 0 ? [["Transferencia de entregas", data.totalTransferencia]] : []),
+    ...(data.pagosSueltosTransferencia > 0 ? [["Transferencia de pagos recibidos", data.pagosSueltosTransferencia]] : []),
+    ...(data.transferenciaTotal > 0 ? [["Total transferencia", data.transferenciaTotal]] : []),
     ["Pendiente", data.totalPorCobrar],
     [],
     ["3. CLIENTES CON CANTIDAD ENTREGADA"],
