@@ -166,7 +166,8 @@ export default function Home() {
         setConfig(cfg.configuracion);
         setVueltaActual(v.vuelta);
         setCamiones(cams.camiones);
-        // Cargar usuarios (choferes) y pedidos solo si es dueño
+        // Cargar pedidos SIEMPRE (chofer y dueño los necesitan)
+        // Cargar usuarios solo si es dueño
         if (user.role === "dueno") {
           try {
             const [u, peds] = await Promise.all([
@@ -174,6 +175,12 @@ export default function Home() {
               apiGet<{ pedidos: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos"),
             ]);
             setUsuarios(u.usuarios);
+            setTodosPedidos(peds.pedidos);
+          } catch {}
+        } else {
+          // Chofer también necesita los pedidos para el form de entrega
+          try {
+            const peds = await apiGet<{ pedidos: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos");
             setTodosPedidos(peds.pedidos);
           } catch {}
         }
