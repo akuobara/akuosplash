@@ -1016,61 +1016,60 @@ export function EntregaForm({
               </Button>
             )}
 
-            {/* Panel de info de acceso del cliente seleccionado */}
+            {/* Panel de info de acceso del cliente seleccionado — colapsable */}
             {clienteId && clienteId !== "__manual" && (() => {
               const c = clientes.find((cl) => cl.id === clienteId);
               if (!c) return null;
               const tieneAlgo = c.indicacionesAcceso || c.lat != null || c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false;
               if (!tieneAlgo) return null;
               return (
-                <div className="mt-2 rounded-lg border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-2">
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-200">
+                <details className="mt-2 rounded-lg border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-900/20 p-2">
+                  <summary className="cursor-pointer flex items-center gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-200">
                     <DoorOpen className="h-3.5 w-3.5" /> Información de acceso
-                  </p>
-
-                  {(c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false) && (
-                    <div className="flex flex-wrap gap-1">
-                      {c.requiereIngresoPropiedad && (
-                        <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
-                          <DoorOpen className="h-2.5 w-2.5" /> Ingreso
-                        </span>
-                      )}
-                      {c.entregaDesdeAfuera && (
-                        <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
-                          <Fence className="h-2.5 w-2.5" /> Desde afuera
-                        </span>
-                      )}
-                      {c.conexionExterna && (
-                        <span className="inline-flex items-center gap-0.5 rounded border border-emerald-300 dark:border-emerald-700 px-1.5 py-0.5 text-[10px] text-emerald-900 dark:text-emerald-200">
-                          <KeyRound className="h-2.5 w-2.5" /> Conexión externa
-                        </span>
-                      )}
-                      {c.requiereClientePresente === false && (
-                        <span className="inline-flex items-center gap-0.5 rounded border border-blue-300 dark:border-blue-700 px-1.5 py-0.5 text-[10px] text-blue-900 dark:text-blue-200">
-                          <UserCheck className="h-2.5 w-2.5" /> Sin presencia
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {c.indicacionesAcceso && (
-                    <p className="text-xs text-amber-900 dark:text-amber-200 whitespace-pre-wrap">
-                      {c.indicacionesAcceso}
-                    </p>
-                  )}
-
-                  {c.lat != null && c.lng != null && (
-                    <a
-                      href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                    >
-                      <Navigation className="h-3 w-3" /> Cómo llegar (Google Maps)
-                      <ExternalLink className="h-2.5 w-2.5" />
-                    </a>
-                  )}
-                </div>
+                  </summary>
+                  <div className="mt-2 space-y-2">
+                    {(c.requiereIngresoPropiedad || c.entregaDesdeAfuera || c.conexionExterna || c.requiereClientePresente === false) && (
+                      <div className="flex flex-wrap gap-1">
+                        {c.requiereIngresoPropiedad && (
+                          <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
+                            <DoorOpen className="h-2.5 w-2.5" /> Ingreso
+                          </span>
+                        )}
+                        {c.entregaDesdeAfuera && (
+                          <span className="inline-flex items-center gap-0.5 rounded border border-amber-300 dark:border-amber-700 px-1.5 py-0.5 text-[10px] text-amber-900 dark:text-amber-200">
+                            <Fence className="h-2.5 w-2.5" /> Desde afuera
+                          </span>
+                        )}
+                        {c.conexionExterna && (
+                          <span className="inline-flex items-center gap-0.5 rounded border border-emerald-300 dark:border-emerald-700 px-1.5 py-0.5 text-[10px] text-emerald-900 dark:text-emerald-200">
+                            <KeyRound className="h-2.5 w-2.5" /> Conexión externa
+                          </span>
+                        )}
+                        {c.requiereClientePresente === false && (
+                          <span className="inline-flex items-center gap-0.5 rounded border border-blue-300 dark:border-blue-700 px-1.5 py-0.5 text-[10px] text-blue-900 dark:text-blue-200">
+                            <UserCheck className="h-2.5 w-2.5" /> Sin presencia
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {c.indicacionesAcceso && (
+                      <p className="text-xs text-amber-900 dark:text-amber-200 whitespace-pre-wrap">
+                        {c.indicacionesAcceso}
+                      </p>
+                    )}
+                    {c.lat != null && c.lng != null && (
+                      <a
+                        href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                      >
+                        <Navigation className="h-3 w-3" /> Cómo llegar (Google Maps)
+                        <ExternalLink className="h-2.5 w-2.5" />
+                      </a>
+                    )}
+                  </div>
+                </details>
               );
             })()}
 
@@ -1165,49 +1164,54 @@ export function EntregaForm({
             )}
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="clienteNombre">Nombre del cliente *</Label>
-              <Input
-                id="clienteNombre"
-                value={clienteNombre}
-                onChange={(e) => setClienteNombre(e.target.value)}
-                placeholder="Ej. Juan Pérez"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="clienteTelefono">Teléfono</Label>
-              <Input
-                id="clienteTelefono"
-                value={clienteTelefono}
-                onChange={(e) => setClienteTelefono(e.target.value)}
-                placeholder="+56 9 1234 5678"
-              />
-            </div>
-          </div>
+          {/* Info compacta del cliente + botón ver ficha */}
+          {clienteId && clienteId !== "__manual" && clienteNombre && (() => {
+            const c = clientes.find((cl) => cl.id === clienteId);
+            return (
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-sm">{clienteNombre}</p>
+                  {clienteDireccion && <p className="truncate text-xs text-muted-foreground">📍 {clienteDireccion}</p>}
+                </div>
+                {c && c.lat != null && c.lng != null && (
+                  <a
+                    href={`https://www.google.com/maps?q=${c.lat},${c.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 rounded-md p-1.5 text-primary hover:bg-primary/10"
+                    title="Ver ubicación"
+                  >
+                    <Navigation className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
+            );
+          })()}
 
-          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-            <div className="space-y-2">
-              <Label htmlFor="clienteDireccion">Dirección</Label>
-              <Input
-                id="clienteDireccion"
-                value={clienteDireccion}
-                onChange={(e) => setClienteDireccion(e.target.value)}
-                placeholder="Calle, número, referencia"
-              />
+          {/* Solo mostrar campos de cliente para ingreso manual */}
+          {clienteId === "__manual" && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="clienteNombre">Nombre del cliente *</Label>
+                <Input
+                  id="clienteNombre"
+                  value={clienteNombre}
+                  onChange={(e) => setClienteNombre(e.target.value)}
+                  placeholder="Ej. Juan Pérez"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clienteTelefono">Teléfono</Label>
+                <Input
+                  id="clienteTelefono"
+                  value={clienteTelefono}
+                  onChange={(e) => setClienteTelefono(e.target.value)}
+                  placeholder="+56 9 1234 5678"
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="clienteZona">Zona</Label>
-              <Input
-                id="clienteZona"
-                value={clienteZona}
-                onChange={(e) => setClienteZona(e.target.value)}
-                placeholder="Ej. Rural 5km"
-                className="w-[150px]"
-              />
-            </div>
-          </div>
+          )}
 
           {/* Toggle: Por litros / Por precio — siempre visible */}
           {(
@@ -1236,65 +1240,75 @@ export function EntregaForm({
           {/* Lecturas del medidor / Modo precio — siempre visible */}
           {modoIngreso === "por_litros" && (
           <div className="rounded-lg border border-border bg-muted/30 p-3">
-            <p className="mb-2 text-sm font-medium">Lecturas del medidor</p>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="lecturaAnterior" className="text-xs">Lectura anterior</Label>
-                <Input
-                  id="lecturaAnterior"
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  value={lecturaAnterior}
-                  onChange={(e) => setLecturaAnterior(e.target.value)}
-                  placeholder="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lecturaActual" className="text-xs">Lectura actual</Label>
-                <Input
-                  id="lecturaActual"
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  value={lecturaActual}
-                  onChange={(e) => setLecturaActual(e.target.value)}
-                  placeholder="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="litrosManual" className="text-xs">
-                  Litros {litrosCalculado != null && litrosManual === "" && "(auto)"}
-                </Label>
-                <Input
-                  id="litrosManual"
-                  type="number"
-                  inputMode="decimal"
-                  step="any"
-                  value={litrosManual}
-                  onChange={(e) => setLitrosManual(e.target.value)}
-                  placeholder={litrosCalculado != null ? String(litrosCalculado) : "0"}
-                />
-              </div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium">Litros entregados</p>
+              <details>
+                <summary className="cursor-pointer text-xs text-muted-foreground">Usar lecturas del medidor</summary>
+                <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="lecturaAnterior" className="text-xs">Lectura anterior</Label>
+                    <Input
+                      id="lecturaAnterior"
+                      type="number"
+                      inputMode="decimal"
+                      step="any"
+                      value={lecturaAnterior}
+                      onChange={(e) => setLecturaAnterior(e.target.value)}
+                      placeholder="0"
+                      className="h-8"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="lecturaActual" className="text-xs">Lectura actual</Label>
+                    <Input
+                      id="lecturaActual"
+                      type="number"
+                      inputMode="decimal"
+                      step="any"
+                      value={lecturaActual}
+                      onChange={(e) => setLecturaActual(e.target.value)}
+                      placeholder="0"
+                      className="h-8"
+                    />
+                  </div>
+                </div>
+                {litrosCalculado != null && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Diferencia: <strong>{formatNumber(litrosCalculado, 0)} L</strong>
+                  </p>
+                )}
+              </details>
             </div>
-            {litrosCalculado != null && litrosManual === "" && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                Litros calculados: <strong>{formatNumber(litrosCalculado, 0)} L</strong>
-                {vueltaActual && vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
-                  (() => {
-                    const disponible = Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros);
-                    if (litrosCalculado > disponible) {
-                      return (
-                        <span className="ml-2 text-amber-600 dark:text-amber-400">
-                          ⚠ Solo quedan {formatNumber(disponible, 0)} L en el camión
-                        </span>
-                      );
-                    }
-                    return null;
+            <div className="space-y-2">
+              <Input
+                id="litrosManual"
+                type="number"
+                inputMode="decimal"
+                step="any"
+                value={litrosManual}
+                onChange={(e) => setLitrosManual(e.target.value)}
+                placeholder={litrosCalculado != null ? String(litrosCalculado) : "Ingresar litros"}
+                className="text-lg font-medium"
+              />
+              {litrosCalculado != null && litrosManual === "" && (
+                <p className="text-xs text-muted-foreground">
+                  Auto-calculado: <strong>{formatNumber(litrosCalculado, 0)} L</strong>
+                  {vueltaActual && vueltaActual.capacidadCamion != null && vueltaActual.capacidadCamion > 0 && (
+                    (() => {
+                      const disponible = Math.max(0, vueltaActual.capacidadCamion - vueltaActual.litros);
+                      if (litrosCalculado > disponible) {
+                        return (
+                          <span className="ml-2 text-amber-600 dark:text-amber-400">
+                            ⚠ Solo quedan {formatNumber(disponible, 0)} L en el camión
+                          </span>
+                        );
+                      }
+                      return null;
                   })()
                 )}
               </p>
             )}
+            </div>
           </div>
           )}
 
