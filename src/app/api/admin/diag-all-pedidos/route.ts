@@ -7,21 +7,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // Buscar TODOS los pedidos de Susana García (cualquier estado)
-  const pedidosSusana = await db.pedido.findMany({
-    where: { clienteNombre: { contains: "Susana" } },
-    select: { id: true, clienteNombre: true, estado: true, entregaId: true, litrosSolicitados: true, fechaSolicitada: true, creadoEn: true },
+  const resultados: string[] = [];
+
+  // Buscar el pedido de Susana García marcado como entregado hoy
+  const pedido = await db.pedido.findFirst({
+    where: {
+      clienteNombre: { contains: "Susana" },
+      estado: "entregado",
+    },
+    select: { id: true, clienteNombre: true, entregaId: true, litrosSolicitados: true, fechaSolicitada: true, creadoEn: true },
     orderBy: { creadoEn: "desc" },
   });
 
-  // También buscar TODOS los pedidos creados hoy
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const pedidosHoy = await db.pedido.findMany({
-    where: { creadoEn: { gte: hoy } },
-    select: { id: true, clienteNombre: true, estado: true, litrosSolicitados: true, fechaSolicitada: true, creadoEn: true },
-    orderBy: { creadoEn: "desc" },
-  });
+  if (pedido) {
+    // Restaurar a pendiente y desvincular la entrega
+    await db.pedido.update({
+      where: { id: pedido.id },
+      data: {
+        estado: "pendiente",
+        entregaId: null,
+      },
+    });
+    resultados.push(`Revertido: ${pedido.clienteNombre} → estado=pendiente, entregaId=null (era entregado con entregaId=${pedido.entregaId})`);
+  } else {
+    resultados.push("No se encontró pedido de Susana García entregado");
+  }
 
-  return NextResponse.json({ pedidosSusana, pedidosHoy });
+  return NextResponse.json({ ok: true, resultados, timestamp: new Date().toISOString() });
 }
