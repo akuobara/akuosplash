@@ -421,21 +421,24 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     e.preventDefault();
     if (!clienteDetalle) return;
     const monto = Number(deudaInicialMonto) || 0;
-    if (monto < 0) {
-      toast.error("La deuda no puede ser negativa");
-      return;
-    }
+    // Permitir positivos (deuda) y negativos (saldo a favor)
     setPagoSaving(true);
     try {
       await apiPatch(`/api/clientes/${clienteDetalle.id}`, { deudaInicial: monto });
-      toast.success(monto > 0 ? "Deuda registrada" : "Deuda eliminada");
+      if (monto > 0) {
+        toast.success("Deuda registrada");
+      } else if (monto < 0) {
+        toast.success("Saldo a favor registrado");
+      } else {
+        toast.success("Deuda/saldo eliminado");
+      }
       setDeudaInicialOpen(false);
       setDeudaInicialMonto("");
       setClienteDetalle({ ...clienteDetalle, deudaInicial: monto } as any);
       abrirDetalle(clienteDetalle);
       onRefresh();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo registrar la deuda");
+      toast.error(e instanceof Error ? e.message : "No se pudo registrar");
     } finally {
       setPagoSaving(false);
     }
@@ -1213,25 +1216,46 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
       <Dialog open={deudaInicialOpen} onOpenChange={setDeudaInicialOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Agregar deuda</DialogTitle>
+            <DialogTitle>Deuda / Saldo a favor</DialogTitle>
             <DialogDescription>
-              Registra lo que te debe el cliente. Los pagos que recibas van a descontar de esta deuda.
+              Registra lo que te debe el cliente (deuda) o lo que el cliente tiene a favor (saldo).
+              Los pagos que recibas van a descontar de la deuda.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleDeudaInicial} className="space-y-3">
             <div className="space-y-2">
-              <Label htmlFor="deudaInicialMonto">Monto de la deuda ($)</Label>
+              <Label htmlFor="deudaInicialMonto">Monto ($)</Label>
               <Input
                 id="deudaInicialMonto"
                 type="number"
-                min="0"
                 step="100"
                 value={deudaInicialMonto}
                 onChange={(e) => setDeudaInicialMonto(e.target.value)}
-                placeholder="Ej: 50000"
+                placeholder="Ej: 50000 (deuda) o -50000 (saldo a favor)"
               />
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setDeudaInicialMonto(String(Math.abs(Number(deudaInicialMonto) || 0)))}
+                >
+                  💰 Deuda (+)
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setDeudaInicialMonto(String(-Math.abs(Number(deudaInicialMonto) || 0)))}
+                >
+                  ✅ Saldo a favor (-)
+                </Button>
+              </div>
               <p className="text-xs text-muted-foreground">
-                Poné 0 para eliminar la deuda.
+                Positivo = el cliente te debe. Negativo = el cliente tiene saldo a favor.
+                Poné 0 para eliminar.
               </p>
             </div>
             <DialogFooter>
@@ -1379,7 +1403,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       setDeudaInicialOpen(true);
                     }}
                   >
-                    + Deuda
+                    + Deuda / Saldo
                   </Button>
                 </div>
 
