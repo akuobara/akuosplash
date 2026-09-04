@@ -1380,20 +1380,23 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                 )}
 
                 {/* Tabs internos — al inicio para fácil acceso */}
-                <div className="sticky top-0 z-10 flex items-center gap-1 rounded-lg bg-muted/40 p-1">
-                  <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-7">
+                <div className="sticky top-0 z-10 flex items-center gap-1 overflow-x-auto rounded-lg bg-muted/40 p-1">
+                  <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-7 shrink-0">
                     Info
                   </Button>
-                  <Button size="sm" variant={detalleTab === "entregas" ? "default" : "ghost"} onClick={() => setDetalleTab("entregas")} className="h-7">
+                  <Button size="sm" variant={detalleTab === "entregas" ? "default" : "ghost"} onClick={() => setDetalleTab("entregas")} className="h-7 shrink-0">
                     Entregas ({totalEntregas})
                   </Button>
-                  <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-7">
+                  <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-7 shrink-0">
                     Pedidos ({detallePedidos.length})
                   </Button>
-                  <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-7">
+                  <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-7 shrink-0">
                     Pagos ({detallePagos.length})
                   </Button>
-                  <div className="flex-1" />
+                </div>
+
+                {/* Botón Deuda / Saldo — fila separada para que sea visible en mobile */}
+                <div className="flex justify-end">
                   <Button
                     size="sm"
                     variant="outline"
@@ -1403,7 +1406,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       setDeudaInicialOpen(true);
                     }}
                   >
-                    + Deuda / Saldo
+                    + Deuda / Saldo a favor
                   </Button>
                 </div>
 
