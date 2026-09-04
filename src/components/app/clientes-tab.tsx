@@ -1335,6 +1335,21 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   </DialogDescription>
                 </DialogHeader>
 
+                {/* Botón Deuda / Saldo — visible arriba, antes de las tabs */}
+                <div className="flex justify-end">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs"
+                    onClick={() => {
+                      setDeudaInicialMonto(String((clienteDetalle as any).deudaInicial || 0));
+                      setDeudaInicialOpen(true);
+                    }}
+                  >
+                    <Banknote className="mr-1 h-3 w-3" /> + Deuda / Saldo a favor
+                  </Button>
+                </div>
+
                 {/* Deuda destacada (si existe) */}
                 {tieneDeuda && (
                   <div className="flex items-center justify-between rounded-lg border border-red-300 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
@@ -1392,21 +1407,6 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   </Button>
                   <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-7 shrink-0">
                     Pagos ({detallePagos.length})
-                  </Button>
-                </div>
-
-                {/* Botón Deuda / Saldo — fila separada para que sea visible en mobile */}
-                <div className="flex justify-end">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-xs"
-                    onClick={() => {
-                      setDeudaInicialMonto(String((clienteDetalle as any).deudaInicial || 0));
-                      setDeudaInicialOpen(true);
-                    }}
-                  >
-                    + Deuda / Saldo a favor
                   </Button>
                 </div>
 
