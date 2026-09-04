@@ -51,7 +51,7 @@ export default function RecuperarPasswordPage() {
             <div className="rounded-full bg-primary/10 p-1.5">
               <Droplets className="h-4 w-4 text-primary" />
             </div>
-            <span className="font-bold text-sm">Aljibe App · Cliente</span>
+            <span className="font-bold text-sm">Aljibe · Cliente</span>
           </Link>
         </div>
       </header>

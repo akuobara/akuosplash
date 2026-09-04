@@ -52,7 +52,7 @@ export default function LoginClientePage() {
             <div className="rounded-full bg-primary/10 p-1.5">
               <Droplets className="h-4 w-4 text-primary" />
             </div>
-            <span className="font-bold">Aljibe App · Cliente</span>
+            <span className="font-bold">Aljibe · Cliente</span>
           </Link>
         </div>
       </header>

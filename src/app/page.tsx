@@ -242,7 +242,7 @@ export default function Home() {
               <Droplets className="h-5 w-5" />
             </div>
             <div className="leading-tight">
-              <h1 className="text-base font-bold sm:text-lg">Aljibe App</h1>
+              <h1 className="text-base font-bold sm:text-lg">Aljibe</h1>
               <p className="text-[10px] text-muted-foreground sm:text-xs">
                 Registro de entregas de agua
               </p>
@@ -530,7 +530,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="mt-auto border-t border-border bg-muted/20 py-3">
         <div className="mx-auto w-full max-w-6xl px-3 text-center text-xs text-muted-foreground sm:px-6">
-          Aljibe App · {isDueno ? "Administrador" : "Chofer"}: {user.nombre} · {camiones.length} camión(es)
+          Aljibe · {isDueno ? "Administrador" : "Chofer"}: {user.nombre} · {camiones.length} camión(es)
         </div>
       </footer>
 

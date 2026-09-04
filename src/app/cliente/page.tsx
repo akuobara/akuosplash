@@ -156,7 +156,7 @@ export default function ClienteDashboardPage() {
               <Droplets className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground leading-none">Aljibe App · Cliente</p>
+              <p className="text-xs text-muted-foreground leading-none">Aljibe · Cliente</p>
               <p className="font-bold text-sm leading-tight">{cliente.nombre}</p>
             </div>
           </Link>

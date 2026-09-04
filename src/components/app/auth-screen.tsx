@@ -309,7 +309,7 @@ export function AuthScreen({ hasUsers, onAuthSuccess }: AuthScreenProps) {
             <Droplets className="h-9 w-9" />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold">Aljibe App</h1>
+            <h1 className="text-2xl font-bold">Aljibe</h1>
             <p className="text-sm text-muted-foreground">Registro de entregas de agua</p>
           </div>
         </div>

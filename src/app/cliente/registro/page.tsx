@@ -131,7 +131,7 @@ export default function RegistroClientePage() {
             <div className="rounded-full bg-primary/10 p-1.5">
               <Droplets className="h-4 w-4 text-primary" />
             </div>
-            <span className="font-bold">Aljibe App · Cliente</span>
+            <span className="font-bold">Aljibe · Cliente</span>
           </Link>
           <Link href="/cliente/login" className="text-xs text-muted-foreground hover:text-foreground">
             Ya tengo cuenta
