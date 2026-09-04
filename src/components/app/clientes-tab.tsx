@@ -1454,21 +1454,38 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       </div>
                     </div>
 
-                    {/* Estanques / Piscinas */}
+                    {/* Estanques / Piscinas — colapsable, solo si hay info útil */}
                     {(() => {
                       let estanquesDetalle: { tipo: string; capacidad: string; nombre: string; ubicacion: string }[] = [];
                       try {
                         estanquesDetalle = clienteDetalle.estanquesJson ? JSON.parse(clienteDetalle.estanquesJson) : [];
                       } catch {}
                       if (estanquesDetalle.length === 0) return null;
+
                       const totalCap = estanquesDetalle.reduce((s, e) => s + (Number(e.capacidad) || 0), 0);
+                      // Filtrar solo los que tienen info útil (capacidad, nombre o ubicación)
+                      const estanquesUtiles = estanquesDetalle.filter(e => (e.capacidad && Number(e.capacidad) > 0) || e.nombre?.trim() || e.ubicacion?.trim());
+
+                      // Si ninguno tiene info útil, mostrar resumen compacto de una línea
+                      if (estanquesUtiles.length === 0) {
+                        return (
+                          <div className="rounded-lg bg-muted/30 p-2 text-xs">
+                            <span className="text-muted-foreground">Estanques: </span>
+                            <span>{estanquesDetalle.length} × {labelTipoEstanque(estanquesDetalle[0].tipo)}</span>
+                            {estanquesDetalle.some(e => e.tipo !== estanquesDetalle[0].tipo) && " (varios tipos)"}
+                          </div>
+                        );
+                      }
+
+                      // Si hay info útil, mostrar lista pero colapsable
                       return (
-                        <div>
-                          <p className="text-xs uppercase text-muted-foreground">
-                            Estanques y piscinas {totalCap > 0 && `(total: ${formatNumber(totalCap, 0)} L)`}
-                          </p>
-                          <div className="mt-1 space-y-1">
-                            {estanquesDetalle.map((est, i) => (
+                        <details className="rounded-lg border border-border p-2">
+                          <summary className="cursor-pointer text-xs font-medium text-muted-foreground">
+                            Estanques y piscinas ({estanquesDetalle.length})
+                            {totalCap > 0 && ` · total: ${formatNumber(totalCap, 0)} L`}
+                          </summary>
+                          <div className="mt-2 space-y-1">
+                            {estanquesUtiles.map((est, i) => (
                               <div key={i} className="rounded-lg border border-border p-2 text-xs">
                                 <div className="flex items-center justify-between">
                                   <span className="font-medium">{est.nombre || labelTipoEstanque(est.tipo)}</span>
@@ -1481,7 +1498,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                               </div>
                             ))}
                           </div>
-                        </div>
+                        </details>
                       );
                     })()}
 
