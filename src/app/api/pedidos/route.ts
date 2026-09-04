@@ -291,6 +291,7 @@ export async function POST(req: NextRequest) {
         ...clienteData,
         litrosSolicitados: Number(body.litrosSolicitados) || 0,
         fechaSolicitada: body.fechaSolicitada ? parseDateTimeLocalInput(body.fechaSolicitada) : null,
+        franjaHoraria: body.franjaHoraria || null,
         metodoPagoPreferido: body.metodoPagoPreferido || "efectivo",
         nota: body.nota?.trim() || null,
         estado: body.estado || "pendiente",

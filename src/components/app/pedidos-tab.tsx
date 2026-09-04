@@ -66,6 +66,8 @@ import {
   formatDateUTC,
   labelEstadoPedido,
   labelMetodoPago,
+  labelFranjaHoraria,
+  colorFranjaHoraria,
   ESTADOS_PEDIDO,
   METODOS_PAGO,
   toDateTimeLocalInput,
@@ -98,6 +100,7 @@ interface Pedido {
   } | null;
   litrosSolicitados: number;
   fechaSolicitada: string | null;
+  franjaHoraria?: string | null;
   metodoPagoPreferido: string;
   indicacionesAcceso: string | null;
   nota: string | null;
@@ -180,6 +183,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [clienteZona, setClienteZona] = useState("");
   const [litrosSolicitados, setLitrosSolicitados] = useState("");
   const [fechaSolicitada, setFechaSolicitada] = useState("");
+  const [franjaHoraria, setFranjaHoraria] = useState("");
   const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("credito");
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [nota, setNota] = useState("");
@@ -336,6 +340,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     setClienteZona("");
     setLitrosSolicitados("");
     setFechaSolicitada("");
+    setFranjaHoraria("");
     setMetodoPagoPreferido("credito");
     setIndicacionesAcceso("");
     setNota("");
@@ -460,6 +465,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         clienteZona: clienteZona.trim() || null,
         litrosSolicitados: litros,
         fechaSolicitada: fechaSolicitada || null,
+        franjaHoraria: franjaHoraria || null,
         metodoPagoPreferido,
         indicacionesAcceso: indicacionesAcceso.trim() || null,
         nota: nota.trim() || null,
@@ -850,6 +856,12 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                     }
                                     return null;
                                   })()}
+                                  {/* Badge de franja horaria */}
+                                  {p.franjaHoraria && (
+                                    <Badge variant="outline" className={`text-[10px] gap-0.5 ${colorFranjaHoraria(p.franjaHoraria)} border-current/30`} title={`Horario: ${labelFranjaHoraria(p.franjaHoraria)}`}>
+                                      <Clock className="h-2.5 w-2.5" /> {labelFranjaHoraria(p.franjaHoraria)}
+                                    </Badge>
+                                  )}
                                   {/* Badges de asignación */}
                                   {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
                                     <Badge variant="outline" className="text-[10px] gap-0.5 text-purple-700 dark:text-purple-300">
@@ -879,6 +891,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                     <>
                                       <Calendar className="ml-2 inline h-3 w-3" />
                                       {formatDateUTC(p.fechaSolicitada)}
+                                      {p.franjaHoraria && ` · ${labelFranjaHoraria(p.franjaHoraria)}`}
                                     </>
                                   )}
                                   {p.clienteTelefono && (
@@ -1191,13 +1204,32 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="fechaSolicitada">Fecha solicitada (opcional)</Label>
+                <Label htmlFor="fechaSolicitada">Fecha de entrega (opcional)</Label>
                 <Input
                   id="fechaSolicitada"
-                  type="datetime-local"
-                  value={fechaSolicitada}
-                  onChange={(e) => setFechaSolicitada(e.target.value)}
+                  type="date"
+                  value={fechaSolicitada ? fechaSolicitada.split("T")[0] : ""}
+                  onChange={(e) => setFechaSolicitada(e.target.value ? e.target.value + "T00:00:00.000Z" : "")}
                 />
+                <div className="space-y-1">
+                  <Label className="text-xs">Hora aproximada (opcional)</Label>
+                  <select
+                    value={franjaHoraria}
+                    onChange={(e) => setFranjaHoraria(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                  >
+                    <option value="">Sin hora específica</option>
+                    <option value="mañana">Mañana (08:00 - 12:00)</option>
+                    <option value="mediodia">Mediodía (11:00 - 13:00)</option>
+                    <option value="tarde">Tarde (14:00 - 18:00)</option>
+                    <option value="antes-12">Antes de las 12:00</option>
+                    <option value="despues-12">Después de las 12:00</option>
+                    <option value="antes-14">Antes de las 14:00</option>
+                    <option value="despues-14">Después de las 14:00</option>
+                    <option value="primera-hora">Primera hora de la mañana</option>
+                    <option value="ultima-hora">Última hora de la tarde</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -1249,7 +1281,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 <Field label="Litros solicitados" value={detalle.litrosSolicitados > 0 ? `${formatNumber(detalle.litrosSolicitados, 0)} L` : "Sin cantidad (se estimará al convertir)"} />
                 <Field label="Método de pago" value={labelMetodoPago(detalle.metodoPagoPreferido)} />
                 {detalle.fechaSolicitada && (
-                  <Field label="Fecha solicitada" value={formatDateTime(detalle.fechaSolicitada)} />
+                  <Field label="Fecha de entrega" value={`${formatDateUTC(detalle.fechaSolicitada)}${detalle.franjaHoraria ? ` · ${labelFranjaHoraria(detalle.franjaHoraria)}` : ""}`} />
                 )}
                 {detalle.chofer && (
                   <Field label="Tomado por" value={detalle.chofer.nombre} />

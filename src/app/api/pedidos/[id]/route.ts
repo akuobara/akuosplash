@@ -61,6 +61,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.clienteLng !== undefined && { clienteLng: body.clienteLng === null || body.clienteLng === "" ? null : Number(body.clienteLng) }),
       ...(body.litrosSolicitados !== undefined && { litrosSolicitados: Number(body.litrosSolicitados) || 0 }),
       ...(body.fechaSolicitada !== undefined && { fechaSolicitada: body.fechaSolicitada ? parseDateTimeLocalInput(body.fechaSolicitada) : null }),
+      ...(body.franjaHoraria !== undefined && { franjaHoraria: body.franjaHoraria || null }),
       ...(body.metodoPagoPreferido !== undefined && { metodoPagoPreferido: body.metodoPagoPreferido }),
       ...(body.indicacionesAcceso !== undefined && { indicacionesAcceso: body.indicacionesAcceso?.trim() || null }),
       ...(body.nota !== undefined && { nota: body.nota?.trim() || null }),

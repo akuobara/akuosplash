@@ -133,6 +133,7 @@ model Pedido {
   // Detalle del pedido
   litrosSolicitados Float
   fechaSolicitada   DateTime?  // cuándo el cliente quiere que se entregue (opcional)
+  franjaHoraria     String?   // franja horaria preferida (ej: "mañana", "tarde", "antes-12")
   metodoPagoPreferido String   @default("credito")  // efectivo | transferencia | mixto | credito
   indicacionesAcceso String?   // snapshot de indicaciones del cliente o custom
   nota              String?
