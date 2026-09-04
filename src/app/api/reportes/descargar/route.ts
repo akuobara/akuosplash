@@ -225,29 +225,31 @@ function generarPDF(period: string, data: any) {
     doc.setFontSize(14);
     doc.text("5. Gastos", 14, y);
     y += 5;
-    // Agrupar por tipo, sumar montos, juntar notas
-    const gastosAgrupados = new Map<string, { monto: number; notas: string[] }>();
+    // Agrupar por tipo, sumar montos, contar y juntar notas
+    const gastosAgrupados = new Map<string, { monto: number; notas: string[]; count: number }>();
     for (const g of data.gastos) {
       const tipo = labelTipoGasto(g.tipo);
-      const existing = gastosAgrupados.get(tipo) ?? { monto: 0, notas: [] };
+      const existing = gastosAgrupados.get(tipo) ?? { monto: 0, notas: [], count: 0 };
       existing.monto += g.monto;
+      existing.count += 1;
       const nota = g.descripcion || "";
       if (nota) existing.notas.push(nota);
       gastosAgrupados.set(tipo, existing);
     }
     autoTable(doc, {
       startY: y,
-      head: [["Tipo", "Descripción/Nota", "Monto"]],
+      head: [["Tipo", "Cant.", "Descripción/Nota", "Monto"]],
       body: Array.from(gastosAgrupados.entries()).map(([tipo, info]) => [
         tipo,
+        String(info.count),
         info.notas.join("; "),
         formatCurrency(info.monto),
       ]),
       theme: "striped",
       headStyles: { fillColor: [220, 38, 38], fontSize: 10 },
       bodyStyles: { fontSize: 9 },
-      columnStyles: { 0: { cellWidth: 60 }, 1: { cellWidth: 80 }, 2: { cellWidth: 40, halign: "right" } },
-      foot: [["", "Total", formatCurrency(data.totalGastos)]],
+      columnStyles: { 0: { cellWidth: 55 }, 1: { cellWidth: 15, halign: "center" }, 2: { cellWidth: 65 }, 3: { cellWidth: 35, halign: "right" } },
+      foot: [["", "", "Total", formatCurrency(data.totalGastos)]],
     });
   }
 
@@ -301,19 +303,20 @@ function generarExcel(period: string, data: any) {
     ["", "", "Total", data.totalPagosSueltos, ""],
     [],
     ["5. GASTOS"],
-    ["Tipo", "Descripción/Nota", "Monto"],
+    ["Tipo", "Cant.", "Descripción/Nota", "Monto"],
     ...(() => {
-      const agrupado = new Map<string, { monto: number; notas: string[] }>();
+      const agrupado = new Map<string, { monto: number; notas: string[]; count: number }>();
       for (const g of data.gastos) {
         const tipo = labelTipoGasto(g.tipo);
-        const ex = agrupado.get(tipo) ?? { monto: 0, notas: [] };
+        const ex = agrupado.get(tipo) ?? { monto: 0, notas: [], count: 0 };
         ex.monto += g.monto;
+        ex.count += 1;
         if (g.descripcion) ex.notas.push(g.descripcion);
         agrupado.set(tipo, ex);
       }
-      return Array.from(agrupado.entries()).map(([tipo, info]) => [tipo, info.notas.join("; "), info.monto]);
+      return Array.from(agrupado.entries()).map(([tipo, info]) => [tipo, info.count, info.notas.join("; "), info.monto]);
     })(),
-    ["", "Total", data.totalGastos],
+    ["", "", "Total", data.totalGastos],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
