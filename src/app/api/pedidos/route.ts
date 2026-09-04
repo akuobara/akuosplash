@@ -17,13 +17,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // === GENERAR PEDIDOS RECURRENTES VENCIDOS ===
+  // === GENERAR PEDIDOS RECURRENTES (vencidos + próximos 7 días) ===
+  // Generar no solo los vencidos sino también los de los próximos 7 días
+  // para que aparezcan en la pestaña Pedidos como "programados"
   const ahora = new Date();
+  const en7dias = new Date(ahora);
+  en7dias.setDate(en7dias.getDate() + 7);
   const recurrentesVencidos = await db.pedidoRecurrente.findMany({
     where: {
       duenoId,
       activo: true,
-      fechaProximaGeneracion: { lte: ahora },
+      fechaProximaGeneracion: { lte: en7dias },
     },
     include: { cliente: true },
   });
@@ -61,7 +65,8 @@ export async function GET(req: NextRequest) {
         fechaSolicitada: rec.fechaProximaGeneracion,
         metodoPagoPreferido: rec.metodoPagoPreferido,
         nota: rec.nota,
-        estado: "pendiente",
+        // Si la fecha es futura, marcar como "programado"; si es hoy o pasada, "pendiente"
+        estado: rec.fechaProximaGeneracion > ahora ? "programado" : "pendiente",
         choferId: session.userId,
         duenoId,
         asignacionTipo: rec.asignacionTipo,

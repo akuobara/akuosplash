@@ -66,6 +66,7 @@ interface Recurrente {
   fechaProximaGeneracion: string;
   activo: boolean;
   asignacionTipo: string;
+  clienteId: string;
   cliente: {
     id: string;
     nombre: string;
@@ -93,6 +94,7 @@ interface PedidosRecurrentesTabProps {
   pedidos?: {  // pedidos programados para mostrar en el calendario
     id: string;
     clienteNombre: string;
+    clienteId: string | null;
     litrosSolicitados: number;
     fechaSolicitada: string | null;
     estado: string;
@@ -144,6 +146,7 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
     hoy.setHours(0, 0, 0, 0);
 
     // 1. Pedidos recurrentes — generar las próximas 6 ocurrencias
+    // Pero solo si NO existe ya un pedido generado para esa fecha+cliente
     for (const r of recurrentes) {
       if (!r.activo) continue;
       // Parsear fechaInicio sin zona horaria (YYYY-MM-DD → local)
@@ -159,15 +162,26 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
       }
 
       for (let i = 0; i < 6; i++) {
-        eventos.push({
-          fecha: new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()),
-          litros: r.litrosSolicitados,
-          pedidos: [{
-            nombre: r.cliente.nombre,
+        const fechaStr = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}-${String(fecha.getDate()).padStart(2, "0")}`;
+        // Verificar si ya existe un pedido generado para esta fecha+cliente
+        const yaExiste = pedidos.some(p =>
+          p.clienteId === r.clienteId &&
+          p.fechaSolicitada &&
+          p.fechaSolicitada.split("T")[0] === fechaStr &&
+          p.estado !== "entregado" &&
+          p.estado !== "cancelado"
+        );
+        if (!yaExiste) {
+          eventos.push({
+            fecha: new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()),
             litros: r.litrosSolicitados,
-            tipo: "recurrente" as const,
-          }],
-        });
+            pedidos: [{
+              nombre: r.cliente.nombre,
+              litros: r.litrosSolicitados,
+              tipo: "recurrente" as const,
+            }],
+          });
+        }
         fecha.setDate(fecha.getDate() + r.frecuenciaDias);
       }
     }
