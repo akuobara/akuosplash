@@ -77,14 +77,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json({ pedido: actualizado });
 }
 
-// DELETE /api/pedidos/[id] — solo dueño puede borrar
+// DELETE /api/pedidos/[id] — el dueño puede borrar cualquiera, el chofer solo los suyos
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-  if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo el dueño puede eliminar pedidos" }, { status: 403 });
   }
 
   const duenoId = await getDuenoId();
@@ -93,10 +90,14 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   }
 
   const { id } = await params;
-
   const pedido = await db.pedido.findUnique({ where: { id } });
   if (!pedido || pedido.duenoId !== duenoId) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 });
+  }
+
+  // El chofer solo puede borrar pedidos que él creó
+  if (session.role === "chofer" && pedido.choferId !== session.userId) {
+    return NextResponse.json({ error: "Solo puedes eliminar pedidos que tú creaste" }, { status: 403 });
   }
 
   // No borrar si ya fue entregado (preservar historial)

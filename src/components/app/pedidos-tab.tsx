@@ -841,6 +841,12 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                       <Repeat className="h-2.5 w-2.5" /> Recurrente
                                     </Badge>
                                   )}
+                                  {/* Badge: quién agendó el pedido */}
+                                  {p.chofer && !p.pedidoRecurrenteId && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-muted-foreground" title={`Agendado por ${p.chofer.nombre}`}>
+                                      <UserCheck className="h-2.5 w-2.5" /> {p.chofer.nombre}
+                                    </Badge>
+                                  )}
                                   {/* Badge: programado para fecha futura */}
                                   {p.fechaSolicitada && (() => {
                                     const fecha = new Date(p.fechaSolicitada);
