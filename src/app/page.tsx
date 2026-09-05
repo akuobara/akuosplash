@@ -473,7 +473,7 @@ export default function Home() {
           </TabsContent>
 
           <TabsContent value="liquidacion" className="mt-0">
-            <LiquidacionTab refreshKey={refreshKey} onRefresh={refresh} config={config} />
+            <LiquidacionTab refreshKey={refreshKey} onRefresh={refresh} config={config} isDueno={isDueno} />
           </TabsContent>
 
           <TabsContent value="clientes" className="mt-0">

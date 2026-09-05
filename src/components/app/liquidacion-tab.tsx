@@ -41,9 +41,10 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
-import { apiGet, apiPut } from "@/lib/api-client";
+import { apiGet, apiPut, apiPost } from "@/lib/api-client";
 import {
   formatCurrency,
   formatNumber,
@@ -137,9 +138,10 @@ interface LiquidacionTabProps {
   refreshKey: number;
   onRefresh: () => void;
   config: Config | null;
+  isDueno?: boolean;
 }
 
-export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTabProps) {
+export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false }: LiquidacionTabProps) {
   const [period, setPeriod] = useState<Period>("mes");
   const [data, setData] = useState<LiquidacionData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -156,6 +158,8 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
   const [resumenYear, setResumenYear] = useState(now.getFullYear());
   const [resumenMonth, setResumenMonth] = useState(now.getMonth()); // 0-indexed
   const [descargandoResumen, setDescargandoResumen] = useState(false);
+  const [cerrandoPeriodo, setCerrandoPeriodo] = useState(false);
+  const [confirmarCierre, setConfirmarCierre] = useState(false);
 
   const MONTH_NAMES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -299,7 +303,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
             </div>
           )}
 
-          {/* Botones de descarga */}
+          {/* Botones de descarga y cierre */}
           {periodoData && (
             <div className="mt-3 flex flex-wrap gap-2 justify-center">
               <Button
@@ -318,6 +322,16 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
               >
                 <FileText className="mr-1 h-3.5 w-3.5" /> Resumen Excel
               </Button>
+              {isDueno && (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={cerrandoPeriodo}
+                  onClick={() => setConfirmarCierre(true)}
+                >
+                  <Lock className="mr-1 h-3.5 w-3.5" /> Cerrar período
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
@@ -606,6 +620,50 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
         config={config}
         onSaved={onRefresh}
       />
+
+      {/* Diálogo: Confirmar cierre de período */}
+      <Dialog open={confirmarCierre} onOpenChange={setConfirmarCierre}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Cerrar período de liquidación</DialogTitle>
+            <DialogDescription>
+              Vas a cerrar el período <strong>{periodoData?.periodo?.label}</strong>.
+              Esto registra la fecha de cierre. Las entregas y gastos de este período
+              quedan como definitivos.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-800 p-3 text-xs text-amber-900 dark:text-amber-200">
+            <p>Recomendamos descargar el resumen (PDF o Excel) antes de cerrar.</p>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setConfirmarCierre(false)}>
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={cerrandoPeriodo}
+              onClick={async () => {
+                setCerrandoPeriodo(true);
+                try {
+                  const end = periodoData?.periodo?.end || new Date().toISOString();
+                  await apiPost("/api/liquidacion/cerrar", { fechaCierre: end });
+                  toast.success("Período cerrado");
+                  setConfirmarCierre(false);
+                  cargar();
+                  onRefresh();
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "No se pudo cerrar");
+                } finally {
+                  setCerrandoPeriodo(false);
+                }
+              }}
+            >
+              {cerrandoPeriodo ? "Cerrando…" : "Cerrar período"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
