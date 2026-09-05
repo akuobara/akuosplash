@@ -249,7 +249,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (err instanceof Error && err.message.startsWith("CONFLICT:")) {
       return NextResponse.json({ error: err.message.replace("CONFLICT: ", "") }, { status: 409 });
     }
-    console.error(err);
-    return NextResponse.json({ error: "No se pudo convertir el pedido en entrega" }, { status: 500 });
+    // Devolver el mensaje real del error para que el usuario pueda ver qué pasó
+    // (antes se devolvía un mensaje genérico que ocultaba la causa real).
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error("Error al convertir pedido en entrega:", err);
+    return NextResponse.json(
+      { error: `No se pudo convertir el pedido en entrega: ${errorMsg}` },
+      { status: 500 }
+    );
   }
 }
