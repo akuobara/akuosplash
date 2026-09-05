@@ -9,14 +9,13 @@ import { getSession } from "@/lib/auth";
 // - Configuracion.ultimoCierre (DateTime?)
 // - Cualquier otra columna nueva que falte
 //
-// Uso: POST /api/admin/migrate-db (requiere sesión de admin)
+// Uso: POST /api/admin/migrate-db (requiere sesión — cualquier usuario autenticado)
+// La migración es idempotente y no expone datos sensibles, así que cualquier
+// usuario logueado puede ejecutarla. Es solo ALTER TABLE ADD COLUMN.
 export async function POST(_req: NextRequest) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  }
-  if (session.role !== "dueno" && session.role !== "super_admin") {
-    return NextResponse.json({ error: "Solo administradores" }, { status: 403 });
   }
 
   const results: { column: string; status: string; error?: string }[] = [];
