@@ -269,3 +269,20 @@ Work Log:
 
 Stage Summary:
 - ⏳ Esperando que el usuario recargue y reintente para ver el mensaje real.
+
+---
+Task ID: confirmacion-entrega-funciona
+Agent: main
+Task: Verificar que la conversión de pedido en entrega funciona.
+
+Work Log:
+- Usuario reportó: "Ahora no apareció falla"
+- Screenshot muestra toast verde: "Entrega registrada"
+- Vuelta #11: 5 entregas, 12.850 L entregados, $77.300 ventas
+- Capacidad usada: 76% (faltan 3.725 L para validar)
+
+Stage Summary:
+- ✅ Conversión de pedido en entrega funcionando
+- ✅ End-to-end OK: chofer puede agendar pedido → convertir en entrega → entrega registrada
+- El fix anterior (devolver error real) reveló que no había error real — el deploy
+  del fix probablemente resolvió un problema de build cache o algo similar.
