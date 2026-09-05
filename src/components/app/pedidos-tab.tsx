@@ -556,10 +556,12 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     }
 
     // PRE-VERIFICACIÓN: si no hay vuelta activa, mostrar overlay inmediatamente
-    // sin llamar al API (evita el error 400)
+    // sin llamar al API (evita el error 400).
+    // Fallback: si la lista camiones está vacía (transient error de /api/camiones)
+    // no bloquear — el POST /api/vueltas resuelve la asignación desde el backend.
     if (!vueltaActual) {
       const camionesActivos = (camiones ?? []).filter(c => c.activo);
-      if (camionesActivos.length === 0) {
+      if (camionesActivos.length === 0 && isDueno) {
         toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
         setSaving(false);
         return;
@@ -593,7 +595,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       // y abrir el overlay de vuelta faltante
       if (msg.includes("No hay vuelta activa") || msg.includes("vuelta")) {
         const camionesActivos = (camiones ?? []).filter(c => c.activo);
-        if (camionesActivos.length === 0) {
+        if (camionesActivos.length === 0 && isDueno) {
           toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
         } else {
           // Guardar referencia al pedido antes de cerrar el diálogo
@@ -618,15 +620,13 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   async function iniciarVueltaYConvertir(camionId?: string) {
     if (!vueltaFaltante) return;
     const camionesActivos = (camiones ?? []).filter(c => c.activo);
-    const camionIdFinal = camionId || camionesActivos[0]?.id;
-    if (!camionIdFinal) {
-      toast.error("No hay camiones disponibles");
-      return;
-    }
+    // Si no hay camionId explícito y la lista está vacía, dejar que el backend
+    // resuelva (POST /api/vueltas busca la asignación del chofer automáticamente).
+    const camionIdFinal = camionId || camionesActivos[0]?.id || undefined;
     setIniciandoVueltaConvertir(true);
     try {
-      // 1. Iniciar vuelta
-      await apiPost("/api/vueltas", { camionId: camionIdFinal });
+      // 1. Iniciar vuelta (sin camionId si la lista estaba vacía — backend resuelve)
+      await apiPost("/api/vueltas", camionIdFinal ? { camionId: camionIdFinal } : {});
       toast.success("Vuelta iniciada");
       onRefresh();
 

@@ -801,11 +801,14 @@ export function EntregaForm({
     // Si no hay vuelta activa, validar litros ANTES de abrir el diálogo
     if (!vueltaActual) {
       // Verificar si hay camiones disponibles
-      if (!camiones || camiones.filter(c => c.activo).length === 0) {
+      // Fallback: si la lista camiones está vacía (transient error) pero el backend
+      // tiene la asignación, el POST /api/vueltas la va a resolver igual. No bloquear.
+      const camionesActivos = (camiones ?? []).filter(c => c.activo);
+      if (camionesActivos.length === 0) {
         toast.error(
           isDueno
             ? "No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero."
-            : "No tienes camiones asignados. Pídele al administrador que te asigne uno en Ajustes → Camiones para poder iniciar una vuelta y registrar entregas.",
+            : "No hay vuelta activa. Tocá 'Iniciar vuelta' para empezar.",
           { duration: 8000 }
         );
         return;
