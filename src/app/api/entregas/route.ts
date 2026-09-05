@@ -20,12 +20,29 @@ export async function GET(req: NextRequest) {
   const clienteId = searchParams.get("clienteId");
   const { start, end } = getRange(period);
 
+  // Si se pasa clienteId, obtener el nombre del cliente para también buscar
+  // entregas manuales (clienteId=null) que coincidan por nombre
+  let clienteNombreBusqueda: string | null = null;
+  if (clienteId) {
+    const cliente = await db.cliente.findUnique({
+      where: { id: clienteId },
+      select: { nombre: true }
+    });
+    if (cliente) clienteNombreBusqueda = cliente.nombre;
+  }
+
   const where: Record<string, unknown> = {
     duenoId,
     AND: [
       start ? { fecha: { gte: start } } : {},
       end ? { fecha: { lt: end } } : {},
-      clienteId ? { clienteId } : {},
+      // Si se pasa clienteId, buscar por clienteId O por nombre (para entregas manuales)
+      clienteId ? {
+        OR: [
+          { clienteId },
+          ...(clienteNombreBusqueda ? [{ clienteId: null, clienteNombre: clienteNombreBusqueda }] : [])
+        ]
+      } : {},
     ],
   };
 
