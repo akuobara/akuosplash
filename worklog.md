@@ -143,3 +143,41 @@ Stage Summary:
 - ✅ App admin funciona con nueva funcionalidad
 - ✅ App cliente y portal de pago sin cambios (siguen operativos)
 - ✅ Producción 100% funcional
+
+---
+Task ID: fix-camion-asignado-auto-recuperar
+Agent: main
+Task: Investigar y corregir "No tengo camión asignado" que bloqueaba al chofer.
+
+Work Log:
+- Investigación: screenshot mostraba Vuelta #11 activa con Ford + warning "No tienes camiones asignados" simultáneos → contradictorio
+- Causa raíz encontrada en /api/usuarios/[id]/route.ts:
+  * Al desactivar (PATCH activo=false) o soft-delete (DELETE) un chofer,
+    se ejecutaba `camionChofer.deleteMany({ where: { choferId: id } })`
+  * Eso borraba TODAS las asignaciones CamionChofer del chofer
+  * Al reactivar el chofer, las asignaciones NO se restauraban → quedaba sin camión
+- Fix aplicado:
+  1. /api/camiones GET (chofer): auto-recupera — si CamionChofer vacío PERO hay
+     vuelta activa con camión, upsert CamionChofer automáticamente.
+  2. /api/auth/me?perfil=true: misma auto-recuperación (para Mi Perfil tab).
+  3. /api/usuarios/[id] PATCH y DELETE: NO borrar CamionChofer. Solo cerrar
+     vueltas y limpiar referencias operacionales. Asignaciones de camión se
+     conservan para permitir reactivación rápida.
+  4. Dashboard: warning "No tienes camiones asignados" solo se muestra si NO
+     hay vuelta activa con camión — si la hay, el chofer puede seguir trabajando.
+  5. VueltaWidget: fallback al camión de la vuelta activa si la lista
+     CamionChofer está vacía.
+- Endpoint temporal /api/debug-camion-asignado creado para verificación.
+- Commit: b2d3a54
+- Push a GitHub: OK
+- Deploy a Vercel: OK (my-project-kdamncqrf, READY en ~70s)
+- Producción verificada: /, /api/auth/me, /api/camiones, /api/debug-camion-asignado responden
+
+Stage Summary:
+- ✅ Auto-recuperación operativa: el chofer recuperará su camión en la próxima
+  llamada a /api/camiones o /api/auth/me?perfil=true (porque tiene Vuelta #11
+  activa con camión Ford).
+- ✅ Bug raíz corregido: desactivar/reactivar chofer ya NO borra sus camiones.
+- ✅ Warning del dashboard ya no aparece si hay vuelta activa.
+- ⏳ Pendiente: que el usuario recargue la página en su celular para que
+  dispare la auto-recuperación. Luego eliminar endpoint temporal de debug.
