@@ -225,9 +225,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     cargar();
   }, [cargar, refreshKey]);
 
-  // Cuando llega un cliente preseleccionado desde la ficha de cliente, abrir el formulario
+  // Cuando llega un cliente preseleccionado desde la ficha de cliente, abrir el formulario.
+  // No filtrar por canCreate: si el backend no tiene permiso, devolverá error al guardar,
+  // pero el formulario debe abrirse para que el usuario vea qué pasó.
   useEffect(() => {
-    if (clientePreselect && canCreate) {
+    if (clientePreselect) {
       // Buscar el cliente en el catálogo
       const c = clientes.find((cl) => cl.id === clientePreselect);
       if (c) {
@@ -244,7 +246,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       }
       onPreselectConsumed?.();
     }
-  }, [clientePreselect, canCreate, clientes]);
+  }, [clientePreselect, clientes]);
 
   const filtrados = pedidos.filter((p) => {
     if (filtroEstado !== "todos" && p.estado !== filtroEstado) return false;

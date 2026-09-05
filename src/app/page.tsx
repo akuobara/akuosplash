@@ -152,41 +152,64 @@ export default function Home() {
     })();
   }, []);
 
-  // Cargar datos cuando hay sesión
+  // Cargar datos cuando hay sesión.
+  // IMPORTANTE: usar Promise.allSettled para que si un endpoint falla
+  // transientmente (cold start, replica lag, etc.), los demás se carguen igual.
+  // Esto evita que un fallo puntual de /api/camiones deje sin clientes al chofer.
   useEffect(() => {
     if (!user) return;
     (async () => {
-      try {
-        const [c, cfg, v, cams] = await Promise.all([
-          apiGet<{ clientes: Cliente[] }>("/api/clientes"),
-          apiGet<{ configuracion: Config }>("/api/configuracion"),
-          apiGet<{ vuelta: VueltaActual | null }>("/api/vueltas/activa"),
-          apiGet<{ camiones: Camion[] }>("/api/camiones"),
-        ]);
-        setClientes(c.clientes);
-        setConfig(cfg.configuracion);
-        setVueltaActual(v.vuelta);
-        setCamiones(cams.camiones);
-        // Cargar pedidos SIEMPRE (chofer y dueño los necesitan)
-        // Cargar usuarios solo si es dueño
-        if (user.role === "dueno") {
+      const results = await Promise.allSettled([
+        apiGet<{ clientes: Cliente[] }>("/api/clientes"),
+        apiGet<{ configuracion: Config }>("/api/configuracion"),
+        apiGet<{ vuelta: VueltaActual | null }>("/api/vueltas/activa"),
+        apiGet<{ camiones: Camion[] }>("/api/camiones"),
+      ]);
+      const [c, cfg, v, cams] = results;
+      if (c.status === "fulfilled") setClientes(c.value.clientes);
+      if (cfg.status === "fulfilled") setConfig(cfg.value.configuracion);
+      if (v.status === "fulfilled") setVueltaActual(v.value.vuelta);
+      if (cams.status === "fulfilled") setCamiones(cams.value.camiones);
+
+      // === AUTO-REINTENTO si algún endpoint crítico falló transitoriamente ===
+      // Vercel/Turso a veces tiene cold starts que devuelven [] en el primer request.
+      // Reintentar a los 2s si clientes o camiones quedaron vacíos.
+      const clientesCargados = c.status === "fulfilled" ? c.value.clientes.length : 0;
+      const camionesCargados = cams.status === "fulfilled" ? cams.value.camiones.length : 0;
+      if (c.status !== "fulfilled" || (clientesCargados === 0 && c.status === "fulfilled")) {
+        setTimeout(async () => {
           try {
-            const [u, peds] = await Promise.all([
-              apiGet<{ usuarios: { id: string; nombre: string; email: string; role: string; activo: boolean }[] }>("/api/usuarios"),
-              apiGet<{ pedidos: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos"),
-            ]);
-            setUsuarios(u.usuarios);
-            setTodosPedidos(peds.pedidos);
+            const retryC = await apiGet<{ clientes: Cliente[] }>("/api/clientes");
+            if (retryC.clientes.length > 0) setClientes(retryC.clientes);
           } catch {}
-        } else {
-          // Chofer también necesita los pedidos para el form de entrega
+        }, 2000);
+      }
+      if (cams.status !== "fulfilled" || (camionesCargados === 0 && cams.status === "fulfilled")) {
+        setTimeout(async () => {
           try {
-            const peds = await apiGet<{ pedidos: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos");
-            setTodosPedidos(peds.pedidos);
+            const retryCams = await apiGet<{ camiones: Camion[] }>("/api/camiones");
+            if (retryCams.camiones.length > 0) setCamiones(retryCams.camiones);
           } catch {}
-        }
-      } catch (e) {
-        console.error(e);
+        }, 2000);
+      }
+
+      // Cargar pedidos SIEMPRE (chofer y dueño los necesitan)
+      // Cargar usuarios solo si es dueño
+      if (user.role === "dueno") {
+        try {
+          const [u, peds] = await Promise.all([
+            apiGet<{ usuarios: { id: string; nombre: string; email: string; role: string; activo: boolean }[] }>("/api/usuarios"),
+            apiGet<{ pedidos: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos"),
+          ]);
+          setUsuarios(u.usuarios);
+          setTodosPedidos(peds.pedidos);
+        } catch {}
+      } else {
+        // Chofer también necesita los pedidos para el form de entrega
+        try {
+          const peds = await apiGet<{ pedidos: { id: string; clienteNombre: string; clienteId: string | null; litrosSolicitados: number; metodoPagoPreferido: string; fechaSolicitada: string | null; estado: string }[] }>("/api/pedidos");
+          setTodosPedidos(peds.pedidos);
+        } catch {}
       }
     })();
   }, [user, refreshKey]);
@@ -446,7 +469,7 @@ export default function Home() {
             <PedidosTab
               refreshKey={refreshKey}
               onRefresh={refresh}
-              canCreate={isDueno || !!config?.choferesPuedenCrearPedidos}
+              canCreate={isDueno || !!config?.choferesPuedenCrearPedidos || user.duenoId === user.userId}
               isDueno={isDueno}
               currentUserId={user.userId}
               clientes={clientes}

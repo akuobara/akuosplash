@@ -176,8 +176,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // Verificar permiso para choferes
-  if (session.role === "chofer") {
+  // Verificar permiso para choferes.
+  // Excepción: si el chofer es el mismo dueño del negocio (admin haciendo de chofer),
+  // siempre puede crear pedidos sin necesidad de activar la config.
+  if (session.role === "chofer" && session.duenoId !== session.userId) {
     const config = await db.configuracion.findUnique({ where: { duenoId } });
     if (!config?.choferesPuedenCrearPedidos) {
       return NextResponse.json(
