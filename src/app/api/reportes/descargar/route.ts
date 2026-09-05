@@ -13,15 +13,16 @@ import { getSession, getDuenoId } from "@/lib/auth";
 import { getRange, formatCurrency, formatNumber, formatDateTime, formatNowCL, labelTipoGasto } from "@/lib/helpers";
 
 export async function GET(req: NextRequest) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  const duenoId = await getDuenoId();
-  if (!duenoId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  try {
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    const duenoId = await getDuenoId();
+    if (!duenoId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  const { searchParams } = new URL(req.url);
-  const formato = searchParams.get("formato") || "pdf";
-  const period = searchParams.get("period") || "hoy";
-  const { start, end } = getRange(period);
+    const { searchParams } = new URL(req.url);
+    const formato = searchParams.get("formato") || "pdf";
+    const period = searchParams.get("period") || "hoy";
+    const { start, end } = getRange(period);
 
   const rangeFilter = { AND: [start ? { fecha: { gte: start } } : {}, end ? { fecha: { lt: end } } : {}] };
   const entregaWhere = { ...rangeFilter, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
@@ -106,6 +107,16 @@ export async function GET(req: NextRequest) {
     return generarExcel(periodLabel, data);
   }
   return generarPDF(periodLabel, data);
+  } catch (err) {
+    // Devolver el mensaje real del error para diagnóstico.
+    // Antes este endpoint devolvía Error 500 genérico que escondía la causa.
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error("Error al generar resumen:", err);
+    return NextResponse.json(
+      { error: `Error al generar resumen: ${errorMsg}` },
+      { status: 500 }
+    );
+  }
 }
 
 function generarPDF(period: string, data: any) {
