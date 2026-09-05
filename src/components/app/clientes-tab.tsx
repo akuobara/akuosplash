@@ -496,7 +496,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtrados.map((c) => (
-            <Card key={c.id} className="flex flex-col cursor-pointer hover:shadow-md transition-shadow" onClick={() => abrirDetalle(c)}>
+            <Card key={c.id} data-cliente-card className="flex flex-col cursor-pointer hover:shadow-md transition-shadow" onClick={() => abrirDetalle(c)}>
               <CardContent className="flex flex-1 flex-col gap-2 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
@@ -644,6 +644,49 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Índice alfabético lateral + botón volver arriba */}
+      {filtrados.length > 10 && (
+        <>
+          {/* Índice A-Z fijo a la derecha */}
+          <div className="fixed right-1 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-0.5 bg-background/80 backdrop-blur rounded-lg p-1 shadow-md max-h-[70vh] overflow-y-auto">
+            {(() => {
+              // Calcular letras disponibles
+              const letras = new Set<string>();
+              for (const c of filtrados) {
+                const primera = c.nombre.trim()[0]?.toUpperCase() || "?";
+                letras.add(primera);
+              }
+              return Array.from(letras).sort().map(letra => (
+                <button
+                  key={letra}
+                  onClick={() => {
+                    // Buscar el primer cliente con esa letra y hacer scroll
+                    const idx = filtrados.findIndex(c => c.nombre.trim()[0]?.toUpperCase() === letra);
+                    if (idx >= 0) {
+                      const cards = document.querySelectorAll('[data-cliente-card]');
+                      cards[idx]?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                  }}
+                  className="text-[10px] font-medium text-muted-foreground hover:text-primary hover:bg-primary/10 rounded px-1 py-0.5 transition"
+                  title={`Ir a clientes con ${letra}`}
+                >
+                  {letra}
+                </button>
+              ));
+            })()}
+          </div>
+
+          {/* Botón volver arriba */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="fixed bottom-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition text-xl font-bold"
+            title="Volver arriba"
+          >
+            ↑
+          </button>
+        </>
       )}
 
       {/* Formulario */}
