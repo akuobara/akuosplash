@@ -40,7 +40,11 @@ export async function GET(req: NextRequest) {
       clienteId ? {
         OR: [
           { clienteId },
-          ...(clienteNombreBusqueda ? [{ clienteId: null, clienteNombre: clienteNombreBusqueda }] : [])
+          // Búsqueda bidireccional: el nombre de la entrega contiene el del cliente o viceversa
+          ...(clienteNombreBusqueda ? [
+            { clienteId: null, clienteNombre: { contains: clienteNombreBusqueda } },
+            { clienteId: null, clienteNombre: clienteNombreBusqueda },
+          ] : [])
         ]
       } : {},
     ],

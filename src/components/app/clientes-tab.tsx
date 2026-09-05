@@ -1404,7 +1404,9 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             const deudaInicial = (clienteDetalle as any).deudaInicial || 0;
             const totalPorCobrar = deudaInicial + totalVentas - totalRecibido - totalPagosSueltos;
             const tieneDeuda = totalPorCobrar > 0.5; // tolerance
-            const tieneSaldoFavor = totalPorCobrar < -0.5;
+            // Solo mostrar saldo a favor si realmente hay ventas (totalVentas > 0)
+            // Si totalVentas = 0 y hay pagos sueltos, esos pagos son un error, no saldo a favor
+            const tieneSaldoFavor = totalPorCobrar < -0.5 && totalVentas > 0;
             const pedidosPendientes = detallePedidos.filter((p: any) => p.estado === "pendiente" || p.estado === "programado").length;
 
             // Última entrega (con pago)
@@ -1495,18 +1497,18 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   </div>
                 )}
 
-                {/* Tabs internos — al inicio para fácil acceso */}
-                <div className="sticky top-0 z-10 flex items-center gap-1 overflow-x-auto rounded-lg bg-muted/60 p-1 shadow-sm">
-                  <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-8 shrink-0 font-medium">
+                {/* Tabs internos */}
+                <div className="flex items-center gap-1 overflow-x-auto rounded-lg bg-primary/10 p-1">
+                  <Button size="sm" variant={detalleTab === "info" ? "default" : "ghost"} onClick={() => setDetalleTab("info")} className="h-9 shrink-0 font-semibold">
                     Info
                   </Button>
-                  <Button size="sm" variant={detalleTab === "entregas" ? "default" : "ghost"} onClick={() => setDetalleTab("entregas")} className="h-8 shrink-0 font-medium">
+                  <Button size="sm" variant={detalleTab === "entregas" ? "default" : "ghost"} onClick={() => setDetalleTab("entregas")} className="h-9 shrink-0 font-semibold">
                     Entregas ({totalEntregas})
                   </Button>
-                  <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-8 shrink-0 font-medium">
+                  <Button size="sm" variant={detalleTab === "pedidos" ? "default" : "ghost"} onClick={() => setDetalleTab("pedidos")} className="h-9 shrink-0 font-semibold">
                     Pedidos ({detallePedidos.length})
                   </Button>
-                  <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-8 shrink-0 font-medium">
+                  <Button size="sm" variant={detalleTab === "pagos" ? "default" : "ghost"} onClick={() => setDetalleTab("pagos")} className="h-9 shrink-0 font-semibold">
                     Pagos ({detallePagos.length})
                   </Button>
                 </div>
