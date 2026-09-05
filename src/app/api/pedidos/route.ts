@@ -176,18 +176,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // Verificar permiso para choferes.
-  // Excepción: si el chofer es el mismo dueño del negocio (admin haciendo de chofer),
-  // siempre puede crear pedidos sin necesidad de activar la config.
-  if (session.role === "chofer" && session.duenoId !== session.userId) {
-    const config = await db.configuracion.findUnique({ where: { duenoId } });
-    if (!config?.choferesPuedenCrearPedidos) {
-      return NextResponse.json(
-        { error: "No tienes permiso para crear pedidos. Pídele al administrador que habilite esta opción." },
-        { status: 403 }
-      );
-    }
-  }
+  // Los choferes siempre pueden crear pedidos (es su trabajo en el terreno).
+  // Antes había un toggle choferesPuedenCrearPedidos que generaba confusión —
+  // se eliminó porque los choferes necesitan agendar pedidos cuando los clientes
+  // les piden agua por teléfono o en persona.
 
   try {
     const body = await req.json();

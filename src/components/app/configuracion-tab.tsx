@@ -215,7 +215,7 @@ export function ConfiguracionTab({
         porcentajeImpuesto: Number(porcentajeImpuesto),
         aplicaImpuestoSobre,
         choferesPuedenEditarClientes,
-        choferesPuedenCrearPedidos,
+        choferesPuedenCrearPedidos: true, // siempre true — los choferes siempre pueden crear pedidos
         umbralCompletacionVuelta: (Number(umbralCompletacion) || 97.5) / 100,
         periodoLiquidacion,
         diaCierreMes: Number(diaCierreMes) || 0,
@@ -746,20 +746,20 @@ export function ConfiguracionTab({
                 Choferes pueden crear pedidos
               </Label>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Si está activo, los choferes podrán registrar pedidos cuando un cliente les pida agua
-                por teléfono o en persona. Útil para planificar la ruta del día.
+                Los choferes siempre pueden crear pedidos desde la app (es su trabajo en el terreno).
+                Este permiso ya no se puede desactivar.
               </p>
             </div>
             <Switch
               id="permChoferesPedidos"
-              checked={choferesPuedenCrearPedidos}
-              onCheckedChange={setChoferesPuedenCrearPedidos}
+              checked={true}
+              disabled
             />
           </div>
 
           <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
             <Info className="mb-1 inline h-3 w-3" />{" "}
-            <strong>Consejo:</strong> Activar "crear pedidos" es útil si tus choferes reciben llamadas
+            <strong>Consejo:</strong> Los choferes pueden registrar pedidos cuando reciben llamadas
             de clientes directamente. Así registran el pedido en el momento y después lo convierten en
             entrega cuando lo llevan.
           </div>

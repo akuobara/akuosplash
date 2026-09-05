@@ -469,7 +469,7 @@ export default function Home() {
             <PedidosTab
               refreshKey={refreshKey}
               onRefresh={refresh}
-              canCreate={isDueno || !!config?.choferesPuedenCrearPedidos || user.duenoId === user.userId}
+              canCreate={true}
               isDueno={isDueno}
               currentUserId={user.userId}
               clientes={clientes}
