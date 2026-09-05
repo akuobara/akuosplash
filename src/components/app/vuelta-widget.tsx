@@ -59,6 +59,19 @@ export function VueltaWidget({
 
   const camionesActivos = (camiones ?? []).filter((c) => c.activo);
 
+  // Si hay vuelta activa con camión, tratar ese camión como "asignado"
+  // incluso si la lista CamionChofer está vacía (auto-recuperación en backend).
+  const camionVueltaActiva = vueltaActual?.camion
+    ? [{
+        id: vueltaActual.camion.id,
+        nombre: vueltaActual.camion.nombre,
+        patente: vueltaActual.camion.patente,
+        capacidad: vueltaActual.camion.capacidad,
+        activo: true,
+      }]
+    : [];
+  const camionesEfectivos = camionesActivos.length > 0 ? camionesActivos : camionVueltaActiva;
+
   // Si no hay vuelta activa
   if (!vueltaActual) {
     const mostrarSelectorCamion = camionesActivos.length > 1;

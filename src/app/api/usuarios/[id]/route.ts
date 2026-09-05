@@ -45,14 +45,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.licenciaVencimiento !== undefined) data.licenciaVencimiento = body.licenciaVencimiento ? new Date(body.licenciaVencimiento) : null;
   if (body.licenciaFotoUrl !== undefined) data.licenciaFotoUrl = body.licenciaFotoUrl || null;
 
-  // Si se está desactivando un chofer (activo: false), limpiar referencias + cerrar vueltas activas
+  // Si se está desactivando un chofer (activo: false), cerrar vueltas activas
+  // y limpiar referencias operacionales. NO eliminamos CamionChofer para
+  // permitir reactivación rápida del chofer sin tener que reasignarle camiones.
   if (data.activo === false && target.role === "chofer") {
     await db.$transaction(async (tx) => {
       await tx.vuelta.updateMany({
         where: { choferId: id, activa: true },
         data: { activa: false, cerradaEn: new Date() },
       });
-      await tx.camionChofer.deleteMany({ where: { choferId: id } });
+      // NOTA: NO borramos CamionChofer — se conserva para que al reactivar
+      // el chofer recupere automáticamente sus camiones asignados.
       await tx.pedido.updateMany({ where: { choferAsignadoId: id }, data: { choferAsignadoId: null } });
       await tx.pedido.updateMany({ where: { prioridadChoferId: id }, data: { prioridadChoferId: null, prioridadTipo: "ninguna" } });
       await tx.pedido.updateMany({ where: { tomadoPorChoferId: id }, data: { tomadoPorChoferId: null } });
@@ -108,7 +111,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: "No autorizado sobre este usuario" }, { status: 403 });
   }
 
-  // Soft-delete: marcar como inactivo + limpiar asignaciones + cerrar vueltas activas + limpiar referencias
+  // Soft-delete: marcar como inactivo + cerrar vueltas activas + limpiar referencias.
+  // NO eliminamos CamionChofer para permitir reactivación rápida conservando camiones.
   await db.$transaction(async (tx) => {
     // Cerrar cualquier vuelta activa del chofer
     await tx.vuelta.updateMany({
@@ -116,8 +120,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
       data: { activa: false, cerradaEn: new Date() },
     });
 
-    // Eliminar asignaciones de camiones
-    await tx.camionChofer.deleteMany({ where: { choferId: id } });
+    // NOTA: NO borramos CamionChofer — se conserva para que al reactivar
+    // el chofer recupere automáticamente sus camiones asignados.
 
     // Limpiar referencias en pedidos (asignación, prioridad, tomado)
     await tx.pedido.updateMany({

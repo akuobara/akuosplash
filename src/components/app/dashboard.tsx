@@ -314,7 +314,8 @@ export function Dashboard({
       </div>
 
       {/* Aviso para chofer sin camiones asignados */}
-      {!isDueno && camiones.filter((c) => c.activo).length === 0 && (
+      {/* Solo mostrar si NO hay vuelta activa con camión — si la hay, el chofer puede seguir trabajando */}
+      {!isDueno && camiones.filter((c) => c.activo).length === 0 && !(vueltaActual?.camion) && (
         <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
           <div className="flex-1">

@@ -27,30 +27,85 @@ export async function GET() {
       },
     });
     return NextResponse.json({ camiones });
-  } else {
-    // Chofer
-    const asignaciones = await db.camionChofer.findMany({
-      where: { choferId: session.userId },
-      include: {
-        camion: {
-          include: {
-            _count: { select: { vueltas: true } },
-            choferes: {
-              include: {
-                chofer: {
-                  select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
-                },
+  }
+
+  // === CHOFER ===
+  // 1. Buscar asignaciones explícitas en CamionChofer
+  let asignaciones = await db.camionChofer.findMany({
+    where: { choferId: session.userId },
+    include: {
+      camion: {
+        include: {
+          _count: { select: { vueltas: true } },
+          choferes: {
+            include: {
+              chofer: {
+                select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
               },
             },
           },
         },
       },
+    },
+  });
+
+  // === AUTO-RECUPERACIÓN ===
+  // Si el chofer no tiene asignaciones explícitas PERO tiene una vuelta activa
+  // con un camión, restaurar automáticamente la asignación CamionChofer.
+  // Esto previene el bug donde se borraban las asignaciones al desactivar/reactivar
+  // un chofer, dejándolo sin acceso a su camión.
+  if (asignaciones.length === 0) {
+    const vueltaActiva = await db.vuelta.findFirst({
+      where: { activa: true, choferId: session.userId },
+      include: { camion: true },
+      orderBy: { iniciadaEn: "desc" },
     });
-    const camiones = asignaciones
-      .map((a) => a.camion)
-      .filter((c) => c.activo);
-    return NextResponse.json({ camiones });
+
+    if (vueltaActiva?.camionId && vueltaActiva.camion && vueltaActiva.camion.activo) {
+      // Restaurar la asignación (upsert para evitar error si ya existe)
+      try {
+        await db.camionChofer.upsert({
+          where: {
+            camionId_choferId: {
+              camionId: vueltaActiva.camionId,
+              choferId: session.userId,
+            },
+          },
+          update: {},
+          create: {
+            camionId: vueltaActiva.camionId,
+            choferId: session.userId,
+          },
+        });
+      } catch {
+        // Si falla por cualquier razón (race condition, etc.), no bloquear al chofer
+      }
+
+      // Volver a cargar las asignaciones
+      asignaciones = await db.camionChofer.findMany({
+        where: { choferId: session.userId },
+        include: {
+          camion: {
+            include: {
+              _count: { select: { vueltas: true } },
+              choferes: {
+                include: {
+                  chofer: {
+                    select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    }
   }
+
+  const camiones = asignaciones
+    .map((a) => a.camion)
+    .filter((c) => c.activo);
+  return NextResponse.json({ camiones });
 }
 
 // POST /api/camiones — solo dueño

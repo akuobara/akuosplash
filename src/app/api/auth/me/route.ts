@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
     if (conPerfil) {
       // Cargar camiones asignados (para choferes)
-      const camionesAsignados = user.role === "chofer"
+      let camionesAsignados = user.role === "chofer"
         ? await db.camionChofer.findMany({
             where: { choferId: session.userId },
             include: {
@@ -33,6 +33,44 @@ export async function GET(req: NextRequest) {
             },
           })
         : [];
+
+      // === AUTO-RECUPERACIÓN ===
+      // Si no hay asignaciones pero existe una vuelta activa con camión,
+      // restaurar la asignación automáticamente.
+      if (user.role === "chofer" && camionesAsignados.length === 0) {
+        const vueltaActiva = await db.vuelta.findFirst({
+          where: { activa: true, choferId: session.userId },
+          include: { camion: { select: { id: true, activo: true } } },
+          orderBy: { iniciadaEn: "desc" },
+        });
+        if (vueltaActiva?.camionId && vueltaActiva.camion?.activo) {
+          try {
+            await db.camionChofer.upsert({
+              where: {
+                camionId_choferId: {
+                  camionId: vueltaActiva.camionId,
+                  choferId: session.userId,
+                },
+              },
+              update: {},
+              create: {
+                camionId: vueltaActiva.camionId,
+                choferId: session.userId,
+              },
+            });
+          } catch {
+            // no bloquear
+          }
+          camionesAsignados = await db.camionChofer.findMany({
+            where: { choferId: session.userId },
+            include: {
+              camion: {
+                select: { id: true, nombre: true, patente: true, capacidad: true, activo: true },
+              },
+            },
+          });
+        }
+      }
       const camiones = camionesAsignados.map((a) => a.camion);
 
       // Stats del chofer
