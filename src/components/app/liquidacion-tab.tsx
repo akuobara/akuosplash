@@ -190,6 +190,42 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
     }
   }
 
+  // Descargar resumen del período actual (semanal o mensual según config)
+  async function descargarResumenPeriodo(formato: "pdf" | "excel") {
+    setDescargandoResumen(true);
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("aljibe-token") : null;
+      if (!token) throw new Error("No hay sesión activa");
+      // Usar el endpoint de reportes con el período actual
+      const periodParam = periodoData?.periodo?.start && periodoData?.periodo?.end
+        ? `custom:${periodoData.periodo.start.split("T")[0]}:${periodoData.periodo.end.split("T")[0]}`
+        : "hoy";
+      const url = `/api/reportes/descargar?formato=${formato}&period=${encodeURIComponent(periodParam)}&_t=${Date.now()}`;
+      const res = await fetch(url, {
+        credentials: "include",
+        cache: "no-store",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Error ${res.status}: ${txt}`);
+      }
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `liquidacion-${periodoData?.periodo?.label || "periodo"}.${formato === "pdf" ? "pdf" : "xlsx"}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "No se pudo descargar");
+    } finally {
+      setDescargandoResumen(false);
+    }
+  }
+
   const cargar = useCallback(async () => {
     setLoading(true);
     try {
@@ -259,6 +295,28 @@ export function LiquidacionTab({ refreshKey, onRefresh, config }: LiquidacionTab
             <div className="mt-2 text-center">
               <Button size="sm" variant="ghost" onClick={() => setPeriodoOffset(0)}>
                 Volver al período actual
+              </Button>
+            </div>
+          )}
+
+          {/* Botones de descarga */}
+          {periodoData && (
+            <div className="mt-3 flex flex-wrap gap-2 justify-center">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={descargandoResumen}
+                onClick={() => descargarResumenPeriodo("pdf")}
+              >
+                <FileText className="mr-1 h-3.5 w-3.5" /> Resumen PDF
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={descargandoResumen}
+                onClick={() => descargarResumenPeriodo("excel")}
+              >
+                <FileText className="mr-1 h-3.5 w-3.5" /> Resumen Excel
               </Button>
             </div>
           )}
