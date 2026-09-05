@@ -224,3 +224,31 @@ Stage Summary:
    que el backend resuelva la asignación.
 - ✅ Auto-recuperación del backend (commit anterior) sigue activa.
 - ✅ Endpoint de debug eliminado.
+
+---
+Task ID: fix-pedidos-chofer-sin-toggle
+Agent: main
+Task: Permitir que choferes creen pedidos sin necesidad de toggle admin.
+
+Work Log:
+- Usuario aclaró: admin (Transporte vm spa) y chofer (Jeremy) son cuentas SEPARADAS.
+  El admin no es chofer. Jeremy es el único chofer. El admin NO cambió ajustes.
+- Fix anterior (canCreate = user.duenoId === user.userId) era incorrecto porque
+  Jeremy tiene duenoId diferente a su userId.
+- Fix definitivo: eliminar el toggle choferesPuedenCrearPedidos completamente.
+  Los choferes SIEMPRE pueden crear pedidos (es su trabajo en el terreno).
+- /api/pedidos POST: eliminada verificación del toggle.
+- page.tsx: canCreate=true siempre (cualquier usuario autenticado).
+- configuracion-tab.tsx: toggle mostrado deshabilitado en 'true' con texto explicativo.
+  Guardado siempre envía choferesPuedenCrearPedidos=true (retrocompat).
+- Eliminados endpoint temporal y página temporal.
+- Commit: 23064a6
+- Deploy: dpl_5NbvA5iP5siLeoVQconvua3rGqYi — READY
+- Verificación: /, /api/pedidos (401 correcto), /api/clientes (401 correcto)
+
+Stage Summary:
+- ✅ Chofer Jeremy ahora puede agendar pedidos desde pestaña Pedidos
+- ✅ Botón "Nuevo pedido" visible para todos los usuarios autenticados
+- ✅ Al agendar desde ficha cliente, el formulario se abre correctamente
+- ✅ Carga resiliente con Promise.allSettled + auto-reintento (commit anterior)
+- ⏳ Pendiente: que el usuario recargue la página en su celular para ver los cambios.
