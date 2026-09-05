@@ -252,3 +252,20 @@ Stage Summary:
 - ✅ Al agendar desde ficha cliente, el formulario se abre correctamente
 - ✅ Carga resiliente con Promise.allSettled + auto-reintento (commit anterior)
 - ⏳ Pendiente: que el usuario recargue la página en su celular para ver los cambios.
+
+---
+Task ID: diag-error-real-convertir
+Agent: main
+Task: Mostrar mensaje de error real al fallar conversión de pedido en entrega.
+
+Work Log:
+- Usuario reportó: "No se puede completar la entrega" — error genérico.
+- Screenshot muestra: "No se pudo convertir el pedido en entrega" (toast rojo).
+- Backend /api/pedidos/[id]/convertir línea 253 devolvía mensaje genérico que
+  escondía la causa real (console.error solo en logs, no visible al usuario).
+- Fix: devolver el mensaje específico del error.
+- Deploy: dpl_2AooTzBaRM6b5goUwf2VbLso4UW7 — READY
+- Commit: adabf32
+
+Stage Summary:
+- ⏳ Esperando que el usuario recargue y reintente para ver el mensaje real.
