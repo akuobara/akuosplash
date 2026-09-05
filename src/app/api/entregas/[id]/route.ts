@@ -81,6 +81,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
   }
 
+  // Si se cambia metodoPago pero no se envían montoEfectivo/montoTransferencia,
+  // recalcular automáticamente según el nuevo método
+  let montoEfectivoFinal = montoEfectivo;
+  let montoTransferenciaFinal = montoTransferencia;
+  let montoRecibidoFinal = montoRecibido;
+  if (body.metodoPago !== undefined && montoEfectivo === undefined && montoTransferencia === undefined) {
+    const actual = await db.entrega.findUnique({ where: { id } });
+    const totalActual = total ?? actual?.total ?? 0;
+    const recibidoActual = actual?.montoRecibido ?? 0;
+    if (body.metodoPago === "efectivo") {
+      montoEfectivoFinal = recibidoActual;
+      montoTransferenciaFinal = 0;
+    } else if (body.metodoPago === "transferencia") {
+      montoEfectivoFinal = 0;
+      montoTransferenciaFinal = recibidoActual;
+    } else if (body.metodoPago === "mixto") {
+      // dejar como está
+    } else if (body.metodoPago === "credito") {
+      montoEfectivoFinal = 0;
+      montoTransferenciaFinal = 0;
+    }
+    if (montoEfectivoFinal !== undefined || montoTransferenciaFinal !== undefined) {
+      montoRecibidoFinal = (montoEfectivoFinal ?? 0) + (montoTransferenciaFinal ?? 0);
+    }
+  }
+
   const actualizada = await db.entrega.update({
     where: { id },
     data: {
@@ -97,9 +123,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.metodoPago !== undefined && { metodoPago: body.metodoPago }),
       ...(precioPorLitro !== undefined && { precioPorLitro }),
       ...(total !== undefined && { total }),
-      ...(montoEfectivo !== undefined && { montoEfectivo }),
-      ...(montoTransferencia !== undefined && { montoTransferencia }),
-      ...(montoRecibido !== undefined && { montoRecibido }),
+      ...(montoEfectivoFinal !== undefined && { montoEfectivo: montoEfectivoFinal }),
+      ...(montoTransferenciaFinal !== undefined && { montoTransferencia: montoTransferenciaFinal }),
+      ...(montoRecibidoFinal !== undefined && { montoRecibido: montoRecibidoFinal }),
       ...(estadoPago !== undefined && { estadoPago }),
       ...(body.fotoMedidorUrl !== undefined && { fotoMedidorUrl: body.fotoMedidorUrl || null }),
       ...(body.detalleEstanquesJson !== undefined && { detalleEstanquesJson: body.detalleEstanquesJson || null }),
