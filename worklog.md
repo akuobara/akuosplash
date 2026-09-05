@@ -181,3 +181,46 @@ Stage Summary:
 - ✅ Warning del dashboard ya no aparece si hay vuelta activa.
 - ⏳ Pendiente: que el usuario recargue la página en su celular para que
   dispare la auto-recuperación. Luego eliminar endpoint temporal de debug.
+
+---
+Task ID: fix-camion-resiliente-frontend
+Agent: main
+Task: Encontrar causa raíz real del "no camión asignado" y hacer frontend resiliente.
+
+Work Log:
+- Creado endpoint temporal /api/debug-camion-asignado con token secreto para
+  inspeccionar el estado real de la DB de producción sin necesidad de login.
+- Descubrimiento CLAVE: la fila CamionChofer Jeremy↔Ford NO fue borrada.
+  Tiene asignadoEn: 2026-08-31T16:13:24 (hace 5 días).
+  El chofer Jeremy está activo. El camión Ford está activo.
+  Diagnóstico actual: "OK — chofer ve camiones asignados".
+- Vuelta #11 fue iniciada hoy a las 11:16 AM (requería CamionChofer — confirmado
+  que la asignación existía a esa hora).
+- Screenshot del bug tomado a las 18:41 (7 horas después).
+- CONCLUSIÓN: entre las 11:16 y las 18:41, /api/camiones devolvió {camiones: []}
+  por un transient error (cold start de Vercel, replica lag de Turso, o glitch).
+  El frontend, al recibir [], mostró el warning y bloqueó todas las acciones
+  que requieren camión (registrar entrega, agendar pedido, iniciar vuelta).
+- La Vuelta #11 seguía visible porque /api/vueltas/activa usa un query diferente
+  (filtra por vuelta.activa + choferId, no por CamionChofer).
+
+Fixes aplicados (commit 6b959d9):
+1. entrega-form.tsx: si camiones está vacío Y no hay vueltaActual, mostrar
+   mensaje genérico en vez del específico 'no tienes camiones asignados'.
+2. pedidos-tab.tsx: si camiones está vacío Y no es dueno, NO bloquear —
+   dejar que el backend resuelva al iniciar vuelta (POST /api/vueltas busca
+   la asignación del chofer automáticamente).
+3. iniciarVueltaYConvertir: si no hay camionId en la lista, llamar
+   POST /api/vueltas sin camionId — el backend resuelve.
+4. Eliminado endpoint temporal /api/debug-camion-asignado.
+
+Deploy: dpl_6vYtcYYG9L1ErNyLf8D36AYKe81r — READY
+Verificación: /, /api/camiones (401 correcto), /api/debug-camion-asignado (404 correcto)
+
+Stage Summary:
+- ✅ Causa raíz identificada: transient error de /api/camiones (no bug permanente)
+- ✅ Frontend ahora resiliente: si /api/camiones falla transitoriamente,
+   el chofer puede seguir trabajando usando la vuelta activa o dejando
+   que el backend resuelva la asignación.
+- ✅ Auto-recuperación del backend (commit anterior) sigue activa.
+- ✅ Endpoint de debug eliminado.
