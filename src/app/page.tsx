@@ -35,6 +35,7 @@ import { LiquidacionTab } from "@/components/app/liquidacion-tab";
 import { ClientesTab } from "@/components/app/clientes-tab";
 import { ConfiguracionTab } from "@/components/app/configuracion-tab";
 import { EquipoTab } from "@/components/app/equipo-tab";
+import { MiPerfilTab } from "@/components/app/mi-perfil-tab";
 import { PedidosTab } from "@/components/app/pedidos-tab";
 import { PedidosRecurrentesTab } from "@/components/app/pedidos-recurrentes-tab";
 import { CuentaDialog } from "@/components/app/cuenta-dialog";
@@ -113,7 +114,7 @@ interface VueltaActual {
   } | null;
 }
 
-type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo";
+type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo" | "perfil";
 
 export default function Home() {
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -324,6 +325,7 @@ export default function Home() {
             {(!interfazSimple || isDueno) && <option value="historial">📜 Historial</option>}
             {isDueno && <option value="equipo">👥 Equipo</option>}
             {isDueno && <option value="config">⚙️ Ajustes</option>}
+            {!isDueno && <option value="perfil">👤 Mi Perfil</option>}
           </select>
 
           {/* Fila de tabs en desktop */}
@@ -384,6 +386,11 @@ export default function Home() {
               <TabsTrigger value="config" className="flex-initial shrink-0">
                 <Settings className="mr-1 h-4 w-4" />
                 <span className="inline">Ajustes</span>
+              </TabsTrigger>
+            )}
+            {!isDueno && (
+              <TabsTrigger value="perfil" className="flex-initial shrink-0">
+                <span className="inline">👤 Mi Perfil</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -530,6 +537,12 @@ export default function Home() {
                 onRefresh={refresh}
                 onCamionesChange={setCamiones}
               />
+            </TabsContent>
+          )}
+
+          {!isDueno && (
+            <TabsContent value="perfil" className="mt-0">
+              <MiPerfilTab onLogout={handleLogout} />
             </TabsContent>
           )}
         </Tabs>
