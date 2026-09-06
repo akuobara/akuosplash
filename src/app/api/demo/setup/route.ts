@@ -24,10 +24,15 @@ const DEMO_NOMBRE_CHOFER_1 = "Pedro González";
 const DEMO_NOMBRE_CHOFER_2 = "María Soto";
 
 export async function POST(req: NextRequest) {
-  // Solo super-admin puede ejecutar esto
+  // Solo super-admin o el admin principal pueden ejecutar esto
   const session = await getSession();
-  if (!session || session.role !== "super_admin") {
-    return NextResponse.json({ error: "Solo super-admin puede generar la cuenta demo" }, { status: 403 });
+  if (!session) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+  // Permitir: super_admin, o el admin principal (Transporte vm spa)
+  const ADMIN_PRINCIPAL_ID = "cmthcb85x0001ld046apm4yuu";
+  if (session.role !== "super_admin" && session.userId !== ADMIN_PRINCIPAL_ID) {
+    return NextResponse.json({ error: "Solo el super-admin o el admin principal pueden generar la cuenta demo" }, { status: 403 });
   }
 
   try {
