@@ -1,9 +1,10 @@
 // Endpoint TEMPORAL para agregar la columna isDemo a la tabla Usuario en producción.
+// Acepta GET y POST para poder ejecutarse desde el navegador (abrir la URL).
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
-export async function POST(_req: NextRequest) {
+async function ejecutarMigracion() {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
@@ -19,4 +20,12 @@ export async function POST(_req: NextRequest) {
     }
     return NextResponse.json({ error: msg }, { status: 500 });
   }
+}
+
+export async function GET() {
+  return ejecutarMigracion();
+}
+
+export async function POST(_req: NextRequest) {
+  return ejecutarMigracion();
 }
