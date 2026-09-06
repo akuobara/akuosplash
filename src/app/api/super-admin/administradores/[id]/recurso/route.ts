@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, hashPassword } from "@/lib/auth";
+import { registrarAudit } from "@/lib/audit";
 
 async function checkSuperAdmin() {
   const session = await getSession();
@@ -73,6 +74,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       default:
         return NextResponse.json({ error: "Tipo no soportado para creación" }, { status: 400 });
     }
+    // Auditar creación
+    await registrarAudit({
+      accion: "crear",
+      entidad: tipo,
+      entidadId: creado?.id,
+      entidadNombre: creado?.nombre || creado?.clienteNombre || creado?.descripcion || tipo,
+      duenoId: id,
+      descripcion: `Creó ${tipo} "${creado?.nombre || creado?.clienteNombre || creado?.descripcion || ""}" (admin: ${id})`,
+    }, req);
     return NextResponse.json({ recurso: creado }, { status: 201 });
   } catch (e) {
     console.error(e);
@@ -165,6 +175,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       default:
         return NextResponse.json({ error: "Tipo no soportado" }, { status: 400 });
     }
+    // Auditar actualización
+    await registrarAudit({
+      accion: "actualizar",
+      entidad: tipo,
+      entidadId: itemId,
+      entidadNombre: (actualizado as any)?.nombre || (actualizado as any)?.clienteNombre || (actualizado as any)?.descripcion || itemId,
+      duenoId: id,
+      descripcion: `Actualizó ${tipo} (admin: ${id})`,
+    }, req);
     return NextResponse.json({ recurso: actualizado });
   } catch (e) {
     console.error(e);
@@ -184,6 +203,31 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!itemId) return NextResponse.json({ error: "itemId es obligatorio" }, { status: 400 });
 
   try {
+    // Obtener nombre antes de eliminar para auditoría
+    let nombreAntes: string | undefined;
+    if (tipo === "cliente") {
+      const c = await db.cliente.findUnique({ where: { id: itemId }, select: { nombre: true } });
+      nombreAntes = c?.nombre;
+    } else if (tipo === "chofer") {
+      const u = await db.usuario.findUnique({ where: { id: itemId }, select: { nombre: true } });
+      nombreAntes = u?.nombre;
+    } else if (tipo === "camion") {
+      const c = await db.camion.findUnique({ where: { id: itemId }, select: { nombre: true } });
+      nombreAntes = c?.nombre;
+    } else if (tipo === "entrega") {
+      const e = await db.entrega.findUnique({ where: { id: itemId }, select: { clienteNombre: true } });
+      nombreAntes = e?.clienteNombre;
+    } else if (tipo === "vuelta") {
+      const v = await db.vuelta.findUnique({ where: { id: itemId }, select: { numero: true } });
+      nombreAntes = v ? `#${v.numero}` : undefined;
+    } else if (tipo === "gasto") {
+      const g = await db.gasto.findUnique({ where: { id: itemId }, select: { descripcion: true } });
+      nombreAntes = g?.descripcion || tipo;
+    } else if (tipo === "pago") {
+      const p = await db.pago.findUnique({ where: { id: itemId }, select: { descripcion: true } });
+      nombreAntes = p?.descripcion || tipo;
+    }
+
     switch (tipo) {
       case "cliente":
         // Revertir pedidos vinculados
@@ -219,6 +263,17 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       default:
         return NextResponse.json({ error: "Tipo no soportado" }, { status: 400 });
     }
+
+    // Auditar eliminación
+    await registrarAudit({
+      accion: "eliminar",
+      entidad: tipo,
+      entidadId: itemId,
+      entidadNombre: nombreAntes || itemId,
+      duenoId: id,
+      descripcion: `Eliminó ${tipo} "${nombreAntes || itemId}" (admin: ${id})`,
+    }, req);
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);

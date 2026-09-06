@@ -662,3 +662,41 @@ model FacturaAdmin {
   pedidosJson     String?
   nota            String?
 }
+
+// === Sistema de auditoría ===
+// Registra acciones importantes realizadas por super-admin y administradores.
+// Cada acción queda con: quién, qué hizo, sobre qué recurso, cuándo, y detalle.
+model AuditLog {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+
+  // Quién realizó la acción
+  actorId         String?  // null = sistema automático
+  actorNombre     String   // nombre del usuario (snapshot)
+  actorRole       String   // super_admin | dueno | chofer | sistema
+  actorEmail      String?
+
+  // Qué acción realizó
+  accion          String   // crear | actualizar | eliminar | activar | desactivar | cerrar_periodo | login | etc.
+  entidad         String   // usuario | camion | cliente | entrega | vuelta | gasto | pago | configuracion | zona | plan | factura | etc.
+
+  // Sobre qué recurso (opcional)
+  entidadId       String?
+  entidadNombre   String?  // nombre legible del recurso afectado
+
+  // Contexto: a qué admin pertenece el recurso (si aplica)
+  duenoId         String?  // el admin dueño del recurso afectado
+
+  // Detalle de la acción
+  descripcion     String   // texto legible: "Creó chofer 'Jeremy'", "Eliminó entrega #123"
+  detalleJson     String?  // JSON con datos antes/después, metadatos, etc.
+
+  // Metadatos técnicos
+  ip              String?
+  userAgent       String?
+
+  @@index([creadoEn])
+  @@index([actorId])
+  @@index([entidad, accion])
+  @@index([duenoId])
+}

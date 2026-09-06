@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { hashPassword } from "@/lib/auth";
+import { registrarAudit } from "@/lib/audit";
 
 async function checkSuperAdmin() {
   const session = await getSession();
@@ -137,6 +138,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       select: { id: true, nombre: true, email: true, telefono: true, activo: true },
     });
 
+    // Auditar
+    await registrarAudit({
+      accion: body.activo === false ? "desactivar" : body.activo === true ? "activar" : "actualizar",
+      entidad: "administrador",
+      entidadId: id,
+      entidadNombre: actualizado.nombre,
+      descripcion: `Actualizó administrador "${actualizado.nombre}" (${actualizado.email})`,
+      detalleJson: { campos: Object.keys(data) },
+    }, req);
+
     return NextResponse.json({ usuario: actualizado });
   } catch (e) {
     console.error(e);
@@ -145,7 +156,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 // DELETE /api/super-admin/administradores/[id] — eliminar admin Y todos sus datos
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await checkSuperAdmin();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
@@ -157,6 +168,9 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   }
 
   try {
+    // Obtener nombre antes de eliminar para auditoría
+    const adminAntes = await db.usuario.findUnique({ where: { id }, select: { nombre: true, email: true } });
+
     // Eliminar en orden (respetando foreign keys)
     // 1. Pagos
     await db.pago.deleteMany({ where: { duenoId: id } });
@@ -187,6 +201,16 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     await db.usuario.deleteMany({ where: { duenoId: id, role: "chofer" } });
     // 13. El admin mismo
     await db.usuario.delete({ where: { id } });
+
+    // Auditar (después de eliminar para no fallar si la DB tierro algo)
+    await registrarAudit({
+      accion: "eliminar",
+      entidad: "administrador",
+      entidadId: id,
+      entidadNombre: adminAntes?.nombre ?? "—",
+      descripcion: `Eliminó administrador "${adminAntes?.nombre ?? "—"}" (${adminAntes?.email ?? "—"}) y todos sus datos`,
+      detalleJson: { camionesEliminados: camionesIds.length },
+    }, req);
 
     return NextResponse.json({ ok: true });
   } catch (e) {

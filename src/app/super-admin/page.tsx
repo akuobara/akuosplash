@@ -78,7 +78,7 @@ export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas" | "zonas" | "planes" | "facturas">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas" | "zonas" | "planes" | "facturas" | "audit">("dashboard");
 
   const [detalleOpen, setDetalleOpen] = useState(false);
   const [detalleId, setDetalleId] = useState<string | null>(null);
@@ -255,6 +255,7 @@ export default function SuperAdminPage() {
             <option value="zonas">📍 Zonas</option>
             <option value="planes">📦 Planes</option>
             <option value="facturas">🧾 Facturas</option>
+            <option value="audit">📋 Auditoría</option>
           </select>
 
           <div className="hidden sm:flex sm:flex-wrap sm:gap-2">
@@ -287,6 +288,9 @@ export default function SuperAdminPage() {
             </Button>
             <Button size="sm" variant={tab === "facturas" ? "default" : "outline"} onClick={() => setTab("facturas")}>
               <Receipt className="mr-1 h-4 w-4" /> Facturas
+            </Button>
+            <Button size="sm" variant={tab === "audit" ? "default" : "outline"} onClick={() => setTab("audit")}>
+              <Shield className="mr-1 h-4 w-4" /> Auditoría
             </Button>
           </div>
         </div>
@@ -475,6 +479,11 @@ export default function SuperAdminPage() {
         {/* Facturas */}
         {tab === "facturas" && (
           <FacturasAdmin />
+        )}
+
+        {/* Auditoría */}
+        {tab === "audit" && (
+          <AuditView />
         )}
       </main>
 
@@ -2039,6 +2048,217 @@ function FacturasAdmin() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ====== Componente: Auditoría ======
+function AuditView() {
+  const [logs, setLogs] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>(null);
+  const [filtros, setFiltros] = useState({
+    entidad: "",
+    accion: "",
+    q: "",
+    desde: "",
+    hasta: "",
+  });
+  const [offset, setOffset] = useState(0);
+  const limit = 50;
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("limit", String(limit));
+      params.set("offset", String(offset));
+      if (filtros.entidad) params.set("entidad", filtros.entidad);
+      if (filtros.accion) params.set("accion", filtros.accion);
+      if (filtros.q) params.set("q", filtros.q);
+      if (filtros.desde) params.set("desde", filtros.desde);
+      if (filtros.hasta) params.set("hasta", filtros.hasta);
+      const data = await apiGet<{ logs: any[]; total: number; stats: any }>(`/api/super-admin/audit?${params.toString()}`);
+      setLogs(data.logs);
+      setTotal(data.total);
+      setStats(data.stats);
+    } catch (e) {
+      toast.error("No se pudo cargar la auditoría");
+    } finally {
+      setLoading(false);
+    }
+  }, [filtros, offset]);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  function aplicarFiltros() {
+    setOffset(0);
+    cargar();
+  }
+
+  function limpiarFiltros() {
+    setFiltros({ entidad: "", accion: "", q: "", desde: "", hasta: "" });
+    setOffset(0);
+  }
+
+  const ACCIONES = ["crear", "actualizar", "eliminar", "activar", "desactivar", "cerrar_periodo", "login", "logout"];
+  const ENTIDADES = ["administrador", "usuario", "chofer", "camion", "cliente", "entrega", "vuelta", "gasto", "pago", "configuracion", "zona", "plan", "factura"];
+
+  // Color según acción
+  const colorAccion: Record<string, string> = {
+    crear: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+    actualizar: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+    eliminar: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+    activar: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300",
+    desactivar: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+    cerrar_periodo: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+    login: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300",
+    logout: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300",
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Filtros */}
+      <Card>
+        <CardContent className="p-3 space-y-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div>
+              <Label className="text-[10px] uppercase text-muted-foreground">Entidad</Label>
+              <select
+                value={filtros.entidad}
+                onChange={(e) => setFiltros({ ...filtros, entidad: e.target.value })}
+                className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+              >
+                <option value="">Todas</option>
+                {ENTIDADES.map(e => <option key={e} value={e}>{e}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label className="text-[10px] uppercase text-muted-foreground">Acción</Label>
+              <select
+                value={filtros.accion}
+                onChange={(e) => setFiltros({ ...filtros, accion: e.target.value })}
+                className="h-8 w-full rounded-md border border-input bg-background px-2 text-xs"
+              >
+                <option value="">Todas</option>
+                {ACCIONES.map(a => <option key={a} value={a}>{a}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label className="text-[10px] uppercase text-muted-foreground">Desde</Label>
+              <Input type="date" value={filtros.desde} onChange={(e) => setFiltros({ ...filtros, desde: e.target.value })} className="h-8 text-xs" />
+            </div>
+            <div>
+              <Label className="text-[10px] uppercase text-muted-foreground">Hasta</Label>
+              <Input type="date" value={filtros.hasta} onChange={(e) => setFiltros({ ...filtros, hasta: e.target.value })} className="h-8 text-xs" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Buscar en descripción..."
+              value={filtros.q}
+              onChange={(e) => setFiltros({ ...filtros, q: e.target.value })}
+              className="h-8 text-xs"
+              onKeyDown={(e) => e.key === "Enter" && aplicarFiltros()}
+            />
+            <Button size="sm" onClick={aplicarFiltros}>
+              <Search className="mr-1 h-4 w-4" /> Filtrar
+            </Button>
+            <Button size="sm" variant="outline" onClick={limpiarFiltros}>
+              Limpiar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats rápidas */}
+      {stats && (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <Card>
+            <CardContent className="p-2.5">
+              <p className="text-[10px] uppercase text-muted-foreground">Total registros</p>
+              <p className="text-lg font-bold">{total}</p>
+            </CardContent>
+          </Card>
+          {stats.acciones?.slice(0, 3).map((a: any) => (
+            <Card key={a.accion}>
+              <CardContent className="p-2.5">
+                <p className="text-[10px] uppercase text-muted-foreground">{a.accion}</p>
+                <p className="text-lg font-bold">{a.count}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Lista de logs */}
+      {loading ? (
+        <div className="space-y-2">
+          {[1,2,3].map(i => <Skeleton key={i} className="h-16 rounded" />)}
+        </div>
+      ) : logs.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
+            <Shield className="h-8 w-8 mx-auto mb-2 opacity-30" />
+            No hay registros de auditoría con estos filtros.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-1.5">
+          {logs.map((log) => (
+            <Card key={log.id}>
+              <CardContent className="p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${colorAccion[log.accion] || "bg-muted text-muted-foreground"}`}>
+                        {log.accion}
+                      </span>
+                      <Badge variant="outline" className="text-[10px]">{log.entidad}</Badge>
+                      {log.entidadNombre && (
+                        <span className="text-xs font-medium truncate">{log.entidadNombre}</span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-sm">{log.descripcion}</p>
+                    <div className="mt-1 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+                      <span>👤 {log.actorNombre} ({log.actorRole})</span>
+                      {log.actorEmail && <span>✉️ {log.actorEmail}</span>}
+                      <span>🕐 {formatDateTime(log.creadoEn)}</span>
+                      {log.ip && <span>🌐 {log.ip}</span>}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Paginación */}
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-xs text-muted-foreground">
+              Mostrando {offset + 1}–{Math.min(offset + limit, total)} de {total}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={offset === 0}
+                onClick={() => setOffset(Math.max(0, offset - limit))}
+              >
+                ← Anterior
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={offset + limit >= total}
+                onClick={() => setOffset(offset + limit)}
+              >
+                Siguiente →
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
