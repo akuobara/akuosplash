@@ -1897,9 +1897,15 @@ export function EntregaForm({
                   onChange={(e) => setMontoTransferencia(e.target.value)}
                   placeholder="0"
                 />
-                {/* Mostrar datos de transferencia al chofer */}
-                <DatosTransferenciaCollapsible />
               </div>
+            )}
+            {/* Mostrar datos de transferencia al chofer cuando el método es transferencia
+                o cuando ya hay un monto de transferencia ingresado (método mixto implícito).
+                Importante: mostrarlo SIEMPRE que el método sea transferencia, no solo
+                cuando ya hay monto ingresado — el chofer necesita ver los datos ANTES
+                de ingresar el monto, para saber a dónde el cliente tiene que transferir. */}
+            {(metodoPago === "transferencia" || transferenciaFinal > 0) && (
+              <DatosTransferenciaCollapsible />
             )}
 
             {/* Estado automático (solo lectura) */}
