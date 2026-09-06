@@ -699,6 +699,9 @@ export function EntregaForm({
       console.error("[guardarEntrega] error al guardar:", e);
       toast.error(e instanceof Error ? e.message : "No se pudo guardar");
     } finally {
+      // IMPORTANTE: resetear savingRef SIEMPRE, sino queda bloqueado y no
+      // se pueden registrar más entregas hasta recargar la página.
+      savingRef.current = false;
       setSaving(false);
     }
   }
