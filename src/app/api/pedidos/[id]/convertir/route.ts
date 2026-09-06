@@ -130,9 +130,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
     }
 
-    // Total con redondeo a $100 superior
-    let totalCalc = litros * precioPorLitro;
-    if (totalCalc > 0) totalCalc = Math.ceil(totalCalc / 100) * 100;
+    // === CÁLCULO DE TOTAL ===
+    // Si es modo estanques (detalleEstanquesJson presente), el total es la suma
+    // de los totales de cada estanque (cada uno tiene su propio precio).
+    // Si no, calcular litros × precioPorLitro.
+    let totalCalc: number;
+    if (body.detalleEstanquesJson) {
+      try {
+        const estanques = JSON.parse(body.detalleEstanquesJson);
+        totalCalc = Array.isArray(estanques)
+          ? estanques.reduce((s: number, e: any) => s + (Number(e.total) || 0), 0)
+          : 0;
+      } catch {
+        totalCalc = 0;
+      }
+    } else {
+      totalCalc = litros * precioPorLitro;
+      if (totalCalc > 0) totalCalc = Math.ceil(totalCalc / 100) * 100;
+    }
 
     // Descuento
     const descuentoTipo = body.descuentoTipo || "ninguno";
