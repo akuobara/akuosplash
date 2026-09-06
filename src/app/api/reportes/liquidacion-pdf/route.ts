@@ -236,15 +236,11 @@ function generarPDF(data: any) {
   }
 
   // === 3. EFECTIVO RECIBIDO ===
-  // Los descuentos que el chofer hizo al cliente se SUMAN al efectivo recibido
-  // (porque el chofer se queda con esa diferencia en efectivo).
+  // Una sola línea: efectivo de entregas + descuentos que el chofer hizo al cliente
+  // (esos descuentos se quedan en efectivo del chofer, así que se suman al total).
   const efectivoConDescuentos = r.efectivoTotal + r.descuentosChofer;
   body.push([{ content: "EFECTIVO RECIBIDO", colSpan: 2, styles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
-  body.push(["Efectivo de entregas y pagos", formatCurrency(r.efectivoTotal)]);
-  if (r.descuentosChofer > 0) {
-    body.push(["Descuentos a favor del chofer", formatCurrency(r.descuentosChofer)]);
-  }
-  body.push(["Total efectivo", formatCurrency(efectivoConDescuentos)]);
+  body.push(["Efectivo", formatCurrency(efectivoConDescuentos)]);
 
   // === 4. IMPOSICIÓN (si existe) ===
   if (r.impuesto > 0) {
@@ -276,7 +272,7 @@ function generarPDF(data: any) {
       // Destacar filas de total
       const label = typeof rowData[0] === "string" ? rowData[0] : "";
       const content = rowData[0]?.content;
-      if (label === "Total vueltas" || label === "Total gastos" || label === "Total efectivo") {
+      if (label === "Total vueltas" || label === "Total gastos") {
         hookData.cell.styles.fontStyle = "bold";
       }
       if (content === "TOTAL") {
@@ -335,11 +331,7 @@ function generarExcel(data: any) {
   }
 
   rows.push(["EFECTIVO RECIBIDO", ""]);
-  rows.push(["Efectivo de entregas y pagos", r.efectivoTotal]);
-  if (r.descuentosChofer > 0) {
-    rows.push(["Descuentos a favor del chofer", r.descuentosChofer]);
-  }
-  rows.push(["Total efectivo", efectivoConDescuentos]);
+  rows.push(["Efectivo", efectivoConDescuentos]);
   rows.push([]);
 
   if (r.impuesto > 0) {
