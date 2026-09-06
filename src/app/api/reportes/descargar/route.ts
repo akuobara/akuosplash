@@ -57,13 +57,15 @@ export async function GET(req: NextRequest) {
   const totalCobrado = efectivoTotal + transferenciaTotal;
 
   // === CLIENTES CON CANTIDAD ENTREGADA (agrupado por cliente) ===
+  // La columna "Recibido" solo incluye EFECTIVO (no transferencia).
+  // La transferencia va directo al admin, no la maneja el chofer.
   const clientesMap = new Map<string, { nombre: string; litros: number; ventas: number; recibido: number; saldo: number; entregas: number }>();
   for (const e of entregas) {
     const key = e.clienteId || e.clienteNombre || "Sin cliente";
     const existing = clientesMap.get(key) ?? { nombre: e.clienteNombre, litros: 0, ventas: 0, recibido: 0, saldo: 0, entregas: 0 };
     existing.litros += e.litros;
     existing.ventas += e.total;
-    existing.recibido += e.montoRecibido;
+    existing.recibido += e.montoEfectivo; // solo efectivo, no montoRecibido (que incluye transferencia)
     existing.saldo += Math.max(0, e.total - e.montoRecibido);
     existing.entregas += 1;
     clientesMap.set(key, existing);
@@ -182,7 +184,7 @@ function generarPDF(period: string, data: any) {
     y += 5;
     autoTable(doc, {
       startY: y,
-      head: [["Cliente", "Entregas", "Litros", "Total vendido", "Recibido", "Saldo"]],
+      head: [["Cliente", "Entregas", "Litros", "Total vendido", "Efectivo", "Saldo"]],
       body: data.clientesEntrega.map((c: any) => [
         c.nombre,
         String(c.entregas),
@@ -199,7 +201,7 @@ function generarPDF(period: string, data: any) {
         String(data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0)),
         `${formatNumber(data.totalLitros, 0)} L`,
         formatCurrency(data.totalVentas),
-        formatCurrency(data.totalRecibido),
+        formatCurrency(data.totalEfectivo), // solo efectivo, no totalRecibido
         formatCurrency(data.totalPorCobrar),
       ]],
     });
@@ -304,9 +306,9 @@ function generarExcel(period: string, data: any) {
     ["Pendiente", data.totalPorCobrar],
     [],
     ["3. CLIENTES CON CANTIDAD ENTREGADA"],
-    ["Cliente", "Entregas", "Litros", "Total vendido", "Recibido", "Saldo"],
+    ["Cliente", "Entregas", "Litros", "Total vendido", "Efectivo", "Saldo"],
     ...data.clientesEntrega.map((c: any) => [c.nombre, c.entregas, c.litros, c.ventas, c.recibido, c.saldo]),
-    ["TOTAL", data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0), data.totalLitros, data.totalVentas, data.totalRecibido, data.totalPorCobrar],
+    ["TOTAL", data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0), data.totalLitros, data.totalVentas, data.totalEfectivo, data.totalPorCobrar],
     [],
     ["4. PAGOS RECIBIDOS"],
     ["Fecha", "Cliente", "Método", "Monto", "Nota"],
