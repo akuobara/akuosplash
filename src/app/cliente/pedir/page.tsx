@@ -62,6 +62,21 @@ export default function PedirAguaPage() {
           setCliente(data.cliente);
           setDireccion(data.cliente.direccion || "");
           setIndicacionesAcceso(data.cliente.indicacionesAcceso || "");
+          // Si vino de "repetir pedido", precargar los datos del último pedido
+          if (typeof window !== "undefined") {
+            const repetirData = sessionStorage.getItem("aljibe-cliente-repetir");
+            if (repetirData) {
+              try {
+                const parsed = JSON.parse(repetirData);
+                if (parsed.litros) setLitros(String(parsed.litros));
+                if (parsed.direccion) setDireccion(parsed.direccion);
+                if (parsed.nota) setNota(parsed.nota);
+                toast.info("Pedido anterior cargado — revisá los datos y confirmá");
+              } catch {}
+              // Limpiar para que no se vuelva a cargar al recargar
+              sessionStorage.removeItem("aljibe-cliente-repetir");
+            }
+          }
         }
       })
       .catch(() => toast.error("Error al cargar datos"))
