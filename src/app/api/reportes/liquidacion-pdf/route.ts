@@ -198,64 +198,71 @@ function generarPDF(data: any) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const r = data.resumen;
   const cfg = data.cfg;
+  const impuestoLabel = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
+  const saldoLabel = r.saldoChofer >= 0 ? "Te deben" : "Debés entregar";
 
   // Encabezado
   doc.setFontSize(16);
   doc.text(`Liquidación — ${data.periodoLabel}`, 14, 18);
   doc.setFontSize(9);
-  doc.text(`Chofer: ${cfg.nombreChofer ?? "—"}  ·  ${formatDateTime(new Date())}`, 14, 24);
+  doc.text(`Chofer: ${cfg.nombreChofer ?? "—"}`, 14, 24);
 
-  // Construir TODAS las filas en una sola tabla: vueltas, gastos, efectivo, impuesto, resumen final.
-  // Cada bloque separado por una fila de subtítulo.
-  const body: any[][] = [];
+  // Una sola tabla, solo los conceptos esenciales con sus montos.
+  // Sin subtítulos de bloque, sin desglose de vueltas, sin desglose de gastos por tipo.
+  const body: any[][] = [
+    [`Vueltas pagables (${r.vueltasCompletadas})`, formatCurrency(r.pagoChofer)],
+  ];
 
-  // --- Bloque 1: Vueltas pagables ---
-  if (data.vueltasPagables.length > 0) {
-    body.push([{ content: `VUELTAS PAGABLES (${r.vueltasCompletadas})`, colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
-    body.push(["Pago por vueltas", formatCurrency(r.pagoChofer)]);
+  // Gastos: solo el total reembolsable del chofer
+  if (r.gastosChofer > 0) {
+    body.push(["Gastos reembolsables", formatCurrency(r.gastosChofer)]);
   }
 
-  // --- Bloque 2: Gastos por tipo ---
-  if (data.gastosPorTipo.length > 0) {
-    body.push([{ content: "GASTOS POR TIPO", colSpan: 2, styles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
-    for (const g of data.gastosPorTipo) {
-      body.push([`${g.tipo} (${g.count})`, formatCurrency(g.monto)]);
-    }
-    if (r.gastosChofer > 0) {
-      body.push(["Gastos reembolsables (chofer)", formatCurrency(r.gastosChofer)]);
-    }
+  // Descuentos
+  if (r.descuentosChofer > 0) {
+    body.push(["Descuentos", `- ${formatCurrency(r.descuentosChofer)}`]);
   }
 
-  // --- Bloque 3: Efectivo recibido ---
-  body.push([{ content: "EFECTIVO RECIBIDO", colSpan: 2, styles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
-  body.push(["Efectivo en mano", formatCurrency(r.efectivoTotal)]);
-
-  // --- Bloque 4: Imposiciones (solo si existen) ---
+  // Imposiciones (solo si existen)
   if (r.impuesto > 0) {
-    const nombreImp = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
-    body.push([{ content: "IMPOSICIONES", colSpan: 2, styles: { fillColor: [234, 179, 8], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
-    body.push([`${nombreImp} (${r.porcentajeImpuesto}%)`, formatCurrency(r.impuesto)]);
+    body.push([`${impuestoLabel} (${r.porcentajeImpuesto}%)`, `- ${formatCurrency(r.impuesto)}`]);
   }
 
-  // --- Bloque 5: Resumen final ---
-  body.push([{ content: "RESUMEN", colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
-  body.push(["Líquido a recibir", formatCurrency(r.liquidoChofer)]);
-  body.push([
-    r.saldoChofer >= 0 ? "Te deben" : "Debés entregar",
-    formatCurrency(Math.abs(r.saldoChofer)),
-  ]);
+  // Efectivo
+  body.push(["Efectivo recibido", formatCurrency(r.efectivoTotal)]);
 
-  // Una sola tabla, sin encabezado de columna (los subtítulos hacen de separadores)
+  // Resultados finales (línea separadora visual)
+  body.push(["", ""]);
+  body.push(["Líquido a recibir", formatCurrency(r.liquidoChofer)]);
+  body.push(["Menos efectivo en mano", `- ${formatCurrency(r.efectivoTotal)}`]);
+  body.push([saldoLabel, formatCurrency(Math.abs(r.saldoChofer))]);
+
   autoTable(doc, {
     startY: 30,
     body,
     theme: "plain",
-    bodyStyles: { fontSize: 9, cellPadding: 1.5 },
+    bodyStyles: { fontSize: 11, cellPadding: 2.5 },
     columnStyles: {
       0: { cellWidth: 120 },
       1: { cellWidth: 60, halign: "right", fontStyle: "bold" },
     },
     margin: { left: 14, right: 14 },
+    didParseCell: (hookData: any) => {
+      const rowIndex = hookData.row.index;
+      const rowData = body[rowIndex];
+      if (!rowData) return;
+      // Destacar las filas finales
+      if (rowData[0] === "Líquido a recibir") {
+        hookData.cell.styles.fontStyle = "bold";
+        hookData.cell.styles.fontSize = 12;
+        hookData.cell.styles.textColor = [37, 99, 235];
+      }
+      if (rowData[0] === saldoLabel) {
+        hookData.cell.styles.fontStyle = "bold";
+        hookData.cell.styles.fontSize = 13;
+        hookData.cell.styles.textColor = r.saldoChofer >= 0 ? [22, 163, 74] : [220, 38, 38];
+      }
+    },
   });
 
   const pdfBuffer = doc.output("arraybuffer");
@@ -272,53 +279,28 @@ function generarExcel(data: any) {
   const wb = XLSX.utils.book_new();
   const r = data.resumen;
   const cfg = data.cfg;
+  const impuestoLabel = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
+  const saldoLabel = r.saldoChofer >= 0 ? "Te deben" : "Debés entregar";
 
   // Una sola hoja, dos columnas: Concepto | Monto
   const rows: any[] = [
     [`Liquidación — ${data.periodoLabel}`],
-    [`Chofer: ${cfg.nombreChofer ?? "—"}  ·  ${formatDateTime(new Date())}`],
+    [`Chofer: ${cfg.nombreChofer ?? "—"}`],
     [],
+    [`Vueltas pagables (${r.vueltasCompletadas})`, r.pagoChofer],
   ];
 
-  // Vueltas pagables
-  if (data.vueltasPagables.length > 0) {
-    rows.push([`VUELTAS PAGABLES (${r.vueltasCompletadas})`, ""]);
-    rows.push(["Pago por vueltas", r.pagoChofer]);
-    rows.push([]);
-  }
-
-  // Gastos por tipo
-  if (data.gastosPorTipo.length > 0) {
-    rows.push(["GASTOS POR TIPO", ""]);
-    for (const g of data.gastosPorTipo) {
-      rows.push([`${g.tipo} (${g.count})`, g.monto]);
-    }
-    if (r.gastosChofer > 0) {
-      rows.push(["Gastos reembolsables (chofer)", r.gastosChofer]);
-    }
-    rows.push([]);
-  }
-
-  // Efectivo recibido
-  rows.push(["EFECTIVO RECIBIDO", ""]);
-  rows.push(["Efectivo en mano", r.efectivoTotal]);
+  if (r.gastosChofer > 0) rows.push(["Gastos reembolsables", r.gastosChofer]);
+  if (r.descuentosChofer > 0) rows.push(["Descuentos", -r.descuentosChofer]);
+  if (r.impuesto > 0) rows.push([`${impuestoLabel} (${r.porcentajeImpuesto}%)`, -r.impuesto]);
+  rows.push(["Efectivo recibido", r.efectivoTotal]);
   rows.push([]);
-
-  // Imposiciones (solo si existen)
-  if (r.impuesto > 0) {
-    const nombreImp = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
-    rows.push(["IMPOSICIONES", ""]);
-    rows.push([`${nombreImp} (${r.porcentajeImpuesto}%)`, r.impuesto]);
-    rows.push([]);
-  }
-
-  // Resumen final
-  rows.push(["RESUMEN", ""]);
   rows.push(["Líquido a recibir", r.liquidoChofer]);
-  rows.push([r.saldoChofer >= 0 ? "Te deben" : "Debés entregar", Math.abs(r.saldoChofer)]);
+  rows.push(["Menos efectivo en mano", -r.efectivoTotal]);
+  rows.push([saldoLabel, Math.abs(r.saldoChofer)]);
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"] = [{ wch: 35 }, { wch: 16 }];
+  ws["!cols"] = [{ wch: 32 }, { wch: 16 }];
   XLSX.utils.book_append_sheet(wb, ws, "Liquidación");
 
   const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
