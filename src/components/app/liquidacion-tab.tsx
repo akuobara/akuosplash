@@ -194,17 +194,15 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
     }
   }
 
-  // Descargar resumen del período actual (semanal o mensual según config)
+  // Descargar liquidación del período actual (PDF/Excel específico de liquidación,
+  // NO el resumen de ventas del Dashboard).
   async function descargarResumenPeriodo(formato: "pdf" | "excel") {
     setDescargandoResumen(true);
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("aljibe-token") : null;
       if (!token) throw new Error("No hay sesión activa");
-      // Usar el endpoint de reportes con el período actual
-      const periodParam = periodoData?.periodo?.start && periodoData?.periodo?.end
-        ? `custom:${periodoData.periodo.start.split("T")[0]}:${periodoData.periodo.end.split("T")[0]}`
-        : "hoy";
-      const url = `/api/reportes/descargar?formato=${formato}&period=${encodeURIComponent(periodParam)}&_t=${Date.now()}`;
+      // Usar el endpoint específico de liquidación con el offset del período actual
+      const url = `/api/reportes/liquidacion-pdf?formato=${formato}&offset=${periodoOffset}&_t=${Date.now()}`;
       const res = await fetch(url, {
         credentials: "include",
         cache: "no-store",
@@ -212,9 +210,16 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
       });
       if (!res.ok) {
         const txt = await res.text().catch(() => "");
-        throw new Error(`Error ${res.status}: ${txt}`);
+        // Intentar parsear JSON para mostrar el error específico
+        try {
+          const j = JSON.parse(txt);
+          throw new Error(`Error ${res.status}: ${j.error || j.message || ""}`);
+        } catch {
+          throw new Error(`Error ${res.status}: ${txt.slice(0, 200)}`);
+        }
       }
       const blob = await res.blob();
+      if (blob.size === 0) throw new Error("El servidor devolvió un archivo vacío");
       const blobUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = blobUrl;
@@ -312,7 +317,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 disabled={descargandoResumen}
                 onClick={() => descargarResumenPeriodo("pdf")}
               >
-                <FileText className="mr-1 h-3.5 w-3.5" /> Resumen PDF
+                <FileText className="mr-1 h-3.5 w-3.5" /> Liquidación PDF
               </Button>
               <Button
                 size="sm"
@@ -320,7 +325,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 disabled={descargandoResumen}
                 onClick={() => descargarResumenPeriodo("excel")}
               >
-                <FileText className="mr-1 h-3.5 w-3.5" /> Resumen Excel
+                <FileText className="mr-1 h-3.5 w-3.5" /> Liquidación Excel
               </Button>
               {isDueno && (
                 <Button
