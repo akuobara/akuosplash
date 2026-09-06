@@ -57,15 +57,16 @@ export async function GET(req: NextRequest) {
   const totalCobrado = efectivoTotal + transferenciaTotal;
 
   // === CLIENTES CON CANTIDAD ENTREGADA (agrupado por cliente) ===
-  // La columna "Recibido" solo incluye EFECTIVO (no transferencia).
-  // La transferencia va directo al admin, no la maneja el chofer.
-  const clientesMap = new Map<string, { nombre: string; litros: number; ventas: number; recibido: number; saldo: number; entregas: number }>();
+  // Dos columnas separadas: Efectivo y Transferencia (para que se vea qué pagó cada cliente).
+  // El saldo se calcula con el total recibido (efectivo + transferencia).
+  const clientesMap = new Map<string, { nombre: string; litros: number; ventas: number; efectivo: number; transferencia: number; saldo: number; entregas: number }>();
   for (const e of entregas) {
     const key = e.clienteId || e.clienteNombre || "Sin cliente";
-    const existing = clientesMap.get(key) ?? { nombre: e.clienteNombre, litros: 0, ventas: 0, recibido: 0, saldo: 0, entregas: 0 };
+    const existing = clientesMap.get(key) ?? { nombre: e.clienteNombre, litros: 0, ventas: 0, efectivo: 0, transferencia: 0, saldo: 0, entregas: 0 };
     existing.litros += e.litros;
     existing.ventas += e.total;
-    existing.recibido += e.montoEfectivo; // solo efectivo, no montoRecibido (que incluye transferencia)
+    existing.efectivo += e.montoEfectivo;
+    existing.transferencia += e.montoTransferencia;
     existing.saldo += Math.max(0, e.total - e.montoRecibido);
     existing.entregas += 1;
     clientesMap.set(key, existing);
@@ -184,13 +185,14 @@ function generarPDF(period: string, data: any) {
     y += 5;
     autoTable(doc, {
       startY: y,
-      head: [["Cliente", "Entregas", "Litros", "Total vendido", "Efectivo", "Saldo"]],
+      head: [["Cliente", "Entregas", "Litros", "Total vendido", "Efectivo", "Transfer.", "Saldo"]],
       body: data.clientesEntrega.map((c: any) => [
         c.nombre,
         String(c.entregas),
         `${formatNumber(c.litros, 0)} L`,
         formatCurrency(c.ventas),
-        formatCurrency(c.recibido),
+        formatCurrency(c.efectivo),
+        formatCurrency(c.transferencia),
         formatCurrency(c.saldo),
       ]),
       theme: "striped",
@@ -201,7 +203,8 @@ function generarPDF(period: string, data: any) {
         String(data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0)),
         `${formatNumber(data.totalLitros, 0)} L`,
         formatCurrency(data.totalVentas),
-        formatCurrency(data.totalEfectivo), // solo efectivo, no totalRecibido
+        formatCurrency(data.totalEfectivo),
+        formatCurrency(data.totalTransferencia),
         formatCurrency(data.totalPorCobrar),
       ]],
     });
@@ -306,9 +309,9 @@ function generarExcel(period: string, data: any) {
     ["Pendiente", data.totalPorCobrar],
     [],
     ["3. CLIENTES CON CANTIDAD ENTREGADA"],
-    ["Cliente", "Entregas", "Litros", "Total vendido", "Efectivo", "Saldo"],
-    ...data.clientesEntrega.map((c: any) => [c.nombre, c.entregas, c.litros, c.ventas, c.recibido, c.saldo]),
-    ["TOTAL", data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0), data.totalLitros, data.totalVentas, data.totalEfectivo, data.totalPorCobrar],
+    ["Cliente", "Entregas", "Litros", "Total vendido", "Efectivo", "Transferencia", "Saldo"],
+    ...data.clientesEntrega.map((c: any) => [c.nombre, c.entregas, c.litros, c.ventas, c.efectivo, c.transferencia, c.saldo]),
+    ["TOTAL", data.clientesEntrega.reduce((s: number, c: any) => s + c.entregas, 0), data.totalLitros, data.totalVentas, data.totalEfectivo, data.totalTransferencia, data.totalPorCobrar],
     [],
     ["4. PAGOS RECIBIDOS"],
     ["Fecha", "Cliente", "Método", "Monto", "Nota"],
@@ -334,7 +337,7 @@ function generarExcel(period: string, data: any) {
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
   // Anchos de columna para que se vea todo sin cortar
-  setColWidths(ws, [24, 14, 10, 14, 14, 14]);
+  setColWidths(ws, [24, 10, 10, 14, 12, 14, 12]);
   XLSX.utils.book_append_sheet(wb, ws, "Resumen");
 
   const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
