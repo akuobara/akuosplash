@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // GET /api/camiones/[id]/choferes — lista choferes asignados a este camión
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -56,6 +57,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 // POST /api/camiones/[id]/choferes — asignar chofer al camión
 // body: { choferId }
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -111,6 +115,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
 // DELETE /api/camiones/[id]/choferes?choferId=... — desasignar chofer
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

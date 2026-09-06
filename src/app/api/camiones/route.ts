@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // GET /api/camiones
 export async function GET() {
@@ -110,6 +111,9 @@ export async function GET() {
 
 // POST /api/camiones — solo dueño
 export async function POST(req: NextRequest) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

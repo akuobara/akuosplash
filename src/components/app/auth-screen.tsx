@@ -15,6 +15,7 @@ export interface SessionUser {
   nombre: string;
   role: "dueno" | "chofer" | "super_admin";
   duenoId: string | null;
+  isDemo?: boolean;
 }
 
 interface AuthScreenProps {

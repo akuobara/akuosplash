@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClienteSession } from "@/lib/auth-cliente";
 import { crearPreferenciaCargaSaldo } from "@/lib/mercadopago";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/cliente/saldo/carga-online
 // Crea una preferencia de pago en MercadoPago para cargar saldo
 export async function POST(req: NextRequest) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getClienteSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

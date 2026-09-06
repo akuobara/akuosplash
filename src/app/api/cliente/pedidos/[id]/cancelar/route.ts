@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClienteSession } from "@/lib/auth-cliente";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/cliente/pedidos/[id]/cancelar
 // Reglas:
@@ -8,6 +9,9 @@ import { getClienteSession } from "@/lib/auth-cliente";
 //   - Si ya fue tomado (asignado o en_camino) → 50% penalización, reembolso 50% (si pagó con saldo)
 //   - Si ya fue entregado → no se puede cancelar
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getClienteSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

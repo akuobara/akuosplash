@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     // Verificar que el usuario siga activo en la DB
     const user = await db.usuario.findUnique({
       where: { id: session.userId },
-      select: { activo: true, role: true, nombre: true, email: true, duenoId: true, telefono: true },
+      select: { activo: true, role: true, nombre: true, email: true, duenoId: true, telefono: true, isDemo: true },
     });
 
     if (!user || !user.activo) {
@@ -101,6 +101,7 @@ export async function GET(req: NextRequest) {
           nombre: user.nombre,
           role: user.role,
           duenoId: user.duenoId,
+          isDemo: user.isDemo,
         },
         hasUsers: true,
         usuario: {
@@ -128,6 +129,7 @@ export async function GET(req: NextRequest) {
         nombre: user.nombre,
         role: user.role,
         duenoId: user.duenoId,
+        isDemo: user.isDemo,
       },
       hasUsers: true,
     });

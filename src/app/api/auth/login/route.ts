@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       nombre: user.nombre,
       role: user.role as "dueno" | "chofer" | "super_admin",
       duenoId: user.duenoId,
+      isDemo: (user as any).isDemo ?? false,
     };
 
     const token = await signToken(sessionUser);

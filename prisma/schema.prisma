@@ -27,6 +27,10 @@ model Usuario {
   activo        Boolean  @default(true)
   creadoEn      DateTime @default(now())
 
+  // Flag para cuenta de demostración: si true, todas las operaciones de escritura
+  // quedan bloqueadas. El usuario solo puede ver y navegar.
+  isDemo        Boolean  @default(false)
+
   // === Datos de licencia de chofer ===
   licenciaClase        String?   // Clase de licencia (A1, A2, A3, A4, A5, B, C, D, E, F)
   licenciaNumero       String?   // Número de licencia

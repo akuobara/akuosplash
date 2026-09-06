@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/clientes/[id]/soltar-chofer
 // El chofer preferido se elimina a sí mismo de este cliente.
@@ -9,6 +10,9 @@ import { getSession, getDuenoId } from "@/lib/auth";
 //   - Si se pasa reemplazoChoferId, se asigna ese chofer como nuevo preferido.
 //   - Si no se pasa, se deja sin chofer preferido y los pedidos pendientes se publican al pool.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

@@ -41,8 +41,9 @@ import { PedidosRecurrentesTab } from "@/components/app/pedidos-recurrentes-tab"
 import { CuentaDialog } from "@/components/app/cuenta-dialog";
 import { HistorialVueltasTab } from "@/components/app/historial-vueltas-tab";
 import { AuthScreen, type SessionUser } from "@/components/app/auth-screen";
-import { apiGet, apiDelete, clearToken } from "@/lib/api-client";
+import { apiGet, apiPatch, apiDelete, clearToken } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface Cliente {
   id: string;
@@ -117,6 +118,7 @@ interface VueltaActual {
 type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo" | "perfil";
 
 export default function Home() {
+  const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [hasUsers, setHasUsers] = useState(true);
   const [authLoading, setAuthLoading] = useState(true);
@@ -224,6 +226,27 @@ export default function Home() {
     toast.success("Sesión cerrada");
   }
 
+  // Cambiar el rol de la cuenta demo (admin ↔ chofer).
+  // Solo funciona para cuentas con isDemo=true.
+  async function switchDemoRole(newRole: "dueno" | "chofer") {
+    if (!user?.isDemo) return;
+    if (user.role === newRole) return; // ya está en ese rol
+    try {
+      // Llamar al endpoint que cambia el rol en la DB
+      await apiPatch("/api/auth/demo-role", { role: newRole });
+      // Refrescar la sesión: hacer re-login para que el JWT tenga el nuevo rol
+      const data = await apiGet<{ user: SessionUser | null }>("/api/auth/me");
+      if (data.user) {
+        setUser(data.user);
+        toast.success(`Vista cambiada a ${newRole === "dueno" ? "Administrador" : "Chofer"}`);
+        setTab("dashboard");
+        setRefreshKey((k) => k + 1);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo cambiar el rol");
+    }
+  }
+
   // Escuchar evento de sesión expirada (401 en api-client)
   useEffect(() => {
     const onUnauthorized = () => {
@@ -315,6 +338,29 @@ export default function Home() {
                     <><Smartphone className="mr-2 h-4 w-4" /> Ver interfaz simple</>
                   )}
                 </DropdownMenuItem>
+              )}
+              {/* Switcher de rol para cuenta demo */}
+              {user.isDemo && (
+                <>
+                  <div className="my-1 border-t border-border" />
+                  <div className="px-2 py-1 text-[10px] font-semibold uppercase text-amber-600 dark:text-amber-400">
+                    Cuenta demo — cambiar vista
+                  </div>
+                  <DropdownMenuItem onClick={() => switchDemoRole("dueno")}>
+                    <UserCog className="mr-2 h-4 w-4" />
+                    Ver como Administrador
+                    {isDueno && <span className="ml-auto text-xs">✓</span>}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => switchDemoRole("chofer")}>
+                    <Truck className="mr-2 h-4 w-4" />
+                    Ver como Chofer
+                    {!isDueno && <span className="ml-auto text-xs">✓</span>}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/cliente")}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    Ver como Cliente
+                  </DropdownMenuItem>
+                </>
               )}
               <DropdownMenuItem onClick={() => setCuentaOpen(true)}>
                 <UserCog className="mr-2 h-4 w-4" /> Mi cuenta

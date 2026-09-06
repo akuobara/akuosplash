@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { hashPassword, getSession } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // GET /api/usuarios — lista los choferes del dueño actual
 export async function GET() {
@@ -48,6 +49,9 @@ export async function GET() {
 
 // POST /api/usuarios — el dueño crea un chofer
 export async function POST(req: NextRequest) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

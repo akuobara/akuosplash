@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/pedidos/[id]/tomar
 // Chofer toma un pedido publicado.
@@ -13,6 +14,9 @@ import { getSession, getDuenoId } from "@/lib/auth";
 // Implementación atómica: usa updateMany con condición tomadoPorChoferId=null para evitar
 // race conditions entre dos choferes que intentan tomar el mismo pedido simultáneamente.
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

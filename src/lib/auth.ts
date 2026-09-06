@@ -135,6 +135,45 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   return getSession();
 }
 
+// Verifica si el usuario actual es una cuenta de demostración.
+// Las cuentas demo son read-only: no pueden crear/editar/eliminar nada.
+// Cache de 60s para no saturar la DB en cada request de escritura.
+const demoCache = new Map<string, { isDemo: boolean; ts: number }>();
+const DEMO_CACHE_TTL = 60_000;
+
+export async function isDemoUser(): Promise<boolean> {
+  const session = await getSession();
+  if (!session) return false;
+
+  const now = Date.now();
+  const cached = demoCache.get(session.userId);
+  if (cached && now - cached.ts < DEMO_CACHE_TTL) {
+    return cached.isDemo;
+  }
+
+  try {
+    const user = await db.usuario.findUnique({
+      where: { id: session.userId },
+      select: { isDemo: true },
+    });
+    const isDemo = user?.isDemo ?? false;
+    demoCache.set(session.userId, { isDemo, ts: now });
+    return isDemo;
+  } catch {
+    return false;
+  }
+}
+
+// Helper para usar en endpoints de escritura: si el usuario es demo, devuelve
+// error 403 inmediatamente. Si no, continúa.
+export async function checkNotDemo(): Promise<{ blocked: boolean }> {
+  const isDemo = await isDemoUser();
+  if (isDemo) {
+    return { blocked: true };
+  }
+  return { blocked: false };
+}
+
 // Devuelve el duenoId del usuario actual:
 // - Si es dueño, su propio userId
 // - Si es chofer, su duenoId

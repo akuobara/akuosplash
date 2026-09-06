@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 import { parseDateTimeLocalInput } from "@/lib/helpers";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // PATCH /api/pedidos/[id]
 // Choferes solo pueden editar pedidos asignados a ellos, que crearon, o que tomaron.
 // Solo el dueño puede cambiar asignación, prioridad, o estado.
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -79,6 +83,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 // DELETE /api/pedidos/[id] — el dueño puede borrar cualquiera, el chofer solo los suyos
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

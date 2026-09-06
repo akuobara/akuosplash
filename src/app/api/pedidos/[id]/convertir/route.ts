@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/pedidos/[id]/convertir
 // Convierte un pedido en una entrega:
@@ -14,6 +15,9 @@ import { getSession, getDuenoId } from "@/lib/auth";
 //
 // Implementación atómica: usa transacción + updateMany condicional para evitar race conditions.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });

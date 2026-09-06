@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 async function checkOwnership(id: string) {
   const session = await getSession();
@@ -34,6 +35,9 @@ async function checkOwnership(id: string) {
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const { error: authError } = await checkOwnership(await params.then(p => p.id));
   if (authError) return authError;
 
@@ -72,6 +76,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const { id } = await params;
   const { error: authError, session } = await checkOwnership(id);
   if (authError) return authError;

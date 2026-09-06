@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/pedidos-recurrentes/[id]/generar
 // Genera un pedido a partir de un pedido recurrente.
 // Body: { automatico?: boolean } — si true, es llamado por el sistema (cron futuro)
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   const { id } = await params;
   const body = await req.json().catch(() => ({}));

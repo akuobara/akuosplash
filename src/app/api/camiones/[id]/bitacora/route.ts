@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
 
 // GET /api/camiones/[id]/bitacora — lista las entradas de bitácora de un camión.
 // Accessible por el dueño (propietario) y por choferes asignados al camión.
@@ -46,6 +47,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 // POST /api/camiones/[id]/bitacora — registra una nueva entrada en la bitácora.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -113,6 +117,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
 // PATCH /api/camiones/[id]/bitacora?entradaId=X — marcar como resuelta/no resuelta.
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
