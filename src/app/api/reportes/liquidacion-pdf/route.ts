@@ -99,11 +99,15 @@ export async function GET(req: NextRequest) {
     ]);
 
     // Cálculos
+    // Efectivo total = efectivo de entregas + TODOS los pagos sueltos en efectivo del período.
+    // No filtrar por choferId: si el chofer es el único trabajando, todo el efectivo
+    // lo recibió él. Los pagos sin choferId (registrados por admin o sin asignar)
+    // también cuentan porque el efectivo físico está en manos del chofer.
     const totalEfectivo = entregas.reduce((s, e) => s + e.montoEfectivo, 0);
-    const pagosSueltosEfectivoChofer = pagosSueltos
-      .filter(p => p.metodoPago === "efectivo" && (esChofer ? p.choferId === session.userId : p.choferId))
+    const pagosSueltosEfectivo = pagosSueltos
+      .filter(p => p.metodoPago === "efectivo")
       .reduce((s, p) => s + p.monto, 0);
-    const efectivoTotal = totalEfectivo + pagosSueltosEfectivoChofer;
+    const efectivoTotal = totalEfectivo + pagosSueltosEfectivo;
     const totalGastos = gastos.reduce((s, g) => s + g.monto, 0);
     const gastosChofer = gastos.filter(g => g.pagadoPor === "chofer").reduce((s, g) => s + g.monto, 0);
     const descuentosChofer = entregas.filter(e => e.descuentoPor === "chofer").reduce((s, e) => s + (e.descuento || 0), 0);
