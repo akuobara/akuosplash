@@ -200,133 +200,62 @@ function generarPDF(data: any) {
   const cfg = data.cfg;
 
   // Encabezado
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.text(`Liquidación — ${data.periodoLabel}`, 14, 18);
-  doc.setFontSize(10);
-  doc.text(`Chofer: ${cfg.nombreChofer ?? "—"}`, 14, 25);
-  doc.text(`Generado: ${formatDateTime(new Date())}`, 14, 30);
+  doc.setFontSize(9);
+  doc.text(`Chofer: ${cfg.nombreChofer ?? "—"}  ·  ${formatDateTime(new Date())}`, 14, 24);
 
-  let y = 38;
+  // Construir TODAS las filas en una sola tabla: vueltas, gastos, efectivo, impuesto, resumen final.
+  // Cada bloque separado por una fila de subtítulo.
+  const body: any[][] = [];
 
-  // === 1. VUELTAS PAGABLES ===
-  doc.setFontSize(13);
-  doc.text(`1. Vueltas pagables (${r.vueltasCompletadas})`, 14, y);
-  y += 5;
-  autoTable(doc, {
-    startY: y,
-    head: [["Vuelta", "Camión", "Entregas", "Litros", "Tipo", "Pago"]],
-    body: data.vueltasPagables.map((v: any) => [
-      `#${v.numero}`,
-      v.camion,
-      String(v.cantidadEntregas),
-      `${formatNumber(v.litros, 0)} L`,
-      v.tipo,
-      formatCurrency(v.pago),
-    ]),
-    theme: "striped",
-    headStyles: { fillColor: [37, 99, 235], fontSize: 9 },
-    bodyStyles: { fontSize: 8 },
-    foot: [[
-      "TOTAL",
-      "",
-      "",
-      "",
-      `${r.vueltasUnicoCliente} único + ${r.vueltasMultiple} múltiples`,
-      formatCurrency(r.pagoChofer),
-    ]],
-    footStyles: { fillColor: [37, 99, 235], fontSize: 9 },
-    columnStyles: { 5: { halign: "right" } },
-  });
-  y = (doc as any).lastAutoTable.finalY + 10;
+  // --- Bloque 1: Vueltas pagables ---
+  if (data.vueltasPagables.length > 0) {
+    body.push([{ content: `VUELTAS PAGABLES (${r.vueltasCompletadas})`, colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+    body.push(["Pago por vueltas", formatCurrency(r.pagoChofer)]);
+  }
 
-  // === 2. GASTOS POR TIPO ===
+  // --- Bloque 2: Gastos por tipo ---
   if (data.gastosPorTipo.length > 0) {
-    if (y > 240) { doc.addPage(); y = 20; }
-    doc.setFontSize(13);
-    doc.text("2. Gastos por tipo", 14, y);
-    y += 5;
-    autoTable(doc, {
-      startY: y,
-      head: [["Tipo", "Cant.", "Monto"]],
-      body: data.gastosPorTipo.map((g: any) => [
-        g.tipo,
-        String(g.count),
-        formatCurrency(g.monto),
-      ]),
-      theme: "striped",
-      headStyles: { fillColor: [220, 38, 38], fontSize: 9 },
-      bodyStyles: { fontSize: 9 },
-      foot: [["Total", "", formatCurrency(r.totalGastos)]],
-      footStyles: { fillColor: [220, 38, 38], fontSize: 9 },
-      columnStyles: { 2: { halign: "right" } },
-    });
-    y = (doc as any).lastAutoTable.finalY + 10;
+    body.push([{ content: "GASTOS POR TIPO", colSpan: 2, styles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+    for (const g of data.gastosPorTipo) {
+      body.push([`${g.tipo} (${g.count})`, formatCurrency(g.monto)]);
+    }
+    if (r.gastosChofer > 0) {
+      body.push(["Gastos reembolsables (chofer)", formatCurrency(r.gastosChofer)]);
+    }
   }
 
-  // === 3. EFECTIVO RECIBIDO ===
-  if (y > 250) { doc.addPage(); y = 20; }
-  doc.setFontSize(13);
-  doc.text("3. Efectivo recibido", 14, y);
-  y += 5;
-  autoTable(doc, {
-    startY: y,
-    head: [["Concepto", "Monto"]],
-    body: [
-      ["Efectivo total (entregas + pagos sueltos)", formatCurrency(r.efectivoTotal)],
-    ],
-    theme: "striped",
-    headStyles: { fillColor: [16, 185, 129], fontSize: 9 },
-    bodyStyles: { fontSize: 9 },
-    columnStyles: { 1: { halign: "right" } },
-  });
-  y = (doc as any).lastAutoTable.finalY + 10;
+  // --- Bloque 3: Efectivo recibido ---
+  body.push([{ content: "EFECTIVO RECIBIDO", colSpan: 2, styles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+  body.push(["Efectivo en mano", formatCurrency(r.efectivoTotal)]);
 
-  // === 4. IMPOSICIONES (solo si existen) ===
+  // --- Bloque 4: Imposiciones (solo si existen) ---
   if (r.impuesto > 0) {
-    if (y > 250) { doc.addPage(); y = 20; }
-    doc.setFontSize(13);
-    doc.text("4. Imposiciones", 14, y);
-    y += 5;
-    autoTable(doc, {
-      startY: y,
-      head: [["Concepto", "Detalle", "Monto"]],
-      body: [
-        [r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto",
-         `${r.porcentajeImpuesto}%`,
-         formatCurrency(r.impuesto)],
-      ],
-      theme: "striped",
-      headStyles: { fillColor: [234, 179, 8], fontSize: 9 },
-      bodyStyles: { fontSize: 9 },
-      columnStyles: { 2: { halign: "right" } },
-    });
-    y = (doc as any).lastAutoTable.finalY + 10;
+    const nombreImp = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
+    body.push([{ content: "IMPOSICIONES", colSpan: 2, styles: { fillColor: [234, 179, 8], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+    body.push([`${nombreImp} (${r.porcentajeImpuesto}%)`, formatCurrency(r.impuesto)]);
   }
 
-  // === 5. RESUMEN FINAL ===
-  if (y > 230) { doc.addPage(); y = 20; }
-  doc.setFontSize(13);
-  doc.text("Resumen", 14, y);
-  y += 5;
+  // --- Bloque 5: Resumen final ---
+  body.push([{ content: "RESUMEN", colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+  body.push(["Líquido a recibir", formatCurrency(r.liquidoChofer)]);
+  body.push([
+    r.saldoChofer >= 0 ? "Te deben" : "Debés entregar",
+    formatCurrency(Math.abs(r.saldoChofer)),
+  ]);
+
+  // Una sola tabla, sin encabezado de columna (los subtítulos hacen de separadores)
   autoTable(doc, {
-    startY: y,
-    head: [["Concepto", "Monto"]],
-    body: [
-      ["Pago por vueltas", formatCurrency(r.pagoChofer)],
-      ...(r.gastosChofer > 0 ? [["+ Gastos reembolsables", formatCurrency(r.gastosChofer)]] : []),
-      ...(r.descuentosChofer > 0 ? [["- Descuentos", formatCurrency(r.descuentosChofer)]] : []),
-      ...(r.impuesto > 0 ? [[`- ${r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto"}`, formatCurrency(r.impuesto)]] : []),
-      ["= Líquido a recibir", formatCurrency(r.liquidoChofer)],
-      ["- Efectivo en mano", formatCurrency(r.efectivoTotal)],
-      [
-        r.saldoChofer >= 0 ? "= Te deben" : "= Debés entregar",
-        formatCurrency(Math.abs(r.saldoChofer)),
-      ],
-    ],
-    theme: "striped",
-    headStyles: { fillColor: [37, 99, 235], fontSize: 10 },
-    bodyStyles: { fontSize: 9 },
-    columnStyles: { 1: { halign: "right", cellWidth: 60 } },
+    startY: 30,
+    body,
+    theme: "plain",
+    bodyStyles: { fontSize: 9, cellPadding: 1.5 },
+    columnStyles: {
+      0: { cellWidth: 120 },
+      1: { cellWidth: 60, halign: "right", fontStyle: "bold" },
+    },
+    margin: { left: 14, right: 14 },
   });
 
   const pdfBuffer = doc.output("arraybuffer");
@@ -344,50 +273,52 @@ function generarExcel(data: any) {
   const r = data.resumen;
   const cfg = data.cfg;
 
+  // Una sola hoja, dos columnas: Concepto | Monto
   const rows: any[] = [
     [`Liquidación — ${data.periodoLabel}`],
-    [`Chofer: ${cfg.nombreChofer ?? "—"}`],
-    [`Generado: ${formatDateTime(new Date())}`],
-    [],
-    [`1. VUELTAS PAGABLES (${r.vueltasCompletadas})`],
-    ["Vuelta", "Camión", "Entregas", "Litros", "Tipo", "Pago"],
-    ...data.vueltasPagables.map((v: any) => [`#${v.numero}`, v.camion, v.cantidadEntregas, v.litros, v.tipo, v.pago]),
-    ["TOTAL", "", "", "", `${r.vueltasUnicoCliente} único + ${r.vueltasMultiple} múltiples`, r.pagoChofer],
+    [`Chofer: ${cfg.nombreChofer ?? "—"}  ·  ${formatDateTime(new Date())}`],
     [],
   ];
 
-  if (data.gastosPorTipo.length > 0) {
-    rows.push(["2. GASTOS POR TIPO"]);
-    rows.push(["Tipo", "Cant.", "Monto"]);
-    rows.push(...data.gastosPorTipo.map((g: any) => [g.tipo, g.count, g.monto]));
-    rows.push(["Total", "", r.totalGastos]);
+  // Vueltas pagables
+  if (data.vueltasPagables.length > 0) {
+    rows.push([`VUELTAS PAGABLES (${r.vueltasCompletadas})`, ""]);
+    rows.push(["Pago por vueltas", r.pagoChofer]);
     rows.push([]);
   }
 
-  rows.push(["3. EFECTIVO RECIBIDO"]);
-  rows.push(["Concepto", "Monto"]);
-  rows.push(["Efectivo total (entregas + pagos sueltos)", r.efectivoTotal]);
+  // Gastos por tipo
+  if (data.gastosPorTipo.length > 0) {
+    rows.push(["GASTOS POR TIPO", ""]);
+    for (const g of data.gastosPorTipo) {
+      rows.push([`${g.tipo} (${g.count})`, g.monto]);
+    }
+    if (r.gastosChofer > 0) {
+      rows.push(["Gastos reembolsables (chofer)", r.gastosChofer]);
+    }
+    rows.push([]);
+  }
+
+  // Efectivo recibido
+  rows.push(["EFECTIVO RECIBIDO", ""]);
+  rows.push(["Efectivo en mano", r.efectivoTotal]);
   rows.push([]);
 
+  // Imposiciones (solo si existen)
   if (r.impuesto > 0) {
-    rows.push(["4. IMPOSICIONES"]);
-    rows.push(["Concepto", "Detalle", "Monto"]);
-    rows.push([r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto", `${r.porcentajeImpuesto}%`, r.impuesto]);
+    const nombreImp = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
+    rows.push(["IMPOSICIONES", ""]);
+    rows.push([`${nombreImp} (${r.porcentajeImpuesto}%)`, r.impuesto]);
     rows.push([]);
   }
 
-  rows.push(["RESUMEN"]);
-  rows.push(["Concepto", "Monto"]);
-  rows.push(["Pago por vueltas", r.pagoChofer]);
-  if (r.gastosChofer > 0) rows.push(["+ Gastos reembolsables", r.gastosChofer]);
-  if (r.descuentosChofer > 0) rows.push(["- Descuentos", r.descuentosChofer]);
-  if (r.impuesto > 0) rows.push([`- ${r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto"}`, r.impuesto]);
-  rows.push(["= Líquido a recibir", r.liquidoChofer]);
-  rows.push(["- Efectivo en mano", r.efectivoTotal]);
-  rows.push([r.saldoChofer >= 0 ? "= Te deben" : "= Debés entregar", Math.abs(r.saldoChofer)]);
+  // Resumen final
+  rows.push(["RESUMEN", ""]);
+  rows.push(["Líquido a recibir", r.liquidoChofer]);
+  rows.push([r.saldoChofer >= 0 ? "Te deben" : "Debés entregar", Math.abs(r.saldoChofer)]);
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"] = [24, 16, 12, 14, 22, 14].map(w => ({ wch: w }));
+  ws["!cols"] = [{ wch: 35 }, { wch: 16 }];
   XLSX.utils.book_append_sheet(wb, ws, "Liquidación");
 
   const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
