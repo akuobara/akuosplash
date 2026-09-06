@@ -286,3 +286,32 @@ Stage Summary:
 - ✅ End-to-end OK: chofer puede agendar pedido → convertir en entrega → entrega registrada
 - El fix anterior (devolver error real) reveló que no había error real — el deploy
   del fix probablemente resolvió un problema de build cache o algo similar.
+
+---
+Task ID: fix-liquidacion-timezone-chile
+Agent: main
+Task: Corregir bug de timezone en liquidación que mostraba próxima semana con $0.
+
+Work Log:
+- Usuario reportó: "total ventas en las vueltas no cuadra" + "el periodo cerró ya"
+- Screenshot mostraba: Liquidación tab, "Semana 6/9 - 12/9/2026", todos los valores en $0
+- Causa raíz: getPeriodoRange en /api/liquidacion/periodo usaba new Date() (UTC)
+  - Sábado 5/9 20:02 Chile = Domingo 6/9 00:02 UTC
+  - getDay() devolvía 0 (domingo) en vez de 6 (sábado)
+  - "Semana actual" saltaba a 6/9 - 12/9 (próxima semana, sin datos)
+  - Las entregas del sábado quedaban en la semana anterior
+- Fix: usar new Date().toLocaleString("en-US", { timeZone: "America/Santiago" })
+  igual que getRange() en helpers.ts. Conversión a UTC con +4h offset.
+- Commit: c98ee21
+- Deploy: dpl_Hr54VogzHBu4xUxwUQoz2RnJiPcQ — READY
+
+Sobre "el periodo cerró ya":
+- El botón "Cerrar período" solo lo ve el admin (isDueno) y requiere confirmación
+  manual con diálogo. NO se cierra solo.
+- Lo que el usuario interpretó como "cierre" era en realidad el salto de semana
+  por el bug de timezone.
+
+Stage Summary:
+- ✅ Liquidación ahora usa zona horaria Chile
+- ✅ Semana actual mostrará correctamente 30/8 - 5/9 con todas las entregas
+- ✅ Endpoints temporales de diagnóstico y migración eliminados
