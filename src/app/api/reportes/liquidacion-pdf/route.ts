@@ -199,7 +199,8 @@ function generarPDF(data: any) {
   const r = data.resumen;
   const cfg = data.cfg;
   const impuestoLabel = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
-  const saldoLabel = r.saldoChofer >= 0 ? "Te deben" : "Debés entregar";
+  // El saldo: si es positivo, "Te deben" (a favor del chofer); si negativo, "Debés entregar"
+  const saldoLabel = r.saldoChofer >= 0 ? "A favor del chofer" : "A favor del admin";
 
   // Encabezado
   doc.setFontSize(16);
@@ -207,60 +208,85 @@ function generarPDF(data: any) {
   doc.setFontSize(9);
   doc.text(`Chofer: ${cfg.nombreChofer ?? "—"}`, 14, 24);
 
-  // Una sola tabla, solo los conceptos esenciales con sus montos.
-  // Sin subtítulos de bloque, sin desglose de vueltas, sin desglose de gastos por tipo.
-  const body: any[][] = [
-    [`Vueltas pagables (${r.vueltasCompletadas})`, formatCurrency(r.pagoChofer)],
-  ];
+  // Construir una sola tabla con los 4 bloques que pidió el usuario:
+  // 1. Vueltas por tipo
+  // 2. Gastos por tipo
+  // 3. Efectivo recibido (incluye descuentos que el chofer hizo al cliente, que se suman al efectivo)
+  // 4. Imposición (si existe)
+  // Y al final: Total a favor de quien
+  const body: any[][] = [];
 
-  // Gastos: solo el total reembolsable del chofer
-  if (r.gastosChofer > 0) {
-    body.push(["Gastos reembolsables", formatCurrency(r.gastosChofer)]);
+  // === 1. VUELTAS POR TIPO ===
+  body.push([{ content: "VUELTAS POR TIPO", colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+  if (r.vueltasUnicoCliente > 0) {
+    body.push([`Cliente único (${r.vueltasUnicoCliente} × ${formatCurrency(cfg.montoPorVueltaUnicoCliente)})`, formatCurrency(r.vueltasUnicoCliente * cfg.montoPorVueltaUnicoCliente)]);
+  }
+  if (r.vueltasMultiple > 0) {
+    body.push([`Múltiples clientes (${r.vueltasMultiple} × ${formatCurrency(cfg.montoPorVueltaMultiple)})`, formatCurrency(r.vueltasMultiple * cfg.montoPorVueltaMultiple)]);
+  }
+  body.push(["Total vueltas", formatCurrency(r.pagoChofer)]);
+
+  // === 2. GASTOS POR TIPO ===
+  if (data.gastosPorTipo.length > 0) {
+    body.push([{ content: "GASTOS POR TIPO", colSpan: 2, styles: { fillColor: [220, 38, 38], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+    for (const g of data.gastosPorTipo) {
+      body.push([g.tipo, formatCurrency(g.monto)]);
+    }
+    body.push(["Total gastos", formatCurrency(r.gastosChofer)]);
   }
 
-  // Descuentos
+  // === 3. EFECTIVO RECIBIDO ===
+  // Los descuentos que el chofer hizo al cliente se SUMAN al efectivo recibido
+  // (porque el chofer se queda con esa diferencia en efectivo).
+  const efectivoConDescuentos = r.efectivoTotal + r.descuentosChofer;
+  body.push([{ content: "EFECTIVO RECIBIDO", colSpan: 2, styles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+  body.push(["Efectivo de entregas y pagos", formatCurrency(r.efectivoTotal)]);
   if (r.descuentosChofer > 0) {
-    body.push(["Descuentos", `- ${formatCurrency(r.descuentosChofer)}`]);
+    body.push(["Descuentos a favor del chofer", formatCurrency(r.descuentosChofer)]);
   }
+  body.push(["Total efectivo", formatCurrency(efectivoConDescuentos)]);
 
-  // Imposiciones (solo si existen)
+  // === 4. IMPOSICIÓN (si existe) ===
   if (r.impuesto > 0) {
-    body.push([`${impuestoLabel} (${r.porcentajeImpuesto}%)`, `- ${formatCurrency(r.impuesto)}`]);
+    body.push([{ content: "IMPOSICIÓN", colSpan: 2, styles: { fillColor: [234, 179, 8], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
+    body.push([`${impuestoLabel} (${r.porcentajeImpuesto}%)`, formatCurrency(r.impuesto)]);
   }
 
-  // Efectivo
-  body.push(["Efectivo recibido", formatCurrency(r.efectivoTotal)]);
-
-  // Resultados finales (línea separadora visual)
-  body.push(["", ""]);
-  body.push(["Líquido a recibir", formatCurrency(r.liquidoChofer)]);
-  body.push(["Menos efectivo en mano", `- ${formatCurrency(r.efectivoTotal)}`]);
-  body.push([saldoLabel, formatCurrency(Math.abs(r.saldoChofer))]);
+  // === TOTAL A FAVOR DE QUIEN ===
+  // Saldo = lo que el chofer debe recibir (pago vueltas + gastos reembolsables - impuesto)
+  //         - lo que ya tiene en efectivo (incluyendo descuentos a favor)
+  const saldoFinal = r.liquidoChofer - efectivoConDescuentos;
+  body.push([{ content: "TOTAL", colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 10 } }]);
+  body.push([saldoFinal >= 0 ? "A favor del chofer" : "A favor del admin", formatCurrency(Math.abs(saldoFinal))]);
 
   autoTable(doc, {
     startY: 30,
     body,
     theme: "plain",
-    bodyStyles: { fontSize: 11, cellPadding: 2.5 },
+    bodyStyles: { fontSize: 10, cellPadding: 2 },
     columnStyles: {
       0: { cellWidth: 120 },
-      1: { cellWidth: 60, halign: "right", fontStyle: "bold" },
+      1: { cellWidth: 60, halign: "right" },
     },
     margin: { left: 14, right: 14 },
     didParseCell: (hookData: any) => {
       const rowIndex = hookData.row.index;
       const rowData = body[rowIndex];
       if (!rowData) return;
-      // Destacar las filas finales
-      if (rowData[0] === "Líquido a recibir") {
+      // Destacar filas de total
+      const label = typeof rowData[0] === "string" ? rowData[0] : "";
+      const content = rowData[0]?.content;
+      if (label === "Total vueltas" || label === "Total gastos" || label === "Total efectivo") {
+        hookData.cell.styles.fontStyle = "bold";
+      }
+      if (content === "TOTAL") {
+        hookData.cell.styles.fontStyle = "bold";
+        hookData.cell.styles.fontSize = 11;
+      }
+      if (label === "A favor del chofer" || label === "A favor del admin") {
         hookData.cell.styles.fontStyle = "bold";
         hookData.cell.styles.fontSize = 12;
-        hookData.cell.styles.textColor = [37, 99, 235];
-      }
-      if (rowData[0] === saldoLabel) {
-        hookData.cell.styles.fontStyle = "bold";
-        hookData.cell.styles.fontSize = 13;
-        hookData.cell.styles.textColor = r.saldoChofer >= 0 ? [22, 163, 74] : [220, 38, 38];
+        hookData.cell.styles.textColor = saldoFinal >= 0 ? [22, 163, 74] : [220, 38, 38];
       }
     },
   });
@@ -280,27 +306,53 @@ function generarExcel(data: any) {
   const r = data.resumen;
   const cfg = data.cfg;
   const impuestoLabel = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
-  const saldoLabel = r.saldoChofer >= 0 ? "Te deben" : "Debés entregar";
+  const efectivoConDescuentos = r.efectivoTotal + r.descuentosChofer;
+  const saldoFinal = r.liquidoChofer - efectivoConDescuentos;
 
-  // Una sola hoja, dos columnas: Concepto | Monto
   const rows: any[] = [
     [`Liquidación — ${data.periodoLabel}`],
     [`Chofer: ${cfg.nombreChofer ?? "—"}`],
     [],
-    [`Vueltas pagables (${r.vueltasCompletadas})`, r.pagoChofer],
+    ["VUELTAS POR TIPO", ""],
   ];
 
-  if (r.gastosChofer > 0) rows.push(["Gastos reembolsables", r.gastosChofer]);
-  if (r.descuentosChofer > 0) rows.push(["Descuentos", -r.descuentosChofer]);
-  if (r.impuesto > 0) rows.push([`${impuestoLabel} (${r.porcentajeImpuesto}%)`, -r.impuesto]);
-  rows.push(["Efectivo recibido", r.efectivoTotal]);
+  if (r.vueltasUnicoCliente > 0) {
+    rows.push([`Cliente único (${r.vueltasUnicoCliente} × ${cfg.montoPorVueltaUnicoCliente})`, r.vueltasUnicoCliente * cfg.montoPorVueltaUnicoCliente]);
+  }
+  if (r.vueltasMultiple > 0) {
+    rows.push([`Múltiples clientes (${r.vueltasMultiple} × ${cfg.montoPorVueltaMultiple})`, r.vueltasMultiple * cfg.montoPorVueltaMultiple]);
+  }
+  rows.push(["Total vueltas", r.pagoChofer]);
   rows.push([]);
-  rows.push(["Líquido a recibir", r.liquidoChofer]);
-  rows.push(["Menos efectivo en mano", -r.efectivoTotal]);
-  rows.push([saldoLabel, Math.abs(r.saldoChofer)]);
+
+  if (data.gastosPorTipo.length > 0) {
+    rows.push(["GASTOS POR TIPO", ""]);
+    for (const g of data.gastosPorTipo) {
+      rows.push([g.tipo, g.monto]);
+    }
+    rows.push(["Total gastos", r.gastosChofer]);
+    rows.push([]);
+  }
+
+  rows.push(["EFECTIVO RECIBIDO", ""]);
+  rows.push(["Efectivo de entregas y pagos", r.efectivoTotal]);
+  if (r.descuentosChofer > 0) {
+    rows.push(["Descuentos a favor del chofer", r.descuentosChofer]);
+  }
+  rows.push(["Total efectivo", efectivoConDescuentos]);
+  rows.push([]);
+
+  if (r.impuesto > 0) {
+    rows.push(["IMPOSICIÓN", ""]);
+    rows.push([`${impuestoLabel} (${r.porcentajeImpuesto}%)`, r.impuesto]);
+    rows.push([]);
+  }
+
+  rows.push(["TOTAL", ""]);
+  rows.push([saldoFinal >= 0 ? "A favor del chofer" : "A favor del admin", Math.abs(saldoFinal)]);
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"] = [{ wch: 32 }, { wch: 16 }];
+  ws["!cols"] = [{ wch: 38 }, { wch: 16 }];
   XLSX.utils.book_append_sheet(wb, ws, "Liquidación");
 
   const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
