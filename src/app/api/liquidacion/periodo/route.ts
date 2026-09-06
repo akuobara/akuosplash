@@ -36,34 +36,50 @@ export async function GET(req: NextRequest) {
   const periodo = cfg.periodoLiquidacion || "mensual";
 
   // Calcular rango del período
+  // IMPORTANTE: usar zona horaria de Chile (America/Santiago) para que "hoy"
+  // coincida con el día local del usuario, no con el día UTC del servidor.
+  // Vercel está en UTC, así que después de las 20:00 Chile (00:00 UTC del día siguiente)
+  // el servidor ya cambió de día. Esto causaba que la "semana actual" saltara
+  // al domingo siguiente y se perdieran todos los datos del sábado.
   function getPeriodoRange(offsetNum: number): { start: Date; end: Date; label: string } {
-    const now = new Date();
+    // Obtener "hoy" en zona horaria Chile (UTC-4)
+    const nowCL = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Santiago" }));
     if (periodo === "semanal") {
       // Semana de domingo a sábado. offset=0 = semana actual (la que contiene hoy)
       // offset=-1 = semana anterior, etc.
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const today = new Date(nowCL.getFullYear(), nowCL.getMonth(), nowCL.getDate());
       const todayDow = today.getDay(); // 0=domingo, 1=lunes, ..., 6=sabado
       // Inicio de la semana actual = hoy - todayDow (domingo)
       const startCurrent = new Date(today);
       startCurrent.setDate(today.getDate() - todayDow + 7 * offsetNum);
-      const start = startCurrent;
-      const endCierre = new Date(start);
-      endCierre.setDate(start.getDate() + 6); // sábado
-      const end = new Date(endCierre);
-      end.setDate(endCierre.getDate() + 1); // exclusive (domingo siguiente)
-      const label = `Semana ${start.getDate()}/${start.getMonth() + 1} - ${endCierre.getDate()}/${endCierre.getMonth() + 1}/${endCierre.getFullYear()}`;
+      // Convertir a UTC pero manteniendo el día Chile (00:00 Chile = 04:00 UTC)
+      const start = new Date(Date.UTC(
+        startCurrent.getFullYear(),
+        startCurrent.getMonth(),
+        startCurrent.getDate(),
+        4, 0, 0
+      ));
+      const endCierreCL = new Date(startCurrent);
+      endCierreCL.setDate(startCurrent.getDate() + 6); // sábado
+      const end = new Date(Date.UTC(
+        endCierreCL.getFullYear(),
+        endCierreCL.getMonth(),
+        endCierreCL.getDate() + 1, // exclusive (domingo siguiente)
+        4, 0, 0
+      ));
+      const label = `Semana ${startCurrent.getDate()}/${startCurrent.getMonth() + 1} - ${endCierreCL.getDate()}/${endCierreCL.getMonth() + 1}/${endCierreCL.getFullYear()}`;
       return { start, end, label };
     } else {
       // Mensual: día 1 al último día del mes
       // offset=0 = mes actual, offset=-1 = mes anterior
-      const baseMonth = now.getMonth() + offsetNum;
-      const baseYear = now.getFullYear();
+      const baseMonth = nowCL.getMonth() + offsetNum;
+      const baseYear = nowCL.getFullYear();
       // Ajustar año si el mes se va de rango
       const adjustedDate = new Date(baseYear, baseMonth, 1);
-      const start = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth(), 1);
-      const end = new Date(adjustedDate.getFullYear(), adjustedDate.getMonth() + 1, 1);
+      const start = new Date(Date.UTC(adjustedDate.getFullYear(), adjustedDate.getMonth(), 1, 4, 0, 0));
+      const end = new Date(Date.UTC(adjustedDate.getFullYear(), adjustedDate.getMonth() + 1, 1, 4, 0, 0));
       const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-      const label = `${monthNames[start.getMonth()]} ${start.getFullYear()}`;
+      const label = `${monthNames[adjustedDate.getMonth()]} ${adjustedDate.getFullYear()}`;
       return { start, end, label };
     }
   }
