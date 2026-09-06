@@ -1,13 +1,17 @@
-// Resumen de LIQUIDACIÓN (PDF o Excel) — diferente del resumen de ventas.
-// Muestra: período, vueltas válidas, pago al chofer, gastos reembolsables,
-// descuentos, efectivo a entregar, saldo final.
+// Resumen de LIQUIDACIÓN (PDF o Excel) — versión simplificada.
+// Muestra solo:
+//   1. Vueltas pagables (válidas + total)
+//   2. Gastos por tipo
+//   3. Efectivo recibido
+//   4. Imposiciones (impuestos si existen)
+//   5. Saldo final (te deben / debés entregar)
 // GET /api/reportes/liquidacion-pdf?formato=pdf|excel&offset=0
 import { NextRequest, NextResponse } from "next/server";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
-import { formatCurrency, formatNumber, formatDate, formatDateTime, labelTipoGasto, esVueltaCompletada, labelMetodoPago } from "@/lib/helpers";
+import { formatCurrency, formatNumber, formatDateTime, labelTipoGasto, esVueltaCompletada } from "@/lib/helpers";
 
 export async function GET(req: NextRequest) {
   try {
@@ -41,7 +45,7 @@ export async function GET(req: NextRequest) {
 
     const periodo = cfg.periodoLiquidacion || "mensual";
 
-    // Calcular rango del período (usar zona horaria Chile)
+    // Calcular rango del período (zona horaria Chile)
     function getPeriodoRange(offsetNum: number): { start: Date; end: Date; label: string } {
       const nowCL = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Santiago" }));
       if (periodo === "semanal") {
@@ -76,7 +80,7 @@ export async function GET(req: NextRequest) {
     const vueltaWhere = { duenoId, iniciadaEn: { gte: start, lt: end }, ...(esChofer ? { choferId: session.userId } : {}) };
 
     const [entregas, gastos, vueltas, pagosSueltos] = await Promise.all([
-      db.entrega.findMany({ where: entregaWhere, orderBy: { fecha: "desc" }, include: { vuelta: { select: { numero: true } } } }),
+      db.entrega.findMany({ where: entregaWhere, orderBy: { fecha: "desc" } }),
       db.gasto.findMany({ where: gastoWhere, orderBy: { fecha: "desc" } }),
       db.vuelta.findMany({
         where: vueltaWhere,
@@ -95,21 +99,17 @@ export async function GET(req: NextRequest) {
     ]);
 
     // Cálculos
-    const totalVentas = entregas.reduce((s, e) => s + e.total, 0);
     const totalEfectivo = entregas.reduce((s, e) => s + e.montoEfectivo, 0);
     const totalTransferencia = entregas.reduce((s, e) => s + e.montoTransferencia, 0);
-    const totalRecibido = totalEfectivo + totalTransferencia;
-    const totalPagosSueltos = pagosSueltos.reduce((s, p) => s + p.monto, 0);
     const pagosSueltosEfectivoChofer = pagosSueltos
       .filter(p => p.metodoPago === "efectivo" && (esChofer ? p.choferId === session.userId : p.choferId))
       .reduce((s, p) => s + p.monto, 0);
     const pagosSueltosTransferencia = pagosSueltos.filter(p => p.metodoPago === "transferencia").reduce((s, p) => s + p.monto, 0);
     const efectivoTotal = totalEfectivo + pagosSueltosEfectivoChofer;
-    const totalLitros = entregas.reduce((s, e) => s + e.litros, 0);
     const totalGastos = gastos.reduce((s, g) => s + g.monto, 0);
     const gastosChofer = gastos.filter(g => g.pagadoPor === "chofer").reduce((s, g) => s + g.monto, 0);
-    const gastosDueno = gastos.filter(g => g.pagadoPor === "dueno").reduce((s, g) => s + g.monto, 0);
     const descuentosChofer = entregas.filter(e => e.descuentoPor === "chofer").reduce((s, e) => s + (e.descuento || 0), 0);
+    const totalVentas = entregas.reduce((s, e) => s + e.total, 0);
     const utilidadBruta = totalVentas - totalGastos;
 
     // Pago al chofer
@@ -138,52 +138,35 @@ export async function GET(req: NextRequest) {
     const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
     const saldoChofer = liquidoChofer - efectivoTotal;
 
-    // Detalle de vueltas
-    const vueltasDetalle = vueltas.map(v => {
-      const litros = v.entregas.reduce((s, e) => s + e.litros, 0);
-      const ventas = v.entregas.reduce((s, e) => s + e.total, 0);
-      const efectivo = v.entregas.reduce((s, e) => s + e.montoEfectivo, 0);
-      const transf = v.entregas.reduce((s, e) => s + e.montoTransferencia, 0);
-      const cap = v.camion?.capacidad ?? cfg.capacidadCamion ?? 0;
-      const completada = esVueltaCompletada(litros, cap, v.entregas.length, cfg.umbralCompletacionVuelta ?? 0.975, (v as any).validadaManualmente);
-      const pagoVuelta = cfg.modoLiquidacion === "vuelta" && completada
-        ? (v.entregas.length > 1 ? cfg.montoPorVueltaMultiple : cfg.montoPorVueltaUnicoCliente)
-        : 0;
-      return {
-        numero: v.numero,
-        iniciadaEn: v.iniciadaEn,
-        cerradaEn: v.cerradaEn,
-        camion: v.camion?.nombre || "—",
-        chofer: v.chofer?.nombre || "—",
-        cantidadEntregas: v.entregas.length,
-        litros,
-        ventas,
-        efectivo,
-        transferencia: transf,
-        completada,
-        pagoVuelta,
-      };
-    });
+    // Gastos agrupados por tipo
+    const gastosPorTipoMap = new Map<string, { monto: number; count: number }>();
+    for (const g of gastos) {
+      const tipo = labelTipoGasto(g.tipo);
+      const ex = gastosPorTipoMap.get(tipo) ?? { monto: 0, count: 0 };
+      ex.monto += g.monto;
+      ex.count += 1;
+      gastosPorTipoMap.set(tipo, ex);
+    }
+    const gastosPorTipo = Array.from(gastosPorTipoMap.entries())
+      .map(([tipo, info]) => ({ tipo, monto: info.monto, count: info.count }))
+      .sort((a, b) => b.monto - a.monto);
 
     const data = {
       periodoLabel: label,
       cfg,
-      session,
-      resumen: {
-        totalVentas, totalEfectivo, totalTransferencia, totalRecibido,
-        totalLitros, totalEntregas: entregas.length, totalGastos,
-        gastosChofer, gastosDueno, descuentosChofer, utilidadBruta,
-        pagoChofer, impuesto, liquidoChofer, efectivoTotal, saldoChofer,
-        vueltasCompletadas: vueltasValidas.length, vueltasTotal: vueltas.length,
-        vueltasUnicoCliente, vueltasMultiple,
-        totalPagosSueltos, pagosSueltosEfectivo: pagosSueltosEfectivoChofer,
-        pagosSueltosTransferencia,
-      },
-      vueltas: vueltasDetalle,
-      gastos: gastos.map(g => ({
-        fecha: g.fecha, tipo: labelTipoGasto(g.tipo), descripcion: g.descripcion,
-        monto: g.monto, pagadoPor: g.pagadoPor,
-      })),
+      vueltasValidasCount: vueltasValidas.length,
+      vueltasTotal: vueltas.length,
+      vueltasUnicoCliente,
+      vueltasMultiple,
+      pagoChofer,
+      gastosChofer,
+      descuentosChofer,
+      impuesto,
+      liquidoChofer,
+      efectivoTotal,
+      saldoChofer,
+      gastosPorTipo,
+      totalGastos,
     };
 
     if (formato === "excel") {
@@ -202,158 +185,140 @@ export async function GET(req: NextRequest) {
 
 function generarPDF(data: any) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const r = data.resumen;
-  const cfg = data.cfg;
 
   // Encabezado
   doc.setFontSize(18);
   doc.text(`Liquidación — ${data.periodoLabel}`, 14, 18);
   doc.setFontSize(10);
-  doc.text(`Chofer: ${cfg.nombreChofer ?? "—"}`, 14, 25);
-  doc.text(`Administrador: ${cfg.nombreDueno ?? "—"}`, 14, 30);
+  doc.text(`Chofer: ${data.cfg.nombreChofer ?? "—"}`, 14, 25);
+  doc.text(`Administrador: ${data.cfg.nombreDueno ?? "—"}`, 14, 30);
   doc.text(`Generado: ${formatDateTime(new Date())}`, 14, 35);
 
-  let y = 42;
+  let y = 45;
 
-  // === 1. RESUMEN DE VUELTAS ===
-  doc.setFontSize(14);
-  doc.text("1. Vueltas del período", 14, y);
+  // === 1. VUELTAS PAGABLES ===
+  doc.setFontSize(13);
+  doc.text("Vueltas pagables", 14, y);
   y += 5;
+  const vueltasBody: any[] = [
+    ["Vueltas válidas", String(data.vueltasValidasCount)],
+    ["Total vueltas del período", String(data.vueltasTotal)],
+  ];
+  if (data.cfg.modoLiquidacion === "vuelta") {
+    vueltasBody.push([
+      "Cliente único",
+      `${data.vueltasUnicoCliente} × ${formatCurrency(data.cfg.montoPorVueltaUnicoCliente)}`,
+    ]);
+    vueltasBody.push([
+      "Múltiples clientes",
+      `${data.vueltasMultiple} × ${formatCurrency(data.cfg.montoPorVueltaMultiple)}`,
+    ]);
+    vueltasBody.push(["Total pago por vueltas", formatCurrency(data.pagoChofer)]);
+  } else {
+    vueltasBody.push([
+      "Pago al chofer",
+      `${data.cfg.porcentajeComisionChofer}% de utilidad = ${formatCurrency(data.pagoChofer)}`,
+    ]);
+  }
   autoTable(doc, {
     startY: y,
     head: [["Concepto", "Valor"]],
-    body: [
-      ["Vueltas válidas", String(r.vueltasCompletadas)],
-      ["Total vueltas", String(r.vueltasTotal)],
-      ...(cfg.modoLiquidacion === "vuelta" ? [
-        ["Cliente único", `${r.vueltasUnicoCliente} × ${formatCurrency(cfg.montoPorVueltaUnicoCliente)}`],
-        ["Múltiples clientes", `${r.vueltasMultiple} × ${formatCurrency(cfg.montoPorVueltaMultiple)}`],
-      ] : []),
-    ],
-    theme: "striped",
-    headStyles: { fillColor: [37, 99, 235], fontSize: 10 },
-    bodyStyles: { fontSize: 9 },
-  });
-  y = (doc as any).lastAutoTable.finalY + 8;
-
-  // === 2. DETALLE DE VUELTAS ===
-  if (data.vueltas.length > 0) {
-    if (y > 230) { doc.addPage(); y = 20; }
-    doc.setFontSize(14);
-    doc.text("2. Detalle de vueltas", 14, y);
-    y += 5;
-    autoTable(doc, {
-      startY: y,
-      head: [["#", "Camión", "Entregas", "Litros", "Ventas", "Efectivo", "Transfer.", "Estado"]],
-      body: data.vueltas.map((v: any) => [
-        `#${v.numero}`,
-        v.camion,
-        String(v.cantidadEntregas),
-        `${formatNumber(v.litros, 0)} L`,
-        formatCurrency(v.ventas),
-        formatCurrency(v.efectivo),
-        formatCurrency(v.transferencia),
-        v.completada ? "✓ Válida" : "—",
-      ]),
-      theme: "striped",
-      headStyles: { fillColor: [37, 99, 235], fontSize: 9 },
-      bodyStyles: { fontSize: 8 },
-    });
-    y = (doc as any).lastAutoTable.finalY + 8;
-  }
-
-  // === 3. LIQUIDACIÓN DEL CHOFER ===
-  if (y > 200) { doc.addPage(); y = 20; }
-  doc.setFontSize(14);
-  doc.text("3. Liquidación del chofer", 14, y);
-  y += 5;
-  const liquiBody: any[] = [];
-  if (cfg.modoLiquidacion === "vuelta") {
-    liquiBody.push(["Pago al chofer", `${r.vueltasCompletadas} vueltas ×`, formatCurrency(r.pagoChofer)]);
-  } else {
-    liquiBody.push(["Pago al chofer", `${cfg.porcentajeComisionChofer}% utilidad`, formatCurrency(r.pagoChofer)]);
-  }
-  liquiBody.push(["+ Gastos reembolsables (chofer)", "", formatCurrency(r.gastosChofer)]);
-  if (r.descuentosChofer > 0) liquiBody.push(["- Descuentos", "", formatCurrency(r.descuentosChofer)]);
-  if (r.impuesto > 0) liquiBody.push(["- Impuesto", `${cfg.tipoTributo} ${cfg.porcentajeImpuesto}%`, formatCurrency(r.impuesto)]);
-  liquiBody.push(["= Líquido a recibir", "", formatCurrency(r.liquidoChofer)]);
-  liquiBody.push(["- Efectivo en mano", "", formatCurrency(r.efectivoTotal)]);
-  liquiBody.push([
-    r.saldoChofer >= 0 ? "= Te deben" : "= Debés entregar",
-    "",
-    formatCurrency(Math.abs(r.saldoChofer)),
-  ]);
-  autoTable(doc, {
-    startY: y,
-    head: [["Concepto", "Detalle", "Monto"]],
-    body: liquiBody,
-    theme: "striped",
-    headStyles: { fillColor: [16, 185, 129], fontSize: 10 },
-    bodyStyles: { fontSize: 9 },
-    columnStyles: { 0: { cellWidth: 80 }, 1: { cellWidth: 50 }, 2: { cellWidth: 40, halign: "right" } },
-  });
-  y = (doc as any).lastAutoTable.finalY + 8;
-
-  // === 4. RESUMEN FINANCIERO ===
-  if (y > 220) { doc.addPage(); y = 20; }
-  doc.setFontSize(14);
-  doc.text("4. Resumen financiero", 14, y);
-  y += 5;
-  autoTable(doc, {
-    startY: y,
-    head: [["Concepto", "Monto"]],
-    body: [
-      ["Total ventas", formatCurrency(r.totalVentas)],
-      ["Litros entregados", `${formatNumber(r.totalLitros, 0)} L`],
-      ["Efectivo de entregas", formatCurrency(r.totalEfectivo)],
-      ["Transferencia de entregas", formatCurrency(r.totalTransferencia)],
-      ...(r.totalPagosSueltos > 0 ? [
-        ["Pagos sueltos (efectivo)", formatCurrency(r.pagosSueltosEfectivo)],
-        ["Pagos sueltos (transferencia)", formatCurrency(r.pagosSueltosTransferencia)],
-      ] : []),
-      ["Total gastos", formatCurrency(r.totalGastos)],
-      ["  - Gastos del chofer", formatCurrency(r.gastosChofer)],
-      ["  - Gastos del admin", formatCurrency(r.gastosDueno)],
-      ["Utilidad bruta", formatCurrency(r.utilidadBruta)],
-    ],
+    body: vueltasBody,
     theme: "striped",
     headStyles: { fillColor: [37, 99, 235], fontSize: 10 },
     bodyStyles: { fontSize: 9 },
     columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 60, halign: "right" } },
   });
-  y = (doc as any).lastAutoTable.finalY + 8;
+  y = (doc as any).lastAutoTable.finalY + 10;
 
-  // === 5. GASTOS DETALLADOS ===
-  if (data.gastos.length > 0) {
-    if (y > 230) { doc.addPage(); y = 20; }
-    doc.setFontSize(14);
-    doc.text("5. Gastos del período", 14, y);
+  // === 2. GASTOS POR TIPO ===
+  if (data.gastosPorTipo.length > 0) {
+    doc.setFontSize(13);
+    doc.text("Gastos por tipo", 14, y);
     y += 5;
-    // Agrupar por tipo
-    const gastosAgrupados = new Map<string, { monto: number; notas: string[]; count: number }>();
-    for (const g of data.gastos) {
-      const ex = gastosAgrupados.get(g.tipo) ?? { monto: 0, notas: [], count: 0 };
-      ex.monto += g.monto;
-      ex.count += 1;
-      if (g.descripcion) ex.notas.push(g.descripcion);
-      gastosAgrupados.set(g.tipo, ex);
-    }
     autoTable(doc, {
       startY: y,
-      head: [["Tipo", "Cant.", "Descripción", "Pagado por", "Monto"]],
-      body: Array.from(gastosAgrupados.entries()).map(([tipo, info]) => [
-        tipo,
-        String(info.count),
-        info.notas.join("; "),
-        "",
-        formatCurrency(info.monto),
+      head: [["Tipo", "Cantidad", "Monto"]],
+      body: data.gastosPorTipo.map((g: any) => [
+        g.tipo,
+        String(g.count),
+        formatCurrency(g.monto),
       ]),
       theme: "striped",
-      headStyles: { fillColor: [220, 38, 38], fontSize: 9 },
-      bodyStyles: { fontSize: 8 },
-      foot: [["", "", "", "Total", formatCurrency(r.totalGastos)]],
+      headStyles: { fillColor: [220, 38, 38], fontSize: 10 },
+      bodyStyles: { fontSize: 9 },
+      columnStyles: { 0: { cellWidth: 90 }, 1: { cellWidth: 30, halign: "center" }, 2: { cellWidth: 50, halign: "right" } },
+      foot: [["Total", "", formatCurrency(data.totalGastos)]],
     });
+    y = (doc as any).lastAutoTable.finalY + 10;
   }
+
+  // === 3. EFECTIVO RECIBIDO ===
+  doc.setFontSize(13);
+  doc.text("Efectivo recibido", 14, y);
+  y += 5;
+  autoTable(doc, {
+    startY: y,
+    head: [["Concepto", "Monto"]],
+    body: [
+      ["Efectivo de entregas", formatCurrency(data.efectivoTotal)],
+      ...(data.descuentosChofer > 0 ? [["Descuentos del chofer", `-${formatCurrency(data.descuentosChofer)}`]] : []),
+    ],
+    theme: "striped",
+    headStyles: { fillColor: [16, 185, 129], fontSize: 10 },
+    bodyStyles: { fontSize: 9 },
+    columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 60, halign: "right" } },
+  });
+  y = (doc as any).lastAutoTable.finalY + 10;
+
+  // === 4. IMPOSICIONES (solo si hay impuesto) ===
+  if (data.impuesto > 0) {
+    doc.setFontSize(13);
+    doc.text("Imposiciones", 14, y);
+    y += 5;
+    autoTable(doc, {
+      startY: y,
+      head: [["Concepto", "Monto"]],
+      body: [
+        [`${data.cfg.tipoTributo} (${data.cfg.porcentajeImpuesto}%)`, `-${formatCurrency(data.impuesto)}`],
+      ],
+      theme: "striped",
+      headStyles: { fillColor: [234, 179, 8], fontSize: 10 },
+      bodyStyles: { fontSize: 9 },
+      columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 60, halign: "right" } },
+    });
+    y = (doc as any).lastAutoTable.finalY + 10;
+  }
+
+  // === 5. SALDO FINAL ===
+  doc.setFontSize(13);
+  doc.text("Saldo final", 14, y);
+  y += 5;
+  const saldoBody: any[] = [
+    ["Pago al chofer", formatCurrency(data.pagoChofer)],
+    ["+ Gastos reembolsables (chofer)", formatCurrency(data.gastosChofer)],
+  ];
+  if (data.descuentosChofer > 0) {
+    saldoBody.push(["- Descuentos", `-${formatCurrency(data.descuentosChofer)}`]);
+  }
+  if (data.impuesto > 0) {
+    saldoBody.push(["- Imposiciones", `-${formatCurrency(data.impuesto)}`]);
+  }
+  saldoBody.push(["= Líquido a recibir", formatCurrency(data.liquidoChofer)]);
+  saldoBody.push(["- Efectivo en mano", `-${formatCurrency(data.efectivoTotal)}`]);
+  saldoBody.push([
+    data.saldoChofer >= 0 ? "= Te deben" : "= Debés entregar",
+    formatCurrency(Math.abs(data.saldoChofer)),
+  ]);
+  autoTable(doc, {
+    startY: y,
+    head: [["Concepto", "Monto"]],
+    body: saldoBody,
+    theme: "striped",
+    headStyles: { fillColor: data.saldoChofer >= 0 ? [16, 185, 129] : [220, 38, 38], fontSize: 10 },
+    bodyStyles: { fontSize: 9 },
+    columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 60, halign: "right" } },
+  });
 
   const pdfBuffer = doc.output("arraybuffer");
   return new NextResponse(pdfBuffer, {
@@ -367,73 +332,55 @@ function generarPDF(data: any) {
 function generarExcel(data: any) {
   const XLSX = require("xlsx");
   const wb = XLSX.utils.book_new();
-  const r = data.resumen;
-  const cfg = data.cfg;
 
   const rows: any[] = [
     [`Liquidación — ${data.periodoLabel}`],
-    [`Chofer: ${cfg.nombreChofer ?? "—"}`],
-    [`Administrador: ${cfg.nombreDueno ?? "—"}`],
+    [`Chofer: ${data.cfg.nombreChofer ?? "—"}`],
+    [`Administrador: ${data.cfg.nombreDueno ?? "—"}`],
     [`Generado: ${formatDateTime(new Date())}`],
     [],
-    ["1. VUELTAS DEL PERÍODO"],
+    ["VUELTAS PAGABLES"],
     ["Concepto", "Valor"],
-    ["Vueltas válidas", r.vueltasCompletadas],
-    ["Total vueltas", r.vueltasTotal],
-    ...(cfg.modoLiquidacion === "vuelta" ? [
-      ["Cliente único", `${r.vueltasUnicoCliente} × ${cfg.montoPorVueltaUnicoCliente}`],
-      ["Múltiples clientes", `${r.vueltasMultiple} × ${cfg.montoPorVueltaMultiple}`],
-    ] : []),
+    ["Vueltas válidas", data.vueltasValidasCount],
+    ["Total vueltas del período", data.vueltasTotal],
+    ...(data.cfg.modoLiquidacion === "vuelta" ? [
+      ["Cliente único", `${data.vueltasUnicoCliente} × ${data.cfg.montoPorVueltaUnicoCliente}`],
+      ["Múltiples clientes", `${data.vueltasMultiple} × ${data.cfg.montoPorVueltaMultiple}`],
+      ["Total pago por vueltas", data.pagoChofer],
+    ] : [
+      ["Pago al chofer", `${data.cfg.porcentajeComisionChofer}% de utilidad`],
+      ["Monto", data.pagoChofer],
+    ]),
     [],
-    ["2. DETALLE DE VUELTAS"],
-    ["#", "Camión", "Entregas", "Litros", "Ventas", "Efectivo", "Transferencia", "Estado"],
-    ...data.vueltas.map((v: any) => [`#${v.numero}`, v.camion, v.cantidadEntregas, v.litros, v.ventas, v.efectivo, v.transferencia, v.completada ? "Válida" : "—"]),
+    ["GASTOS POR TIPO"],
+    ["Tipo", "Cantidad", "Monto"],
+    ...data.gastosPorTipo.map((g: any) => [g.tipo, g.count, g.monto]),
+    ["Total", "", data.totalGastos],
     [],
-    ["3. LIQUIDACIÓN DEL CHOFER"],
-    ["Concepto", "Detalle", "Monto"],
-    [cfg.modoLiquidacion === "vuelta" ? "Pago al chofer" : "Pago al chofer",
-     cfg.modoLiquidacion === "vuelta" ? `${r.vueltasCompletadas} vueltas` : `${cfg.porcentajeComisionChofer}% utilidad`,
-     r.pagoChofer],
-    ["+ Gastos reembolsables (chofer)", "", r.gastosChofer],
-    ...(r.descuentosChofer > 0 ? [["- Descuentos", "", r.descuentosChofer]] : []),
-    ...(r.impuesto > 0 ? [["- Impuesto", `${cfg.tipoTributo} ${cfg.porcentajeImpuesto}%`, r.impuesto]] : []),
-    ["= Líquido a recibir", "", r.liquidoChofer],
-    ["- Efectivo en mano", "", r.efectivoTotal],
-    [r.saldoChofer >= 0 ? "= Te deben" : "= Debés entregar", "", Math.abs(r.saldoChofer)],
-    [],
-    ["4. RESUMEN FINANCIERO"],
+    ["EFECTIVO RECIBIDO"],
     ["Concepto", "Monto"],
-    ["Total ventas", r.totalVentas],
-    ["Litros entregados", r.totalLitros],
-    ["Efectivo de entregas", r.totalEfectivo],
-    ["Transferencia de entregas", r.totalTransferencia],
-    ...(r.totalPagosSueltos > 0 ? [
-      ["Pagos sueltos (efectivo)", r.pagosSueltosEfectivo],
-      ["Pagos sueltos (transferencia)", r.pagosSueltosTransferencia],
-    ] : []),
-    ["Total gastos", r.totalGastos],
-    ["  - Gastos del chofer", r.gastosChofer],
-    ["  - Gastos del admin", r.gastosDueno],
-    ["Utilidad bruta", r.utilidadBruta],
+    ["Efectivo de entregas", data.efectivoTotal],
+    ...(data.descuentosChofer > 0 ? [["Descuentos del chofer", -data.descuentosChofer]] : []),
     [],
-    ["5. GASTOS DETALLADOS"],
-    ["Tipo", "Cant.", "Descripción", "Monto"],
-    ...(() => {
-      const agrupado = new Map<string, { monto: number; notas: string[]; count: number }>();
-      for (const g of data.gastos) {
-        const ex = agrupado.get(g.tipo) ?? { monto: 0, notas: [], count: 0 };
-        ex.monto += g.monto;
-        ex.count += 1;
-        if (g.descripcion) ex.notas.push(g.descripcion);
-        agrupado.set(g.tipo, ex);
-      }
-      return Array.from(agrupado.entries()).map(([tipo, info]) => [tipo, info.count, info.notas.join("; "), info.monto]);
-    })(),
-    ["", "", "Total", r.totalGastos],
+    ...(data.impuesto > 0 ? [
+      ["IMPOSICIONES"],
+      ["Concepto", "Monto"],
+      [`${data.cfg.tipoTributo} (${data.cfg.porcentajeImpuesto}%)`, -data.impuesto],
+      [],
+    ] : []),
+    ["SALDO FINAL"],
+    ["Concepto", "Monto"],
+    ["Pago al chofer", data.pagoChofer],
+    ["+ Gastos reembolsables (chofer)", data.gastosChofer],
+    ...(data.descuentosChofer > 0 ? [["- Descuentos", -data.descuentosChofer]] : []),
+    ...(data.impuesto > 0 ? [["- Imposiciones", -data.impuesto]] : []),
+    ["= Líquido a recibir", data.liquidoChofer],
+    ["- Efectivo en mano", -data.efectivoTotal],
+    [data.saldoChofer >= 0 ? "= Te deben" : "= Debés entregar", Math.abs(data.saldoChofer)],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"] = [28, 18, 14, 14, 14, 14].map(w => ({ wch: w }));
+  ws["!cols"] = [32, 22, 14].map(w => ({ wch: w }));
   XLSX.utils.book_append_sheet(wb, ws, "Liquidación");
 
   const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
