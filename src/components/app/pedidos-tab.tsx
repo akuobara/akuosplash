@@ -546,7 +546,10 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
             montoRecibido: e.montoRecibido,
           }))),
         });
-        toast.success("Pedido convertido en entrega");
+        toast.success(`✓ Entrega registrada: ${formatNumber(totalLitrosEst, 0)} L · ${formatCurrency(totalVentaEst)}`, {
+          duration: 8000,
+          description: "El pedido se convirtió en entrega correctamente. No necesitás registrar otra vez.",
+        });
         setConvirtiendo(null);
         onRefresh();
       } catch (e) {
@@ -588,7 +591,13 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
         descuentoPorLitro: descuentoTipoConvertir === "por_litro" ? (Number(descuentoPorLitroConvertir) || 0) : 0,
       });
-      toast.success("Pedido convertido en entrega");
+      const litrosNum = Number(litrosReales) || convirtiendo?.litrosSolicitados || 0;
+      const precioNum = Number(precioPorLitro) || 0;
+      const totalEstimado = litrosNum * precioNum;
+      toast.success(`✓ Entrega registrada: ${formatNumber(litrosNum, 0)} L · ${formatCurrency(totalEstimado)}`, {
+        duration: 8000,
+        description: "El pedido se convirtió en entrega correctamente. No necesitás registrar otra vez.",
+      });
       setConvirtiendo(null);
       onRefresh();
     } catch (e) {
@@ -643,7 +652,13 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
         descuentoPorLitro: descuentoTipoConvertir === "por_litro" ? (Number(descuentoPorLitroConvertir) || 0) : 0,
       });
-      toast.success("Pedido convertido en entrega");
+      const litrosNum = vueltaFaltante?.litrosSolicitados || 0;
+      const precioNum = Number(precioPorLitro) || 0;
+      const totalEstimado = litrosNum * precioNum;
+      toast.success(`✓ Entrega registrada: ${formatNumber(litrosNum, 0)} L · ${formatCurrency(totalEstimado)}`, {
+        duration: 8000,
+        description: "El pedido se convirtió en entrega correctamente. No necesitás registrar otra vez.",
+      });
       setVueltaFaltante(null);
       onRefresh();
     } catch (e) {

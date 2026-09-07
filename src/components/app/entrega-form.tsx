@@ -629,10 +629,14 @@ export function EntregaForm({
 
         if (isEdit && entrega) {
           await apiPatch(`/api/entregas/${entrega.id}`, payload);
-          toast.success("Entrega actualizada");
+          toast.success("Entrega actualizada correctamente", { duration: 6000 });
         } else {
           await apiPost("/api/entregas", payload);
-          toast.success("Entrega registrada");
+          // Confirmación muy clara con detalles para que el chofer sepa que se registró
+          toast.success(`✓ Entrega registrada: ${formatNumber(totalLitrosEst, 0)} L · ${formatCurrency(totalVentaEst)} · ${clienteNombreLocal}`, {
+            duration: 8000,
+            description: "La entrega se guardó correctamente. No necesitás registrar otra vez.",
+          });
         }
         onSaved();
         onOpenChange(false);
@@ -687,10 +691,14 @@ export function EntregaForm({
 
       if (isEdit && entrega) {
         await apiPatch(`/api/entregas/${entrega.id}`, payload);
-        toast.success("Entrega actualizada");
+        toast.success("Entrega actualizada correctamente", { duration: 6000 });
       } else {
         await apiPost("/api/entregas", payload);
-        toast.success("Entrega registrada");
+        // Confirmación muy clara con detalles para que el chofer sepa que se registró
+        toast.success(`✓ Entrega registrada: ${formatNumber(litrosFinalLocal, 0)} L · ${formatCurrency(totalConDescuento)} · ${clienteNombreLocal}`, {
+          duration: 8000,
+          description: "La entrega se guardó correctamente. No necesitás registrar otra vez.",
+        });
       }
       onSaved();
       onOpenChange(false);
