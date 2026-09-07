@@ -1201,26 +1201,61 @@ export function EntregaForm({
 
           {/* Solo mostrar campos de cliente para ingreso manual */}
           {clienteId === "__manual" && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="clienteNombre">Nombre del cliente *</Label>
-                <Input
-                  id="clienteNombre"
-                  value={clienteNombre}
-                  onChange={(e) => setClienteNombre(e.target.value)}
-                  placeholder="Ej. Juan Pérez"
-                  required
-                />
+            <div className="space-y-2">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="clienteNombre">Nombre del cliente *</Label>
+                  <Input
+                    id="clienteNombre"
+                    value={clienteNombre}
+                    onChange={(e) => setClienteNombre(e.target.value)}
+                    placeholder="Ej. Juan Pérez"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="clienteTelefono">Teléfono</Label>
+                  <Input
+                    id="clienteTelefono"
+                    value={clienteTelefono}
+                    onChange={(e) => setClienteTelefono(e.target.value)}
+                    placeholder="+56 9 1234 5678"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="clienteTelefono">Teléfono</Label>
-                <Input
-                  id="clienteTelefono"
-                  value={clienteTelefono}
-                  onChange={(e) => setClienteTelefono(e.target.value)}
-                  placeholder="+56 9 1234 5678"
-                />
-              </div>
+              {/* Aviso si el nombre coincide con un cliente del catálogo */}
+              {clienteNombre.trim().length >= 3 && (() => {
+                const nombreLower = clienteNombre.trim().toLowerCase();
+                const coincidencias = clientes.filter(c =>
+                  c.nombre.toLowerCase().includes(nombreLower) ||
+                  nombreLower.includes(c.nombre.toLowerCase())
+                ).slice(0, 3);
+                if (coincidencias.length > 0) {
+                  return (
+                    <div className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-xs dark:border-amber-800 dark:bg-amber-900/20">
+                      <p className="font-medium text-amber-900 dark:text-amber-200">
+                        ⚠️ ¿Es uno de estos clientes?
+                      </p>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {coincidencias.map(c => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => onSelectCliente(c.id)}
+                            className="rounded border border-amber-400 bg-white px-2 py-0.5 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/40 dark:text-amber-200 dark:hover:bg-amber-900/60"
+                          >
+                            {c.nombre}{c.zona ? ` · ${c.zona}` : ""}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="mt-1 text-[10px] text-amber-700 dark:text-amber-300">
+                        Seleccioná el cliente del catálogo para que la entrega se asocie a su ficha.
+                      </p>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
           )}
 
