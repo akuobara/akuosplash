@@ -82,34 +82,42 @@ export async function POST(req: NextRequest) {
     }
 
     // Si se seleccionó "precio efectivo", recalcular las entregas impagas al precio efectivo
-    if (body.precioEfectivo && cliente.precioEfectivoPorLitro > 0) {
+    if (body.precioEfectivo) {
       // Usar el precio efectivo del cliente, o si es 0, el del global (configuración)
-      // Para conseguir el global, buscamos la configuración del dueño
       const config = await db.configuracion.findUnique({ where: { duenoId } });
       const precioEfectivo = cliente.precioEfectivoPorLitro || config?.precioEfectivoPorLitro || 0;
       const precioTransferencia = cliente.precioTransferenciaPorLitro || config?.precioTransferenciaPorLitro || precioEfectivo;
 
       if (precioEfectivo > 0 && precioTransferencia > precioEfectivo) {
         // Buscar entregas del cliente que están pendientes o parcialmente pagadas
-        // y que tienen precioPorLitro > precioEfectivo (fueron generadas al precio más alto).
-        // Usamos > precioEfectivo para incluir cualquier entrega que se pueda recalcular a efectivo.
+        // y que tienen precioPorLitro > precioEfectivo (fueron generadas al precio transferencia).
         const entregasImpagas = await db.entrega.findMany({
           where: {
             clienteId: body.clienteId,
             estadoPago: { in: ["pendiente", "parcial"] },
             precioPorLitro: { gt: precioEfectivo },
           },
-          select: { id: true, litros: true, precioPorLitro: true, montoRecibido: true, descuento: true },
+          select: { id: true, litros: true, precioPorLitro: true, montoRecibido: true, descuento: true, montoEfectivo: true, montoTransferencia: true },
         });
 
         // Recalcular cada entrega al precio efectivo
         for (const entrega of entregasImpagas) {
-          const nuevoTotal = Math.ceil((entrega.litros * precioEfectivo - (entrega.descuento || 0)) / 100) * 100;
+          // Nuevo total = litros × precio efectivo, redondeado a $100, menos descuento
+          const totalBruto = entrega.litros * precioEfectivo;
+          const totalRedondeado = totalBruto > 0 ? Math.ceil(totalBruto / 100) * 100 : 0;
+          const nuevoTotal = Math.max(0, totalRedondeado - (entrega.descuento || 0));
+
+          // Recalcular estado de pago
+          let nuevoEstado = "pendiente";
+          if (entrega.montoRecibido >= nuevoTotal && nuevoTotal > 0) nuevoEstado = "pagado";
+          else if (entrega.montoRecibido > 0) nuevoEstado = "parcial";
+
           await db.entrega.update({
             where: { id: entrega.id },
             data: {
               precioPorLitro: precioEfectivo,
-              total: Math.max(0, nuevoTotal),
+              total: nuevoTotal,
+              estadoPago: nuevoEstado,
             },
           });
         }

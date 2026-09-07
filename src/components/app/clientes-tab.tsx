@@ -135,6 +135,8 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [pagoNota, setPagoNota] = useState("");
   const [pagoPrecioEfectivo, setPagoPrecioEfectivo] = useState(false);
   const [pagoSaving, setPagoSaving] = useState(false);
+  const [eliminarDeudaOpen, setEliminarDeudaOpen] = useState(false);
+  const [eliminarDeudaMetodo, setEliminarDeudaMetodo] = useState<"efectivo" | "transferencia">("efectivo");
 
   // Campos del formulario
   const [nombre, setNombre] = useState("");
@@ -1173,6 +1175,16 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handlePago} className="space-y-4">
+            {/* Info de precios del cliente */}
+            {clienteDetalle && (clienteDetalle.precioEfectivoPorLitro > 0 || clienteDetalle.precioTransferenciaPorLitro > 0) && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs dark:border-blue-900 dark:bg-blue-900/20">
+                <p className="font-medium text-blue-900 dark:text-blue-200 mb-1">Precios del cliente:</p>
+                <div className="flex gap-4 text-blue-800 dark:text-blue-300">
+                  <span><Banknote className="mr-1 inline h-3 w-3" />Efectivo: <strong>{formatCurrency(clienteDetalle.precioEfectivoPorLitro)}/L</strong></span>
+                  <span><Smartphone className="mr-1 inline h-3 w-3" />Transferencia: <strong>{formatCurrency(clienteDetalle.precioTransferenciaPorLitro)}/L</strong></span>
+                </div>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="pagoMonto">Monto recibido *</Label>
               <Input
@@ -1220,12 +1232,9 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             </div>
             {clienteDetalle && (() => {
               // Mostrar el toggle si el cliente tiene precios propios O si hereda del global (ambos 0)
-              // En el último caso, el backend usará los precios globales
               const tienePreciosPropios = clienteDetalle.precioEfectivoPorLitro > 0 || clienteDetalle.precioTransferenciaPorLitro > 0;
               const efectivo = clienteDetalle.precioEfectivoPorLitro;
               const transferencia = clienteDetalle.precioTransferenciaPorLitro || 0;
-              // Mostrar si hay precios propios con efectivo < transferencia,
-              // o si ambos son 0 (hereda global - el backend resolverá)
               const mostrarToggle = (tienePreciosPropios && efectivo > 0 && efectivo < transferencia)
                 || (!tienePreciosPropios);
               if (!mostrarToggle) return null;
@@ -1235,11 +1244,11 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                   <Switch checked={pagoPrecioEfectivo} onCheckedChange={setPagoPrecioEfectivo} />
                   <div>
                     <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
-                      Cobrar a precio efectivo
+                      Recalcular deuda a precio efectivo
                     </p>
                     <p className="text-xs text-amber-700 dark:text-amber-300">
-                      Marca esta opción si el cliente paga en efectivo pero la deuda se generó al precio transferencia (más alto).
-                      El sistema recalculará la deuda al precio efectivo ({precioEfectivoDisplay}/L).
+                      Las entregas impagas se recalcularán al precio efectivo ({precioEfectivoDisplay}/L).
+                      Útil si el cliente va a pagar en efectivo y la deuda se generó al precio transferencia (más alto).
                     </p>
                   </div>
                 </label>
@@ -1251,6 +1260,91 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               </Button>
               <Button type="submit" disabled={pagoSaving}>
                 {pagoSaving ? "Guardando…" : "Registrar pago"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog: Eliminar deuda */}
+      <Dialog open={eliminarDeudaOpen} onOpenChange={setEliminarDeudaOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Eliminar deuda de {clienteDetalle?.nombre}</DialogTitle>
+            <DialogDescription>
+              Registra la deuda como cobrada (pago que cancela toda la deuda pendiente).
+              Se registrará como un pago con el método seleccionado.
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if (!clienteDetalle) return;
+              // Calcular el total por cobrar usando los estados de detalle
+              const totalVentas = detalleEntregas.reduce((s: number, ent: any) => s + (ent.total || 0), 0);
+              const totalRecibido = detalleEntregas.reduce((s: number, ent: any) => s + (ent.montoRecibido || 0), 0);
+              const totalPagosSueltos = detallePagos.reduce((s: number, p: any) => s + (p.monto || 0), 0);
+              const deudaInicial = (clienteDetalle as any).deudaInicial || 0;
+              const totalPorCobrar = deudaInicial + totalVentas - totalRecibido - totalPagosSueltos;
+              const monto = Math.round(totalPorCobrar);
+              if (monto <= 0) {
+                toast.error("No hay deuda pendiente");
+                return;
+              }
+              setPagoSaving(true);
+              try {
+                await apiPost("/api/pagos", {
+                  clienteId: clienteDetalle.id,
+                  monto,
+                  metodoPago: eliminarDeudaMetodo,
+                  nota: "Eliminación de deuda",
+                  precioEfectivo: eliminarDeudaMetodo === "efectivo",
+                });
+                toast.success(`Deuda eliminada: ${formatCurrency(monto)} (${eliminarDeudaMetodo})`);
+                setEliminarDeudaOpen(false);
+                abrirDetalle(clienteDetalle);
+                onRefresh();
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : "No se pudo eliminar la deuda");
+              } finally {
+                setPagoSaving(false);
+              }
+            }}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label>Método de pago</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={eliminarDeudaMetodo === "efectivo" ? "default" : "outline"}
+                  onClick={() => setEliminarDeudaMetodo("efectivo")}
+                  className="flex-1"
+                >
+                  <Banknote className="mr-1 h-4 w-4" /> Efectivo
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={eliminarDeudaMetodo === "transferencia" ? "default" : "outline"}
+                  onClick={() => setEliminarDeudaMetodo("transferencia")}
+                  className="flex-1"
+                >
+                  <Smartphone className="mr-1 h-4 w-4" /> Transferencia
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Si elegís efectivo, las entregas impagas se recalcularán al precio efectivo del cliente.
+                Si elegís transferencia, se mantendrán al precio transferencia.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEliminarDeudaOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={pagoSaving} className="bg-red-600 hover:bg-red-700">
+                {pagoSaving ? "Guardando…" : "Eliminar deuda"}
               </Button>
             </DialogFooter>
           </form>
@@ -1515,16 +1609,30 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                       <p className="text-xl font-bold tabular-nums text-red-600 dark:text-red-400">
                         {formatCurrency(totalPorCobrar)}
                       </p>
-                      <Button
-                        size="sm"
-                        className="mt-1 bg-emerald-600 hover:bg-emerald-700"
-                        onClick={() => {
-                          setPagoOpen(true);
-                          setPagoMonto(String(Math.round(totalPorCobrar)));
-                        }}
-                      >
-                        <Banknote className="mr-1 h-3 w-3" /> Cobrar
-                      </Button>
+                      <div className="mt-1 flex gap-1 justify-end">
+                        <Button
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                          onClick={() => {
+                            setPagoOpen(true);
+                            setPagoMonto(String(Math.round(totalPorCobrar)));
+                          }}
+                        >
+                          <Banknote className="mr-1 h-3 w-3" /> Cobrar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400"
+                          onClick={() => {
+                            if (clienteDetalle) {
+                              setEliminarDeudaOpen(true);
+                            }
+                          }}
+                        >
+                          Eliminar
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
