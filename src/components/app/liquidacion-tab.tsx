@@ -882,18 +882,18 @@ function LiquidacionVuelta({
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          <strong>Cómo se calcula:</strong> Por cada vuelta <strong>válida</strong> recibes{" "}
+          <strong>Cómo se calcula:</strong> Por cada vuelta <strong>válida</strong> el chofer recibe{" "}
           <strong>{formatCurrency(cfg.montoPorVueltaUnicoCliente)}</strong> si fue a 1 cliente o{" "}
           <strong>{formatCurrency(cfg.montoPorVueltaMultiple)}</strong> si fue a múltiples clientes.
-          {" "}Una vuelta es válida solo si entregaste al menos el <strong>97.5%</strong> de la capacidad del camión.
+          {" "}Una vuelta es válida solo si se entregó al menos el <strong>97.5%</strong> de la capacidad del camión.
           {(r.vueltasExcluidas ?? 0) > 0 && (
             <> Las vueltas cerradas sin completar no se contabilizan ({r.vueltasExcluidas} en este período).</>
           )}
-          {" "}Se suman los gastos que pagaste tú (reembolsables).
+          {" "}Se suman los gastos que pagó el chofer (reembolsables).
           {r.impuesto > 0 && (
             <> Se descuenta el impuesto ({cfg.porcentajeImpuesto}% sobre {cfg.aplicaImpuestoSobre === "pago_chofer" ? "el pago del chofer" : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? "la utilidad bruta" : "las ventas brutas"}).</>
           )}{" "}
-          Se descuenta el efectivo que ya recibiste en ruta. El saldo es lo que el administrador te debe (positivo) o lo que tú le debes (negativo).
+          Se descuenta el efectivo que ya recibió el chofer en ruta. El saldo es lo que el administrador le debe al chofer (positivo) o lo que el chofer le debe al administrador (negativo).
         </p>
       </CardContent>
     </Card>
