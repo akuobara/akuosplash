@@ -1280,27 +1280,17 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             onSubmit={async (e) => {
               e.preventDefault();
               if (!clienteDetalle) return;
-              // Calcular el total por cobrar usando los estados de detalle
-              const totalVentas = detalleEntregas.reduce((s: number, ent: any) => s + (ent.total || 0), 0);
-              const totalRecibido = detalleEntregas.reduce((s: number, ent: any) => s + (ent.montoRecibido || 0), 0);
-              const totalPagosSueltos = detallePagos.reduce((s: number, p: any) => s + (p.monto || 0), 0);
-              const deudaInicial = (clienteDetalle as any).deudaInicial || 0;
-              const totalPorCobrar = deudaInicial + totalVentas - totalRecibido - totalPagosSueltos;
-              const monto = Math.round(totalPorCobrar);
-              if (monto <= 0) {
-                toast.error("No hay deuda pendiente");
-                return;
-              }
               setPagoSaving(true);
               try {
-                await apiPost("/api/pagos", {
-                  clienteId: clienteDetalle.id,
-                  monto,
-                  metodoPago: eliminarDeudaMetodo,
-                  nota: "Eliminación de deuda",
-                  precioEfectivo: eliminarDeudaMetodo === "efectivo",
-                });
-                toast.success(`Deuda eliminada: ${formatCurrency(monto)} (${eliminarDeudaMetodo})`);
+                const res = await apiPost<{ ok: boolean; monto: number; message?: string }>(
+                  `/api/clientes/${clienteDetalle.id}/eliminar-deuda`,
+                  { metodoPago: eliminarDeudaMetodo }
+                );
+                if (res.monto === 0) {
+                  toast.info("No hay deuda pendiente");
+                } else {
+                  toast.success(`Deuda eliminada: ${formatCurrency(res.monto)} (${eliminarDeudaMetodo})`);
+                }
                 setEliminarDeudaOpen(false);
                 abrirDetalle(clienteDetalle);
                 onRefresh();
