@@ -49,9 +49,14 @@ export default function AdminDemoSetupPage() {
         <div style={{ padding: "1rem", background: "#dcfce7", border: "1px solid #16a34a", borderRadius: "8px", color: "#15803d" }}>
           <p style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>✅ {msg}</p>
           <div style={{ marginTop: "1rem", padding: "0.75rem", background: "#fff", borderRadius: "6px", border: "1px solid #d1d5db" }}>
-            <p style={{ fontWeight: "bold", marginBottom: "0.5rem", color: "#1f2937" }}>Credenciales de acceso:</p>
+            <p style={{ fontWeight: "bold", marginBottom: "0.5rem", color: "#1f2937" }}>Credenciales admin/chofer:</p>
             <p style={{ color: "#1f2937" }}><strong>Email:</strong> {data?.adminEmail || "demo@aljibe.app"}</p>
             <p style={{ color: "#1f2937" }}><strong>Contraseña:</strong> {data?.adminPassword || "demo1234"}</p>
+          </div>
+          <div style={{ marginTop: "0.5rem", padding: "0.75rem", background: "#fff", borderRadius: "6px", border: "1px solid #d1d5db" }}>
+            <p style={{ fontWeight: "bold", marginBottom: "0.5rem", color: "#1f2937" }}>Credenciales cliente (app /cliente):</p>
+            <p style={{ color: "#1f2937" }}><strong>Email:</strong> {data?.clienteAppEmail || "cliente@demo.aljibe.app"}</p>
+            <p style={{ color: "#1f2937" }}><strong>Contraseña:</strong> {data?.clienteAppPassword || "demo1234"}</p>
           </div>
           {data && (
             <div style={{ marginTop: "0.75rem", fontSize: "0.875rem" }}>

@@ -345,9 +345,94 @@ async function generarDatosDemo() {
     }
   }
 
+  // 7. Crear zona demo para la app cliente
+  const zonaDemo = await db.zona.create({
+    data: {
+      nombre: "Las Condes — Demo",
+      descripcion: "Zona de demostración",
+      // Polígono simple alrededor de Las Condes, Santiago
+      zonaGeoJson: JSON.stringify({
+        type: "Polygon",
+        coordinates: [[
+          [-70.55, -33.40], [-70.50, -33.40], [-70.50, -33.35],
+          [-70.55, -33.35], [-70.55, -33.40]
+        ]]
+      }),
+      centroLat: -33.375,
+      centroLng: -70.525,
+      precioPorLitro: 9,
+      radioKm: 5,
+      activa: true,
+    },
+  });
+
+  // 8. Crear cliente demo (ClienteApp) para la app /cliente
+  const clienteAppEmail = "cliente@demo.aljibe.app";
+  // Eliminar si ya existe (para regenerar)
+  await db.clienteApp.deleteMany({ where: { email: clienteAppEmail } });
+
+  const clienteApp = await db.clienteApp.create({
+    data: {
+      email: clienteAppEmail,
+      passwordHash: hashPassword("demo1234"),
+      nombre: "Ana Rivera",
+      rut: "12.345.678-9",
+      telefono: "+56988812001",
+      direccion: "Av. Las Condes 8430, Las Condes",
+      zonaId: zonaDemo.id,
+      lat: -33.375,
+      lng: -70.525,
+      requiereIngresoPropiedad: false,
+      entregaDesdeAfuera: true,
+      conexionExterna: false,
+      requiereClientePresente: false,
+      indicacionesAcceso: "Estanque lateral, acceso por calle paralela.",
+      usoAgua: "consumo",
+      usoAguaNota: "Casa de 2 pisos, estanque 5000L",
+      tiempoAceptacionPreferidoMin: 15,
+      proveedorPreferidoId: duenoId,
+      entregasExitosas: 12,
+      saldo: 20000, // saldo a favor de $20.000
+      activo: true,
+    },
+  });
+
+  // 9. Crear algunos pedidos demo para el cliente app (PedidoApp)
+  const ahoraPedidos = new Date();
+  for (let i = 0; i < 5; i++) {
+    const fechaPedido = new Date(ahoraPedidos);
+    fechaPedido.setDate(fechaPedido.getDate() - i * 7); // uno por semana
+
+    const litros = [3000, 2500, 4000, 3000, 2500][i];
+    const monto = litros * 9; // $9/L
+    const estados = ["entregado", "entregado", "entregado", "entregado", "en_pool"];
+    const estado = estados[i];
+
+    await db.pedidoApp.create({
+      data: {
+        creadoEn: fechaPedido,
+        clienteId: clienteApp.id,
+        litros,
+        monto,
+        comisionApp: Math.round(monto * 0.10),
+        montoProveedor: Math.round(monto * 0.90),
+        estado,
+        estadoPago: estado === "entregado" ? "pagado" : "pendiente",
+        metodoPago: estado === "entregado" ? (i % 2 === 0 ? "saldo" : "transferencia") : "saldo",
+        direccion: "Av. Las Condes 8430, Las Condes",
+        zonaId: zonaDemo.id,
+        tomadoEn: estado === "entregado" ? new Date(fechaPedido.getTime() + 30 * 60 * 1000) : null,
+        entregadoEn: estado === "entregado" ? new Date(fechaPedido.getTime() + 3 * 60 * 60 * 1000) : null,
+        tomadoPorId: estado === "entregado" ? chofer1.id : null,
+      },
+    });
+  }
+
   return {
     adminEmail: DEMO_EMAIL,
     adminPassword: DEMO_PASSWORD,
+    clienteAppEmail,
+    clienteAppPassword: "demo1234",
     duenoId,
     choferes: 2,
     camiones: 1,
@@ -356,6 +441,9 @@ async function generarDatosDemo() {
     entregas: totalEntregas,
     gastos: totalGastos,
     pagos: totalPagos,
+    zonaDemo: zonaDemo.nombre,
+    clienteApp: clienteApp.nombre,
+    pedidosApp: 5,
   };
 }
 
@@ -377,4 +465,14 @@ async function limpiarDatosDemo(duenoId: string) {
   await db.configuracion.deleteMany({ where: { duenoId } });
   // Eliminar choferes demo existentes
   await db.usuario.deleteMany({ where: { duenoId, role: "chofer" } });
+
+  // Eliminar cliente app demo y sus pedidos
+  const clienteAppDemo = await db.clienteApp.findUnique({ where: { email: "cliente@demo.aljibe.app" } });
+  if (clienteAppDemo) {
+    await db.pedidoApp.deleteMany({ where: { clienteId: clienteAppDemo.id } });
+    await db.movimientoSaldoClienteApp.deleteMany({ where: { clienteId: clienteAppDemo.id } });
+    await db.clienteApp.delete({ where: { id: clienteAppDemo.id } });
+  }
+  // Eliminar zona demo
+  await db.zona.deleteMany({ where: { nombre: "Las Condes — Demo" } });
 }

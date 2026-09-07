@@ -44,5 +44,32 @@ export async function PATCH(req: NextRequest) {
     data,
   });
 
+  // Si cambia a chofer, asignarle el camión demo para que pueda trabajar
+  if (newRole === "chofer") {
+    const camionDemo = await db.camion.findFirst({
+      where: { duenoId: session.userId },
+    });
+    if (camionDemo) {
+      // upsert: si ya existe la asignación, no falla
+      try {
+        await db.camionChofer.upsert({
+          where: {
+            camionId_choferId: {
+              camionId: camionDemo.id,
+              choferId: session.userId,
+            },
+          },
+          update: {},
+          create: {
+            camionId: camionDemo.id,
+            choferId: session.userId,
+          },
+        });
+      } catch {
+        // Si ya existe, ignorar
+      }
+    }
+  }
+
   return NextResponse.json({ ok: true, role: newRole });
 }
