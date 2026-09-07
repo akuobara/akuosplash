@@ -444,7 +444,10 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                       </div>
                     )}
                     <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
-                      <span>{periodoData.resumen.saldoChofer >= 0 ? "Te deben" : "Debés"}</span>
+                      <span>{periodoData.resumen.saldoChofer >= 0
+                        ? (isDueno ? "Le debés al chofer" : "Te deben")
+                        : (isDueno ? "El chofer te debe" : "Debés entregar")}
+                      </span>
                       <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}</span>
                     </div>
                   </div>
@@ -498,7 +501,10 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                       </div>
                     )}
                     <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
-                      <span>{periodoData.resumen.saldoChofer >= 0 ? "Te deben" : "Debés"}</span>
+                      <span>{periodoData.resumen.saldoChofer >= 0
+                        ? (isDueno ? "Le debés al chofer" : "Te deben")
+                        : (isDueno ? "El chofer te debe" : "Debés entregar")}
+                      </span>
                       <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}</span>
                     </div>
                   </div>
