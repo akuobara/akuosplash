@@ -448,31 +448,47 @@ async function generarDatosDemo() {
 }
 
 async function limpiarDatosDemo(duenoId: string) {
-  // Eliminar todos los datos del admin demo para regenerar limpio
-  await db.pago.deleteMany({ where: { duenoId } });
-  await db.gasto.deleteMany({ where: { duenoId } });
-  await db.entrega.deleteMany({ where: { duenoId } });
-  await db.vuelta.deleteMany({ where: { duenoId } });
-  await db.pedido.deleteMany({ where: { duenoId } });
-  await db.cliente.deleteMany({ where: { duenoId } });
-  const camionesIds = (await db.camion.findMany({ where: { duenoId }, select: { id: true } })).map(c => c.id);
-  if (camionesIds.length > 0) {
-    await db.camionChofer.deleteMany({ where: { camionId: { in: camionesIds } } });
-    await db.bitacoraCamion.deleteMany({ where: { camionId: { in: camionesIds } } });
-    await db.camion.deleteMany({ where: { duenoId } });
-  }
-  await db.pedidoRecurrente.deleteMany({ where: { duenoId } });
-  await db.configuracion.deleteMany({ where: { duenoId } });
-  // Eliminar choferes demo existentes
-  await db.usuario.deleteMany({ where: { duenoId, role: "chofer" } });
-
-  // Eliminar cliente app demo y sus pedidos
+  // IMPORTANTE: el orden importa por las foreign keys.
+  // 1. Eliminar PedidoApp PRIMERO (tienen tomadoPorId que referencia a choferes)
   const clienteAppDemo = await db.clienteApp.findUnique({ where: { email: "cliente@demo.aljibe.app" } });
   if (clienteAppDemo) {
     await db.pedidoApp.deleteMany({ where: { clienteId: clienteAppDemo.id } });
     await db.movimientoSaldoClienteApp.deleteMany({ where: { clienteId: clienteAppDemo.id } });
     await db.clienteApp.delete({ where: { id: clienteAppDemo.id } });
   }
-  // Eliminar zona demo
+
+  // 2. Eliminar datos del admin demo (entregas, vueltas, etc.)
+  await db.pago.deleteMany({ where: { duenoId } });
+  await db.gasto.deleteMany({ where: { duenoId } });
+  await db.entrega.deleteMany({ where: { duenoId } });
+  await db.vuelta.deleteMany({ where: { duenoId } });
+  await db.pedido.deleteMany({ where: { duenoId } });
+
+  // 3. Limpiar referencias a choferes en clientes antes de eliminarlos
+  // (Cliente.choferPreferidoId puede apuntar a un chofer demo)
+  await db.cliente.updateMany({
+    where: { duenoId, choferPreferidoId: { not: null } },
+    data: { choferPreferidoId: null },
+  });
+  await db.cliente.deleteMany({ where: { duenoId } });
+
+  // 4. Eliminar camiones y sus asignaciones
+  const camionesIds = (await db.camion.findMany({ where: { duenoId }, select: { id: true } })).map(c => c.id);
+  if (camionesIds.length > 0) {
+    await db.camionChofer.deleteMany({ where: { camionId: { in: camionesIds } } });
+    await db.bitacoraCamion.deleteMany({ where: { camionId: { in: camionesIds } } });
+    await db.camion.deleteMany({ where: { duenoId } });
+  }
+
+  // 5. Eliminar pedidos recurrentes (pueden tener choferAsignadoId)
+  await db.pedidoRecurrente.deleteMany({ where: { duenoId } });
+
+  // 6. Eliminar configuración
+  await db.configuracion.deleteMany({ where: { duenoId } });
+
+  // 7. Ahora sí eliminar choferes demo (ya no hay referencias a ellos)
+  await db.usuario.deleteMany({ where: { duenoId, role: "chofer" } });
+
+  // 8. Eliminar zona demo
   await db.zona.deleteMany({ where: { nombre: "Las Condes — Demo" } });
 }
