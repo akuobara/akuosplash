@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   const gastoWhere = { ...rangeFilter, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
   const vueltaWhere = { ...rangeFilterVuelta, duenoId, ...(session.role === "chofer" ? { choferId: session.userId } : {}) };
 
-  const [entregas, gastos, vueltas, config] = await Promise.all([
+  const [entregas, gastos, vueltas, config, pagosSueltos] = await Promise.all([
     db.entrega.findMany({ where: entregaWhere }),
     db.gasto.findMany({ where: gastoWhere }),
     db.vuelta.findMany({
@@ -37,6 +37,10 @@ export async function GET(req: NextRequest) {
       include: { entregas: { select: { id: true, litros: true, total: true, montoEfectivo: true, montoTransferencia: true, montoRecibido: true } } },
     }),
     db.configuracion.findUnique({ where: { duenoId } }),
+    db.pago.findMany({
+      where: { ...rangeFilter, duenoId },
+      select: { monto: true, metodoPago: true },
+    }),
   ]);
 
   const cfg = config ?? {
@@ -49,10 +53,19 @@ export async function GET(req: NextRequest) {
   };
 
   const totalVentas = entregas.reduce((s, e) => s + e.total, 0);
-  const totalEfectivoRecibido = entregas.reduce((s, e) => s + e.montoEfectivo, 0);
-  const totalTransferenciaRecibida = entregas.reduce((s, e) => s + e.montoTransferencia, 0);
+  const totalEfectivoEntregas = entregas.reduce((s, e) => s + e.montoEfectivo, 0);
+  const totalTransferenciaEntregas = entregas.reduce((s, e) => s + e.montoTransferencia, 0);
+
+  // Pagos sueltos (cobros de deuda registrados por chofer o admin)
+  const pagosSueltosEfectivo = pagosSueltos.filter(p => p.metodoPago === "efectivo").reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosTransferencia = pagosSueltos.filter(p => p.metodoPago === "transferencia").reduce((s, p) => s + p.monto, 0);
+
+  // Totales incluyen entregas + pagos sueltos
+  const totalEfectivoRecibido = totalEfectivoEntregas + pagosSueltosEfectivo;
+  const totalTransferenciaRecibida = totalTransferenciaEntregas + pagosSueltosTransferencia;
   const totalRecibido = totalEfectivoRecibido + totalTransferenciaRecibida;
-  const totalPorCobrar = entregas.reduce((s, e) => s + Math.max(0, e.total - e.montoRecibido), 0);
+  const totalPorCobrar = entregas.reduce((s, e) => s + Math.max(0, e.total - e.montoRecibido), 0) - pagosSueltos.reduce((s, p) => s + p.monto, 0);
+  const totalPorCobrarFinal = Math.max(0, totalPorCobrar);
   const totalLitros = entregas.reduce((s, e) => s + e.litros, 0);
   const totalGastos = gastos.reduce((s, g) => s + g.monto, 0);
   const gastosChofer = gastos.filter((g) => g.pagadoPor === "chofer").reduce((s, g) => s + g.monto, 0);
@@ -109,7 +122,7 @@ export async function GET(req: NextRequest) {
     totalEfectivoRecibido,
     totalTransferenciaRecibida,
     totalRecibido,
-    totalPorCobrar,
+    totalPorCobrar: totalPorCobrarFinal,
     totalLitros,
     totalGastos,
     gastosChofer,

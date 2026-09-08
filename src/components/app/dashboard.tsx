@@ -394,14 +394,14 @@ export function Dashboard({
             <StatCard
               label="Efectivo"
               value={formatCurrency(resumen.totalEfectivoRecibido)}
-              hint="Recibido en ruta"
+              hint="Total recibido"
               icon={Banknote}
               tone="accent"
             />
             <StatCard
               label="Transferencia"
               value={formatCurrency(resumen.totalTransferenciaRecibida)}
-              hint="Recibida en ruta"
+              hint="Total recibido"
               icon={Smartphone}
             />
             <StatCard
