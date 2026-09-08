@@ -641,17 +641,8 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
               Vas a cerrar el período <strong>{periodoData?.periodo?.label}</strong>.
             </DialogDescription>
           </DialogHeader>
-          <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 p-3 text-xs text-red-900 dark:text-red-200 space-y-1">
-            <p className="font-semibold">⚠️ Atención: después de cerrar el período:</p>
-            <ul className="list-disc ml-4 space-y-0.5">
-              <li>No se podrán registrar nuevas entregas con fecha anterior al cierre</li>
-              <li>No se podrán editar entregas existentes de ese período</li>
-              <li>No se podrán registrar gastos de ese período</li>
-              <li>No se podrán registrar pagos de ese período</li>
-            </ul>
-          </div>
           <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-800 p-3 text-xs text-amber-900 dark:text-amber-200">
-            <p>📥 Recomendamos descargar el resumen (PDF o Excel) antes de cerrar.</p>
+            <p>Las entregas, gastos y pagos de este período ya no se podrán editar.</p>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setConfirmarCierre(false)}>
