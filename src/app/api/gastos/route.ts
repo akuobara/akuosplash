@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 import { getRange } from "@/lib/helpers";
 import { checkDemoBlock } from "@/lib/demo-guard";
+import { isFechaEnPeriodoCerrado } from "@/lib/periodo-cerrado";
 
 // GET /api/gastos
 export async function GET(req: NextRequest) {
@@ -67,6 +68,15 @@ export async function POST(req: NextRequest) {
     let pagadoPor = session.role === "chofer" ? "chofer" : (body.pagadoPor || "chofer");
     if (pagadoPor !== "chofer" && pagadoPor !== "dueno") {
       pagadoPor = "chofer";
+    }
+
+    // === BLOQUEO DE PERÍODO CERRADO ===
+    const fechaGasto = body.fecha ? new Date(body.fecha) : new Date();
+    if (await isFechaEnPeriodoCerrado(fechaGasto)) {
+      return NextResponse.json(
+        { error: "No se pueden registrar gastos en un período cerrado." },
+        { status: 403 }
+      );
     }
 
     const nuevo = await db.gasto.create({

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
+import { isFechaEnPeriodoCerrado } from "@/lib/periodo-cerrado";
 
 // GET /api/pagos?clienteId=...
 export async function GET(req: NextRequest) {
@@ -79,6 +80,14 @@ export async function POST(req: NextRequest) {
     const cliente = await db.cliente.findUnique({ where: { id: body.clienteId } });
     if (!cliente || cliente.duenoId !== duenoId) {
       return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
+    }
+
+    // === BLOQUEO DE PERÍODO CERRADO ===
+    if (await isFechaEnPeriodoCerrado(new Date())) {
+      return NextResponse.json(
+        { error: "No se pueden registrar pagos en un período cerrado." },
+        { status: 403 }
+      );
     }
 
     // Si se seleccionó "precio efectivo", recalcular las entregas impagas al precio efectivo

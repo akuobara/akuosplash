@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 import { getRange } from "@/lib/helpers";
 import { checkDemoBlock } from "@/lib/demo-guard";
+import { isFechaEnPeriodoCerrado } from "@/lib/periodo-cerrado";
 
 // GET /api/entregas?period=...&clienteId=...
 export async function GET(req: NextRequest) {
@@ -173,6 +174,16 @@ export async function POST(req: NextRequest) {
       if (!cliente || cliente.duenoId !== duenoId) {
         return NextResponse.json({ error: "El cliente no pertenece a tu organización" }, { status: 403 });
       }
+    }
+
+    // === BLOQUEO DE PERÍODO CERRADO ===
+    // Si la fecha de la entrega es anterior al último cierre de período, bloquear.
+    const fechaEntrega = body.fecha ? new Date(body.fecha) : new Date();
+    if (await isFechaEnPeriodoCerrado(fechaEntrega)) {
+      return NextResponse.json(
+        { error: "No se pueden registrar entregas en un período cerrado. El período fue cerrado por el administrador." },
+        { status: 403 }
+      );
     }
 
     // === IDEMPOTENCIA: evitar entregas duplicadas por doble-click ===

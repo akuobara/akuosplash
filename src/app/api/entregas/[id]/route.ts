@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
+import { isFechaEnPeriodoCerrado } from "@/lib/periodo-cerrado";
 
 async function checkOwnership(id: string) {
   const session = await getSession();
@@ -24,10 +25,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const _demoBlocked = await checkDemoBlock();
   if (_demoBlocked) return _demoBlocked;
 
-  const { error: authError } = await checkOwnership(await params.then(p => p.id));
+  const { id } = await params;
+  const { error: authError } = await checkOwnership(id);
   if (authError) return authError;
 
-  const { id } = await params;
+  // === BLOQUEO DE PERÍODO CERRADO ===
+  // Verificar si la entrega existente está en un período cerrado
+  const entregaExistente = await db.entrega.findUnique({ where: { id }, select: { fecha: true } });
+  if (entregaExistente && await isFechaEnPeriodoCerrado(entregaExistente.fecha)) {
+    return NextResponse.json(
+      { error: "No se pueden editar entregas de un período cerrado." },
+      { status: 403 }
+    );
+  }
+
   const body = await req.json();
 
   // Validar que clienteId pertenece al dueno si se está cambiando

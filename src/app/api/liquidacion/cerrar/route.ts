@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
+import { clearCierreCache } from "@/lib/periodo-cerrado";
 
 // POST /api/liquidacion/cerrar
 // Cierra el período actual, registrando la fecha de cierre.
@@ -34,9 +35,12 @@ export async function POST(req: NextRequest) {
     data: { ultimoCierre: fechaCierre },
   });
 
+  // Limpiar cache para que los endpoints de escritura bloqueen inmediatamente
+  clearCierreCache();
+
   return NextResponse.json({
     ok: true,
     ultimoCierre: config.ultimoCierre,
-    message: `Período cerrado el ${fechaCierre.toLocaleDateString("es-CL")}`,
+    message: `Período cerrado el ${fechaCierre.toLocaleDateString("es-CL")}. Las entregas, gastos y pagos de este período ya no se pueden editar.`,
   });
 }
