@@ -17,7 +17,7 @@ import {
 import {
   Users, Truck, Droplets, DollarSign, TrendingUp,
   Activity, Shield, Search, UserCheck, UserX, ArrowLeft, LogOut, Clock,
-  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2, MapPin, Package, Receipt,
+  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2, MapPin, Package, Receipt, Upload,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -1761,6 +1761,11 @@ function ZonasAdmin() {
   const [centroLng, setCentroLng] = useState("");
   const [radioKm, setRadioKm] = useState("");
   const [activa, setActiva] = useState(true);
+  const [importarKmlOpen, setImportarKmlOpen] = useState(false);
+  const [kmlFile, setKmlFile] = useState<File | null>(null);
+  const [kmlPrecio, setKmlPrecio] = useState("9");
+  const [kmlNombre, setKmlNombre] = useState("");
+  const [importando, setImportando] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -1830,7 +1835,10 @@ function ZonasAdmin() {
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button size="sm" variant="outline" onClick={() => setImportarKmlOpen(true)}>
+          <Upload className="mr-1 h-4 w-4" /> Importar KML
+        </Button>
         <Button size="sm" onClick={abrirCrear}><Plus className="mr-1 h-4 w-4" /> Nueva zona</Button>
       </div>
 
@@ -1893,6 +1901,83 @@ function ZonasAdmin() {
           <DialogFooter>
             <Button variant="outline" onClick={() => { setCreando(false); setEditando(null); }}>Cancelar</Button>
             <Button onClick={guardar}>Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog importar KML */}
+      <Dialog open={importarKmlOpen} onOpenChange={(o) => { setImportarKmlOpen(o); if (!o) { setKmlFile(null); setKmlNombre(""); setKmlPrecio("9"); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Importar zona desde KML</DialogTitle>
+            <DialogDescription>
+              Subí un archivo KML exportado desde Google Earth. El polígono se convertirá automáticamente en una zona de cobertura.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Archivo KML *</Label>
+              <input
+                type="file"
+                accept=".kml"
+                onChange={(e) => setKmlFile(e.target.files?.[0] || null)}
+                className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-primary-foreground hover:file:bg-primary/90"
+              />
+              {kmlFile && (
+                <p className="mt-1 text-xs text-emerald-600">✓ {kmlFile.name} ({(kmlFile.size / 1024).toFixed(1)} KB)</p>
+              )}
+            </div>
+            <div>
+              <Label className="text-xs">Nombre de la zona (opcional — se usa el del KML si no se completa)</Label>
+              <Input value={kmlNombre} onChange={(e) => setKmlNombre(e.target.value)} placeholder="Ej: Zona Cruz de Caña" />
+            </div>
+            <div>
+              <Label className="text-xs">Precio por litro *</Label>
+              <Input type="number" step="0.1" value={kmlPrecio} onChange={(e) => setKmlPrecio(e.target.value)} placeholder="9" />
+            </div>
+            <div className="rounded-lg bg-muted/40 p-2 text-xs text-muted-foreground">
+              <p><strong>Cómo exportar desde Google Earth:</strong></p>
+              <ol className="ml-4 list-decimal space-y-0.5 mt-1">
+                <li>Dibujá un polígono en Google Earth</li>
+                <li>Clic derecho → Guardar lugar como...</li>
+                <li>Tipo: KML (*.kml)</li>
+                <li>Subí el archivo acá</li>
+              </ol>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportarKmlOpen(false)}>Cancelar</Button>
+            <Button
+              disabled={!kmlFile || importando}
+              onClick={async () => {
+                if (!kmlFile) return;
+                setImportando(true);
+                try {
+                  const formData = new FormData();
+                  formData.append("file", kmlFile);
+                  if (kmlNombre.trim()) formData.append("nombre", kmlNombre.trim());
+                  formData.append("precioPorLitro", kmlPrecio);
+                  const res = await fetch("/api/super-admin/zonas/importar-kml", {
+                    method: "POST",
+                    body: formData,
+                    headers: { Authorization: `Bearer ${typeof window !== "undefined" ? localStorage.getItem("aljibe-token") : ""}` },
+                  });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || "Error al importar");
+                  toast.success(data.message || "Zona importada");
+                  setImportarKmlOpen(false);
+                  setKmlFile(null);
+                  setKmlNombre("");
+                  cargar();
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "No se pudo importar");
+                } finally {
+                  setImportando(false);
+                }
+              }}
+            >
+              {importando ? "Importando…" : "Importar zona"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
