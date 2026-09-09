@@ -163,7 +163,7 @@ const ESTADO_COLORS: Record<string, string> = {
 export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentUserId, clientes, choferes, clientePreselect, onPreselectConsumed, vueltaActual, camiones }: PedidosTabProps) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filtroEstado, setFiltroEstado] = useState<string>("pendiente");
+  const [filtroEstado, setFiltroEstado] = useState<string>("activos");
   const [vista, setVista] = useState<"lista" | "ruta">("lista");
 
   const [formOpen, setFormOpen] = useState(false);
@@ -249,7 +249,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   }, [clientePreselect, clientes]);
 
   const filtrados = pedidos.filter((p) => {
-    if (filtroEstado !== "todos" && p.estado !== filtroEstado) return false;
+    if (filtroEstado === "todos") return true;
+    if (filtroEstado === "activos") return p.estado === "pendiente" || p.estado === "programado";
+    if (p.estado !== filtroEstado) return false;
     return true;
   });
 
@@ -773,6 +775,13 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         <>
           {/* Filtros de estado */}
           <div className="flex flex-wrap gap-1">
+            <Button
+              size="sm"
+              variant={filtroEstado === "activos" ? "default" : "outline"}
+              onClick={() => setFiltroEstado("activos")}
+            >
+              Activos ({pedidos.filter(p => p.estado === "pendiente" || p.estado === "programado").length})
+            </Button>
             <Button
               size="sm"
               variant={filtroEstado === "todos" ? "default" : "outline"}
