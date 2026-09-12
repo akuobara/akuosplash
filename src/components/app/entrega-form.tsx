@@ -245,6 +245,7 @@ export function EntregaForm({
   const [descuentoTipo, setDescuentoTipo] = useState<string>("ninguno"); // ninguno | total | por_litro
   const [descuentoMonto, setDescuentoMonto] = useState<string>(""); // monto del descuento
   const [descuentoPorLitroInput, setDescuentoPorLitroInput] = useState<string>(""); // descuento por litro
+  const [descuentoQuien, setDescuentoQuien] = useState<string>("chofer"); // chofer | dueno — quién asume el descuento
 
   const [montoEfectivo, setMontoEfectivo] = useState<string>("");
   const [montoTransferencia, setMontoTransferencia] = useState<string>("");
@@ -677,7 +678,7 @@ export function EntregaForm({
         descuentoTipo,
         descuento: descuentoTipo === "total" ? (Number(descuentoMonto) || 0) : 0,
         descuentoPorLitro: descuentoTipo === "por_litro" ? (Number(descuentoPorLitroInput) || 0) : 0,
-        descuentoPor: "chofer", // el que entrega asume el descuento (el backend puede sobrescribir si es dueño)
+        descuentoPor: descuentoQuien, // chofer | dueno — quién asume el descuento
         fotoMedidorUrl: fotoUrl,
         nota: nota.trim() || null,
       };
@@ -1474,9 +1475,40 @@ export function EntregaForm({
                 </div>
               )}
               {descuentoTipo !== "ninguno" && (
-                <p className="text-[10px] text-amber-600 dark:text-amber-400">
-                  El descuento se descontará de tu pago en liquidación (si eres chofer) o de la utilidad (si eres administrador).
-                </p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">Lo asume:</span>
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setDescuentoQuien("chofer")}
+                        className={`rounded-md border px-2 py-0.5 text-[10px] font-medium transition ${
+                          descuentoQuien === "chofer"
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-background text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        Chofer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDescuentoQuien("dueno")}
+                        className={`rounded-md border px-2 py-0.5 text-[10px] font-medium transition ${
+                          descuentoQuien === "dueno"
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-background text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        Admin
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    {descuentoQuien === "chofer"
+                      ? "Se descontará de tu pago en liquidación."
+                      : "Se descontará de la utilidad del administrador."}
+                  </p>
+                </div>
               )}
             </div>
           )}
