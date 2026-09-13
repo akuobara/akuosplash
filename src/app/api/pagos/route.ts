@@ -135,6 +135,7 @@ export async function POST(req: NextRequest) {
 
     const nuevo = await db.pago.create({
       data: {
+        fecha: body.fecha ? new Date(body.fecha) : new Date(),
         clienteId: body.clienteId,
         monto,
         metodoPago: body.metodoPago || "efectivo",

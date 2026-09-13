@@ -133,6 +133,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [deudaInicialMonto, setDeudaInicialMonto] = useState("");
   const [pagoMetodo, setPagoMetodo] = useState("efectivo");
   const [pagoNota, setPagoNota] = useState("");
+  const [pagoFecha, setPagoFecha] = useState("");
   const [pagoPrecioEfectivo, setPagoPrecioEfectivo] = useState(false);
   const [pagoSaving, setPagoSaving] = useState(false);
   const [eliminarDeudaOpen, setEliminarDeudaOpen] = useState(false);
@@ -406,10 +407,12 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         metodoPago: pagoMetodo,
         nota: pagoNota.trim() || null,
         precioEfectivo: pagoPrecioEfectivo,
+        ...(pagoFecha ? { fecha: pagoFecha } : {}),
       });
       toast.success("Pago registrado");
       setPagoOpen(false);
       setPagoMonto("");
+      setPagoFecha("");
       setPagoNota("");
       setPagoPrecioEfectivo(false);
       abrirDetalle(clienteDetalle);
@@ -1222,6 +1225,16 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               </div>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="pagoFecha">Fecha del pago (opcional)</Label>
+              <Input
+                id="pagoFecha"
+                type="date"
+                value={pagoFecha}
+                onChange={(e) => setPagoFecha(e.target.value)}
+              />
+              <p className="text-[10px] text-muted-foreground">Dejar vacío para usar la fecha de hoy.</p>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="pagoNota">Nota (opcional)</Label>
               <Input
                 id="pagoNota"
@@ -1255,7 +1268,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               );
             })()}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setPagoOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => { setPagoOpen(false); setPagoFecha(""); }}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={pagoSaving}>

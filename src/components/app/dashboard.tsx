@@ -883,6 +883,7 @@ function PagoDirectoForm({ clientes, onSaved }: { clientes: any[]; onSaved: () =
   const [metodo, setMetodo] = useState("efectivo");
   const [descripcion, setDescripcion] = useState("");
   const [nota, setNota] = useState("");
+  const [fecha, setFecha] = useState("");
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -909,6 +910,7 @@ function PagoDirectoForm({ clientes, onSaved }: { clientes: any[]; onSaved: () =
         metodoPago: metodo,
         descripcion: tipo === "general" ? descripcion.trim() : undefined,
         nota: nota.trim() || null,
+        ...(fecha ? { fecha } : {}),
       });
       toast.success("Pago registrado");
       onSaved();
@@ -985,6 +987,13 @@ function PagoDirectoForm({ clientes, onSaved }: { clientes: any[]; onSaved: () =
       <div>
         <Label className="text-xs">Nota (opcional)</Label>
         <Input value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Ej: Pago de agosto" />
+      </div>
+
+      {/* Fecha */}
+      <div>
+        <Label className="text-xs">Fecha del pago (opcional)</Label>
+        <Input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} />
+        <p className="text-[10px] text-muted-foreground mt-0.5">Dejar vacío para hoy.</p>
       </div>
 
       <Button type="submit" className="w-full" disabled={saving}>
