@@ -393,7 +393,16 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                       )}
                     </div>
                   </div>
-                  {isDueno && (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-[11px]"
+                      onClick={() => router.push(`/camiones/${c.id}`)}
+                    >
+                      <ExternalLink className="mr-1 h-3 w-3" /> Ficha
+                    </Button>
+                    {isDueno && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
@@ -418,7 +427,8 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  )}
+                    )}
+                  </div>
                 </div>
               </li>
             ))}
