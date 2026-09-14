@@ -77,7 +77,16 @@ export async function GET(req: NextRequest) {
     const esChofer = session.role === "chofer";
     const entregaWhere = { duenoId, fecha: { gte: start, lt: end }, ...(esChofer ? { choferId: session.userId } : {}) };
     const gastoWhere = { duenoId, fecha: { gte: start, lt: end }, ...(esChofer ? { choferId: session.userId } : {}) };
-    const vueltaWhere = { duenoId, iniciadaEn: { gte: start, lt: end }, ...(esChofer ? { choferId: session.userId } : {}) };
+    // Vueltas: usar cerradaEn si está cerrada, iniciadaEn si está activa
+    const choferFilter = esChofer ? { choferId: session.userId } : {};
+    const vueltaWhere = {
+      duenoId,
+      ...choferFilter,
+      OR: [
+        { activa: false, cerradaEn: { gte: start, lt: end } },
+        { activa: true, iniciadaEn: { gte: start, lt: end } },
+      ],
+    };
 
     const [entregas, gastos, vueltas, pagosSueltos] = await Promise.all([
       db.entrega.findMany({ where: entregaWhere, orderBy: { fecha: "desc" }, include: { vuelta: { select: { numero: true } } } }),

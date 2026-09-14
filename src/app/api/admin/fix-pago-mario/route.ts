@@ -34,7 +34,7 @@ async function ejecutar() {
     }
 
     // Eliminar todos los pagos de Mario de $400
-    const eliminados = [];
+    const eliminados: any[] = [];
     for (const pago of pagosMario) {
       await db.pago.delete({ where: { id: pago.id } });
       eliminados.push({

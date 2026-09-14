@@ -93,7 +93,10 @@ export async function GET(req: NextRequest) {
     historial.push({ offset: i, label: p.label, start: p.start, end: p.end });
   }
 
-  // Buscar entregas, gastos, vueltas del período
+  // Buscar entregas, gastos, vueltas del período.
+  // Para vueltas: usar cerradaEn si la vuelta está cerrada (para que cuente en la semana
+  // en que se cerró, no en la que se inició). Si está activa, usar iniciadaEn.
+  // Esto resuelve el caso de una vuelta que se inició la semana pasada pero se cerró esta semana.
   const [entregas, gastos, vueltas, pagosSueltos] = await Promise.all([
     db.entrega.findMany({
       where: { duenoId, fecha: { gte: start, lt: end } },
@@ -105,7 +108,15 @@ export async function GET(req: NextRequest) {
       orderBy: { fecha: "desc" },
     }),
     db.vuelta.findMany({
-      where: { duenoId, iniciadaEn: { gte: start, lt: end } },
+      where: {
+        duenoId,
+        OR: [
+          // Vueltas cerradas en este período
+          { activa: false, cerradaEn: { gte: start, lt: end } },
+          // Vueltas activas iniciadas en este período
+          { activa: true, iniciadaEn: { gte: start, lt: end } },
+        ],
+      },
       include: {
         camion: { select: { nombre: true, capacidad: true } },
         chofer: { select: { nombre: true } },
