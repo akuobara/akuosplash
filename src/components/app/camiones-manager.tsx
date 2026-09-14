@@ -34,8 +34,10 @@ import {
   Droplets,
   User,
   Users,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { apiGet, apiPost, apiPatch, apiDelete, uploadFile } from "@/lib/api-client";
 import { formatNumber } from "@/lib/helpers";
 
@@ -91,6 +93,7 @@ interface CamionesManagerProps {
 }
 
 export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDueno }: CamionesManagerProps) {
+  const router = useRouter();
   const [camiones, setCamiones] = useState<Camion[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
@@ -318,7 +321,12 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium">{c.nombre}</span>
+                      <button
+                        className="font-medium text-left hover:text-primary hover:underline"
+                        onClick={() => router.push(`/camiones/${c.id}`)}
+                      >
+                        {c.nombre}
+                      </button>
                       {c.patente && (
                         <Badge variant="outline" className="text-[10px]">{c.patente}</Badge>
                       )}
@@ -393,6 +401,9 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/camiones/${c.id}`)}>
+                          <ExternalLink className="mr-2 h-4 w-4" /> Ver ficha
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => abrirAsignar(c)}>
                           <Users className="mr-2 h-4 w-4" /> Asignar choferes
                         </DropdownMenuItem>
