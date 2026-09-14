@@ -23,7 +23,7 @@ export async function GET() {
       entregasExitosas: true,
       saldo: true,
       activo: true,
-      zona: { select: { id: true, nombre: true, precioPorLitro: true } },
+      zona: { select: { id: true, nombre: true, precioPorLitro: true, litrosMinimos: true } },
       proveedorPreferido: { select: { id: true, nombre: true } },
     },
   });

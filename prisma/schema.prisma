@@ -522,6 +522,8 @@ model Zona {
   centroLng       Float?
   // Precio por litro en esta zona (incluye 10% comisión app)
   precioPorLitro  Float
+  // Cantidad mínima de litros por pedido en esta zona (default 1000)
+  litrosMinimos   Int      @default(1000)
   // Radio de cobertura (km) si no hay polígono
   radioKm         Float?
   activa          Boolean  @default(true)

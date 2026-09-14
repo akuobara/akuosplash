@@ -19,7 +19,7 @@ interface Cliente {
   saldo: number;
   entregasExitosas: number;
   puedePagarEfectivo: boolean;
-  zona: { id: string; nombre: string; precioPorLitro: number } | null;
+  zona: { id: string; nombre: string; precioPorLitro: number; litrosMinimos?: number } | null;
   direccion: string | null;
   indicacionesAcceso: string | null;
   proveedorPreferido: { id: string; nombre: string } | null;
@@ -100,8 +100,9 @@ export default function PedirAguaPage() {
   async function handlePedir(e: React.FormEvent) {
     e.preventDefault();
     const litrosNum = Number(litros);
-    if (!litrosNum || litrosNum < 100) {
-      toast.error("Ingresá una cantidad válida (mínimo 100 L)");
+    const minLitros = cliente?.zona?.litrosMinimos ?? 1000;
+    if (!litrosNum || litrosNum < minLitros) {
+      toast.error(`La cantidad mínima es ${formatNumber(minLitros, 0)} L`);
       return;
     }
 
@@ -221,13 +222,13 @@ export default function PedirAguaPage() {
                 <Label className="text-xs">Litros *</Label>
                 <Input
                   type="number"
-                  min="100"
+                  min={cliente?.zona?.litrosMinimos ?? 1000}
                   step="100"
                   value={litros}
                   onChange={(e) => setLitros(e.target.value)}
                   placeholder="Ej: 1500"
                 />
-                <p className="text-xs text-muted-foreground mt-1">Mínimo 100 L</p>
+                <p className="text-xs text-muted-foreground mt-1">Mínimo {formatNumber(cliente?.zona?.litrosMinimos ?? 1000, 0)} L</p>
               </div>
 
               {litros && Number(litros) > 0 && (

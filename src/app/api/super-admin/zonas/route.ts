@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
       centroLat: body.centroLat ? Number(body.centroLat) : null,
       centroLng: body.centroLng ? Number(body.centroLng) : null,
       precioPorLitro: Number(body.precioPorLitro),
+      litrosMinimos: body.litrosMinimos ? Number(body.litrosMinimos) : 1000,
       radioKm: body.radioKm ? Number(body.radioKm) : null,
       activa: body.activa !== false,
     },

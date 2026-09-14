@@ -23,6 +23,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.centroLat !== undefined) data.centroLat = body.centroLat ? Number(body.centroLat) : null;
   if (body.centroLng !== undefined) data.centroLng = body.centroLng ? Number(body.centroLng) : null;
   if (body.precioPorLitro !== undefined) data.precioPorLitro = Number(body.precioPorLitro) || 0;
+  if (body.litrosMinimos !== undefined) data.litrosMinimos = Number(body.litrosMinimos) || 1000;
   if (body.radioKm !== undefined) data.radioKm = body.radioKm ? Number(body.radioKm) : null;
   if (body.activa !== undefined) data.activa = !!body.activa;
 
