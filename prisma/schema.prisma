@@ -247,8 +247,8 @@ model Camion {
 
   // === Configuración del camión ===
   carroceria       String?  // cisterna_agua | flete | hormigon | otro (tipo de carrocería)
-  tipoEstanque    String?  // cilindrico | rectangular | ovalado (forma del estanque)
-  materialEstanque String? // acero_inoxidable | fibrocemento | polietileno | aluminio | acero_carbono
+  tipoCisterna    String?  // agua | combustible | quimico | otro (tipo de contenido del estanque)
+  materialEstanque String? // acero_inoxidable | fibrocemento | polietileno | aluminio | acero
   tipoAgua        String?  // riego | aljibe | consumo_humano (tipo de agua transportada)
   resolucionSanitaria    String?     // Número de resolución sanitaria (solo si tipoAgua = consumo_humano)
   resolucionSanitariaVencimiento DateTime?  // Vencimiento resolución sanitaria

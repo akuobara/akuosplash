@@ -13,7 +13,7 @@ async function ejecutar() {
 
   const columnas: [string, string][] = [
     ["Camion", "carroceria TEXT"],
-    ["Camion", "tipoEstanque TEXT"],
+    ["Camion", "tipoCisterna TEXT"],
     ["Camion", "materialEstanque TEXT"],
     ["Camion", "tipoAgua TEXT"],
     ["Camion", "resolucionSanitaria TEXT"],

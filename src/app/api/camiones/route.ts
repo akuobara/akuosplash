@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
         seguroNumero: body.seguroNumero?.trim() || null,
         // Configuración del camión (carrocería y estanque)
         carroceria: body.carroceria?.trim() || null,
-        tipoEstanque: body.tipoEstanque?.trim() || null,
+        tipoCisterna: body.tipoCisterna?.trim() || null,
         materialEstanque: body.materialEstanque?.trim() || null,
         tipoAgua: body.tipoAgua?.trim() || null,
         // Resolución sanitaria (solo si tipoAgua = consumo_humano)

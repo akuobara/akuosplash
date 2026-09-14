@@ -96,7 +96,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.seguroNumero !== undefined && { seguroNumero: body.seguroNumero?.trim() || null }),
       // Configuración del camión (carrocería y estanque)
       ...(body.carroceria !== undefined && { carroceria: body.carroceria?.trim() || null }),
-      ...(body.tipoEstanque !== undefined && { tipoEstanque: body.tipoEstanque?.trim() || null }),
+      ...(body.tipoCisterna !== undefined && { tipoCisterna: body.tipoCisterna?.trim() || null }),
       ...(body.materialEstanque !== undefined && { materialEstanque: body.materialEstanque?.trim() || null }),
       ...(body.tipoAgua !== undefined && { tipoAgua: body.tipoAgua?.trim() || null }),
       // Resolución sanitaria (solo aplica si tipoAgua = consumo_humano)

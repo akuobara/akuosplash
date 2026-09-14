@@ -63,10 +63,11 @@ const CARROCERIAS = [
   { value: "otro", label: "Otro" },
 ];
 
-const TIPOS_ESTANQUE = [
-  { value: "cilindrico", label: "Cilíndrico" },
-  { value: "rectangular", label: "Rectangular" },
-  { value: "ovalado", label: "Ovalado" },
+const TIPOS_CISTERNA = [
+  { value: "agua", label: "Agua" },
+  { value: "combustible", label: "Combustible" },
+  { value: "quimico", label: "Químico" },
+  { value: "otro", label: "Otro" },
 ];
 
 const MATERIALES = [
@@ -74,7 +75,7 @@ const MATERIALES = [
   { value: "fibrocemento", label: "Fibrocemento" },
   { value: "polietileno", label: "Polietileno" },
   { value: "aluminio", label: "Aluminio" },
-  { value: "acero_carbono", label: "Acero al carbono" },
+  { value: "acero", label: "Acero" },
 ];
 
 const TIPOS_AGUA = [
@@ -117,9 +118,9 @@ function labelCarroceria(value?: string | null): string {
   if (!value) return "—";
   return CARROCERIAS.find((c) => c.value === value)?.label ?? value;
 }
-function labelTipoEstanque(value?: string | null): string {
+function labelTipoCisterna(value?: string | null): string {
   if (!value) return "—";
-  return TIPOS_ESTANQUE.find((c) => c.value === value)?.label ?? value;
+  return TIPOS_CISTERNA.find((c) => c.value === value)?.label ?? value;
 }
 function labelMaterial(value?: string | null): string {
   if (!value) return "—";
@@ -164,7 +165,7 @@ interface Camion {
   seguroCompania?: string | null;
   seguroNumero?: string | null;
   carroceria?: string | null;
-  tipoEstanque?: string | null;
+  tipoCisterna?: string | null;
   materialEstanque?: string | null;
   tipoAgua?: string | null;
   resolucionSanitaria?: string | null;
@@ -619,7 +620,7 @@ function InfoTab({ camion, isDueno, onUpdate }: InfoTabProps) {
         <CardContent className="pt-0">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <InfoField label="Carrocería" value={labelCarroceria(camion.carroceria)} />
-            <InfoField label="Tipo de estanque" value={labelTipoEstanque(camion.tipoEstanque)} />
+            <InfoField label="Tipo de cisterna" value={labelTipoCisterna(camion.tipoCisterna)} />
             <InfoField label="Material del estanque" value={labelMaterial(camion.materialEstanque)} />
             <InfoField label="Tipo de agua" value={labelTipoAgua(camion.tipoAgua)} />
           </div>
@@ -806,7 +807,7 @@ function EditCamionDialog({
   const [numeroChasis, setNumeroChasis] = useState(camion.numeroChasis ?? "");
   const [capacidad, setCapacidad] = useState(String(camion.capacidad));
   const [carroceria, setCarroceria] = useState(camion.carroceria ?? "");
-  const [tipoEstanque, setTipoEstanque] = useState(camion.tipoEstanque ?? "");
+  const [tipoCisterna, setTipoCisterna] = useState(camion.tipoCisterna ?? "");
   const [materialEstanque, setMaterialEstanque] = useState(camion.materialEstanque ?? "");
   const [tipoAgua, setTipoAgua] = useState(camion.tipoAgua ?? "");
   const [resolucionSanitaria, setResolucionSanitaria] = useState(camion.resolucionSanitaria ?? "");
@@ -826,7 +827,7 @@ function EditCamionDialog({
       setNumeroChasis(camion.numeroChasis ?? "");
       setCapacidad(String(camion.capacidad));
       setCarroceria(camion.carroceria ?? "");
-      setTipoEstanque(camion.tipoEstanque ?? "");
+      setTipoCisterna(camion.tipoCisterna ?? "");
       setMaterialEstanque(camion.materialEstanque ?? "");
       setTipoAgua(camion.tipoAgua ?? "");
       setResolucionSanitaria(camion.resolucionSanitaria ?? "");
@@ -856,7 +857,7 @@ function EditCamionDialog({
         numeroChasis: numeroChasis.trim() || null,
         capacidad: capacidadNum,
         carroceria: carroceria || null,
-        tipoEstanque: tipoEstanque || null,
+        tipoCisterna: tipoCisterna || null,
         materialEstanque: materialEstanque || null,
         tipoAgua: tipoAgua || null,
         resolucionSanitaria: resolucionSanitaria.trim() || null,
@@ -953,13 +954,13 @@ function EditCamionDialog({
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Tipo de estanque</Label>
-                <Select value={tipoEstanque} onValueChange={setTipoEstanque}>
+                <Label className="text-xs">Tipo de cisterna</Label>
+                <Select value={tipoCisterna} onValueChange={setTipoCisterna}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {TIPOS_ESTANQUE.map((c) => (
+                    {TIPOS_CISTERNA.map((c) => (
                       <SelectItem key={c.value} value={c.value}>
                         {c.label}
                       </SelectItem>
