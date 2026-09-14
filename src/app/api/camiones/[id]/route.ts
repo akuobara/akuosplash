@@ -3,6 +3,51 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
 
+// GET /api/camiones/[id] — detalle de un camión (dueño o chofer asignado)
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  const camion = await db.camion.findUnique({
+    where: { id },
+    include: {
+      _count: { select: { vueltas: true } },
+      choferes: {
+        include: {
+          chofer: {
+            select: { id: true, nombre: true, email: true, telefono: true, role: true, activo: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!camion) {
+    return NextResponse.json({ error: "Camión no encontrado" }, { status: 404 });
+  }
+
+  // Verificar acceso
+  if (session.role === "dueno") {
+    if (camion.duenoId !== session.userId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+  } else if (session.role === "chofer") {
+    // Chofer: debe estar asignado al camión (o ser parte del equipo del dueño)
+    const asignacion = await db.camionChofer.findUnique({
+      where: { camionId_choferId: { camionId: id, choferId: session.userId } },
+    });
+    if (!asignacion && camion.duenoId !== session.duenoId) {
+      return NextResponse.json({ error: "No tienes acceso a este camión" }, { status: 403 });
+    }
+  }
+
+  return NextResponse.json({ camion });
+}
+
 // PATCH /api/camiones/[id] — solo dueño
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _demoBlocked = await checkDemoBlock();
@@ -49,6 +94,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(body.seguroFotoUrl !== undefined && { seguroFotoUrl: body.seguroFotoUrl || null }),
       ...(body.seguroCompania !== undefined && { seguroCompania: body.seguroCompania?.trim() || null }),
       ...(body.seguroNumero !== undefined && { seguroNumero: body.seguroNumero?.trim() || null }),
+      // Configuración del camión (carrocería y estanque)
+      ...(body.carroceria !== undefined && { carroceria: body.carroceria?.trim() || null }),
+      ...(body.tipoEstanque !== undefined && { tipoEstanque: body.tipoEstanque?.trim() || null }),
+      ...(body.materialEstanque !== undefined && { materialEstanque: body.materialEstanque?.trim() || null }),
+      ...(body.tipoAgua !== undefined && { tipoAgua: body.tipoAgua?.trim() || null }),
+      // Resolución sanitaria (solo aplica si tipoAgua = consumo_humano)
+      ...(body.resolucionSanitaria !== undefined && { resolucionSanitaria: body.resolucionSanitaria?.trim() || null }),
+      ...(body.resolucionSanitariaVencimiento !== undefined && { resolucionSanitariaVencimiento: body.resolucionSanitariaVencimiento ? new Date(body.resolucionSanitariaVencimiento) : null }),
+      ...(body.resolucionSanitariaFotoUrl !== undefined && { resolucionSanitariaFotoUrl: body.resolucionSanitariaFotoUrl || null }),
     },
     include: {
       _count: { select: { vueltas: true } },

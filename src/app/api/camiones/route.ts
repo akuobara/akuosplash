@@ -177,6 +177,15 @@ export async function POST(req: NextRequest) {
         seguroFotoUrl: body.seguroFotoUrl || null,
         seguroCompania: body.seguroCompania?.trim() || null,
         seguroNumero: body.seguroNumero?.trim() || null,
+        // Configuración del camión (carrocería y estanque)
+        carroceria: body.carroceria?.trim() || null,
+        tipoEstanque: body.tipoEstanque?.trim() || null,
+        materialEstanque: body.materialEstanque?.trim() || null,
+        tipoAgua: body.tipoAgua?.trim() || null,
+        // Resolución sanitaria (solo si tipoAgua = consumo_humano)
+        resolucionSanitaria: body.resolucionSanitaria?.trim() || null,
+        resolucionSanitariaVencimiento: body.resolucionSanitariaVencimiento ? new Date(body.resolucionSanitariaVencimiento) : null,
+        resolucionSanitariaFotoUrl: body.resolucionSanitariaFotoUrl || null,
       },
       include: {
         _count: { select: { vueltas: true } },

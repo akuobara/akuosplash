@@ -84,7 +84,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
 
     const tipo = body.tipo?.trim() || "observacion";
-    const tiposValidos = ["falla_mecanica", "mantenimiento", "observacion", "otro"];
+    const tiposValidos = [
+      // Mantenimiento
+      "cambio_aceite", "cambio_filtros", "cambio_plumillas", "frenos",
+      "neumaticos", "revision_tecnica",
+      // Falla
+      "falla_motor", "falla_frenos", "falla_electrica", "falla_hidraulica", "fuga",
+      // Observación / otro
+      "observacion", "otro",
+      // Retrocompatibilidad
+      "mantenimiento", "falla_mecanica",
+    ];
     if (!tiposValidos.includes(tipo)) {
       return NextResponse.json({ error: "Tipo no válido" }, { status: 400 });
     }
@@ -95,16 +105,56 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Severidad no válida" }, { status: 400 });
     }
 
+    // Determinar severidad automática para fallas (si no viene explícita)
+    let severidadFinal = severidad;
+    if (!severidadFinal && (tipo.startsWith("falla_") || tipo === "fuga")) {
+      severidadFinal = "media";
+    }
+
+    // Monto: opcional. Convertir a Float si viene.
+    let monto: number | null = null;
+    if (body.monto !== undefined && body.monto !== null && body.monto !== "") {
+      const parsed = Number(body.monto);
+      if (!Number.isNaN(parsed) && parsed >= 0) {
+        monto = parsed;
+      }
+    }
+
+    // Kilometraje: opcional. Convertir a Int si viene.
+    let kilometraje: number | null = null;
+    if (body.kilometraje !== undefined && body.kilometraje !== null && body.kilometraje !== "") {
+      const parsed = Number(body.kilometraje);
+      if (!Number.isNaN(parsed) && parsed >= 0) {
+        kilometraje = Math.floor(parsed);
+      }
+    }
+
+    // Fecha: opcional. Si no viene, usa la fecha actual.
+    let fecha: Date;
+    if (body.fecha) {
+      const parsed = new Date(body.fecha);
+      if (Number.isNaN(parsed.getTime())) {
+        return NextResponse.json({ error: "Fecha no válida" }, { status: 400 });
+      }
+      fecha = parsed;
+    } else {
+      fecha = new Date();
+    }
+
     const entrada = await db.bitacoraCamion.create({
       data: {
         camionId: id,
         autorId: session.userId,
         tipo,
         descripcion: body.descripcion.trim(),
-        severidad,
+        monto,
+        fecha,
+        kilometraje,
+        severidad: severidadFinal,
       },
       include: {
         autor: { select: { id: true, nombre: true, role: true } },
+        resueltaPor: { select: { id: true, nombre: true } },
       },
     });
 

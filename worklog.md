@@ -315,3 +315,62 @@ Stage Summary:
 - ✅ Liquidación ahora usa zona horaria Chile
 - ✅ Semana actual mostrará correctamente 30/8 - 5/9 con todas las entregas
 - ✅ Endpoints temporales de diagnóstico y migración eliminados
+
+---
+Task ID: camion-detail-page
+Agent: main
+Task: Crear página de detalle de camión `/camiones/[id]` con 3 pestañas (Info, Choferes, Bitácora) + endpoints asociados.
+
+Work Log:
+- Leído worklog y verificado estado actual:
+  * Prisma schema ya tiene todos los campos nuevos (carroceria, tipoEstanque, materialEstanque, tipoAgua, resolucionSanitaria*).
+  * BitacoraCamion ya tiene monto, fecha, kilometraje, severidad.
+  * Endpoints /api/camiones/[id]/choferes ya existen (POST/DELETE).
+  * Endpoint /api/camiones/[id]/bitacora ya existe pero solo soportaba tipos simples (mantenimiento/falla_mecanica/observacion) y no persistía monto/fecha/kilometraje.
+  * Endpoint /api/camiones/[id] no tenía GET handler — solo PATCH y DELETE.
+
+- Actualizado `POST /api/camiones` (`src/app/api/camiones/route.ts`):
+  * Agregados 7 campos nuevos al `data:` del `db.camion.create`: carroceria, tipoEstanque, materialEstanque, tipoAgua, resolucionSanitaria, resolucionSanitariaVencimiento, resolucionSanitariaFotoUrl.
+
+- Actualizado `PATCH /api/camiones/[id]` (`src/app/api/camiones/[id]/route.ts`):
+  * Agregado handler GET (nuevo) que devuelve camion con choferes + _count.vueltas. Accesible por dueño (propietario) o chofer asignado.
+  * Agregados los 7 campos nuevos al PATCH (siguiendo el patrón `...(body.x !== undefined && {...})`).
+
+- Actualizado `POST /api/camiones/[id]/bitacora` (`src/app/api/camiones/[id]/bitacora/route.ts`):
+  * Lista de tipos válidos expandida para incluir: cambio_aceite, cambio_filtros, cambio_plumillas, frenos, neumaticos, revision_tecnica, falla_motor, falla_frenos, falla_electrica, falla_hidraulica, fuga, observacion, otro (mantiene retrocompat con mantenimiento/falla_mecanica).
+  * Persiste `monto` (Float opcional, validado >=0).
+  * Persiste `kilometraje` (Int opcional, validado >=0).
+  * Persiste `fecha` (DateTime opcional; si no viene usa `now()`).
+  * Severidad automática "media" para fallas si no viene explícita.
+  * Include `resueltaPor` en la respuesta.
+
+- Creado `src/app/camiones/[id]/page.tsx` (nueva página "use client", ~1100 líneas):
+  * Carga sesión via /api/auth/me (skeleton mientras carga).
+  * Carga camion via /api/camiones/[id].
+  * Carga bitácora via /api/camiones/[id]/bitacora.
+  * Carga usuarios via /api/usuarios (solo si es dueño).
+  * Header sticky con botón "Volver" a /, datos básicos (nombre, patente, capacidad, activo badge).
+  * Card de resumen rápido con marca/modelo/año/color/vueltas + badges de vencimientos.
+  * Pestaña Info: datos del vehículo + configuración (carroceria, tipoEstanque, materialEstanque, tipoAgua) + sección de resolución sanitaria condicional (solo si tipoAgua = consumo_humano) + documentos con badges de vencimiento. Diálogo de edición para dueño.
+  * Pestaña Choferes: lista de choferes asignados (con badge de rol, fecha asignación, teléfono). Dueño puede asignar/desasignar vía diálogo (checkboxes).
+  * Pestaña Bitácora: formulario de nueva entrada (tipo con grupos Mantenimiento/Falla/Observación/Otro, fecha, descripción, monto, kilometraje). Lista de entradas en orden cronológico inverso con badges por categoría (verde mantenimiento, rojo falla, azul observación), severidad, monto, km, autor, fecha creación, fecha resolución. Dueño puede marcar/desmarcar "resuelta".
+  * Mobile-first responsive con grids sm:grid-cols-2/3/4.
+  * Footer sticky al fondo (mt-auto).
+  * Estado de error (no encontrado / no autorizado) con botón volver.
+  * Estado de sesión expirada con redirect a /.
+  * Helper `badgeVencimiento()` reutilizable, con 4 estados (vigente, por_vencer 30d, vencido, sin_fecha).
+
+Verificación:
+- `npx tsc --noEmit`: 0 errores en src/ (4 errores preexistentes en examples/ y skills/, no relacionados).
+- `bun run lint`: 0 errores nuevos en archivos modificados (errores preexistentes en scripts/ antiguos).
+- Dev server: GET /camiones/test-id → HTTP 200 (compila OK, muestra skeleton inicial porque /api/auth/me devuelve null sin sesión).
+- API: GET /api/camiones/test-id → 401 (compila OK, requiere sesión).
+- API: GET /api/camiones/test-id/bitacora → 401 (compila OK, requiere sesión).
+
+Stage Summary:
+- ✅ Página /camiones/[id] operativa con 3 pestañas completas.
+- ✅ Backend soporta todos los campos nuevos (carroceria, tipoEstanque, materialEstanque, tipoAgua, resolucionSanitaria*) en POST y PATCH.
+- ✅ Bitácora ahora persiste tipo detallado (cambio_aceite, frenos, falla_motor, etc.), monto, fecha, kilometraje y severidad.
+- ✅ GET /api/camiones/[id] agregado para que la página pueda cargar el camión individual.
+- ✅ Diseño responsive mobile-first, accesible (sr-only implícito en labels), con sticky footer.
+- ✅ Sin errores de TypeScript en src/.
