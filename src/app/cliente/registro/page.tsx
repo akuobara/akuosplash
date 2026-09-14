@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Droplets, User, MapPin, Phone, KeyRound, Home, Wallet } from "lucide-react";
+import { Droplets, User, MapPin, Phone, Home, Wallet } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/helpers";
@@ -249,10 +249,10 @@ export default function RegistroClientePage() {
             </CardContent>
           </Card>
 
-          {/* Uso del agua */}
+          {/* Uso del agua (opcional) */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><Droplets className="h-4 w-4" /> Uso del agua</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2"><Droplets className="h-4 w-4" /> Uso del agua (opcional)</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
@@ -272,28 +272,12 @@ export default function RegistroClientePage() {
             </CardContent>
           </Card>
 
-          {/* Preferencias */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><KeyRound className="h-4 w-4" /> Preferencias de pedido</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div>
-                <Label className="text-xs">Tiempo para que tu proveedor preferido acepte (minutos)</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="120"
-                  value={tiempoAceptacionPreferidoMin}
-                  onChange={(e) => setTiempoAceptacionPreferidoMin(e.target.value)}
-                  placeholder="15"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Si ya tenés un proveedor preferido (alguien que ya te entregó), tendrá este tiempo para aceptar tu pedido antes de que caiga al pool general.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Aviso sobre tiempos */}
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-900/20">
+            <p className="text-xs text-blue-800 dark:text-blue-300">
+              ℹ️ Tu pedido puede demorar en ser aceptado por un proveedor. Una vez aceptado, recibirás una notificación con el tiempo estimado de llegada.
+            </p>
+          </div>
 
           <Button type="submit" size="lg" className="w-full" disabled={loading}>
             {loading ? "Creando cuenta..." : "Crear cuenta"}
