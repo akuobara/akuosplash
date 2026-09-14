@@ -38,6 +38,7 @@ import { EquipoTab } from "@/components/app/equipo-tab";
 import { MiPerfilTab } from "@/components/app/mi-perfil-tab";
 import { PedidosTab } from "@/components/app/pedidos-tab";
 import { PedidosRecurrentesTab } from "@/components/app/pedidos-recurrentes-tab";
+import { CamionesManager } from "@/components/app/camiones-manager";
 import { CuentaDialog } from "@/components/app/cuenta-dialog";
 import { HistorialVueltasTab } from "@/components/app/historial-vueltas-tab";
 import { AuthScreen, type SessionUser } from "@/components/app/auth-screen";
@@ -115,7 +116,7 @@ interface VueltaActual {
   } | null;
 }
 
-type TabKey = "dashboard" | "pedidos" | "entregas" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo" | "perfil";
+type TabKey = "dashboard" | "pedidos" | "entregas" | "camiones" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo" | "perfil";
 
 export default function Home() {
   const router = useRouter();
@@ -387,6 +388,7 @@ export default function Home() {
             <option value="dashboard">📊 Panel</option>
             {(!interfazSimple || isDueno) && <option value="pedidos">📋 Pedidos</option>}
             <option value="entregas">🚚 Entregas</option>
+            <option value="camiones">🛻 Camiones</option>
             {(!interfazSimple || isDueno) && <option value="gastos">💵 Gastos</option>}
             <option value="liquidacion">🧮 Liquidación</option>
             {(!interfazSimple || isDueno) && <option value="clientes">👥 Clientes</option>}
@@ -412,6 +414,10 @@ export default function Home() {
             <TabsTrigger value="entregas" className="flex-initial shrink-0">
               <Truck className="mr-1 h-4 w-4" />
               <span className="inline">Entregas</span>
+            </TabsTrigger>
+            <TabsTrigger value="camiones" className="flex-initial shrink-0">
+              <Truck className="mr-1 h-4 w-4" />
+              <span className="inline">Camiones</span>
             </TabsTrigger>
             {(!interfazSimple || isDueno) && (
             <TabsTrigger value="gastos" className="flex-initial shrink-0">
@@ -541,6 +547,15 @@ export default function Home() {
               }}
               vueltaActual={vueltaActual}
               camiones={camiones}
+            />
+          </TabsContent>
+
+          <TabsContent value="camiones" className="mt-0">
+            <CamionesManager
+              refreshKey={refreshKey}
+              onRefresh={refresh}
+              onCamionesChange={setCamiones}
+              isDueno={isDueno}
             />
           </TabsContent>
 
