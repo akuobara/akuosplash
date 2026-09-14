@@ -374,3 +374,43 @@ Stage Summary:
 - ✅ GET /api/camiones/[id] agregado para que la página pueda cargar el camión individual.
 - ✅ Diseño responsive mobile-first, accesible (sr-only implícito en labels), con sticky footer.
 - ✅ Sin errores de TypeScript en src/.
+
+---
+Task ID: cupones-y-pagos
+Agent: main
+Task: Implementar 4 features para la app cliente: (1) fix bug pedido con saldo $0, (2) pago con tarjeta vía MercadoPago, (3) cupones de descuento, (4) endpoint de migración.
+
+Work Log:
+- Bug fix en `/src/app/cliente/pedir/page.tsx`:
+  * Validación original `cliente.saldo < montoTotal` devolvía `false` cuando `montoTotal === 0` (caso degenerate: precioPorLitro = 0), dejando pasar el pedido sin toast.
+  * Nueva validación explícita: `cliente.saldo <= 0` primero (mensaje claro "No tenés saldo cargado"), luego `cliente.saldo < total` cuando `total > 0`.
+  * Todas las validaciones corren ANTES de `setCreando(true)` para que el botón nunca quede en loading sin request activo.
+  * Agregado guard `if (creando) return;` al inicio de `handlePedir` para prevenir doble submit.
+  * `total` calculado localmente dentro de `handlePedir` (sin depender del closure de `montoTotal`).
+
+- Nuevo método de pago "tarjeta":
+  * `src/lib/mercadopago.ts`: agregada `crearPreferenciaPedidoPago()` con external_reference `pedido_pago:clienteId:pedidoId`.
+  * `src/app/api/cliente/pedidos/route.ts` (POST): acepta `metodoPago: "tarjeta"`. Crea el pedido con `estadoPago: "pendiente"`, luego crea preferencia MP y devuelve `initPoint`. El frontend redirige a MP con un delay de 800ms (para que se vea el toast de éxito).
+  * `src/app/api/webhooks/mercadopago/route.ts`: agregada rama `pedido_pago:` que marca `estadoPago: "confirmado"`, `confirmadoEn`, y `mpPaymentId`. Idempotente (ignora re-confirmaciones).
+  * Si la creación de la preferencia MP falla, el pedido se cancela automáticamente y el contador de usos del cupón se revierte.
+  * Si el monto final es $0 (cupón de 100%), no se crea preferencia MP y el pedido se auto-confirma.
+
+- Cupones de Descuento (modelo + endpoints + UI):
+  * Prisma: nuevo modelo `CuponDescuento` (codigo unique, tipo porcentaje/monto_fijo, valor, montoMinimo, usosMaximos/Actuales, activo, validoDesde/Hasta, zonaId+Zona relation). Agregados 5 campos a `PedidoApp`: `cuponCodigo`, `descuento`, `montoOriginal`, `mpPreferenceId`, `mpPaymentId`.
+  * `POST /api/admin/migrate-cupones`: crea la tabla + índices + altera PedidoApp. Idempotente.
+  * `GET /api/super-admin/cupones` (con `?inactivos=1`) y `POST` con validación completa (código regex, valor, montoMinimo, usosMaximos, fechas, zona).
+  * `PATCH/DELETE /api/super-admin/cupones/[id]`.
+  * `POST /api/cliente/cupones/validar`: valida código, monto mínimo, zona del cliente, fechas, límite de usos. Devuelve `descuento` y `montoFinal` sin persistir (solo preview).
+  * `src/app/super-admin/page.tsx`: agregada tab "🎟️ Cupones" con componente `CuponesAdmin` (lista con badges, dropdown de acciones, dialog de creación/edición, dialog de confirmación de borrado).
+  * `src/app/cliente/pedir/page.tsx`: input de cupón con botón "Aplicar". Al validar, muestra el descuento aplicado y el total actualizado. Al cambiar los litros, el cupón se invalida automáticamente (porque el monto cambió).
+
+Stage Summary:
+- ✅ Bug de "saldo $0 no da error claro" corregido: ahora siempre muestra toast y nunca cuelga el botón.
+- ✅ Pago con tarjeta operativo: crea preferencia MP, redirige, webhook confirma el pago.
+- ✅ Sistema de cupones completo: super-admin CRUD, cliente validación, aplicación automática en pedido.
+- ✅ Endpoint de migración `/api/admin/migrate-cupones` idempotente y verificado.
+- ✅ Sin errores de TypeScript en `src/` (solo errores preexistentes en `examples/` y `skills/`).
+- ✅ Sin nuevos errores de lint en archivos modificados (77 preexistentes en scripts/ y 3 API routes no relacionadas).
+- ✅ Dev server (puerto 3000) verifica: 4 nuevos endpoints + 2 páginas compilan y responden (401/403/200 según auth).
+- ✅ Work record detallado en `/agent-ctx/cupones-y-pagos-main.md`.
+

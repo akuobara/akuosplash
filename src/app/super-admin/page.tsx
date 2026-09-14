@@ -17,7 +17,7 @@ import {
 import {
   Users, Truck, Droplets, DollarSign, TrendingUp,
   Activity, Shield, Search, UserCheck, UserX, ArrowLeft, LogOut, Clock,
-  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2, MapPin, Package, Receipt, Upload,
+  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2, MapPin, Package, Receipt, Upload, Ticket,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -78,7 +78,7 @@ export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas" | "zonas" | "planes" | "facturas" | "audit">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas" | "zonas" | "planes" | "facturas" | "audit" | "cupones">("dashboard");
 
   const [detalleOpen, setDetalleOpen] = useState(false);
   const [detalleId, setDetalleId] = useState<string | null>(null);
@@ -254,6 +254,7 @@ export default function SuperAdminPage() {
             <option value="cargas">⏳ Cargas de saldo</option>
             <option value="zonas">📍 Zonas</option>
             <option value="planes">📦 Planes</option>
+            <option value="cupones">🎟️ Cupones</option>
             <option value="facturas">🧾 Facturas</option>
             <option value="audit">📋 Auditoría</option>
           </select>
@@ -285,6 +286,9 @@ export default function SuperAdminPage() {
             </Button>
             <Button size="sm" variant={tab === "planes" ? "default" : "outline"} onClick={() => setTab("planes")}>
               <Package className="mr-1 h-4 w-4" /> Planes
+            </Button>
+            <Button size="sm" variant={tab === "cupones" ? "default" : "outline"} onClick={() => setTab("cupones")}>
+              <Ticket className="mr-1 h-4 w-4" /> Cupones
             </Button>
             <Button size="sm" variant={tab === "facturas" ? "default" : "outline"} onClick={() => setTab("facturas")}>
               <Receipt className="mr-1 h-4 w-4" /> Facturas
@@ -474,6 +478,11 @@ export default function SuperAdminPage() {
         {/* Planes */}
         {tab === "planes" && (
           <PlanesAdmin />
+        )}
+
+        {/* Cupones */}
+        {tab === "cupones" && (
+          <CuponesAdmin />
         )}
 
         {/* Facturas */}
@@ -2347,5 +2356,366 @@ function AuditView() {
         </div>
       )}
     </div>
+  );
+}
+
+// === Cupones de Descuento ===
+interface Cupon {
+  id: string;
+  codigo: string;
+  descripcion: string | null;
+  tipo: string;
+  valor: number;
+  montoMinimo: number | null;
+  usosMaximos: number | null;
+  usosActuales: number;
+  activo: boolean;
+  validoDesde: string | null;
+  validoHasta: string | null;
+  creadoEn: string;
+  zonaId: string | null;
+  zona?: { id: string; nombre: string } | null;
+}
+
+function CuponesAdmin() {
+  const [cupones, setCupones] = useState<Cupon[]>([]);
+  const [zonas, setZonas] = useState<Array<{ id: string; nombre: string }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [inactivos, setInactivos] = useState(false);
+  const [creando, setCreando] = useState(false);
+  const [editando, setEditando] = useState<Cupon | null>(null);
+  const [eliminando, setEliminando] = useState<Cupon | null>(null);
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [c, z] = await Promise.all([
+        apiGet<{ cupones: Cupon[] }>(`/api/super-admin/cupones${inactivos ? "?inactivos=1" : ""}`),
+        apiGet<{ zonas: Array<{ id: string; nombre: string }> }>("/api/super-admin/zonas"),
+      ]);
+      setCupones(c.cupones || []);
+      setZonas(z.zonas || []);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error");
+    } finally {
+      setLoading(false);
+    }
+  }, [inactivos]);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  async function toggleActivo(c: Cupon) {
+    try {
+      await apiPatch(`/api/super-admin/cupones/${c.id}`, { activo: !c.activo });
+      toast.success(c.activo ? "Cupón desactivado" : "Cupón activado");
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo cambiar");
+    }
+  }
+
+  async function eliminar(c: Cupon) {
+    try {
+      await apiDelete(`/api/super-admin/cupones/${c.id}`);
+      toast.success("Cupón eliminado");
+      setEliminando(null);
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo eliminar");
+    }
+  }
+
+  if (loading) return <Skeleton className="h-40 rounded" />;
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h3 className="text-sm font-semibold">Cupones de descuento</h3>
+          <p className="text-xs text-muted-foreground">{cupones.length} cupón(es) · aplicables a pedidos de la app cliente</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+            <Switch checked={inactivos} onCheckedChange={setInactivos} />
+            Mostrar inactivos
+          </label>
+          <Button size="sm" onClick={() => setCreando(true)}>
+            <Plus className="mr-1 h-4 w-4" /> Nuevo cupón
+          </Button>
+        </div>
+      </div>
+
+      {cupones.length === 0 ? (
+        <Card>
+          <CardContent className="p-6 text-center text-sm text-muted-foreground">
+            <Ticket className="h-8 w-8 mx-auto mb-2 opacity-30" />
+            No hay cupones creados todavía.
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {cupones.map((c) => {
+            const hoy = new Date();
+            const expirado = c.validoHasta ? new Date(c.validoHasta) < hoy : false;
+            const futuro = c.validoDesde ? new Date(c.validoDesde) > hoy : false;
+            const usosLlenos = c.usosMaximos != null && c.usosActuales >= c.usosMaximos;
+            return (
+              <Card key={c.id} className={!c.activo ? "opacity-60" : ""}>
+                <CardContent className="p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono font-bold text-sm uppercase">{c.codigo}</span>
+                        <Badge variant="outline" className="text-[10px]">
+                          {c.tipo === "porcentaje" ? `${c.valor}%` : formatCurrency(c.valor)}
+                        </Badge>
+                        {c.tipo === "porcentaje" ? "Porcentaje" : "Monto fijo"}
+                        {!c.activo && <Badge variant="outline" className="text-[10px] text-muted-foreground">Inactivo</Badge>}
+                        {expirado && <Badge variant="outline" className="text-[10px] text-amber-700">Expirado</Badge>}
+                        {futuro && <Badge variant="outline" className="text-[10px] text-blue-700">Programado</Badge>}
+                        {usosLlenos && <Badge variant="outline" className="text-[10px] text-amber-700">Sin usos disponibles</Badge>}
+                      </div>
+                      {c.descripcion && (
+                        <p className="text-xs text-muted-foreground mt-1">{c.descripcion}</p>
+                      )}
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                        {c.montoMinimo != null && <span>Mínimo: <strong>{formatCurrency(c.montoMinimo)}</strong></span>}
+                        <span>Usos: <strong>{c.usosActuales}{c.usosMaximos != null ? ` / ${c.usosMaximos}` : " (∞)"}</strong></span>
+                        {c.validoDesde && <span>Desde: <strong>{formatDate(c.validoDesde)}</strong></span>}
+                        {c.validoHasta && <span>Hasta: <strong>{formatDate(c.validoHasta)}</strong></span>}
+                        {c.zona && <span>Zona: <strong>{c.zona.nombre}</strong></span>}
+                        {c.zonaId && !c.zona && <span className="text-amber-600">Zona eliminada</span>}
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0"><MoreVertical className="h-4 w-4" /></Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => toggleActivo(c)}>
+                          {c.activo ? <><UserX className="mr-2 h-4 w-4" /> Desactivar</> : <><UserCheck className="mr-2 h-4 w-4" /> Activar</>}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setEditando(c)}>
+                          <Pencil className="mr-2 h-4 w-4" /> Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setEliminando(c)}>
+                          <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {(creando || editando) && (
+        <CuponDialog
+          cupon={editando}
+          zonas={zonas}
+          onClose={() => { setCreando(false); setEditando(null); }}
+          onGuardado={() => { setCreando(false); setEditando(null); cargar(); }}
+        />
+      )}
+
+      {eliminando && (
+        <Dialog open onOpenChange={(o) => !o && setEliminando(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Eliminar cupón</DialogTitle>
+              <DialogDescription>
+                Vas a eliminar el cupón <strong className="font-mono">{eliminando.codigo}</strong>.
+                Esta acción no se puede deshacer. Los pedidos que ya lo usaron conservan el descuento aplicado.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setEliminando(null)}>Cancelar</Button>
+              <Button variant="destructive" onClick={() => eliminar(eliminando)}>
+                <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}
+
+function CuponDialog({ cupon, zonas, onClose, onGuardado }: {
+  cupon: Cupon | null;
+  zonas: Array<{ id: string; nombre: string }>;
+  onClose: () => void;
+  onGuardado: () => void;
+}) {
+  const [codigo, setCodigo] = useState(cupon?.codigo || "");
+  const [descripcion, setDescripcion] = useState(cupon?.descripcion || "");
+  const [tipo, setTipo] = useState<"porcentaje" | "monto_fijo">(cupon?.tipo === "monto_fijo" ? "monto_fijo" : "porcentaje");
+  const [valor, setValor] = useState(String(cupon?.valor ?? ""));
+  const [montoMinimo, setMontoMinimo] = useState(String(cupon?.montoMinimo ?? ""));
+  const [usosMaximos, setUsosMaximos] = useState(String(cupon?.usosMaximos ?? ""));
+  const [validoDesde, setValidoDesde] = useState(cupon?.validoDesde ? cupon.validoDesde.slice(0, 10) : "");
+  const [validoHasta, setValidoHasta] = useState(cupon?.validoHasta ? cupon.validoHasta.slice(0, 10) : "");
+  const [zonaId, setZonaId] = useState(cupon?.zonaId || "");
+  const [activo, setActivo] = useState(cupon?.activo !== false);
+  const [guardando, setGuardando] = useState(false);
+
+  async function guardar(e: React.FormEvent) {
+    e.preventDefault();
+    const codigoTrim = codigo.trim();
+    if (codigoTrim.length < 3) {
+      toast.error("El código debe tener al menos 3 caracteres");
+      return;
+    }
+    const valorNum = Number(valor);
+    if (!valorNum || valorNum <= 0) {
+      toast.error("El valor debe ser un número positivo");
+      return;
+    }
+    if (tipo === "porcentaje" && valorNum > 100) {
+      toast.error("El porcentaje no puede ser mayor a 100");
+      return;
+    }
+    setGuardando(true);
+    try {
+      const body = {
+        codigo: codigoTrim,
+        descripcion: descripcion.trim() || null,
+        tipo,
+        valor: valorNum,
+        montoMinimo: montoMinimo === "" ? null : Number(montoMinimo),
+        usosMaximos: usosMaximos === "" ? null : Number(usosMaximos),
+        validoDesde: validoDesde ? new Date(validoDesde + "T00:00:00").toISOString() : null,
+        validoHasta: validoHasta ? new Date(validoHasta + "T23:59:59").toISOString() : null,
+        zonaId: zonaId || null,
+        activo,
+      };
+      if (cupon) {
+        await apiPatch(`/api/super-admin/cupones/${cupon.id}`, body);
+        toast.success("Cupón actualizado");
+      } else {
+        await apiPost(`/api/super-admin/cupones`, body);
+        toast.success("Cupón creado");
+      }
+      onGuardado();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{cupon ? "Editar cupón" : "Nuevo cupón"}</DialogTitle>
+          <DialogDescription>
+            Configurá el cupón de descuento. El código se guarda en mayúsculas.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={guardar} className="space-y-3">
+          <div>
+            <Label className="text-xs">Código *</Label>
+            <Input
+              value={codigo}
+              onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+              placeholder="Ej: VERANO2026"
+              className="font-mono uppercase"
+              maxLength={40}
+            />
+            <p className="text-xs text-muted-foreground mt-1">Solo letras, números, guiones y guiones bajos.</p>
+          </div>
+          <div>
+            <Label className="text-xs">Descripción (opcional)</Label>
+            <Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Ej: Descuento de lanzamiento" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Tipo de descuento</Label>
+              <select
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value as "porcentaje" | "monto_fijo")}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="porcentaje">Porcentaje (%)</option>
+                <option value="monto_fijo">Monto fijo ($)</option>
+              </select>
+            </div>
+            <div>
+              <Label className="text-xs">{tipo === "porcentaje" ? "Porcentaje *" : "Monto fijo (CLP) *"}</Label>
+              <Input
+                type="number"
+                min={0}
+                step={tipo === "porcentaje" ? "1" : "100"}
+                value={valor}
+                onChange={(e) => setValor(e.target.value)}
+                placeholder={tipo === "porcentaje" ? "Ej: 10" : "Ej: 5000"}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Monto mínimo del pedido</Label>
+              <Input
+                type="number"
+                min={0}
+                step="100"
+                value={montoMinimo}
+                onChange={(e) => setMontoMinimo(e.target.value)}
+                placeholder="Sin mínimo"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Usos máximos</Label>
+              <Input
+                type="number"
+                min={0}
+                step="1"
+                value={usosMaximos}
+                onChange={(e) => setUsosMaximos(e.target.value)}
+                placeholder="Ilimitado"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Válido desde</Label>
+              <Input type="date" value={validoDesde} onChange={(e) => setValidoDesde(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs">Válido hasta</Label>
+              <Input type="date" value={validoHasta} onChange={(e) => setValidoHasta(e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Zona (opcional)</Label>
+            <select
+              value={zonaId}
+              onChange={(e) => setZonaId(e.target.value)}
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="">Todas las zonas</option>
+              {zonas.map((z) => (
+                <option key={z.id} value={z.id}>{z.nombre}</option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground mt-1">Si elegís una zona, solo aplica a clientes de esa zona.</p>
+          </div>
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <Switch checked={activo} onCheckedChange={setActivo} />
+            <span>Cupón activo</span>
+          </label>
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
+            <Button type="submit" disabled={guardando}>
+              {guardando && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+              {cupon ? "Guardar cambios" : "Crear cupón"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

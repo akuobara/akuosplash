@@ -61,6 +61,33 @@ export async function POST(req: NextRequest) {
           data: { saldo: nuevoSaldo },
         }),
       ]);
+    } else if (tipo === "pedido_pago") {
+      const clienteId = parts[1];
+      const pedidoId = parts[2];
+
+      // Buscar el pedido
+      const pedido = await db.pedidoApp.findUnique({
+        where: { id: pedidoId },
+      });
+
+      if (!pedido) {
+        return NextResponse.json({ ok: true });
+      }
+      // Si ya está confirmado, no hacer nada (idempotencia)
+      if (pedido.estadoPago === "confirmado") {
+        return NextResponse.json({ ok: true });
+      }
+      // Guardar el paymentId de MP y marcar como confirmado
+      await db.pedidoApp.update({
+        where: { id: pedidoId },
+        data: {
+          estadoPago: "confirmado",
+          confirmadoEn: new Date(),
+          mpPaymentId: String(paymentId),
+        },
+      });
+      // Si el cliente tiene proveedor preferido vinculado (duenoId),
+      // el pedido ya quedó en estado preferido_notificado/en_pool, no cambia.
     } else if (tipo === "suscripcion") {
       const duenoId = parts[1];
       const planId = parts[2];

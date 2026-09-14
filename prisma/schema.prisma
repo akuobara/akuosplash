@@ -532,6 +532,7 @@ model Zona {
 
   clientesApp     ClienteApp[]
   pedidosApp      PedidoApp[]
+  cuponesDescuento CuponDescuento[]
 }
 
 // Cliente de la app (distinto de Cliente que pertenece a un admin)
@@ -637,6 +638,15 @@ model PedidoApp {
   historialJson   String?
 
   nota            String?
+
+  // Cupón de descuento aplicado (opcional)
+  cuponCodigo     String?
+  descuento       Float?   // monto descontado del total
+  montoOriginal   Float?  // monto antes del descuento (para auditoría)
+
+  // MercadoPago (para pagos con tarjeta)
+  mpPreferenceId  String?
+  mpPaymentId      String?
 }
 
 // Movimientos de saldo del cliente-app
@@ -685,6 +695,28 @@ model FacturaAdmin {
   // Detalle de pedidos incluidos (JSON)
   pedidosJson     String?
   nota            String?
+}
+
+// Cupón de descuento para pedidos de la app cliente
+// Creado por super-admin, aplicable a todas las zonas o a una específica.
+model CuponDescuento {
+  id           String    @id @default(cuid())
+  codigo       String    @unique
+  descripcion  String?
+  tipo         String    @default("porcentaje")  // porcentaje | monto_fijo
+  valor        Float    // ej: 10 (porcentaje) o 5000 (monto fijo)
+  montoMinimo  Float?   // monto mínimo del pedido para aplicar
+  usosMaximos  Int?     // null = ilimitado
+  usosActuales Int      @default(0)
+  activo       Boolean   @default(true)
+  validoDesde  DateTime?
+  validoHasta  DateTime?
+  creadoPorId  String?
+  creadoEn     DateTime @default(now())
+  zonaId       String?  // si se especifica, solo aplica a esa zona
+  zona         Zona?    @relation(fields: [zonaId], references: [id])
+
+  @@index([codigo])
 }
 
 // === Sistema de auditoría ===

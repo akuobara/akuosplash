@@ -104,6 +104,54 @@ export async function crearPreferenciaSuscripcion(params: {
   };
 }
 
+// Crear preferencia de pago para pedido de agua de la app cliente
+// External reference: "pedido_pago:clienteId:pedidoId"
+export async function crearPreferenciaPedidoPago(params: {
+  clienteId: string;
+  clienteNombre: string;
+  email: string;
+  monto: number;
+  pedidoId: string;
+  litros: number;
+  descripcion?: string;
+}): Promise<{ preferenceId: string; initPoint: string; sandboxInitPoint: string }> {
+  const client = getClient();
+  const preference = new Preference(client);
+
+  const result = await preference.create({
+    body: {
+      items: [
+        {
+          id: params.pedidoId,
+          title: `Pedido de agua - Aljibe App`,
+          description: params.descripcion || `Pedido #${params.pedidoId.slice(-6)} — ${params.litros} L para ${params.clienteNombre}`,
+          quantity: 1,
+          unit_price: params.monto,
+          currency_id: "CLP",
+        },
+      ],
+      payer: {
+        name: params.clienteNombre,
+        email: params.email,
+      },
+      external_reference: `pedido_pago:${params.clienteId}:${params.pedidoId}`,
+      back_urls: {
+        success: `${process.env.NEXT_PUBLIC_APP_URL || "https://e-five-82.vercel.app"}/cliente?status=success`,
+        failure: `${process.env.NEXT_PUBLIC_APP_URL || "https://e-five-82.vercel.app"}/cliente?status=failure`,
+        pending: `${process.env.NEXT_PUBLIC_APP_URL || "https://e-five-82.vercel.app"}/cliente?status=pending`,
+      },
+      auto_return: "approved",
+      notification_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://e-five-82.vercel.app"}/api/webhooks/mercadopago`,
+    },
+  });
+
+  return {
+    preferenceId: result.id!,
+    initPoint: result.init_point!,
+    sandboxInitPoint: result.sandbox_init_point!,
+  };
+}
+
 // Verificar pago desde webhook (IPN)
 export async function verificarPago(paymentId: string): Promise<{
   status: string;

@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Droplets, LogOut, ArrowLeft, MapPin, Wallet, Loader2, CheckCircle2 } from "lucide-react";
+import { Droplets, LogOut, ArrowLeft, MapPin, Wallet, Loader2, CheckCircle2, CreditCard, Ticket, X } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { formatCurrency, formatNumber } from "@/lib/helpers";
@@ -26,6 +26,15 @@ interface Cliente {
   tiempoAceptacionPreferidoMin: number;
 }
 
+interface CuponValidado {
+  valido: boolean;
+  cupon?: { id: string; codigo: string; tipo: string; valor: number; descripcion: string | null };
+  descuento?: number;
+  montoFinal?: number;
+  error?: string;
+  mensaje?: string;
+}
+
 function getToken(): string | null {
   if (typeof window !== "undefined") return localStorage.getItem("aljibe-cliente-token");
   return null;
@@ -36,11 +45,16 @@ export default function PedirAguaPage() {
   const [cliente, setCliente] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(true);
   const [litros, setLitros] = useState("");
-  const [metodoPago, setMetodoPago] = useState<"saldo" | "transferencia" | "efectivo">("saldo");
+  const [metodoPago, setMetodoPago] = useState<"saldo" | "transferencia" | "efectivo" | "tarjeta">("saldo");
   const [direccion, setDireccion] = useState("");
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [nota, setNota] = useState("");
   const [creando, setCreando] = useState(false);
+
+  // Cupón
+  const [cuponInput, setCuponInput] = useState("");
+  const [cupon, setCupon] = useState<CuponValidado | null>(null);
+  const [validandoCupon, setValidandoCupon] = useState(false);
 
   useEffect(() => {
     const token = getToken();
@@ -97,8 +111,70 @@ export default function PedirAguaPage() {
     router.replace("/cliente/login");
   }
 
+  // Calcular montos (declarados antes del handler para evitar problemas de scope)
+  const precioPorLitro = cliente?.zona?.precioPorLitro || 0;
+  const montoBruto = Number(litros || 0) * precioPorLitro;
+  const montoOriginal = Math.ceil(montoBruto / 100) * 100;
+  const descuentoCupon = cupon?.valido && cupon.descuento ? cupon.descuento : 0;
+  const montoTotal = Math.max(0, montoOriginal - descuentoCupon);
+  const comision = Math.round(montoTotal * 0.10);
+
+  async function validarCupon() {
+    const codigo = cuponInput.trim();
+    if (!codigo) {
+      toast.error("Ingresá un código de cupón");
+      return;
+    }
+    if (!montoOriginal || montoOriginal <= 0) {
+      toast.error("Elegí primero la cantidad de litros");
+      return;
+    }
+    setValidandoCupon(true);
+    setCupon(null);
+    try {
+      const token = getToken();
+      const res = await fetch("/api/cliente/cupones/validar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ codigo, monto: montoOriginal }),
+      });
+      const data: CuponValidado = await res.json();
+      if (!res.ok || !data.valido) {
+        setCupon({ valido: false, error: data.error || "Cupón inválido" });
+        toast.error(data.error || "Cupón inválido");
+        return;
+      }
+      setCupon(data);
+      toast.success(data.mensaje || "Cupón aplicado");
+    } catch (e) {
+      toast.error("No se pudo validar el cupón");
+    } finally {
+      setValidandoCupon(false);
+    }
+  }
+
+  function quitarCupon() {
+    setCupon(null);
+    setCuponInput("");
+  }
+
+  // Cuando cambian los litros, invalidar el cupón aplicado (porque el monto cambió)
+  useEffect(() => {
+    if (cupon?.valido) {
+      setCupon(null);
+    }
+    // Solo se ejecuta cuando cambian los litros, no cuando cambia el cupón
+    // (si se incluyera `cupon` en deps, se repetiría al limpiarlo)
+  }, [litros]);
+
   async function handlePedir(e: React.FormEvent) {
     e.preventDefault();
+    if (creando) return; // Evitar doble submit
+
+    // Validaciones locales (antes de setCreando para no trabar el botón)
     const litrosNum = Number(litros);
     const minLitros = cliente?.zona?.litrosMinimos ?? 1000;
     if (!litrosNum || litrosNum < minLitros) {
@@ -106,9 +182,25 @@ export default function PedirAguaPage() {
       return;
     }
 
-    if (metodoPago === "saldo" && cliente && cliente.saldo < montoTotal) {
-      toast.error(`Saldo insuficiente. Necesitás ${formatCurrency(montoTotal)} y tenés ${formatCurrency(cliente.saldo)}`);
-      return;
+    // Calcular montos locales (no depender de closures)
+    const precio = cliente?.zona?.precioPorLitro || 0;
+    const bruto = litrosNum * precio;
+    const total = Math.max(0, Math.ceil(bruto / 100) * 100 - (cupon?.valido && cupon.descuento ? cupon.descuento : 0));
+
+    // Validación de saldo: si el método es saldo y no le alcanza, mostrar error claro
+    if (metodoPago === "saldo") {
+      if (!cliente) {
+        toast.error("No se pudieron cargar tus datos. Recargá la página.");
+        return;
+      }
+      if (cliente.saldo <= 0) {
+        toast.error("No tenés saldo cargado. Elegí otra forma de pago o cargá saldo primero.");
+        return;
+      }
+      if (total > 0 && cliente.saldo < total) {
+        toast.error(`Saldo insuficiente. Necesitás ${formatCurrency(total)} y tenés ${formatCurrency(cliente.saldo)}`);
+        return;
+      }
     }
 
     setCreando(true);
@@ -126,10 +218,21 @@ export default function PedirAguaPage() {
           direccion,
           indicacionesAcceso,
           nota,
+          cuponCodigo: cupon?.valido ? cupon.cupon?.codigo : undefined,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No se pudo crear el pedido");
+
+      // Si el método es tarjeta y viene initPoint, redirigir a MercadoPago
+      if (metodoPago === "tarjeta" && data.initPoint) {
+        toast.success("Pedido creado. Vas a ser redirigido a MercadoPago para pagar.");
+        // Pequeño delay para que el toast se vea
+        setTimeout(() => {
+          window.location.href = data.initPoint;
+        }, 800);
+        return;
+      }
 
       toast.success(data.mensaje || "Pedido creado");
       router.push("/cliente");
@@ -152,11 +255,6 @@ export default function PedirAguaPage() {
   }
 
   if (!cliente) return null;
-
-  const precioPorLitro = cliente.zona?.precioPorLitro || 0;
-  const montoBruto = Number(litros || 0) * precioPorLitro;
-  const montoTotal = Math.ceil(montoBruto / 100) * 100;
-  const comision = Math.round(montoTotal * 0.10);
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -237,15 +335,77 @@ export default function PedirAguaPage() {
                     <span className="text-muted-foreground">{formatNumber(Number(litros), 0)} L × {formatCurrency(precioPorLitro)}</span>
                     <span>{formatCurrency(montoBruto)}</span>
                   </div>
-                  <div className="flex justify-between font-medium border-t pt-1">
-                    <span>Total a pagar</span>
-                    <span>{formatCurrency(montoTotal)}</span>
-                  </div>
+                  {cupon?.valido && cupon.descuento ? (
+                    <>
+                      <div className="flex justify-between text-emerald-700">
+                        <span className="flex items-center gap-1">
+                          <Ticket className="h-3 w-3" /> Cupón {cupon.cupon?.codigo}
+                          {cupon.cupon?.tipo === "porcentaje"
+                            ? ` (${cupon.cupon.valor}%)`
+                            : ` (${formatCurrency(cupon.cupon?.valor || 0)})`}
+                        </span>
+                        <span>−{formatCurrency(cupon.descuento)}</span>
+                      </div>
+                      <div className="flex justify-between font-medium border-t pt-1">
+                        <span>Total a pagar</span>
+                        <span>{formatCurrency(montoTotal)}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between font-medium border-t pt-1">
+                      <span>Total a pagar</span>
+                      <span>{formatCurrency(montoTotal)}</span>
+                    </div>
+                  )}
                   <p className="text-xs text-muted-foreground">
                     Incluye 10% comisión app ({formatCurrency(comision)})
                   </p>
                 </div>
               )}
+
+              {/* Cupón de descuento */}
+              <div className="rounded-md border border-dashed p-3 space-y-2">
+                <Label className="text-xs flex items-center gap-1">
+                  <Ticket className="h-3 w-3" /> ¿Tenés un cupón de descuento?
+                </Label>
+                {cupon?.valido ? (
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="font-mono font-bold text-sm uppercase truncate">{cupon.cupon?.codigo}</p>
+                        <p className="text-xs text-emerald-700">
+                          Descuento: {formatCurrency(cupon.descuento || 0)} → Total: {formatCurrency(cupon.montoFinal || 0)}
+                        </p>
+                      </div>
+                    </div>
+                    <Button type="button" variant="ghost" size="sm" onClick={quitarCupon} className="h-8 shrink-0">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      value={cuponInput}
+                      onChange={(e) => setCuponInput(e.target.value.toUpperCase())}
+                      placeholder="Ej: VERANO2026"
+                      className="font-mono uppercase h-9"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          validarCupon();
+                        }
+                      }}
+                    />
+                    <Button type="button" variant="outline" size="sm" onClick={validarCupon} disabled={validandoCupon || !cuponInput.trim()}>
+                      {validandoCupon ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
+                    </Button>
+                  </div>
+                )}
+                {cupon && !cupon.valido && (
+                  <p className="text-xs text-red-600">{cupon.error}</p>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -262,15 +422,36 @@ export default function PedirAguaPage() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-sm">Pagar con saldo</p>
+                    <p className="font-medium text-sm flex items-center gap-1">
+                      <Wallet className="h-3 w-3" /> Pagar con saldo
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Saldo actual: {formatCurrency(cliente.saldo)}
-                      {cliente.saldo < montoTotal && montoTotal > 0 && (
-                        <span className="text-amber-600"> — insuficiente, cargá saldo primero</span>
+                      {cliente.saldo <= 0 && (
+                        <span className="text-amber-600"> — sin saldo, cargá primero</span>
+                      )}
+                      {cliente.saldo > 0 && cliente.saldo < montoTotal && montoTotal > 0 && (
+                        <span className="text-amber-600"> — insuficiente para este pedido</span>
                       )}
                     </p>
                   </div>
                   {metodoPago === "saldo" && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMetodoPago("tarjeta")}
+                className={`w-full text-left rounded-md border p-3 ${metodoPago === "tarjeta" ? "border-primary bg-primary/5" : ""}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-sm flex items-center gap-1">
+                      <CreditCard className="h-3 w-3" /> Tarjeta (Webpay / MercadoPago)
+                    </p>
+                    <p className="text-xs text-muted-foreground">Pagás ahora con tarjeta. El pedido se confirma al aprobarse.</p>
+                  </div>
+                  {metodoPago === "tarjeta" && <CheckCircle2 className="h-4 w-4 text-primary" />}
                 </div>
               </button>
 
@@ -331,7 +512,9 @@ export default function PedirAguaPage() {
 
           <Button type="submit" size="lg" className="w-full" disabled={creando || !litros}>
             {creando ? (
-              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Creando pedido…</>
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando…</>
+            ) : metodoPago === "tarjeta" ? (
+              <><CreditCard className="mr-2 h-5 w-5" /> Pagar con tarjeta {litros ? `${formatNumber(Number(litros), 0)} L` : ""}</>
             ) : (
               <><Droplets className="mr-2 h-5 w-5" /> Pedir {litros ? `${formatNumber(Number(litros), 0)} L` : "agua"}</>
             )}

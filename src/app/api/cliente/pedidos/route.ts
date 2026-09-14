@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getClienteSession } from "@/lib/auth-cliente";
 import { checkDemoBlock } from "@/lib/demo-guard";
+import { crearPreferenciaPedidoPago } from "@/lib/mercadopago";
 
 // POST /api/cliente/pedidos — crear un pedido desde la app cliente
-// Body: { litros, direccion?, lat?, lng?, indicacionesAcceso?, metodoPago, usarSaldo?, nota? }
+// Body: { litros, direccion?, lat?, lng?, indicacionesAcceso?, metodoPago, cuponCodigo?, nota? }
+// Para metodoPago="tarjeta" devuelve { pedido, initPoint } y redirige a MercadoPago
 export async function POST(req: NextRequest) {
   const _demoBlocked = await checkDemoBlock();
   if (_demoBlocked) return _demoBlocked;
@@ -32,7 +34,7 @@ export async function POST(req: NextRequest) {
         indicacionesAcceso: true,
         saldo: true,
         entregasExitosas: true,
-        zona: { select: { id: true, nombre: true, precioPorLitro: true } },
+        zona: { select: { id: true, nombre: true, precioPorLitro: true, litrosMinimos: true } },
         proveedorPreferidoId: true,
         tiempoAceptacionPreferidoMin: true,
       },
@@ -55,17 +57,69 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Ya tenés un pedido en curso. Esperá a que se entregue o cancelá el actual." }, { status: 400 });
     }
 
+    // Validar litros mínimos de la zona
+    const minLitrosZona = cliente.zona.litrosMinimos ?? 1000;
+    if (litros < minLitrosZona) {
+      return NextResponse.json({ error: `La cantidad mínima es ${minLitrosZona} L` }, { status: 400 });
+    }
+
     // Calcular monto
     const precioPorLitro = cliente.zona.precioPorLitro;
     const montoBruto = litros * precioPorLitro;
-    // Redondear a $100 superior
-    const monto = Math.ceil(montoBruto / 100) * 100;
+    const montoOriginal = Math.ceil(montoBruto / 100) * 100;
+
+    // === Cupón de descuento ===
+    let descuento = 0;
+    let monto = montoOriginal;
+    let cuponCodigo: string | null = null;
+    let cuponId: string | null = null;
+
+    const codigoIn = String(body.cuponCodigo || "").trim().toUpperCase();
+    if (codigoIn) {
+      const cupon = await db.cuponDescuento.findUnique({
+        where: { codigo: codigoIn },
+      });
+      if (!cupon) {
+        return NextResponse.json({ error: `El cupón "${codigoIn}" no existe` }, { status: 400 });
+      }
+      if (!cupon.activo) {
+        return NextResponse.json({ error: "Este cupón ya no está activo" }, { status: 400 });
+      }
+      const ahora = new Date();
+      if (cupon.validoDesde && ahora < cupon.validoDesde) {
+        return NextResponse.json({ error: "Este cupón aún no es válido" }, { status: 400 });
+      }
+      if (cupon.validoHasta && ahora > cupon.validoHasta) {
+        return NextResponse.json({ error: "Este cupón ya expiró" }, { status: 400 });
+      }
+      if (cupon.usosMaximos != null && cupon.usosActuales >= cupon.usosMaximos) {
+        return NextResponse.json({ error: "Este cupón alcanzó su límite de usos" }, { status: 400 });
+      }
+      if (cupon.montoMinimo != null && montoOriginal < cupon.montoMinimo) {
+        return NextResponse.json({
+          error: `Necesitás un pedido mínimo de $${Math.round(cupon.montoMinimo).toLocaleString("es-CL")} para usar este cupón`,
+        }, { status: 400 });
+      }
+      if (cupon.zonaId && cliente.zonaId !== cupon.zonaId) {
+        return NextResponse.json({ error: "Este cupón no aplica para tu zona" }, { status: 400 });
+      }
+      // Calcular descuento
+      if (cupon.tipo === "porcentaje") {
+        descuento = Math.round(montoOriginal * (cupon.valor / 100));
+      } else {
+        descuento = Math.min(Math.round(cupon.valor), montoOriginal);
+      }
+      monto = Math.max(0, montoOriginal - descuento);
+      cuponCodigo = cupon.codigo;
+      cuponId = cupon.id;
+    }
+
     const comisionApp = Math.round(monto * 0.10);
     const montoProveedor = monto - comisionApp;
 
     // Determinar método de pago
     const metodoPago = body.metodoPago || "saldo";
-    if (!["saldo", "transferencia", "efectivo", "mensual"].includes(metodoPago)) {
+    if (!["saldo", "transferencia", "efectivo", "tarjeta", "mensual"].includes(metodoPago)) {
       return NextResponse.json({ error: "Método de pago no válido" }, { status: 400 });
     }
     if (metodoPago === "efectivo" && cliente.entregasExitosas < 10) {
@@ -74,7 +128,6 @@ export async function POST(req: NextRequest) {
       }, { status: 403 });
     }
     if (metodoPago === "mensual") {
-      // TODO: verificar que el cliente tenga el plan mensual habilitado (futura feature)
       return NextResponse.json({ error: "Pago mensual no disponible todavía" }, { status: 400 });
     }
 
@@ -82,10 +135,13 @@ export async function POST(req: NextRequest) {
     if (metodoPago === "saldo") {
       if (cliente.saldo < monto) {
         return NextResponse.json({
-          error: `Saldo insuficiente. Necesitás ${monto} y tenés ${cliente.saldo}. Cargá saldo primero.`,
+          error: `Saldo insuficiente. Necesitás $${Math.round(monto).toLocaleString("es-CL")} y tenés $${Math.round(cliente.saldo).toLocaleString("es-CL")}. Cargá saldo primero.`,
         }, { status: 400 });
       }
     }
+
+    // Si monto es 0 (por descuento total) y método es tarjeta, no se requiere MP
+    const montoPositivo = monto > 0;
 
     // Dirección: usar la del body o la del cliente
     const direccion = body.direccion?.trim() || cliente.direccion || "";
@@ -109,6 +165,17 @@ export async function POST(req: NextRequest) {
       { estado: estadoInicial, fecha: ahora.toISOString(), por: "cliente" },
     ]);
 
+    // estadoPago inicial:
+    //   - saldo → "confirmado" (se descuenta ahora)
+    //   - tarjeta con monto 0 → "confirmado" (no requiere MP)
+    //   - tarjeta con monto > 0 → "pendiente" (hasta webhook de MP)
+    //   - transferencia → "pendiente"
+    //   - efectivo → "pendiente"
+    const estadoPagoInicial =
+      metodoPago === "saldo" ? "confirmado" :
+      (metodoPago === "tarjeta" && !montoPositivo) ? "confirmado" :
+      "pendiente";
+
     const pedido = await db.pedidoApp.create({
       data: {
         clienteId: cliente.id,
@@ -122,15 +189,32 @@ export async function POST(req: NextRequest) {
         monto,
         comisionApp,
         montoProveedor,
-        estadoPago: metodoPago === "saldo" ? "confirmado" : "pendiente",
-        confirmadoEn: metodoPago === "saldo" ? ahora : null,
+        estadoPago: estadoPagoInicial,
+        confirmadoEn: estadoPagoInicial === "confirmado" ? ahora : null,
         estado: estadoInicial,
         proveedorPreferidoNotificadoEn: tienePreferido ? ahora : null,
         plazoAceptacionPreferido: plazoPreferido,
         historialJson,
         nota: body.nota?.trim() || null,
+        // Cupón
+        cuponCodigo,
+        descuento: descuento > 0 ? descuento : null,
+        montoOriginal: descuento > 0 ? montoOriginal : null,
       },
     });
+
+    // Si se aplicó un cupón, incrementar el contador de usos
+    if (cuponId) {
+      try {
+        await db.cuponDescuento.update({
+          where: { id: cuponId },
+          data: { usosActuales: { increment: 1 } },
+        });
+      } catch (e) {
+        // No fallar el pedido si el contador falla
+        console.error("[cupones] No se pudo incrementar usosActuales:", e);
+      }
+    }
 
     // Si paga con saldo, descontar del saldo y crear movimiento
     if (metodoPago === "saldo") {
@@ -155,6 +239,71 @@ export async function POST(req: NextRequest) {
       ]);
     }
 
+    // Si paga con tarjeta y el monto es positivo, crear preferencia de MercadoPago
+    if (metodoPago === "tarjeta" && montoPositivo) {
+      try {
+        const pref = await crearPreferenciaPedidoPago({
+          clienteId: cliente.id,
+          clienteNombre: cliente.nombre,
+          email: cliente.email,
+          monto,
+          pedidoId: pedido.id,
+          litros,
+          descripcion: `Pedido #${pedido.id.slice(-6)} — ${litros} L · ${cliente.zona?.nombre || ""}${cuponCodigo ? ` · Cupón ${cuponCodigo}` : ""}`,
+        });
+
+        // Guardar la preferenceId en el pedido
+        await db.pedidoApp.update({
+          where: { id: pedido.id },
+          data: { mpPreferenceId: pref.preferenceId },
+        });
+
+        return NextResponse.json({
+          pedido: {
+            id: pedido.id,
+            litros: pedido.litros,
+            monto: pedido.monto,
+            comisionApp: pedido.comisionApp,
+            montoProveedor: pedido.montoProveedor,
+            metodoPago: pedido.metodoPago,
+            estado: pedido.estado,
+            estadoPago: pedido.estadoPago,
+            zona: cliente.zona.nombre,
+            creadoEn: pedido.creadoEn,
+            descuento: pedido.descuento,
+            montoOriginal: pedido.montoOriginal,
+            cuponCodigo: pedido.cuponCodigo,
+          },
+          initPoint: pref.initPoint,
+          sandboxInitPoint: pref.sandboxInitPoint,
+          preferenceId: pref.preferenceId,
+          mensaje: "Pedido creado. Vas a ser redirigido a MercadoPago para pagar.",
+        }, { status: 201 });
+      } catch (e) {
+        // Si MP falla, cancelar el pedido para que el cliente pueda reintentar
+        await db.pedidoApp.update({
+          where: { id: pedido.id },
+          data: {
+            estado: "cancelado",
+            canceladoEn: new Date(),
+            canceladoPor: "sistema",
+            motivoCancelacion: "Error al crear preferencia de MercadoPago",
+          },
+        });
+        // Revertir incremento del cupón si se aplicó
+        if (cuponId) {
+          try {
+            await db.cuponDescuento.update({
+              where: { id: cuponId },
+              data: { usosActuales: { decrement: 1 } },
+            });
+          } catch {}
+        }
+        const msg = e instanceof Error ? e.message : "No se pudo crear el pago en MercadoPago";
+        return NextResponse.json({ error: msg }, { status: 500 });
+      }
+    }
+
     return NextResponse.json({
       pedido: {
         id: pedido.id,
@@ -167,6 +316,9 @@ export async function POST(req: NextRequest) {
         estadoPago: pedido.estadoPago,
         zona: cliente.zona.nombre,
         creadoEn: pedido.creadoEn,
+        descuento: pedido.descuento,
+        montoOriginal: pedido.montoOriginal,
+        cuponCodigo: pedido.cuponCodigo,
       },
       mensaje: tienePreferido
         ? `Pedido creado. Tu proveedor preferido tiene ${cliente.tiempoAceptacionPreferidoMin} min para aceptar. Si no acepta, cae al pool general.`
@@ -199,6 +351,9 @@ export async function GET() {
       metodoPago: true,
       direccion: true,
       nota: true,
+      descuento: true,
+      montoOriginal: true,
+      cuponCodigo: true,
       tomadoEn: true,
       entregadoEn: true,
       canceladoEn: true,
