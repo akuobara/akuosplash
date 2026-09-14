@@ -87,7 +87,7 @@ export default function RegistroClientePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!nombre.trim() || !email.trim() || !password || !zonaId || !rut.trim() || !telefono.trim()) {
+    if (!nombre.trim() || !email.trim() || !password || !rut.trim() || !telefono.trim()) {
       toast.error("Todos los campos marcados con * son obligatorios");
       return;
     }
@@ -98,7 +98,7 @@ export default function RegistroClientePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre, rut, email, telefono, password, zonaId,
+          nombre, rut, email, telefono, password,
           direccion, lat, lng,
           requiereIngresoPropiedad, entregaDesdeAfuera, conexionExterna, requiereClientePresente,
           indicacionesAcceso,
@@ -179,38 +179,12 @@ export default function RegistroClientePage() {
             </CardContent>
           </Card>
 
-          {/* Zona */}
+          {/* Ubicación */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" /> Tu zona</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" /> Ubicación de los estanques</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div>
-                <Label className="text-xs">Zona *</Label>
-                {cargandoZonas ? (
-                  <p className="text-xs text-muted-foreground">Cargando zonas…</p>
-                ) : zonas.length === 0 ? (
-                  <p className="text-xs text-amber-600">No hay zonas configuradas todavía. Volvé más tarde.</p>
-                ) : (
-                  <select
-                    value={zonaId}
-                    onChange={(e) => setZonaId(e.target.value)}
-                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
-                  >
-                    <option value="">Elegí tu zona…</option>
-                    {zonas.map(z => (
-                      <option key={z.id} value={z.id}>
-                        {z.nombre} — {formatCurrency(z.precioPorLitro)}/L
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-              {zonaSeleccionada && (
-                <p className="text-xs text-muted-foreground">
-                  Precio en tu zona: <strong>{formatCurrency(zonaSeleccionada.precioPorLitro)}</strong> por litro (incluye 10% comisión de la app).
-                </p>
-              )}
               <div>
                 <Label className="text-xs">Dirección</Label>
                 <Input value={direccion} onChange={(e) => setDireccion(e.target.value)} placeholder="Calle, número, depto" />
@@ -228,6 +202,9 @@ export default function RegistroClientePage() {
               <Button type="button" variant="outline" size="sm" onClick={obtenerUbicacion}>
                 <MapPin className="mr-1 h-3 w-3" /> Usar mi ubicación actual
               </Button>
+              <p className="text-xs text-muted-foreground">
+                Tu zona se asigna automáticamente según tu ubicación.
+              </p>
             </CardContent>
           </Card>
 
@@ -318,7 +295,7 @@ export default function RegistroClientePage() {
             </CardContent>
           </Card>
 
-          <Button type="submit" size="lg" className="w-full" disabled={loading || !zonaId}>
+          <Button type="submit" size="lg" className="w-full" disabled={loading}>
             {loading ? "Creando cuenta..." : "Crear cuenta"}
           </Button>
 

@@ -8,10 +8,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Campos obligatorios
-    if (!body.email?.trim() || !body.password || !body.nombre?.trim() || !body.zonaId || !body.rut?.trim() || !body.telefono?.trim()) {
+    // Campos obligatorios (sin zonaId — se asigna automáticamente por ubicación)
+    if (!body.email?.trim() || !body.password || !body.nombre?.trim() || !body.rut?.trim() || !body.telefono?.trim()) {
       return NextResponse.json(
-        { error: "Nombre, RUT, teléfono, email, contraseña y zona son obligatorios" },
+        { error: "Nombre, RUT, teléfono, email y contraseña son obligatorios" },
         { status: 400 }
       );
     }
@@ -23,12 +23,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verificar que la zona exista y esté activa
-    const zona = await db.zona.findFirst({
-      where: { id: body.zonaId, activa: true },
-    });
-    if (!zona) {
-      return NextResponse.json({ error: "Zona inválida" }, { status: 400 });
+    // Asignar zona automáticamente según lat/lng
+    // Si el cliente envió ubicación, buscar la zona cuyo polígono contiene el punto
+    // Si no hay polígono, usar radioKm desde el centro
+    // Si no hay zona que coincida, usar la primera zona activa como fallback
+    let zonaId: string | null = null;
+    const lat = body.lat != null && body.lat !== "" ? Number(body.lat) : null;
+    const lng = body.lng != null && body.lng !== "" ? Number(body.lng) : null;
+
+    if (lat != null && lng != null) {
+      const zonasActivas = await db.zona.findMany({ where: { activa: true } });
+      for (const z of zonasActivas) {
+        if (z.zonaGeoJson) {
+          try {
+            const geo = JSON.parse(z.zonaGeoJson);
+            if (geo.type === "Polygon" && geo.coordinates?.[0]) {
+              if (pointInPolygon([lng, lat], geo.coordinates[0])) {
+                zonaId = z.id;
+                break;
+              }
+            }
+          } catch {}
+        }
+        if (!zonaId && z.radioKm != null && z.centroLat != null && z.centroLng != null) {
+          const dist = haversine(lat, lng, z.centroLat, z.centroLng);
+          if (dist <= z.radioKm) {
+            zonaId = z.id;
+            break;
+          }
+        }
+      }
+    }
+
+    // Fallback: si no se encontró zona por ubicación, usar la primera activa
+    if (!zonaId) {
+      const primeraZona = await db.zona.findFirst({ where: { activa: true } });
+      if (primeraZona) {
+        zonaId = primeraZona.id;
+      } else {
+        return NextResponse.json(
+          { error: "No hay zonas activas. Contactá al administrador." },
+          { status: 400 }
+        );
+      }
     }
 
     const emailNorm = body.email.trim().toLowerCase();
@@ -58,7 +95,7 @@ export async function POST(req: NextRequest) {
         rut: body.rut?.trim() || null,
         telefono: telefonoNormalizado,
         direccion: body.direccion?.trim() || null,
-        zonaId: zona.id,
+        zonaId: zonaId,
         lat: body.lat != null && body.lat !== "" ? Number(body.lat) : null,
         lng: body.lng != null && body.lng !== "" ? Number(body.lng) : null,
         // Acceso
@@ -101,4 +138,30 @@ export async function POST(req: NextRequest) {
     console.error(e);
     return NextResponse.json({ error: "No se pudo registrar" }, { status: 500 });
   }
+}
+
+// === Helpers para asignar zona por ubicación ===
+
+// Verifica si un punto [lng, lat] está dentro de un polígono (ray casting)
+function pointInPolygon(point: [number, number], polygon: [number, number][]): boolean {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const intersect = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+// Distancia haversine en km entre dos puntos [lat, lng]
+function haversine(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371; // km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
