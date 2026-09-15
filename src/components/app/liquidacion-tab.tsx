@@ -168,9 +168,6 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
   const [cobrarSaldoOpen, setCobrarSaldoOpen] = useState(false);
   const [cobrandoSaldo, setCobrandoSaldo] = useState(false);
   const [cobrarMonto, setCobrarMonto] = useState("");
-  const [limpiandoCobros, setLimpiandoCobros] = useState(false);
-  const [limpiarConfirmOpen, setLimpiarConfirmOpen] = useState(false);
-  const [limpiarResultado, setLimpiarResultado] = useState<{ gastosEliminados: number; pagosEliminados: number; saldoRestaurado: number } | null>(null);
 
   const MONTH_NAMES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -367,17 +364,6 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                   Saldo cobrado: {formatCurrency(periodoData.resumen.cobroSaldoAnteriorTotal || 0)}
                 </div>
               )}
-              {/* Botón: limpiar cobros fantasma de saldo anterior (dueno o chofer) */}
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
-                disabled={limpiandoCobros}
-                onClick={() => setLimpiarConfirmOpen(true)}
-              >
-                {limpiandoCobros ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="mr-1 h-3.5 w-3.5" />}
-                Limpiar cobros fantasma
-              </Button>
             </div>
           )}
         </CardContent>
@@ -780,73 +766,6 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
             >
               <Smartphone className="mr-1 h-4 w-4" /> Transferencia
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Diálogo: Confirmar limpieza de cobros fantasma */}
-      <Dialog open={limpiarConfirmOpen} onOpenChange={(o) => { setLimpiarConfirmOpen(o); if (!o) setLimpiarResultado(null); }}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Limpiar cobros fantasma</DialogTitle>
-            <DialogDescription>
-              Vas a borrar todos los gastos/pagos fantasma de saldo anterior y restaurar el saldo a $76.100.
-            </DialogDescription>
-          </DialogHeader>
-          {limpiarResultado ? (
-            <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-800 p-3 text-xs text-emerald-900 dark:text-emerald-200 space-y-1">
-              <p className="font-semibold">Limpieza completada</p>
-              <p>• Gastos fantasma eliminados: <strong>{limpiarResultado.gastosEliminados}</strong></p>
-              <p>• Pagos fantasma eliminados: <strong>{limpiarResultado.pagosEliminados}</strong></p>
-              <p>• Saldo restaurado a: <strong>{formatCurrency(limpiarResultado.saldoRestaurado)}</strong></p>
-              <p className="text-[10px] mt-2 text-emerald-700 dark:text-emerald-300">Refrescá la liquidación para ver los cambios.</p>
-            </div>
-          ) : (
-            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-800 p-3 text-xs text-amber-900 dark:text-amber-200">
-              <p>Esto va a:</p>
-              <ul className="list-disc pl-4 mt-1 space-y-0.5">
-                <li>Borrar gastos del último mes con <code>pagadoPor=dueno</code> + <code>tipo=otro</code></li>
-                <li>Borrar pagos con descripción que mencione saldo/liquidación/anterior</li>
-                <li>Restaurar <code>saldoPendienteLiquidacion</code> a $76.100</li>
-              </ul>
-              <p className="mt-2 font-semibold text-red-700 dark:text-red-300">No se puede deshacer.</p>
-            </div>
-          )}
-          <DialogFooter className="flex gap-2">
-            {limpiarResultado ? (
-              <Button variant="outline" onClick={() => { setLimpiarConfirmOpen(false); setLimpiarResultado(null); cargar(); onRefresh(); }}>
-                Cerrar
-              </Button>
-            ) : (
-              <>
-                <Button variant="outline" onClick={() => setLimpiarConfirmOpen(false)}>Cancelar</Button>
-                <Button
-                  variant="destructive"
-                  disabled={limpiandoCobros}
-                  onClick={async () => {
-                    setLimpiandoCobros(true);
-                    try {
-                      const res = await apiPost<{ ok: boolean; message: string; gastosEliminados: number; pagosEliminados: number; saldoRestaurado: number }>("/api/admin/restaurar-saldo", {});
-                      setLimpiarResultado({
-                        gastosEliminados: res.gastosEliminados,
-                        pagosEliminados: res.pagosEliminados,
-                        saldoRestaurado: res.saldoRestaurado,
-                      });
-                      toast.success(`Limpieza OK. ${res.gastosEliminados} gastos y ${res.pagosEliminados} pagos eliminados.`);
-                      cargar();
-                      onRefresh();
-                    } catch (e) {
-                      toast.error(e instanceof Error ? e.message : "No se pudo limpiar");
-                    } finally {
-                      setLimpiandoCobros(false);
-                    }
-                  }}
-                >
-                  {limpiandoCobros ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <AlertTriangle className="mr-1 h-4 w-4" />}
-                  Confirmar limpieza
-                </Button>
-              </>
-            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
