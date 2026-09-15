@@ -40,6 +40,28 @@ function getToken(): string | null {
   return null;
 }
 
+// Componente que muestra los datos de transferencia del admin
+function DatosTransferenciaCliente() {
+  const [data, setData] = useState<any>(null);
+  useEffect(() => {
+    fetch("/api/config/public")
+      .then(r => r.json())
+      .then(r => { if (r.transfData) setData(r.transfData); })
+      .catch(() => {});
+  }, []);
+  if (!data) return <p className="text-xs text-muted-foreground">Cargando datos…</p>;
+  return (
+    <div className="space-y-1 text-xs text-blue-800 dark:text-blue-300">
+      {data.transfBanco && <div>Banco: <strong>{data.transfBanco}</strong></div>}
+      {data.transfTipoCuenta && <div>Tipo: <strong>{data.transfTipoCuenta}</strong></div>}
+      {data.transfNumeroCuenta && <div>Cuenta: <strong>{data.transfNumeroCuenta}</strong></div>}
+      {data.transfTitular && <div>Titular: <strong>{data.transfTitular}</strong></div>}
+      {data.transfRutTitular && <div>RUT: <strong>{data.transfRutTitular}</strong></div>}
+      {data.transfEmail && <div>Email: <strong>{data.transfEmail}</strong></div>}
+    </div>
+  );
+}
+
 export default function PedirAguaPage() {
   const router = useRouter();
   const [cliente, setCliente] = useState<Cliente | null>(null);
@@ -435,7 +457,14 @@ export default function PedirAguaPage() {
                       )}
                     </p>
                   </div>
-                  {metodoPago === "saldo" && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                  <div className="flex items-center gap-2">
+                    {cliente.saldo <= 0 && (
+                      <Link href="/cliente/saldo">
+                        <span className="text-xs text-blue-600 underline">Cargar saldo</span>
+                      </Link>
+                    )}
+                    {metodoPago === "saldo" && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                  </div>
                 </div>
               </button>
 
@@ -463,11 +492,22 @@ export default function PedirAguaPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">Transferencia</p>
-                    <p className="text-xs text-muted-foreground">Subir comprobante después</p>
+                    <p className="text-xs text-muted-foreground">El pedido queda pendiente hasta confirmar el pago</p>
                   </div>
                   {metodoPago === "transferencia" && <CheckCircle2 className="h-4 w-4 text-primary" />}
                 </div>
               </button>
+
+              {/* Datos de transferencia cuando se selecciona */}
+              {metodoPago === "transferencia" && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-900/20">
+                  <p className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-2">Datos para transferir:</p>
+                  <DatosTransferenciaCliente />
+                  <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                    Después de transferir, confirmá el pedido. Deberás subir el comprobante desde la página de saldo.
+                  </p>
+                </div>
+              )}
 
               <button
                 type="button"
