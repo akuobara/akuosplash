@@ -652,11 +652,15 @@ export function EntregaForm({
       return;
     }
 
-    if (litrosFinalLocal <= 0) {
+    if (litrosFinalLocal <= 0 && !esCamionCompleto) {
       toast.error("Los litros deben ser mayores a 0");
       savingRef.current = false;
       return;
     }
+    // Si es camión completo y no hay litros, usar la capacidad del camión
+    const litrosParaGuardar = esCamionCompleto && litrosFinalLocal <= 0
+      ? (vueltaActual?.camion?.capacidad ?? config.capacidadCamion ?? 17000)
+      : litrosFinalLocal;
 
     setSaving(true);
     try {
@@ -668,7 +672,7 @@ export function EntregaForm({
         clienteZona: clienteZona.trim() || null,
         lecturaAnterior: lecturaAnterior !== "" ? Number(lecturaAnterior) : null,
         lecturaActual: lecturaActual !== "" ? Number(lecturaActual) : null,
-        litros: litrosFinalLocal,
+        litros: litrosParaGuardar,
         metodoPago,
         precioPorLitro: precioFinalLocal,
         total: totalConDescuento,

@@ -187,7 +187,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [indicacionesAcceso, setIndicacionesAcceso] = useState("");
   const [nota, setNota] = useState("");
   const [esCamionCompleto, setEsCamionCompleto] = useState(false);
-  const [cantidadCamiones, setCantidadCamiones] = useState(1);
+  const [cantidadCamiones, setCantidadCamiones] = useState<number>(1);
   // Asignación
   const [asignacionTipo, setAsignacionTipo] = useState<string>("manual");
   const [choferAsignadoId, setChoferAsignadoId] = useState<string>("");
@@ -1224,9 +1224,16 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 {esCamionCompleto && (
                   <div className="flex items-center gap-2">
                     <Label className="text-xs whitespace-nowrap">Camiones:</Label>
-                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.max(1, cantidadCamiones - 1))}>−</Button>
-                    <span className="font-bold w-8 text-center">{cantidadCamiones}</span>
-                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(cantidadCamiones + 1)}>+</Button>
+                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.max(0.5, Math.round((cantidadCamiones - 0.5) * 2) / 2))}>−</Button>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0.5"
+                      value={cantidadCamiones}
+                      onChange={(e) => setCantidadCamiones(Math.max(0.5, Number(e.target.value) || 1))}
+                      className="h-7 w-16 text-center font-bold"
+                    />
+                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.round((cantidadCamiones + 0.5) * 2) / 2)}>+</Button>
                     <span className="text-xs text-muted-foreground">= {formatNumber(cantidadCamiones * (vueltaActual?.capacidadCamion || 17000), 0)} L</span>
                   </div>
                 )}
