@@ -11,8 +11,7 @@ import { getSession, getDuenoId } from "@/lib/auth";
 //   - "anterior"
 //   - "cobro de"
 //
-// Esto es más robusto que el filtro anterior ("saldo de liquidación") que fallaba
-// cuando el description tenía una variación (mayúsculas, sin acento, etc.).
+// Sintaxis Prisma correcta: el OR va al nivel del `where`, no dentro del campo descripcion.
 async function ejecutar() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
@@ -20,27 +19,36 @@ async function ejecutar() {
   if (!duenoId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   try {
-    // Filtro amplio: cualquier descripción que mencione saldo/liquidación/anterior/cobro
-    const filtroDescripcion = {
-      OR: [
-        { contains: "saldo" },
-        { contains: "Saldo" },
-        { contains: "SALDO" },
-        { contains: "liquidación" },
-        { contains: "liquidacion" },
-        { contains: "Liquidación" },
-        { contains: "Liquidacion" },
-        { contains: "anterior" },
-        { contains: "Anterior" },
-        { contains: "cobro de saldo" },
-        { contains: "pago de saldo" },
-        { contains: "Cobro de saldo" },
-        { contains: "Pago de saldo" },
-      ],
+    // Genera las variantes de case para cada término clave.
+    // Se usan múltiples OR porque SQLite (Turso) no soporta mode: "insensitive".
+    const terminos = [
+      "saldo",
+      "Saldo",
+      "SALDO",
+      "liquidación",
+      "liquidacion",
+      "Liquidación",
+      "Liquidacion",
+      "anterior",
+      "Anterior",
+      "cobro de saldo",
+      "pago de saldo",
+      "Cobro de saldo",
+      "Pago de saldo",
+    ];
+
+    // Filtro WHERE (duenoId = X) AND (descripcion LIKE '%saldo%' OR descripcion LIKE '%Saldo%' OR ...)
+    const whereGasto = {
+      duenoId,
+      OR: terminos.map((t) => ({ descripcion: { contains: t } })),
+    };
+    const wherePago = {
+      duenoId,
+      OR: terminos.map((t) => ({ descripcion: { contains: t } })),
     };
 
     const gastos = await db.gasto.findMany({
-      where: { duenoId, descripcion: filtroDescripcion },
+      where: whereGasto,
       select: { id: true, monto: true, descripcion: true, fecha: true },
     });
     for (const g of gastos) {
@@ -48,7 +56,7 @@ async function ejecutar() {
     }
 
     const pagos = await db.pago.findMany({
-      where: { duenoId, descripcion: filtroDescripcion },
+      where: wherePago,
       select: { id: true, monto: true, descripcion: true, fecha: true },
     });
     for (const p of pagos) {
@@ -65,8 +73,8 @@ async function ejecutar() {
       ok: true,
       gastosEliminados: gastos.length,
       pagosEliminados: pagos.length,
-      detalleGastos: gastos,
-      detallePagos: pagos,
+      detalleGastos: gastos.map((g) => ({ id: g.id, monto: g.monto, descripcion: g.descripcion, fecha: g.fecha })),
+      detallePagos: pagos.map((p) => ({ id: p.id, monto: p.monto, descripcion: p.descripcion, fecha: p.fecha })),
       saldoRestaurado: config.saldoPendienteLiquidacion,
       message: `Limpieza completa. ${gastos.length} gastos y ${pagos.length} pagos eliminados. Saldo restaurado a $76.100.`,
     });
