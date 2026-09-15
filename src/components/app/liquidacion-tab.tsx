@@ -161,6 +161,9 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
   const [descargandoResumen, setDescargandoResumen] = useState(false);
   const [cerrandoPeriodo, setCerrandoPeriodo] = useState(false);
   const [confirmarCierre, setConfirmarCierre] = useState(false);
+  const [cobrarSaldoOpen, setCobrarSaldoOpen] = useState(false);
+  const [cobrandoSaldo, setCobrandoSaldo] = useState(false);
+  const [cobrarMonto, setCobrarMonto] = useState("");
 
   const MONTH_NAMES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -336,6 +339,18 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                   onClick={() => setConfirmarCierre(true)}
                 >
                   <Lock className="mr-1 h-3.5 w-3.5" /> Cerrar período
+                </Button>
+              )}
+              {/* Botón: cobrar saldo anterior con efectivo (chofer) */}
+              {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado > 0 && !isDueno && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300"
+                  disabled={cobrandoSaldo}
+                  onClick={() => setCobrarSaldoOpen(true)}
+                >
+                  <Banknote className="mr-1 h-3.5 w-3.5" /> Cobrar saldo anterior
                 </Button>
               )}
             </div>
@@ -644,6 +659,65 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
         config={config}
         onSaved={onRefresh}
       />
+
+      {/* Diálogo: Cobrar saldo anterior con efectivo */}
+      <Dialog open={cobrarSaldoOpen} onOpenChange={(o) => { setCobrarSaldoOpen(o); if (!o) setCobrarMonto(""); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Cobrar saldo anterior con efectivo</DialogTitle>
+            <DialogDescription>
+              Te pagás con el efectivo que tenés en mano. El pago se registra en el resumen del día y reduce el saldo pendiente.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="rounded-lg bg-muted/40 p-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Saldo pendiente:</span>
+                <strong className="text-emerald-600">{formatCurrency(periodoData?.resumen?.saldoArrastrado || 0)}</strong>
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs">Monto a cobrar con efectivo *</Label>
+              <Input
+                type="number"
+                step="100"
+                value={cobrarMonto}
+                onChange={(e) => setCobrarMonto(e.target.value)}
+                placeholder={String(periodoData?.resumen?.saldoArrastrado || 0)}
+              />
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Dejá vacío para cobrar el saldo completo.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCobrarSaldoOpen(false)}>Cancelar</Button>
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-700"
+              disabled={cobrandoSaldo}
+              onClick={async () => {
+                const monto = cobrarMonto ? Number(cobrarMonto) : (periodoData?.resumen?.saldoArrastrado || 0);
+                if (monto <= 0) { toast.error("Monto inválido"); return; }
+                setCobrandoSaldo(true);
+                try {
+                  const res = await apiPost<{ ok: boolean; message: string }>("/api/liquidacion/cobrar-saldo", { monto });
+                  toast.success(res.message || "Saldo cobrado con efectivo");
+                  setCobrarSaldoOpen(false);
+                  setCobrarMonto("");
+                  cargar();
+                  onRefresh();
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "No se pudo cobrar");
+                } finally {
+                  setCobrandoSaldo(false);
+                }
+              }}
+            >
+              <Banknote className="mr-1 h-4 w-4" /> Cobrar con efectivo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Diálogo: Confirmar cierre de período */}
       <Dialog open={confirmarCierre} onOpenChange={setConfirmarCierre}>
