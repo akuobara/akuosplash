@@ -60,7 +60,29 @@ async function ejecutar() {
       },
       select: { id: true, monto: true, descripcion: true, fecha: true, metodoPago: true },
     });
-    for (const p of pagos) {
+    // También buscar pagos marcados con esCobroSaldoAnterior=1 (vía flag estructural).
+    // Si la columna no existe todavía, este query falla y usamos solo el filtro por texto.
+    let pagosFlagged: Array<{ id: string; monto: number; descripcion: string | null; fecha: Date; metodoPago: string }> = [];
+    try {
+      pagosFlagged = await db.$queryRawUnsafe(
+        `SELECT "id", "monto", "descripcion", "fecha", "metodoPago" FROM "Pago"
+         WHERE "esCobroSaldoAnterior" = 1 AND "duenoId" = ? AND "fecha" >= ?;`,
+        duenoId,
+        haceUnAno.toISOString()
+      );
+    } catch {
+      // Columna no existe todavía (migración pendiente). Ignorar.
+    }
+    // Unificar ambos sets sin duplicar (por id).
+    const pagosById = new Map<string, typeof pagos[number] & { metodoPago: string }>();
+    for (const p of pagos) pagosById.set(p.id, p as any);
+    for (const p of pagosFlagged) {
+      if (!pagosById.has(p.id)) {
+        pagosById.set(p.id, p as any);
+      }
+    }
+    const todosPagos = Array.from(pagosById.values());
+    for (const p of todosPagos) {
       await db.pago.delete({ where: { id: p.id } });
     }
 
@@ -73,7 +95,7 @@ async function ejecutar() {
     return NextResponse.json({
       ok: true,
       gastosEliminados: gastos.length,
-      pagosEliminados: pagos.length,
+      pagosEliminados: todosPagos.length,
       detalleGastos: gastos.map((g) => ({
         id: g.id,
         monto: g.monto,
@@ -82,7 +104,7 @@ async function ejecutar() {
         pagadoPor: g.pagadoPor,
         fecha: g.fecha,
       })),
-      detallePagos: pagos.map((p) => ({
+      detallePagos: todosPagos.map((p) => ({
         id: p.id,
         monto: p.monto,
         descripcion: p.descripcion,
@@ -90,7 +112,7 @@ async function ejecutar() {
         fecha: p.fecha,
       })),
       saldoRestaurado: config.saldoPendienteLiquidacion,
-      message: `Limpieza completa. ${gastos.length} gastos fantasma y ${pagos.length} pagos eliminados. Saldo restaurado a $76.100.`,
+      message: `Limpieza completa. ${gastos.length} gastos fantasma y ${todosPagos.length} pagos eliminados. Saldo restaurado a $76.100.`,
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });

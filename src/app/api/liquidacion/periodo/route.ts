@@ -143,24 +143,43 @@ export async function GET(req: NextRequest) {
   // también cuentan porque el efectivo físico está en manos del chofer.
   const esChofer = session.role === "chofer";
   // === COBROS DE SALDO ANTERIOR ===
-  // Los pagos con descripcion que mencione "saldo" + ("anterior" o "liquidación")
-  // son cobros del saldo pendiente del período anterior. Cubre todas las variantes
-  // históricas de descripción: "Cobro de saldo anterior...", "Pago de saldo de
-  // liquidación anterior...", "Pago de saldo anterior con efectivo", etc.
-  // NO se incluyen en efectivoTotal porque no son efectivo de entregas.
+  // Estrategia robusta (no depende solo del texto de la descripcion):
+  //   1) Primary: la columna `esCobroSaldoAnterior` (agregada por
+  //      /api/admin/migrate-saldo-cobro). Si la columna todavía no existe en
+  //      la DB de producción, el query crashea y caemos al fallback.
+  //   2) Fallback: filtro por texto sobre la descripcion del pago.
+  //   3) Backup extra: también checkeamos GASTOS con patron de cobro de saldo
+  //      (porque en intentos previos el cobro se registraba como GASTO, no PAGO;
+  //      si quedó un gasto fantasma, queremos detectarlo igual para ocultar
+  //      el botón y no confundir al usuario).
   const esCobroSaldoAnterior = (descripcion: string | null) => {
     if (!descripcion) return false;
     const d = descripcion.toLowerCase();
     return (
-      // Variante nueva: "Cobro de saldo anterior..."
       d.includes("cobro de saldo anterior") ||
-      // Variante vieja: "Pago de saldo de liquidación anterior..."
       d.includes("pago de saldo") ||
-      // Cualquier mención de saldo + (anterior | liquidación)
       (d.includes("saldo") && (d.includes("anterior") || d.includes("liquidación") || d.includes("liquidacion")))
     );
   };
-  const cobrosSaldoAnterior = pagosSueltos.filter(p => esCobroSaldoAnterior(p.descripcion));
+
+  // IDs de pagos marcados como esCobroSaldoAnterior=1 (vía flag estructural).
+  // Si la columna no existe todavía, este query falla y usamos solo texto.
+  let idsFlagged: Set<string> = new Set();
+  try {
+    const flaggedRows: Array<{ id: string }> = await db.$queryRawUnsafe(
+      `SELECT "id" FROM "Pago" WHERE "esCobroSaldoAnterior" = 1 AND "duenoId" = ? AND "fecha" >= ? AND "fecha" < ?;`,
+      duenoId,
+      start.toISOString(),
+      end.toISOString()
+    );
+    idsFlagged = new Set(flaggedRows.map((r) => r.id));
+  } catch {
+    // La columna no existe todavía (migración pendiente). No problemo.
+  }
+  const esCobroSaldoAnteriorPago = (p: (typeof pagosSueltos)[number]) =>
+    idsFlagged.has(p.id) || esCobroSaldoAnterior(p.descripcion);
+
+  const cobrosSaldoAnterior = pagosSueltos.filter(p => esCobroSaldoAnteriorPago(p));
   const cobroSaldoAnteriorEfectivo = cobrosSaldoAnterior
     .filter(p => p.metodoPago === "efectivo")
     .reduce((s, p) => s + p.monto, 0);
@@ -169,7 +188,7 @@ export async function GET(req: NextRequest) {
     .reduce((s, p) => s + p.monto, 0);
   const cobroSaldoAnteriorTotal = cobroSaldoAnteriorEfectivo + cobroSaldoAnteriorTransferencia;
   // Pagos recibidos que NO son cobros de saldo anterior
-  const pagosSueltosReales = pagosSueltos.filter(p => !esCobroSaldoAnterior(p.descripcion));
+  const pagosSueltosReales = pagosSueltos.filter(p => !esCobroSaldoAnteriorPago(p));
   const totalPagosSueltos = pagosSueltosReales.reduce((s, p) => s + p.monto, 0);
   const pagosSueltosEfectivoChofer = pagosSueltosReales
     .filter(p => p.metodoPago === "efectivo")
@@ -179,6 +198,13 @@ export async function GET(req: NextRequest) {
   // Efectivo total = efectivo de entregas + efectivo de pagos recibidos (excluyendo cobros de saldo)
   const efectivoTotal = totalEfectivo + pagosSueltosEfectivo;
   const totalLitros = entregas.reduce((s, e) => s + e.litros, 0);
+  // Detectar también GASTOS fantasma que sean cobros de saldo (de intentos previos
+  // cuando pagar-saldo creaba un GASTO en vez de un PAGO). Estos no deberían
+  // contar para la liquidación pero SI deben ocultar el botón "Cobrar saldo anterior".
+  const saldoArrastradoRaw = (cfg as any).saldoPendienteLiquidacion || 0;
+  const cobroSaldoAnteriorGastoMonto = gastos
+    .filter(g => esCobroSaldoAnterior(g.descripcion) || (saldoArrastradoRaw > 0 && g.monto === saldoArrastradoRaw))
+    .reduce((s, g) => s + g.monto, 0);
   const totalGastos = gastos.reduce((s, g) => s + g.monto, 0);
   const gastosChofer = gastos.filter(g => g.pagadoPor === "chofer").reduce((s, g) => s + g.monto, 0);
   const gastosDueno = gastos.filter(g => g.pagadoPor === "dueno").reduce((s, g) => s + g.monto, 0);
@@ -212,10 +238,11 @@ export async function GET(req: NextRequest) {
   const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
   // El saldo del chofer descuenta TODO el efectivo que tiene en mano (entregas + pagos recibidos)
   // + suma el saldo pendiente de la liquidación anterior (arrastrado)
-  const saldoArrastrado = (cfg as any).saldoPendienteLiquidacion || 0;
+  const saldoArrastrado = saldoArrastradoRaw;
   const saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado;
   // ¿Ya se cobró el saldo anterior este período?
-  const saldoCobrado = cobroSaldoAnteriorTotal > 0;
+  // True si hay PAGO de cobro de saldo anterior, o GASTO fantasma con descripción de cobro.
+  const saldoCobrado = cobroSaldoAnteriorTotal > 0 || cobroSaldoAnteriorGastoMonto > 0;
 
   // Detalle de vueltas para la liquidación
   const vueltasDetalle = vueltas.map(v => {
@@ -297,6 +324,7 @@ export async function GET(req: NextRequest) {
       cobroSaldoAnteriorTotal,
       cobroSaldoAnteriorEfectivo,
       cobroSaldoAnteriorTransferencia,
+      cobroSaldoAnteriorGastoMonto,
     },
     pagosSueltos: pagosSueltosReales.map(p => ({
       id: p.id,

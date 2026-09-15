@@ -72,6 +72,20 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Marcar el pago como cobro de saldo anterior vía raw SQL (no depende del
+    // schema de Prisma — la columna es agregada por /api/admin/migrate-saldo-cobro).
+    // Si la migración todavía no se corrió, este UPDATE falla silenciosamente y
+    // el filtro por texto en /api/liquidacion/periodo hace el trabajo.
+    try {
+      await db.$executeRawUnsafe(
+        `UPDATE "Pago" SET "esCobroSaldoAnterior" = 1 WHERE "id" = ?;`,
+        pago.id
+      );
+    } catch {
+      // Columna no existe todavía — no es crítico, el texto del descripcion
+      // también matchea el filtro en /api/liquidacion/periodo.
+    }
+
     // NO modificar saldoPendienteLiquidacion aquí.
     // Se resetea cuando se cierra el período en /api/liquidacion/cerrar
 
