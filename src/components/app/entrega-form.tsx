@@ -674,7 +674,7 @@ export function EntregaForm({
         lecturaActual: lecturaActual !== "" ? Number(lecturaActual) : null,
         litros: litrosParaGuardar,
         metodoPago,
-        precioPorLitro: precioFinalLocal,
+        precioPorLitro: esCamionCompleto ? 0 : precioFinalLocal,
         total: totalConDescuento,
         montoEfectivo: efectivoFinalLocal,
         montoTransferencia: transferenciaFinalLocal,
