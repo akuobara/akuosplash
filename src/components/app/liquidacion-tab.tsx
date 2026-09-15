@@ -342,7 +342,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 </Button>
               )}
               {/* Botón: cobrar saldo anterior con efectivo (chofer) */}
-              {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado > 0 && !isDueno && (
+              {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado > 0 && (
                 <Button
                   size="sm"
                   variant="outline"
