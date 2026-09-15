@@ -17,7 +17,7 @@ import {
 import {
   Users, Truck, Droplets, DollarSign, TrendingUp,
   Activity, Shield, Search, UserCheck, UserX, ArrowLeft, LogOut, Clock,
-  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2, MapPin, Package, Receipt, Upload, Ticket,
+  Plus, MoreVertical, Pencil, Trash2, Eye, Mail, Phone, X, Loader2, CheckCircle2, MapPin, Package, Receipt, Upload, Banknote, Smartphone, Check, CreditCard, Ticket, Wallet,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -78,7 +78,7 @@ export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
-  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas" | "zonas" | "planes" | "facturas" | "audit" | "cupones">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "administradores" | "usuarios" | "buscar" | "entregas" | "pendientes" | "cargas" | "zonas" | "planes" | "facturas" | "audit" | "cupones" | "pagos">("dashboard");
 
   const [detalleOpen, setDetalleOpen] = useState(false);
   const [detalleId, setDetalleId] = useState<string | null>(null);
@@ -257,6 +257,7 @@ export default function SuperAdminPage() {
             <option value="cupones">🎟️ Cupones</option>
             <option value="facturas">🧾 Facturas</option>
             <option value="audit">📋 Auditoría</option>
+            <option value="pagos">💳 Pagos</option>
           </select>
 
           <div className="hidden sm:flex sm:flex-wrap sm:gap-2">
@@ -295,6 +296,9 @@ export default function SuperAdminPage() {
             </Button>
             <Button size="sm" variant={tab === "audit" ? "default" : "outline"} onClick={() => setTab("audit")}>
               <Shield className="mr-1 h-4 w-4" /> Auditoría
+            </Button>
+            <Button size="sm" variant={tab === "pagos" ? "default" : "outline"} onClick={() => setTab("pagos")}>
+              <CreditCard className="mr-1 h-4 w-4" /> Pagos
             </Button>
           </div>
         </div>
@@ -493,6 +497,11 @@ export default function SuperAdminPage() {
         {/* Auditoría */}
         {tab === "audit" && (
           <AuditView />
+        )}
+
+        {/* Pagos */}
+        {tab === "pagos" && (
+          <PagosAdmin />
         )}
       </main>
 
@@ -2717,5 +2726,204 @@ function CuponDialog({ cupon, zonas, onClose, onGuardado }: {
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ====== Componente: Pagos Admin ======
+function PagosAdmin() {
+  const [transfData, setTransfData] = useState<any>(null);
+  const [mpEnabled, setMpEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Campos de transferencia
+  const [banco, setBanco] = useState("");
+  const [tipoCuenta, setTipoCuenta] = useState("");
+  const [numeroCuenta, setNumeroCuenta] = useState("");
+  const [titular, setTitular] = useState("");
+  const [rutTitular, setRutTitular] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState("");
+
+  const cargar = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await apiGet<{ transfData: any }>("/api/config/public");
+      if (data.transfData) {
+        setTransfData(data.transfData);
+        setBanco(data.transfData.transfBanco || "");
+        setTipoCuenta(data.transfData.transfTipoCuenta || "");
+        setNumeroCuenta(data.transfData.transfNumeroCuenta || "");
+        setTitular(data.transfData.transfTitular || "");
+        setRutTitular(data.transfData.transfRutTitular || "");
+        setEmail(data.transfData.transfEmail || "");
+        setTelefono(data.transfData.transfTelefono || "");
+      }
+      // Check if MercadoPago is configured
+      setMpEnabled(!!process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY);
+    } catch {
+      toast.error("No se pudo cargar la configuración");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { cargar(); }, [cargar]);
+
+  async function guardarTransf() {
+    setSaving(true);
+    try {
+      // Guardar datos de transferencia en la configuración global
+      // Usamos el endpoint público que guarda en una variable global
+      await apiPost("/api/super-admin/config-pagos", {
+        transfBanco: banco.trim() || null,
+        transfTipoCuenta: tipoCuenta.trim() || null,
+        transfNumeroCuenta: numeroCuenta.trim() || null,
+        transfTitular: titular.trim() || null,
+        transfRutTitular: rutTitular.trim() || null,
+        transfEmail: email.trim() || null,
+        transfTelefono: telefono.trim() || null,
+      });
+      toast.success("Datos de transferencia guardados");
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) return <Skeleton className="h-40 rounded" />;
+
+  return (
+    <div className="space-y-4">
+      {/* Datos de transferencia */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Banknote className="h-4 w-4" /> Datos de transferencia
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Estos datos se muestran a los clientes en la app cuando eligen pagar por transferencia.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs">Banco</Label>
+              <Input value={banco} onChange={(e) => setBanco(e.target.value)} placeholder="Ej: Banco de Chile" />
+            </div>
+            <div>
+              <Label className="text-xs">Tipo de cuenta</Label>
+              <Input value={tipoCuenta} onChange={(e) => setTipoCuenta(e.target.value)} placeholder="Ej: Cuenta Corriente" />
+            </div>
+            <div>
+              <Label className="text-xs">Número de cuenta</Label>
+              <Input value={numeroCuenta} onChange={(e) => setNumeroCuenta(e.target.value)} placeholder="Ej: 000-12345678-90" />
+            </div>
+            <div>
+              <Label className="text-xs">Titular</Label>
+              <Input value={titular} onChange={(e) => setTitular(e.target.value)} placeholder="Ej: Transporte VM SPA" />
+            </div>
+            <div>
+              <Label className="text-xs">RUT del titular</Label>
+              <Input value={rutTitular} onChange={(e) => setRutTitular(e.target.value)} placeholder="Ej: 76.543.210-1" />
+            </div>
+            <div>
+              <Label className="text-xs">Email</Label>
+              <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Ej: pagos@empresa.cl" />
+            </div>
+            <div>
+              <Label className="text-xs">Teléfono</Label>
+              <Input value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="Ej: +56912345678" />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={guardarTransf} disabled={saving}>
+              {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Check className="mr-1 h-4 w-4" />}
+              Guardar datos
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* MercadoPago */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Smartphone className="h-4 w-4" /> MercadoPago
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Permite a los clientes pagar con tarjeta y cargar saldo instantáneamente.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="rounded-lg border border-border p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-sm">Estado: {mpEnabled ? "✅ Configurado" : "❌ No configurado"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {mpEnabled
+                    ? "MercadoPago está activo. Los clientes pueden pagar con tarjeta."
+                    : "Falta configurar MERCADOPAGO_ACCESS_TOKEN en las variables de entorno de Vercel."}
+                </p>
+              </div>
+            </div>
+          </div>
+          {!mpEnabled && (
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-800 p-3 text-xs text-amber-900 dark:text-amber-200">
+              <p className="font-medium">Para habilitar MercadoPago:</p>
+              <ol className="ml-4 list-decimal mt-1 space-y-1">
+                <li>Crear cuenta en mercadopago.cl</li>
+                <li>Obtener Access Token desde el panel de desarrolladores</li>
+                <li>Agregar variable de entorno <code>MERCADOPAGO_ACCESS_TOKEN</code> en Vercel</li>
+                <li>Opcional: agregar <code>NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY</code></li>
+              </ol>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Resumen de métodos disponibles */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Métodos de pago disponibles para clientes</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="flex items-center justify-between rounded-md border p-2">
+            <div className="flex items-center gap-2">
+              <Wallet className="h-4 w-4 text-emerald-600" />
+              <span className="text-sm">Saldo prepago</span>
+            </div>
+            <Badge variant="outline" className="text-emerald-700">✓ Disponible</Badge>
+          </div>
+          <div className="flex items-center justify-between rounded-md border p-2">
+            <div className="flex items-center gap-2">
+              <Banknote className="h-4 w-4 text-blue-600" />
+              <span className="text-sm">Transferencia</span>
+            </div>
+            <Badge variant="outline" className={transfData ? "text-emerald-700" : "text-amber-700"}>
+              {transfData ? "✓ Configurado" : "⚠ Sin datos"}
+            </Badge>
+          </div>
+          <div className="flex items-center justify-between rounded-md border p-2">
+            <div className="flex items-center gap-2">
+              <Smartphone className="h-4 w-4 text-purple-600" />
+              <span className="text-sm">Tarjeta (MercadoPago)</span>
+            </div>
+            <Badge variant="outline" className={mpEnabled ? "text-emerald-700" : "text-red-700"}>
+              {mpEnabled ? "✓ Activo" : "✗ No configurado"}
+            </Badge>
+          </div>
+          <div className="flex items-center justify-between rounded-md border p-2">
+            <div className="flex items-center gap-2">
+              <Banknote className="h-4 w-4 text-amber-600" />
+              <span className="text-sm">Efectivo (al chofer)</span>
+            </div>
+            <Badge variant="outline" className="text-amber-700">≥10 entregas</Badge>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
