@@ -728,14 +728,21 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 if (monto <= 0) { toast.error("Monto inválido"); return; }
                 setCobrandoSaldo(true);
                 try {
-                  const res = await apiPost<{ ok: boolean; message: string }>("/api/liquidacion/pagar-saldo", { monto, metodo: "efectivo" });
+                  const res = await apiPost<{ ok: boolean; message: string; yaCobrado?: boolean }>("/api/liquidacion/pagar-saldo", { monto, metodo: "efectivo" });
                   toast.success(res.message || "Cobro con efectivo registrado");
                   setCobrarSaldoOpen(false);
                   setCobrarMonto("");
                   cargar();
                   onRefresh();
                 } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "No se pudo registrar");
+                  const msg = e instanceof Error ? e.message : "No se pudo registrar";
+                  toast.error(msg);
+                  // Si ya está cobrado, cerrar el diálogo y recargar para mostrar el badge
+                  if (msg.includes("Ya cobraste")) {
+                    setCobrarSaldoOpen(false);
+                    cargar();
+                    onRefresh();
+                  }
                 } finally {
                   setCobrandoSaldo(false);
                 }
@@ -759,7 +766,13 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                   cargar();
                   onRefresh();
                 } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "No se pudo registrar");
+                  const msg = e instanceof Error ? e.message : "No se pudo registrar";
+                  toast.error(msg);
+                  if (msg.includes("Ya cobraste")) {
+                    setCobrarSaldoOpen(false);
+                    cargar();
+                    onRefresh();
+                  }
                 } finally {
                   setCobrandoSaldo(false);
                 }
