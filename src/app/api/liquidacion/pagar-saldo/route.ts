@@ -4,20 +4,22 @@ import { getSession, getDuenoId } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/liquidacion/pagar-saldo
-// Cobra el saldo pendiente de liquidación anterior.
-// metodo: "efectivo" (chofer se cobra con efectivo en mano) o "transferencia" (admin transfirió)
+// Registra el cobro del saldo pendiente de liquidación anterior.
+// metodo: "efectivo" (chofer se cobra con efectivo en mano) o "transferencia"
 //
-// IMPORTANTE: NO se crea ningún gasto ni pago en la DB.
-// Solo se setea saldoPendienteLiquidacion = 0.
+// CÓMO FUNCIONA (vs. versiones anteriores que rompían la liquidación):
+// 1. NO modifica saldoPendienteLiquidacion (se resetea solo al cerrar el período)
+// 2. Crea un registro de PAGO con descripcion "Cobro de saldo anterior..."
+//    El endpoint /api/liquidacion/periodo EXCLUYE estos pagos del cálculo de
+//    efectivoTotal, así que no afectan "Debés entregar".
+// 3. Marca saldoCobrado=true para ocultar el botón "Cobrar saldo anterior"
+//    hasta que se cierre el período.
 //
-// Razón: el saldo ya está representado por la línea "+ Saldo del período anterior"
-// en la liquidación. Crear un gasto adicional:
-//   1. Aparece en la lista de gastos (confuso para el usuario)
-//   2. Reduce la utilidad bruta → reduce el pago al chofer (doble conteo)
-//   3. Suma una entrada fantasma que el admin no puede borrar fácilmente
-//
-// El cobro queda implícito: el saldo pasa de $76.100 → $0 y desaparece la línea.
-// Si se necesita auditoría, se puede consultar el cierre del período anterior.
+// Esto significa que al cobrar:
+//   - "Debés entregar" NO CAMBIA (el saldo arrastrado sigue sumando)
+//   - El botón desaparece (ya cobraste)
+//   - Se muestra "✓ Cobrado" en la línea del saldo anterior
+//   - Al cerrar el período, saldoPendienteLiquidacion se resetea correctamente
 export async function POST(req: NextRequest) {
   const _demoBlocked = await checkDemoBlock();
   if (_demoBlocked) return _demoBlocked;
@@ -50,23 +52,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Solo actualizar el saldo pendiente. NO crear gasto ni pago.
-    const nuevoSaldo = saldoPendiente - monto;
-    await db.configuracion.update({
-      where: { duenoId },
-      data: { saldoPendienteLiquidacion: nuevoSaldo },
+    // Crear un PAGO (no gasto) con descripcion especial
+    // El endpoint /api/liquidacion/periodo reconoce esta descripcion y:
+    //   - NO lo incluye en efectivoTotal (no afecta "Debés entregar")
+    //   - Lo muestra como "✓ Cobrado" en la línea de saldo anterior
+    const descripcion = metodo === "transferencia"
+      ? "Cobro de saldo anterior por transferencia"
+      : "Cobro de saldo anterior en efectivo";
+
+    const pago = await db.pago.create({
+      data: {
+        fecha: new Date(),
+        monto,
+        metodoPago: metodo,
+        descripcion,
+        clienteId: null, // no es de un cliente, es del saldo anterior
+        choferId: session.userId,
+        duenoId,
+      },
     });
+
+    // NO modificar saldoPendienteLiquidacion aquí.
+    // Se resetea cuando se cierra el período en /api/liquidacion/cerrar
 
     return NextResponse.json({
       ok: true,
-      metodo,
+      pago,
       monto,
-      saldoAnterior: saldoPendiente,
-      saldoNuevo: nuevoSaldo,
-      message:
-        metodo === "transferencia"
-          ? `Transferencia registrada. Saldo restante: $${nuevoSaldo.toLocaleString("es-CL")}`
-          : `Cobro con efectivo registrado. Saldo restante: $${nuevoSaldo.toLocaleString("es-CL")}`,
+      metodo,
+      saldoPendiente,
+      message: `${metodo === "transferencia" ? "Transferencia registrada" : "Cobro con efectivo registrado"} por $${monto.toLocaleString("es-CL")}. El saldo se asentará al cerrar el período.`,
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });

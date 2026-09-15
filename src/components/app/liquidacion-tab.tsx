@@ -113,6 +113,10 @@ interface LiquidacionData {
     impuesto: number;
     liquidoChoferAntesDeEfectivo: number;
     saldoArrastrado?: number;
+    saldoCobrado?: boolean;
+    cobroSaldoAnteriorTotal?: number;
+    cobroSaldoAnteriorEfectivo?: number;
+    cobroSaldoAnteriorTransferencia?: number;
     saldoChofer: number;
     cantidadVueltas: number;
     vueltasValidas?: number;
@@ -345,7 +349,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 </Button>
               )}
               {/* Botón: cobrar saldo anterior con efectivo (chofer) */}
-              {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado > 0 && (
+              {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado > 0 && !periodoData.resumen.saldoCobrado && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -355,6 +359,13 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 >
                   <Banknote className="mr-1 h-3.5 w-3.5" /> {isDueno ? "Pagar saldo anterior" : "Cobrar saldo anterior"}
                 </Button>
+              )}
+              {/* Badge: saldo ya cobrado este período */}
+              {periodoData.resumen.saldoCobrado && (
+                <div className="inline-flex items-center gap-1 rounded-md bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Saldo cobrado: {formatCurrency(periodoData.resumen.cobroSaldoAnteriorTotal || 0)}
+                </div>
               )}
               {/* Botón: limpiar cobros fantasma de saldo anterior (dueno o chofer) */}
               <Button

@@ -136,19 +136,36 @@ export async function GET(req: NextRequest) {
   const totalEfectivo = entregas.reduce((s, e) => s + e.montoEfectivo, 0);
   const totalTransferencia = entregas.reduce((s, e) => s + e.montoTransferencia, 0);
   const totalRecibido = totalEfectivo + totalTransferencia;
-  // Pagos recibidos (cobros de deudas)
-  const totalPagosSueltos = pagosSueltos.reduce((s, p) => s + p.monto, 0);
+  // Pagos recibidos (cobros de deudas) - se recalcula abajo excluyendo cobros de saldo
   // Efectivo total = efectivo de entregas + TODOS los pagos sueltos en efectivo del período.
   // No filtrar por choferId: si el chofer es el único trabajando, todo el efectivo
   // lo recibió él. Los pagos sin choferId (registrados por admin o sin asignar)
   // también cuentan porque el efectivo físico está en manos del chofer.
   const esChofer = session.role === "chofer";
-  const pagosSueltosEfectivoChofer = pagosSueltos
+  // === COBROS DE SALDO ANTERIOR ===
+  // Los pagos con descripcion "Cobro de saldo anterior..." son cobros del saldo
+  // pendiente del período anterior. NO se incluyen en efectivoTotal porque
+  // no son efectivo de entregas — son cobros de deudas viejas. Si los incluyéramos,
+  // el "Debés entregar" subiría erróneamente al cobrar.
+  const esCobroSaldoAnterior = (descripcion: string | null) =>
+    !!descripcion && descripcion.toLowerCase().includes("cobro de saldo anterior");
+  const cobrosSaldoAnterior = pagosSueltos.filter(p => esCobroSaldoAnterior(p.descripcion));
+  const cobroSaldoAnteriorEfectivo = cobrosSaldoAnterior
     .filter(p => p.metodoPago === "efectivo")
     .reduce((s, p) => s + p.monto, 0);
-  const pagosSueltosEfectivo = pagosSueltosEfectivoChofer; // alias para no romper código existente
-  const pagosSueltosTransferencia = pagosSueltos.filter(p => p.metodoPago === "transferencia").reduce((s, p) => s + p.monto, 0);
-  // Efectivo total = efectivo de entregas + efectivo de pagos recibidos
+  const cobroSaldoAnteriorTransferencia = cobrosSaldoAnterior
+    .filter(p => p.metodoPago === "transferencia")
+    .reduce((s, p) => s + p.monto, 0);
+  const cobroSaldoAnteriorTotal = cobroSaldoAnteriorEfectivo + cobroSaldoAnteriorTransferencia;
+  // Pagos recibidos que NO son cobros de saldo anterior
+  const pagosSueltosReales = pagosSueltos.filter(p => !esCobroSaldoAnterior(p.descripcion));
+  const totalPagosSueltos = pagosSueltosReales.reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosEfectivoChofer = pagosSueltosReales
+    .filter(p => p.metodoPago === "efectivo")
+    .reduce((s, p) => s + p.monto, 0);
+  const pagosSueltosEfectivo = pagosSueltosEfectivoChofer;
+  const pagosSueltosTransferencia = pagosSueltosReales.filter(p => p.metodoPago === "transferencia").reduce((s, p) => s + p.monto, 0);
+  // Efectivo total = efectivo de entregas + efectivo de pagos recibidos (excluyendo cobros de saldo)
   const efectivoTotal = totalEfectivo + pagosSueltosEfectivo;
   const totalLitros = entregas.reduce((s, e) => s + e.litros, 0);
   const totalGastos = gastos.reduce((s, g) => s + g.monto, 0);
@@ -186,6 +203,8 @@ export async function GET(req: NextRequest) {
   // + suma el saldo pendiente de la liquidación anterior (arrastrado)
   const saldoArrastrado = (cfg as any).saldoPendienteLiquidacion || 0;
   const saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado;
+  // ¿Ya se cobró el saldo anterior este período?
+  const saldoCobrado = cobroSaldoAnteriorTotal > 0;
 
   // Detalle de vueltas para la liquidación
   const vueltasDetalle = vueltas.map(v => {
@@ -263,8 +282,12 @@ export async function GET(req: NextRequest) {
       pagosSueltosTransferencia,
       efectivoTotal,
       saldoArrastrado,
+      saldoCobrado,
+      cobroSaldoAnteriorTotal,
+      cobroSaldoAnteriorEfectivo,
+      cobroSaldoAnteriorTransferencia,
     },
-    pagosSueltos: pagosSueltos.map(p => ({
+    pagosSueltos: pagosSueltosReales.map(p => ({
       id: p.id,
       fecha: p.fecha,
       cliente: p.cliente?.nombre || p.descripcion || "Sin cliente",
