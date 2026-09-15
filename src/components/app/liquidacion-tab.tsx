@@ -350,7 +350,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                   disabled={cobrandoSaldo}
                   onClick={() => setCobrarSaldoOpen(true)}
                 >
-                  <Banknote className="mr-1 h-3.5 w-3.5" /> Cobrar saldo anterior
+                  <Banknote className="mr-1 h-3.5 w-3.5" /> {isDueno ? "Pagar saldo anterior" : "Cobrar saldo anterior"}
                 </Button>
               )}
             </div>
@@ -660,13 +660,15 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
         onSaved={onRefresh}
       />
 
-      {/* Diálogo: Cobrar saldo anterior con efectivo */}
+      {/* Diálogo: Cobrar/Pagar saldo anterior */}
       <Dialog open={cobrarSaldoOpen} onOpenChange={(o) => { setCobrarSaldoOpen(o); if (!o) setCobrarMonto(""); }}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Cobrar saldo anterior con efectivo</DialogTitle>
+            <DialogTitle>Saldo de liquidación anterior</DialogTitle>
             <DialogDescription>
-              Te pagás con el efectivo que tenés en mano. El pago se registra en el resumen del día y reduce el saldo pendiente.
+              {isDueno
+                ? "Registrá cómo le pagaste al chofer el saldo pendiente."
+                : "Cobrá el saldo pendiente con el efectivo que tenés en mano, o informá que recibiste una transferencia."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -677,7 +679,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
               </div>
             </div>
             <div>
-              <Label className="text-xs">Monto a cobrar con efectivo *</Label>
+              <Label className="text-xs">Monto *</Label>
               <Input
                 type="number"
                 step="100"
@@ -686,12 +688,13 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 placeholder={String(periodoData?.resumen?.saldoArrastrado || 0)}
               />
               <p className="text-[10px] text-muted-foreground mt-1">
-                Dejá vacío para cobrar el saldo completo.
+                Dejá vacío para el monto completo.
               </p>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
             <Button variant="outline" onClick={() => setCobrarSaldoOpen(false)}>Cancelar</Button>
+            {/* Efectivo: chofer se cobra con efectivo en mano */}
             <Button
               className="bg-emerald-600 hover:bg-emerald-700"
               disabled={cobrandoSaldo}
@@ -700,20 +703,44 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 if (monto <= 0) { toast.error("Monto inválido"); return; }
                 setCobrandoSaldo(true);
                 try {
-                  const res = await apiPost<{ ok: boolean; message: string }>("/api/liquidacion/cobrar-saldo", { monto });
-                  toast.success(res.message || "Saldo cobrado con efectivo");
+                  const res = await apiPost<{ ok: boolean; message: string }>("/api/liquidacion/pagar-saldo", { monto, metodo: "efectivo" });
+                  toast.success(res.message || "Cobro con efectivo registrado");
                   setCobrarSaldoOpen(false);
                   setCobrarMonto("");
                   cargar();
                   onRefresh();
                 } catch (e) {
-                  toast.error(e instanceof Error ? e.message : "No se pudo cobrar");
+                  toast.error(e instanceof Error ? e.message : "No se pudo registrar");
                 } finally {
                   setCobrandoSaldo(false);
                 }
               }}
             >
-              <Banknote className="mr-1 h-4 w-4" /> Cobrar con efectivo
+              <Banknote className="mr-1 h-4 w-4" /> Efectivo
+            </Button>
+            {/* Transferencia: admin transfirió o chofer recibió transferencia */}
+            <Button
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={cobrandoSaldo}
+              onClick={async () => {
+                const monto = cobrarMonto ? Number(cobrarMonto) : (periodoData?.resumen?.saldoArrastrado || 0);
+                if (monto <= 0) { toast.error("Monto inválido"); return; }
+                setCobrandoSaldo(true);
+                try {
+                  const res = await apiPost<{ ok: boolean; message: string }>("/api/liquidacion/pagar-saldo", { monto, metodo: "transferencia" });
+                  toast.success(res.message || "Transferencia registrada");
+                  setCobrarSaldoOpen(false);
+                  setCobrarMonto("");
+                  cargar();
+                  onRefresh();
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "No se pudo registrar");
+                } finally {
+                  setCobrandoSaldo(false);
+                }
+              }}
+            >
+              <Smartphone className="mr-1 h-4 w-4" /> Transferencia
             </Button>
           </DialogFooter>
         </DialogContent>
