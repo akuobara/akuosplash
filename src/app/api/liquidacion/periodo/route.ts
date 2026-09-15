@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
     nombreDueno: "Dueño",
     nombreChofer: "Chofer",
     umbralCompletacionVuelta: 0.975,
+    saldoPendienteLiquidacion: 0,
   };
 
   const periodo = cfg.periodoLiquidacion || "mensual";
@@ -182,7 +183,9 @@ export async function GET(req: NextRequest) {
   const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (Math.max(0, baseImponible) * cfg.porcentajeImpuesto) / 100;
   const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
   // El saldo del chofer descuenta TODO el efectivo que tiene en mano (entregas + pagos recibidos)
-  const saldoChofer = liquidoChofer - efectivoTotal;
+  // + suma el saldo pendiente de la liquidación anterior (arrastrado)
+  const saldoArrastrado = (cfg as any).saldoPendienteLiquidacion || 0;
+  const saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado;
 
   // Detalle de vueltas para la liquidación
   const vueltasDetalle = vueltas.map(v => {
@@ -259,6 +262,7 @@ export async function GET(req: NextRequest) {
       pagosSueltosEfectivo,
       pagosSueltosTransferencia,
       efectivoTotal,
+      saldoArrastrado,
     },
     pagosSueltos: pagosSueltos.map(p => ({
       id: p.id,

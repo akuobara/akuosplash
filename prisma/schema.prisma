@@ -480,6 +480,11 @@ model Configuracion {
   // Cierre de período: fecha del último cierre (las entregas/gastos antes de esta fecha están cerrados)
   ultimoCierre                DateTime?
 
+  // Saldo arrastrado entre períodos de liquidación
+  // Positivo = el admin le debe al chofer
+  // Negativo = el chofer le debe al admin
+  saldoPendienteLiquidacion   Float   @default(0)
+
   // === Plan (suscripción mensual) ===
   planId                      String?  // free | premium | pro (referencia a Plan.id)
   plan                        Plan?    @relation("ConfigPlan", fields: [planId], references: [id])
