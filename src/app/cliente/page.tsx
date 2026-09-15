@@ -159,6 +159,23 @@ export default function ClienteDashboardPage() {
     router.push("/cliente/pedir?repetir=1");
   }
 
+  async function cancelarPedido(pedidoId: string) {
+    const token = getToken();
+    if (!token) return;
+    try {
+      const res = await fetch(`/api/cliente/pedidos/${pedidoId}/cancelar`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "No se pudo cancelar");
+      toast.success("Pedido cancelado");
+      cargar();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo cancelar");
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-4">
@@ -273,6 +290,17 @@ export default function ClienteDashboardPage() {
                       <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                         <Truck className="h-3 w-3" /> {p.tomadoPor.nombre}
                       </p>
+                    )}
+                    {/* Botón cancelar si está en estado inicial */}
+                    {(p.estado === "en_pool" || p.estado === "preferido_notificado") && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2 h-7 px-2 text-[11px] border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400"
+                        onClick={() => cancelarPedido(p.id)}
+                      >
+                        <XCircle className="mr-1 h-3 w-3" /> Cancelar pedido
+                      </Button>
                     )}
                   </CardContent>
                 </Card>
