@@ -188,7 +188,24 @@ export default function ClienteDashboardPage() {
     );
   }
 
-  if (!cliente || !data) return null;
+  if (!cliente || !data) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
+        <div className="max-w-md w-full text-center space-y-3">
+          <Droplets className="h-10 w-10 text-blue-500 mx-auto" />
+          <p className="text-sm text-gray-500">No se pudieron cargar tus datos.</p>
+          <Button onClick={() => { setLoading(true); cargar(); }} size="sm" variant="outline">
+            Reintentar
+          </Button>
+          <div>
+            <Button onClick={handleLogout} size="sm" variant="ghost" className="text-gray-400">
+              Cerrar sesión
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const r = data.resumen;
   const pedidosActivos = data.pedidos.filter(p =>
