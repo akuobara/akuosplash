@@ -99,11 +99,15 @@ export async function POST(req: NextRequest) {
 
     // === CÁLCULO DE TOTAL ===
     // Si es modo estanques (detalleEstanquesJson presente), usar el total del body
-    // porque cada estanque tiene su propio precio y el total ya viene calculado
+    // Si precioPorLitro es 0 (camión completo), usar el total del body (precio fijo)
+    // Si no, calcular litros × precio
     let totalCalculado: number;
     if (body.detalleEstanquesJson) {
       // Modo estanques: el total viene del frontend (suma de estanques)
       totalCalculado = Number(body.total) || 0;
+    } else if (precioPorLitro === 0 && body.total) {
+      // Camión completo: el total viene del frontend (precio fijo), no recalcular
+      totalCalculado = Number(body.total);
     } else {
       // Modo normal: calcular litros × precio
       totalCalculado = litros * precioPorLitro;
