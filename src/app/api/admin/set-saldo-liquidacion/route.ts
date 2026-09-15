@@ -13,6 +13,13 @@ async function ejecutar(req: NextRequest) {
 
   try {
     let monto = 0;
+    // GET: leer de query params
+    const url = new URL(req.url);
+    const montoParam = url.searchParams.get("monto");
+    if (montoParam) {
+      monto = Number(montoParam) || 0;
+    }
+    // POST: leer del body
     if (req.method === "POST") {
       const body = await req.json();
       monto = Number(body.monto) || 0;
