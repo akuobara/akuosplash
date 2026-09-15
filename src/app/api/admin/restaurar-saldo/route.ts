@@ -3,18 +3,16 @@ import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 
 // GET/POST /api/admin/restaurar-saldo
-// Limpia todos los registros fantasma de cobro de saldo y restaura el saldo pendiente.
 //
-// ESTRATEGIA ULTRA AGRESIVA: ya intentamos filtrar por pagadoPor+tipo y por texto
-// de descripcion, pero el usuario sigue viendo cobros fantasma. Vamos a borrar
-// CUALQUIER cosa que pueda ser un cobro fantasma:
-//   - Cualquier gasto del último año con monto = 76100
-//   - Cualquier gasto del último año con descripcion que mencione: saldo, liquidación,
-//     liquidacion, anterior, efectivo, transferencia, cobro, pago (en cualquier casing)
-//   - Cualquier pago del último año con descripcion que mencione esos mismos términos
+// Limpia TODOS los cobros fantasma de saldo anterior (pagos Y gastos)
+// y restaura el saldo pendiente a $76.100.
 //
-// Esto es seguro porque los gastos legítimos (combustible, peaje, etc.) no tienen
-// esas palabras en su descripción ni monto = 76100.
+// Estrategia: combina 3 fuentes para borrar todo rastro:
+//   1. Pagos con esCobroSaldoAnterior=1 (si la columna existe)
+//   2. Pagos con descripcion que mencione saldo/liquidacion/anterior
+//   3. Gastos del último mes con descripcion que mencione saldo/liquidacion/anterior
+//      o pagadoPor=dueno + tipo=otro (cobros fantasma de versiones previas)
+//   4. Pagos sin descripcion pero con clienteId=null y monto=saldoPendiente
 async function ejecutar() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
@@ -25,94 +23,129 @@ async function ejecutar() {
     const haceUnAno = new Date();
     haceUnAno.setDate(haceUnAno.getDate() - 365);
 
+    const config = await db.configuracion.findUnique({
+      where: { duenoId },
+      select: { saldoPendienteLiquidacion: true },
+    });
+    const saldoPendiente = config?.saldoPendienteLiquidacion || 0;
+
+    // === 1. BORRAR PAGOS ===
+    // Combinar: pagos marcados con esCobroSaldoAnterior=1 (raw SQL si columna existe)
+    //           + pagos con descripcion que matchee texto + pagos sin descripcion con clienteId=null
+    let pagosBorrados: Array<{ id: string; monto: number; descripcion: string | null; fecha: string }> = [];
+
+    // 1a. Por columna esCobroSaldoAnterior=1 (raw SQL)
+    try {
+      const pagosFlagged: Array<{ id: string; monto: number; descripcion: string | null; fecha: string }> =
+        await db.$queryRawUnsafe(
+          `SELECT "id", "monto", "descripcion", "fecha" FROM "Pago"
+           WHERE "duenoId" = ? AND "esCobroSaldoAnterior" = 1;`,
+          duenoId
+        );
+      pagosBorrados.push(...pagosFlagged);
+    } catch {
+      // Columna no existe, salteamos
+    }
+
+    // 1b. Por texto de descripcion
     const terminos = [
       "saldo", "Saldo", "SALDO",
-      "liquidación", "liquidacion", "Liquidación", "Liquidacion", "LIQUIDACIÓN", "LIQUIDACION",
-      "anterior", "Anterior", "ANTERIOR",
-      "efectivo", "Efectivo", "EFECTIVO",
-      "transferencia", "Transferencia", "TRANSFERENCIA",
-      "cobro", "Cobro", "COBRO",
-      "pago de saldo", "Pago de saldo", "PAGO DE SALDO",
+      "liquidación", "liquidacion", "Liquidación", "Liquidacion",
+      "anterior", "Anterior",
+      "cobro", "Cobro",
     ];
+    const pagosTexto = await db.pago.findMany({
+      where: {
+        duenoId,
+        fecha: { gte: haceUnAno },
+        OR: terminos.map((t) => ({ descripcion: { contains: t } })),
+      },
+      select: { id: true, monto: true, descripcion: true, fecha: true },
+    });
+    // Agregar los que no estén ya en pagosBorrados (fecha es Date, convertir a string)
+    for (const p of pagosTexto) {
+      if (!pagosBorrados.some((pb) => pb.id === p.id)) {
+        pagosBorrados.push({ id: p.id, monto: p.monto, descripcion: p.descripcion, fecha: String(p.fecha) });
+      }
+    }
 
-    // GASTOS: borrar si (monto = 76100) OR (descripción menciona cualquier término)
+    // 1c. Por patrón estructural: sin descripcion + clienteId=null + monto=saldoPendiente
+    if (saldoPendiente > 0) {
+      const pagosEstructurales = await db.pago.findMany({
+        where: {
+          duenoId,
+          fecha: { gte: haceUnAno },
+          descripcion: null,
+          clienteId: null,
+          monto: saldoPendiente,
+        },
+        select: { id: true, monto: true, descripcion: true, fecha: true },
+      });
+      for (const p of pagosEstructurales) {
+        if (!pagosBorrados.some((pb) => pb.id === p.id)) {
+          pagosBorrados.push({ id: p.id, monto: p.monto, descripcion: p.descripcion, fecha: String(p.fecha) });
+        }
+      }
+    }
+
+    // Borrar pagos
+    for (const p of pagosBorrados) {
+      try {
+        await db.pago.delete({ where: { id: p.id } });
+      } catch {
+        // Ya fue borrado
+      }
+    }
+
+    // === 2. BORRAR GASTOS FANTASMA ===
+    // (de intentos previos cuando pagar-saldo creaba GASTO en vez de PAGO)
     const gastos = await db.gasto.findMany({
       where: {
         duenoId,
         fecha: { gte: haceUnAno },
         OR: [
           { monto: 76100 },
+          { monto: saldoPendiente, descripcion: null },
           ...terminos.map((t) => ({ descripcion: { contains: t } })),
+          { pagadoPor: "dueno", tipo: "otro" },
         ],
       },
       select: { id: true, monto: true, descripcion: true, fecha: true, tipo: true, pagadoPor: true },
     });
     for (const g of gastos) {
-      await db.gasto.delete({ where: { id: g.id } });
-    }
-
-    // PAGOS: borrar si descripcion menciona cualquier término
-    const pagos = await db.pago.findMany({
-      where: {
-        duenoId,
-        fecha: { gte: haceUnAno },
-        OR: terminos.map((t) => ({ descripcion: { contains: t } })),
-      },
-      select: { id: true, monto: true, descripcion: true, fecha: true, metodoPago: true },
-    });
-    // También buscar pagos marcados con esCobroSaldoAnterior=1 (vía flag estructural).
-    // Si la columna no existe todavía, este query falla y usamos solo el filtro por texto.
-    let pagosFlagged: Array<{ id: string; monto: number; descripcion: string | null; fecha: Date; metodoPago: string }> = [];
-    try {
-      pagosFlagged = await db.$queryRawUnsafe(
-        `SELECT "id", "monto", "descripcion", "fecha", "metodoPago" FROM "Pago"
-         WHERE "esCobroSaldoAnterior" = 1 AND "duenoId" = ? AND "fecha" >= ?;`,
-        duenoId,
-        haceUnAno.toISOString()
-      );
-    } catch {
-      // Columna no existe todavía (migración pendiente). Ignorar.
-    }
-    // Unificar ambos sets sin duplicar (por id).
-    const pagosById = new Map<string, typeof pagos[number] & { metodoPago: string }>();
-    for (const p of pagos) pagosById.set(p.id, p as any);
-    for (const p of pagosFlagged) {
-      if (!pagosById.has(p.id)) {
-        pagosById.set(p.id, p as any);
+      try {
+        await db.gasto.delete({ where: { id: g.id } });
+      } catch {
+        // Ya fue borrado
       }
     }
-    const todosPagos = Array.from(pagosById.values());
-    for (const p of todosPagos) {
-      await db.pago.delete({ where: { id: p.id } });
-    }
 
-    // Restaurar el saldo pendiente a 76100
-    const config = await db.configuracion.update({
+    // === 3. RESTAURAR SALDO ===
+    const configUpdate = await db.configuracion.update({
       where: { duenoId },
       data: { saldoPendienteLiquidacion: 76100 },
     });
 
     return NextResponse.json({
       ok: true,
+      pagosEliminados: pagosBorrados.length,
       gastosEliminados: gastos.length,
-      pagosEliminados: todosPagos.length,
+      detallePagos: pagosBorrados.map((p) => ({
+        id: p.id,
+        monto: p.monto,
+        descripcion: p.descripcion,
+        fecha: String(p.fecha),
+      })),
       detalleGastos: gastos.map((g) => ({
         id: g.id,
         monto: g.monto,
         descripcion: g.descripcion,
         tipo: g.tipo,
         pagadoPor: g.pagadoPor,
-        fecha: g.fecha,
+        fecha: String(g.fecha),
       })),
-      detallePagos: todosPagos.map((p) => ({
-        id: p.id,
-        monto: p.monto,
-        descripcion: p.descripcion,
-        metodoPago: p.metodoPago,
-        fecha: p.fecha,
-      })),
-      saldoRestaurado: config.saldoPendienteLiquidacion,
-      message: `Limpieza completa. ${gastos.length} gastos fantasma y ${todosPagos.length} pagos eliminados. Saldo restaurado a $76.100.`,
+      saldoRestaurado: configUpdate.saldoPendienteLiquidacion,
+      message: `Limpieza completa. ${pagosBorrados.length} pagos y ${gastos.length} gastos fantasma eliminados. Saldo restaurado a $76.100.`,
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });

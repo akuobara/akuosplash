@@ -3,132 +3,121 @@ import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 
 // GET/POST /api/admin/migrate-saldo-cobro
-// Agrega la columna `esCobroSaldoAnterior` a la tabla Pago y hace backfill de
-// los pagos existentes que ya son cobros de saldo (los marca con flag=true).
 //
-// Esto elimina la dependencia del texto de la descripcion para detectar cobros
-// de saldo anterior. El filtro en /api/liquidacion/periodo ahora usa
-// `p.esCobroSaldoAnterior === true` como check primario, con fallback al texto.
+// Hace 3 cosas:
+// 1. Agrega la columna `esCobroSaldoAnterior` a la tabla Pago (si no existe)
+// 2. Hace UPDATE de todos los pagos existentes que parezcan cobro de saldo
+//    anterior (por descripción) marcándolos con esCobroSaldoAnterior=1
+// 3. Devuelve un reporte con cuántos pagos marcó y cuáles
 //
-// Idempotente: se puede ejecutar varias veces sin romper nada.
-export async function ejecutar() {
+// Esto resuelve el bug donde el usuario veía AMBOS:
+//   - El botón "Cobrar saldo anterior" (porque saldoCobrado=false)
+//   - El cobro fantasma en la lista de pagos (porque el pago estaba en la DB)
+//
+// Después de correr esto, /api/liquidacion/periodo detecta los cobros por
+// la columna esCobroSaldoAnterior=1 y oculta el botón correctamente.
+async function ejecutar() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   const duenoId = await getDuenoId();
   if (!duenoId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  const results: { step: string; status: string; error?: string; data?: unknown }[] = [];
+  const results: string[] = [];
 
-  // 1) Verificar si la columna existe. Si no existe, agregarla.
+  // 1. Verificar si la columna existe, si no, agregarla
+  let columnaExiste = false;
   try {
     const cols: Array<{ name: string }> = await db.$queryRawUnsafe(`PRAGMA table_info("Pago");`);
-    const existe = cols.some((c) => c.name === "esCobroSaldoAnterior");
-    if (existe) {
-      results.push({ step: "ALTER Pago ADD esCobroSaldoAnterior", status: "ya existía" });
-    } else {
+    columnaExiste = cols.some((c) => c.name === "esCobroSaldoAnterior");
+    results.push(`Columna esCobroSaldoAnterior existe: ${columnaExiste}`);
+  } catch (e) {
+    results.push(`Error verificando columna: ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  if (!columnaExiste) {
+    try {
+      await db.$executeRawUnsafe(`ALTER TABLE "Pago" ADD COLUMN "esCobroSaldoAnterior" INTEGER NOT NULL DEFAULT 0;`);
+      results.push("Columna esCobroSaldoAnterior agregada a tabla Pago");
+      columnaExiste = true;
+    } catch (e) {
+      results.push(`Error agregando columna: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  if (!columnaExiste) {
+    return NextResponse.json({
+      ok: false,
+      error: "No se pudo agregar la columna esCobroSaldoAnterior",
+      results,
+    }, { status: 500 });
+  }
+
+  // 2. Marcar todos los pagos que parezcan cobro de saldo anterior
+  //    por su descripción. Patrones:
+  //    - "Cobro de saldo anterior..."
+  //    - "Pago de saldo..."
+  //    - Cualquier pago con "saldo" + ("anterior" | "liquidación" | "liquidacion")
+  //    También marcar pagos sin descripcion pero con clienteId=null y monto
+  //    igual a saldoPendienteLiquidacion (cobros viejos mal registrados).
+  const config = await db.configuracion.findUnique({
+    where: { duenoId },
+    select: { saldoPendienteLiquidacion: true },
+  });
+  const saldoPendiente = config?.saldoPendienteLiquidacion || 0;
+
+  // Buscar pagos candidatos (raw SQL para evitar filtrado de Prisma)
+  const pagosCandidatos: Array<{
+    id: string;
+    monto: number;
+    descripcion: string | null;
+    fecha: string;
+    metodoPago: string;
+  }> = await db.$queryRawUnsafe(
+    `SELECT "id", "monto", "descripcion", "fecha", "metodoPago" FROM "Pago"
+     WHERE "duenoId" = ? AND (
+       LOWER(COALESCE("descripcion", '')) LIKE '%cobro de saldo anterior%'
+       OR LOWER(COALESCE("descripcion", '')) LIKE '%pago de saldo%'
+       OR (LOWER(COALESCE("descripcion", '')) LIKE '%saldo%' AND (
+         LOWER(COALESCE("descripcion", '')) LIKE '%anterior%'
+         OR LOWER(COALESCE("descripcion", '')) LIKE '%liquidación%'
+         OR LOWER(COALESCE("descripcion", '')) LIKE '%liquidacion%'
+       ))
+       OR ("clienteId" IS NULL AND "monto" = ?)
+     );`,
+    duenoId,
+    saldoPendiente
+  );
+
+  let marcados = 0;
+  for (const p of pagosCandidatos) {
+    try {
       await db.$executeRawUnsafe(
-        `ALTER TABLE "Pago" ADD COLUMN "esCobroSaldoAnterior" BOOLEAN NOT NULL DEFAULT 0;`
+        `UPDATE "Pago" SET "esCobroSaldoAnterior" = 1 WHERE "id" = ?;`,
+        p.id
       );
-      results.push({ step: "ALTER Pago ADD esCobroSaldoAnterior", status: "ok" });
-    }
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    if (msg.includes("duplicate column name") || msg.includes("already exists")) {
-      results.push({ step: "ALTER Pago ADD esCobroSaldoAnterior", status: "ya existía" });
-    } else {
-      results.push({
-        step: "ALTER Pago ADD esCobroSaldoAnterior",
-        status: "error",
-        error: msg,
-      });
+      marcados++;
+    } catch (e) {
+      results.push(`Error marcando pago ${p.id}: ${e instanceof Error ? e.message : String(e)}`);
     }
   }
 
-  // 2) Backfill: marcar como esCobroSaldoAnterior=1 los pagos existentes cuya
-  //    descripcion coincide con los patrones conocidos.
-  //    SQLite LIKE es case-insensitive por defecto para ASCII, así que un solo
-  //    patrón en minúsculas cubre todos los casings.
-  try {
-    // Patron: "cobro de saldo anterior"
-    const r1 = await db.$executeRawUnsafe(
-      `UPDATE "Pago" SET "esCobroSaldoAnterior" = 1 WHERE "esCobroSaldoAnterior" = 0 AND LOWER("descripcion") LIKE '%cobro de saldo anterior%';`
-    );
-    results.push({ step: "UPDATE patron 'cobro de saldo anterior'", status: "ok", data: { affected: r1 } });
-
-    // Patron: "pago de saldo"
-    const r2 = await db.$executeRawUnsafe(
-      `UPDATE "Pago" SET "esCobroSaldoAnterior" = 1 WHERE "esCobroSaldoAnterior" = 0 AND LOWER("descripcion") LIKE '%pago de saldo%';`
-    );
-    results.push({ step: "UPDATE patron 'pago de saldo'", status: "ok", data: { affected: r2 } });
-
-    // Patron: saldo + (anterior | liquidación | liquidacion)
-    const r3 = await db.$executeRawUnsafe(
-      `UPDATE "Pago" SET "esCobroSaldoAnterior" = 1
-       WHERE "esCobroSaldoAnterior" = 0
-         AND LOWER("descripcion") LIKE '%saldo%'
-         AND (LOWER("descripcion") LIKE '%anterior%'
-              OR LOWER("descripcion") LIKE '%liquidación%'
-              OR LOWER("descripcion") LIKE '%liquidacion%');`
-    );
-    results.push({ step: "UPDATE patron 'saldo' + 'anterior/liquidación'", status: "ok", data: { affected: r3 } });
-
-    // Patron extra defensivo: cualquier pago sin clienteId con monto = saldoPendienteLiquidacion
-    // (caso raro: descripcion null pero monto coincide con el saldo arrastrado)
-    const config = await db.configuracion.findUnique({
-      where: { duenoId },
-      select: { saldoPendienteLiquidacion: true },
-    });
-    const saldoPend = config?.saldoPendienteLiquidacion || 0;
-    if (saldoPend > 0) {
-      const r4 = await db.$executeRawUnsafe(
-        `UPDATE "Pago" SET "esCobroSaldoAnterior" = 1
-         WHERE "esCobroSaldoAnterior" = 0
-           AND "clienteId" IS NULL
-           AND "monto" = ${saldoPend};`
-      );
-      results.push({
-        step: `UPDATE patron monto=${saldoPend} sin cliente`,
-        status: "ok",
-        data: { affected: r4 },
-      });
-    }
-  } catch (e) {
-    results.push({
-      step: "UPDATE backfill",
-      status: "error",
-      error: e instanceof Error ? e.message : String(e),
-    });
-  }
-
-  // 3) Reportar cuántos pagos quedaron marcados en total
-  try {
-    const total: Array<{ cnt: bigint }> = await db.$queryRawUnsafe(
-      `SELECT COUNT(*) AS cnt FROM "Pago" WHERE "esCobroSaldoAnterior" = 1;`
-    );
-    results.push({
-      step: "REPORTE total pagos marcados",
-      status: "ok",
-      data: { total_marcados: Number(total[0]?.cnt ?? 0) },
-    });
-  } catch (e) {
-    results.push({
-      step: "REPORTE total pagos marcados",
-      status: "error",
-      error: e instanceof Error ? e.message : String(e),
-    });
-  }
+  results.push(`Pagos marcados como esCobroSaldoAnterior=1: ${marcados} de ${pagosCandidatos.length} candidatos`);
 
   return NextResponse.json({
     ok: true,
-    message:
-      "Migración completada. La columna esCobroSaldoAnterior fue agregada y los pagos existentes fueron marcados.",
     results,
+    saldoPendienteLiquidacion: saldoPendiente,
+    pagosMarcados: marcados,
+    detallePagosMarcados: pagosCandidatos.map((p) => ({
+      id: p.id,
+      monto: p.monto,
+      descripcion: p.descripcion,
+      fecha: String(p.fecha),
+      metodoPago: p.metodoPago,
+    })),
+    message: `Migración OK. ${marcados} pagos marcados como cobro de saldo anterior.`,
   });
 }
 
-export async function POST(_req: NextRequest) {
-  return ejecutar();
-}
-export async function GET(_req: NextRequest) {
-  return ejecutar();
-}
+export async function GET() { return ejecutar(); }
+export async function POST() { return ejecutar(); }
