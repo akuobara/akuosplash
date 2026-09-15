@@ -1234,7 +1234,14 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                       className="h-7 w-16 text-center font-bold"
                     />
                     <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.round((cantidadCamiones + 0.5) * 2) / 2)}>+</Button>
-                    <span className="text-xs text-muted-foreground">= {formatNumber(cantidadCamiones * (vueltaActual?.capacidadCamion || 17000), 0)} L</span>
+                    <span className="text-xs text-muted-foreground">
+                      = {formatNumber(cantidadCamiones * (vueltaActual?.capacidadCamion || 17000), 0)} L
+                    </span>
+                  </div>
+                )}
+                {esCamionCompleto && (
+                  <div className="rounded-md bg-blue-50 dark:bg-blue-900/20 p-2 text-xs text-blue-700 dark:text-blue-300">
+                    Pedido por camión completo: {cantidadCamiones} camión(es) = {formatNumber(cantidadCamiones * (vueltaActual?.capacidadCamion || 17000), 0)} L
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground">
