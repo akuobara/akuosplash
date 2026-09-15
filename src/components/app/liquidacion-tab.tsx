@@ -164,6 +164,7 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
   const [cobrarSaldoOpen, setCobrarSaldoOpen] = useState(false);
   const [cobrandoSaldo, setCobrandoSaldo] = useState(false);
   const [cobrarMonto, setCobrarMonto] = useState("");
+  const [limpiandoCobros, setLimpiandoCobros] = useState(false);
 
   const MONTH_NAMES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -351,6 +352,32 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                   onClick={() => setCobrarSaldoOpen(true)}
                 >
                   <Banknote className="mr-1 h-3.5 w-3.5" /> {isDueno ? "Pagar saldo anterior" : "Cobrar saldo anterior"}
+                </Button>
+              )}
+              {/* Botón admin: limpiar cobros fantasma de saldo anterior */}
+              {isDueno && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
+                  disabled={limpiandoCobros}
+                  onClick={async () => {
+                    if (!confirm("¿Limpiar cobros fantasma de saldo anterior? Esto borra todos los gastos/pagos con \"saldo\" o \"liquidación\" en la descripción y restaura el saldo a $76.100.")) return;
+                    setLimpiandoCobros(true);
+                    try {
+                      const res = await apiPost<{ ok: boolean; message: string; gastosEliminados: number; pagosEliminados: number }>("/api/admin/restaurar-saldo", {});
+                      toast.success(`Limpieza OK. ${res.gastosEliminados} gastos y ${res.pagosEliminados} pagos eliminados.`);
+                      cargar();
+                      onRefresh();
+                    } catch (e) {
+                      toast.error(e instanceof Error ? e.message : "No se pudo limpiar");
+                    } finally {
+                      setLimpiandoCobros(false);
+                    }
+                  }}
+                >
+                  {limpiandoCobros ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <AlertTriangle className="mr-1 h-3.5 w-3.5" />}
+                  Limpiar cobros fantasma
                 </Button>
               )}
             </div>
