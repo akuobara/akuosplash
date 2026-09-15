@@ -104,3 +104,8 @@ export async function POST(_req: NextRequest) {
 
   return NextResponse.json({ ok: true, results });
 }
+
+// GET handler para poder ejecutar desde el navegador
+export async function GET(req: NextRequest) {
+  return POST(req);
+}
