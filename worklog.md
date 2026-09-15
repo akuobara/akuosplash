@@ -414,3 +414,100 @@ Stage Summary:
 - ✅ Dev server (puerto 3000) verifica: 4 nuevos endpoints + 2 páginas compilan y responden (401/403/200 según auth).
 - ✅ Work record detallado en `/agent-ctx/cupones-y-pagos-main.md`.
 
+
+---
+Task ID: saldo-cobro-final-fix
+Agent: subagent (general-purpose)
+Task: Fix definitivo del bug "saldo cobrado no se detecta — botón 'Cobrar saldo anterior' visible + cobro fantasma en la lista".
+
+Work Log:
+- Leído worklog previo (entries hasta fix-camion-resiliente-frontend, cupones-y-pagos).
+- Leído los 7 archivos clave: pagar-saldo/route.ts, periodo/route.ts, restaurar-saldo/route.ts,
+  debug-gastos/route.ts, liquidacion-tab.tsx, schema.prisma, migrate-cupones/route.ts (como referencia).
+- Descubierto OTRO endpoint histórico: /api/liquidacion/cobrar-saldo (vs pagar-saldo)
+  que crea un pago con descripcion "Cobro de saldo de liquidación anterior" Y reduce
+  saldoPendienteLiquidacion — probable fuente de cobros fantasma en distintos formatos.
+- Descubierto /api/admin/fix-cobro-saldo que CONVERTÍA pagos en gastos del dueño
+  (commit 61c4582). Esto significa que en la DB pueden quedar GASTOS con descripcion
+  "Cobro de saldo anterior..." que NO son detectados por el filtro de /api/liquidacion/periodo
+  (que solo checkeaba PAGOS).
+
+Causa raíz identificada (3 causas combinadas):
+1. En intentos previos (commits e316d93, 61c4582), pagar-saldo creaba un GASTO en vez
+   de un PAGO. Esos GASTOS fantasma quedan en la DB y aparecen en 'Gastos del período'
+   de la liquidación. El filtro en /api/liquidacion/periodo SOLO checkeaba PAGOS, no GASTOS.
+2. El filtro por texto de la descripcion es frágil: typos, casing, variantes históricas
+   pueden fallar el match.
+3. No había forma estructural de marcar un pago como cobro de saldo.
+
+Fix estructural aplicado (commit 32ed93d):
+- NUEVO endpoint /api/admin/migrate-saldo-cobro:
+  * ALTER TABLE Pago ADD COLUMN esCobroSaldoAnterior BOOLEAN NOT NULL DEFAULT 0
+  * Backfill UPDATE: marca pagos existentes como esCobroSaldoAnterior=1 si su
+    descripcion matchea los patrones conocidos (3 patrones distintos, vía LOWER/LIKE
+    para case-insensitive) OR si tienen clienteId=null y monto = saldoPendienteLiquidacion.
+  * Idempotente. Usa raw SQL (no depende del schema de Prisma).
+
+- pagar-saldo/route.ts: después de crear el pago vía Prisma, hace un UPDATE vía raw
+  SQL para setear esCobroSaldoAnterior=1. El UPDATE está envuelto en try/catch:
+  si la columna todavía no existe (migración pendiente), el flag no se setea pero
+  el filtro por texto igual funciona (la descripcion sigue siendo "Cobro de saldo anterior...").
+
+- periodo/route.ts: la detección de cobro de saldo ahora usa 3 capas:
+  * Primary: columna esCobroSaldoAnterior=1 (vía raw SQL en try/catch, fallback silencioso).
+  * Fallback: filtro por texto de descripcion (3 variantes históricas).
+  * Backup extra: también checkea GASTOS con patron de cobro de saldo OR monto
+    = saldoPendienteLiquidacion. Esto oculta el botón 'Cobrar saldo anterior' si
+    hay un GASTO fantasma de intentos previos.
+  * saldoCobrado = cobroSaldoAnteriorTotal > 0 || cobroSaldoAnteriorGastoMonto > 0.
+
+- restaurar-saldo/route.ts: ahora también borra PAGOS con esCobroSaldoAnterior=1
+  (vía raw SQL en try/catch), además del filtro por texto existente. Unifica
+  ambos sets sin duplicar por id.
+
+- NUEVO endpoint /api/admin/debug-saldo-cobro: diagnóstico completo que lista TODOS
+  los pagos y gastos del último año con su descripcion, monto, fecha, clienteId,
+  choferId. Para cada uno evalúa el filtro esCobroSaldoAnterior(descripcion) y
+  muestra el resultado. Verifica si la columna existe (vía PRAGMA). Lista los pagos
+  flagged. Muestra el saldoCobrado calculado para el período actual. Útil para
+  diagnosticar si el bug persiste.
+
+Stack: raw SQL vía $queryRawUnsafe / $executeRawUnsafe para evitar la dependencia
+del schema de Prisma (que requeriría prisma db push que no corre automáticamente
+en el build de Vercel). El campo esCobroSaldoAnterior NO se agregó al schema.prisma
+deliberadamente — esto evita que el Prisma client generado trate de SELECT/INSERT
+la columna que no existe todavía (que sería un 500 hasta que se corra la migración).
+
+Verificación:
+- npx tsc --noEmit --skipLibCheck: 0 errores en src/ (4 errores preexistentes en
+  examples/ y skills/, no relacionados).
+- Push a GitHub: 8f1484c..32ed93d main -> main.
+- Deploy Vercel: dpl_7Uv9n7o8jQpj1REjJamV7 — READY/PROMOTED en ~70s.
+- Smoke test producción (my-project-azure-five-82.vercel.app):
+  * /                    → HTTP 200
+  * /api/admin/debug-saldo-cobro     → HTTP 401 (auth required, endpoint existe)
+  * /api/admin/migrate-saldo-cobro   → HTTP 401 (auth required, endpoint existe)
+  * /api/liquidacion/periodo          → HTTP 401 (auth required)
+
+Stage Summary:
+- ✅ Deploy exitoso en producción (commit 32ed93d, READY/PROMOTED).
+- ✅ Causa raíz identificada: GASTOS fantasma no detectados por filtro pago-only.
+- ✅ Fix estructural con flag esCobroSaldoAnterior + fallback a texto + check gastos.
+- ✅ Endpoint de migración listo para correr en producción.
+- ✅ Endpoint de diagnóstico listo para verificar estado.
+- ⏳ ACCIÓN REQUERIDA POR EL USUARIO (en este orden):
+  1. Loguearse como admin o chofer en https://my-project-azure-five-82.vercel.app/
+  2. Abrir en el navegador (estando logueado) la URL:
+     https://my-project-azure-five-82.vercel.app/api/admin/migrate-saldo-cobro
+     Esto ejecuta la migración: agrega la columna esCobroSaldoAnterior a la tabla
+     Pago en la DB de producción (Turso) y hace backfill de los pagos existentes.
+  3. (Opcional pero recomendado) Si después de migrar sigue viendo el bug, abrir:
+     https://my-project-azure-five-82.vercel.app/api/admin/debug-saldo-cobro
+     y mandar el JSON de respuesta para diagnóstico.
+  4. (Opcional) Si quiere limpiar todos los cobros fantasma y empezar de cero,
+     abrir: https://my-project-azure-five-82.vercel.app/api/admin/restaurar-saldo
+     Esto borra pagos+gastos fantasma y restaura saldoPendienteLiquidacion=76100.
+     DESPUÉS puede cobrar de nuevo con el botón "Cobrar saldo anterior".
+  5. Recargar la pestaña Liquidación. Debería ver:
+     - Si NO hay cobro en este período: botón verde "Cobrar saldo anterior" visible
+     - Si ya hay cobro (pago O gasto fantasma detectado): badge verde "✓ Saldo cobrado: $X"
