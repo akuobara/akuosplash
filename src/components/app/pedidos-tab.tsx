@@ -1224,16 +1224,16 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 {esCamionCompleto && (
                   <div className="flex items-center gap-2">
                     <Label className="text-xs whitespace-nowrap">Camiones:</Label>
-                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.max(0.5, Math.round((cantidadCamiones - 0.5) * 2) / 2))}>−</Button>
+                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.max(0.1, Math.round((cantidadCamiones - 0.1) * 10) / 10))}>−</Button>
                     <Input
                       type="number"
                       step="0.1"
-                      min="0.5"
+                      min="0.1"
                       value={cantidadCamiones}
-                      onChange={(e) => setCantidadCamiones(Math.max(0.5, Number(e.target.value) || 1))}
+                      onChange={(e) => setCantidadCamiones(Math.max(0.1, Number(e.target.value) || 1))}
                       className="h-7 w-16 text-center font-bold"
                     />
-                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.round((cantidadCamiones + 0.5) * 2) / 2)}>+</Button>
+                    <Button type="button" variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => setCantidadCamiones(Math.round((cantidadCamiones + 0.1) * 10) / 10)}>+</Button>
                     <span className="text-xs text-muted-foreground">
                       = {formatNumber(cantidadCamiones * (vueltaActual?.capacidadCamion || 17000), 0)} L
                     </span>
