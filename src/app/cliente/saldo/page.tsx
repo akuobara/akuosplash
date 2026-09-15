@@ -12,6 +12,7 @@ import { Droplets, LogOut, Wallet, Upload, ArrowLeft, Clock, CheckCircle2, XCirc
 import Link from "next/link";
 import { toast } from "sonner";
 import { formatCurrency, formatDateTime } from "@/lib/helpers";
+import { apiGet } from "@/lib/api-client";
 
 interface Movimiento {
   id: string;
@@ -39,6 +40,28 @@ const TIPO_LABELS: Record<string, { label: string; color: string }> = {
   saldo_a_favor: { label: "Saldo a favor", color: "text-emerald-600" },
   ajuste: { label: "Ajuste", color: "text-muted-foreground" },
 };
+
+// Componente que muestra los datos de transferencia del admin
+function DatosTransferenciaCliente() {
+  const [data, setData] = useState<any>(null);
+  useEffect(() => {
+    fetch("/api/config/public")
+      .then(r => r.json())
+      .then(r => { if (r.transfData) setData(r.transfData); })
+      .catch(() => {});
+  }, []);
+  if (!data) return <p className="text-xs text-muted-foreground">Cargando datos…</p>;
+  return (
+    <div className="space-y-1 text-xs text-blue-800 dark:text-blue-300">
+      {data.transfBanco && <div>Banco: <strong>{data.transfBanco}</strong></div>}
+      {data.transfTipoCuenta && <div>Tipo: <strong>{data.transfTipoCuenta}</strong></div>}
+      {data.transfNumeroCuenta && <div>Cuenta: <strong>{data.transfNumeroCuenta}</strong></div>}
+      {data.transfTitular && <div>Titular: <strong>{data.transfTitular}</strong></div>}
+      {data.transfRutTitular && <div>RUT: <strong>{data.transfRutTitular}</strong></div>}
+      {data.transfEmail && <div>Email: <strong>{data.transfEmail}</strong></div>}
+    </div>
+  );
+}
 
 export default function ClienteSaldoPage() {
   const router = useRouter();
@@ -286,7 +309,13 @@ export default function ClienteSaldoPage() {
             </div>
 
             {metodo === "transferencia" && (
-              <div>
+              <div className="space-y-3">
+                {/* Datos de transferencia */}
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-900/20">
+                  <p className="text-xs font-medium text-blue-900 dark:text-blue-200 mb-2">Datos para transferir:</p>
+                  <DatosTransferenciaCliente />
+                </div>
+                <div>
                 <Label className="text-xs">Comprobante de transferencia *</Label>
                 {comprobanteUrl ? (
                   <div className="flex items-center gap-2 mt-1">
@@ -319,6 +348,7 @@ export default function ClienteSaldoPage() {
                 <p className="text-xs text-muted-foreground mt-1">
                   Tu carga queda pendiente hasta que un administrador verifique la transferencia.
                 </p>
+                </div>
               </div>
             )}
 

@@ -219,25 +219,25 @@ export default function ClienteDashboardPage() {
       <main className="mx-auto max-w-md px-4 py-5 space-y-5">
         {/* Saldo + CTA Pedir agua */}
         <div className="space-y-3">
-          {/* Saldo a favor */}
-          {cliente.saldo > 0 && (
-            <Card className="border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/20 dark:to-gray-900 dark:border-emerald-900/50">
-              <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-full bg-emerald-500/10 p-2">
-                    <Wallet className="h-4 w-4 text-emerald-600" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Saldo a favor</p>
-                    <p className="text-xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(cliente.saldo)}</p>
-                  </div>
+          {/* Saldo (siempre visible) */}
+          <Card className={cliente.saldo > 0
+            ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/20 dark:to-gray-900 dark:border-emerald-900/50"
+            : ""}>
+            <CardContent className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-emerald-500/10 p-2">
+                  <Wallet className="h-4 w-4 text-emerald-600" />
                 </div>
-                <Button size="sm" variant="outline" onClick={() => router.push("/cliente/saldo")} className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:border-emerald-800 dark:hover:bg-emerald-900/20">
-                  Cargar
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Saldo</p>
+                  <p className="text-xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">{formatCurrency(cliente.saldo)}</p>
+                </div>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => router.push("/cliente/saldo")} className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:border-emerald-800 dark:hover:bg-emerald-900/20">
+                Cargar saldo
+              </Button>
+            </CardContent>
+          </Card>
 
           {/* CTA principal: Pedir agua */}
           <Button
