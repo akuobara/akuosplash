@@ -4,8 +4,20 @@ import { getSession, getDuenoId } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/liquidacion/pagar-saldo
-// Registra un pago del saldo pendiente de liquidación anterior.
+// Cobra el saldo pendiente de liquidación anterior.
 // metodo: "efectivo" (chofer se cobra con efectivo en mano) o "transferencia" (admin transfirió)
+//
+// IMPORTANTE: NO se crea ningún gasto ni pago en la DB.
+// Solo se setea saldoPendienteLiquidacion = 0.
+//
+// Razón: el saldo ya está representado por la línea "+ Saldo del período anterior"
+// en la liquidación. Crear un gasto adicional:
+//   1. Aparece en la lista de gastos (confuso para el usuario)
+//   2. Reduce la utilidad bruta → reduce el pago al chofer (doble conteo)
+//   3. Suma una entrada fantasma que el admin no puede borrar fácilmente
+//
+// El cobro queda implícito: el saldo pasa de $76.100 → $0 y desaparece la línea.
+// Si se necesita auditoría, se puede consultar el cierre del período anterior.
 export async function POST(req: NextRequest) {
   const _demoBlocked = await checkDemoBlock();
   if (_demoBlocked) return _demoBlocked;
@@ -32,28 +44,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (monto > saldoPendiente) {
-      return NextResponse.json({ error: `El monto no puede ser mayor al saldo pendiente (${saldoPendiente})` }, { status: 400 });
+      return NextResponse.json(
+        { error: `El monto no puede ser mayor al saldo pendiente (${saldoPendiente})` },
+        { status: 400 }
+      );
     }
 
-    // Registrar como GASTO del dueño (no como pago recibido)
-    // porque el dueño le está pagando al chofer — es un egreso, no un ingreso.
-    const descripcion = metodo === "transferencia"
-      ? "Pago de saldo de liquidación anterior por transferencia"
-      : "Pago de saldo de liquidación anterior con efectivo";
-
-    const gasto = await db.gasto.create({
-      data: {
-        fecha: new Date(),
-        tipo: "otro",
-        descripcion,
-        monto,
-        pagadoPor: "dueno", // el dueño es quien paga
-        choferId: session.userId,
-        duenoId,
-      },
-    });
-
-    // Reducir el saldo pendiente
+    // Solo actualizar el saldo pendiente. NO crear gasto ni pago.
     const nuevoSaldo = saldoPendiente - monto;
     await db.configuracion.update({
       where: { duenoId },
@@ -62,10 +59,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      gasto,
+      metodo,
+      monto,
       saldoAnterior: saldoPendiente,
       saldoNuevo: nuevoSaldo,
-      message: `${metodo === "transferencia" ? "Transferencia registrada" : "Pago con efectivo registrado"}. Saldo restante: ${nuevoSaldo}`,
+      message:
+        metodo === "transferencia"
+          ? `Transferencia registrada. Saldo restante: $${nuevoSaldo.toLocaleString("es-CL")}`
+          : `Cobro con efectivo registrado. Saldo restante: $${nuevoSaldo.toLocaleString("es-CL")}`,
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
