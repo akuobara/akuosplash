@@ -143,12 +143,23 @@ export async function GET(req: NextRequest) {
   // también cuentan porque el efectivo físico está en manos del chofer.
   const esChofer = session.role === "chofer";
   // === COBROS DE SALDO ANTERIOR ===
-  // Los pagos con descripcion "Cobro de saldo anterior..." son cobros del saldo
-  // pendiente del período anterior. NO se incluyen en efectivoTotal porque
-  // no son efectivo de entregas — son cobros de deudas viejas. Si los incluyéramos,
-  // el "Debés entregar" subiría erróneamente al cobrar.
-  const esCobroSaldoAnterior = (descripcion: string | null) =>
-    !!descripcion && descripcion.toLowerCase().includes("cobro de saldo anterior");
+  // Los pagos con descripcion que mencione "saldo" + ("anterior" o "liquidación")
+  // son cobros del saldo pendiente del período anterior. Cubre todas las variantes
+  // históricas de descripción: "Cobro de saldo anterior...", "Pago de saldo de
+  // liquidación anterior...", "Pago de saldo anterior con efectivo", etc.
+  // NO se incluyen en efectivoTotal porque no son efectivo de entregas.
+  const esCobroSaldoAnterior = (descripcion: string | null) => {
+    if (!descripcion) return false;
+    const d = descripcion.toLowerCase();
+    return (
+      // Variante nueva: "Cobro de saldo anterior..."
+      d.includes("cobro de saldo anterior") ||
+      // Variante vieja: "Pago de saldo de liquidación anterior..."
+      d.includes("pago de saldo") ||
+      // Cualquier mención de saldo + (anterior | liquidación)
+      (d.includes("saldo") && (d.includes("anterior") || d.includes("liquidación") || d.includes("liquidacion")))
+    );
+  };
   const cobrosSaldoAnterior = pagosSueltos.filter(p => esCobroSaldoAnterior(p.descripcion));
   const cobroSaldoAnteriorEfectivo = cobrosSaldoAnterior
     .filter(p => p.metodoPago === "efectivo")
