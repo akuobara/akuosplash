@@ -35,19 +35,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `El monto no puede ser mayor al saldo pendiente (${saldoPendiente})` }, { status: 400 });
     }
 
-    // Registrar el pago
+    // Registrar como GASTO del dueño (no como pago recibido)
+    // porque el dueño le está pagando al chofer — es un egreso, no un ingreso.
     const descripcion = metodo === "transferencia"
       ? "Pago de saldo de liquidación anterior por transferencia"
-      : "Cobro de saldo de liquidación anterior con efectivo";
+      : "Pago de saldo de liquidación anterior con efectivo";
 
-    const pago = await db.pago.create({
+    const gasto = await db.gasto.create({
       data: {
         fecha: new Date(),
-        clienteId: null,
-        monto,
-        metodoPago: metodo,
+        tipo: "otro",
         descripcion,
-        nota: `${metodo === "transferencia" ? "El administrador transfirió" : "El chofer se cobró con efectivo"} ${monto} del saldo pendiente`,
+        monto,
+        pagadoPor: "dueno", // el dueño es quien paga
         choferId: session.userId,
         duenoId,
       },
@@ -62,10 +62,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      pago,
+      gasto,
       saldoAnterior: saldoPendiente,
       saldoNuevo: nuevoSaldo,
-      message: `${metodo === "transferencia" ? "Transferencia registrada" : "Cobro con efectivo registrado"}. Saldo restante: ${nuevoSaldo}`,
+      message: `${metodo === "transferencia" ? "Transferencia registrada" : "Pago con efectivo registrado"}. Saldo restante: ${nuevoSaldo}`,
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
