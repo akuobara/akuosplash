@@ -55,6 +55,7 @@ import {
   Banknote,
   Smartphone,
   Loader2,
+  GripVertical,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
@@ -854,17 +855,12 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                     <span className="text-base">{grupo.emoji}</span>
                     <h3 className={`text-sm font-semibold ${grupo.color}`}>{grupo.label}</h3>
                     <Badge variant="secondary" className="text-[10px]">{grupo.pedidos.length}</Badge>
-                    {grupo.key === "hoy" && grupo.pedidos.length > 1 && (
-                      <span className="text-[10px] text-muted-foreground ml-1">
-                        · arrastrá para reordenar
-                      </span>
-                    )}
                   </div>
                   {/* Lista de pedidos del grupo */}
                   <Card>
                     <CardContent className="p-0">
                       <ul className="divide-y divide-border">
-                        {grupo.pedidos.map((p, idx) => (
+                        {grupo.pedidos.map((p) => (
                           <li
                             key={p.id}
                             draggable={grupo.key === "hoy"}
@@ -929,8 +925,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                             }`}
                           >
                             {grupo.key === "hoy" && (
-                              <div className="shrink-0 text-muted-foreground/50 text-xs font-mono select-none" title="Arrastrá para reordenar">
-                                {String(idx + 1).padStart(2, "0")}
+                              <div className="shrink-0 cursor-grab text-muted-foreground/30 active:cursor-grabbing" title="Arrastrá para reordenar">
+                                <GripVertical className="h-4 w-4" />
                               </div>
                             )}
                             <button
