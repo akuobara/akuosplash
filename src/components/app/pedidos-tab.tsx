@@ -914,7 +914,16 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 setGuardandoOrden(false);
                               }
                             }}
-                            className={`flex items-center gap-3 p-3 sm:p-4 transition-colors ${
+                            className={`flex items-center gap-3 p-3 sm:p-4 transition-colors border-l-4 ${
+                              // Borde lateral de color según asignación
+                              p.tomadoPorChofer
+                                ? "border-l-blue-500"
+                                : p.choferAsignado
+                                  ? "border-l-emerald-500"
+                                  : p.asignacionTipo === "publicado"
+                                    ? "border-l-purple-500"
+                                    : "border-l-amber-500"
+                            } ${
                               grupo.key === "hoy" ? "cursor-grab active:cursor-grabbing" : ""
                             } ${
                               draggedId === p.id ? "opacity-40" : ""
@@ -978,20 +987,29 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                       <Clock className="h-2.5 w-2.5" /> {labelFranjaHoraria(p.franjaHoraria)}
                                     </Badge>
                                   )}
-                                  {/* Badges de asignación */}
+                                  {/* Badges de asignación de chofer */}
+                                  {/* Pedido publicado (sin chofer asignado) → disponible para todos los choferes */}
                                   {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-purple-700 dark:text-purple-300">
-                                      <Package className="h-2.5 w-2.5" /> Publicado
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700" title="Este pedido está disponible para cualquier chofer de la flota">
+                                      <Package className="h-2.5 w-2.5" /> Disponible
                                     </Badge>
                                   )}
+                                  {/* Pedido tomado por un chofer (en ruta) */}
                                   {p.tomadoPorChofer && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
-                                      <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre}
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700" title={`En ruta con ${p.tomadoPorChofer.nombre}`}>
+                                      <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre} (en ruta)
                                     </Badge>
                                   )}
+                                  {/* Pedido asignado a un chofer específico (aún no tomado) */}
                                   {p.choferAsignado && !p.tomadoPorChofer && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300">
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700" title={`Solo ${p.choferAsignado.nombre} puede entregar este pedido`}>
                                       <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
+                                    </Badge>
+                                  )}
+                                  {/* Pedido sin chofer asignado ni publicación → solo admin puede verlo */}
+                                  {p.asignacionTipo !== "publicado" && !p.choferAsignado && !p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700" title="Sin chofer asignado. Solo el admin ve este pedido.">
+                                      <Users className="h-2.5 w-2.5" /> Sin asignar
                                     </Badge>
                                   )}
                                   {p.prioridadChofer && p.prioridadTipo !== "ninguna" && (
