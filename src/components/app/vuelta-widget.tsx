@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Clock } from "lucide-react";
+import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Clock, Repeat } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost } from "@/lib/api-client";
 import { formatNumber, formatTime, formatCurrency, esVueltaCompletada, UMBRAL_COMPLETACION_VUELTA, labelMetodoPago } from "@/lib/helpers";
@@ -56,6 +56,9 @@ export function VueltaWidget({
   const [confirmarNueva, setConfirmarNueva] = useState(false);
   const [camionSeleccionado, setCamionSeleccionado] = useState<string>("");
   const [mostrarEntregas, setMostrarEntregas] = useState(false);
+  const [pedidosReagendados, setPedidosReagendados] = useState<
+    Array<{ cliente: string; litrosPendientes: number; litrosSolicitados: number; litrosEntregados: number; nuevoPedidoId: string }>
+  >([]);
 
   const camionesActivos = (camiones ?? []).filter((c) => c.activo);
 
@@ -191,8 +194,26 @@ export function VueltaWidget({
     if (!vueltaActual) return;
     setCerrando(true);
     try {
-      await apiPost(`/api/vueltas/${vueltaActual.id}/cerrar`, {});
-      toast.success(`Vuelta #${vueltaActual.numero} cerrada`);
+      const res = await apiPost<{
+        ok: boolean;
+        vuelta: any;
+        pedidosReagendados: Array<{
+          cliente: string;
+          litrosPendientes: number;
+          litrosSolicitados: number;
+          litrosEntregados: number;
+          nuevoPedidoId: string;
+        }>;
+        message?: string;
+      }>(`/api/vueltas/${vueltaActual.id}/cerrar`, {});
+
+      if (res.pedidosReagendados && res.pedidosReagendados.length > 0) {
+        // Mostrar diálogo con los pedidos reagendados
+        setPedidosReagendados(res.pedidosReagendados);
+        toast.success(`Vuelta #${vueltaActual.numero} cerrada. Se reagendaron ${res.pedidosReagendados.length} pedido(s) pendiente(s).`, { duration: 8000 });
+      } else {
+        toast.success(`Vuelta #${vueltaActual.numero} cerrada`);
+      }
       onVueltaChange();
       setConfirmarCerrar(false);
     } catch (e) {
@@ -476,6 +497,40 @@ export function VueltaWidget({
             </Button>
             <Button onClick={iniciarVuelta} disabled={iniciando}>
               <Play className="mr-2 h-4 w-4" /> Cerrar e iniciar nueva
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo: Pedidos reagendados automáticamente */}
+      <Dialog open={pedidosReagendados.length > 0} onOpenChange={(o) => { if (!o) setPedidosReagendados([]); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Repeat className="h-5 w-5 text-amber-500" />
+              Pedidos reagendados automáticamente
+            </DialogTitle>
+            <DialogDescription>
+              Al cerrar la vuelta, quedaron pedidos con más de 1.000 L pendientes. Se crearon nuevos pedidos automáticamente para lo que falta.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {pedidosReagendados.map((p, i) => (
+              <div key={i} className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20 p-3 text-sm">
+                <div className="font-medium">{p.cliente}</div>
+                <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
+                  <div>Pedido original: {formatNumber(p.litrosSolicitados, 0)} L</div>
+                  <div>Entregado: {formatNumber(p.litrosEntregados, 0)} L</div>
+                  <div className="font-medium text-amber-700 dark:text-amber-300">
+                    Pendiente: {formatNumber(p.litrosPendientes, 0)} L → nuevo pedido creado
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setPedidosReagendados([])}>
+              Entendido
             </Button>
           </DialogFooter>
         </DialogContent>
