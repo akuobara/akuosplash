@@ -1018,19 +1018,20 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                   <Clock className="mr-2 h-4 w-4" /> Marcar programado
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuItem onClick={() => cambiarEstado(p, "cancelado")}>
-                                <XCircle className="mr-2 h-4 w-4" /> Cancelar pedido
-                              </DropdownMenuItem>
-                              {p.pedidoRecurrenteId && (
-                                <DropdownMenuItem onClick={() => {
+                              <DropdownMenuItem onClick={() => {
+                                if (p.pedidoRecurrenteId) {
+                                  // Si es recurrente, abrir el diálogo con opciones
                                   setCancelandoRecurrente(p);
                                   setCancelarModo("proximo");
                                   setCancelarHastaFecha("");
                                   setCancelarRazon("");
-                                }}>
-                                  <Repeat className="mr-2 h-4 w-4" /> Cancelar recurrencia
-                                </DropdownMenuItem>
-                              )}
+                                } else {
+                                  // Si no es recurrente, cancelar directo
+                                  cambiarEstado(p, "cancelado");
+                                }
+                              }}>
+                                <XCircle className="mr-2 h-4 w-4" /> Cancelar pedido
+                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
                                 onClick={() => setBorrando(p)}
@@ -2048,13 +2049,13 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         </DialogContent>
       </Dialog>
 
-      {/* Cancelar recurrencia */}
+      {/* Cancelar pedido (recurrente o no) */}
       <Dialog open={!!cancelandoRecurrente} onOpenChange={(o) => !o && setCancelandoRecurrente(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Cancelar recurrencia</DialogTitle>
+            <DialogTitle>Cancelar pedido</DialogTitle>
             <DialogDescription>
-              Pedido de <strong>{cancelandoRecurrente?.clienteNombre}</strong>. Elegí cómo cancelar:
+              Pedido de <strong>{cancelandoRecurrente?.clienteNombre}</strong>. Como viene de una recurrencia, elegí qué cancelar:
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
@@ -2067,9 +2068,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 className="mt-1"
               />
               <div className="flex-1 text-sm">
-                <div className="font-medium">Cancelar el próximo pedido</div>
+                <div className="font-medium">Solo este pedido</div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Solo cancela el pedido ya agendado. Los siguientes pedidos se siguen generando normalmente según la frecuencia.
+                  Cancela el pedido ya agendado. Los pedidos siguientes se siguen generando normalmente según la frecuencia.
                 </div>
               </div>
             </label>
@@ -2113,9 +2114,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 className="mt-1"
               />
               <div className="flex-1 text-sm">
-                <div className="font-medium">Cancelar pedido y desactivar recurrencia</div>
+                <div className="font-medium">Este pedido y desactivar recurrencia</div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Cancela el próximo pedido y desactiva la recurrencia. No se generarán más pedidos automáticamente.
+                  Cancela este pedido y desactiva la recurrencia. No se generarán más pedidos automáticamente en el futuro.
                 </div>
               </div>
             </label>
