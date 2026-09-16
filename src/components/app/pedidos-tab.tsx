@@ -173,6 +173,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [convirtiendo, setConvirtiendo] = useState<Pedido | null>(null);
   const [soltandoPedido, setSoltandoPedido] = useState<Pedido | null>(null);
   const [soltarPedidoReemplazo, setSoltarPedidoReemplazo] = useState("");
+  const [cancelandoRecurrente, setCancelandoRecurrente] = useState<Pedido | null>(null);
+  const [cancelarModo, setCancelarModo] = useState<"proximo" | "periodo" | "todos">("proximo");
+  const [cancelarHastaFecha, setCancelarHastaFecha] = useState("");
+  const [cancelarRazon, setCancelarRazon] = useState("");
+  const [cancelandoRec, setCancelandoRec] = useState(false);
 
   // Campos del formulario
   const [clienteId, setClienteId] = useState<string>("__nuevo");
@@ -1016,6 +1021,16 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                               <DropdownMenuItem onClick={() => cambiarEstado(p, "cancelado")}>
                                 <XCircle className="mr-2 h-4 w-4" /> Cancelar pedido
                               </DropdownMenuItem>
+                              {p.pedidoRecurrenteId && (
+                                <DropdownMenuItem onClick={() => {
+                                  setCancelandoRecurrente(p);
+                                  setCancelarModo("proximo");
+                                  setCancelarHastaFecha("");
+                                  setCancelarRazon("");
+                                }}>
+                                  <Repeat className="mr-2 h-4 w-4" /> Cancelar recurrencia
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive"
                                 onClick={() => setBorrando(p)}
@@ -2028,6 +2043,131 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
             </Button>
             <Button variant="destructive" onClick={() => borrando && handleBorrar(borrando)}>
               <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancelar recurrencia */}
+      <Dialog open={!!cancelandoRecurrente} onOpenChange={(o) => !o && setCancelandoRecurrente(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cancelar recurrencia</DialogTitle>
+            <DialogDescription>
+              Pedido de <strong>{cancelandoRecurrente?.clienteNombre}</strong>. Elegí cómo cancelar:
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <label className={`flex items-start gap-3 rounded-md border p-3 cursor-pointer ${cancelarModo === "proximo" ? "border-primary bg-primary/5" : "border-input hover:bg-muted/50"}`}>
+              <input
+                type="radio"
+                name="cancelar-modo"
+                checked={cancelarModo === "proximo"}
+                onChange={() => setCancelarModo("proximo")}
+                className="mt-1"
+              />
+              <div className="flex-1 text-sm">
+                <div className="font-medium">Cancelar el próximo pedido</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Solo cancela el pedido ya agendado. Los siguientes pedidos se siguen generando normalmente según la frecuencia.
+                </div>
+              </div>
+            </label>
+
+            <label className={`flex items-start gap-3 rounded-md border p-3 cursor-pointer ${cancelarModo === "periodo" ? "border-primary bg-primary/5" : "border-input hover:bg-muted/50"}`}>
+              <input
+                type="radio"
+                name="cancelar-modo"
+                checked={cancelarModo === "periodo"}
+                onChange={() => setCancelarModo("periodo")}
+                className="mt-1"
+              />
+              <div className="flex-1 text-sm">
+                <div className="font-medium">Pausar por un periodo</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Cancela todos los pedidos hasta una fecha. Útil si el cliente se va de viaje.
+                </div>
+                {cancelarModo === "periodo" && (
+                  <div className="mt-2">
+                    <Label className="text-xs">Reanudar a partir de:</Label>
+                    <Input
+                      type="date"
+                      value={cancelarHastaFecha}
+                      onChange={(e) => setCancelarHastaFecha(e.target.value)}
+                      className="mt-1"
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Los pedidos se cancelan hasta el día anterior. Se reanuda el día seleccionado.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </label>
+
+            <label className={`flex items-start gap-3 rounded-md border p-3 cursor-pointer ${cancelarModo === "todos" ? "border-primary bg-primary/5" : "border-input hover:bg-muted/50"}`}>
+              <input
+                type="radio"
+                name="cancelar-modo"
+                checked={cancelarModo === "todos"}
+                onChange={() => setCancelarModo("todos")}
+                className="mt-1"
+              />
+              <div className="flex-1 text-sm">
+                <div className="font-medium">Cancelar pedido y desactivar recurrencia</div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Cancela el próximo pedido y desactiva la recurrencia. No se generarán más pedidos automáticamente.
+                </div>
+              </div>
+            </label>
+
+            <div>
+              <Label className="text-xs">Razón (opcional)</Label>
+              <Textarea
+                value={cancelarRazon}
+                onChange={(e) => setCancelarRazon(e.target.value)}
+                placeholder="Ej: cliente de viaje, no necesita agua, etc."
+                className="mt-1"
+                rows={2}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelandoRecurrente(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={cancelandoRec || (cancelarModo === "periodo" && !cancelarHastaFecha)}
+              onClick={async () => {
+                if (!cancelandoRecurrente?.pedidoRecurrenteId) {
+                  toast.error("El pedido no tiene recurrencia asociada");
+                  return;
+                }
+                setCancelandoRec(true);
+                try {
+                  const res = await apiPost<{ ok: boolean; message: string; pedidosCancelados: number }>(
+                    `/api/pedidos-recurrentes/${cancelandoRecurrente.pedidoRecurrenteId}/cancelar`,
+                    {
+                      modo: cancelarModo,
+                      hastaFecha: cancelarModo === "periodo" ? cancelarHastaFecha : undefined,
+                      razon: cancelarRazon.trim() || undefined,
+                    }
+                  );
+                  toast.success(res.message || `${res.pedidosCancelados} pedido(s) cancelado(s)`);
+                  setCancelandoRecurrente(null);
+                  setCancelarHastaFecha("");
+                  setCancelarRazon("");
+                  cargar();
+                  onRefresh?.();
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "No se pudo cancelar");
+                } finally {
+                  setCancelandoRec(false);
+                }
+              }}
+            >
+              {cancelandoRec ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <XCircle className="mr-1 h-4 w-4" />}
+              Confirmar cancelación
             </Button>
           </DialogFooter>
         </DialogContent>
