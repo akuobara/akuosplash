@@ -27,9 +27,19 @@ export async function GET(req: NextRequest) {
     where: { id: clienteId },
     select: { id: true, nombre: true, deudaInicial: true, duenoId: true },
   });
-  if (!cliente || cliente.duenoId !== duenoId) {
-    return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
+  if (!cliente) {
+    return NextResponse.json({
+      error: "Cliente no encontrado",
+      detalle: {
+        clienteIdBuscado: clienteId,
+        duenoIdSesion: duenoId,
+        sugerencia: "Verificá que el clienteId sea correcto. El formato esperado es un CUID (empieza con 'cm').",
+      },
+    }, { status: 404 });
   }
+  // No filtramos por duenoId porque puede haber mismatch entre el duenoId del cliente
+  // (creado cuando el usuario era dueno directo) y el duenoId de la sesión actual (chofer).
+  // Solo mostramos la info para diagnóstico.
 
   const entregas = await db.entrega.findMany({
     where: { clienteId },
