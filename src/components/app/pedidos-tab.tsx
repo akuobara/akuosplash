@@ -117,6 +117,7 @@ interface Pedido {
   vueltaId: string | null;
   vuelta?: { id: string; numero: number } | null;
   pedidoRecurrenteId?: string | null;
+  orden?: number;
 }
 
 interface ClienteOption {
@@ -178,6 +179,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [cancelarHastaFecha, setCancelarHastaFecha] = useState("");
   const [cancelarRazon, setCancelarRazon] = useState("");
   const [cancelandoRec, setCancelandoRec] = useState(false);
+
+  // Drag & drop para reordenar pedidos del día
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [guardandoOrden, setGuardandoOrden] = useState(false);
 
   // Campos del formulario
   const [clienteId, setClienteId] = useState<string>("__nuevo");
@@ -305,13 +311,19 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
     porGrupo[key].push(p);
   }
   for (const key of Object.keys(porGrupo)) {
-    // Ordenar dentro del grupo: por fecha (asc), luego por nombre
-    porGrupo[key].sort((a, b) => {
-      const fa = a.fechaSolicitada ? new Date(a.fechaSolicitada).getTime() : 0;
-      const fb = b.fechaSolicitada ? new Date(b.fechaSolicitada).getTime() : 0;
-      if (fa !== fb) return fa - fb;
-      return a.clienteNombre.localeCompare(b.clienteNombre);
-    });
+    // Ordenar dentro del grupo:
+    //   - Si el grupo es "hoy" y los pedidos tienen orden > 0, ordenar por orden
+    //   - Sino, ordenar por fecha (asc) y luego por nombre
+    if (key === "hoy" && porGrupo[key].some((p) => (p.orden ?? 0) > 0)) {
+      porGrupo[key].sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+    } else {
+      porGrupo[key].sort((a, b) => {
+        const fa = a.fechaSolicitada ? new Date(a.fechaSolicitada).getTime() : 0;
+        const fb = b.fechaSolicitada ? new Date(b.fechaSolicitada).getTime() : 0;
+        if (fa !== fb) return fa - fb;
+        return a.clienteNombre.localeCompare(b.clienteNombre);
+      });
+    }
     const meta = GRUPO_LABELS[key];
     grupos.push({ key, ...meta, pedidos: porGrupo[key] });
   }
@@ -842,13 +854,85 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                     <span className="text-base">{grupo.emoji}</span>
                     <h3 className={`text-sm font-semibold ${grupo.color}`}>{grupo.label}</h3>
                     <Badge variant="secondary" className="text-[10px]">{grupo.pedidos.length}</Badge>
+                    {grupo.key === "hoy" && grupo.pedidos.length > 1 && (
+                      <span className="text-[10px] text-muted-foreground ml-1">
+                        · arrastrá para reordenar
+                      </span>
+                    )}
                   </div>
                   {/* Lista de pedidos del grupo */}
                   <Card>
                     <CardContent className="p-0">
                       <ul className="divide-y divide-border">
-                        {grupo.pedidos.map((p) => (
-                          <li key={p.id} className="flex items-center gap-3 p-3 sm:p-4">
+                        {grupo.pedidos.map((p, idx) => (
+                          <li
+                            key={p.id}
+                            draggable={grupo.key === "hoy"}
+                            onDragStart={(e) => {
+                              if (grupo.key !== "hoy") return;
+                              setDraggedId(p.id);
+                              e.dataTransfer.effectAllowed = "move";
+                              try {
+                                e.dataTransfer.setData("text/plain", p.id);
+                              } catch {}
+                            }}
+                            onDragEnd={() => {
+                              setDraggedId(null);
+                              setDragOverId(null);
+                            }}
+                            onDragOver={(e) => {
+                              if (grupo.key !== "hoy" || !draggedId || draggedId === p.id) return;
+                              e.preventDefault();
+                              e.dataTransfer.dropEffect = "move";
+                              setDragOverId(p.id);
+                            }}
+                            onDrop={async (e) => {
+                              if (grupo.key !== "hoy" || !draggedId || draggedId === p.id) return;
+                              e.preventDefault();
+                              // Reordenar: mover draggedId a la posición de p.id
+                              const nuevosOrdenes = (() => {
+                                const lista = [...grupo.pedidos];
+                                const fromIdx = lista.findIndex((x) => x.id === draggedId);
+                                const toIdx = lista.findIndex((x) => x.id === p.id);
+                                if (fromIdx === -1 || toIdx === -1) return null;
+                                const [movido] = lista.splice(fromIdx, 1);
+                                lista.splice(toIdx, 0, movido);
+                                return lista.map((ped, i) => ({ id: ped.id, orden: i + 1 }));
+                              })();
+                              setDragOverId(null);
+                              setDraggedId(null);
+                              if (!nuevosOrdenes) return;
+                              // Optimistic: actualizar el estado local de pedidos
+                              setPedidos((prev) => prev.map((ped) => {
+                                const nuevo = nuevosOrdenes.find((n) => n.id === ped.id);
+                                return nuevo ? { ...ped, orden: nuevo.orden } : ped;
+                              }));
+                              // Persistir en backend
+                              setGuardandoOrden(true);
+                              try {
+                                await apiPost("/api/pedidos/reordenar", { pedidos: nuevosOrdenes });
+                              } catch (err) {
+                                toast.error("No se pudo guardar el orden");
+                                cargar(); // revertir
+                              } finally {
+                                setGuardandoOrden(false);
+                              }
+                            }}
+                            className={`flex items-center gap-3 p-3 sm:p-4 transition-colors ${
+                              grupo.key === "hoy" ? "cursor-grab active:cursor-grabbing" : ""
+                            } ${
+                              draggedId === p.id ? "opacity-40" : ""
+                            } ${
+                              dragOverId === p.id && draggedId && draggedId !== p.id
+                                ? "border-t-2 border-t-primary"
+                                : ""
+                            }`}
+                          >
+                            {grupo.key === "hoy" && (
+                              <div className="shrink-0 text-muted-foreground/50 text-xs font-mono select-none" title="Arrastrá para reordenar">
+                                {String(idx + 1).padStart(2, "0")}
+                              </div>
+                            )}
                             <button
                               type="button"
                               onClick={() => setDetalle(p)}

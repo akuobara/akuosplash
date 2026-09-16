@@ -162,7 +162,24 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  return NextResponse.json({ pedidos });
+  // Adjuntar el campo `orden` (raw SQL porque la columna se agrega con migración lazy)
+  let ordenMap: Record<string, number> = {};
+  try {
+    const ordenRows: Array<{ id: string; orden: number }> = await db.$queryRawUnsafe(
+      `SELECT "id", "orden" FROM "Pedido" WHERE "id" IN (${pedidos.map(() => "?").join(",")});`,
+      ...pedidos.map((p) => p.id)
+    );
+    ordenMap = Object.fromEntries(ordenRows.map((r) => [r.id, r.orden]));
+  } catch {
+    // La columna `orden` no existe todavía — todos los pedidos tienen orden 0
+  }
+
+  const pedidosConOrden = pedidos.map((p) => ({
+    ...p,
+    orden: ordenMap[p.id] ?? 0,
+  }));
+
+  return NextResponse.json({ pedidos: pedidosConOrden });
 }
 
 // POST /api/pedidos
