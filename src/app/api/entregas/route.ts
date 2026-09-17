@@ -288,6 +288,44 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      // === Si la entrega incluye estanques, actualizar el perfil del cliente ===
+      // Esto resuelve el bug donde el form de entrega decía "el cliente no tiene estanques
+      // registrados" aunque ya le hubieras entregado con estanques antes. Los estanques
+      // se guardaban en la entrega (detalleEstanquesJson) pero no en el perfil del cliente
+      // (estanquesJson). Ahora los sincronizamos.
+      if (body.detalleEstanquesJson && body.clienteId) {
+        try {
+          const estanquesDeLaEntrega = JSON.parse(body.detalleEstanquesJson);
+          if (Array.isArray(estanquesDeLaEntrega) && estanquesDeLaEntrega.length > 0) {
+            // Convertir al formato del perfil del cliente
+            const estanquesParaCliente = estanquesDeLaEntrega.map((est: any) => ({
+              tipo: est.tipo || "estanque",
+              capacidad: String(est.capacidad || ""),
+              nombre: est.nombre || "",
+              ubicacion: est.ubicacion || "",
+              facturaSeparada: !!est.facturaSeparada,
+            }));
+            // Solo actualizar si el cliente no tiene estanques registrados
+            // (no sobrescribir si ya tiene su configuración personalizada)
+            const clienteActual = await tx.cliente.findUnique({
+              where: { id: body.clienteId },
+              select: { estanquesJson: true },
+            });
+            const estanquesActualesCliente = clienteActual?.estanquesJson
+              ? JSON.parse(clienteActual.estanquesJson)
+              : [];
+            if (!Array.isArray(estanquesActualesCliente) || estanquesActualesCliente.length === 0) {
+              await tx.cliente.update({
+                where: { id: body.clienteId },
+                data: { estanquesJson: JSON.stringify(estanquesParaCliente) },
+              });
+            }
+          }
+        } catch (e) {
+          console.error("Error actualizando estanquesJson del cliente:", e);
+        }
+      }
+
       return creada;
     });
 
