@@ -966,10 +966,37 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                       <Repeat className="h-2.5 w-2.5" /> Recurrente
                                     </Badge>
                                   )}
-                                  {/* Badge: quién agendó el pedido */}
-                                  {p.chofer && !p.pedidoRecurrenteId && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-muted-foreground" title={`Agendado por ${p.chofer.nombre}`}>
-                                      <UserCheck className="h-2.5 w-2.5" /> {p.chofer.nombre}
+                                </div>
+                                {/* Segunda fila de badges: asignación de chofer */}
+                                <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                  {/* Pedido publicado (sin chofer asignado) → disponible para todos los choferes */}
+                                  {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700" title="Este pedido está disponible para cualquier chofer de la flota">
+                                      <Package className="h-2.5 w-2.5" /> Disponible
+                                    </Badge>
+                                  )}
+                                  {/* Pedido tomado por un chofer (en ruta) */}
+                                  {p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700" title={`En ruta con ${p.tomadoPorChofer.nombre}`}>
+                                      <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre}
+                                    </Badge>
+                                  )}
+                                  {/* Pedido asignado a un chofer específico (aún no tomado) */}
+                                  {p.choferAsignado && !p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700" title={`Solo ${p.choferAsignado.nombre} puede entregar este pedido`}>
+                                      <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
+                                    </Badge>
+                                  )}
+                                  {/* Pedido sin chofer asignado ni publicación → solo admin lo ve */}
+                                  {isDueno && p.asignacionTipo !== "publicado" && !p.choferAsignado && !p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700" title="Sin chofer asignado. Solo el admin ve este pedido. Publicalo para que los choferes lo puedan tomar.">
+                                      <Users className="h-2.5 w-2.5" /> Sin asignar
+                                    </Badge>
+                                  )}
+                                  {/* Badge de franja horaria */}
+                                  {p.franjaHoraria && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Horario: ${labelFranjaHoraria(p.franjaHoraria)}`}>
+                                      <Clock className="h-2.5 w-2.5" /> {labelFranjaHoraria(p.franjaHoraria)}
                                     </Badge>
                                   )}
                                   {/* Badge: programado para fecha futura */}
@@ -986,53 +1013,10 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                     }
                                     return null;
                                   })()}
-                                  {/* Badge de franja horaria */}
-                                  {p.franjaHoraria && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Horario: ${labelFranjaHoraria(p.franjaHoraria)}`}>
-                                      <Clock className="h-2.5 w-2.5" /> {labelFranjaHoraria(p.franjaHoraria)}
-                                    </Badge>
-                                  )}
-                                  {/* Badges de asignación de chofer */}
-                                  {/* Pedido publicado (sin chofer asignado) → disponible para todos los choferes */}
-                                  {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700" title="Este pedido está disponible para cualquier chofer de la flota">
-                                      <Package className="h-2.5 w-2.5" /> Disponible
-                                    </Badge>
-                                  )}
-                                  {/* Pedido tomado por un chofer (en ruta) */}
-                                  {p.tomadoPorChofer && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700" title={`En ruta con ${p.tomadoPorChofer.nombre}`}>
-                                      <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre} (en ruta)
-                                    </Badge>
-                                  )}
-                                  {/* Pedido asignado a un chofer específico (aún no tomado) */}
-                                  {p.choferAsignado && !p.tomadoPorChofer && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700" title={`Solo ${p.choferAsignado.nombre} puede entregar este pedido`}>
-                                      <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
-                                    </Badge>
-                                  )}
-                                  {/* Pedido sin chofer asignado ni publicación → solo admin lo ve */}
-                                  {isDueno && p.asignacionTipo !== "publicado" && !p.choferAsignado && !p.tomadoPorChofer && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700" title="Sin chofer asignado. Solo el admin ve este pedido. Publicalo para que los choferes lo puedan tomar.">
-                                      <Users className="h-2.5 w-2.5" /> Sin asignar
-                                    </Badge>
-                                  )}
-                                  {p.prioridadChofer && p.prioridadTipo !== "ninguna" && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 text-amber-700 dark:text-amber-300" title={`Prioridad ${p.prioridadTipo} para ${p.prioridadChofer.nombre}`}>
-                                      <UserCheck className="h-2.5 w-2.5" /> {p.prioridadChofer.nombre}
-                                    </Badge>
-                                  )}
                                 </div>
-                                <p className="truncate text-xs text-muted-foreground">
+                                <p className="truncate text-xs text-muted-foreground mt-1">
                                   <Droplets className="mr-1 inline h-3 w-3" />
                                   {p.litrosSolicitados > 0 ? `${formatNumber(p.litrosSolicitados, 0)} L` : "Sin cantidad"} · {labelMetodoPago(p.metodoPagoPreferido)}
-                                  {p.fechaSolicitada && (
-                                    <>
-                                      <Calendar className="ml-2 inline h-3 w-3" />
-                                      {formatDateUTC(p.fechaSolicitada)}
-                                      {p.franjaHoraria && ` · ${labelFranjaHoraria(p.franjaHoraria)}`}
-                                    </>
-                                  )}
                                   {p.clienteTelefono && (
                                     <>
                                       <Phone className="ml-2 inline h-3 w-3" />
@@ -1041,89 +1025,94 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                   )}
                                 </p>
                               </div>
+                            </button>
+                            {/* Acciones rápidas visibles (no dentro del button) */}
+                            <div className="flex shrink-0 items-center gap-1">
                               {p.clienteLat != null && p.clienteLng != null && (
                                 <a
                                   href={`https://www.google.com/maps?q=${p.clienteLat},${p.clienteLng}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={(e) => e.stopPropagation()}
-                                  className="shrink-0 rounded-md p-1.5 text-primary hover:bg-primary/10"
+                                  className="rounded-md p-1.5 text-primary hover:bg-primary/10"
                                   title="Ver ubicación en Google Maps"
                                 >
                                   <Navigation className="h-4 w-4" />
                                 </a>
                               )}
-                            </button>
-                            {/* Botón visible: Tomar pedido (para choferes, pedidos disponibles no tomados) */}
-                            {!isDueno && p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
-                              <Button
-                                size="sm"
-                                variant="default"
-                                className="shrink-0 bg-purple-600 hover:bg-purple-700 text-[11px]"
-                                disabled={tomandoPedidoId === p.id}
-                                onClick={() => tomarPedido(p)}
-                                title="Tomar este pedido para tu ruta"
-                              >
-                                {tomandoPedidoId === p.id ? (
-                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                                ) : (
-                                  <Truck className="mr-1 h-3 w-3" />
-                                )}
-                                Tomar
-                              </Button>
-                            )}
-                            {/* Botón visible: Convertir en entrega (para pedidos propios o asignados a mí) */}
-                            {canCreate && !isDueno && p.estado !== "entregado" && p.estado !== "cancelado" && (
-                              p.choferAsignado?.id === currentUserId ||
-                              p.tomadoPorChofer?.id === currentUserId ||
-                              p.chofer?.id === currentUserId
-                            ) && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="shrink-0 text-[11px]"
-                                onClick={() => abrirConvertir(p)}
-                                title="Registrar entrega para este pedido"
-                              >
-                                <Plus className="mr-1 h-3 w-3" /> Entregar
-                              </Button>
-                            )}
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                                  <MoreVertical className="h-4 w-4" />
+                              {/* Botón visible: Tomar pedido (para choferes, pedidos disponibles no tomados) */}
+                              {!isDueno && p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="bg-purple-600 hover:bg-purple-700 text-[11px] h-7 px-2"
+                                  disabled={tomandoPedidoId === p.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    tomarPedido(p);
+                                  }}
+                                  title="Tomar este pedido para tu ruta"
+                                >
+                                  {tomandoPedidoId === p.id ? (
+                                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <Truck className="mr-1 h-3 w-3" />
+                                  )}
+                                  Tomar
                                 </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setDetalle(p)}>
-                                  <Eye className="mr-2 h-4 w-4" /> Ver detalle
-                                </DropdownMenuItem>
-                                {canCreate && !isDueno && p.estado !== "entregado" && p.estado !== "cancelado" && (
-                                  <>
-                                    {/* Solo mostrar "Convertir en entrega" si:
-                                        - El usuario es el chofer preferido del cliente, OR
-                                        - El cliente no tiene chofer preferido (cualquiera puede entregar) */}
-                                    {(() => {
-                                const clientePedido = p.clienteId ? clientes.find(c => c.id === p.clienteId) : null;
-                                const choferPrefId = clientePedido?.choferPreferidoId;
-                                const puedeConvertir = !choferPrefId || choferPrefId === currentUserId;
-                                if (!puedeConvertir) return null;
-                                return (
-                                  <DropdownMenuItem onClick={() => abrirConvertir(p)}>
-                                    <CheckCircle2 className="mr-2 h-4 w-4" /> Convertir en entrega
-                                  </DropdownMenuItem>
-                                );
-                              })()}
-                              <DropdownMenuItem onClick={() => abrirEditar(p)}>
-                                <Pencil className="mr-2 h-4 w-4" /> Editar
-                              </DropdownMenuItem>
-
-                              {/* Acciones de asignación */}
-                              {isDueno && p.asignacionTipo === "manual" && !p.tomadoPorChofer && (
-                                <DropdownMenuItem onClick={() => publicarPedido(p)}>
-                                  <Package className="mr-2 h-4 w-4" /> Publicar para choferes
-                                </DropdownMenuItem>
                               )}
+                              {/* Botón visible: Entregar (para pedidos propios o asignados a mí) */}
+                              {canCreate && !isDueno && p.estado !== "entregado" && p.estado !== "cancelado" && (
+                                p.choferAsignado?.id === currentUserId ||
+                                p.tomadoPorChofer?.id === currentUserId ||
+                                p.chofer?.id === currentUserId
+                              ) && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-[11px] h-7 px-2"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    abrirConvertir(p);
+                                  }}
+                                  title="Registrar entrega para este pedido"
+                                >
+                                  <Plus className="mr-1 h-3 w-3" /> Entregar
+                                </Button>
+                              )}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => setDetalle(p)}>
+                                    <Eye className="mr-2 h-4 w-4" /> Ver detalle
+                                  </DropdownMenuItem>
+                                  {canCreate && !isDueno && p.estado !== "entregado" && p.estado !== "cancelado" && (
+                                    (() => {
+                                      const clientePedido = p.clienteId ? clientes.find(c => c.id === p.clienteId) : null;
+                                      const choferPrefId = clientePedido?.choferPreferidoId;
+                                      const puedeConvertir = !choferPrefId || choferPrefId === currentUserId;
+                                      if (!puedeConvertir) return null;
+                                      return (
+                                        <DropdownMenuItem onClick={() => abrirConvertir(p)}>
+                                          <CheckCircle2 className="mr-2 h-4 w-4" /> Convertir en entrega
+                                        </DropdownMenuItem>
+                                      );
+                                    })()
+                                  )}
+                                  <DropdownMenuItem onClick={() => abrirEditar(p)}>
+                                    <Pencil className="mr-2 h-4 w-4" /> Editar
+                                  </DropdownMenuItem>
+
+                                  {/* Acciones de asignación */}
+                                  {isDueno && p.asignacionTipo === "manual" && !p.tomadoPorChofer && (
+                                    <DropdownMenuItem onClick={() => publicarPedido(p)}>
+                                      <Package className="mr-2 h-4 w-4" /> Publicar para choferes
+                                    </DropdownMenuItem>
+                                  )}
                               {/* "Tomar pedido" está como botón visible arriba, no en el menú */}
                               {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
                                 <DropdownMenuItem onClick={() => cederPrioridad(p, false)}>
@@ -1171,15 +1160,14 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Eliminar
                               </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
                 </div>
               ))}
             </div>
