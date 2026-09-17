@@ -919,7 +919,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 setGuardandoOrden(false);
                               }
                             }}
-                            className={`flex items-center gap-3 p-3 sm:p-4 transition-colors border-l-4 ${
+                            className={`flex flex-col p-3 sm:p-4 transition-colors border-l-4 ${
                               // Borde lateral de color según asignación
                               p.tomadoPorChofer
                                 ? "border-l-blue-500"
@@ -938,17 +938,18 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 : ""
                             }`}
                           >
+                            <div className="flex items-start gap-2 w-full">
                             {grupo.key === "hoy" && (
-                              <div className="shrink-0 cursor-grab text-muted-foreground/30 active:cursor-grabbing" title="Arrastrá para reordenar">
+                              <div className="shrink-0 self-start cursor-grab text-muted-foreground/30 active:cursor-grabbing mt-1" title="Arrastrá para reordenar">
                                 <GripVertical className="h-4 w-4" />
                               </div>
                             )}
                             <button
                               type="button"
                               onClick={() => setDetalle(p)}
-                              className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                              className="flex min-w-0 flex-1 items-start gap-3 text-left"
                             >
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">
                                 <Package className="h-5 w-5" />
                               </div>
                               <div className="min-w-0 flex-1">
@@ -960,7 +961,6 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                   {p.clienteZona && (
                                     <Badge variant="outline" className="text-[10px]">{p.clienteZona}</Badge>
                                   )}
-                                  {/* Badge: pedido recurrente */}
                                   {p.pedidoRecurrenteId && (
                                     <Badge variant="outline" className="text-[10px] gap-0.5 bg-primary/10 text-primary border-primary/30" title="Pedido generado desde una regla recurrente">
                                       <Repeat className="h-2.5 w-2.5" /> Recurrente
@@ -969,37 +969,31 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 </div>
                                 {/* Segunda fila de badges: asignación de chofer */}
                                 <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                                  {/* Pedido publicado (sin chofer asignado) → disponible para todos los choferes */}
                                   {p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
                                     <Badge variant="outline" className="text-[10px] gap-0.5 bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700" title="Este pedido está disponible para cualquier chofer de la flota">
                                       <Package className="h-2.5 w-2.5" /> Disponible
                                     </Badge>
                                   )}
-                                  {/* Pedido tomado por un chofer (en ruta) */}
                                   {p.tomadoPorChofer && (
                                     <Badge variant="outline" className="text-[10px] gap-0.5 bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700" title={`En ruta con ${p.tomadoPorChofer.nombre}`}>
                                       <Truck className="h-2.5 w-2.5" /> {p.tomadoPorChofer.nombre}
                                     </Badge>
                                   )}
-                                  {/* Pedido asignado a un chofer específico (aún no tomado) */}
                                   {p.choferAsignado && !p.tomadoPorChofer && (
                                     <Badge variant="outline" className="text-[10px] gap-0.5 bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700" title={`Solo ${p.choferAsignado.nombre} puede entregar este pedido`}>
                                       <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
                                     </Badge>
                                   )}
-                                  {/* Pedido sin chofer asignado ni publicación → solo admin lo ve */}
                                   {isDueno && p.asignacionTipo !== "publicado" && !p.choferAsignado && !p.tomadoPorChofer && (
                                     <Badge variant="outline" className="text-[10px] gap-0.5 bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700" title="Sin chofer asignado. Solo el admin ve este pedido. Publicalo para que los choferes lo puedan tomar.">
                                       <Users className="h-2.5 w-2.5" /> Sin asignar
                                     </Badge>
                                   )}
-                                  {/* Badge de franja horaria */}
                                   {p.franjaHoraria && (
                                     <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 dark:text-blue-300" title={`Horario: ${labelFranjaHoraria(p.franjaHoraria)}`}>
                                       <Clock className="h-2.5 w-2.5" /> {labelFranjaHoraria(p.franjaHoraria)}
                                     </Badge>
                                   )}
-                                  {/* Badge: programado para fecha futura */}
                                   {p.fechaSolicitada && (() => {
                                     const fecha = new Date(p.fechaSolicitada);
                                     const fHoy = new Date();
@@ -1026,8 +1020,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 </p>
                               </div>
                             </button>
-                            {/* Acciones rápidas visibles (no dentro del button) */}
-                            <div className="flex shrink-0 items-center gap-1">
+                            </div>
+                            {/* Acciones rápidas visibles — fila separada abajo para evitar overlap */}
+                            <div className="flex shrink-0 items-center justify-end gap-1 mt-2 pt-2 border-t border-dashed w-full">
                               {p.clienteLat != null && p.clienteLng != null && (
                                 <a
                                   href={`https://www.google.com/maps?q=${p.clienteLat},${p.clienteLng}`}
@@ -1040,7 +1035,6 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                   <Navigation className="h-4 w-4" />
                                 </a>
                               )}
-                              {/* Botón visible: Tomar pedido (para choferes, pedidos disponibles no tomados) */}
                               {!isDueno && p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
                                 <Button
                                   size="sm"
@@ -1061,7 +1055,6 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                   Tomar
                                 </Button>
                               )}
-                              {/* Botón visible: Entregar (para pedidos propios o asignados a mí) */}
                               {canCreate && !isDueno && p.estado !== "entregado" && p.estado !== "cancelado" && (
                                 p.choferAsignado?.id === currentUserId ||
                                 p.tomadoPorChofer?.id === currentUserId ||
@@ -1113,55 +1106,52 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                       <Package className="mr-2 h-4 w-4" /> Publicar para choferes
                                     </DropdownMenuItem>
                                   )}
-                              {/* "Tomar pedido" está como botón visible arriba, no en el menú */}
-                              {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
-                                <DropdownMenuItem onClick={() => cederPrioridad(p, false)}>
-                                  <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (este caso)
-                                </DropdownMenuItem>
-                              )}
-                              {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
-                                <DropdownMenuItem onClick={() => cederPrioridad(p, true)}>
-                                  <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (permanente)
-                                </DropdownMenuItem>
-                              )}
-                              {/* Soltar pedido: chofer que tiene el pedido asignado/tomado/prioridad */}
-                              {!isDueno && (
-                                p.tomadoPorChofer?.id === currentUserId ||
-                                p.choferAsignado?.id === currentUserId ||
-                                (p.prioridadChofer?.id === currentUserId)
-                              ) && (
-                                <DropdownMenuItem onClick={() => setSoltandoPedido(p)} className="text-amber-600 focus:text-amber-600">
-                                  <Hand className="mr-2 h-4 w-4" /> Soltar pedido
-                                </DropdownMenuItem>
-                              )}
+                                  {/* "Tomar pedido" está como botón visible arriba, no en el menú */}
+                                  {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
+                                    <DropdownMenuItem onClick={() => cederPrioridad(p, false)}>
+                                      <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (este caso)
+                                    </DropdownMenuItem>
+                                  )}
+                                  {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
+                                    <DropdownMenuItem onClick={() => cederPrioridad(p, true)}>
+                                      <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (permanente)
+                                    </DropdownMenuItem>
+                                  )}
+                                  {!isDueno && (
+                                    p.tomadoPorChofer?.id === currentUserId ||
+                                    p.choferAsignado?.id === currentUserId ||
+                                    (p.prioridadChofer?.id === currentUserId)
+                                  ) && (
+                                    <DropdownMenuItem onClick={() => setSoltandoPedido(p)} className="text-amber-600 focus:text-amber-600">
+                                      <Hand className="mr-2 h-4 w-4" /> Soltar pedido
+                                    </DropdownMenuItem>
+                                  )}
 
-                              {p.estado === "pendiente" && (
-                                <DropdownMenuItem onClick={() => cambiarEstado(p, "programado")}>
-                                  <Clock className="mr-2 h-4 w-4" /> Marcar programado
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem onClick={() => {
-                                if (p.pedidoRecurrenteId) {
-                                  // Si es recurrente, abrir el diálogo con opciones
-                                  setCancelandoRecurrente(p);
-                                  setCancelarModo("proximo");
-                                  setCancelarHastaFecha("");
-                                  setCancelarRazon("");
-                                } else {
-                                  // Si no es recurrente, cancelar directo
-                                  cambiarEstado(p, "cancelado");
-                                }
-                              }}>
-                                <XCircle className="mr-2 h-4 w-4" /> Cancelar pedido
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => setBorrando(p)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                                  {p.estado === "pendiente" && (
+                                    <DropdownMenuItem onClick={() => cambiarEstado(p, "programado")}>
+                                      <Clock className="mr-2 h-4 w-4" /> Marcar programado
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuItem onClick={() => {
+                                    if (p.pedidoRecurrenteId) {
+                                      setCancelandoRecurrente(p);
+                                      setCancelarModo("proximo");
+                                      setCancelarHastaFecha("");
+                                      setCancelarRazon("");
+                                    } else {
+                                      cambiarEstado(p, "cancelado");
+                                    }
+                                  }}>
+                                    <XCircle className="mr-2 h-4 w-4" /> Cancelar pedido
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => setBorrando(p)}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </li>
                         ))}
