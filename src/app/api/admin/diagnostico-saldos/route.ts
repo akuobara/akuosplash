@@ -36,7 +36,7 @@ export async function GET(_req: NextRequest) {
     const [entregas, pagos] = await Promise.all([
       db.entrega.findMany({
         where: { clienteId: c.id },
-        select: { id: true, fecha: true, litros: true, total: true, montoRecibido: true, estadoPago: true },
+        select: { id: true, fecha: true, litros: true, total: true, montoRecibido: true, estadoPago: true, detalleEstanquesJson: true },
       }),
       db.pago.findMany({
         where: { clienteId: c.id },
@@ -71,8 +71,19 @@ export async function GET(_req: NextRequest) {
       );
       for (const e of underpay) {
         const fecha = new Date(e.fecha).toLocaleDateString("es-CL");
+        // Parsear detalleEstanquesJson si existe
+        let estanqueInfo = "";
+        if (e.detalleEstanquesJson) {
+          try {
+            const estanques = JSON.parse(e.detalleEstanquesJson);
+            if (Array.isArray(estanques) && estanques.length > 0) {
+              const totalEstanques = estanques.reduce((s: number, est: any) => s + (Number(est.total) || 0), 0);
+              estanqueInfo = ` · estanques: ${estanques.length} · suma estanques: ${fmtCLP(totalEstanques)}${totalEstanques !== e.total ? ' <span style="color:#dc2626;font-weight:700;">(≠ total guardado — BUG)</span>' : ''}`;
+            }
+          } catch {}
+        }
         problemas.push(
-          `<div class="problema problema-underpay-detalle"> &nbsp;↳ ${fecha}: ${e.litros} L · Total ${fmtCLP(e.total)} · Recibido ${fmtCLP(e.montoRecibido)} · Falta ${fmtCLP(e.total - e.montoRecibido)} (${e.estadoPago})</div>`
+          `<div class="problema problema-underpay-detalle"> &nbsp;↳ <a href="/api/admin/debug-entrega?id=${e.id}" target="_blank" style="color:#9a3412;text-decoration:underline;">${fecha}</a>: ${e.litros} L · Total ${fmtCLP(e.total)} · Recibido ${fmtCLP(e.montoRecibido)} · Falta ${fmtCLP(e.total - e.montoRecibido)} (${e.estadoPago})${estanqueInfo}</div>`
         );
       }
     }
