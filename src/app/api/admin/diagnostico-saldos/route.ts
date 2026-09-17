@@ -238,7 +238,9 @@ export async function GET(_req: NextRequest) {
       No necesitás loguearte de nuevo — ya estás logueado.
     </p>
     <a class="btn btn-danger" href="/api/admin/fix-pagos-duplicados?confirmar=true" target="_blank">🚨 Borrar pagos duplicados</a>
-    <a class="btn btn-danger" href="/api/admin/fix-entregas-underpay" target="_blank">💸 Detectar underpay (dry-run)</a>
+    <a class="btn btn-danger" href="/api/admin/fix-estanques-credito-a-efectivo" target="_blank">💸 Detectar estanques crédito (dry-run)</a>
+    <a class="btn btn-danger" href="/api/admin/fix-estanques-credito-a-efectivo?confirmar=true" target="_blank">✅ Arreglar estanques crédito → efectivo</a>
+    <a class="btn btn-danger" href="/api/admin/fix-entregas-underpay" target="_blank">📊 Detectar underpay (dry-run)</a>
     <a class="btn btn-warning" href="/api/admin/sincronizar-estanques-cliente" target="_blank">🛢️ Sincronizar estanques</a>
     <a class="btn btn-primary" href="/api/admin/fix-totales-estanques" target="_blank">🔧 Recalcular totales estanques</a>
     <a class="btn btn-primary" href="/api/admin/fix-gasto-pagado-por?corregirTodos=1" target="_blank">💰 Arreglar gastos pagados por dueño</a>
