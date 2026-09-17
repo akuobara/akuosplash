@@ -185,6 +185,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [guardandoOrden, setGuardandoOrden] = useState(false);
+  const [tomandoPedidoId, setTomandoPedidoId] = useState<string | null>(null);
 
   // Campos del formulario
   const [clienteId, setClienteId] = useState<string>("__nuevo");
@@ -709,12 +710,16 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   }
 
   async function tomarPedido(p: Pedido) {
+    setTomandoPedidoId(p.id);
     try {
       await apiPost(`/api/pedidos/${p.id}/tomar`, {});
       toast.success("Pedido tomado");
       onRefresh();
+      cargar();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No se pudo tomar el pedido");
+    } finally {
+      setTomandoPedidoId(null);
     }
   }
 
@@ -1006,9 +1011,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                       <UserCheck className="h-2.5 w-2.5" /> {p.choferAsignado.nombre}
                                     </Badge>
                                   )}
-                                  {/* Pedido sin chofer asignado ni publicación → solo admin puede verlo */}
-                                  {p.asignacionTipo !== "publicado" && !p.choferAsignado && !p.tomadoPorChofer && (
-                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700" title="Sin chofer asignado. Solo el admin ve este pedido.">
+                                  {/* Pedido sin chofer asignado ni publicación → solo admin lo ve */}
+                                  {isDueno && p.asignacionTipo !== "publicado" && !p.choferAsignado && !p.tomadoPorChofer && (
+                                    <Badge variant="outline" className="text-[10px] gap-0.5 bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700" title="Sin chofer asignado. Solo el admin ve este pedido. Publicalo para que los choferes lo puedan tomar.">
                                       <Users className="h-2.5 w-2.5" /> Sin asignar
                                     </Badge>
                                   )}
@@ -1049,6 +1054,40 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                 </a>
                               )}
                             </button>
+                            {/* Botón visible: Tomar pedido (para choferes, pedidos disponibles no tomados) */}
+                            {!isDueno && p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="shrink-0 bg-purple-600 hover:bg-purple-700 text-[11px]"
+                                disabled={tomandoPedidoId === p.id}
+                                onClick={() => tomarPedido(p)}
+                                title="Tomar este pedido para tu ruta"
+                              >
+                                {tomandoPedidoId === p.id ? (
+                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Truck className="mr-1 h-3 w-3" />
+                                )}
+                                Tomar
+                              </Button>
+                            )}
+                            {/* Botón visible: Convertir en entrega (para pedidos propios o asignados a mí) */}
+                            {canCreate && !isDueno && p.estado !== "entregado" && p.estado !== "cancelado" && (
+                              p.choferAsignado?.id === currentUserId ||
+                              p.tomadoPorChofer?.id === currentUserId ||
+                              p.chofer?.id === currentUserId
+                            ) && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="shrink-0 text-[11px]"
+                                onClick={() => abrirConvertir(p)}
+                                title="Registrar entrega para este pedido"
+                              >
+                                <Plus className="mr-1 h-3 w-3" /> Entregar
+                              </Button>
+                            )}
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
@@ -1085,11 +1124,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                                   <Package className="mr-2 h-4 w-4" /> Publicar para choferes
                                 </DropdownMenuItem>
                               )}
-                              {!isDueno && p.asignacionTipo === "publicado" && !p.tomadoPorChofer && (
-                                <DropdownMenuItem onClick={() => tomarPedido(p)}>
-                                  <Truck className="mr-2 h-4 w-4" /> Tomar pedido
-                                </DropdownMenuItem>
-                              )}
+                              {/* "Tomar pedido" está como botón visible arriba, no en el menú */}
                               {!isDueno && p.prioridadChofer && p.prioridadChofer.id === currentUserId && (
                                 <DropdownMenuItem onClick={() => cederPrioridad(p, false)}>
                                   <UserCheck className="mr-2 h-4 w-4" /> Ceder prioridad (este caso)
