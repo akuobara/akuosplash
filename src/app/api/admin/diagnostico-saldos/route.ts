@@ -62,6 +62,21 @@ export async function GET(_req: NextRequest) {
       );
     }
 
+    // 1b. Under-pay: entregas con montoRecibido < total (pagos parciales o sin pagar)
+    const underpay = entregas.filter((e) => e.montoRecibido < e.total && e.total > 0);
+    if (underpay.length > 0) {
+      const totalFalta = underpay.reduce((s, e) => s + (e.total - e.montoRecibido), 0);
+      problemas.push(
+        `<div class="problema problema-underpay">💸 <strong>${underpay.length} entrega(s) con pago faltante</strong> — el cliente pagó menos que el total. Falta: ${fmtCLP(totalFalta)}. Entregas:</div>`
+      );
+      for (const e of underpay) {
+        const fecha = new Date(e.fecha).toLocaleDateString("es-CL");
+        problemas.push(
+          `<div class="problema problema-underpay-detalle"> &nbsp;↳ ${fecha}: ${e.litros} L · Total ${fmtCLP(e.total)} · Recibido ${fmtCLP(e.montoRecibido)} · Falta ${fmtCLP(e.total - e.montoRecibido)} (${e.estadoPago})</div>`
+        );
+      }
+    }
+
     // 2. Pago suelto duplicado: pago con monto == montoRecibido de una entrega del mismo día
     for (const p of pagos) {
       const fechaPago = new Date(p.fecha);
@@ -177,6 +192,8 @@ export async function GET(_req: NextRequest) {
   .problema-overpay { background: #fef3c7; color: #92400e; }
   .problema-duplicado { background: #fee2e2; color: #991b1b; }
   .problema-deuda-inicial { background: #ede9fe; color: #5b21b6; }
+  .problema-underpay { background: #ffedd5; color: #9a3412; font-weight: 600; }
+  .problema-underpay-detalle { background: #ffedd5; color: #9a3412; font-family: monospace; font-size: 10px; }
 </style>
 </head>
 <body>
@@ -210,6 +227,7 @@ export async function GET(_req: NextRequest) {
       No necesitás loguearte de nuevo — ya estás logueado.
     </p>
     <a class="btn btn-danger" href="/api/admin/fix-pagos-duplicados?confirmar=true" target="_blank">🚨 Borrar pagos duplicados</a>
+    <a class="btn btn-danger" href="/api/admin/fix-entregas-underpay" target="_blank">💸 Detectar underpay (dry-run)</a>
     <a class="btn btn-warning" href="/api/admin/sincronizar-estanques-cliente" target="_blank">🛢️ Sincronizar estanques</a>
     <a class="btn btn-primary" href="/api/admin/fix-totales-estanques" target="_blank">🔧 Recalcular totales estanques</a>
     <a class="btn btn-primary" href="/api/admin/fix-gasto-pagado-por?corregirTodos=1" target="_blank">💰 Arreglar gastos pagados por dueño</a>
