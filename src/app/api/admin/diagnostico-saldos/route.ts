@@ -165,6 +165,7 @@ export async function GET(_req: NextRequest) {
           ${tieneProblemas ? problemas.join("") : '<span style="color:#9ca3af;">— sin problemas —</span>'}
           <br>
           <a href="/api/admin/debug-cliente-saldo?clienteId=${c.id}" target="_blank" style="color:#2563eb;font-size:10px;">ver detalle →</a>
+          ${saldoFinal !== 0 ? `&nbsp;·&nbsp;<a href="/api/admin/zerar-deuda-cliente?clienteId=${c.id}" target="_blank" style="color:#dc2626;font-size:10px;font-weight:700;" onclick="return confirm('¿ZERAR la deuda de ${escapeHtml(c.nombre).replace(/'/g, "\\'")}? Se van a marcar todas sus entregas como pagadas y se borran los pagos sueltos. Solo hacerlo si la deuda es imaginaria.');">🗑️ ZERAR DEUDA</a>` : ''}
         </td>
       </tr>
     `);
