@@ -506,7 +506,13 @@ export default function Home() {
                   vistos.add(key);
                   return true;
                 });
-                return unicos.map(p => ({
+                // ORDENAR: si alguno tiene campo `orden` > 0, usar ese.
+                // Sino, mantener orden por defecto (como viene de la API).
+                const algunoConOrden = unicos.some(p => (p as any).orden && (p as any).orden! > 0);
+                const ordenados = algunoConOrden
+                  ? [...unicos].sort((a, b) => ((a as any).orden || 0) - ((b as any).orden || 0))
+                  : unicos;
+                return ordenados.map(p => ({
                   id: p.id,
                   clienteNombre: p.clienteNombre,
                   clienteId: p.clienteId,
