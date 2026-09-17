@@ -1758,7 +1758,7 @@ export function EntregaForm({
                     <div className="flex items-center justify-between text-[10px]">
                       {est.metodoPago === "credito" ? (
                         <>
-                          <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400">Se definirá al cobrar</strong></span>
+                          <span className="text-muted-foreground">Total: <strong className="text-amber-600 dark:text-amber-400 tabular-nums">{formatCurrency(totalEst)}</strong> <span className="text-[9px]">(a crédito)</span></span>
                           <span className="text-amber-600 dark:text-amber-400">Pendiente</span>
                         </>
                       ) : (
@@ -1793,9 +1793,12 @@ export function EntregaForm({
                       <div>
                         <p className="text-[10px] uppercase text-muted-foreground">Total venta</p>
                         {haySinPago && totalVentaEst === 0 ? (
-                          <p className="font-bold text-amber-600 dark:text-amber-400 text-xs">Se definirá al cobrar</p>
+                          <p className="font-bold text-amber-600 dark:text-amber-400 text-xs">Ingresá litros y precio</p>
                         ) : (
-                          <p className="font-bold tabular-nums">{formatCurrency(totalVentaEst)}</p>
+                          <p className={`font-bold tabular-nums ${haySinPago ? "text-amber-600 dark:text-amber-400" : ""}`} title={haySinPago ? "Parte del total está a crédito" : ""}>
+                            {formatCurrency(totalVentaEst)}
+                            {haySinPago && <span className="text-[9px] font-normal ml-1">(parcial a crédito)</span>}
+                          </p>
                         )}
                       </div>
                       <div>
