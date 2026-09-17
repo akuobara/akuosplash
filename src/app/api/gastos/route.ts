@@ -63,9 +63,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Choferes siempre son "chofer" como pagador; solo el dueño puede registrar gastos pagados por él
     // Validar que pagadoPor es "chofer" o "dueno"
-    let pagadoPor = session.role === "chofer" ? "chofer" : (body.pagadoPor || "chofer");
+    // Permite que el chofer registre gastos pagados por el dueño (ej: combustible
+    // que el dueño pagó con su tarjeta, pero el chofer es quien hace el registro).
+    let pagadoPor = body.pagadoPor || "chofer";
     if (pagadoPor !== "chofer" && pagadoPor !== "dueno") {
       pagadoPor = "chofer";
     }
