@@ -122,8 +122,20 @@ export async function apiDelete<T>(path: string): Promise<T> {
 }
 
 export async function uploadFile(file: File): Promise<string> {
+  // Comprimir imagen antes de subir (si es una imagen)
+  let fileToUpload: File = file;
+  if (file.type.startsWith("image/")) {
+    try {
+      const { compressImageClient } = await import("./image-compress");
+      fileToUpload = await compressImageClient(file);
+    } catch (e) {
+      // Si falla la compresión, subir el original
+      console.warn("No se pudo comprimir la imagen, subiendo original:", e);
+    }
+  }
+
   const fd = new FormData();
-  fd.append("file", file);
+  fd.append("file", fileToUpload);
   const res = await fetch("/api/upload", {
     method: "POST",
     body: fd,
