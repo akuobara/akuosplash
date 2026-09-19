@@ -103,34 +103,12 @@ export async function POST(req: NextRequest) {
     (Math.max(0, configActual?.aplicaImpuestoSobre === "pago_chofer" ? pagoChofer : configActual?.aplicaImpuestoSobre === "utilidad_bruta" ? utilidadBruta : totalVentas) * (configActual?.porcentajeImpuesto ?? 0)) / 100;
 
   const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
-  // Saldo arrastrado del período anterior (lo que el dueno le debía al chofer)
+  // Saldo arrastrado del período anterior (lo que el dueno le debía al chofer).
+  // El cobro del saldo anterior es solo una NOTATION, no una transferencia de cash.
+  // La transferencia real pasa al cerrar el período. Por eso el saldo arrastrado
+  // se suma entero en el cálculo, incluso si el chofer ya "cobró".
   const saldoArrastradoAnterior = configActual?.saldoPendienteLiquidacion || 0;
-
-  // === DETECTAR COBROS DE SALDO ANTERIOR HECHOS EN ESTE PERÍODO ===
-  // Si el chofer ya cobró (parcial o totalmente) el saldo del período anterior,
-  // esa cantidad se descuenta del saldo arrastrado (porque ya se la pagaron).
-  // Sino, el saldo se suma dos veces: una como "+ Saldo período anterior"
-  // y otra como el efectivo que el chofer tiene en mano por el cobro.
-  //
-  // Los cobros se registran como Pagos con descripcion "Cobro de saldo anterior..."
-  // y el endpoint /api/liquidacion/periodo los EXCLUYE del efectivoTotal.
-  // Por eso hay que descontarlos acá del saldo arrastrado antes de calcular.
-  const esCobroSaldoAnterior = (descripcion: string | null) => {
-    if (!descripcion) return false;
-    const d = descripcion.toLowerCase();
-    return (
-      d.includes("cobro de saldo anterior") ||
-      d.includes("pago de saldo") ||
-      (d.includes("saldo") && (d.includes("anterior") || d.includes("liquidación") || d.includes("liquidacion")))
-    );
-  };
-  const cobrosSaldoAnterior = pagos
-    .filter(p => esCobroSaldoAnterior(p.descripcion))
-    .reduce((s, p) => s + p.monto, 0);
-  // Saldo arrastrado efectivo = saldo anterior - lo que ya se cobró
-  const saldoArrastradoEfectivo = Math.max(0, saldoArrastradoAnterior - cobrosSaldoAnterior);
-
-  const saldoFinal = liquidoChofer - efectivoTotal + saldoArrastradoEfectivo;
+  const saldoFinal = liquidoChofer - efectivoTotal + saldoArrastradoAnterior;
 
   // Actualizar ultimoCierre + guardar el saldo final como arrastre para el próximo período
   const config = await db.configuracion.update({
