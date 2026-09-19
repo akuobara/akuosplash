@@ -223,6 +223,24 @@ def main():
     url = final.get("url") or (final.get("alias") or [None])[0]
     print(f"\n✅ READY: https://{url}")
 
+    # === Assign production domain to this deploy ===
+    # Without this, my-project-azure-five-82.vercel.app keeps pointing to an old deploy
+    production_domain = "my-project-azure-five-82.vercel.app"
+    print(f"→ Assigning production domain {production_domain} to deploy {deploy_id}...")
+    try:
+        alias_resp = requests.post(
+            f"https://api.vercel.com/v2/deployments/{deploy_id}/aliases?teamId={TEAM_ID}",
+            json={"alias": production_domain},
+            headers={"Authorization": f"Bearer {TOKEN}"},
+            timeout=30,
+        )
+        if alias_resp.status_code in (200, 201):
+            print(f"  ✓ Production domain assigned to {production_domain}")
+        else:
+            print(f"  WARN: alias assignment HTTP {alias_resp.status_code}: {alias_resp.text[:200]}", file=sys.stderr)
+    except Exception as e:
+        print(f"  WARN: couldn't assign alias: {e}", file=sys.stderr)
+
 
 if __name__ == "__main__":
     main()
