@@ -28,10 +28,13 @@ TEAM_ID = "team_BcC6nLGDaPF8NFDXQ6q97JsX"
 TOKEN = open(f"{PROJECT_ROOT}/.vercel-token").read().strip()
 
 SKIP_DIRS = {
-    ".git", "node_modules", ".next", "db", "upload", "download",
+    ".git", "node_modules", ".next", "db", "download",
     "tool-results", "agent-ctx", "scripts", "examples", "mini-services",
     "skills", ".turbo", "coverage",
 }
+# Estos solo se saltan al nivel TOP-LEVEL (directamente bajo /home/z/my-project)
+# No se aplican a subdirectorios (ej: src/app/api/upload/ NO se debe saltar)
+SKIP_TOP_LEVEL_DIRS = {"upload"}
 SKIP_FILES = {
     ".vercel-token", ".git-credentials", ".env.local", ".env.production",
     "package-lock.json", "bun.lock", ".DS_Store",
@@ -43,8 +46,15 @@ def collect_files():
     """Walk the project, return list of {file, sha, size, content}."""
     files = []
     for root, dirs, fnames in os.walk(PROJECT_ROOT, topdown=True):
-        # filter dirs in place
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS and not d.startswith(".git")]
+        # Filter dirs in place:
+        # - SKIP_DIRS se aplica en cualquier nivel (node_modules, .git, etc.)
+        # - SKIP_TOP_LEVEL_DIRS solo al nivel raíz (ej: upload/ para screenshots)
+        rel_root = os.path.relpath(root, PROJECT_ROOT)
+        is_top_level = rel_root == "."
+        dirs[:] = [d for d in dirs
+                   if d not in SKIP_DIRS
+                   and not d.startswith(".git")
+                   and not (is_top_level and d in SKIP_TOP_LEVEL_DIRS)]
         for fname in fnames:
             if fname in SKIP_FILES:
                 continue
