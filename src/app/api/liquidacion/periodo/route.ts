@@ -201,7 +201,18 @@ export async function GET(req: NextRequest) {
   // Detectar también GASTOS fantasma que sean cobros de saldo (de intentos previos
   // cuando pagar-saldo creaba un GASTO en vez de un PAGO). Estos no deberían
   // contar para la liquidación pero SI deben ocultar el botón "Cobrar saldo anterior".
+  // Saldo arrastrado del período anterior (saldo crudo desde config)
   const saldoArrastradoRaw = (cfg as any).saldoPendienteLiquidacion || 0;
+  // Detectar cobros de saldo anterior hechos en este período para descontarlos
+  // del saldo arrastrado (si el chofer ya cobró parte del saldo anterior, ese monto
+  // se le paga y por lo tanto se descuenta del saldo que se le debe)
+  const cobroSaldoAnteriorPagoMonto = cobrosSaldoAnterior
+    .reduce((s, p) => s + p.monto, 0);
+  // Saldo arrastrado efectivo = saldo anterior - cobros ya hechos en este período
+  const saldoArrastradoEfectivo = Math.max(0, saldoArrastradoRaw - cobroSaldoAnteriorPagoMonto);
+  // Detectar también GASTOS fantasma que sean cobros de saldo (de intentos previos
+  // cuando pagar-saldo creaba un GASTO en vez de un PAGO). Estos no deberían
+  // contar para la liquidación pero SI deben ocultar el botón "Cobrar saldo anterior".
   const cobroSaldoAnteriorGastoMonto = gastos
     .filter(g => esCobroSaldoAnterior(g.descripcion) || (saldoArrastradoRaw > 0 && g.monto === saldoArrastradoRaw))
     .reduce((s, g) => s + g.monto, 0);
@@ -238,7 +249,9 @@ export async function GET(req: NextRequest) {
   const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
   // El saldo del chofer descuenta TODO el efectivo que tiene en mano (entregas + pagos recibidos)
   // + suma el saldo pendiente de la liquidación anterior (arrastrado)
-  const saldoArrastrado = saldoArrastradoRaw;
+  // Saldo arrastrado que se usa en el cálculo = saldo anterior - cobros ya hechos
+  // (esto evita el doble conteo cuando el chofer cobró el saldo en este período)
+  const saldoArrastrado = saldoArrastradoEfectivo;
   const saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado;
   // ¿Ya se cobró el saldo anterior este período?
   // True si hay PAGO de cobro de saldo anterior, o GASTO fantasma con descripción de cobro.
