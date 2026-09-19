@@ -644,7 +644,19 @@ export function EntregaForm({
         setDialogoVueltaAbierto(false);
       } catch (e) {
         console.error("[guardarEntrega] error al guardar:", e);
-        toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+        const msg = e instanceof Error ? e.message : "No se pudo guardar";
+        if (msg.includes("PEDIDO_YA_ENTREGADO") || msg.includes("ya fue entregado") || msg.includes("ya entregado")) {
+          toast.error("⚠ Este pedido ya fue entregado antes. No se puede registrar otra entrega para el mismo pedido.", {
+            duration: 10000,
+            description: "Si querés registrar otra entrega, creá un pedido nuevo. La foto que subiste NO se perdió.",
+          });
+        } else {
+          toast.error(`No se pudo guardar la entrega: ${msg}`, {
+            duration: 10000,
+            description: "La foto que subiste NO se perdió. Revisá los datos y volvé a intentar.",
+          });
+        }
+        // NO cerramos el form si falla — el usuario no pierde la foto ni los datos
       } finally {
         savingRef.current = false;
         setSaving(false);
@@ -710,7 +722,21 @@ export function EntregaForm({
       setDialogoVueltaAbierto(false);
     } catch (e) {
       console.error("[guardarEntrega] error al guardar:", e);
-      toast.error(e instanceof Error ? e.message : "No se pudo guardar");
+      const msg = e instanceof Error ? e.message : "No se pudo guardar";
+      // Si el error es porque el pedido ya fue entregado, mensaje específico
+      if (msg.includes("PEDIDO_YA_ENTREGADO") || msg.includes("ya fue entregado") || msg.includes("ya entregado")) {
+        toast.error("⚠ Este pedido ya fue entregado antes. No se puede registrar otra entrega para el mismo pedido.", {
+          duration: 10000,
+          description: "Si querés registrar otra entrega, creá un pedido nuevo. La foto que subiste NO se perdió — está en el campo de foto del medidor.",
+        });
+      } else {
+        toast.error(`No se pudo guardar la entrega: ${msg}`, {
+          duration: 10000,
+          description: "La foto que subiste NO se perdió — está en el campo de foto del medidor. Revisá los datos y volvé a intentar.",
+        });
+      }
+      // NO cerramos el form si falla — el usuario no pierde la foto
+      // Pero sí reseteamos el flag de saving
     } finally {
       // IMPORTANTE: resetear savingRef SIEMPRE, sino queda bloqueado y no
       // se pueden registrar más entregas hasta recargar la página.
