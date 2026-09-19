@@ -148,7 +148,12 @@ export async function GET(req: NextRequest) {
     const baseImponible = cfg.aplicaImpuestoSobre === "pago_chofer" ? pagoChofer : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? utilidadBruta : totalVentas;
     const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (Math.max(0, baseImponible) * cfg.porcentajeImpuesto) / 100;
     const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
-    const saldoChofer = liquidoChofer - efectivoTotal;
+    // Saldo arrastrado del período anterior (lo que el dueno le debía al chofer)
+    // El cobro del saldo anterior es solo una NOTATION, no una transferencia de cash.
+    // La transferencia real pasa al cerrar el período. Por eso el saldo arrastrado
+    // se suma entero, incluso si el chofer ya "cobró".
+    const saldoArrastrado = (cfg as any).saldoPendienteLiquidacion || 0;
+    const saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado;
 
     // Detalle de vueltas pagables (solo las válidas)
     const vueltasPagables = vueltasValidas.map(v => {
@@ -188,6 +193,7 @@ export async function GET(req: NextRequest) {
         impuesto, tipoTributo: cfg.tipoTributo, porcentajeImpuesto: cfg.porcentajeImpuesto,
         liquidoChofer, efectivoTotal, saldoChofer,
         totalGastos,
+        saldoArrastrado,
       },
       vueltasPagables,
       gastosPorTipo,
@@ -255,6 +261,15 @@ function generarPDF(data: any) {
   body.push([{ content: "EFECTIVO RECIBIDO", colSpan: 2, styles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
   body.push(["Efectivo", formatCurrency(efectivoConDescuentos)]);
 
+  // === 3.5 SALDO DEL PERÍODO ANTERIOR (si existe) ===
+  const saldoArrastrado = (r as any).saldoArrastrado || 0;
+  if (saldoArrastrado !== 0) {
+    body.push([
+      saldoArrastrado > 0 ? "Saldo del período anterior (a favor del chofer)" : "Saldo del período anterior (a favor del admin)",
+      formatCurrency(Math.abs(saldoArrastrado)),
+    ]);
+  }
+
   // === 4. IMPOSICIÓN (si existe) ===
   if (r.impuesto > 0) {
     body.push([{ content: "IMPOSICIÓN", colSpan: 2, styles: { fillColor: [234, 179, 8], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
@@ -264,7 +279,8 @@ function generarPDF(data: any) {
   // === TOTAL A FAVOR DE QUIEN ===
   // Saldo = lo que el chofer debe recibir (pago vueltas + gastos reembolsables - impuesto)
   //         - lo que ya tiene en efectivo (incluyendo descuentos a favor)
-  const saldoFinal = r.liquidoChofer - efectivoConDescuentos;
+  //         + saldo arrastrado del período anterior (deuda pendiente)
+  const saldoFinal = r.liquidoChofer - efectivoConDescuentos + saldoArrastrado;
   body.push([{ content: "TOTAL", colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 10 } }]);
   body.push([saldoFinal >= 0 ? "A favor del chofer" : "A favor del admin", formatCurrency(Math.abs(saldoFinal))]);
 
@@ -346,6 +362,16 @@ function generarExcel(data: any) {
   rows.push(["EFECTIVO RECIBIDO", ""]);
   rows.push(["Efectivo", efectivoConDescuentos]);
   rows.push([]);
+
+  // Saldo del período anterior
+  const saldoArrastradoExcel = (r as any).saldoArrastrado || 0;
+  if (saldoArrastradoExcel !== 0) {
+    rows.push([
+      saldoArrastradoExcel > 0 ? "Saldo del período anterior (a favor del chofer)" : "Saldo del período anterior (a favor del admin)",
+      Math.abs(saldoArrastradoExcel),
+    ]);
+    rows.push([]);
+  }
 
   if (r.impuesto > 0) {
     rows.push(["IMPOSICIÓN", ""]);
