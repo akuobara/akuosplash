@@ -149,11 +149,21 @@ export async function GET(req: NextRequest) {
     const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (Math.max(0, baseImponible) * cfg.porcentajeImpuesto) / 100;
     const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
     // Saldo arrastrado del período anterior (lo que el dueno le debía al chofer)
-    // El cobro del saldo anterior es solo una NOTATION, no una transferencia de cash.
-    // La transferencia real pasa al cerrar el período. Por eso el saldo arrastrado
-    // se suma entero, incluso si el chofer ya "cobró".
+    // NO se suma automáticamente al total. Solo se suma lo que el chofer
+    // cobró explícitamente (via "Cobrar saldo anterior").
     const saldoArrastrado = (cfg as any).saldoPendienteLiquidacion || 0;
-    const saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado;
+    // Detectar cobros de saldo anterior en este período
+    const esCobroSaldoAntPDF = (desc: string | null) => {
+      if (!desc) return false;
+      const d = desc.toLowerCase();
+      return d.includes("cobro de saldo anterior") || d.includes("pago de saldo") ||
+        (d.includes("saldo") && (d.includes("anterior") || d.includes("liquidación") || d.includes("liquidacion")));
+    };
+    const cobrosSaldoAnt = pagosSueltos
+      .filter(p => esCobroSaldoAntPDF(p.descripcion))
+      .reduce((s, p) => s + p.monto, 0);
+    // El saldo del chofer = líquido - efectivo + cobros de saldo anterior (no saldo arrastrado)
+    const saldoChofer = liquidoChofer - efectivoTotal + cobrosSaldoAnt;
 
     // Detalle de vueltas pagables (solo las válidas)
     const vueltasPagables = vueltasValidas.map(v => {
@@ -194,6 +204,7 @@ export async function GET(req: NextRequest) {
         liquidoChofer, efectivoTotal, saldoChofer,
         totalGastos,
         saldoArrastrado,
+        cobrosSaldoAnt,
       },
       vueltasPagables,
       gastosPorTipo,
@@ -261,13 +272,14 @@ function generarPDF(data: any) {
   body.push([{ content: "EFECTIVO RECIBIDO", colSpan: 2, styles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
   body.push(["Efectivo", formatCurrency(efectivoConDescuentos)]);
 
-  // === 3.5 SALDO DEL PERÍODO ANTERIOR (si existe) ===
-  const saldoArrastrado = (r as any).saldoArrastrado || 0;
-  if (saldoArrastrado !== 0) {
+  // === 3.5 SALDO DEL PERÍODO ANTERIOR (información, NO se suma al total) ===
+  const saldoArrastradoInfo = (r as any).saldoArrastrado || 0;
+  if (saldoArrastradoInfo !== 0) {
     body.push([
-      saldoArrastrado > 0 ? "Saldo del período anterior (a favor del chofer)" : "Saldo del período anterior (a favor del admin)",
-      formatCurrency(Math.abs(saldoArrastrado)),
+      saldoArrastradoInfo > 0 ? "Saldo del período anterior (a favor del chofer)" : "Saldo del período anterior (a favor del admin)",
+      formatCurrency(Math.abs(saldoArrastradoInfo)),
     ]);
+    body.push([{ content: "(no incluido en el total — cobrá con 'Cobrar saldo anterior' para incluirlo)", colSpan: 2, styles: { fontSize: 8, textColor: [107, 114, 128], fontStyle: "italic" } }]);
   }
 
   // === 4. IMPOSICIÓN (si existe) ===
@@ -279,8 +291,10 @@ function generarPDF(data: any) {
   // === TOTAL A FAVOR DE QUIEN ===
   // Saldo = lo que el chofer debe recibir (pago vueltas + gastos reembolsables - impuesto)
   //         - lo que ya tiene en efectivo (incluyendo descuentos a favor)
-  //         + saldo arrastrado del período anterior (deuda pendiente)
-  const saldoFinal = r.liquidoChofer - efectivoConDescuentos + saldoArrastrado;
+  //         + cobros de saldo anterior (si el chofer cobró)
+  // NO se suma automáticamente el saldo arrastrado — solo lo que el chofer cobró.
+  const cobrosSaldoAntPDF = (r as any).cobrosSaldoAnt || 0;
+  const saldoFinal = r.liquidoChofer - efectivoConDescuentos + cobrosSaldoAntPDF;
   body.push([{ content: "TOTAL", colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 10 } }]);
   body.push([saldoFinal >= 0 ? "A favor del chofer" : "A favor del admin", formatCurrency(Math.abs(saldoFinal))]);
 

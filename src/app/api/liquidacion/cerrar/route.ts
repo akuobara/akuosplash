@@ -103,19 +103,35 @@ export async function POST(req: NextRequest) {
     (Math.max(0, configActual?.aplicaImpuestoSobre === "pago_chofer" ? pagoChofer : configActual?.aplicaImpuestoSobre === "utilidad_bruta" ? utilidadBruta : totalVentas) * (configActual?.porcentajeImpuesto ?? 0)) / 100;
 
   const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
-  // Saldo arrastrado del período anterior (lo que el dueno le debía al chofer).
-  // El cobro del saldo anterior es solo una NOTATION, no una transferencia de cash.
-  // La transferencia real pasa al cerrar el período. Por eso el saldo arrastrado
-  // se suma entero en el cálculo, incluso si el chofer ya "cobró".
+  // El saldo final NO incluye automáticamente el saldo arrastrado del período anterior.
+  // Solo se suma lo que el chofer "cobró" explícitamente (via "Cobrar saldo anterior").
+  // El cobro se registra como un Pago con descripcion "Cobro de saldo anterior..."
+  // y se EXCLUYE del efectivoTotal. En el cálculo, se suma el monto cobrado.
   const saldoArrastradoAnterior = configActual?.saldoPendienteLiquidacion || 0;
-  const saldoFinal = liquidoChofer - efectivoTotal + saldoArrastradoAnterior;
+  // Detectar cobros de saldo anterior en este período
+  const esCobroSaldoAnteriorCerrar = (descripcion: string | null) => {
+    if (!descripcion) return false;
+    const d = descripcion.toLowerCase();
+    return (
+      d.includes("cobro de saldo anterior") ||
+      d.includes("pago de saldo") ||
+      (d.includes("saldo") && (d.includes("anterior") || d.includes("liquidación") || d.includes("liquidacion")))
+    );
+  };
+  const cobrosSaldoAnteriorCerrar = pagos
+    .filter(p => esCobroSaldoAnteriorCerrar(p.descripcion))
+    .reduce((s, p) => s + p.monto, 0);
+  const saldoFinal = liquidoChofer - efectivoTotal + cobrosSaldoAnteriorCerrar;
+  // El saldo arrastrado para el próximo período = saldo anterior + saldo final de este período
+  // (si el chofer no cobró, el saldo anterior se mantiene + el nuevo saldo se acumula)
+  const saldoParaProximoPeriodo = saldoArrastradoAnterior + saldoFinal;
 
   // Actualizar ultimoCierre + guardar el saldo final como arrastre para el próximo período
   const config = await db.configuracion.update({
     where: { duenoId },
     data: {
       ultimoCierre: fechaCierre,
-      saldoPendienteLiquidacion: saldoFinal,
+      saldoPendienteLiquidacion: saldoParaProximoPeriodo,
     },
   });
 
