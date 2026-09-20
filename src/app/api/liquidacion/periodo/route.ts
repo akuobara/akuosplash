@@ -87,6 +87,115 @@ export async function GET(req: NextRequest) {
 
   const { start, end, label } = getPeriodoRange(offset);
 
+  // === AUTO-CIERRE DE PERÍODOS ANTERIORES NO CERRADOS ===
+  // Si el usuario está viendo el período actual (offset=0) o un período futuro,
+  // y hay períodos anteriores que no se cerraron explícitamente, calcular
+  // automáticamente el saldo arrastrado basándose en el saldo chofer de cada período.
+  //
+  // Esto resuelve el bug donde el "Saldo del período anterior" se queda pegado
+  // en un valor viejo porque el usuario no cerró el período anterior manualmente.
+  if (offset >= 0 && config) {
+    const ultimoCierre = (config as any).ultimoCierre ? new Date((config as any).ultimoCierre) : null;
+    // Si el último cierre fue ANTES del inicio del período anterior, hay que
+    // recalcular el saldo arrastrado para incluir los períodos no cerrados.
+    const periodoAnterior = getPeriodoRange(-1);
+    if (!ultimoCierre || ultimoCierre < periodoAnterior.start) {
+      // Recorrer todos los períodos desde el último cierre (o desde el inicio) hasta
+      // el período anterior al actual, calculando el saldo arrastrado acumulado.
+      let saldoArrastradoAcumulado = (config as any).saldoPendienteLiquidacion || 0;
+      // Si el último cierre fue en algún período, empezar desde el siguiente.
+      // Si no hay último cierre, empezar desde 11 períodos atrás.
+      let startOffset = -11;
+      if (ultimoCierre) {
+        // Calcular cuántos períodos atrás fue el último cierre
+        for (let i = -11; i <= 0; i++) {
+          const p = getPeriodoRange(i);
+          if (ultimoCierre >= p.start && ultimoCierre < p.end) {
+            startOffset = i + 1;
+            break;
+          }
+        }
+      }
+      // Recorrer desde startOffset hasta -1 (período anterior al actual)
+      for (let i = startOffset; i <= -1; i++) {
+        const p = getPeriodoRange(i);
+        // Buscar entregas, gastos, vueltas de este período histórico
+        const [entregasHist, gastosHist, vueltasHist, pagosHist] = await Promise.all([
+          db.entrega.findMany({
+            where: { duenoId, fecha: { gte: p.start, lt: p.end } },
+            select: { total: true, montoEfectivo: true, montoTransferencia: true, montoRecibido: true, descuento: true, descuentoPor: true, precioPorLitro: true, litros: true },
+          }),
+          db.gasto.findMany({
+            where: { duenoId, fecha: { gte: p.start, lt: p.end } },
+            select: { monto: true, pagadoPor: true },
+          }),
+          db.vuelta.findMany({
+            where: {
+              duenoId,
+              OR: [
+                { activa: false, cerradaEn: { gte: p.start, lt: p.end } },
+                { activa: true, iniciadaEn: { gte: p.start, lt: p.end } },
+              ],
+            },
+            include: {
+              camion: { select: { capacidad: true } },
+              entregas: { select: { litros: true } },
+            },
+          }),
+          db.pago.findMany({
+            where: { duenoId, fecha: { gte: p.start, lt: p.end } },
+            select: { monto: true, metodoPago: true, descripcion: true },
+          }),
+        ]);
+
+        const totalVentasHist = entregasHist.reduce((s, e) => s + e.total, 0);
+        const totalEfectivoEntregasHist = entregasHist.reduce((s, e) => s + e.montoEfectivo, 0);
+        // Excluir cobros de saldo anterior del efectivo (son notation, no cash)
+        const esCobroSaldoAnt = (desc: string | null) => {
+          if (!desc) return false;
+          const d = desc.toLowerCase();
+          return d.includes("cobro de saldo anterior") || d.includes("pago de saldo") ||
+            (d.includes("saldo") && (d.includes("anterior") || d.includes("liquidación") || d.includes("liquidacion")));
+        };
+        const pagosSueltosEfectivoHist = pagosHist
+          .filter(p => p.metodoPago === "efectivo" && !esCobroSaldoAnt(p.descripcion))
+          .reduce((s, p) => s + p.monto, 0);
+        const efectivoTotalHist = totalEfectivoEntregasHist + pagosSueltosEfectivoHist;
+        const gastosChoferHist = gastosHist.filter(g => g.pagadoPor === "chofer").reduce((s, g) => s + g.monto, 0);
+        const descuentosChoferHist = entregasHist.filter(e => e.descuentoPor === "chofer").reduce((s, e) => s + (e.descuento || 0), 0);
+        const totalGastosHist = gastosHist.reduce((s, g) => s + g.monto, 0);
+        const utilidadBrutaHist = totalVentasHist - totalGastosHist;
+
+        let pagoChoferHist = 0;
+        if (cfg.modoLiquidacion === "vuelta") {
+          const umbral = cfg.umbralCompletacionVuelta ?? 0.975;
+          for (const v of vueltasHist) {
+            const litros = v.entregas.reduce((s, e) => s + e.litros, 0);
+            const cap = v.camion?.capacidad ?? cfg.capacidadCamion ?? 17000;
+            if (litros >= cap * umbral) {
+              pagoChoferHist += v.entregas.length > 1 ? (cfg.montoPorVueltaMultiple ?? 25000) : (cfg.montoPorVueltaUnicoCliente ?? 20000);
+            }
+          }
+        } else {
+          pagoChoferHist = (utilidadBrutaHist * cfg.porcentajeComisionChofer) / 100;
+        }
+        const impuestoHist = cfg.tipoTributo === "ninguno" ? 0 :
+          (Math.max(0, cfg.aplicaImpuestoSobre === "pago_chofer" ? pagoChoferHist : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? utilidadBrutaHist : totalVentasHist) * (cfg.porcentajeImpuesto ?? 0)) / 100;
+        const liquidoChoferHist = Math.max(0, pagoChoferHist) + gastosChoferHist - impuestoHist - descuentosChoferHist;
+        const saldoChoferHist = liquidoChoferHist - efectivoTotalHist + saldoArrastradoAcumulado;
+        saldoArrastradoAcumulado = saldoChoferHist;
+      }
+      // Guardar el saldo arrastrado actualizado en la configuración
+      if (saldoArrastradoAcumulado !== ((config as any).saldoPendienteLiquidacion || 0)) {
+        await db.configuracion.update({
+          where: { duenoId },
+          data: { saldoPendienteLiquidacion: saldoArrastradoAcumulado },
+        });
+        (config as any).saldoPendienteLiquidacion = saldoArrastradoAcumulado;
+      }
+    }
+  }
+
   // Generar historial de periodos (últimos 12)
   const historial: { offset: number; label: string; start: Date; end: Date }[] = [];
   for (let i = -11; i <= 0; i++) {
