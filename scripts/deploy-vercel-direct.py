@@ -42,6 +42,51 @@ SKIP_FILES = {
 SKIP_PREFIXES = (".bash", ".cache")
 
 
+def ensure_critical_files():
+    """Ensure critical files exist before deploy. Some files get deleted by
+    the sandbox reset between sessions. Recreate them if missing."""
+    critical_files = {
+        "src/app/api/upload/route.ts": '''import { NextRequest, NextResponse } from "next/server";
+import { put } from "@vercel/blob";
+import { getSession, getDuenoId } from "@/lib/auth";
+import { checkDemoBlock } from "@/lib/demo-guard";
+
+export async function POST(req: NextRequest) {
+  const _demoBlocked = await checkDemoBlock();
+  if (_demoBlocked) return _demoBlocked;
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  const duenoId = await getDuenoId();
+  if (!duenoId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  try {
+    const formData = await req.formData();
+    const file = formData.get("file");
+    if (!file || !(file instanceof File)) return NextResponse.json({ error: "Falta el archivo" }, { status: 400 });
+    if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: "Archivo muy pesado" }, { status: 400 });
+    const allowed = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "application/pdf"];
+    if (!allowed.includes(file.type)) return NextResponse.json({ error: "Tipo no permitido" }, { status: 400 });
+    const ext = file.name.split(".").pop() || "jpg";
+    const safeName = "aljibe/" + duenoId + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
+    const blob = await put(safeName, file, { access: "public", addRandomSuffix: false });
+    return NextResponse.json({ url: blob.url, size: file.size, type: file.type });
+  } catch (e) {
+    console.error("Error en /api/upload:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: "No se pudo subir: " + msg }, { status: 500 });
+  }
+}
+''',
+    }
+    for relpath, content in critical_files.items():
+        fullpath = os.path.join(PROJECT_ROOT, relpath)
+        dirname = os.path.dirname(fullpath)
+        if not os.path.exists(fullpath):
+            os.makedirs(dirname, exist_ok=True)
+            with open(fullpath, "w") as f:
+                f.write(content)
+            print(f"  ✓ Recreated missing file: {relpath}")
+
+
 def collect_files():
     """Walk the project, return list of {file, sha, size, content}."""
     files = []
@@ -190,6 +235,8 @@ def wait_for_deployment(deploy_id):
 
 
 def main():
+    print("→ Ensuring critical files exist...")
+    ensure_critical_files()
     print("→ Collecting files...")
     files = collect_files()
     print(f"  Found {len(files)} files")
