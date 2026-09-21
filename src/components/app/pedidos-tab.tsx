@@ -56,9 +56,11 @@ import {
   Smartphone,
   Loader2,
   GripVertical,
+  Camera,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
+import { apiGet, apiPost, apiPatch, apiDelete, uploadFile } from "@/lib/api-client";
 import {
   formatNumber,
   formatCurrency,
@@ -186,6 +188,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [guardandoOrden, setGuardandoOrden] = useState(false);
   const [tomandoPedidoId, setTomandoPedidoId] = useState<string | null>(null);
+  const [fotoConvertirUrl, setFotoConvertirUrl] = useState<string | null>(null);
+  const [subiendoFotoConvertir, setSubiendoFotoConvertir] = useState(false);
 
   // Campos del formulario
   const [clienteId, setClienteId] = useState<string>("__nuevo");
@@ -558,6 +562,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
           precioPorLitro: 0,
           montoEfectivo: totalEfectivoEst,
           montoTransferencia: totalTransferenciaEst,
+          fotoMedidorUrl: fotoConvertirUrl,
           detalleEstanquesJson: JSON.stringify(estanquesNormalizados.map((e) => ({
             nombre: e.nombre,
             litros: e.litros,
@@ -608,6 +613,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         montoEfectivo: Number(montoEfectivo) || 0,
         montoTransferencia: Number(montoTransferencia) || 0,
         metodoPago: metodoPagoConvertir,
+        fotoMedidorUrl: fotoConvertirUrl,
         descuentoTipo: descuentoTipoConvertir,
         descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
         descuentoPorLitro: descuentoTipoConvertir === "por_litro" ? (Number(descuentoPorLitroConvertir) || 0) : 0,
@@ -1686,7 +1692,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       </Dialog>
 
       {/* Modal convertir a entrega */}
-      <Dialog open={!!convirtiendo} onOpenChange={(o) => !o && setConvirtiendo(null)}>
+      <Dialog open={!!convirtiendo} onOpenChange={(o) => { if (!o) { setConvirtiendo(null); setFotoConvertirUrl(null); } }}>
         <DialogContent className="max-h-[95vh] w-[95vw] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Convertir pedido en entrega</DialogTitle>
@@ -2129,6 +2135,53 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
               <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-xs">
                 <p className="font-medium">Se creará una entrega y se asignará a la vuelta activa (si hay).</p>
                 <p className="mt-1 text-muted-foreground">El pedido se marcará como "entregado" automáticamente.</p>
+              </div>
+
+              {/* Foto del medidor */}
+              <div className="space-y-2">
+                <Label>Foto del medidor (respaldo)</Label>
+                {fotoConvertirUrl ? (
+                  <div className="relative w-fit">
+                    <img src={fotoConvertirUrl} alt="Foto del medidor" className="max-h-48 rounded-lg border" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                      onClick={() => setFotoConvertirUrl(null)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-4 text-sm text-muted-foreground hover:border-primary/50 hover:bg-muted/30">
+                    {subiendoFotoConvertir ? (
+                      <><Loader2 className="h-4 w-4 animate-spin" /> Subiendo...</>
+                    ) : (
+                      <><Camera className="h-4 w-4" /> <span>Tomar foto o subir imagen</span></>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        if (!f) return;
+                        setSubiendoFotoConvertir(true);
+                        try {
+                          const url = await uploadFile(f);
+                          setFotoConvertirUrl(url);
+                          toast.success("Foto del medidor subida");
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Error al subir la foto");
+                        } finally {
+                          setSubiendoFotoConvertir(false);
+                        }
+                      }}
+                    />
+                  </label>
+                )}
               </div>
 
               <DialogFooter>
