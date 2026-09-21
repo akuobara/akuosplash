@@ -1995,6 +1995,19 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                               </div>
                             );
                           })()}
+
+                          {/* Foto del medidor */}
+                          {e.fotoMedidorUrl && (
+                            <div className="mt-2">
+                              <a href={e.fotoMedidorUrl} target="_blank" rel="noopener noreferrer">
+                                <img
+                                  src={e.fotoMedidorUrl}
+                                  alt="Foto del medidor"
+                                  className="max-h-32 rounded-lg border border-border hover:opacity-80 transition-opacity"
+                                />
+                              </a>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
