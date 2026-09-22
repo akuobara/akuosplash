@@ -470,10 +470,10 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                         <span>{formatCurrency(periodoData.resumen.efectivoTotal)}</span>
                       </div>
                     )}
-                    {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado !== 0 && (
+                    {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado !== 0 && periodoData.resumen.saldoCobrado && (
                       <div className="flex justify-between text-muted-foreground border-t pt-1">
-                        <span>{periodoData.resumen.saldoArrastrado > 0 ? "+ Saldo del período anterior" : "- Saldo del período anterior"}</span>
-                        <span>{formatCurrency(Math.abs(periodoData.resumen.saldoArrastrado))}</span>
+                        <span>+ Saldo del período anterior (cobrado)</span>
+                        <span>{formatCurrency(Math.abs(periodoData.resumen.cobroSaldoAnteriorTotal || 0))}</span>
                       </div>
                     )}
                     <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
@@ -533,10 +533,10 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                         <span>{formatCurrency(periodoData.resumen.efectivoTotal)}</span>
                       </div>
                     )}
-                    {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado !== 0 && (
+                    {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado !== 0 && periodoData.resumen.saldoCobrado && (
                       <div className="flex justify-between text-muted-foreground border-t pt-1">
-                        <span>{periodoData.resumen.saldoArrastrado > 0 ? "+ Saldo del período anterior" : "- Saldo del período anterior"}</span>
-                        <span>{formatCurrency(Math.abs(periodoData.resumen.saldoArrastrado))}</span>
+                        <span>+ Saldo del período anterior (cobrado)</span>
+                        <span>{formatCurrency(Math.abs(periodoData.resumen.cobroSaldoAnteriorTotal || 0))}</span>
                       </div>
                     )}
                     <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
