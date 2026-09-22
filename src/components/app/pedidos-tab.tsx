@@ -634,16 +634,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         // Si falla la verificación, continuar con el flujo anterior
       }
 
-      const camionesActivos = (camiones ?? []).filter(c => c.activo);
-      if (camionesActivos.length === 0 && isDueno) {
-        toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
-        setSaving(false);
-        return;
-      }
-      // NO cerrar el diálogo — el usuario no pierde la foto ni los datos.
-      const pedidoAConvertir = convirtiendo;
+      // Si no hay vuelta, mostrar error pero NO bloquear con overlay
+      toast.error("No hay vuelta activa. Iniciá una vuelta desde el panel principal y volvé a intentar.", { duration: 8000 });
       setSaving(false);
-      setTimeout(() => setVueltaFaltante(pedidoAConvertir), 50);
       return;
     }
 
@@ -671,20 +664,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       onRefresh();
     } catch (e) {
       const msg = e instanceof Error ? e.message : "No se pudo convertir";
-      // Si el error es por falta de vuelta activa, cerrar el diálogo de convertir
-      // y abrir el overlay de vuelta faltante
       if (msg.includes("No hay vuelta activa") || msg.includes("vuelta")) {
-        const camionesActivos = (camiones ?? []).filter(c => c.activo);
-        if (camionesActivos.length === 0 && isDueno) {
-          toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
-        } else {
-          // Guardar referencia al pedido antes de cerrar el diálogo
-          const pedidoAConvertir = convirtiendo;
-          // Cerrar el diálogo de convertir PRIMERO
-          setConvirtiendo(null);
-          // Abrir el overlay de vuelta faltante DESPUÉS (en el próximo render)
-          setTimeout(() => setVueltaFaltante(pedidoAConvertir), 50);
-        }
+        toast.error("No hay vuelta activa. Iniciá una vuelta desde el panel principal.", { duration: 8000 });
       } else {
         toast.error(msg);
       }
@@ -1612,63 +1593,7 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         </DialogContent>
       </Dialog>
 
-      {/* Overlay: falta vuelta activa al convertir pedido */}
-      {vueltaFaltante && typeof document !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => {
-          if (!iniciandoVueltaConvertir) setVueltaFaltante(null);
-        }}>
-          <div
-            className="max-w-md w-full rounded-lg border border-border bg-background p-6 shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-semibold">No hay vuelta activa</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Para convertir el pedido de <strong>{vueltaFaltante.clienteNombre}</strong> en entrega,
-              necesitas una vuelta activa. Inicia una vuelta y el pedido se convertirá automáticamente.
-            </p>
-            {(() => {
-              const camionesActivos = (camiones ?? []).filter(c => c.activo);
-              if (camionesActivos.length > 1) {
-                return (
-                  <div className="mt-4 space-y-2">
-                    <Label className="text-xs">Selecciona un camión</Label>
-                    <select
-                      id="camionSelectConvertir"
-                      className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                      defaultValue={camionesActivos[0]?.id}
-                      onChange={(e) => { /* se lee al hacer clic */ }}
-                    >
-                      {camionesActivos.map((c) => (
-                        <option key={c.id} value={c.id}>{c.nombre}</option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              }
-              return null;
-            })()}
-            <div className="mt-4 flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setVueltaFaltante(null)} disabled={iniciandoVueltaConvertir}>
-                Cancelar
-              </Button>
-              <Button
-                onClick={() => {
-                  const select = document.getElementById("camionSelectConvertir") as HTMLSelectElement | null;
-                  iniciarVueltaYConvertir(select?.value);
-                }}
-                disabled={iniciandoVueltaConvertir}
-              >
-                {iniciandoVueltaConvertir ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Iniciando vuelta…</>
-                ) : (
-                  <>Iniciar vuelta y convertir</>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      {/* Overlay de vuelta faltante eliminado — ya no bloquea al usuario */}
 
       {/* Modal soltar pedido */}
       <Dialog open={!!soltandoPedido} onOpenChange={(o) => {
