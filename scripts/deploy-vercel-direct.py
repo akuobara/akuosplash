@@ -48,6 +48,7 @@ def ensure_critical_files():
     critical_files = {
         "src/app/api/upload/route.ts": '''import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
+import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
 
@@ -67,8 +68,16 @@ export async function POST(req: NextRequest) {
     if (!allowed.includes(file.type)) return NextResponse.json({ error: "Tipo no permitido" }, { status: 400 });
     const ext = file.name.split(".").pop() || "jpg";
     const safeName = "aljibe/" + duenoId + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
-    const blob = await put(safeName, file, { access: "public", addRandomSuffix: false });
-    return NextResponse.json({ url: blob.url, size: file.size, type: file.type });
+    try {
+      const blob = await put(safeName, file, { access: "public", addRandomSuffix: false });
+      return NextResponse.json({ url: blob.url, size: file.size, type: file.type });
+    } catch (blobError) {
+      console.error("Blob upload failed, falling back to base64:", blobError);
+      const buffer = await file.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString("base64");
+      const dataUrl = "data:" + file.type + ";base64," + base64;
+      return NextResponse.json({ url: dataUrl, size: file.size, type: file.type, fallback: "base64" });
+    }
   } catch (e) {
     console.error("Error en /api/upload:", e);
     const msg = e instanceof Error ? e.message : String(e);
