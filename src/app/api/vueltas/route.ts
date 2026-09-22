@@ -48,6 +48,7 @@ export async function GET(req: NextRequest) {
           montoRecibido: true,
           clienteNombre: true,
           metodoPago: true,
+          fotoMedidorUrl: true,
         },
       },
     },

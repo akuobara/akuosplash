@@ -379,6 +379,11 @@ export function VueltaWidget({
                               )}
                             </div>
                           )}
+                          {(e as any).fotoMedidorUrl && (
+                            <a href={(e as any).fotoMedidorUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block">
+                              <img src={(e as any).fotoMedidorUrl} alt="Medidor" className="h-14 rounded border border-border" />
+                            </a>
+                          )}
                         </div>
                         <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
                           e.montoRecibido >= e.total && e.total > 0

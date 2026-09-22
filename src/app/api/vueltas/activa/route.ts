@@ -38,6 +38,7 @@ export async function GET() {
           clienteNombre: true,
           metodoPago: true,
           fecha: true,
+          fotoMedidorUrl: true,
         },
         orderBy: { fecha: "asc" },
       },
