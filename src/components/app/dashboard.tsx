@@ -595,6 +595,11 @@ export function Dashboard({
                                         Descuento: {formatCurrency(e.descuento)} ({e.descuentoPor === "chofer" ? "asumido por chofer" : "asumido por administración"})
                                       </p>
                                     )}
+                                    {e.fotoMedidorUrl && (
+                                      <a href={e.fotoMedidorUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block">
+                                        <img src={e.fotoMedidorUrl} alt="Medidor" className="h-14 rounded border border-border" />
+                                      </a>
+                                    )}
                                   </div>
                                   <div className="shrink-0 text-right">
                                     {e.montoEfectivo > 0 && <p className="text-xs text-emerald-600 dark:text-emerald-400 tabular-nums">Efect: {formatCurrency(e.montoEfectivo)}</p>}
@@ -700,6 +705,11 @@ export function Dashboard({
                       {formatDate(e.fecha)} · {formatNumber(e.litros, 0)} L
                       {e.vuelta && ` · Vuelta #${e.vuelta.numero}`}
                     </p>
+                    {e.fotoMedidorUrl && (
+                      <a href={e.fotoMedidorUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block">
+                        <img src={e.fotoMedidorUrl} alt="Medidor" className="h-16 rounded border border-border" />
+                      </a>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="font-semibold tabular-nums">{formatCurrency(e.total)}</p>

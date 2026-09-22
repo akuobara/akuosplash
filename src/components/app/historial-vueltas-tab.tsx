@@ -62,6 +62,7 @@ interface EntregaVuelta {
   montoRecibido: number;
   estadoPago: string;
   detalleEstanquesJson: string | null;
+  fotoMedidorUrl: string | null;
 }
 
 interface Vuelta {
@@ -500,6 +501,13 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
                                           </div>
                                         );
                                       })()}
+
+                                      {/* Foto del medidor */}
+                                      {e.fotoMedidorUrl && (
+                                        <a href={e.fotoMedidorUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block">
+                                          <img src={e.fotoMedidorUrl} alt="Medidor" className="h-16 rounded border border-border" />
+                                        </a>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
