@@ -586,8 +586,8 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       return;
     }
 
-    // PRE-VERIFICACIÓN: si no hay vuelta activa, mostrar overlay inmediatamente
-    // sin llamar al API (evita el error 400).
+    // PRE-VERIFICACIÓN: si no hay vuelta activa, mostrar error SIN cerrar el diálogo
+    // para que el usuario no pierda la foto ni los datos cargados.
     // Fallback: si la lista camiones está vacía (transient error de /api/camiones)
     // no bloquear — el POST /api/vueltas resuelve la asignación desde el backend.
     if (!vueltaActual) {
@@ -597,9 +597,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         setSaving(false);
         return;
       }
-      // Guardar referencia al pedido, cerrar diálogo de convertir, abrir overlay
+      // NO cerrar el diálogo — el usuario no pierde la foto ni los datos.
+      // Mostrar el overlay de vuelta faltante encima del diálogo.
       const pedidoAConvertir = convirtiendo;
-      setConvirtiendo(null);
       setSaving(false);
       setTimeout(() => setVueltaFaltante(pedidoAConvertir), 50);
       return;
