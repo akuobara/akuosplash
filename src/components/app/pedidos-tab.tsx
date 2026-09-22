@@ -586,11 +586,54 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
       return;
     }
 
-    // PRE-VERIFICACIÓN: si no hay vuelta activa, mostrar error SIN cerrar el diálogo
-    // para que el usuario no pierda la foto ni los datos cargados.
-    // Fallback: si la lista camiones está vacía (transient error de /api/camiones)
-    // no bloquear — el POST /api/vueltas resuelve la asignación desde el backend.
+    // PRE-VERIFICACIÓN: si no hay vuelta activa en el estado del frontend,
+    // verificar con el backend antes de mostrar error (el estado puede estar desactualizado)
     if (!vueltaActual) {
+      // Intentar obtener la vuelta activa del backend
+      try {
+        const res = await apiGet<{ vuelta: any }>("/api/vueltas/activa");
+        if (res.vuelta) {
+          // Hay vuelta activa en el backend — proceder con la conversión
+          // (el backend va a asignar la vuelta automáticamente)
+          setSaving(true);
+          try {
+            await apiPost(`/api/pedidos/${convirtiendo.id}/convertir`, {
+              litrosReales: Number(litrosReales) || convirtiendo.litrosSolicitados,
+              precioPorLitro: Number(precioPorLitro) || undefined,
+              montoEfectivo: Number(montoEfectivo) || 0,
+              montoTransferencia: Number(montoTransferencia) || 0,
+              metodoPago: metodoPagoConvertir,
+              fotoMedidorUrl: fotoConvertirUrl,
+              descuentoTipo: descuentoTipoConvertir,
+              descuento: descuentoTipoConvertir === "total" ? (Number(descuentoMontoConvertir) || 0) : 0,
+              descuentoPorLitro: descuentoTipoConvertir === "por_litro" ? (Number(descuentoPorLitroConvertir) || 0) : 0,
+            });
+            const litrosNum = Number(litrosReales) || convirtiendo?.litrosSolicitados || 0;
+            const precioNum = Number(precioPorLitro) || 0;
+            const totalEstimado = litrosNum * precioNum;
+            toast.success(`✓ Entrega registrada: ${formatNumber(litrosNum, 0)} L · ${formatCurrency(totalEstimado)}`, {
+              duration: 8000,
+              description: "El pedido se convirtió en entrega correctamente.",
+            });
+            setConvirtiendo(null);
+            setFotoConvertirUrl(null);
+            onRefresh();
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : "No se pudo convertir";
+            if (msg.includes("PEDIDO_YA_ENTREGADO") || msg.includes("ya fue entregado") || msg.includes("ya entregado")) {
+              toast.error("⚠ Este pedido ya fue entregado antes.", { duration: 10000 });
+            } else {
+              toast.error(`No se pudo guardar: ${msg}`, { duration: 10000 });
+            }
+          } finally {
+            setSaving(false);
+          }
+          return;
+        }
+      } catch {
+        // Si falla la verificación, continuar con el flujo anterior
+      }
+
       const camionesActivos = (camiones ?? []).filter(c => c.activo);
       if (camionesActivos.length === 0 && isDueno) {
         toast.error("No hay vuelta activa ni camiones registrados. Agrega un camión en Ajustes primero.", { duration: 8000 });
@@ -598,7 +641,6 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
         return;
       }
       // NO cerrar el diálogo — el usuario no pierde la foto ni los datos.
-      // Mostrar el overlay de vuelta faltante encima del diálogo.
       const pedidoAConvertir = convirtiendo;
       setSaving(false);
       setTimeout(() => setVueltaFaltante(pedidoAConvertir), 50);
