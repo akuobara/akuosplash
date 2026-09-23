@@ -35,15 +35,18 @@ export async function GET(req: NextRequest) {
 
   for (const rec of recurrentesVencidos) {
     // Check por fechaSolicitada (no creadoEn) para evitar duplicados
-    // incluso si dos requests se ejecutan concurrentemente
+    // IMPORTANTE: solo contar pedidos pendientes/programados (no entregados/cancelados)
+    // Si el pedido para esa fecha ya fue entregado, hay que generar uno NUEVO
+    // para la próxima fecha, no saltárselo.
     const existente = await db.pedido.findFirst({
       where: {
         pedidoRecurrenteId: rec.id,
         fechaSolicitada: rec.fechaProximaGeneracion,
+        estado: { in: ["pendiente", "programado"] },
       },
     });
     if (existente) {
-      // Ya existe un pedido para esta fecha — avanzar fechaProximaGeneracion igual
+      // Ya existe un pedido pendiente para esta fecha — avanzar fechaProximaGeneracion
       const proxima = new Date(rec.fechaProximaGeneracion);
       proxima.setDate(proxima.getDate() + rec.frecuenciaDias);
       await db.pedidoRecurrente.update({
