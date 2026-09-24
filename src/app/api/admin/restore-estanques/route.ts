@@ -22,14 +22,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Falta parametro: nombre" }, { status: 400 });
   }
 
-  // Buscar el cliente por nombre (búsqueda parcial)
-  const clientes = await db.cliente.findMany({
-    where: {
-      duenoId,
-      nombre: { contains: nombreBusqueda, mode: "insensitive" },
-    },
+  // Buscar el cliente por nombre (búsqueda parcial, case-insensitive manual)
+  const nombreLower = nombreBusqueda.toLowerCase();
+  const todosClientes = await db.cliente.findMany({
+    where: { duenoId },
     select: { id: true, nombre: true, estanquesJson: true },
   });
+  const clientes = todosClientes.filter(c => c.nombre.toLowerCase().includes(nombreLower));
 
   if (clientes.length === 0) {
     return NextResponse.json({ error: `No se encontró cliente con nombre "${nombreBusqueda}"` }, { status: 404 });

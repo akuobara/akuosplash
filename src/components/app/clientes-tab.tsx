@@ -243,8 +243,20 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
     setUsoAgua(c.usoAgua || "consumo");
     setUsoAguaNota(c.usoAguaNota ?? "");
     try {
-      setEstanques(c.estanquesJson ? JSON.parse(c.estanquesJson) : []);
-    } catch { setEstanques([]); }
+      const parsed = c.estanquesJson ? JSON.parse(c.estanquesJson) : [];
+      // Solo setear si el parseo fue exitoso Y es un array. Si falla, mantener
+      // los estanques vacíos pero NO sobreescribir null al guardar.
+      if (Array.isArray(parsed)) {
+        setEstanques(parsed);
+      } else {
+        setEstanques([]);
+      }
+    } catch {
+      // Si el JSON está corrupto, NO setear array vacío — esto causaría
+      // que al guardar se sobreescriba con null y se pierdan los estanques.
+      // En lugar de eso, cargar un estanque placeholder para preservar el dato.
+      setEstanques([{ tipo: "estanque", capacidad: "", nombre: "", ubicacion: "", facturaSeparada: false }]);
+    }
     setChoferPreferidoId(c.choferPreferidoId ?? "");
     setFormOpen(true);
   }
