@@ -493,9 +493,16 @@ export function HistorialVueltasTab({ refreshKey, onRefresh }: { refreshKey: num
                                         return (
                                           <div className="mt-1 rounded border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-1.5 text-[11px]">
                                             {estanques.map((est, i) => (
-                                              <div key={i} className="flex items-center justify-between">
-                                                <span className="text-amber-900 dark:text-amber-200">{est.nombre}: {formatNumber(est.litros, 0)} L</span>
-                                                <span className="tabular-nums">{formatCurrency(est.total)}</span>
+                                              <div key={i} className="space-y-1">
+                                                <div className="flex items-center justify-between">
+                                                  <span className="text-amber-900 dark:text-amber-200">{est.nombre}: {formatNumber(est.litros, 0)} L</span>
+                                                  <span className="tabular-nums">{formatCurrency(est.total)}</span>
+                                                </div>
+                                                {est.fotoUrl && (
+                                                  <a href={est.fotoUrl} target="_blank" rel="noopener noreferrer">
+                                                    <img src={est.fotoUrl} alt="Medidor" className="h-14 rounded border border-amber-200" />
+                                                  </a>
+                                                )}
                                               </div>
                                             ))}
                                           </div>
