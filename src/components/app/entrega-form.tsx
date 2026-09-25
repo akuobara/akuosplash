@@ -58,16 +58,6 @@ export interface Entrega {
   fotoMedidorUrl: string | null;
   nota: string | null;
   detalleEstanquesJson: string | null;
-  // === Multi-transporte ===
-  tipoTransporte?: string | null;
-  origen?: string | null;
-  destino?: string | null;
-  tipoCarga?: string | null;
-  toneladas?: number | null;
-  horasTrabajadas?: number | null;
-  cantidadPersonal?: number | null;
-  material?: string | null;
-  duracionMinutos?: number | null;
 }
 
 export interface VueltaActual {
@@ -235,7 +225,7 @@ export function EntregaForm({
   // Deuda del cliente seleccionado (para pagos de entregas anteriores)
   const [clienteDeuda, setClienteDeuda] = useState<number | null>(null);
   // Desglose por estanque (cuando el cliente tiene facturación independiente)
-  const [estanquesEntrega, setEstanquesEntrega] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string; modoIngreso?: "por_litros" | "por_precio"; precioTotalInput?: string; fotoUrl?: string | null }[]>([]);
+  const [estanquesEntrega, setEstanquesEntrega] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string; modoIngreso?: "por_litros" | "por_precio"; precioTotalInput?: string }[]>([]);
   const [modoEstanques, setModoEstanques] = useState(false);
 
   const [lecturaAnterior, setLecturaAnterior] = useState<string>("");
@@ -633,7 +623,6 @@ export function EntregaForm({
             total: e.total,
             metodoPago: e.metodoPago,
             montoRecibido: e.montoRecibido,
-            fotoUrl: e.fotoUrl || null,
           }))),
         };
         if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
@@ -1808,41 +1797,6 @@ export function EntregaForm({
                             <span className="text-emerald-600 dark:text-emerald-400">✓ Pagado</span>
                           )}
                         </>
-                      )}
-                    </div>
-
-                    {/* Foto del medidor por estanque */}
-                    <div className="mt-2">
-                      {est.fotoUrl ? (
-                        <div className="relative w-fit">
-                          <img src={est.fotoUrl} alt="Medidor" className="max-h-24 rounded border" />
-                          <button
-                            type="button"
-                            onClick={() => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, fotoUrl: null } : est2))}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                          >×</button>
-                        </div>
-                      ) : (
-                        <label className="flex cursor-pointer items-center gap-1 rounded border border-dashed border-border p-1.5 text-[10px] text-muted-foreground hover:border-primary/50">
-                          <Camera className="h-3 w-3" /> Foto del medidor
-                          <input
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            className="hidden"
-                            onChange={async (e) => {
-                              const f = e.target.files?.[0];
-                              if (!f) return;
-                              try {
-                                const url = await uploadFile(f);
-                                setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, fotoUrl: url } : est2));
-                                toast.success("Foto subida");
-                              } catch (err) {
-                                toast.error(err instanceof Error ? err.message : "Error al subir");
-                              }
-                            }}
-                          />
-                        </label>
                       )}
                     </div>
                   </div>

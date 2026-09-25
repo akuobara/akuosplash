@@ -90,9 +90,6 @@ interface Config {
   choferesPuedenEditarClientes: boolean;
   choferesPuedenCrearPedidos: boolean;
   umbralCompletacionVuelta?: number | null;
-  // Multi-transporte
-  tipoTransporte?: string;
-  tiposTransporteActivos?: string | null;
 }
 
 interface Camion {
@@ -484,8 +481,6 @@ export default function Home() {
                 precioCamionCompleto: config?.precioCamionCompleto ?? 0,
                 capacidadCamion: config?.capacidadCamion ?? 17000,
                 umbralCompletacionVuelta: config?.umbralCompletacionVuelta ?? 0.975,
-                tipoTransporte: config?.tipoTransporte ?? "aljibe",
-                tiposTransporteActivos: config?.tiposTransporteActivos ?? null,
               }}
               camiones={camiones}
               onGoToEntregas={() => setTab("entregas")}
@@ -555,8 +550,6 @@ export default function Home() {
                 precioTransferenciaPorLitro: config?.precioTransferenciaPorLitro ?? 0,
                 precioCamionCompleto: config?.precioCamionCompleto ?? 0,
                 capacidadCamion: config?.capacidadCamion ?? 17000,
-                tipoTransporte: config?.tipoTransporte ?? "aljibe",
-                tiposTransporteActivos: config?.tiposTransporteActivos ?? null,
               }}
               vueltaActual={vueltaActual}
               camiones={camiones}

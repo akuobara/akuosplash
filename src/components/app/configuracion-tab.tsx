@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText, Calendar, Smartphone, Truck } from "lucide-react";
+import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText, Calendar, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { apiPut } from "@/lib/api-client";
 import {
@@ -64,9 +64,6 @@ interface Config {
   transfRutTitular?: string | null;
   transfEmail?: string | null;
   transfTelefono?: string | null;
-  // Multi-transporte
-  tipoTransporte?: string; // aljibe | flete | mudanza | aridos | mixto
-  tiposTransporteActivos?: string | null; // JSON array de tipos activos
 }
 
 interface ConfiguracionTabProps {
@@ -135,10 +132,6 @@ export function ConfiguracionTab({
 
   const [saving, setSaving] = useState(false);
 
-  // Multi-transporte
-  const [tipoTransporte, setTipoTransporte] = useState<string>("aljibe");
-  const [tiposActivos, setTiposActivos] = useState<string[]>(["aljibe"]);
-
   useEffect(() => {
     if (config) {
       setNombreChofer(config.nombreChofer);
@@ -180,12 +173,6 @@ export function ConfiguracionTab({
       setTransfRutTitular((config as any).transfRutTitular ?? "");
       setTransfEmail((config as any).transfEmail ?? "");
       setTransfTelefono((config as any).transfTelefono ?? "");
-      // Multi-transporte
-      setTipoTransporte((config as any).tipoTransporte || "aljibe");
-      try {
-        const parsed = (config as any).tiposTransporteActivos ? JSON.parse((config as any).tiposTransporteActivos) : ["aljibe"];
-        if (Array.isArray(parsed) && parsed.length > 0) setTiposActivos(parsed);
-      } catch {}
     }
   }, [config]);
 
@@ -249,8 +236,6 @@ export function ConfiguracionTab({
         transfRutTitular,
         transfEmail,
         transfTelefono,
-        tipoTransporte,
-        tiposTransporteActivos: JSON.stringify(tiposActivos),
       });
       onConfigChange(r.configuracion);
       toast.success("Configuración guardada");
@@ -269,68 +254,6 @@ export function ConfiguracionTab({
   return (
     <div className="space-y-4">
       <div>
-        {/* Selector de tipo de transporte */}
-        <Card className="border-primary/30 bg-primary/5">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Truck className="h-4 w-4" /> Tipo de transporte
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-xs text-muted-foreground">
-              Seleccioná qué tipos de transporte realiza tu empresa. La interfaz se adapta automáticamente.
-            </p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {[
-                { id: "aljibe", label: "Aljibe (agua)", icon: "💧" },
-                { id: "flete", label: "Flete", icon: "📦" },
-                { id: "mudanza", label: "Mudanza", icon: "🏠" },
-                { id: "aridos", label: "Áridos", icon: "⛰️" },
-              ].map((tipo) => {
-                const activo = tiposActivos.includes(tipo.id);
-                return (
-                  <button
-                    key={tipo.id}
-                    type="button"
-                    onClick={() => {
-                      if (activo) {
-                        if (tiposActivos.length > 1) {
-                          setTiposActivos(tiposActivos.filter(t => t !== tipo.id));
-                        }
-                      } else {
-                        setTiposActivos([...tiposActivos, tipo.id]);
-                      }
-                    }}
-                    className={`flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition ${
-                      activo
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    <span className="text-2xl">{tipo.icon}</span>
-                    <span className="text-xs font-medium">{tipo.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-            {tiposActivos.length > 1 && (
-              <div className="space-y-1">
-                <Label className="text-xs">Tipo principal (para liquidación)</Label>
-                <Select value={tipoTransporte} onValueChange={setTipoTransporte}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tiposActivos.map(t => {
-                      const labels: Record<string, string> = { aljibe: "Aljibe", flete: "Flete", mudanza: "Mudanza", aridos: "Áridos" };
-                      return <SelectItem key={t} value={t}>{labels[t]}</SelectItem>;
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </CardContent>
-        </Card>
         <h2 className="text-lg font-semibold sm:text-xl">Configuración</h2>
         <p className="text-sm text-muted-foreground">
           Datos del negocio, camiones, precios, reparto con la administración e impuestos.

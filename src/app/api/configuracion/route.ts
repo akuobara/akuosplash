@@ -129,9 +129,6 @@ export async function PUT(req: NextRequest) {
       ...(body.transfRutTitular !== undefined && { transfRutTitular: body.transfRutTitular?.trim() || null }),
       ...(body.transfEmail !== undefined && { transfEmail: body.transfEmail?.trim() || null }),
       ...(body.transfTelefono !== undefined && { transfTelefono: body.transfTelefono?.trim() || null }),
-      // Multi-transporte
-      ...(body.tipoTransporte !== undefined && { tipoTransporte: body.tipoTransporte }),
-      ...(body.tiposTransporteActivos !== undefined && { tiposTransporteActivos: body.tiposTransporteActivos }),
     },
     create: {
       duenoId: session.userId,
@@ -155,9 +152,6 @@ export async function PUT(req: NextRequest) {
       periodoLiquidacion: body.periodoLiquidacion || "mensual",
       diaCierreMes: Number(body.diaCierreMes) || 0,
       diaCierreSemana: Number(body.diaCierreSemana) || 6,
-      // Multi-transporte
-      tipoTransporte: body.tipoTransporte || "aljibe",
-      tiposTransporteActivos: body.tiposTransporteActivos ?? null,
     },
   });
 

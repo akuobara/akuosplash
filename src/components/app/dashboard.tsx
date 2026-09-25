@@ -46,7 +46,6 @@ import {
 } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { EntregaForm } from "./entrega-form";
-import { EntregaMultiForm, getResumenMultiEntrega } from "./entrega-multi-form";
 import { GastoForm } from "./gasto-form";
 import { VueltaWidget } from "./vuelta-widget";
 import { apiGet, apiPost } from "@/lib/api-client";
@@ -125,9 +124,6 @@ interface DashboardProps {
     precioCamionCompleto: number;
     capacidadCamion: number;
     umbralCompletacionVuelta?: number | null;
-    // Multi-transporte
-    tipoTransporte?: string;
-    tiposTransporteActivos?: string | null;
   };
   camiones: {
     id: string;
@@ -180,35 +176,8 @@ export function Dashboard({
   const [cargandoEntregasVuelta, setCargandoEntregasVuelta] = useState<Set<string>>(new Set());
 
   const [entregaFormOpen, setEntregaFormOpen] = useState(false);
-  const [multiFormOpen, setMultiFormOpen] = useState(false);
   const [gastoFormOpen, setGastoFormOpen] = useState(false);
   const [pagoFormOpen, setPagoFormOpen] = useState(false);
-
-  // === Multi-transporte: determinar si está activo y qué tipos ===
-  // Si hay tipos activos no-aljibe (flete, mudanza, aridos), usar el multi-form.
-  // Si solo está aljibe activo, usar el form existente.
-  const tiposActivosArr: string[] = (() => {
-    try {
-      if (config?.tiposTransporteActivos) {
-        const parsed = JSON.parse(config.tiposTransporteActivos);
-        if (Array.isArray(parsed)) return parsed.filter((t: unknown) => typeof t === "string");
-      }
-    } catch {
-      // ignore
-    }
-    // fallback: si tipoTransporte está seteado
-    if (config?.tipoTransporte) return [config.tipoTransporte];
-    return ["aljibe"];
-  })();
-  const esMultiTransporte = tiposActivosArr.some((t) => t !== "aljibe");
-
-  function abrirFormularioEntrega() {
-    if (esMultiTransporte) {
-      setMultiFormOpen(true);
-    } else {
-      setEntregaFormOpen(true);
-    }
-  }
 
   const cargarVuelta = useCallback(async () => {
     try {
@@ -324,8 +293,8 @@ export function Dashboard({
           </Button>
           {/* Solo el chofer puede registrar entregas, no el admin */}
           {!isDueno && (
-            <Button onClick={abrirFormularioEntrega} size="sm">
-              <Plus className="mr-1 h-4 w-4" /> {esMultiTransporte ? "Entrega" : "Entrega"}
+            <Button onClick={() => setEntregaFormOpen(true)} size="sm">
+              <Plus className="mr-1 h-4 w-4" /> Entrega
             </Button>
           )}
           {/* Botones de descarga: un solo resumen diario en PDF o Excel */}
@@ -370,7 +339,7 @@ export function Dashboard({
           cargarVuelta();
           onRefresh();
         }}
-        onRegistrarEntrega={abrirFormularioEntrega}
+        onRegistrarEntrega={() => setEntregaFormOpen(true)}
       />
 
       {/* Resumen de efectivo de la vuelta actual */}
@@ -600,55 +569,18 @@ export function Dashboard({
                           <p className="py-4 text-center text-sm text-muted-foreground">No hay entregas en esta vuelta.</p>
                         ) : (
                           <>
-                            {entregas.map((e: any, idx: number) => {
-                              const esMulti = e.tipoTransporte && e.tipoTransporte !== "aljibe";
-                              const resumen = esMulti ? getResumenMultiEntrega({
-                                tipoTransporte: e.tipoTransporte,
-                                origen: e.origen,
-                                destino: e.destino,
-                                tipoCarga: e.tipoCarga,
-                                toneladas: e.toneladas,
-                                horasTrabajadas: e.horasTrabajadas,
-                                cantidadPersonal: e.cantidadPersonal,
-                                material: e.material,
-                              }) : null;
-                              return (
+                            {entregas.map((e: any, idx: number) => (
                               <div key={e.id} className="rounded-lg border border-border bg-background p-2.5 text-sm">
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-1.5">
                                       <span className="text-xs text-muted-foreground">#{idx + 1}</span>
-                                      {esMulti && (
-                                        <span className="text-base leading-none" title={resumen?.tipo}>{resumen?.icon}</span>
-                                      )}
                                       <span className="font-medium truncate">{e.clienteNombre}</span>
-                                      {esMulti && (
-                                        <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                                          {resumen?.tipo}
-                                        </span>
-                                      )}
                                     </div>
                                     <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                                      {esMulti ? (
-                                        // Mostrar origen → destino en vez de litros
-                                        <>
-                                          {(e.origen || e.destino) && (
-                                            <span className="flex items-center gap-0.5 truncate">
-                                              {e.origen || "—"} <ArrowRight className="h-3 w-3 mx-0.5" /> {e.destino || "—"}
-                                            </span>
-                                          )}
-                                          {resumen?.detalle && (
-                                            <>
-                                              <span>·</span>
-                                              <span>{resumen.detalle}</span>
-                                            </>
-                                          )}
-                                        </>
-                                      ) : (
-                                        <span className="flex items-center gap-0.5">
-                                          <Droplets className="h-3 w-3" /> {formatNumber(e.litros, 0)} L
-                                        </span>
-                                      )}
+                                      <span className="flex items-center gap-0.5">
+                                        <Droplets className="h-3 w-3" /> {formatNumber(e.litros, 0)} L
+                                      </span>
                                       <span>·</span>
                                       <span>{labelMetodoPago(e.metodoPago)}</span>
                                       <span>·</span>
@@ -665,7 +597,7 @@ export function Dashboard({
                                     )}
                                     {e.fotoMedidorUrl && (
                                       <a href={e.fotoMedidorUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block">
-                                        <img src={e.fotoMedidorUrl} alt="Respaldo" className="h-14 rounded border border-border" />
+                                        <img src={e.fotoMedidorUrl} alt="Medidor" className="h-14 rounded border border-border" />
                                       </a>
                                     )}
                                   </div>
@@ -682,7 +614,7 @@ export function Dashboard({
                                     </span>
                                   </div>
                                 </div>
-                                {/* Detalle de estanques (solo aljibe) */}
+                                {/* Detalle de estanques */}
                                 {e.detalleEstanquesJson && (() => {
                                   let estanques: any[] = [];
                                   try { estanques = JSON.parse(e.detalleEstanquesJson); } catch { return null; }
@@ -701,8 +633,7 @@ export function Dashboard({
                                   );
                                 })()}
                               </div>
-                              );
-                            })}
+                            ))}
                             {/* Totales de la vuelta */}
                             <div className="rounded-lg bg-muted/40 p-2 text-center text-xs">
                               <div className="grid grid-cols-4 gap-2">
@@ -755,34 +686,14 @@ export function Dashboard({
                 No hay entregas en este período.
               </div>
             ) : (
-              recientes.map((e) => {
-                const esMulti = e.tipoTransporte && e.tipoTransporte !== "aljibe";
-                const resumen = esMulti ? getResumenMultiEntrega({
-                  tipoTransporte: e.tipoTransporte,
-                  origen: e.origen,
-                  destino: e.destino,
-                  tipoCarga: e.tipoCarga,
-                  toneladas: e.toneladas,
-                  horasTrabajadas: e.horasTrabajadas,
-                  cantidadPersonal: e.cantidadPersonal,
-                  material: e.material,
-                }) : null;
-                return (
+              recientes.map((e) => (
                 <div
                   key={e.id}
                   className="flex items-center justify-between gap-2 rounded-lg border border-border p-3"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      {esMulti && (
-                        <span className="text-base leading-none" title={resumen?.tipo}>{resumen?.icon}</span>
-                      )}
                       <span className="truncate font-medium">{e.clienteNombre}</span>
-                      {esMulti && (
-                        <Badge variant="secondary" className="text-[10px] text-primary">
-                          {resumen?.tipo}
-                        </Badge>
-                      )}
                       <Badge variant="outline" className="text-[10px]">
                         {labelEstadoPago(e.estadoPago)}
                       </Badge>
@@ -791,22 +702,12 @@ export function Dashboard({
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {formatDate(e.fecha)}
-                      {esMulti ? (
-                        <>
-                          {(e.origen || e.destino) && (
-                            <> · {e.origen || "—"} → {e.destino || "—"}</>
-                          )}
-                          {resumen?.detalle && <> · {resumen.detalle}</>}
-                        </>
-                      ) : (
-                        <> · {formatNumber(e.litros, 0)} L</>
-                      )}
+                      {formatDate(e.fecha)} · {formatNumber(e.litros, 0)} L
                       {e.vuelta && ` · Vuelta #${e.vuelta.numero}`}
                     </p>
                     {e.fotoMedidorUrl && (
                       <a href={e.fotoMedidorUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block">
-                        <img src={e.fotoMedidorUrl} alt="Respaldo" className="h-16 rounded border border-border" />
+                        <img src={e.fotoMedidorUrl} alt="Medidor" className="h-16 rounded border border-border" />
                       </a>
                     )}
                   </div>
@@ -819,8 +720,7 @@ export function Dashboard({
                     )}
                   </div>
                 </div>
-                );
-              })
+              ))
             )}
           </CardContent>
         </Card>
@@ -883,22 +783,6 @@ export function Dashboard({
         vueltaActual={vueltaActual}
         pedidosPendientes={pedidosPendientes}
         camiones={camiones}
-        isDueno={isDueno}
-      />
-      {/* Formulario multi-transporte (flete/mudanza/aridos) */}
-      <EntregaMultiForm
-        open={multiFormOpen}
-        onOpenChange={setMultiFormOpen}
-        onSaved={() => {
-          onRefresh();
-          cargarVuelta();
-        }}
-        clientes={clientes}
-        config={{
-          tipoTransporte: config?.tipoTransporte ?? "flete",
-          tiposTransporteActivos: config?.tiposTransporteActivos ?? null,
-        }}
-        vueltaActual={vueltaActual}
         isDueno={isDueno}
       />
       {/* Diálogo: Recibir pago */}
