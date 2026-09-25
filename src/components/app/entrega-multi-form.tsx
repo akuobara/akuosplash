@@ -402,6 +402,8 @@ export function EntregaMultiForm({
         metodoPago: metodoPago === "sin_pago" ? "credito" : metodoPago,
         fotoMedidorUrl: fotoUrl,
         nota: nota.trim() || null,
+        // Vuelta activa
+        vueltaId: vueltaActual?.id || undefined,
         // Multi-transporte
         tipoTransporte: tipoSeleccionado,
         origen,
