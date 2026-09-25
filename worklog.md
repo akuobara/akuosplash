@@ -511,3 +511,86 @@ Stage Summary:
   5. Recargar la pestaña Liquidación. Debería ver:
      - Si NO hay cobro en este período: botón verde "Cobrar saldo anterior" visible
      - Si ya hay cobro (pago O gasto fantasma detectado): badge verde "✓ Saldo cobrado: $X"
+
+---
+Task ID: multi-transporte-forms
+Agent: main
+Task: Construir soporte multi-tipo de transporte (flete, mudanza, áridos) además de aljibe. Crear formulario adaptativo, actualizar backend, dashboard y pestaña de entregas.
+
+Work Log:
+- LEÍDO el código existente: entrega-form.tsx (2281 líneas, form de aljibe), dashboard.tsx (1014 líneas), entregas-tab.tsx (510 líneas), api/entregas/route.ts, api-client.ts, helpers.ts, configuracion-tab.tsx (que ya tenía selector 4-botones pero no persistía los campos), page.tsx (que pasa `config` a Dashboard y EntregasTab).
+- DETECTADO que la "migración ya hecha" mencionada en el contexto NO estaba aplicada al schema.prisma ni a la DB local. Solo existía un endpoint `/api/admin/migrate-multi-transporte/route.ts` con ALTER TABLEs SQL pero la DB local no tenía las columnas. Tampoco estaba `tipoTransporte` ni `tiposTransporteActivos` en el schema.prisma.
+
+- AGREGADOS al `prisma/schema.prisma`:
+  * En modelo `Entrega`: `tipoTransporte` (String default "aljibe"), `origen`, `destino`, `tipoCarga`, `toneladas` (Float?), `horasTrabajadas` (Float?), `cantidadPersonal` (Int?), `material`, `duracionMinutos` (Int?).
+  * En modelo `Configuracion`: `tipoTransporte` (String default "aljibe"), `tiposTransporteActivos` (String? JSON).
+- EJECUTADO `bun run db:push` → DB local sincronizada, Prisma Client regenerado con los campos nuevos.
+
+- ACTUALIZADO `src/app/api/entregas/route.ts` (POST handler): agrega al `data: {...}` del `tx.entrega.create` los 9 campos nuevos:
+  `tipoTransporte`, `origen`, `destino`, `tipoCarga`, `toneladas`, `horasTrabajadas`, `cantidadPersonal`, `material`, `duracionMinutos`. Todos optionales con fallback a null/`aljibe`.
+  Para multi-transporte: `litros=0`, `precioPorLitro=0`, `total` viene en `body.total` (el backend ya lo soporta vía la rama `precioPorLitro === 0 && body.total` que usa el total del frontend, con redondeo a $100).
+
+- ACTUALIZADO `src/app/api/configuracion/route.ts` (PUT handler): agrega al `update` y `create` del upsert los campos `tipoTransporte` y `tiposTransporteActivos` (venían del frontend pero el backend los ignoraba).
+
+- ACTUALIZADA `Config` interface en `src/app/page.tsx`: agregados `tipoTransporte?: string` y `tiposTransporteActivos?: string | null`. Pasados como props a `Dashboard` y `EntregasTab` en sus `config={{...}}`.
+
+- ACTUALIZADA `Config` interface en `src/components/app/configuracion-tab.tsx`: `tiposTransporteActivos?: string | null` (era `string` solo, causaba mismatch de tipos con page.tsx).
+
+- ACTUALIZADA `Entrega` interface en `src/components/app/entrega-form.tsx`: agregados los 9 campos multi-transporte como opcionales (`tipoTransporte?`, `origen?`, `destino?`, `tipoCarga?`, `toneladas?`, `horasTrabajadas?`, `cantidadPersonal?`, `material?`, `duracionMinutos?`). Esto permite que `dashboard.tsx` y `entregas-tab.tsx` lean los campos cuando vienen de la API.
+
+- CREADO nuevo archivo `src/components/app/entrega-multi-form.tsx` (~1220 líneas):
+  * Componente principal `EntregaMultiForm` con Dialog de shadcn/ui.
+  * Lee `tiposTransporteActivos` (JSON string) del config, filtra aljibe → array de tipos activos multi (flete/mudanza/aridos).
+  * Selector de tipo si hay múltiples activos (botones con icono + label).
+  * Selector de cliente del catálogo o ingreso manual (mismo patrón que EntregaForm).
+  * Campos específicos por tipo vía sub-componentes `FleteFields`, `MudanzaFields`, `AridosFields`:
+    - Flete: origen, destino, tipoCarga (select), volumen (número), unidad (m³/kg/t), precio del viaje.
+    - Mudanza: origen, destino, volumen (m³), horas trabajadas, cantidad personal, precio de la mudanza.
+    - Áridos: cantera origen, destino, material (select: arena/ripio/tierra/gravilla/otros), toneladas, precio por tonelada, total automático (toneladas × precio, redondeado a $100).
+  * Sección de pago: botones efectivo/transferencia/sin_pago; monto editable; sugerencia automática del total como monto recibido.
+  * Resumen total/recibido/saldo/estado pago con badges.
+  * Foto de respaldo vía `uploadFile` de `@/lib/api-client` (con preview y botón eliminar).
+  * Nota opcional (Textarea).
+  * Validaciones por tipo (origen+destino+precio para flete/mudanza; origen+destino+toneladas+precio para aridos).
+  * POST a `/api/entregas` con todos los campos nuevos + `litros:0, precioPorLitro:0, total` + estadoPago calculado.
+  * Helpers exportados: `getResumenMultiEntrega(e)` (devuelve {tipo, icon, origen, destino, detalle}), `getTipoTransporteLabel(t)`, `getTipoTransporteIcon(t)`. Usados por dashboard y entregas-tab para renderizar las entregas multi-tipo.
+
+- ACTUALIZADO `src/components/app/dashboard.tsx`:
+  * Importa `EntregaMultiForm` y `getResumenMultiEntrega`.
+  * Prop `config` extendida con `tipoTransporte?` y `tiposTransporteActivos?`.
+  * Estado `multiFormOpen` + función `abrirFormularioEntrega()` que decide qué form abrir según `esMultiTransporte` (true si algún tipo activo no es aljibe).
+  * Botón "+ Entrega" del header y `onRegistrarEntrega` del `VueltaWidget` ahora llaman `abrirFormularioEntrega`.
+  * Render de entregas en vuelta expandida: si `e.tipoTransporte !== "aljibe"`, muestra icono + badge con tipo + origen→destino + detalle (material/tipoCarga/toneladas/horas/personal) en vez de "X L".
+  * Render de "Entregas recientes": mismo tratamiento con badges adicionales.
+  * Modal `<EntregaMultiForm>` agregado al final del componente.
+
+- ACTUALIZADO `src/components/app/entregas-tab.tsx`:
+  * Importa `EntregaMultiForm` y `getResumenMultiEntrega`.
+  * Prop `config` extendida con `tipoTransporte?` y `tiposTransporteActivos?`.
+  * Estado `multiFormOpen` + `esMultiTransporte`. `handleNueva()` decide qué form abrir.
+  * Lista de entregas: si `e.tipoTransporte !== "aljibe"`, muestra icono del tipo en el avatar (en vez de ImageIcon), badge con tipo, y origen→destino + detalle en el subtítulo (en vez de "X L").
+  * Modal de detalle: refactorizado a IIFE para calcular `esMultiV` y `resumenV`. Muestra bloque destacado con tipo+icono+origen+destino+detalle al inicio; debajo en la grid de campos, si es multi muestra tipoCarga/material/toneladas/horasTrabajadas/cantidadPersonal/duracionMinutos en vez de lecturaAnterior/lecturaActual/litros/precioPorLitro. Detalle de estanques solo se muestra si NO es multi.
+  * Modal `<EntregaMultiForm>` agregado.
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos (solo 4 errores pre-existentes en examples/, skills/ y 2 archivos admin/diag-* que no toqué).
+  * `bun run lint` → 0 errores/warnings nuevos en mis archivos. Solo 3 errores pre-existentes en `src/app/api/cliente/auth/recuperar/route.ts`, `src/app/api/reportes/descargar/route.ts`, `src/app/api/reportes/liquidacion-pdf/route.ts` (todos `require()` style, no relacionados).
+  * `curl https://my-project-azure-five-82.vercel.app/` → HTTP 200.
+  * `curl .../api/entregas` y `.../api/configuracion` → HTTP 401 (auth required, endpoint responde).
+
+- COMMIT local: `a75a502` (9 archivos, +1546 -33 líneas).
+  Nota: `git push origin main` falla por falta de GH_TOKEN en este entorno (no hay .git-credentials). El deploy a Vercel usa el script `scripts/deploy-vercel-direct.py` que sube archivos locales directo a la API de Vercel (no depende de git push).
+
+- DEPLOY VERCEL ejecutado: deployment `dpl_7SnmJArRMaJsQSJ5Hg1Ht9EtwKSm`, READY en ~80s. Dominio producción `my-project-azure-five-82.vercel.app` asignado.
+
+Stage Summary:
+- ✅ Schema Prisma + DB local actualizados con 9 campos en Entrega y 2 en Configuracion (db:push aplicado).
+- ✅ POST /api/entregas persiste los 9 campos nuevos. POST /api/configuracion persiste tipoTransporte y tiposTransporteActivos.
+- ✅ Nuevo `EntregaMultiForm` con sub-forms FleteFields/MudanzaFields/AridosFields, cálculo automático de total (redondeo $100 para áridos), saldo, estado de pago, foto de respaldo vía uploadFile.
+- ✅ Dashboard abre EntregaMultiForm cuando config tiene tipos activos no-aljibe; muestra entregas multi-tipo con icono+origen→destino+detalle en lista de vuelta y en "Entregas recientes".
+- ✅ EntregasTab abre EntregaMultiForm para nuevas entregas cuando es multi; lista y modal de detalle muestran info multi-tipo (icono, badge, campos específicos en vez de litros).
+- ✅ Helpers `getResumenMultiEntrega`/`getTipoTransporteIcon`/`getTipoTransporteLabel` exportados desde entrega-multi-form.tsx y reusados en dashboard y entregas-tab.
+- ✅ Flujo de aljibe NO roto: el form existente `EntregaForm` se usa cuando solo aljibe está activo. Detalle de estanques solo se muestra si NO es multi.
+- ✅ TypeScript y lint limpios en todos los archivos tocados.
+- ✅ Deploy a Vercel exitoso y verificado (HTTP 200 en /, HTTP 401 en endpoints con auth).
+- ⚠️ `git push origin main` pendiente: el entorno no tiene `.git-credentials` ni `GH_TOKEN`. El commit local `a75a502` está listo para pushear cuando se consiga el token. El deploy a producción no depende de git push.
