@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { EntregaForm } from "./entrega-form";
+import { EntregaMultiForm, getResumenMultiEntrega } from "./entrega-multi-form";
 import { apiGet, apiDelete } from "@/lib/api-client";
 import {
   formatCurrency,
@@ -80,6 +81,9 @@ interface EntregasTabProps {
     precioTransferenciaPorLitro: number;
     precioCamionCompleto: number;
     capacidadCamion: number;
+    // Multi-transporte
+    tipoTransporte?: string;
+    tiposTransporteActivos?: string | null;
   };
   vueltaActual: VueltaActual | null;
   camiones?: { id: string; nombre: string; activo: boolean }[];
@@ -115,9 +119,25 @@ export function EntregasTab({
   const [loading, setLoading] = useState(true);
 
   const [formOpen, setFormOpen] = useState(false);
+  const [multiFormOpen, setMultiFormOpen] = useState(false);
   const [editando, setEditando] = useState<Entrega | null>(null);
   const [vista, setVista] = useState<Entrega | null>(null);
   const [borrando, setBorrando] = useState<Entrega | null>(null);
+
+  // === Multi-transporte: determinar si está activo ===
+  const tiposActivosArr: string[] = (() => {
+    try {
+      if (config?.tiposTransporteActivos) {
+        const parsed = JSON.parse(config.tiposTransporteActivos);
+        if (Array.isArray(parsed)) return parsed.filter((t: unknown) => typeof t === "string");
+      }
+    } catch {
+      // ignore
+    }
+    if (config?.tipoTransporte) return [config.tipoTransporte];
+    return ["aljibe"];
+  })();
+  const esMultiTransporte = tiposActivosArr.some((t) => t !== "aljibe");
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -157,7 +177,11 @@ export function EntregasTab({
 
   function handleNueva() {
     setEditando(null);
-    setFormOpen(true);
+    if (esMultiTransporte) {
+      setMultiFormOpen(true);
+    } else {
+      setFormOpen(true);
+    }
   }
 
   async function handleBorrar(e: Entrega) {
@@ -266,7 +290,19 @@ export function EntregasTab({
             </div>
           ) : (
             <ul className="divide-y divide-border">
-              {filtradas.map((e) => (
+              {filtradas.map((e) => {
+                const esMulti = e.tipoTransporte && e.tipoTransporte !== "aljibe";
+                const resumen = esMulti ? getResumenMultiEntrega({
+                  tipoTransporte: e.tipoTransporte,
+                  origen: e.origen,
+                  destino: e.destino,
+                  tipoCarga: e.tipoCarga,
+                  toneladas: e.toneladas,
+                  horasTrabajadas: e.horasTrabajadas,
+                  cantidadPersonal: e.cantidadPersonal,
+                  material: e.material,
+                }) : null;
+                return (
                 <li key={e.id} className="flex items-center gap-3 p-3 sm:p-4">
                   <button
                     type="button"
@@ -274,20 +310,24 @@ export function EntregasTab({
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     {e.fotoMedidorUrl ? (
-                       
                       <img
                         src={e.fotoMedidorUrl}
-                        alt="Medidor"
+                        alt="Respaldo"
                         className="h-12 w-12 shrink-0 rounded-lg border border-border object-cover"
                       />
                     ) : (
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
-                        <ImageIcon className="h-5 w-5" />
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground text-lg">
+                        {esMulti ? (resumen?.icon ?? "🚚") : <ImageIcon className="h-5 w-5" />}
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="truncate font-medium">{e.clienteNombre}</span>
+                        {esMulti && (
+                          <Badge variant="secondary" className="text-[10px] text-primary">
+                            {resumen?.icon} {resumen?.tipo}
+                          </Badge>
+                        )}
                         <Badge variant="outline" className="text-[10px]">
                           {labelEstadoPago(e.estadoPago)}
                         </Badge>
@@ -301,7 +341,18 @@ export function EntregasTab({
                         )}
                       </div>
                       <p className="truncate text-xs text-muted-foreground">
-                        {formatDate(e.fecha)} · {formatNumber(e.litros, 0)} L · {e.clienteDireccion || "Sin dirección"}
+                        {formatDate(e.fecha)}
+                        {esMulti ? (
+                          <>
+                            {(e.origen || e.destino) && (
+                              <> · {e.origen || "—"} → {e.destino || "—"}</>
+                            )}
+                            {resumen?.detalle && <> · {resumen.detalle}</>}
+                          </>
+                        ) : (
+                          <> · {formatNumber(e.litros, 0)} L</>
+                        )}
+                        {" · "}{e.clienteDireccion || "Sin dirección"}
                         {e.clienteZona ? ` · ${e.clienteZona}` : ""}
                       </p>
                     </div>
@@ -336,7 +387,8 @@ export function EntregasTab({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </CardContent>
@@ -363,6 +415,21 @@ export function EntregasTab({
         vueltaActual={vueltaActual}
         camiones={camiones}
       />
+      {/* Formulario multi-transporte (flete/mudanza/aridos) */}
+      <EntregaMultiForm
+        open={multiFormOpen}
+        onOpenChange={setMultiFormOpen}
+        onSaved={() => {
+          cargar();
+          onRefresh();
+        }}
+        clientes={clientes}
+        config={{
+          tipoTransporte: config?.tipoTransporte ?? "flete",
+          tiposTransporteActivos: config?.tiposTransporteActivos ?? null,
+        }}
+        vueltaActual={vueltaActual}
+      />
 
       {/* Modal de detalle */}
       <Dialog open={!!vista} onOpenChange={(o) => !o && setVista(null)}>
@@ -373,15 +440,43 @@ export function EntregasTab({
               {vista && formatDateTime(vista.fecha)}
             </DialogDescription>
           </DialogHeader>
-          {vista && (
+          {vista && (() => {
+            const esMultiV = vista.tipoTransporte && vista.tipoTransporte !== "aljibe";
+            const resumenV = esMultiV ? getResumenMultiEntrega({
+              tipoTransporte: vista.tipoTransporte,
+              origen: vista.origen,
+              destino: vista.destino,
+              tipoCarga: vista.tipoCarga,
+              toneladas: vista.toneladas,
+              horasTrabajadas: vista.horasTrabajadas,
+              cantidadPersonal: vista.cantidadPersonal,
+              material: vista.material,
+            }) : null;
+            return (
             <div className="space-y-3 text-sm">
               {vista.fotoMedidorUrl && (
-                 
                 <img
                   src={vista.fotoMedidorUrl}
-                  alt="Medidor"
+                  alt="Respaldo"
                   className="max-h-60 w-full rounded-lg border border-border object-contain"
                 />
+              )}
+              {/* Tipo de transporte (multi) */}
+              {esMultiV && resumenV && (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+                  <p className="flex items-center gap-2 text-sm font-semibold">
+                    <span className="text-xl">{resumenV.icon}</span>
+                    <span>{resumenV.tipo}</span>
+                  </p>
+                  {(vista.origen || vista.destino) && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {vista.origen || "—"} → {vista.destino || "—"}
+                    </p>
+                  )}
+                  {resumenV.detalle && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">{resumenV.detalle}</p>
+                  )}
+                </div>
               )}
               <div className="grid grid-cols-2 gap-2">
                 <Field label="Cliente" value={vista.clienteNombre} />
@@ -391,10 +486,36 @@ export function EntregasTab({
                 <Field label="Teléfono" value={vista.clienteTelefono || "—"} />
                 <Field label="Dirección" value={vista.clienteDireccion || "—"} />
                 <Field label="Zona" value={vista.clienteZona || "—"} />
-                <Field label="Lectura anterior" value={vista.lecturaAnterior != null ? formatNumber(vista.lecturaAnterior, 0) : "—"} />
-                <Field label="Lectura actual" value={vista.lecturaActual != null ? formatNumber(vista.lecturaActual, 0) : "—"} />
-                <Field label="Litros" value={`${formatNumber(vista.litros, 0)} L`} />
-                <Field label="Precio por litro" value={formatCurrency(vista.precioPorLitro)} />
+                {esMultiV ? (
+                  <>
+                    {/* Mostrar campos multi-tipo en lugar de litros */}
+                    {vista.tipoCarga && (
+                      <Field label="Tipo de carga" value={vista.tipoCarga} />
+                    )}
+                    {vista.material && (
+                      <Field label="Material" value={vista.material} />
+                    )}
+                    {vista.toneladas != null && (
+                      <Field label="Toneladas" value={`${formatNumber(vista.toneladas, 2)} t`} />
+                    )}
+                    {vista.horasTrabajadas != null && (
+                      <Field label="Horas trabajadas" value={`${formatNumber(vista.horasTrabajadas, 1)} h`} />
+                    )}
+                    {vista.cantidadPersonal != null && (
+                      <Field label="Personal" value={`${vista.cantidadPersonal}`} />
+                    )}
+                    {vista.duracionMinutos != null && (
+                      <Field label="Duración" value={`${vista.duracionMinutos} min`} />
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Field label="Lectura anterior" value={vista.lecturaAnterior != null ? formatNumber(vista.lecturaAnterior, 0) : "—"} />
+                    <Field label="Lectura actual" value={vista.lecturaActual != null ? formatNumber(vista.lecturaActual, 0) : "—"} />
+                    <Field label="Litros" value={`${formatNumber(vista.litros, 0)} L`} />
+                    <Field label="Precio por litro" value={formatCurrency(vista.precioPorLitro)} />
+                  </>
+                )}
                 <Field label="Total" value={formatCurrency(vista.total)} strong />
                 {vista.montoEfectivo > 0 && (
                   <Field label="Efectivo recibido" value={formatCurrency(vista.montoEfectivo)} />
@@ -410,8 +531,8 @@ export function EntregasTab({
                 />
               </div>
 
-              {/* Detalle de estanques */}
-              {vista.detalleEstanquesJson && (() => {
+              {/* Detalle de estanques (solo aljibe) */}
+              {!esMultiV && vista.detalleEstanquesJson && (() => {
                 let estanques: { nombre: string; litros: number; precioPorLitro: number; total: number; metodoPago: string; montoRecibido: number }[] = [];
                 try { estanques = JSON.parse(vista.detalleEstanquesJson); } catch { return null; }
                 if (estanques.length === 0) return null;
@@ -446,7 +567,8 @@ export function EntregasTab({
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
           <DialogFooter>
             <Button variant="outline" onClick={() => setVista(null)}>
               Cerrar

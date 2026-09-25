@@ -374,6 +374,25 @@ model Entrega {
 
   // Si esta entrega viene de un pedido, se vincula aquí
   pedido            Pedido?
+
+  // === Multi-transporte ===
+  // Tipo de transporte de esta entrega (aljibe | flete | mudanza | aridos)
+  tipoTransporte     String   @default("aljibe")
+  // Origen y destino (para flete, mudanza, áridos)
+  origen             String?
+  destino            String?
+  // Tipo de carga para flete (general, materiales construction, madera, mobiliario, etc.)
+  tipoCarga          String?
+  // Para áridos: toneladas transportadas
+  toneladas          Float?
+  // Para mudanza: horas trabajadas (decimal)
+  horasTrabajadas    Float?
+  // Para mudanza: cantidad de personal (1, 2, 3, 4...)
+  cantidadPersonal   Int?
+  // Para áridos: material (arena, ripio, tierra, gravilla, otros)
+  material           String?
+  // Duración del trabajo en minutos (cargado opcionalmente)
+  duracionMinutos    Int?
 }
 
 // Pago sin entrega — cuando un cliente paga deuda sin pedir agua
@@ -488,6 +507,12 @@ model Configuracion {
   // === Plan (suscripción mensual) ===
   planId                      String?  // free | premium | pro (referencia a Plan.id)
   plan                        Plan?    @relation("ConfigPlan", fields: [planId], references: [id])
+
+  // === Multi-transporte ===
+  // Tipo de transporte principal (aljibe | flete | mudanza | aridos)
+  tipoTransporte              String   @default("aljibe")
+  // JSON array de tipos de transporte activos: ["aljibe","flete","mudanza","aridos"]
+  tiposTransporteActivos      String?  // JSON string
 }
 
 // =====================================================

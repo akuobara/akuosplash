@@ -241,6 +241,16 @@ export async function POST(req: NextRequest) {
           fotoMedidorUrl: body.fotoMedidorUrl || null,
           nota: body.nota?.trim() || null,
           detalleEstanquesJson: body.detalleEstanquesJson || null,
+          // === Multi-transporte ===
+          tipoTransporte: body.tipoTransporte || "aljibe",
+          origen: body.origen?.trim() || null,
+          destino: body.destino?.trim() || null,
+          tipoCarga: body.tipoCarga?.trim() || null,
+          toneladas: body.toneladas != null && body.toneladas !== "" ? Number(body.toneladas) : null,
+          horasTrabajadas: body.horasTrabajadas != null && body.horasTrabajadas !== "" ? Number(body.horasTrabajadas) : null,
+          cantidadPersonal: body.cantidadPersonal != null && body.cantidadPersonal !== "" ? Number(body.cantidadPersonal) : null,
+          material: body.material?.trim() || null,
+          duracionMinutos: body.duracionMinutos != null && body.duracionMinutos !== "" ? Number(body.duracionMinutos) : null,
         },
         include: {
           vuelta: { select: { id: true, numero: true, activa: true } },

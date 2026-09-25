@@ -58,6 +58,16 @@ export interface Entrega {
   fotoMedidorUrl: string | null;
   nota: string | null;
   detalleEstanquesJson: string | null;
+  // === Multi-transporte ===
+  tipoTransporte?: string | null;
+  origen?: string | null;
+  destino?: string | null;
+  tipoCarga?: string | null;
+  toneladas?: number | null;
+  horasTrabajadas?: number | null;
+  cantidadPersonal?: number | null;
+  material?: string | null;
+  duracionMinutos?: number | null;
 }
 
 export interface VueltaActual {

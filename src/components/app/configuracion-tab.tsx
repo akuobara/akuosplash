@@ -66,7 +66,7 @@ interface Config {
   transfTelefono?: string | null;
   // Multi-transporte
   tipoTransporte?: string; // aljibe | flete | mudanza | aridos | mixto
-  tiposTransporteActivos?: string; // JSON array de tipos activos
+  tiposTransporteActivos?: string | null; // JSON array de tipos activos
 }
 
 interface ConfiguracionTabProps {
