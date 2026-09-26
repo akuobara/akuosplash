@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
   const end = new Date(year, month + 1, 1);
   const monthLabel = `${MONTH_NAMES[month]} ${year}`;
 
-  const [entregas, gastos, vueltas, config] = await Promise.all([
+  const [entregas, gastos, allVueltas, config] = await Promise.all([
     db.entrega.findMany({
       where: { duenoId, fecha: { gte: start, lt: end } },
       orderBy: { fecha: "desc" },
@@ -73,6 +73,11 @@ export async function GET(req: NextRequest) {
   const gastosDueno = gastos.filter(g => g.pagadoPor === "dueno").reduce((s, g) => s + g.monto, 0);
   const descuentosChofer = entregas.filter(e => e.descuentoPor === "chofer").reduce((s, e) => s + (e.descuento || 0), 0);
   const utilidadBruta = totalVentas - totalGastos;
+
+  // Filtrar vueltas fantasma: las que tienen 0 entregas NO cuentan como vueltas reales.
+  // Estas son vueltas abiertas por error (doble click, dueño abriendo con sesión de dueño, etc.)
+  // y nunca recibieron ninguna entrega. No deben mostrarse en el resumen mensual.
+  const vueltas = allVueltas.filter((v) => v.entregas.length > 0);
 
   let pagoChofer = 0;
   let vueltasValidas: typeof vueltas = [];

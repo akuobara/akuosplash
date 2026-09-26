@@ -78,8 +78,14 @@ export async function GET(req: NextRequest) {
 
   const utilidadBruta = totalVentas - totalGastos;
 
+  // Filtrar vueltas fantasma: las que tienen 0 entregas NO cuentan como vueltas reales.
+  // Estas suelen ser vueltas abiertas por error (p.ej. el dueño abre una vuelta con su sesión
+  // de dueño en vez del chofer, o un doble-click) y nunca se les cargó ninguna entrega.
+  // El dashboard no debe mostrarlas en el conteo ni en la lista de vueltas del período.
+  const vueltasReales = vueltas.filter((v) => v.entregas.length > 0);
+
   let pagoChofer = 0;
-  const vueltasResumen = vueltas.map((v) => {
+  const vueltasResumen = vueltasReales.map((v) => {
     const numEntregas = v.entregas.length;
     const esMultiple = numEntregas > 1;
     const monto = esMultiple ? cfg.montoPorVueltaMultiple : cfg.montoPorVueltaUnicoCliente;
@@ -95,8 +101,8 @@ export async function GET(req: NextRequest) {
     pagoChofer = (utilidadBruta * cfg.porcentajeComisionChofer) / 100;
   }
 
-  // Construir detalle de vueltas para el dashboard
-  const vueltasDetalle = vueltas.map((v) => {
+  // Construir detalle de vueltas para el dashboard (solo vueltas con entregas reales)
+  const vueltasDetalle = vueltasReales.map((v) => {
     const litros = v.entregas.reduce((s, e) => s + e.litros, 0);
     const ventas = v.entregas.reduce((s, e) => s + e.total, 0);
     const efectivo = v.entregas.reduce((s, e) => s + e.montoEfectivo, 0);
@@ -131,7 +137,7 @@ export async function GET(req: NextRequest) {
     utilidadBruta,
     cantidadEntregas: entregas.length,
     cantidadGastos: gastos.length,
-    cantidadVueltas: vueltas.length,
+    cantidadVueltas: vueltasReales.length,
     pagoChoferCalculado: pagoChofer,
     capacidadCamion: cfg.capacidadCamion,
     modoLiquidacion: cfg.modoLiquidacion,
