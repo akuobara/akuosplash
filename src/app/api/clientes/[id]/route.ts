@@ -72,6 +72,45 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     },
   });
 
+  // === Propagar cambios de nombre/dirección/teléfono/zona a snapshots ===
+  // El modelo de datos guarda snapshots (clienteNombre, clienteDireccion, etc.) en Pedidos y Entregas.
+  // Si el cliente se renombra, los snapshots quedan con el nombre viejo y confunden al usuario.
+  // Por eso propagamos el cambio a:
+  //   - Pedidos pendientes/programados (no propagamos a entregados/cancelados para mantener histórico)
+  //   - Entregas (todas, porque el snapshot es solo informativo)
+  // Y solo si los campos relevantes cambiaron.
+  if (body.nombre !== undefined || body.direccion !== undefined || body.telefono !== undefined || body.zona !== undefined || body.lat !== undefined || body.lng !== undefined || body.indicacionesAcceso !== undefined) {
+    const snapData: any = {};
+    if (body.nombre !== undefined) snapData.clienteNombre = actualizado.nombre;
+    if (body.direccion !== undefined) snapData.clienteDireccion = actualizado.direccion;
+    if (body.telefono !== undefined) snapData.clienteTelefono = actualizado.telefono;
+    if (body.zona !== undefined) snapData.clienteZona = actualizado.zona;
+    if (body.lat !== undefined) snapData.clienteLat = actualizado.lat;
+    if (body.lng !== undefined) snapData.clienteLng = actualizado.lng;
+    if (body.indicacionesAcceso !== undefined) snapData.indicacionesAcceso = actualizado.indicacionesAcceso;
+
+    if (Object.keys(snapData).length > 0) {
+      // Pedidos pendientes/programados (los entregados/cancelados conservan el snapshot histórico)
+      await db.pedido.updateMany({
+        where: {
+          clienteId: id,
+          estado: { in: ["pendiente", "programado"] },
+        },
+        data: snapData,
+      });
+      // Entregas: solo las que aún no están en una vuelta cerrada (todas las activas recientes).
+      // Para no romper históricos viejos, solo propagamos a entregas de los últimos 30 días.
+      const hace30dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      await db.entrega.updateMany({
+        where: {
+          clienteId: id,
+          fecha: { gte: hace30dias },
+        },
+        data: snapData,
+      });
+    }
+  }
+
   return NextResponse.json({ cliente: actualizado });
 }
 
