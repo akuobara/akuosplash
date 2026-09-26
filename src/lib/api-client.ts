@@ -134,19 +134,78 @@ export async function uploadFile(file: File): Promise<string> {
     }
   }
 
+  // En zonas rurales con señal débil, el multipart upload (que es grande) suele fallar
+  // con "Failed to fetch" antes de que el request llegue al server (timeout del browser).
+  // El fallback a base64 del lado del server (/api/upload) NO se ejecuta en ese caso.
+  // Por eso hacemos el fallback acá, en el cliente: si el fetch falla por red,
+  // convertimos la imagen comprimida a base64 en el browser y devolvemos ese data URL.
+  // Esto funciona incluso con señal muy mala, porque no hay un body grande que subir.
+
   const fd = new FormData();
   fd.append("file", fileToUpload);
-  const res = await fetch("/api/upload", {
-    method: "POST",
-    body: fd,
-    credentials: "include",
-    headers: authHeaders(),
-  });
-  if (res.status === 401) {
-    handleUnauthorized();
-    throw new Error("Sesión expirada");
+  try {
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: fd,
+      credentials: "include",
+      headers: authHeaders(),
+    });
+    if (res.status === 401) {
+      handleUnauthorized();
+      throw new Error("Sesión expirada");
+    }
+    if (!res.ok) throw new Error(await parseError(res));
+    const data = await res.json();
+    return data.url as string;
+  } catch (fetchError: any) {
+    // "Failed to fetch" (TypeError) o cualquier error de red → fallback client-side a base64.
+    // Esto evita que el usuario pierda la foto cuando tiene mala señal.
+    const esErrorDeRed =
+      fetchError?.name === "TypeError" ||
+      fetchError?.message?.includes("Failed to fetch") ||
+      fetchError?.message?.includes("NetworkError") ||
+      fetchError?.message?.includes("network") ||
+      fetchError?.message?.includes("Load failed");
+
+    if (!esErrorDeRed) {
+      // No es un error de red — propagate el error original
+      throw fetchError;
+    }
+
+    console.warn("uploadFile: error de red, usando fallback a base64 client-side:", fetchError?.message);
+
+    // Re-comprimir más agresivamente para asegurar que quepa como base64 (máx ~1MB final)
+    let archivoFinal = fileToUpload;
+    try {
+      const { compressImageClient } = await import("./image-compress");
+      // Segunda pasada con calidad más baja si la primera compresión sigue pesada
+      if (fileToUpload.size > 800 * 1024) {
+        archivoFinal = await compressImageClient(fileToUpload, { maxSize: 600, quality: 0.5 });
+      }
+    } catch (e) {
+      console.warn("Re-compresión falló, usando la versión anterior:", e);
+    }
+
+    // Convertir a base64 en el navegador
+    const dataUrl = await fileToBase64DataUrl(archivoFinal);
+    console.info(`uploadFile: usando data URL base64 (${(dataUrl.length / 1024).toFixed(0)} KB) — no requiere upload de red`);
+    return dataUrl;
   }
-  if (!res.ok) throw new Error(await parseError(res));
-  const data = await res.json();
-  return data.url as string;
+}
+
+// Convierte un File/Blob a un data URL base64 (todo en el browser, sin red)
+function fileToBase64DataUrl(file: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result === "string") {
+        resolve(result);
+      } else {
+        reject(new Error("No se pudo leer el archivo como data URL"));
+      }
+    };
+    reader.onerror = () => reject(new Error("FileReader falló"));
+    reader.readAsDataURL(file);
+  });
 }

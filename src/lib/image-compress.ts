@@ -5,18 +5,25 @@
 
 import imageCompression from "browser-image-compression";
 
-export async function compressImageClient(file: File): Promise<File> {
-  // Si ya es chiquita (< 500 KB), no comprimir
-  if (file.size < 500 * 1024) {
+interface CompressOptions {
+  maxSize?: number; // KB — tamaño máximo objetivo (default 300)
+  quality?: number; // 0-1 — calidad JPEG inicial (default 0.7)
+  maxWidthOrHeight?: number; // px — default 1600
+}
+
+export async function compressImageClient(file: File, opts?: CompressOptions): Promise<File> {
+  // Si ya es chiquita (< 500 KB), no comprimir (salvo que se especifique maxSize menor)
+  const maxSizeKB = opts?.maxSize ?? 300;
+  if (file.size < 500 * 1024 && !opts) {
     return file;
   }
 
   const options = {
-    maxSizeMB: 0.3,         // objetivo: 300 KB máximo
-    maxWidthOrHeight: 1600, // máximo 1600 px de ancho o alto
+    maxSizeMB: maxSizeKB / 1024,         // objetivo
+    maxWidthOrHeight: opts?.maxWidthOrHeight ?? 1600, // máximo 1600 px de ancho o alto
     useWebWorker: true,     // no bloquea el hilo principal
     fileType: "image/jpeg", // convertir a JPEG (más eficiente que PNG)
-    initialQuality: 0.7,    // calidad 70% — buena relación tamaño/calidad
+    initialQuality: opts?.quality ?? 0.7,    // calidad 70% — buena relación tamaño/calidad
   };
 
   try {
