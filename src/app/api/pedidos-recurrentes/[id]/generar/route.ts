@@ -56,7 +56,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const cliente = recurrente.cliente;
 
-  // Crear el pedido con los datos del recurrente y del cliente
+  // Crear el pedido con los datos del recurrente y del cliente.
+  // Importante: fechaSolicitada = recurrente.fechaProximaGeneracion (igual que el cron),
+  // para que el pedido quede programado para la fecha correcta y no "pendiente sin fecha".
   const nuevoPedido = await db.pedido.create({
     data: {
       clienteId: cliente.id,
@@ -68,9 +70,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       clienteLng: cliente.lng,
       indicacionesAcceso: cliente.indicacionesAcceso,
       litrosSolicitados: recurrente.litrosSolicitados,
+      fechaSolicitada: recurrente.fechaProximaGeneracion, // ← antes no se seteba, dejaba null
       metodoPagoPreferido: recurrente.metodoPagoPreferido,
       nota: recurrente.nota,
-      estado: "pendiente",
+      estado: "programado", // ← antes "pendiente"; ahora programado con fecha
       choferId: session.role === "chofer" ? session.userId : null,
       duenoId: recurrente.duenoId,
       asignacionTipo: recurrente.asignacionTipo,
@@ -82,8 +85,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     },
   });
 
-  // Actualizar fechaProximaGeneracion
-  const proxima = new Date();
+  // Actualizar fechaProximaGeneracion AVANZANDO DESDE LA FECHA ACTUAL, no desde HOY.
+  // Antes se hacia proxima = new Date() + frecuenciaDias, lo que rompía la sincronía
+  // si el recurrente tenía una fechaProximaGeneracion futura. Ahora se hace igual que el cron:
+  // proxima = fechaProximaGeneracion_actual + frecuenciaDias.
+  const proxima = new Date(recurrente.fechaProximaGeneracion);
   proxima.setDate(proxima.getDate() + recurrente.frecuenciaDias);
   await db.pedidoRecurrente.update({
     where: { id: recurrente.id },

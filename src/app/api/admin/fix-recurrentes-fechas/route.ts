@@ -45,14 +45,56 @@ export async function GET(_req: NextRequest) {
     // Ajustar a medianoche UTC
     fechaCorrecta.setHours(0, 0, 0, 0);
 
+    // Verificar si ya existe un pedido programado para este recurrente con
+    // fechaSolicitada en el futuro (>= hoy). Si existe, NO pisar la fechaProximaGeneracion
+    // porque ya hay un pedido que cubre el próximo ciclo. Ponerlo en cola detrás de ese pedido.
+    const ahora = new Date();
+    const pedidoFuturo = await db.pedido.findFirst({
+      where: {
+        pedidoRecurrenteId: rec.id,
+        estado: { in: ["pendiente", "programado"] },
+        fechaSolicitada: { gte: ahora },
+      },
+      orderBy: { fechaSolicitada: "asc" },
+    });
+
+    let fechaObjetivo = fechaCorrecta;
+    let razonCambio = "última entrega + frecuenciaDias";
+
+    if (pedidoFuturo) {
+      // Ya hay un pedido programado. Verificar si la fecha del pedido es razonable
+      // (cercana a fechaCorrecta dentro de ±3 días). Si es así, alinear fechaProximaGeneracion
+      // con la fecha del pedido (avanzando después con +frecuenciaDias).
+      // Si el pedido existente está muy desfasado, NO tocar fechaProximaGeneracion para no
+      // crear más duplicados.
+      const fechaPedido = new Date(pedidoFuturo.fechaSolicitada!);
+      const diffDias = Math.round((fechaPedido.getTime() - fechaCorrecta.getTime()) / (1000 * 60 * 60 * 24));
+      if (Math.abs(diffDias) <= 3) {
+        // El pedido existente es razonable. Alinear fechaProximaGeneracion a fechaPedido + frecuenciaDias
+        // (para que el próximo ciclo se genere después de ese pedido).
+        fechaObjetivo = new Date(fechaPedido);
+        fechaObjetivo.setDate(fechaObjetivo.getDate() + rec.frecuenciaDias);
+        razonCambio = `alineado con pedido existente (${fechaPedido.toISOString().slice(0,10)}) + frecuenciaDias`;
+      } else {
+        // El pedido existente está muy desfasado. No tocar fechaProximaGeneracion.
+        sinCambios.push({
+          cliente: rec.cliente?.nombre,
+          frecuenciaDias: rec.frecuenciaDias,
+          fechaProximaGeneracion: rec.fechaProximaGeneracion,
+          razon: `Pedido futuro desfasado (${diffDias} días), no se modificó para evitar duplicados`,
+        });
+        continue;
+      }
+    }
+
     const fechaActual = rec.fechaProximaGeneracion;
-    const diferenciaDias = Math.round((fechaCorrecta.getTime() - fechaActual.getTime()) / (1000 * 60 * 60 * 24));
+    const diferenciaDias = Math.round((fechaObjetivo.getTime() - fechaActual.getTime()) / (1000 * 60 * 60 * 24));
 
     if (Math.abs(diferenciaDias) > 0) {
       // Actualizar la fecha
       await db.pedidoRecurrente.update({
         where: { id: rec.id },
-        data: { fechaProximaGeneracion: fechaCorrecta },
+        data: { fechaProximaGeneracion: fechaObjetivo },
       });
 
       arreglados.push({
@@ -61,8 +103,9 @@ export async function GET(_req: NextRequest) {
         frecuenciaDias: rec.frecuenciaDias,
         ultimaEntrega: ultimaEntrega.fecha,
         fechaAnterior: fechaActual,
-        fechaNueva: fechaCorrecta,
+        fechaNueva: fechaObjetivo,
         diferenciaDias,
+        razon: razonCambio,
       });
     } else {
       sinCambios.push({
