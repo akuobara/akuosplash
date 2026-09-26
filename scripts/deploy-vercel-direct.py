@@ -36,7 +36,7 @@ SKIP_DIRS = {
 # No se aplican a subdirectorios (ej: src/app/api/upload/ NO se debe saltar)
 SKIP_TOP_LEVEL_DIRS = {"upload"}
 SKIP_FILES = {
-    ".vercel-token", ".git-credentials", ".env.local", ".env.production",
+    ".vercel-token", ".git-credentials", ".env", ".env.local", ".env.production",
     "package-lock.json", "bun.lock", ".DS_Store",
 }
 SKIP_PREFIXES = (".bash", ".cache")
