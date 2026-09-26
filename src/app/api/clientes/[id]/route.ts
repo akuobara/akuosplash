@@ -80,12 +80,33 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (_demoBlocked) return _demoBlocked;
 
   const { id } = await params;
-  const { error: authError, session } = await checkOwnership(id);
+  const { error: authError, session, cliente } = await checkOwnership(id);
   if (authError) return authError;
+  if (!session || !cliente) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
 
-  // Solo el dueño puede borrar clientes (choferes con permiso de edición no pueden borrar)
-  if (session?.role === "chofer") {
-    return NextResponse.json({ error: "Solo el dueño puede eliminar clientes" }, { status: 403 });
+  // Choferes: solo pueden borrar clientes que ELLOS crearon (choferPreferidoId === session.userId)
+  // y que no tengan entregas/pedidos asociados (para prevenir pérdida de historial).
+  // Dueños: pueden borrar cualquier cliente de su flota (comportamiento existente).
+  if (session.role === "chofer") {
+    if (cliente.choferPreferidoId !== session.userId) {
+      return NextResponse.json(
+        { error: "Solo puedes eliminar clientes que tú creaste." },
+        { status: 403 }
+      );
+    }
+    // Verificar que no tenga entregas ni pedidos (sí tiene historial)
+    const [entregasCount, pedidosCount] = await Promise.all([
+      db.entrega.count({ where: { clienteId: id } }),
+      db.pedido.count({ where: { clienteId: id } }),
+    ]);
+    if (entregasCount > 0 || pedidosCount > 0) {
+      return NextResponse.json(
+        { error: `Este cliente tiene ${entregasCount} entrega(s) y ${pedidosCount} pedido(s) asociados. No se puede eliminar para preservar el historial. Si igual querés borrarlo, pedíselo al administrador.` },
+        { status: 400 }
+      );
+    }
   }
 
   // Transacción: desvincular relaciones + borrar pagos + borrar cliente (atómico)

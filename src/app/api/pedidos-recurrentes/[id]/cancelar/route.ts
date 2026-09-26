@@ -35,9 +35,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo administradores" }, { status: 403 });
-  }
 
   const { id } = await params;
   const body = await req.json();
@@ -58,8 +55,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     );
   }
 
+  // Cargar el recurrente (incluyendo choferAsignadoId para verificación de chofer)
   const recurrente = await db.pedidoRecurrente.findUnique({ where: { id } });
-  if (!recurrente || recurrente.duenoId !== session.userId) {
+  if (!recurrente) {
+    return NextResponse.json({ error: "Recurrencia no encontrada" }, { status: 404 });
+  }
+
+  // Autorización:
+  // - Dueño: debe ser el dueño del recurrente (recurrente.duenoId === session.userId)
+  // - Chofer: debe estar asignado a esta recurrencia (recurrente.choferAsignadoId === session.userId)
+  //   Esto cubre el caso "creado por mi": si el chofer creó el recurrente y se autoasignó, puede cancelarlo.
+  if (session.role === "dueno") {
+    if (recurrente.duenoId !== session.userId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+  } else if (session.role === "chofer") {
+    if (!recurrente.choferAsignadoId || recurrente.choferAsignadoId !== session.userId) {
+      return NextResponse.json(
+        { error: "Solo podés cancelar pedidos recurrentes asignados a ti." },
+        { status: 403 }
+      );
+    }
+  } else {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 

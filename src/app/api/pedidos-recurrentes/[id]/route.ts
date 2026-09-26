@@ -12,15 +12,30 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo administradores" }, { status: 403 });
-  }
 
   const { id } = await params;
   const body = await req.json();
 
   const recurrente = await db.pedidoRecurrente.findUnique({ where: { id } });
-  if (!recurrente || recurrente.duenoId !== session.userId) {
+  if (!recurrente) {
+    return NextResponse.json({ error: "Recurrencia no encontrada" }, { status: 404 });
+  }
+
+  // Autorización:
+  // - Dueño: debe ser el dueño del recurrente.
+  // - Chofer: debe estar asignado a esta recurrencia (choferAsignadoId === session.userId).
+  if (session.role === "dueno") {
+    if (recurrente.duenoId !== session.userId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+  } else if (session.role === "chofer") {
+    if (!recurrente.choferAsignadoId || recurrente.choferAsignadoId !== session.userId) {
+      return NextResponse.json(
+        { error: "Solo podés editar pedidos recurrentes asignados a ti." },
+        { status: 403 }
+      );
+    }
+  } else {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
@@ -49,14 +64,29 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo administradores" }, { status: 403 });
-  }
 
   const { id } = await params;
 
   const recurrente = await db.pedidoRecurrente.findUnique({ where: { id } });
-  if (!recurrente || recurrente.duenoId !== session.userId) {
+  if (!recurrente) {
+    return NextResponse.json({ error: "Recurrencia no encontrada" }, { status: 404 });
+  }
+
+  // Autorización:
+  // - Dueño: debe ser el dueño del recurrente.
+  // - Chofer: debe estar asignado a esta recurrencia (choferAsignadoId === session.userId).
+  if (session.role === "dueno") {
+    if (recurrente.duenoId !== session.userId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+  } else if (session.role === "chofer") {
+    if (!recurrente.choferAsignadoId || recurrente.choferAsignadoId !== session.userId) {
+      return NextResponse.json(
+        { error: "Solo podés eliminar pedidos recurrentes asignados a ti." },
+        { status: 403 }
+      );
+    }
+  } else {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
