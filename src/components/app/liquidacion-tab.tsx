@@ -347,8 +347,12 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                   <Lock className="mr-1 h-3.5 w-3.5" /> Cerrar período
                 </Button>
               )}
-              {/* Botón: cobrar saldo anterior con efectivo (chofer) */}
-              {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado > 0 && !periodoData.resumen.saldoCobrado && (
+              {/* Botón: cobrar saldo anterior (chofer) o pagar (dueno) */}
+              {/* SOLO visible si hay saldo anterior PENDIENTE (no cobrado).
+                  Si ya se cobró, el botón desaparece — no hay nada que hacer. */}
+              {periodoData.resumen.saldoArrastrado &&
+                periodoData.resumen.saldoArrastrado > 0 &&
+                !periodoData.resumen.saldoCobrado && (
                 <Button
                   size="sm"
                   variant="outline"
