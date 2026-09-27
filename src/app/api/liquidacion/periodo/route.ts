@@ -244,22 +244,26 @@ export async function GET(req: NextRequest) {
   // + suma el saldo pendiente de la liquidación anterior (arrastrado)
   // === CÁLCULO DEL SALDO CHOFER ===
   //
-  // saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado - cobroSaldoAnteriorTransferencia
+  // saldoChofer = liquidoChofer - efectivoTotal
   //
-  // Razonamiento:
-  // - liquidoChofer: comisión que el dueno le debe al chofer por el trabajo de esta semana.
-  // - efectivoTotal: efectivo que el chofer ya tiene en mano (de entregas + pagos sueltos en efectivo,
-  //   EXCLUYENDO cobros de saldo anterior). Se descuenta porque el chofer ya lo tiene.
-  // - saldoArrastrado: lo que el dueno le debía al chofer del período anterior. Siempre se suma
-  //   (es deuda pendiente del período anterior).
-  // - cobroSaldoAnteriorTransferencia: si el dueno LE PAGÓ al chofer por transferencia (banco),
-  //   esa plata ya llegó al chofer → resta del saldo que el dueno le debe.
+  // La liquidación de CADA período es INDEPENDIENTE del período anterior.
+  // El saldoArrastrado y los cobros de saldo anterior NO se mezclan con esta semana:
+  // - El saldoArrastrado es deuda de la liquidación PASADA, se muestra en una sección aparte.
+  // - Los cobros de saldo anterior son pagos hacia esa deuda pasada, también en sección aparte.
+  // - El saldoChofer de esta semana = solo lo que el dueno le debe al chofer por el trabajo DE ESTA semana.
   //
-  // NOTA: los cobros por EFECTIVO no se restan acá porque representan al chofer tomándose plata
-  // de la caja (efectivoTotal ya lo excluye). Es un movimiento interno de caja, no un pago del dueno.
-  // Los cobros por TRANSFERENCIA sí restan porque el dueno le transfirió plata real al chofer.
+  // Importante: efectivoTotal EXCLUYE los cobros de saldo anterior, porque esos cobros son
+  // movimientos hacia deuda pasada, no efectivo de esta semana.
   const saldoArrastrado = saldoArrastradoRaw;
-  const saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado - cobroSaldoAnteriorTransferencia;
+  // Saldo pendiente del período anterior (después de cobros de este período):
+  //   - Si cobro >= saldoArrastrado: 0 (deuda pasada totalmente cancelada)
+  //   - Si cobro < saldoArrastrado: lo que falta cobrar
+  const saldoAnteriorPendiente = Math.max(0, saldoArrastrado - cobroSaldoAnteriorTotal);
+  // Total global que el dueno le debe al chofer (esta semana + saldo anterior pendiente)
+  // = saldoChofer (esta semana) + saldoAnteriorPendiente
+  // Esto se muestra aparte para que el usuario vea el total pero sin contaminar el cálculo semanal.
+  const saldoChofer = liquidoChofer - efectivoTotal;
+  const saldoChoferTotal = saldoChofer + saldoAnteriorPendiente;
   // ¿Ya se cobró el saldo anterior este período?
   // True si hay PAGO de cobro de saldo anterior, o GASTO fantasma con descripción de cobro.
   const saldoCobrado = cobroSaldoAnteriorTotal > 0 || cobroSaldoAnteriorGastoMonto > 0;
@@ -345,6 +349,10 @@ export async function GET(req: NextRequest) {
       cobroSaldoAnteriorEfectivo,
       cobroSaldoAnteriorTransferencia,
       cobroSaldoAnteriorGastoMonto,
+      // Saldo anterior pendiente (después de cobros) — lo que el dueno aún le debe del período pasado
+      saldoAnteriorPendiente,
+      // Total global = saldoChofer (esta semana) + saldoAnteriorPendiente (período anterior)
+      saldoChoferTotal,
     },
     pagosSueltos: pagosSueltosReales.map(p => ({
       id: p.id,
