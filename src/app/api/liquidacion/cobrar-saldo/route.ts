@@ -4,8 +4,13 @@ import { getSession, getDuenoId } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
 
 // POST /api/liquidacion/cobrar-saldo
-// Permite al chofer cobrarse el saldo pendiente (de liquidación anterior) con el efectivo que tiene en mano.
-// Registra un pago en la DB para que aparezca en el resumen del día y en la liquidación.
+// Permite al chofer cobrarse el saldo pendiente (de liquidación anterior) con el efectivo
+// que tiene en mano o con transferencia. Registra un pago en la DB para que aparezca
+// en el resumen del día y en la liquidación con el método correcto (efectivo o transferencia).
+//
+// Body:
+//   { monto: number, metodoPago?: "efectivo" | "transferencia" }
+//   Por defecto metodoPago = "efectivo" (comportamiento histórico).
 export async function POST(req: NextRequest) {
   const _demoBlocked = await checkDemoBlock();
   if (_demoBlocked) return _demoBlocked;
@@ -18,6 +23,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const monto = Number(body.monto);
+    const metodoPago = body.metodoPago === "transferencia" ? "transferencia" : "efectivo";
 
     if (!monto || monto <= 0) {
       return NextResponse.json({ error: "El monto debe ser mayor a 0" }, { status: 400 });
@@ -35,15 +41,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `El monto no puede ser mayor al saldo pendiente (${saldoPendiente})` }, { status: 400 });
     }
 
-    // Registrar el pago: el chofer se cobra con efectivo
+    // Registrar el pago con el método indicado (efectivo o transferencia).
+    // Esto es crítico para que la liquidación cuadre: si el saldo se cobró por transferencia,
+    // debe aparecer en la columna de transferencia, NO en efectivo.
     const pago = await db.pago.create({
       data: {
         fecha: new Date(),
         clienteId: null,
         monto,
-        metodoPago: "efectivo",
+        metodoPago,
         descripcion: `Cobro de saldo de liquidación anterior`,
-        nota: `El chofer se cobró ${monto} del saldo pendiente con efectivo en mano`,
+        nota: `El chofer se cobró ${monto} del saldo pendiente por ${metodoPago}`,
         choferId: session.userId,
         duenoId,
       },
@@ -61,7 +69,7 @@ export async function POST(req: NextRequest) {
       pago,
       saldoAnterior: saldoPendiente,
       saldoNuevo: nuevoSaldo,
-      message: `Cobraste ${monto} con efectivo. Saldo pendiente restante: ${nuevoSaldo}`,
+      message: `Cobraste ${monto} por ${metodoPago}. Saldo pendiente restante: ${nuevoSaldo}`,
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });

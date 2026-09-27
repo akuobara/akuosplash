@@ -242,18 +242,24 @@ export async function GET(req: NextRequest) {
   const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
   // El saldo del chofer descuenta TODO el efectivo que tiene en mano (entregas + pagos recibidos)
   // + suma el saldo pendiente de la liquidación anterior (arrastrado)
-  // Saldo arrastrado del período anterior (lo que el dueno le debía al chofer).
-  // IMPORTANTE: el saldo arrastrado NO se suma automáticamente al total.
-  // Solo se suma cuando el chofer lo "cobra" (clickeando "Cobrar saldo anterior").
-  // El cobro se registra como un Pago con descripcion "Cobro de saldo anterior..."
-  // y se EXCLUYE del efectivoTotal. En el cálculo, se suma el monto cobrado.
+  // === CÁLCULO DEL SALDO CHOFER ===
   //
-  // Sin cobro: Te deben = liquidoChofer - efectivoTotal (solo esta semana)
-  // Con cobro de $X: Te deben = liquidoChofer - efectivoTotal + $X
+  // saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado - cobroSaldoAnteriorTransferencia
+  //
+  // Razonamiento:
+  // - liquidoChofer: comisión que el dueno le debe al chofer por el trabajo de esta semana.
+  // - efectivoTotal: efectivo que el chofer ya tiene en mano (de entregas + pagos sueltos en efectivo,
+  //   EXCLUYENDO cobros de saldo anterior). Se descuenta porque el chofer ya lo tiene.
+  // - saldoArrastrado: lo que el dueno le debía al chofer del período anterior. Siempre se suma
+  //   (es deuda pendiente del período anterior).
+  // - cobroSaldoAnteriorTransferencia: si el dueno LE PAGÓ al chofer por transferencia (banco),
+  //   esa plata ya llegó al chofer → resta del saldo que el dueno le debe.
+  //
+  // NOTA: los cobros por EFECTIVO no se restan acá porque representan al chofer tomándose plata
+  // de la caja (efectivoTotal ya lo excluye). Es un movimiento interno de caja, no un pago del dueno.
+  // Los cobros por TRANSFERENCIA sí restan porque el dueno le transfirió plata real al chofer.
   const saldoArrastrado = saldoArrastradoRaw;
-  // El monto que el chofer ya cobró de saldo anterior en este período
-  const cobroSaldoAnteriorMonto = cobroSaldoAnteriorTotal;
-  const saldoChofer = liquidoChofer - efectivoTotal + cobroSaldoAnteriorMonto;
+  const saldoChofer = liquidoChofer - efectivoTotal + saldoArrastrado - cobroSaldoAnteriorTransferencia;
   // ¿Ya se cobró el saldo anterior este período?
   // True si hay PAGO de cobro de saldo anterior, o GASTO fantasma con descripción de cobro.
   const saldoCobrado = cobroSaldoAnteriorTotal > 0 || cobroSaldoAnteriorGastoMonto > 0;

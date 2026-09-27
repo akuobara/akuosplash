@@ -470,19 +470,31 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                         <span>{formatCurrency(periodoData.resumen.efectivoTotal)}</span>
                       </div>
                     )}
-                    {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado !== 0 && periodoData.resumen.saldoCobrado && (
+                    {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado !== 0 && (
                       <div className="flex justify-between text-muted-foreground border-t pt-1">
-                        <span>+ Saldo del período anterior (cobrado)</span>
-                        <span>{formatCurrency(Math.abs(periodoData.resumen.cobroSaldoAnteriorTotal || 0))}</span>
+                        <span>+ Saldo del período anterior (pendiente)</span>
+                        <span>{formatCurrency(periodoData.resumen.saldoArrastrado || 0)}</span>
                       </div>
                     )}
-                    <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
-                      <span>{periodoData.resumen.saldoChofer >= 0
-                        ? (isDueno ? "Le debés al chofer" : "Te deben")
-                        : (isDueno ? "El chofer te debe" : "Debés entregar")}
-                      </span>
-                      <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}</span>
-                    </div>
+                    {periodoData.resumen.saldoCobrado && periodoData.resumen.cobroSaldoAnteriorTransferencia && periodoData.resumen.cobroSaldoAnteriorTransferencia > 0 && (
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>- Cobro por transferencia (ya recibido)</span>
+                        <span className="text-blue-600">{formatCurrency(periodoData.resumen.cobroSaldoAnteriorTransferencia || 0)}</span>
+                      </div>
+                    )}
+                    {periodoData.resumen.saldoCobrado && periodoData.resumen.cobroSaldoAnteriorEfectivo && periodoData.resumen.cobroSaldoAnteriorEfectivo > 0 && (
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>~ Cobro en efectivo (tomado de la caja)</span>
+                        <span className="text-emerald-600">{formatCurrency(periodoData.resumen.cobroSaldoAnteriorEfectivo || 0)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
+                    <span>{periodoData.resumen.saldoChofer >= 0
+                      ? (isDueno ? "Le debés al chofer" : "Te deben")
+                      : (isDueno ? "El chofer te debe" : "Debés entregar")}
+                    </span>
+                    <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChofer))}</span>
                   </div>
                 </div>
               ) : (
@@ -533,10 +545,22 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                         <span>{formatCurrency(periodoData.resumen.efectivoTotal)}</span>
                       </div>
                     )}
-                    {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado !== 0 && periodoData.resumen.saldoCobrado && (
+                    {periodoData.resumen.saldoArrastrado && periodoData.resumen.saldoArrastrado !== 0 && (
                       <div className="flex justify-between text-muted-foreground border-t pt-1">
-                        <span>+ Saldo del período anterior (cobrado)</span>
-                        <span>{formatCurrency(Math.abs(periodoData.resumen.cobroSaldoAnteriorTotal || 0))}</span>
+                        <span>+ Saldo del período anterior (pendiente)</span>
+                        <span>{formatCurrency(periodoData.resumen.saldoArrastrado || 0)}</span>
+                      </div>
+                    )}
+                    {periodoData.resumen.saldoCobrado && periodoData.resumen.cobroSaldoAnteriorTransferencia && periodoData.resumen.cobroSaldoAnteriorTransferencia > 0 && (
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>- Cobro por transferencia (ya recibido)</span>
+                        <span className="text-blue-600">{formatCurrency(periodoData.resumen.cobroSaldoAnteriorTransferencia || 0)}</span>
+                      </div>
+                    )}
+                    {periodoData.resumen.saldoCobrado && periodoData.resumen.cobroSaldoAnteriorEfectivo && periodoData.resumen.cobroSaldoAnteriorEfectivo > 0 && (
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>~ Cobro en efectivo (tomado de la caja)</span>
+                        <span className="text-emerald-600">{formatCurrency(periodoData.resumen.cobroSaldoAnteriorEfectivo || 0)}</span>
                       </div>
                     )}
                     <div className={`flex justify-between font-bold text-base ${periodoData.resumen.saldoChofer >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
