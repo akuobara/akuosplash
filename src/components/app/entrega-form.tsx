@@ -225,7 +225,8 @@ export function EntregaForm({
   // Deuda del cliente seleccionado (para pagos de entregas anteriores)
   const [clienteDeuda, setClienteDeuda] = useState<number | null>(null);
   // Desglose por estanque (cuando el cliente tiene facturación independiente)
-  const [estanquesEntrega, setEstanquesEntrega] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string; modoIngreso?: "por_litros" | "por_precio"; precioTotalInput?: string }[]>([]);
+  // Cada estanque puede tener su propia foto del medidor (est.fotoUrl).
+  const [estanquesEntrega, setEstanquesEntrega] = useState<{ nombre: string; litros: string; precio: string; metodoPago: string; montoRecibido: string; modoIngreso?: "por_litros" | "por_precio"; precioTotalInput?: string; fotoUrl?: string | null; subiendoFoto?: boolean }[]>([]);
   const [modoEstanques, setModoEstanques] = useState(false);
 
   const [lecturaAnterior, setLecturaAnterior] = useState<string>("");
@@ -288,8 +289,26 @@ export function EntregaForm({
       setFotoUrl(entrega.fotoMedidorUrl);
       setNota(entrega.nota ?? "");
       setPedidoSeleccionadoId(null);
-      setModoEstanques(false);
-      setEstanquesEntrega([]);
+      // Cargar estanques guardados si la entrega los tiene (para edición)
+      let estanquesCargados: typeof estanquesEntrega = [];
+      if (entrega.detalleEstanquesJson) {
+        try {
+          const parsed = JSON.parse(entrega.detalleEstanquesJson);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            estanquesCargados = parsed.map((e: any) => ({
+              nombre: e.nombre || "Estanque",
+              litros: e.litros != null ? String(e.litros) : "",
+              precio: e.precioPorLitro != null ? String(e.precioPorLitro) : "",
+              metodoPago: e.metodoPago || "credito",
+              montoRecibido: e.montoRecibido != null ? String(e.montoRecibido) : "",
+              modoIngreso: "por_litros",
+              fotoUrl: e.fotoUrl || null,
+            }));
+            setModoEstanques(true);
+          }
+        } catch { /* ignore */ }
+      }
+      setEstanquesEntrega(estanquesCargados);
       setClienteDeuda(null);
       setDialogoVueltaAbierto(false);
       setVueltasRecientes([]);
@@ -623,6 +642,7 @@ export function EntregaForm({
             total: e.total,
             metodoPago: e.metodoPago,
             montoRecibido: e.montoRecibido,
+            fotoUrl: e.fotoUrl || null,
           }))),
         };
         if (vueltaIdOverride) payload.vueltaId = vueltaIdOverride;
@@ -1797,6 +1817,55 @@ export function EntregaForm({
                             <span className="text-emerald-600 dark:text-emerald-400">✓ Pagado</span>
                           )}
                         </>
+                      )}
+                    </div>
+                    {/* Foto del medidor POR ESTANQUE — cada estanque tiene su propio medidor */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <label className="text-[10px] text-muted-foreground shrink-0">📷 Medidor:</label>
+                      {est.fotoUrl ? (
+                        <div className="flex items-center gap-2">
+                          <a href={est.fotoUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={est.fotoUrl} alt={`Medidor de ${est.nombre}`} className="h-12 w-12 rounded border border-amber-200 object-cover" />
+                          </a>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-[10px] text-red-600"
+                            onClick={() => setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, fotoUrl: null } : est2))}
+                          >
+                            Quitar
+                          </Button>
+                        </div>
+                      ) : (
+                        <label className={`inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 dark:bg-amber-900/30 px-2 py-1 text-[10px] text-amber-900 dark:text-amber-200 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/50 ${est.subiendoFoto ? "opacity-50 pointer-events-none" : ""}`}>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            className="hidden"
+                            onChange={async (ev) => {
+                              const file = ev.target.files?.[0];
+                              if (!file) return;
+                              // Marcar como subiendo
+                              setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, subiendoFoto: true } : est2));
+                              try {
+                                const { uploadFile } = await import("@/lib/api-client");
+                                const url = await uploadFile(file);
+                                setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, fotoUrl: url, subiendoFoto: false } : est2));
+                                toast.success(`Foto del medidor de "${est.nombre}" guardada`);
+                              } catch (e: any) {
+                                console.error("Error subiendo foto de estanque:", e);
+                                toast.error(e?.message || "No se pudo subir la foto del medidor");
+                                setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, subiendoFoto: false } : est2));
+                              }
+                              // Limpiar el input para poder volver a seleccionar el mismo archivo
+                              ev.target.value = "";
+                            }}
+                          />
+                          {est.subiendoFoto ? "Subiendo…" : "Tomar foto"}
+                        </label>
                       )}
                     </div>
                   </div>

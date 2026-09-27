@@ -68,6 +68,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     data: { activa: false, cerradaEn: new Date() },
   });
 
+  // === Calcular si el camión quedó vacío ===
+  // El camión tiene una capacidad. Si los litros entregados en esta vuelta
+  // igualan o superan la capacidad, el camión quedó vacío → el chofer no puede
+  // continuar entregando (debe ir a cargar agua). En ese caso, los pedidos
+  // parcialmente entregados pueden necesitar reagendación.
+  // Si el camión NO quedó vacío (todavía tiene agua), el chofer puede continuar
+  // con el resto de los pedidos en otra vuelta sin necesidad de reagendar.
+  const vueltaConCamion = await db.vuelta.findUnique({
+    where: { id },
+    include: { camion: { select: { capacidad: true, nombre: true } } },
+  });
+  const capacidadCamion = vueltaConCamion?.camion?.capacidad ?? 0;
+
   // === DETECTAR ENTREGAS PARCIALES (pero NO reagendar salvo opt-in) ===
   // Buscar todos los pedidos que tengan una entrega en esta vuelta.
   // La relación es Pedido.entregaId → Entrega.id.
@@ -80,6 +93,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       clienteNombre: true,
     },
   });
+
+  const totalLitrosEntregadosVuelta = entregasDeLaVuelta.reduce((s, e) => s + (e.litros || 0), 0);
+  const camionVacio = capacidadCamion > 0 && totalLitrosEntregadosVuelta >= capacidadCamion * 0.95; // 95% para tolerar redondeo
 
   const pedidosReagendados: Array<{
     cliente: string;
@@ -127,6 +143,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // Si quedan más de 1000 L pendientes, es una entrega parcial.
     if (litrosPendientes > 1000) {
+      // Si el camión NO quedó vacío, NO registrar como parcial ni sugerir reagendar.
+      // El chofer todavía tiene agua para continuar en otra vuelta.
+      if (!camionVacio) {
+        continue;
+      }
+
       // Registrar que fue parcial (info para que el cliente decida)
       entregasParciales.push({
         cliente: pedidoOriginal.clienteNombre,
@@ -199,10 +221,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     vuelta: actualizada,
     pedidosReagendados,
     entregasParciales,
+    camionVacio,
+    capacidadCamion,
+    totalLitrosEntregadosVuelta,
     message: reagendar && pedidosReagendados.length > 0
       ? `Vuelta cerrada. Se reagendaron ${pedidosReagendados.length} pedido(s) pendiente(s).`
-      : entregasParciales.length > 0
-        ? `Vuelta cerrada. Detectamos ${entregasParciales.length} entrega(s) parcial(es). Si querés reagendar los litros faltantes, podés crear un pedido nuevo desde la pestaña Pedidos.`
-        : "Vuelta cerrada",
+      : !camionVacio
+        ? `Vuelta cerrada. El camión no quedó vacío (entregaste ${totalLitrosEntregadosVuelta} L de ${capacidadCamion} L de capacidad) — podés seguir en otra vuelta sin reagendar.`
+        : entregasParciales.length > 0
+          ? `Vuelta cerrada. El camión quedó vacío y detectamos ${entregasParciales.length} entrega(s) parcial(es). Si querés reagendar los litros faltantes, creá un pedido nuevo desde la pestaña Pedidos.`
+          : "Vuelta cerrada. El camión quedó vacío.",
   });
 }
