@@ -359,13 +359,8 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                   <Banknote className="mr-1 h-3.5 w-3.5" /> {isDueno ? "Pagar saldo anterior" : "Cobrar saldo anterior"}
                 </Button>
               )}
-              {/* Badge: saldo ya cobrado este período */}
-              {periodoData.resumen.saldoCobrado && (
-                <div className="inline-flex items-center gap-1 rounded-md bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  Saldo cobrado: {formatCurrency(periodoData.resumen.cobroSaldoAnteriorTotal || 0)}
-                </div>
-              )}
+              {/* Nota: si el saldo ya fue cobrado este período, NO mostramos ningún badge
+                  ni línea sobre saldo anterior en el resumen. El usuario no quiere verlo. */}
             </div>
           )}
         </CardContent>
@@ -540,62 +535,9 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
                 </div>
               )}
 
-              {/* === SECCIÓN SEPARADA: Saldo del período anterior === */}
-              {/* Solo se muestra si QUEDA saldo pendiente del período anterior.
-                  Si el saldo anterior fue cancelado por completo (cobro completo),
-                  esta sección NO se muestra — el usuario ya no quiere verlo. */}
-              {periodoData.resumen.saldoArrastrado &&
-                periodoData.resumen.saldoArrastrado > 0 &&
-                (periodoData.resumen.saldoAnteriorPendiente || 0) > 0 && (
-                <div className="rounded-lg border-2 border-dashed border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-3 space-y-1 text-sm">
-                  <p className="text-[10px] font-semibold uppercase text-amber-700 dark:text-amber-400">
-                    ℹ️ Esto es del período anterior — no afecta el cálculo de esta semana
-                  </p>
-                  <div className="flex justify-between text-amber-900 dark:text-amber-200">
-                    <span>Saldo que te debían del período anterior:</span>
-                    <strong>{formatCurrency(periodoData.resumen.saldoArrastrado)}</strong>
-                  </div>
-                  {periodoData.resumen.saldoCobrado && (
-                    <>
-                      {periodoData.resumen.cobroSaldoAnteriorTransferencia && periodoData.resumen.cobroSaldoAnteriorTransferencia > 0 && (
-                        <div className="flex justify-between text-blue-700 dark:text-blue-300">
-                          <span>- Cobrado por transferencia este período:</span>
-                          <span>{formatCurrency(periodoData.resumen.cobroSaldoAnteriorTransferencia)}</span>
-                        </div>
-                      )}
-                      {periodoData.resumen.cobroSaldoAnteriorEfectivo && periodoData.resumen.cobroSaldoAnteriorEfectivo > 0 && (
-                        <div className="flex justify-between text-emerald-700 dark:text-emerald-300">
-                          <span>- Cobrado en efectivo este período:</span>
-                          <span>{formatCurrency(periodoData.resumen.cobroSaldoAnteriorEfectivo)}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                  <div className="flex justify-between border-t border-amber-300 dark:border-amber-700 pt-1 text-amber-900 dark:text-amber-200 font-medium">
-                    <span>Saldo pendiente del período anterior:</span>
-                    <strong>{formatCurrency(periodoData.resumen.saldoAnteriorPendiente || 0)}</strong>
-                  </div>
-                  <p className="text-[10px] text-amber-700 dark:text-amber-400">
-                    Este monto es deuda del período anterior — se muestra aparte para que sepas que falta cobrar, pero NO afecta el cálculo de esta semana.
-                  </p>
-                </div>
-              )}
-
-              {/* === Total global (esta semana + saldo anterior pendiente) === */}
-              {/* Solo se muestra si hay saldo anterior pendiente (> 0).
-                  Si el saldo anterior está totalmente cancelado, no se muestra nada —
-                  el saldoChofer de esta semana es el número final. */}
-              {periodoData.resumen.saldoChoferTotal !== undefined &&
-                (periodoData.resumen.saldoAnteriorPendiente || 0) > 0 &&
-                periodoData.resumen.saldoChoferTotal !== periodoData.resumen.saldoChofer && (
-                <div className={`flex justify-between font-bold text-base rounded-lg p-2 ${periodoData.resumen.saldoChoferTotal >= 0 ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300" : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"}`}>
-                  <span>{periodoData.resumen.saldoChoferTotal >= 0
-                    ? (isDueno ? "Total a pagar al chofer (esta semana + saldo anterior)" : "Te deben en total (esta semana + saldo anterior)")
-                    : (isDueno ? "El chofer te debe en total" : "Debés entregar en total")}
-                  </span>
-                  <span>{formatCurrency(Math.abs(periodoData.resumen.saldoChoferTotal))}</span>
-                </div>
-              )}
+              {/* Nota: NO mostramos nada sobre saldo del período anterior en el resumen de esta semana.
+                  El usuario ya dejó claro que no quiere ver esa info acá.
+                  Si querés ver el saldo anterior pendiente, mirá la pantalla de cierre de período. */}
             </CardContent>
           </Card>
 
