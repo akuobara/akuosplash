@@ -148,11 +148,13 @@ export async function GET(req: NextRequest) {
     const baseImponible = cfg.aplicaImpuestoSobre === "pago_chofer" ? pagoChofer : cfg.aplicaImpuestoSobre === "utilidad_bruta" ? utilidadBruta : totalVentas;
     const impuesto = cfg.tipoTributo === "ninguno" ? 0 : (Math.max(0, baseImponible) * cfg.porcentajeImpuesto) / 100;
     const liquidoChofer = Math.max(0, pagoChofer) + gastosChofer - impuesto - descuentosChofer;
-    // Saldo arrastrado del período anterior (lo que el dueno le debía al chofer)
-    // NO se suma automáticamente al total. Solo se suma lo que el chofer
-    // cobró explícitamente (via "Cobrar saldo anterior").
+    // === CÁLCULO DEL SALDO CHOFER (igual que la UI) ===
+    // La liquidación de CADA período es INDEPENDIENTE del anterior.
+    // El saldoChofer de esta semana = solo lo que el dueno le debe al chofer por el trabajo DE ESTA semana.
+    // El saldo anterior y los cobros de saldo anterior NO se incluyen en el cálculo ni en el PDF.
+    // Detalle por estanque opcional (no implementado en PDF todavía).
     const saldoArrastrado = (cfg as any).saldoPendienteLiquidacion || 0;
-    // Detectar cobros de saldo anterior en este período
+    // Detectar cobros de saldo anterior (para info, NO se suman al saldoChofer)
     const esCobroSaldoAntPDF = (desc: string | null) => {
       if (!desc) return false;
       const d = desc.toLowerCase();
@@ -162,8 +164,10 @@ export async function GET(req: NextRequest) {
     const cobrosSaldoAnt = pagosSueltos
       .filter(p => esCobroSaldoAntPDF(p.descripcion))
       .reduce((s, p) => s + p.monto, 0);
-    // El saldo del chofer = líquido - efectivo + cobros de saldo anterior (no saldo arrastrado)
-    const saldoChofer = liquidoChofer - efectivoTotal + cobrosSaldoAnt;
+    // Saldo pendiente del período anterior (después de cobros de este período)
+    const saldoAnteriorPendiente = Math.max(0, saldoArrastrado - cobrosSaldoAnt);
+    // Saldo chofer de esta semana = liquido - efectivo (sin incluir saldo anterior ni cobros)
+    const saldoChofer = liquidoChofer - efectivoTotal;
 
     // Detalle de vueltas pagables (solo las válidas)
     const vueltasPagables = vueltasValidas.map(v => {
@@ -205,6 +209,7 @@ export async function GET(req: NextRequest) {
         totalGastos,
         saldoArrastrado,
         cobrosSaldoAnt,
+        saldoAnteriorPendiente,
       },
       vueltasPagables,
       gastosPorTipo,
@@ -272,15 +277,8 @@ function generarPDF(data: any) {
   body.push([{ content: "EFECTIVO RECIBIDO", colSpan: 2, styles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: "bold", fontSize: 9 } }]);
   body.push(["Efectivo", formatCurrency(efectivoConDescuentos)]);
 
-  // === 3.5 SALDO DEL PERÍODO ANTERIOR (información, NO se suma al total) ===
-  const saldoArrastradoInfo = (r as any).saldoArrastrado || 0;
-  if (saldoArrastradoInfo !== 0) {
-    body.push([
-      saldoArrastradoInfo > 0 ? "Saldo del período anterior (a favor del chofer)" : "Saldo del período anterior (a favor del admin)",
-      formatCurrency(Math.abs(saldoArrastradoInfo)),
-    ]);
-    body.push([{ content: "(no incluido en el total — cobrá con 'Cobrar saldo anterior' para incluirlo)", colSpan: 2, styles: { fontSize: 8, textColor: [107, 114, 128], fontStyle: "italic" } }]);
-  }
+  // NOTA: el saldo del período anterior NO se muestra en el PDF.
+  // Cada liquidación es independiente — el saldo anterior se gestiona aparte.
 
   // === 4. IMPOSICIÓN (si existe) ===
   if (r.impuesto > 0) {
@@ -289,14 +287,12 @@ function generarPDF(data: any) {
   }
 
   // === TOTAL A FAVOR DE QUIEN ===
-  // Saldo = lo que el chofer debe recibir (pago vueltas + gastos reembolsables - impuesto)
-  //         - lo que ya tiene en efectivo (incluyendo descuentos a favor)
-  //         + cobros de saldo anterior (si el chofer cobró)
-  // NO se suma automáticamente el saldo arrastrado — solo lo que el chofer cobró.
-  const cobrosSaldoAntPDF = (r as any).cobrosSaldoAnt || 0;
-  const saldoFinal = r.liquidoChofer - efectivoConDescuentos + cobrosSaldoAntPDF;
+  // Saldo = liquidoChofer - efectivo recibido (incluyendo descuentos a favor).
+  // NO se suma el saldo anterior ni los cobros de saldo anterior —
+  // la liquidación de cada período es independiente.
+  const saldoFinal = r.liquidoChofer - efectivoConDescuentos;
   body.push([{ content: "TOTAL", colSpan: 2, styles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 10 } }]);
-  body.push([saldoFinal >= 0 ? "A favor del chofer" : "A favor del admin", formatCurrency(Math.abs(saldoFinal))]);
+  body.push([saldoFinal >= 0 ? "A favor del chofer (esta semana)" : "A favor del admin (esta semana)", formatCurrency(Math.abs(saldoFinal))]);
 
   autoTable(doc, {
     startY: 30,
@@ -322,7 +318,7 @@ function generarPDF(data: any) {
         hookData.cell.styles.fontStyle = "bold";
         hookData.cell.styles.fontSize = 11;
       }
-      if (label === "A favor del chofer" || label === "A favor del admin") {
+      if (label === "A favor del chofer (esta semana)" || label === "A favor del admin (esta semana)") {
         hookData.cell.styles.fontStyle = "bold";
         hookData.cell.styles.fontSize = 12;
         hookData.cell.styles.textColor = saldoFinal >= 0 ? [22, 163, 74] : [220, 38, 38];
@@ -346,6 +342,7 @@ function generarExcel(data: any) {
   const cfg = data.cfg;
   const impuestoLabel = r.tipoTributo === "iva" ? "IVA" : r.tipoTributo === "iibb" ? "IIBB" : "Impuesto";
   const efectivoConDescuentos = r.efectivoTotal + r.descuentosChofer;
+  // Saldo final = liquido - efectivo (sin incluir saldo anterior ni cobros)
   const saldoFinal = r.liquidoChofer - efectivoConDescuentos;
 
   const rows: any[] = [
@@ -377,15 +374,8 @@ function generarExcel(data: any) {
   rows.push(["Efectivo", efectivoConDescuentos]);
   rows.push([]);
 
-  // Saldo del período anterior
-  const saldoArrastradoExcel = (r as any).saldoArrastrado || 0;
-  if (saldoArrastradoExcel !== 0) {
-    rows.push([
-      saldoArrastradoExcel > 0 ? "Saldo del período anterior (a favor del chofer)" : "Saldo del período anterior (a favor del admin)",
-      Math.abs(saldoArrastradoExcel),
-    ]);
-    rows.push([]);
-  }
+  // NOTA: el saldo del período anterior NO se muestra en el Excel.
+  // Cada liquidación es independiente.
 
   if (r.impuesto > 0) {
     rows.push(["IMPOSICIÓN", ""]);
@@ -394,7 +384,7 @@ function generarExcel(data: any) {
   }
 
   rows.push(["TOTAL", ""]);
-  rows.push([saldoFinal >= 0 ? "A favor del chofer" : "A favor del admin", Math.abs(saldoFinal)]);
+  rows.push([saldoFinal >= 0 ? "A favor del chofer (esta semana)" : "A favor del admin (esta semana)", Math.abs(saldoFinal)]);
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
   ws["!cols"] = [{ wch: 38 }, { wch: 16 }];
