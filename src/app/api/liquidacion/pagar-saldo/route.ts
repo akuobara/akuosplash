@@ -169,13 +169,27 @@ export async function POST(req: NextRequest) {
       // Columna no existe — no crítico, el filtro por texto también funciona
     }
 
+    // === Decrementar saldoPendienteLiquidacion en la config ===
+    // IMPORTANTE: cuando se hace un cobro de saldo anterior, el monto cobrado
+    // se descuenta del saldo pendiente. Así:
+    //   - Si se cobró todo (monto = saldoPendiente): queda en $0 (no aparece más el botón)
+    //   - Si se cobró parcial: queda el resto pendiente (botón sigue apareciendo pero por menos monto)
+    // Antes esto NO se hacía y el campo quedaba intacto, lo que hacía que el botón
+    // "Cobrar saldo anterior" siga apareciendo en semanas posteriores aunque ya se había cobrado.
+    const nuevoSaldoPendiente = Math.max(0, saldoPendiente - monto);
+    await db.configuracion.update({
+      where: { duenoId },
+      data: { saldoPendienteLiquidacion: nuevoSaldoPendiente },
+    });
+
     return NextResponse.json({
       ok: true,
       pago,
       monto,
       metodo,
       saldoPendiente,
-      message: `${metodo === "transferencia" ? "Transferencia registrada" : "Cobro con efectivo registrado"} por $${monto.toLocaleString("es-CL")}. El saldo se asentará al cerrar el período.`,
+      saldoPendienteNuevo: nuevoSaldoPendiente,
+      message: `${metodo === "transferencia" ? "Transferencia registrada" : "Cobro con efectivo registrado"} por $${monto.toLocaleString("es-CL")}. Saldo pendiente restante: $${nuevoSaldoPendiente.toLocaleString("es-CL")}.`,
     });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
