@@ -266,7 +266,9 @@ export function LiquidacionTab({ refreshKey, onRefresh, config, isDueno = false 
   const cargarPeriodo = useCallback(async () => {
     setPeriodoLoading(true);
     try {
-      const r = await apiGet<any>(`/api/liquidacion/periodo?offset=${periodoOffset}`);
+      // cache: "no-store" + timestamp para evitar que el navegador devuelva
+      // una respuesta cacheada (que mostraría saldoArrastrado viejo)
+      const r = await apiGet<any>(`/api/liquidacion/periodo?offset=${periodoOffset}&_t=${Date.now()}`);
       setPeriodoData(r);
     } catch (e) {
       console.error(e);

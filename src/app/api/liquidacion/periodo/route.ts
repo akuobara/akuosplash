@@ -384,5 +384,13 @@ export async function GET(req: NextRequest) {
       monto: g.monto,
       pagadoPor: g.pagadoPor,
     })),
+  }, {
+    headers: {
+      // Evitar cache — el usuario siempre debe ver el estado actualizado
+      // (sin esto, el navegador puede mostrar saldoArrastrado viejo)
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+    },
   });
 }
