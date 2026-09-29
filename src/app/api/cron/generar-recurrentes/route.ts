@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { calcularProximaFechaConDiaPreferido } from "@/lib/helpers";
 
 // GET /api/cron/generar-recurrentes
 // Cron job que genera pedidos a partir de pedidos recurrentes vencidos
@@ -63,9 +64,12 @@ export async function GET(req: NextRequest) {
         },
       });
 
-      // Actualizar próxima generación
-      const proxima = new Date(rec.fechaProximaGeneracion);
-      proxima.setDate(proxima.getDate() + rec.frecuenciaDias);
+      // Actualizar próxima generación — respeta diaSemanaPreferido si está seteado
+      const proxima = calcularProximaFechaConDiaPreferido(
+        rec.fechaProximaGeneracion,
+        rec.frecuenciaDias,
+        rec.diaSemanaPreferido
+      );
       await db.pedidoRecurrente.update({
         where: { id: rec.id },
         data: { fechaProximaGeneracion: proxima },

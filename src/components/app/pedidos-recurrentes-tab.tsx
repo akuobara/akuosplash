@@ -62,6 +62,7 @@ interface Recurrente {
   metodoPagoPreferido: string;
   nota: string | null;
   frecuenciaDias: number;
+  diaSemanaPreferido: number | null;
   fechaInicio: string;
   fechaProximaGeneracion: string;
   activo: boolean;
@@ -116,6 +117,7 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
   const [metodoPagoPreferido, setMetodoPagoPreferido] = useState("credito");
   const [nota, setNota] = useState("");
   const [frecuenciaDias, setFrecuenciaDias] = useState("7");
+  const [diaSemanaPreferido, setDiaSemanaPreferido] = useState<string>(""); // "" = sin preferencia, "0"-"6" = día
   const [fechaInicio, setFechaInicio] = useState("");
   const [activo, setActivo] = useState(true);
   const [asignacionTipo, setAsignacionTipo] = useState("manual");
@@ -215,6 +217,7 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
     setMetodoPagoPreferido("credito");
     setNota("");
     setFrecuenciaDias("7");
+    setDiaSemanaPreferido("");
     setFechaInicio(new Date().toISOString().slice(0, 10));
     setActivo(true);
     setAsignacionTipo("manual");
@@ -229,6 +232,7 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
     setMetodoPagoPreferido(r.metodoPagoPreferido);
     setNota(r.nota ?? "");
     setFrecuenciaDias(String(r.frecuenciaDias));
+    setDiaSemanaPreferido(r.diaSemanaPreferido !== null && r.diaSemanaPreferido !== undefined ? String(r.diaSemanaPreferido) : "");
     setFechaInicio(new Date(r.fechaInicio).toISOString().slice(0, 10));
     setActivo(r.activo);
     setAsignacionTipo(r.asignacionTipo);
@@ -261,6 +265,8 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
         metodoPagoPreferido,
         nota: nota.trim() || null,
         frecuenciaDias: frec,
+        // Solo incluir diaSemanaPreferido si la frecuencia es 7 (semanal)
+        diaSemanaPreferido: frec === 7 ? (diaSemanaPreferido === "" ? null : Number(diaSemanaPreferido)) : null,
         fechaInicio: fechaInicio ? new Date(fechaInicio) : undefined,
         activo,
         asignacionTipo,
@@ -449,6 +455,11 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
                     <Badge variant="outline" className="text-[10px] gap-0.5">
                       <Calendar className="h-2.5 w-2.5" /> Cada {r.frecuenciaDias} día{r.frecuenciaDias !== 1 ? "s" : ""}
                     </Badge>
+                    {r.diaSemanaPreferido !== null && r.diaSemanaPreferido !== undefined && (
+                      <Badge variant="outline" className="text-[10px] gap-0.5 text-blue-700 border-blue-300">
+                        <Calendar className="h-2.5 w-2.5" /> {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"][r.diaSemanaPreferido]}
+                      </Badge>
+                    )}
                     {r.cliente.zona && (
                       <Badge variant="outline" className="text-[10px]">{r.cliente.zona}</Badge>
                     )}
@@ -580,6 +591,31 @@ export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, chofere
                 />
                 <p className="text-xs text-muted-foreground">Ej: 7 = semanal, 14 = quincenal, 30 = mensual</p>
               </div>
+              {/* Selector de día de la semana preferido — solo visible cuando frecuencia = 7 (semanal) */}
+              {Number(frecuenciaDias) === 7 && (
+                <div className="space-y-2">
+                  <Label htmlFor="diaSemanaPreferido">Día de la semana preferido</Label>
+                  <Select value={diaSemanaPreferido || "__auto"} onValueChange={(v) => setDiaSemanaPreferido(v === "__auto" ? "" : v)}>
+                    <SelectTrigger id="diaSemanaPreferido">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__auto">Cualquier día (clásico, +7 días)</SelectItem>
+                      <SelectItem value="0">Domingo</SelectItem>
+                      <SelectItem value="1">Lunes</SelectItem>
+                      <SelectItem value="2">Martes</SelectItem>
+                      <SelectItem value="3">Miércoles</SelectItem>
+                      <SelectItem value="4">Jueves</SelectItem>
+                      <SelectItem value="5">Viernes</SelectItem>
+                      <SelectItem value="6">Sábado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Si elegís un día, la próxima entrega SIEMPRE cae ese día, aunque el chofer entregue agua otro día.
+                    Ej: cliente que quiere el agua los viernes → elegí "Viernes" y la programación se mantiene los viernes.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">

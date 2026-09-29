@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
+import { calcularProximaFechaConDiaPreferido } from "@/lib/helpers";
 
 // GET /api/admin/fix-recurrentes-fechas
 // Recalcula fechaProximaGeneracion para todos los recurrentes basándose en
@@ -40,10 +41,16 @@ export async function GET(_req: NextRequest) {
     }
 
     // Calcular la fecha correcta: última entrega + frecuenciaDias
-    const fechaCorrecta = new Date(ultimaEntrega.fecha);
-    fechaCorrecta.setDate(fechaCorrecta.getDate() + rec.frecuenciaDias);
+    // PERO si el recurrente tiene diaSemanaPreferido seteado y frecuencia 7,
+    // avanzar al próximo día de la semana preferido en vez de +7 días desde la entrega.
+    // Esto evita que una entrega fuera de día desplace la programación semanal.
+    const fechaCorrecta = calcularProximaFechaConDiaPreferido(
+      new Date(ultimaEntrega.fecha),
+      rec.frecuenciaDias,
+      rec.diaSemanaPreferido
+    );
     // Ajustar a medianoche UTC
-    fechaCorrecta.setHours(0, 0, 0, 0);
+    fechaCorrecta.setUTCHours(0, 0, 0, 0);
 
     // Verificar si ya existe un pedido programado para este recurrente con
     // fechaSolicitada en el futuro (>= hoy). Si existe, NO pisar la fechaProximaGeneracion

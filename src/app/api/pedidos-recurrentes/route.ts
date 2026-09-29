@@ -71,6 +71,23 @@ export async function POST(req: NextRequest) {
     const fechaInicio = body.fechaInicio ? new Date(body.fechaInicio) : new Date();
     const fechaProxima = new Date(fechaInicio);
 
+    // Día de la semana preferido (solo para frecuencia 7 = semanal)
+    // 0=domingo, 1=lunes, ..., 6=sábado
+    // Si está seteado, la próxima fecha de generación SIEMPRE cae en ese día.
+    let diaSemanaPreferido: number | null = null;
+    if (frecuenciaDias === 7 && body.diaSemanaPreferido !== undefined && body.diaSemanaPreferido !== null && body.diaSemanaPreferido !== "") {
+      const dia = Number(body.diaSemanaPreferido);
+      if (dia >= 0 && dia <= 6) {
+        diaSemanaPreferido = dia;
+        // Si se setea día preferido, realinear la fechaProxima a ese día
+        // (snap hacia adelante: si fechaInicio ya es ese día, queda igual; si no, va al próximo)
+        const diaActual = fechaProxima.getDay();
+        const diff = (dia - diaActual + 7) % 7;
+        fechaProxima.setDate(fechaProxima.getDate() + diff);
+        fechaProxima.setUTCHours(0, 0, 0, 0);
+      }
+    }
+
     const nuevo = await db.pedidoRecurrente.create({
       data: {
         clienteId: cliente.id,
@@ -81,6 +98,7 @@ export async function POST(req: NextRequest) {
         fechaInicio,
         fechaProximaGeneracion: fechaProxima,
         activo: body.activo !== false,
+        diaSemanaPreferido,
         asignacionTipo: body.asignacionTipo || "manual",
         choferAsignadoId: (body.choferAsignadoId && body.choferAsignadoId !== "__ninguno") ? body.choferAsignadoId : null,
         duenoId: session.userId,

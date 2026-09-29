@@ -337,3 +337,75 @@ export function getRange(period: string): { start?: Date; end?: Date } {
   // "todo" o desconocido
   return {};
 }
+
+// === DÍA DE LA SEMANA PREFERIDO PARA RECURRENTES SEMANALES ===
+// Día nombres para UI
+export const DIAS_SEMANA = [
+  { value: 0, label: "Domingo", corto: "Dom" },
+  { value: 1, label: "Lunes", corto: "Lun" },
+  { value: 2, label: "Martes", corto: "Mar" },
+  { value: 3, label: "Miércoles", corto: "Mié" },
+  { value: 4, label: "Jueves", corto: "Jue" },
+  { value: 5, label: "Viernes", corto: "Vie" },
+  { value: 6, label: "Sábado", corto: "Sáb" },
+];
+
+export function labelDiaSemana(dia: number | null | undefined): string {
+  if (dia === null || dia === undefined) return "—";
+  return DIAS_SEMANA[dia]?.label || "—";
+}
+
+// Calcula la próxima fecha de generación respetando el día de la semana preferido.
+// Casos:
+// 1. diaSemanaPreferido = null/undefined o frecuenciaDias !== 7:
+//    → avanzar fechaActual + frecuenciaDias (comportamiento clásico)
+// 2. diaSemanaPreferido seteado y frecuenciaDias === 7:
+//    → avanzar al próximo día de la semana preferido que sea > (fechaActual + 6 días)
+//    (es decir, siempre "próxima semana", no la misma semana)
+//
+// Ej: si fechaActual = Wed 2026-09-29 (miércoles) y diaSemanaPreferido = 5 (viernes):
+//    → próxima = Fri 2026-10-02 (el viernes de esta semana, ya que el miércoles es antes del viernes)
+//    pero si fechaActual = Fri 2026-09-26 y diaSemanaPreferido = 5 (viernes):
+//    → próxima = Fri 2026-10-02 (próximo viernes, no hoy mismo)
+//
+// Para asegurar "siempre próxima semana" cuando el día preferido ya pasó o es hoy,
+// sumamos 7 días primero y luego ajustamos al día preferido.
+export function calcularProximaFechaConDiaPreferido(
+  fechaActual: Date,
+  frecuenciaDias: number,
+  diaSemanaPreferido: number | null | undefined
+): Date {
+  // Caso 1: sin día preferido o frecuencia no semanal
+  if (diaSemanaPreferido === null || diaSemanaPreferido === undefined || frecuenciaDias !== 7) {
+    const proxima = new Date(fechaActual);
+    proxima.setDate(proxima.getDate() + frecuenciaDias);
+    // Ajustar a medianoche UTC para evitar problemas de timezone
+    proxima.setUTCHours(0, 0, 0, 0);
+    return proxima;
+  }
+
+  // Caso 2: día preferido + frecuencia 7
+  // Avanzar 7 días (próxima semana) y luego ajustar al día preferido
+  const proxima = new Date(fechaActual);
+  proxima.setDate(proxima.getDate() + 7);
+  const diaActual = proxima.getDay();
+  const diff = (diaSemanaPreferido - diaActual + 7) % 7;
+  proxima.setDate(proxima.getDate() + diff);
+  proxima.setUTCHours(0, 0, 0, 0);
+  return proxima;
+}
+
+// Snap a día de la semana preferido desde una fecha dada (hacia adelante).
+// Útil para "realinear" la fechaProximaGeneracion al día correcto cuando
+// una entrega se hizo fuera del día preferido.
+// Si la fechaActual ya es el día preferido, devuelve la misma fecha.
+// Si la fechaActual es antes del día preferido en la misma semana, devuelve ese día.
+// Si la fechaActual es después del día preferido, devuelve el día preferido de la próxima semana.
+export function snapADiaSemanaPreferido(fechaActual: Date, diaSemanaPreferido: number): Date {
+  const resultado = new Date(fechaActual);
+  const diaActual = resultado.getDay();
+  let diff = (diaSemanaPreferido - diaActual + 7) % 7;
+  resultado.setDate(resultado.getDate() + diff);
+  resultado.setUTCHours(0, 0, 0, 0);
+  return resultado;
+}

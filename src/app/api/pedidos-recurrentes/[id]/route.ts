@@ -50,6 +50,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.fechaProximaGeneracion !== undefined) {
     data.fechaProximaGeneracion = body.fechaProximaGeneracion ? new Date(body.fechaProximaGeneracion) : undefined;
   }
+  // Día de la semana preferido (solo para frecuencia 7 = semanal)
+  // Si se setea/cambia, recalcula fechaProximaGeneracion al próximo día preferido
+  if (body.diaSemanaPreferido !== undefined) {
+    const dia = body.diaSemanaPreferido === null || body.diaSemanaPreferido === "" || body.diaSemanaPreferido === undefined
+      ? null
+      : Number(body.diaSemanaPreferido);
+    if (dia !== null && (dia < 0 || dia > 6 || isNaN(dia))) {
+      return NextResponse.json({ error: "diaSemanaPreferido debe ser 0-6 (domingo a sábado) o null" }, { status: 400 });
+    }
+    data.diaSemanaPreferido = dia;
+    // Si se setea un día preferido y la frecuencia es 7, recalcular fechaProximaGeneracion
+    const nuevaFrec = body.frecuenciaDias !== undefined ? Number(body.frecuenciaDias) : recurrente.frecuenciaDias;
+    if (dia !== null && nuevaFrec === 7) {
+      // Snap al próximo día preferido desde HOY
+      const hoy = new Date();
+      hoy.setUTCHours(0, 0, 0, 0);
+      const diaActual = hoy.getDay();
+      let diff = (dia - diaActual + 7) % 7;
+      if (diff === 0) diff = 7; // si hoy es el día preferido, ir al próximo (no hoy)
+      const nuevaFecha = new Date(hoy);
+      nuevaFecha.setDate(hoy.getDate() + diff);
+      data.fechaProximaGeneracion = nuevaFecha;
+    } else if (dia === null) {
+      // Si se quita el día preferido, no tocar fechaProximaGeneracion (queda como está)
+    }
+  }
 
   const actualizado = await db.pedidoRecurrente.update({ where: { id }, data });
   return NextResponse.json({ recurrente: actualizado });

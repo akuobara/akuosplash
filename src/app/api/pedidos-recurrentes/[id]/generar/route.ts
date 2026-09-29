@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { checkDemoBlock } from "@/lib/demo-guard";
+import { calcularProximaFechaConDiaPreferido } from "@/lib/helpers";
 
 // POST /api/pedidos-recurrentes/[id]/generar
 // Genera un pedido a partir de un pedido recurrente.
@@ -86,11 +87,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   // Actualizar fechaProximaGeneracion AVANZANDO DESDE LA FECHA ACTUAL, no desde HOY.
-  // Antes se hacia proxima = new Date() + frecuenciaDias, lo que rompía la sincronía
+  // Antes se hacía proxima = new Date() + frecuenciaDias, lo que rompía la sincronía
   // si el recurrente tenía una fechaProximaGeneracion futura. Ahora se hace igual que el cron:
   // proxima = fechaProximaGeneracion_actual + frecuenciaDias.
-  const proxima = new Date(recurrente.fechaProximaGeneracion);
-  proxima.setDate(proxima.getDate() + recurrente.frecuenciaDias);
+  // Si el recurrente tiene diaSemanaPreferido seteado y frecuencia 7, se respeta el día de la semana.
+  const proxima = calcularProximaFechaConDiaPreferido(
+    recurrente.fechaProximaGeneracion,
+    recurrente.frecuenciaDias,
+    recurrente.diaSemanaPreferido
+  );
   await db.pedidoRecurrente.update({
     where: { id: recurrente.id },
     data: { fechaProximaGeneracion: proxima },

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
-import { parseDateTimeLocalInput } from "@/lib/helpers";
+import { parseDateTimeLocalInput, calcularProximaFechaConDiaPreferido } from "@/lib/helpers";
 import { checkDemoBlock } from "@/lib/demo-guard";
 
 // GET /api/pedidos?estado=...&clienteId=...&disponibles=true
@@ -47,8 +47,11 @@ export async function GET(req: NextRequest) {
     });
     if (existente) {
       // Ya existe un pedido pendiente para esta fecha — avanzar fechaProximaGeneracion
-      const proxima = new Date(rec.fechaProximaGeneracion);
-      proxima.setDate(proxima.getDate() + rec.frecuenciaDias);
+      const proxima = calcularProximaFechaConDiaPreferido(
+        rec.fechaProximaGeneracion,
+        rec.frecuenciaDias,
+        rec.diaSemanaPreferido
+      );
       await db.pedidoRecurrente.update({
         where: { id: rec.id },
         data: { fechaProximaGeneracion: proxima },
@@ -80,8 +83,11 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const proxima = new Date(rec.fechaProximaGeneracion);
-    proxima.setDate(proxima.getDate() + rec.frecuenciaDias);
+    const proxima = calcularProximaFechaConDiaPreferido(
+      rec.fechaProximaGeneracion,
+      rec.frecuenciaDias,
+      rec.diaSemanaPreferido
+    );
     await db.pedidoRecurrente.update({
       where: { id: rec.id },
       data: { fechaProximaGeneracion: proxima },
