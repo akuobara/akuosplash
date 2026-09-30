@@ -121,7 +121,15 @@ export async function apiDelete<T>(path: string): Promise<T> {
   return res.json();
 }
 
-export async function uploadFile(file: File): Promise<string> {
+export interface UploadResult {
+  url: string;
+  // true = se subió al server (Vercel Blob). false = se guardó offline en IndexedDB + data URL.
+  uploadedToServer: boolean;
+  // Si uploadedToServer=false, este es el ID en IndexedDB para recuperar la foto luego.
+  offlineId?: string;
+}
+
+export async function uploadFile(file: File, opts?: { tipo?: string; clienteId?: string; clienteNombre?: string; estanqueNombre?: string }): Promise<UploadResult> {
   // Comprimir imagen antes de subir (si es una imagen)
   let fileToUpload: File = file;
   if (file.type.startsWith("image/")) {
@@ -139,7 +147,8 @@ export async function uploadFile(file: File): Promise<string> {
   // El fallback a base64 del lado del server (/api/upload) NO se ejecuta en ese caso.
   // Por eso hacemos el fallback acá, en el cliente: si el fetch falla por red,
   // convertimos la imagen comprimida a base64 en el browser y devolvemos ese data URL.
-  // Esto funciona incluso con señal muy mala, porque no hay un body grande que subir.
+  // ADEMÁS guardamos la foto en IndexedDB para que sobreviva recargas de página
+  // y se pueda subir automáticamente cuando vuelva la señal.
 
   const fd = new FormData();
   fd.append("file", fileToUpload);
@@ -156,10 +165,9 @@ export async function uploadFile(file: File): Promise<string> {
     }
     if (!res.ok) throw new Error(await parseError(res));
     const data = await res.json();
-    return data.url as string;
+    return { url: data.url as string, uploadedToServer: true };
   } catch (fetchError: any) {
     // "Failed to fetch" (TypeError) o cualquier error de red → fallback client-side a base64.
-    // Esto evita que el usuario pierda la foto cuando tiene mala señal.
     const esErrorDeRed =
       fetchError?.name === "TypeError" ||
       fetchError?.message?.includes("Failed to fetch") ||
@@ -172,13 +180,12 @@ export async function uploadFile(file: File): Promise<string> {
       throw fetchError;
     }
 
-    console.warn("uploadFile: error de red, usando fallback a base64 client-side:", fetchError?.message);
+    console.warn("uploadFile: error de red, guardando foto offline en IndexedDB:", fetchError?.message);
 
-    // Re-comprimir más agresivamente para asegurar que quepa como base64 (máx ~1MB final)
+    // Re-comprimir más agresivamente
     let archivoFinal = fileToUpload;
     try {
       const { compressImageClient } = await import("./image-compress");
-      // Segunda pasada con calidad más baja si la primera compresión sigue pesada
       if (fileToUpload.size > 800 * 1024) {
         archivoFinal = await compressImageClient(fileToUpload, { maxSize: 600, quality: 0.5 });
       }
@@ -186,10 +193,26 @@ export async function uploadFile(file: File): Promise<string> {
       console.warn("Re-compresión falló, usando la versión anterior:", e);
     }
 
-    // Convertir a base64 en el navegador
+    // Convertir a base64
     const dataUrl = await fileToBase64DataUrl(archivoFinal);
-    console.info(`uploadFile: usando data URL base64 (${(dataUrl.length / 1024).toFixed(0)} KB) — no requiere upload de red`);
-    return dataUrl;
+
+    // Guardar en IndexedDB para que sobreviva recargas y se pueda subir después
+    let offlineId: string | undefined;
+    try {
+      const { saveOfflinePhoto } = await import("./offline-photos");
+      offlineId = await saveOfflinePhoto({
+        dataUrl,
+        tipo: opts?.tipo || "generico",
+        clienteId: opts?.clienteId,
+        clienteNombre: opts?.clienteNombre,
+        estanqueNombre: opts?.estanqueNombre,
+      });
+      console.info(`uploadFile: foto guardada offline con ID ${offlineId}. Se subirá cuando vuelva la señal.`);
+    } catch (e) {
+      console.error("uploadFile: no se pudo guardar en IndexedDB:", e);
+    }
+
+    return { url: dataUrl, uploadedToServer: false, offlineId };
   }
 }
 

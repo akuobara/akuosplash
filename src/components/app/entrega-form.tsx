@@ -548,9 +548,13 @@ export function EntregaForm({
   async function handleFoto(file: File) {
     setSubiendoFoto(true);
     try {
-      const url = await uploadFile(file);
-      setFotoUrl(url);
-      toast.success("Foto del medidor subida");
+      const result = await uploadFile(file, { tipo: "medidor", clienteId: clienteId || undefined, clienteNombre: clienteNombre || undefined });
+      setFotoUrl(result.url);
+      if (result.uploadedToServer) {
+        toast.success("Foto del medidor subida");
+      } else {
+        toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá automáticamente cuando tengas conexión.", { duration: 8000 });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error al subir la foto");
     } finally {
@@ -1852,9 +1856,13 @@ export function EntregaForm({
                               setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, subiendoFoto: true } : est2));
                               try {
                                 const { uploadFile } = await import("@/lib/api-client");
-                                const url = await uploadFile(file);
-                                setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, fotoUrl: url, subiendoFoto: false } : est2));
-                                toast.success(`Foto del medidor de "${est.nombre}" guardada`);
+                                const result = await uploadFile(file, { tipo: "estanque", clienteId: clienteId || undefined, clienteNombre: clienteNombre || undefined, estanqueNombre: est.nombre });
+                                setEstanquesEntrega(estanquesEntrega.map((est2, j) => j === i ? { ...est2, fotoUrl: result.url, subiendoFoto: false } : est2));
+                                if (result.uploadedToServer) {
+                                  toast.success(`Foto del medidor de "${est.nombre}" guardada`);
+                                } else {
+                                  toast.success(`📷 Foto de "${est.nombre}" guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.`, { duration: 8000 });
+                                }
                               } catch (e: any) {
                                 console.error("Error subiendo foto de estanque:", e);
                                 toast.error(e?.message || "No se pudo subir la foto del medidor");

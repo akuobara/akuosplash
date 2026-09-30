@@ -521,9 +521,10 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
-                        const url = await uploadFile(f);
-                        setPermisoCircFoto(url);
-                        toast.success("Foto subida");
+                        const result = await uploadFile(f, { tipo: "permiso_circ" });
+                        setPermisoCircFoto(result.url);
+                        if (result.uploadedToServer) toast.success("Foto subida");
+                        else toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
                     {permisoCircFoto && <a href={permisoCircFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
@@ -544,9 +545,10 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
-                        const url = await uploadFile(f);
-                        setRevisionTecFoto(url);
-                        toast.success("Foto subida");
+                        const result = await uploadFile(f, { tipo: "revision_tec" });
+                        setRevisionTecFoto(result.url);
+                        if (result.uploadedToServer) toast.success("Foto subida");
+                        else toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
                     {revisionTecFoto && <a href={revisionTecFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
@@ -567,9 +569,10 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
-                        const url = await uploadFile(f);
-                        setSeguroFoto(url);
-                        toast.success("Foto subida");
+                        const result = await uploadFile(f, { tipo: "seguro" });
+                        setSeguroFoto(result.url);
+                        if (result.uploadedToServer) toast.success("Foto subida");
+                        else toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
                     {seguroFoto && <a href={seguroFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}

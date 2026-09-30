@@ -73,9 +73,13 @@ export function GastoForm({ open, onOpenChange, onSaved, gasto }: GastoFormProps
   async function handleFoto(file: File) {
     setSubiendoFoto(true);
     try {
-      const url = await uploadFile(file);
-      setFotoUrl(url);
-      toast.success("Boleta/factura subida");
+      const result = await uploadFile(file, { tipo: "gasto" });
+      setFotoUrl(result.url);
+      if (result.uploadedToServer) {
+        toast.success("Boleta/factura subida");
+      } else {
+        toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Error al subir la imagen");
     } finally {

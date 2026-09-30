@@ -2137,9 +2137,13 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                         if (!f) return;
                         setSubiendoFotoConvertir(true);
                         try {
-                          const url = await uploadFile(f);
-                          setFotoConvertirUrl(url);
-                          toast.success("Foto del medidor subida");
+                          const result = await uploadFile(f, { tipo: "medidor" });
+                          setFotoConvertirUrl(result.url);
+                          if (result.uploadedToServer) {
+                            toast.success("Foto del medidor subida");
+                          } else {
+                            toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
+                          }
                         } catch (err) {
                           toast.error(err instanceof Error ? err.message : "Error al subir la foto");
                         } finally {

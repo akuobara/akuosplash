@@ -460,9 +460,10 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
-                        const url = await uploadFile(f);
-                        setLicenciaFoto(url);
-                        toast.success("Foto subida");
+                        const result = await uploadFile(f, { tipo: "licencia" });
+                        setLicenciaFoto(result.url);
+                        if (result.uploadedToServer) toast.success("Foto subida");
+                        else toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
                     {licenciaFoto && <a href={licenciaFoto} target="_blank" className="text-xs text-primary hover:underline self-center">Ver</a>}

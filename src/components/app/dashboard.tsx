@@ -48,6 +48,7 @@ import { StatCard } from "./stat-card";
 import { EntregaForm } from "./entrega-form";
 import { GastoForm } from "./gasto-form";
 import { VueltaWidget } from "./vuelta-widget";
+import { OfflinePhotosWidget } from "./offline-photos-widget";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { toast } from "sonner";
 import {
@@ -328,6 +329,9 @@ export function Dashboard({
           </div>
         </div>
       )}
+
+      {/* Widget de fotos pendientes offline (solo visible si hay fotos sin subir) */}
+      <OfflinePhotosWidget />
 
       {/* Vuelta actual */}
       <VueltaWidget
