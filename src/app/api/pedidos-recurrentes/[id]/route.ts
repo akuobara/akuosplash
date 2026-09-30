@@ -21,21 +21,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Recurrencia no encontrada" }, { status: 404 });
   }
 
-  // Autorización:
+  // Autorización (PATCH):
   // - Dueño: debe ser el dueño del recurrente.
-  // - Chofer: debe estar asignado a esta recurrencia (choferAsignadoId === session.userId).
-  if (session.role === "dueno") {
-    if (recurrente.duenoId !== session.userId) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
-    }
-  } else if (session.role === "chofer") {
-    if (!recurrente.choferAsignadoId || recurrente.choferAsignadoId !== session.userId) {
-      return NextResponse.json(
-        { error: "Solo podés editar pedidos recurrentes asignados a ti." },
-        { status: 403 }
-      );
-    }
-  } else {
+  // - Chofer: puede editar cualquier recurrente del dueno al que pertenece.
+  const duenoIdSesionPatch = session.role === "dueno" ? session.userId : session.duenoId;
+  if (!duenoIdSesionPatch) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+  if (recurrente.duenoId !== duenoIdSesionPatch) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
@@ -98,21 +91,14 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: "Recurrencia no encontrada" }, { status: 404 });
   }
 
-  // Autorización:
+  // Autorización (DELETE):
   // - Dueño: debe ser el dueño del recurrente.
-  // - Chofer: debe estar asignado a esta recurrencia (choferAsignadoId === session.userId).
-  if (session.role === "dueno") {
-    if (recurrente.duenoId !== session.userId) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
-    }
-  } else if (session.role === "chofer") {
-    if (!recurrente.choferAsignadoId || recurrente.choferAsignadoId !== session.userId) {
-      return NextResponse.json(
-        { error: "Solo podés eliminar pedidos recurrentes asignados a ti." },
-        { status: 403 }
-      );
-    }
-  } else {
+  // - Chofer: puede eliminar cualquier recurrente del dueno al que pertenece.
+  const duenoIdSesionDelete = session.role === "dueno" ? session.userId : session.duenoId;
+  if (!duenoIdSesionDelete) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+  if (recurrente.duenoId !== duenoIdSesionDelete) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 

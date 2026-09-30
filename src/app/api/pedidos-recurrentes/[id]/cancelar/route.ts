@@ -63,20 +63,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // Autorización:
   // - Dueño: debe ser el dueño del recurrente (recurrente.duenoId === session.userId)
-  // - Chofer: debe estar asignado a esta recurrencia (recurrente.choferAsignadoId === session.userId)
-  //   Esto cubre el caso "creado por mi": si el chofer creó el recurrente y se autoasignó, puede cancelarlo.
-  if (session.role === "dueno") {
-    if (recurrente.duenoId !== session.userId) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
-    }
-  } else if (session.role === "chofer") {
-    if (!recurrente.choferAsignadoId || recurrente.choferAsignadoId !== session.userId) {
-      return NextResponse.json(
-        { error: "Solo podés cancelar pedidos recurrentes asignados a ti." },
-        { status: 403 }
-      );
-    }
-  } else {
+  // - Chofer: puede cancelar cualquier recurrente del dueno al que pertenece (session.duenoId).
+  //   Esto es porque el chofer es el que está en ruta y necesita gestionar los pedidos
+  //   que vienen de recurrentes (ej: cliente que ya recibió agua hoy → cancelar el de mañana).
+  //   Restringir solo a "asignados a ti" era muy limitante cuando el recurrente no tiene
+  //   choferAsignadoId seteado.
+  const duenoIdSesion = session.role === "dueno" ? session.userId : session.duenoId;
+  if (!duenoIdSesion) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+  if (recurrente.duenoId !== duenoIdSesion) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
