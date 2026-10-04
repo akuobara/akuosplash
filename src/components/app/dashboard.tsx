@@ -182,7 +182,7 @@ export function Dashboard({
 
   const cargarVuelta = useCallback(async () => {
     try {
-      const data = await apiGet<{ vuelta: VueltaActual | null }>("/api/vueltas/activa");
+      const data = await apiGet<{ vuelta: VueltaActual | null }>("/api/vueltas/activa?_t=" + Date.now());
       setVueltaActual(data.vuelta);
     } catch (e) {
       console.error(e);

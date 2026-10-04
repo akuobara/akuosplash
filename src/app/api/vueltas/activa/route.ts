@@ -46,7 +46,9 @@ export async function GET() {
   });
 
   if (!activa) {
-    return NextResponse.json({ vuelta: null });
+    return NextResponse.json({ vuelta: null }, {
+      headers: { "Cache-Control": "no-store, no-cache, must-revalidate" }
+    });
   }
 
   const litros = activa.entregas.reduce((s, e) => s + e.litros, 0);
@@ -73,5 +75,7 @@ export async function GET() {
       transferenciaRecibida: transferencia,
       entregas: activa.entregas,
     },
+  }, {
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate" }
   });
 }
