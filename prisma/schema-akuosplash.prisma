@@ -1,0 +1,266 @@
+// AkuoSplash — Schema Prisma para la app de venta y reparto de agua
+// Tablas prefijadas con "Akuo" para aislamiento total.
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/akuosplash-client"
+  binaryTargets   = ["native", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("AKUOSPLASH_DATABASE_URL")
+}
+
+model AkuoUsuario {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  nombre        String
+  telefono      String?
+  passwordHash  String?
+  avatarUrl     String?
+  rol           String   @default("cliente")
+  activo        Boolean  @default(true)
+  aprobado      Boolean  @default(false)
+  banned        Boolean  @default(false)
+  banRazon      String?
+  creadoEn      DateTime @default(now())
+  ultimoLoginEn DateTime?
+  googleId      String?  @unique
+  facebookId    String?  @unique
+  rutEmpresa           String?
+  razonSocial          String?
+  direccionEmpresa     String?
+  capacidadVehiculoKg  Int?
+  patenteVehiculo      String?
+  tipoVehiculo         String?
+  licenciaConducirUrl  String?
+  permisoCircUrl      String?
+  seguroUrl            String?
+  areasCobertura       String?
+  descripcion          String?
+  plan                 String  @default("free")
+  suscripcionActiva    Boolean @default(false)
+  suscripcionInicio    DateTime?
+  suscripcionFin       DateTime?
+  vehiculosPermitidos  Int     @default(1)
+  choferesPermitidos   Int     @default(1)
+  sesiones          AkuoSesion[]
+  pedidosCliente    AkuoPedido[]
+  entregasHechas    AkuoEntrega[]      @relation("EntregaTransportista")
+  vehiculos         AkuoVehiculo[]
+  clientes          AkuoCliente[]
+  pagos             AkuoPago[]
+  valoracionesRecibidas AkuoValoracion[]
+  notificaciones    AkuoNotificacion[]
+  auditLogs         AkuoAuditLog[]
+  suscripciones     AkuoSuscripcion[]
+  @@index([rol, activo])
+  @@index([email])
+  @@index([googleId])
+  @@index([facebookId])
+}
+
+model AkuoSesion {
+  id          String   @id @default(cuid())
+  usuarioId   String
+  usuario     AkuoUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  token       String   @unique
+  creadoEn    DateTime @default(now())
+  expiraEn    DateTime
+  userAgent   String?
+  ip          String?
+  @@index([usuarioId])
+}
+
+model AkuoCodigoLogin {
+  id         String   @id @default(cuid())
+  email      String
+  codigo     String
+  creadoEn   DateTime @default(now())
+  expiraEn   DateTime
+  usado      Boolean  @default(false)
+  @@index([email])
+}
+
+model AkuoVehiculo {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  patente         String
+  tipo            String   @default("aljibe")
+  capacidadLitros Int
+  marca           String?
+  modelo          String?
+  año             Int?
+  activo          Boolean  @default(true)
+  permisoCircUrl  String?
+  revisionTecUrl  String?
+  seguroUrl       String?
+  fotoUrl         String?
+  entregas        AkuoEntrega[]
+  @@index([transportistaId, activo])
+}
+
+model AkuoCliente {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  nombre          String
+  telefono        String?
+  direccion       String?
+  zona            String?
+  lat             Float?
+  lng             Float?
+  precioEfectivoPorLitro  Float @default(0)
+  precioTransferenciaPorLitro Float @default(0)
+  nota            String?
+  estanquesJson   String?
+  requiereIngresoPropiedad Boolean @default(false)
+  entregaDesdeAfuera Boolean @default(false)
+  conexionExterna Boolean @default(false)
+  indicacionesAcceso String?
+  activo          Boolean @default(true)
+  pedidos         AkuoPedido[]
+  entregas        AkuoEntrega[]
+  @@index([transportistaId, activo])
+}
+
+model AkuoPedido {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  clienteId       String?
+  cliente         AkuoCliente? @relation(fields: [clienteId], references: [id])
+  clienteNombre   String
+  clienteDireccion String?
+  clienteTelefono String?
+  clienteZona     String?
+  clienteLat      Float?
+  clienteLng      Float?
+  litrosSolicitados Float
+  fechaSolicitada  DateTime?
+  estado          String  @default("pendiente")
+  metodoPagoPreferido String @default("credito")
+  nota            String?
+  entregaId       String?  @unique
+  entrega         AkuoEntrega? @relation(fields: [entregaId], references: [id])
+  @@index([transportistaId, estado])
+  @@index([clienteId])
+}
+
+model AkuoEntrega {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation("EntregaTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+  clienteId       String?
+  cliente         AkuoCliente? @relation(fields: [clienteId], references: [id])
+  clienteNombre   String
+  clienteDireccion String?
+  clienteTelefono String?
+  clienteZona     String?
+  clienteLat      Float?
+  clienteLng      Float?
+  vehiculoId      String?
+  vehiculo        AkuoVehiculo? @relation(fields: [vehiculoId], references: [id])
+  litros          Float
+  total           Float
+  montoEfectivo   Float   @default(0)
+  montoTransferencia Float @default(0)
+  montoRecibido   Float   @default(0)
+  metodoPago      String  @default("credito")
+  estadoPago      String  @default("pendiente")
+  descuento       Float   @default(0)
+  descuentoPor    String?
+  fotoMedidorUrl  String?
+  nota            String?
+  detalleEstanquesJson String?
+  lecturaAnterior Float?
+  lecturaActual   Float?
+  pedido          AkuoPedido?
+  @@index([transportistaId, creadoEn])
+  @@index([clienteId])
+}
+
+model AkuoPago {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  monto           Float
+  concepto        String
+  metodoPago      String
+  estado          String   @default("pendiente")
+  referencia      String?
+  @@index([transportistaId])
+}
+
+model AkuoSuscripcion {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  plan            String
+  monto           Float
+  periodoDias     Int      @default(30)
+  inicio          DateTime
+  fin             DateTime
+  estado          String   @default("activa")
+  metodoPago      String?
+  referencia      String?
+  @@index([transportistaId, estado])
+}
+
+model AkuoValoracion {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  rating          Int
+  comentario      String?
+  clienteNombre   String?
+  @@index([transportistaId, creadoEn])
+}
+
+model AkuoNotificacion {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  leidaEn         DateTime?
+  usuarioId       String
+  usuario         AkuoUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  tipo            String
+  titulo          String
+  mensaje         String
+  link            String?
+  @@index([usuarioId, leidaEn])
+}
+
+model AkuoAuditLog {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  superadminId    String?
+  superadmin      AkuoUsuario? @relation(fields: [superadminId], references: [id])
+  accion          String
+  entidad         String?
+  entidadId       String?
+  detalles        String?
+  ip              String?
+  @@index([superadminId, creadoEn])
+}
+
+model AkuoConfig {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  comisionPorcentaje Float  @default(0)
+  precioPlanPro      Float  @default(15000)
+  precioPlanEnterprise Float @default(50000)
+  maxVehiculosFree   Int    @default(1)
+  maxVehiculosPro    Int    @default(5)
+  maxVehiculosEnterprise Int @default(999)
+  activo              Boolean @default(true)
+}

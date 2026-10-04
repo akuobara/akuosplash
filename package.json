@@ -12,7 +12,7 @@
     "db:generate": "prisma generate && prisma generate --schema=prisma/schema-bolson.prisma",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "postinstall": "prisma generate && prisma generate --schema=prisma/schema-bolson.prisma"
+    "postinstall": "prisma generate && prisma generate --schema=prisma/schema-bolson.prisma && prisma generate --schema=prisma/schema-akuosplash.prisma"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -54,6 +54,7 @@
     "@tanstack/react-query": "^5.82.0",
     "@tanstack/react-table": "^8.21.3",
     "@vercel/blob": "^2.8.0",
+    "bcryptjs": "^3.0.3",
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
