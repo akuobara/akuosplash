@@ -325,6 +325,42 @@ exports.Prisma.AkuoConfigScalarFieldEnum = {
   activo: 'activo'
 };
 
+exports.Prisma.AkuoConversacionScalarFieldEnum = {
+  id: 'id',
+  creadoEn: 'creadoEn',
+  clienteId: 'clienteId',
+  transportistaId: 'transportistaId',
+  ultimoMensajeEn: 'ultimoMensajeEn'
+};
+
+exports.Prisma.AkuoMensajeScalarFieldEnum = {
+  id: 'id',
+  creadoEn: 'creadoEn',
+  leidoEn: 'leidoEn',
+  conversacionId: 'conversacionId',
+  remitenteId: 'remitenteId',
+  contenido: 'contenido'
+};
+
+exports.Prisma.AkuoPedidoClienteScalarFieldEnum = {
+  id: 'id',
+  creadoEn: 'creadoEn',
+  clienteId: 'clienteId',
+  transportistaId: 'transportistaId',
+  litros: 'litros',
+  direccion: 'direccion',
+  comuna: 'comuna',
+  lat: 'lat',
+  lng: 'lng',
+  fechaDeseada: 'fechaDeseada',
+  franjaHoraria: 'franjaHoraria',
+  metodoPago: 'metodoPago',
+  estado: 'estado',
+  nota: 'nota',
+  precioTotal: 'precioTotal',
+  entregaId: 'entregaId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -349,7 +385,10 @@ exports.Prisma.ModelName = {
   AkuoValoracion: 'AkuoValoracion',
   AkuoNotificacion: 'AkuoNotificacion',
   AkuoAuditLog: 'AkuoAuditLog',
-  AkuoConfig: 'AkuoConfig'
+  AkuoConfig: 'AkuoConfig',
+  AkuoConversacion: 'AkuoConversacion',
+  AkuoMensaje: 'AkuoMensaje',
+  AkuoPedidoCliente: 'AkuoPedidoCliente'
 };
 
 /**

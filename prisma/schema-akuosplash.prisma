@@ -56,6 +56,11 @@ model AkuoUsuario {
   notificaciones    AkuoNotificacion[]
   auditLogs         AkuoAuditLog[]
   suscripciones     AkuoSuscripcion[]
+  conversacionesCliente       AkuoConversacion[] @relation("ConvCliente")
+  conversacionesTransportista AkuoConversacion[] @relation("ConvTransportista")
+  mensajesEnviados            AkuoMensaje[]        @relation("MensajeRemitente")
+  pedidosClienteApp           AkuoPedidoCliente[]  @relation("PedidoClienteApp")
+  pedidosTransportistaApp     AkuoPedidoCliente[]  @relation("PedidoTransportistaApp")
   @@index([rol, activo])
   @@index([email])
   @@index([googleId])
@@ -263,4 +268,53 @@ model AkuoConfig {
   maxVehiculosPro    Int    @default(5)
   maxVehiculosEnterprise Int @default(999)
   activo              Boolean @default(true)
+}
+
+model AkuoConversacion {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  clienteId       String
+  transportistaId String
+  cliente         AkuoUsuario @relation("ConvCliente", fields: [clienteId], references: [id], onDelete: Cascade)
+  transportista   AkuoUsuario @relation("ConvTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+  ultimoMensajeEn DateTime @default(now())
+  mensajes        AkuoMensaje[]
+  @@unique([clienteId, transportistaId])
+  @@index([clienteId])
+  @@index([transportistaId])
+}
+
+model AkuoMensaje {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  leidoEn         DateTime?
+  conversacionId String
+  conversacion    AkuoConversacion @relation(fields: [conversacionId], references: [id], onDelete: Cascade)
+  remitenteId     String
+  remitente       AkuoUsuario @relation("MensajeRemitente", fields: [remitenteId], references: [id], onDelete: Cascade)
+  contenido       String
+  @@index([conversacionId, creadoEn])
+}
+
+model AkuoPedidoCliente {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  clienteId       String
+  cliente         AkuoUsuario @relation("PedidoClienteApp", fields: [clienteId], references: [id], onDelete: Cascade)
+  transportistaId String?
+  transportista   AkuoUsuario? @relation("PedidoTransportistaApp", fields: [transportistaId], references: [id])
+  litros          Float
+  direccion       String
+  comuna          String?
+  lat             Float?
+  lng             Float?
+  fechaDeseada    DateTime?
+  franjaHoraria   String?
+  metodoPago      String   @default("efectivo")
+  estado          String   @default("pendiente")
+  nota            String?
+  precioTotal     Float?
+  entregaId       String?
+  @@index([clienteId, estado])
+  @@index([transportistaId, estado])
 }
