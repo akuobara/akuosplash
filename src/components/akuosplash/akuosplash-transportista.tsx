@@ -218,9 +218,6 @@ function PedidoDisponibleRow({ p, onRefresh }: { p: PedidoDisponible; onRefresh:
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="font-medium">{p.litros.toLocaleString("es-CL")} L</span>
-            {p.requierePresenciaCliente && (
-              <Badge variant="outline" className="bg-violet-50 text-violet-700 border-violet-300"><KeyRound className="h-3 w-3 mr-1" />Requiere presencia</Badge>
-            )}
           </div>
           <p className="mt-1 text-sm text-muted-foreground flex items-center gap-1">
             <MapPin className="h-3 w-3" /> {p.direccion}{p.comuna ? `, ${p.comuna}` : ""}
@@ -258,23 +255,8 @@ function PedidoAsignadoRow({ p, userId, onRefresh }: { p: PedidoAsignado; userId
     try {
       const res = await akuoPost<{ ok: boolean; error?: string; mensaje?: string }>(`/api/akuosplash/transportista/pedidos/${p.id}/verificar-entrega`, { codigo: codigoInput.trim() });
       if (res.ok) {
-        toast.success(res.mensaje || "Entrega verificada con éxito");
+        toast.success("Entrega confirmada");
         setCodigoInput("");
-        onRefresh();
-      } else {
-        toast.error(res.error || "No se pudo verificar");
-      }
-    } catch (e: any) { toast.error(e.message || "Error"); }
-    finally { setVerificando(false); }
-  }
-
-  async function confirmarSinCodigo() {
-    if (!confirm("¿Confirmar entrega sin código? (Solo si el pedido NO requiere presencia del cliente)")) return;
-    setVerificando(true);
-    try {
-      const res = await akuoPost<{ ok: boolean; error?: string; mensaje?: string }>(`/api/akuosplash/transportista/pedidos/${p.id}/verificar-entrega`, { codigo: "" });
-      if (res.ok) {
-        toast.success(res.mensaje || "Entrega confirmada");
         onRefresh();
       } else {
         toast.error(res.error || "No se pudo verificar");
@@ -290,11 +272,6 @@ function PedidoAsignadoRow({ p, userId, onRefresh }: { p: PedidoAsignado; userId
           <div className="flex items-center gap-2">
             <Badge variant="outline" className={colorEstado(p.estado)}>{labelEstado(p.estado)}</Badge>
             <span className="font-medium">{p.litros.toLocaleString("es-CL")} L</span>
-            {p.requierePresenciaCliente ? (
-              <Badge variant="outline" className="bg-violet-50 text-violet-700 border-violet-300"><KeyRound className="h-3 w-3 mr-1" />Requiere código</Badge>
-            ) : (
-              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-300">Sin código requerido</Badge>
-            )}
           </div>
           <p className="mt-1 text-sm text-muted-foreground flex items-center gap-1">
             <MapPin className="h-3 w-3" /> {p.direccion}{p.comuna ? `, ${p.comuna}` : ""}
@@ -320,50 +297,33 @@ function PedidoAsignadoRow({ p, userId, onRefresh }: { p: PedidoAsignado; userId
 
       {/* Sección de verificación de entrega */}
       {!yaEntregado && (
-        <div className={`mt-3 rounded-lg border p-3 ${p.requierePresenciaCliente ? "border-violet-200 bg-violet-50" : "border-emerald-200 bg-emerald-50"}`}>
-          {p.requierePresenciaCliente ? (
-            <>
-              <p className="text-xs font-medium text-violet-700 mb-2 flex items-center gap-1">
-                <KeyRound className="h-3.5 w-3.5" /> Ingresá el código que te dio el cliente
-              </p>
-              <p className="text-[11px] text-violet-600 mb-2">
-                El cliente puede enviártelo por mensaje desde la app, o dártelo en persona al llegar.
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="1234"
-                  value={codigoInput}
-                  onChange={(e: any) => setCodigoInput(e.target.value.replace(/[^0-9]/g, ""))}
-                  className="flex-1 font-mono tracking-[0.3em] text-center text-lg"
-                  maxLength={4}
-                  inputMode="numeric"
-                />
-                <Button onClick={verificarEntrega} disabled={verificando} className="bg-violet-600 hover:bg-violet-700">
-                  {verificando ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-xs font-medium text-emerald-700 mb-2 flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Confirmar entrega
-              </p>
-              <p className="text-[11px] text-emerald-600 mb-2">
-                Este pedido no requiere código. Confirmá la entrega directamente.
-              </p>
-              <Button onClick={confirmarSinCodigo} disabled={verificando} className="w-full bg-emerald-600 hover:bg-emerald-700">
-                {verificando ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <CheckCircle2 className="h-4 w-4 mr-1" />}
-                Confirmar entrega
-              </Button>
-            </>
-          )}
+        <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-3">
+          <p className="text-xs font-medium text-violet-700 mb-1 flex items-center gap-1">
+            <KeyRound className="h-3.5 w-3.5" /> Ingresá el código al finalizar la entrega
+          </p>
+          <p className="text-[11px] text-violet-600 mb-2">
+            Pedíselo al cliente (en persona o por el medio que acuerden).
+          </p>
+          <div className="flex gap-2">
+            <Input
+              placeholder="1234"
+              value={codigoInput}
+              onChange={(e: any) => setCodigoInput(e.target.value.replace(/[^0-9]/g, ""))}
+              className="flex-1 font-mono tracking-[0.3em] text-center text-lg"
+              maxLength={4}
+              inputMode="numeric"
+            />
+            <Button onClick={verificarEntrega} disabled={verificando} className="bg-violet-600 hover:bg-violet-700">
+              {verificando ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
       )}
 
       {yaEntregado && (
         <div className="mt-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-2">
           <ShieldCheck className="h-4 w-4 text-emerald-700" />
-          <p className="text-xs font-medium text-emerald-700">Entrega verificada</p>
+          <p className="text-xs font-medium text-emerald-700">Entrega confirmada</p>
         </div>
       )}
     </div>

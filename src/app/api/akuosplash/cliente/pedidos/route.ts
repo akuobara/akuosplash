@@ -26,15 +26,8 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   if (!body.direccion?.trim() || !body.litros) return NextResponse.json({ error: "Dirección y litros son obligatorios" }, { status: 400 });
 
-  // Determinar si el pedido requiere presencia del cliente
-  // Por defecto, toma la preferencia del perfil del usuario
-  const requierePresencia = body.requierePresenciaCliente !== undefined
-    ? !!body.requierePresenciaCliente
-    : !!((user as any).requiereClientePresente);
-
-  // Generar código solo si requiere presencia
-  const codigoConfirmacion = requierePresencia ? generarCodigoConfirmacion() : null;
-  const codigoGeneradoEn = requierePresencia ? new Date() : null;
+  // El código siempre se genera — el repartidor lo necesitará al finalizar la entrega
+  const codigoConfirmacion = generarCodigoConfirmacion();
 
   const pedido = await akuosplashDb.akuoPedidoCliente.create({
     data: {
@@ -49,9 +42,8 @@ export async function POST(req: NextRequest) {
       metodoPago: body.metodoPago || "efectivo",
       nota: body.nota?.trim() || null,
       estado: "pendiente",
-      requierePresenciaCliente: requierePresencia,
       codigoConfirmacion,
-      codigoGeneradoEn,
+      codigoGeneradoEn: new Date(),
     },
   });
   return NextResponse.json({ ok: true, pedido }, { status: 201 });

@@ -206,26 +206,8 @@ export function AkuosplashCliente() {
   );
 }
 
-function PedidoRow({ p, onRefresh }: { p: Pedido; onRefresh?: () => void }) {
-  const [enviando, setEnviando] = useState(false);
-  const requiereCodigo = p.requierePresenciaCliente;
-  const tieneTransportista = !!p.transportistaId;
+function PedidoRow({ p }: { p: Pedido; onRefresh?: () => void }) {
   const yaEntregado = !!p.codigoVerificadoEn || p.estado === "entregado";
-
-  async function enviarPorMensaje() {
-    if (!p.codigoConfirmacion) return;
-    setEnviando(true);
-    try {
-      const res = await akuoPost<{ ok: boolean; error?: string }>(`/api/akuosplash/cliente/pedidos/${p.id}/enviar-codigo`);
-      if (res.ok) {
-        toast.success("Código enviado al repartidor");
-        onRefresh?.();
-      } else {
-        toast.error(res.error || "No se pudo enviar");
-      }
-    } catch (e: any) { toast.error(e.message || "Error"); }
-    finally { setEnviando(false); }
-  }
 
   return (
     <div className="rounded-lg border border-border p-3">
@@ -234,7 +216,6 @@ function PedidoRow({ p, onRefresh }: { p: Pedido; onRefresh?: () => void }) {
           <div className="flex items-center gap-2">
             <Badge variant="outline" className={colorEstado(p.estado)}>{labelEstado(p.estado)}</Badge>
             <span className="font-medium">{p.litros.toLocaleString("es-CL")} L</span>
-            {requiereCodigo && <Badge variant="outline" className="bg-violet-50 text-violet-700 border-violet-300"><KeyRound className="h-3 w-3 mr-1" />Requiere presencia</Badge>}
           </div>
           <p className="mt-1 text-sm text-muted-foreground flex items-center gap-1">
             <MapPin className="h-3 w-3" /> {p.direccion}{p.comuna ? `, ${p.comuna}` : ""}
@@ -252,32 +233,22 @@ function PedidoRow({ p, onRefresh }: { p: Pedido; onRefresh?: () => void }) {
         </div>
       </div>
 
-      {/* Código de confirmación */}
-      {requiereCodigo && !yaEntregado && (
+      {/* Código de confirmación de entrega */}
+      {!yaEntregado && p.codigoConfirmacion && (
         <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-3">
           <div className="flex items-center gap-2 mb-1">
             <KeyRound className="h-4 w-4 text-violet-700" />
-            <p className="text-xs font-medium text-violet-700">Tu código de confirmación</p>
+            <p className="text-xs font-medium text-violet-700">Tu código de entrega</p>
           </div>
-          <p className="text-3xl font-bold tabular-nums tracking-[0.3em] text-violet-900 mb-2">{p.codigoConfirmacion || "—"}</p>
-          <p className="text-[11px] text-violet-600 mb-2">Dale este código al repartidor al recibir el agua, o enviáselo por mensaje:</p>
-          <div>
-            {!tieneTransportista ? (
-              <p className="text-[11px] text-violet-700">Esperando que un repartidor acepte tu pedido para poder enviarle el código.</p>
-            ) : (
-              <Button size="sm" onClick={enviarPorMensaje} disabled={enviando} className="w-full bg-violet-600 text-white hover:bg-violet-700">
-                {enviando ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
-                Enviar al repartidor por mensaje
-              </Button>
-            )}
-          </div>
+          <p className="text-3xl font-bold tabular-nums tracking-[0.3em] text-violet-900">{p.codigoConfirmacion}</p>
+          <p className="text-[11px] text-violet-600 mt-1">Dáselo al repartidor al finalizar la entrega.</p>
         </div>
       )}
 
-      {requiereCodigo && yaEntregado && (
+      {yaEntregado && (
         <div className="mt-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-2">
           <ShieldCheck className="h-4 w-4 text-emerald-700" />
-          <p className="text-xs font-medium text-emerald-700">Entrega verificada</p>
+          <p className="text-xs font-medium text-emerald-700">Entrega confirmada</p>
         </div>
       )}
     </div>
@@ -291,15 +262,13 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
   const [metodoPago, setMetodoPago] = useState("efectivo");
   const [fechaDeseada, setFechaDeseada] = useState("");
   const [nota, setNota] = useState("");
-  const [requierePresencia, setRequierePresencia] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Pre-llenar dirección del perfil y preferencia de presencia
+  // Pre-llenar dirección del perfil
   useEffect(() => {
     akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil").then(d => {
       if (d.user?.direccion) setDireccion(d.user.direccion);
       if (d.user?.comuna) setComuna(d.user.comuna);
-      if (d.user?.requiereClientePresente !== undefined) setRequierePresencia(!!d.user.requiereClientePresente);
     });
   }, []);
 
@@ -310,7 +279,6 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
       await akuoPost("/api/akuosplash/cliente/pedidos", {
         litros: Number(litros) || 1000, direccion: direccion.trim(), comuna: comuna.trim() || undefined,
         metodoPago, fechaDeseada: fechaDeseada || undefined, nota: nota.trim() || undefined,
-        requierePresenciaCliente: requierePresencia,
       });
       toast.success("¡Pedido creado!");
       onClose();
@@ -338,15 +306,6 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
             <div><Label>Pago</Label><select className="w-full rounded-md border px-3 py-2 text-sm" value={metodoPago} onChange={(e: any) => setMetodoPago(e.target.value)}><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option></select></div>
           </div>
           <div><Label>Nota (opcional)</Label><Textarea rows={2} placeholder="Ej: tocar timbre, dejar en portería" value={nota} onChange={(e: any) => setNota(e.target.value)} /></div>
-          <div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
-            <label className="flex items-start gap-2 text-sm cursor-pointer">
-              <input type="checkbox" checked={requierePresencia} onChange={(e: any) => setRequierePresencia(e.target.checked)} className="mt-1" />
-              <div>
-                <p className="font-medium text-violet-900">Requerir mi presencia para confirmar entrega</p>
-                <p className="text-xs text-violet-700 mt-0.5">El repartidor necesitará un código que vos le das o enviás por mensaje al llegar. Si desactivás esto, el repartidor podrá entregar sin confirmar contigo.</p>
-              </div>
-            </label>
-          </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose} className="flex-1">Cancelar</Button>
             <Button onClick={guardar} disabled={saving} className="flex-1">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Pedir"}</Button>

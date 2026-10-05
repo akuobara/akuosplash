@@ -3,8 +3,8 @@ import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser, akuoNotificar } from "@/lib/akuosplash-auth";
 
 // POST /api/akuosplash/transportista/pedidos/[id]/verificar-entrega
-// El repartidor ingresa el código para confirmar la entrega
-// Body: { codigo: "ABC123", litrosEntregados?: number, montoRecibido?: number, nota?: string }
+// El repartidor ingresa el código al finalizar la entrega para confirmarla
+// Body: { codigo: "1234" }
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -14,8 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const { id } = await params;
   const body = await req.json();
-  const { codigo } = body;
-  const codigoInput = String(codigo || "").trim().toUpperCase();
+  const codigoInput = String(body.codigo || "").trim();
 
   if (!codigoInput) {
     return NextResponse.json({ error: "Debe ingresar el código de confirmación" }, { status: 400 });
@@ -32,34 +31,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (pedido.codigoVerificadoEn) {
     return NextResponse.json({ error: "Este pedido ya fue verificado" }, { status: 400 });
   }
-
-  // Caso 1: pedido no requiere presencia — no hace falta código
-  if (!pedido.requierePresenciaCliente) {
-    const actualizado = await akuosplashDb.akuoPedidoCliente.update({
-      where: { id },
-      data: {
-        estado: "entregado",
-        codigoVerificadoEn: new Date(),
-        codigoVerificadoPor: user.id,
-      },
-    });
-    await akuoNotificar(
-      pedido.clienteId,
-      "pedido_entregado",
-      "Tu pedido fue entregado",
-      `El transportista ${user.nombre} confirmó la entrega de ${pedido.litros}L en ${pedido.direccion}.`,
-      "/akuosplash/cliente",
-    );
-    return NextResponse.json({ ok: true, pedido: actualizado, mensaje: "Entrega confirmada sin código (pedido no requiere presencia del cliente)" });
-  }
-
-  // Caso 2: requiere presencia y código
   if (!pedido.codigoConfirmacion) {
-    return NextResponse.json({ error: "El pedido no tiene código asignado. Pedile al cliente que lo regenere." }, { status: 400 });
+    return NextResponse.json({ error: "El pedido no tiene código asignado" }, { status: 400 });
   }
 
-  if (codigoInput !== pedido.codigoConfirmacion.toUpperCase()) {
-    return NextResponse.json({ error: "El código ingresado es incorrecto" }, { status: 400 });
+  if (codigoInput !== pedido.codigoConfirmacion) {
+    return NextResponse.json({ error: "Código incorrecto" }, { status: 400 });
   }
 
   // Código correcto — completar entrega
@@ -75,8 +52,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   await akuoNotificar(
     pedido.clienteId,
     "pedido_entregado",
-    "¡Entrega confirmada!",
-    `El transportista ${user.nombre} verificó la entrega de ${pedido.litros}L en ${pedido.direccion} con código correcto.`,
+    "Entrega confirmada",
+    `El repartidor ${user.nombre} confirmó la entrega de ${pedido.litros}L en ${pedido.direccion}.`,
     "/akuosplash/cliente",
   );
 

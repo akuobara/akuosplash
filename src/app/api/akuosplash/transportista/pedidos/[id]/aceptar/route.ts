@@ -31,20 +31,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     pedido.clienteId,
     "pedido_aceptado",
     "Tu pedido fue aceptado",
-    `El transportista ${user.nombre} aceptó tu pedido de ${pedido.litros}L. Pronto se pondrá en ruta.`,
+    `El repartidor ${user.nombre} aceptó tu pedido de ${pedido.litros}L. Pronto se pondrá en ruta.`,
     "/akuosplash/cliente",
   );
-
-  // Si el pedido requiere presencia del cliente, recordar al cliente que envíe el código
-  if (actualizado.requierePresenciaCliente) {
-    await akuoNotificar(
-      pedido.clienteId,
-      "recordar_codigo",
-      "Enviá el código al repartidor",
-      `Tu pedido requiere que estés presente. Cuando el repartidor llegue, dale tu código de confirmación: ${actualizado.codigoConfirmacion}. También podés enviárselo por mensaje desde la app.`,
-      "/akuosplash/cliente",
-    );
-  }
 
   return NextResponse.json({ ok: true, pedido: actualizado });
 }
