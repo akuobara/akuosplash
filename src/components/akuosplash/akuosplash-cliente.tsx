@@ -11,11 +11,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Droplets, User, History, MessageSquare, Plus, ChevronLeft, Send, MapPin, Banknote, Clock, Wallet, Truck, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Droplets, User, History, MessageSquare, Plus, ChevronLeft, Send, MapPin, Banknote, Clock, Wallet, Truck, CheckCircle2, XCircle, KeyRound, RefreshCw, Copy, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; }
-interface Pedido { id: string; creadoEn: string; litros: number; direccion: string; comuna?: string; estado: string; metodoPago: string; nota?: string; precioTotal?: number; }
+interface Pedido {
+  id: string; creadoEn: string; litros: number; direccion: string; comuna?: string; estado: string;
+  metodoPago: string; nota?: string; precioTotal?: number;
+  requierePresenciaCliente?: boolean;
+  codigoConfirmacion?: string | null;
+  codigoVerificadoEn?: string | null;
+  codigoEnviadoPorMensaje?: boolean;
+  codigoEnviadoEn?: string | null;
+  transportistaId?: string | null;
+}
 interface Conversacion { id: string; clienteId: string; transportistaId: string; cliente: { id: string; nombre: string; }; transportista: { id: string; nombre: string; razonSocial?: string; }; mensajes?: Mensaje[]; ultimoMensajeEn: string; }
 interface Mensaje { id: string; creadoEn: string; contenido: string; remitenteId: string; remitente: { id: string; nombre: string; }; }
 
@@ -145,7 +154,7 @@ export function AkuosplashCliente() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {pedidosActivos.map((p) => <PedidoRow key={p.id} p={p} />)}
+                    {pedidosActivos.map((p) => <PedidoRow key={p.id} p={p} onRefresh={() => setRefreshKey(k => k + 1)} />)}
                   </div>
                 )}
               </CardContent>
@@ -197,28 +206,122 @@ export function AkuosplashCliente() {
   );
 }
 
-function PedidoRow({ p }: { p: Pedido }) {
+function PedidoRow({ p, onRefresh }: { p: Pedido; onRefresh?: () => void }) {
+  const [enviando, setEnviando] = useState(false);
+  const [regenerando, setRegenerando] = useState(false);
+  const requiereCodigo = p.requierePresenciaCliente;
+  const tieneTransportista = !!p.transportistaId;
+  const yaEntregado = !!p.codigoVerificadoEn || p.estado === "entregado";
+
+  async function copiarCodigo() {
+    if (!p.codigoConfirmacion) return;
+    try {
+      await navigator.clipboard.writeText(p.codigoConfirmacion);
+      toast.success("Código copiado");
+    } catch {
+      toast.error("No se pudo copiar");
+    }
+  }
+
+  async function enviarPorMensaje() {
+    if (!p.codigoConfirmacion) return;
+    setEnviando(true);
+    try {
+      const res = await akuoPost<{ ok: boolean; error?: string }>(`/api/akuosplash/cliente/pedidos/${p.id}/enviar-codigo`);
+      if (res.ok) {
+        toast.success("Código enviado al repartidor por mensaje");
+        onRefresh?.();
+      } else {
+        toast.error(res.error || "No se pudo enviar");
+      }
+    } catch (e: any) { toast.error(e.message || "Error"); }
+    finally { setEnviando(false); }
+  }
+
+  async function regenerarCodigo() {
+    if (!confirm("¿Generar un código nuevo? El código anterior dejará de funcionar.")) return;
+    setRegenerando(true);
+    try {
+      const res = await akuoPost<{ ok: boolean; codigo?: string; error?: string }>(`/api/akuosplash/cliente/pedidos/${p.id}/regenerar-codigo`);
+      if (res.ok) {
+        toast.success("Nuevo código generado");
+        onRefresh?.();
+      } else {
+        toast.error(res.error || "No se pudo regenerar");
+      }
+    } catch (e: any) { toast.error(e.message || "Error"); }
+    finally { setRegenerando(false); }
+  }
+
   return (
-    <div className="flex items-start justify-between gap-2 rounded-lg border border-border p-3">
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className={colorEstado(p.estado)}>{labelEstado(p.estado)}</Badge>
-          <span className="font-medium">{p.litros.toLocaleString("es-CL")} L</span>
+    <div className="rounded-lg border border-border p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className={colorEstado(p.estado)}>{labelEstado(p.estado)}</Badge>
+            <span className="font-medium">{p.litros.toLocaleString("es-CL")} L</span>
+            {requiereCodigo && <Badge variant="outline" className="bg-violet-50 text-violet-700 border-violet-300"><KeyRound className="h-3 w-3 mr-1" />Requiere presencia</Badge>}
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground flex items-center gap-1">
+            <MapPin className="h-3 w-3" /> {p.direccion}{p.comuna ? `, ${p.comuna}` : ""}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="h-3 w-3" /> {new Date(p.creadoEn).toLocaleString("es-CL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+          </p>
+          {p.nota && <p className="mt-1 text-xs italic text-muted-foreground">"{p.nota}"</p>}
         </div>
-        <p className="mt-1 text-sm text-muted-foreground flex items-center gap-1">
-          <MapPin className="h-3 w-3" /> {p.direccion}{p.comuna ? `, ${p.comuna}` : ""}
-        </p>
-        <p className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1">
-          <Clock className="h-3 w-3" /> {new Date(p.creadoEn).toLocaleString("es-CL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-        </p>
-        {p.nota && <p className="mt-1 text-xs italic text-muted-foreground">"{p.nota}"</p>}
+        <div className="text-right shrink-0">
+          {p.precioTotal && <p className="font-bold tabular-nums">{formatCLP(p.precioTotal)}</p>}
+          <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
+            <Banknote className="h-3 w-3" /> {p.metodoPago}
+          </p>
+        </div>
       </div>
-      <div className="text-right shrink-0">
-        {p.precioTotal && <p className="font-bold tabular-nums">{formatCLP(p.precioTotal)}</p>}
-        <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-          <Banknote className="h-3 w-3" /> {p.metodoPago}
-        </p>
-      </div>
+
+      {/* Sección del código de confirmación */}
+      {requiereCodigo && !yaEntregado && (
+        <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <KeyRound className="h-4 w-4 text-violet-700" />
+            <p className="text-xs font-medium text-violet-700">Código de confirmación de entrega</p>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <p className="text-2xl font-bold tabular-nums tracking-widest text-violet-900">{p.codigoConfirmacion || "—"}</p>
+              <p className="text-[10px] text-violet-600">
+                {p.codigoEnviadoPorMensaje
+                  ? `Enviado al repartidor ${p.codigoEnviadoEn ? new Date(p.codigoEnviadoEn).toLocaleString("es-CL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : ""}`
+                  : "Dale este código al repartidor al recibir el agua"}
+              </p>
+            </div>
+            <div className="flex gap-1">
+              <Button size="sm" variant="outline" onClick={copiarCodigo} disabled={!p.codigoConfirmacion} title="Copiar código">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+              <Button size="sm" variant="outline" onClick={regenerarCodigo} disabled={regenerando} title="Generar nuevo código">
+                {regenerando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+              </Button>
+            </div>
+          </div>
+          <div className="mt-2">
+            {!tieneTransportista ? (
+              <p className="text-[11px] text-violet-700">Esperando que un transportista acepte tu pedido para poder enviarle el código automáticamente.</p>
+            ) : (
+              <Button size="sm" onClick={enviarPorMensaje} disabled={enviando} className="w-full bg-violet-600 text-white hover:bg-violet-700">
+                {enviando ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
+                {p.codigoEnviadoPorMensaje ? "Reenviar código por mensaje" : "Enviar código al repartidor por mensaje"}
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {requiereCodigo && yaEntregado && (
+        <div className="mt-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-2">
+          <ShieldCheck className="h-4 w-4 text-emerald-700" />
+          <p className="text-xs font-medium text-emerald-700">Entrega verificada con código correcto</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -230,13 +333,15 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
   const [metodoPago, setMetodoPago] = useState("efectivo");
   const [fechaDeseada, setFechaDeseada] = useState("");
   const [nota, setNota] = useState("");
+  const [requierePresencia, setRequierePresencia] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Pre-llenar dirección del perfil
+  // Pre-llenar dirección del perfil y preferencia de presencia
   useEffect(() => {
     akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil").then(d => {
       if (d.user?.direccion) setDireccion(d.user.direccion);
       if (d.user?.comuna) setComuna(d.user.comuna);
+      if (d.user?.requiereClientePresente !== undefined) setRequierePresencia(!!d.user.requiereClientePresente);
     });
   }, []);
 
@@ -247,6 +352,7 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
       await akuoPost("/api/akuosplash/cliente/pedidos", {
         litros: Number(litros) || 1000, direccion: direccion.trim(), comuna: comuna.trim() || undefined,
         metodoPago, fechaDeseada: fechaDeseada || undefined, nota: nota.trim() || undefined,
+        requierePresenciaCliente: requierePresencia,
       });
       toast.success("¡Pedido creado!");
       onClose();
@@ -274,6 +380,15 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
             <div><Label>Pago</Label><select className="w-full rounded-md border px-3 py-2 text-sm" value={metodoPago} onChange={(e: any) => setMetodoPago(e.target.value)}><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option></select></div>
           </div>
           <div><Label>Nota (opcional)</Label><Textarea rows={2} placeholder="Ej: tocar timbre, dejar en portería" value={nota} onChange={(e: any) => setNota(e.target.value)} /></div>
+          <div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
+            <label className="flex items-start gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={requierePresencia} onChange={(e: any) => setRequierePresencia(e.target.checked)} className="mt-1" />
+              <div>
+                <p className="font-medium text-violet-900">Requerir mi presencia para confirmar entrega</p>
+                <p className="text-xs text-violet-700 mt-0.5">El repartidor necesitará un código que vos le das o enviás por mensaje al llegar. Si desactivás esto, el repartidor podrá entregar sin confirmar contigo.</p>
+              </div>
+            </label>
+          </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose} className="flex-1">Cancelar</Button>
             <Button onClick={guardar} disabled={saving} className="flex-1">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Pedir"}</Button>

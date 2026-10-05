@@ -319,25 +319,34 @@ model AkuoMensaje {
 }
 
 model AkuoPedidoCliente {
-  id              String       @id @default(cuid())
-  creadoEn        DateTime     @default(now())
-  clienteId       String
-  cliente         AkuoUsuario  @relation("PedidoClienteApp", fields: [clienteId], references: [id], onDelete: Cascade)
-  transportistaId String?
-  transportista   AkuoUsuario? @relation("PedidoTransportistaApp", fields: [transportistaId], references: [id])
-  litros          Float
-  direccion       String
-  comuna          String?
-  lat             Float?
-  lng             Float?
-  fechaDeseada    DateTime?
-  franjaHoraria   String?
-  metodoPago      String       @default("efectivo")
-  estado          String       @default("pendiente")
-  nota            String?
-  precioTotal     Float?
-  entregaId       String?
+  id                       String       @id @default(cuid())
+  creadoEn                 DateTime     @default(now())
+  clienteId                String
+  cliente                  AkuoUsuario  @relation("PedidoClienteApp", fields: [clienteId], references: [id], onDelete: Cascade)
+  transportistaId          String?
+  transportista            AkuoUsuario? @relation("PedidoTransportistaApp", fields: [transportistaId], references: [id])
+  litros                   Float
+  direccion                String
+  comuna                   String?
+  lat                      Float?
+  lng                      Float?
+  fechaDeseada             DateTime?
+  franjaHoraria            String?
+  metodoPago               String       @default("efectivo")
+  estado                   String       @default("pendiente")
+  nota                     String?
+  precioTotal              Float?
+  entregaId                String?
+  // --- Sistema de código de confirmación de entrega ---
+  requierePresenciaCliente Boolean      @default(true)
+  codigoConfirmacion       String?
+  codigoGeneradoEn         DateTime?
+  codigoVerificadoEn       DateTime?
+  codigoVerificadoPor      String?
+  codigoEnviadoPorMensaje  Boolean      @default(false)
+  codigoEnviadoEn          DateTime?
 
   @@index([clienteId, estado])
   @@index([transportistaId, estado])
+  @@index([codigoConfirmacion])
 }

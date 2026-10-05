@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
+import crypto from "crypto";
+
+// Genera un código de 6 caracteres A-Z0-9 sin caracteres ambiguos (no 0/O, no 1/I)
+function generarCodigoConfirmacion(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let codigo = "";
+  const bytes = crypto.randomBytes(6);
+  for (let i = 0; i < 6; i++) {
+    codigo += chars[bytes[i] % chars.length];
+  }
+  return codigo;
+}
 
 export async function GET() {
   const user = await akuoGetCurrentUser();
@@ -19,6 +31,17 @@ export async function POST(req: NextRequest) {
   if (user.rol !== "cliente") return NextResponse.json({ error: "Solo clientes pueden pedir" }, { status: 403 });
   const body = await req.json();
   if (!body.direccion?.trim() || !body.litros) return NextResponse.json({ error: "Dirección y litros son obligatorios" }, { status: 400 });
+
+  // Determinar si el pedido requiere presencia del cliente
+  // Por defecto, toma la preferencia del perfil del usuario
+  const requierePresencia = body.requierePresenciaCliente !== undefined
+    ? !!body.requierePresenciaCliente
+    : !!((user as any).requiereClientePresente);
+
+  // Generar código solo si requiere presencia
+  const codigoConfirmacion = requierePresencia ? generarCodigoConfirmacion() : null;
+  const codigoGeneradoEn = requierePresencia ? new Date() : null;
+
   const pedido = await akuosplashDb.akuoPedidoCliente.create({
     data: {
       clienteId: user.id,
@@ -32,6 +55,9 @@ export async function POST(req: NextRequest) {
       metodoPago: body.metodoPago || "efectivo",
       nota: body.nota?.trim() || null,
       estado: "pendiente",
+      requierePresenciaCliente: requierePresencia,
+      codigoConfirmacion,
+      codigoGeneradoEn,
     },
   });
   return NextResponse.json({ ok: true, pedido }, { status: 201 });

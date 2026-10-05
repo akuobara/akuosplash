@@ -366,7 +366,14 @@ exports.Prisma.AkuoPedidoClienteScalarFieldEnum = {
   estado: 'estado',
   nota: 'nota',
   precioTotal: 'precioTotal',
-  entregaId: 'entregaId'
+  entregaId: 'entregaId',
+  requierePresenciaCliente: 'requierePresenciaCliente',
+  codigoConfirmacion: 'codigoConfirmacion',
+  codigoGeneradoEn: 'codigoGeneradoEn',
+  codigoVerificadoEn: 'codigoVerificadoEn',
+  codigoVerificadoPor: 'codigoVerificadoPor',
+  codigoEnviadoPorMensaje: 'codigoEnviadoPorMensaje',
+  codigoEnviadoEn: 'codigoEnviadoEn'
 };
 
 exports.Prisma.SortOrder = {

@@ -323,6 +323,15 @@ model AkuoPedidoCliente {
   nota            String?
   precioTotal     Float?
   entregaId       String?
+  // --- Sistema de código de confirmación de entrega ---
+  requierePresenciaCliente Boolean @default(true)
+  codigoConfirmacion       String?
+  codigoGeneradoEn        DateTime?
+  codigoVerificadoEn      DateTime?
+  codigoVerificadoPor     String?
+  codigoEnviadoPorMensaje Boolean @default(false)
+  codigoEnviadoEn         DateTime?
   @@index([clienteId, estado])
   @@index([transportistaId, estado])
+  @@index([codigoConfirmacion])
 }
