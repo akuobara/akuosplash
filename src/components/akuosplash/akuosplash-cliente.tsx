@@ -130,21 +130,7 @@ export function AkuosplashCliente() {
 
           {/* === DASHBOARD === */}
           <TabsContent value="dashboard" className="space-y-4 mt-4">
-            {/* KPIs — mismo estilo que Aljibe */}
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              {loading ? (
-                Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-lg" />)
-              ) : (
-                <>
-                  <StatCard label="Pedidos activos" value={String(pedidosActivos.length)} hint="En curso" icon={Droplets} />
-                  <StatCard label="Total entregas" value={String(entregados.length)} hint="Completadas" icon={CheckCircle2} tone="positive" />
-                  <StatCard label="Litros recibidos" value={`${litrosTotal.toLocaleString("es-CL")} L`} hint="Total histórico" icon={Truck} />
-                  <StatCard label="Total gastado" value={formatCLP(gastosTotal)} hint="En agua" icon={Wallet} tone="warning" />
-                </>
-              )}
-            </div>
-
-            {/* Lista de pedidos activos */}
+            {/* Pedidos activos */}
             <Card className="border-primary/20 bg-primary/5">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Pedidos activos ({pedidosActivos.length})</CardTitle>
@@ -155,7 +141,7 @@ export function AkuosplashCliente() {
                 ) : pedidosActivos.length === 0 ? (
                   <div className="py-8 text-center">
                     <Droplets className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">No tenés pedidos activos. Hacé clic en "Nuevo pedido" para pedir agua.</p>
+                    <p className="text-muted-foreground">No tenés pedidos activos. Hacé clic en "Nuevo pedido".</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -170,20 +156,25 @@ export function AkuosplashCliente() {
           <TabsContent value="historial" className="space-y-4 mt-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Historial de pedidos ({historial.length})</CardTitle>
+                <CardTitle className="text-base">Último pedido</CardTitle>
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+                  <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
                 ) : historial.length === 0 ? (
                   <div className="py-8 text-center">
                     <History className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">Todavía no tenés entregas en el historial.</p>
+                    <p className="text-muted-foreground">Todavía no tenés entregas.</p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {historial.map((p) => <PedidoRow key={p.id} p={p} />)}
-                  </div>
+                  <>
+                    <PedidoRow p={historial[0]} />
+                    {historial.length > 1 && (
+                      <p className="mt-3 text-center text-sm text-muted-foreground">
+                        Y {historial.length - 1} pedido(s) más en tu historial
+                      </p>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
