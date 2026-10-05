@@ -232,6 +232,14 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
   const [nota, setNota] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Pre-llenar dirección del perfil
+  useEffect(() => {
+    akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil").then(d => {
+      if (d.user?.direccion) setDireccion(d.user.direccion);
+      if (d.user?.comuna) setComuna(d.user.comuna);
+    });
+  }, []);
+
   async function guardar() {
     if (!direccion.trim()) { toast.error("Indicá tu dirección"); return; }
     setSaving(true);
@@ -240,7 +248,7 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
         litros: Number(litros) || 1000, direccion: direccion.trim(), comuna: comuna.trim() || undefined,
         metodoPago, fechaDeseada: fechaDeseada || undefined, nota: nota.trim() || undefined,
       });
-      toast.success("¡Pedido creado! Los transportistas van a verlo.");
+      toast.success("¡Pedido creado!");
       onClose();
     } catch (e: any) { toast.error(e.message || "Error"); }
     finally { setSaving(false); }
@@ -274,6 +282,7 @@ function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
       </Card>
     </div>
   );
+
 }
 
 function Mensajeria({ conversaciones, userId, loading, onRefresh }: { conversaciones: Conversacion[]; userId: string; loading: boolean; onRefresh: () => void }) {
@@ -367,14 +376,54 @@ function Mensajeria({ conversaciones, userId, loading, onRefresh }: { conversaci
 }
 
 function Perfil({ user, onUpdated }: { user: AkuoUser; onUpdated: () => void }) {
-  const [nombre, setNombre] = useState(user.nombre);
-  const [telefono, setTelefono] = useState(user.telefono || "");
+  const [form, setForm] = useState({
+    nombre: user.nombre || '',
+    telefono: user.telefono || '',
+    direccion: '',
+    comuna: '',
+    lat: '',
+    lng: '',
+    rut: '',
+    indicacionesAcceso: '',
+    requiereClientePresente: true,
+    usoAgua: 'consumo',
+  });
   const [saving, setSaving] = useState(false);
+
+  // Cargar datos completos del perfil
+  useEffect(() => {
+    akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil").then(d => {
+      if (d.user) {
+        setForm({
+          nombre: d.user.nombre || '', telefono: d.user.telefono || '',
+          direccion: d.user.direccion || '', comuna: d.user.comuna || '',
+          lat: d.user.lat ? String(d.user.lat) : '', lng: d.user.lng ? String(d.user.lng) : '',
+          rut: d.user.rut || '', indicacionesAcceso: d.user.indicacionesAcceso || '',
+          requiereClientePresente: d.user.requiereClientePresente ?? true,
+          usoAgua: d.user.usoAgua || 'consumo',
+        });
+      }
+    });
+  }, []);
+
+  function update(field: string, value: any) {
+    setForm({ ...form, [field]: value });
+  }
 
   async function guardar() {
     setSaving(true);
     try {
-      await akuoApi("/api/akuosplash/cliente/perfil", { method: "PATCH", body: JSON.stringify({ nombre: nombre.trim(), telefono: telefono.trim() }) });
+      await akuoApi("/api/akuosplash/cliente/perfil", {
+        method: "PATCH",
+        body: JSON.stringify({
+          nombre: form.nombre, telefono: form.telefono,
+          direccion: form.direccion, comuna: form.comuna,
+          lat: form.lat || undefined, lng: form.lng || undefined,
+          rut: form.rut, indicacionesAcceso: form.indicacionesAcceso,
+          requiereClientePresente: form.requiereClientePresente,
+          usoAgua: form.usoAgua,
+        }),
+      });
       toast.success("Perfil actualizado");
       onUpdated();
     } catch (e: any) { toast.error(e.message || "Error"); }
@@ -382,21 +431,57 @@ function Perfil({ user, onUpdated }: { user: AkuoUser; onUpdated: () => void }) 
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3"><CardTitle className="text-base">Mi perfil</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">{user.nombre?.[0] || "?"}</div>
-          <div>
-            <p className="font-bold">{user.nombre}</p>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
-            <Badge variant="outline" className="mt-1">Plan: {user.plan}</Badge>
+    <div className="space-y-4">
+      {/* Datos personales */}
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base">Datos personales</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">{form.nombre?.[0] || "?"}</div>
+            <div><p className="font-bold">{user.email}</p><Badge variant="outline">Plan: {user.plan}</Badge></div>
           </div>
-        </div>
-        <div><Label>Nombre</Label><Input value={nombre} onChange={(e: any) => setNombre(e.target.value)} /></div>
-        <div><Label>Teléfono</Label><Input placeholder="+56 9 1234 5678" value={telefono} onChange={(e: any) => setTelefono(e.target.value)} /></div>
-        <Button onClick={guardar} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cambios"}</Button>
-      </CardContent>
-    </Card>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div><Label>Nombre</Label><Input value={form.nombre} onChange={(e: any) => update("nombre", e.target.value)} /></div>
+            <div><Label>RUT (opcional)</Label><Input placeholder="12.345.678-9" value={form.rut} onChange={(e: any) => update("rut", e.target.value)} /></div>
+            <div><Label>Teléfono</Label><Input placeholder="+56 9 1234 5678" value={form.telefono} onChange={(e: any) => update("telefono", e.target.value)} /></div>
+            <div><Label>Uso del agua</Label>
+              <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.usoAgua} onChange={(e: any) => update("usoAgua", e.target.value)}>
+                <option value="consumo">Consumo humano</option>
+                <option value="riego_pasto">Riego pasto</option>
+                <option value="riego_cultivos">Riego cultivos</option>
+                <option value="polvo_caminos">Polvo caminos</option>
+                <option value="construccion">Construcción</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Ubicación */}
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base">Ubicación de entrega</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div><Label>Dirección</Label><Input placeholder="Calle, número, depto" value={form.direccion} onChange={(e: any) => update("direccion", e.target.value)} /></div>
+          <div><Label>Comuna</Label><Input placeholder="Ej: Vitacura, Las Condes" value={form.comuna} onChange={(e: any) => update("comuna", e.target.value)} /></div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div><Label>Latitud (opcional)</Label><Input placeholder="-33.4" value={form.lat} onChange={(e: any) => update("lat", e.target.value)} /></div>
+            <div><Label>Longitud (opcional)</Label><Input placeholder="-70.6" value={form.lng} onChange={(e: any) => update("lng", e.target.value)} /></div>
+          </div>
+          <div>
+            <Label>Indicaciones de acceso</Label>
+            <Textarea rows={2} placeholder="Ej: tocar timbre 2, el estanque está atrás, pasar manguera por encima del portón" value={form.indicacionesAcceso} onChange={(e: any) => update("indicacionesAcceso", e.target.value)} />
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={form.requiereClientePresente} onChange={(e: any) => update("requiereClientePresente", e.target.checked)} />
+            Requiere que el cliente esté presente para recibir el agua
+          </label>
+        </CardContent>
+      </Card>
+
+      <Button onClick={guardar} disabled={saving} className="w-full">
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar todos los cambios"}
+      </Button>
+    </div>
   );
 }

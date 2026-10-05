@@ -18,6 +18,14 @@ model AkuoUsuario {
   email                       String              @unique
   nombre                      String
   telefono                    String?
+  direccion                   String?
+  comuna                      String?
+  lat                         Float?
+  lng                         Float?
+  rut                         String?
+  indicacionesAcceso          String?
+  requiereClientePresente     Boolean             @default(true)
+  usoAgua                     String              @default("consumo")
   passwordHash                String?
   avatarUrl                   String?
   rol                         String              @default("cliente")

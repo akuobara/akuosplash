@@ -2497,12 +2497,16 @@ export namespace Prisma {
   }
 
   export type AkuoUsuarioAvgAggregateOutputType = {
+    lat: number | null
+    lng: number | null
     capacidadVehiculoKg: number | null
     vehiculosPermitidos: number | null
     choferesPermitidos: number | null
   }
 
   export type AkuoUsuarioSumAggregateOutputType = {
+    lat: number | null
+    lng: number | null
     capacidadVehiculoKg: number | null
     vehiculosPermitidos: number | null
     choferesPermitidos: number | null
@@ -2513,6 +2517,14 @@ export namespace Prisma {
     email: string | null
     nombre: string | null
     telefono: string | null
+    direccion: string | null
+    comuna: string | null
+    lat: number | null
+    lng: number | null
+    rut: string | null
+    indicacionesAcceso: string | null
+    requiereClientePresente: boolean | null
+    usoAgua: string | null
     passwordHash: string | null
     avatarUrl: string | null
     rol: string | null
@@ -2548,6 +2560,14 @@ export namespace Prisma {
     email: string | null
     nombre: string | null
     telefono: string | null
+    direccion: string | null
+    comuna: string | null
+    lat: number | null
+    lng: number | null
+    rut: string | null
+    indicacionesAcceso: string | null
+    requiereClientePresente: boolean | null
+    usoAgua: string | null
     passwordHash: string | null
     avatarUrl: string | null
     rol: string | null
@@ -2583,6 +2603,14 @@ export namespace Prisma {
     email: number
     nombre: number
     telefono: number
+    direccion: number
+    comuna: number
+    lat: number
+    lng: number
+    rut: number
+    indicacionesAcceso: number
+    requiereClientePresente: number
+    usoAgua: number
     passwordHash: number
     avatarUrl: number
     rol: number
@@ -2616,12 +2644,16 @@ export namespace Prisma {
 
 
   export type AkuoUsuarioAvgAggregateInputType = {
+    lat?: true
+    lng?: true
     capacidadVehiculoKg?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
   }
 
   export type AkuoUsuarioSumAggregateInputType = {
+    lat?: true
+    lng?: true
     capacidadVehiculoKg?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
@@ -2632,6 +2664,14 @@ export namespace Prisma {
     email?: true
     nombre?: true
     telefono?: true
+    direccion?: true
+    comuna?: true
+    lat?: true
+    lng?: true
+    rut?: true
+    indicacionesAcceso?: true
+    requiereClientePresente?: true
+    usoAgua?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2667,6 +2707,14 @@ export namespace Prisma {
     email?: true
     nombre?: true
     telefono?: true
+    direccion?: true
+    comuna?: true
+    lat?: true
+    lng?: true
+    rut?: true
+    indicacionesAcceso?: true
+    requiereClientePresente?: true
+    usoAgua?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2702,6 +2750,14 @@ export namespace Prisma {
     email?: true
     nombre?: true
     telefono?: true
+    direccion?: true
+    comuna?: true
+    lat?: true
+    lng?: true
+    rut?: true
+    indicacionesAcceso?: true
+    requiereClientePresente?: true
+    usoAgua?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2824,6 +2880,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono: string | null
+    direccion: string | null
+    comuna: string | null
+    lat: number | null
+    lng: number | null
+    rut: string | null
+    indicacionesAcceso: string | null
+    requiereClientePresente: boolean
+    usoAgua: string
     passwordHash: string | null
     avatarUrl: string | null
     rol: string
@@ -2878,6 +2942,14 @@ export namespace Prisma {
     email?: boolean
     nombre?: boolean
     telefono?: boolean
+    direccion?: boolean
+    comuna?: boolean
+    lat?: boolean
+    lng?: boolean
+    rut?: boolean
+    indicacionesAcceso?: boolean
+    requiereClientePresente?: boolean
+    usoAgua?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -2929,6 +3001,14 @@ export namespace Prisma {
     email?: boolean
     nombre?: boolean
     telefono?: boolean
+    direccion?: boolean
+    comuna?: boolean
+    lat?: boolean
+    lng?: boolean
+    rut?: boolean
+    indicacionesAcceso?: boolean
+    requiereClientePresente?: boolean
+    usoAgua?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -2964,6 +3044,14 @@ export namespace Prisma {
     email?: boolean
     nombre?: boolean
     telefono?: boolean
+    direccion?: boolean
+    comuna?: boolean
+    lat?: boolean
+    lng?: boolean
+    rut?: boolean
+    indicacionesAcceso?: boolean
+    requiereClientePresente?: boolean
+    usoAgua?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -2999,6 +3087,14 @@ export namespace Prisma {
     email?: boolean
     nombre?: boolean
     telefono?: boolean
+    direccion?: boolean
+    comuna?: boolean
+    lat?: boolean
+    lng?: boolean
+    rut?: boolean
+    indicacionesAcceso?: boolean
+    requiereClientePresente?: boolean
+    usoAgua?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3029,7 +3125,7 @@ export namespace Prisma {
     choferesPermitidos?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
     pedidosCliente?: boolean | AkuoUsuario$pedidosClienteArgs<ExtArgs>
@@ -3075,6 +3171,14 @@ export namespace Prisma {
       email: string
       nombre: string
       telefono: string | null
+      direccion: string | null
+      comuna: string | null
+      lat: number | null
+      lng: number | null
+      rut: string | null
+      indicacionesAcceso: string | null
+      requiereClientePresente: boolean
+      usoAgua: string
       passwordHash: string | null
       avatarUrl: string | null
       rol: string
@@ -3545,6 +3649,14 @@ export namespace Prisma {
     readonly email: FieldRef<"AkuoUsuario", 'String'>
     readonly nombre: FieldRef<"AkuoUsuario", 'String'>
     readonly telefono: FieldRef<"AkuoUsuario", 'String'>
+    readonly direccion: FieldRef<"AkuoUsuario", 'String'>
+    readonly comuna: FieldRef<"AkuoUsuario", 'String'>
+    readonly lat: FieldRef<"AkuoUsuario", 'Float'>
+    readonly lng: FieldRef<"AkuoUsuario", 'Float'>
+    readonly rut: FieldRef<"AkuoUsuario", 'String'>
+    readonly indicacionesAcceso: FieldRef<"AkuoUsuario", 'String'>
+    readonly requiereClientePresente: FieldRef<"AkuoUsuario", 'Boolean'>
+    readonly usoAgua: FieldRef<"AkuoUsuario", 'String'>
     readonly passwordHash: FieldRef<"AkuoUsuario", 'String'>
     readonly avatarUrl: FieldRef<"AkuoUsuario", 'String'>
     readonly rol: FieldRef<"AkuoUsuario", 'String'>
@@ -21924,6 +22036,14 @@ export namespace Prisma {
     email: 'email',
     nombre: 'nombre',
     telefono: 'telefono',
+    direccion: 'direccion',
+    comuna: 'comuna',
+    lat: 'lat',
+    lng: 'lng',
+    rut: 'rut',
+    indicacionesAcceso: 'indicacionesAcceso',
+    requiereClientePresente: 'requiereClientePresente',
+    usoAgua: 'usoAgua',
     passwordHash: 'passwordHash',
     avatarUrl: 'avatarUrl',
     rol: 'rol',
@@ -22239,6 +22359,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
@@ -22257,13 +22384,6 @@ export namespace Prisma {
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
   /**
    * Deep Input Types
    */
@@ -22277,6 +22397,14 @@ export namespace Prisma {
     email?: StringFilter<"AkuoUsuario"> | string
     nombre?: StringFilter<"AkuoUsuario"> | string
     telefono?: StringNullableFilter<"AkuoUsuario"> | string | null
+    direccion?: StringNullableFilter<"AkuoUsuario"> | string | null
+    comuna?: StringNullableFilter<"AkuoUsuario"> | string | null
+    lat?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    lng?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    rut?: StringNullableFilter<"AkuoUsuario"> | string | null
+    indicacionesAcceso?: StringNullableFilter<"AkuoUsuario"> | string | null
+    requiereClientePresente?: BoolFilter<"AkuoUsuario"> | boolean
+    usoAgua?: StringFilter<"AkuoUsuario"> | string
     passwordHash?: StringNullableFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     rol?: StringFilter<"AkuoUsuario"> | string
@@ -22327,6 +22455,14 @@ export namespace Prisma {
     email?: SortOrder
     nombre?: SortOrder
     telefono?: SortOrderInput | SortOrder
+    direccion?: SortOrderInput | SortOrder
+    comuna?: SortOrderInput | SortOrder
+    lat?: SortOrderInput | SortOrder
+    lng?: SortOrderInput | SortOrder
+    rut?: SortOrderInput | SortOrder
+    indicacionesAcceso?: SortOrderInput | SortOrder
+    requiereClientePresente?: SortOrder
+    usoAgua?: SortOrder
     passwordHash?: SortOrderInput | SortOrder
     avatarUrl?: SortOrderInput | SortOrder
     rol?: SortOrder
@@ -22382,6 +22518,14 @@ export namespace Prisma {
     NOT?: AkuoUsuarioWhereInput | AkuoUsuarioWhereInput[]
     nombre?: StringFilter<"AkuoUsuario"> | string
     telefono?: StringNullableFilter<"AkuoUsuario"> | string | null
+    direccion?: StringNullableFilter<"AkuoUsuario"> | string | null
+    comuna?: StringNullableFilter<"AkuoUsuario"> | string | null
+    lat?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    lng?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    rut?: StringNullableFilter<"AkuoUsuario"> | string | null
+    indicacionesAcceso?: StringNullableFilter<"AkuoUsuario"> | string | null
+    requiereClientePresente?: BoolFilter<"AkuoUsuario"> | boolean
+    usoAgua?: StringFilter<"AkuoUsuario"> | string
     passwordHash?: StringNullableFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     rol?: StringFilter<"AkuoUsuario"> | string
@@ -22430,6 +22574,14 @@ export namespace Prisma {
     email?: SortOrder
     nombre?: SortOrder
     telefono?: SortOrderInput | SortOrder
+    direccion?: SortOrderInput | SortOrder
+    comuna?: SortOrderInput | SortOrder
+    lat?: SortOrderInput | SortOrder
+    lng?: SortOrderInput | SortOrder
+    rut?: SortOrderInput | SortOrder
+    indicacionesAcceso?: SortOrderInput | SortOrder
+    requiereClientePresente?: SortOrder
+    usoAgua?: SortOrder
     passwordHash?: SortOrderInput | SortOrder
     avatarUrl?: SortOrderInput | SortOrder
     rol?: SortOrder
@@ -22473,6 +22625,14 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"AkuoUsuario"> | string
     nombre?: StringWithAggregatesFilter<"AkuoUsuario"> | string
     telefono?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    direccion?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    comuna?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    lat?: FloatNullableWithAggregatesFilter<"AkuoUsuario"> | number | null
+    lng?: FloatNullableWithAggregatesFilter<"AkuoUsuario"> | number | null
+    rut?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    indicacionesAcceso?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    requiereClientePresente?: BoolWithAggregatesFilter<"AkuoUsuario"> | boolean
+    usoAgua?: StringWithAggregatesFilter<"AkuoUsuario"> | string
     passwordHash?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     rol?: StringWithAggregatesFilter<"AkuoUsuario"> | string
@@ -23822,6 +23982,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -23872,6 +24040,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -23922,6 +24098,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -23972,6 +24156,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -24022,6 +24214,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -24057,6 +24257,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -24092,6 +24300,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -25606,6 +25822,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -25795,6 +26022,14 @@ export namespace Prisma {
     email?: SortOrder
     nombre?: SortOrder
     telefono?: SortOrder
+    direccion?: SortOrder
+    comuna?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    rut?: SortOrder
+    indicacionesAcceso?: SortOrder
+    requiereClientePresente?: SortOrder
+    usoAgua?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -25826,6 +26061,8 @@ export namespace Prisma {
   }
 
   export type AkuoUsuarioAvgOrderByAggregateInput = {
+    lat?: SortOrder
+    lng?: SortOrder
     capacidadVehiculoKg?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
@@ -25836,6 +26073,14 @@ export namespace Prisma {
     email?: SortOrder
     nombre?: SortOrder
     telefono?: SortOrder
+    direccion?: SortOrder
+    comuna?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    rut?: SortOrder
+    indicacionesAcceso?: SortOrder
+    requiereClientePresente?: SortOrder
+    usoAgua?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -25871,6 +26116,14 @@ export namespace Prisma {
     email?: SortOrder
     nombre?: SortOrder
     telefono?: SortOrder
+    direccion?: SortOrder
+    comuna?: SortOrder
+    lat?: SortOrder
+    lng?: SortOrder
+    rut?: SortOrder
+    indicacionesAcceso?: SortOrder
+    requiereClientePresente?: SortOrder
+    usoAgua?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -25902,6 +26155,8 @@ export namespace Prisma {
   }
 
   export type AkuoUsuarioSumOrderByAggregateInput = {
+    lat?: SortOrder
+    lng?: SortOrder
     capacidadVehiculoKg?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
@@ -25939,6 +26194,22 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -26132,17 +26403,6 @@ export namespace Prisma {
     año?: SortOrder
   }
 
-  export type FloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
   export type FloatFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[]
@@ -26229,22 +26489,6 @@ export namespace Prisma {
     lng?: SortOrder
     precioEfectivoPorLitro?: SortOrder
     precioTransferenciaPorLitro?: SortOrder
-  }
-
-  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -27065,6 +27309,14 @@ export namespace Prisma {
     set?: string | null
   }
 
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
   }
@@ -27617,14 +27869,6 @@ export namespace Prisma {
     connect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
   }
 
-  export type NullableFloatFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
   export type FloatFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -28049,6 +28293,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -28132,6 +28387,22 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | null
+    notIn?: number[] | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
@@ -28184,17 +28455,6 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -28220,22 +28480,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
-  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | null
-    notIn?: number[] | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -29270,6 +29514,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -29319,6 +29571,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -29384,6 +29644,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -29433,6 +29701,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -29482,6 +29758,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -29531,6 +29815,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -29661,6 +29953,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -29710,6 +30010,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -29775,6 +30083,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -29824,6 +30140,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -29999,6 +30323,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30048,6 +30380,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30129,6 +30469,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30178,6 +30526,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30353,6 +30709,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30402,6 +30766,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30573,6 +30945,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30622,6 +31002,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30816,6 +31204,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30865,6 +31261,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31061,6 +31465,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31110,6 +31522,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31175,6 +31595,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31224,6 +31652,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31273,6 +31709,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31322,6 +31766,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31387,6 +31839,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31436,6 +31896,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31485,6 +31953,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31534,6 +32010,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31599,6 +32083,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31648,6 +32140,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31697,6 +32197,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31746,6 +32254,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31811,6 +32327,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31860,6 +32384,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31909,6 +32441,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31958,6 +32498,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32023,6 +32571,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32072,6 +32628,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32121,6 +32685,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32170,6 +32742,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32224,6 +32804,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32273,6 +32861,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32363,6 +32959,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32412,6 +33016,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32472,6 +33084,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32521,6 +33141,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32607,6 +33235,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32656,6 +33292,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32748,6 +33392,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32797,6 +33449,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32846,6 +33506,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32895,6 +33563,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32949,6 +33625,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32998,6 +33682,14 @@ export namespace Prisma {
     email: string
     nombre: string
     telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33063,6 +33755,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33112,6 +33812,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33172,6 +33880,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33221,6 +33937,14 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     nombre?: StringFieldUpdateOperationsInput | string
     telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
