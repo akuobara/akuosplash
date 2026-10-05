@@ -2,58 +2,35 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { akuoGet, akuoPost, akuoApi, formatCLP } from "./akuosplash-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { akuoGet, akuoPost, formatCLP } from "./akuosplash-utils";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Droplets, User, History, MessageSquare, Plus, ChevronLeft, Send, MapPin, Banknote, Clock, Wallet, Truck, CheckCircle2, XCircle, KeyRound, ShieldCheck } from "lucide-react";
+import {
+  Loader2, Droplets, LogOut, RotateCw, MapPin, Clock, Truck, Bell,
+  KeyRound, ShieldCheck, User, MessageSquare, ChevronRight, Wallet, History,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; }
 interface Pedido {
   id: string; creadoEn: string; litros: number; direccion: string; comuna?: string; estado: string;
   metodoPago: string; nota?: string; precioTotal?: number;
-  requierePresenciaCliente?: boolean;
   codigoConfirmacion?: string | null;
   codigoVerificadoEn?: string | null;
-  codigoEnviadoPorMensaje?: boolean;
-  codigoEnviadoEn?: string | null;
-  transportistaId?: string | null;
 }
 interface Conversacion { id: string; clienteId: string; transportistaId: string; cliente: { id: string; nombre: string; }; transportista: { id: string; nombre: string; razonSocial?: string; }; mensajes?: Mensaje[]; ultimoMensajeEn: string; }
 interface Mensaje { id: string; creadoEn: string; contenido: string; remitenteId: string; remitente: { id: string; nombre: string; }; }
 
-function StatCard({ label, value, hint, icon: Icon, tone = "default" }: { label: string; value: string; hint?: string; icon?: any; tone?: "default" | "positive" | "warning" }) {
-  const toneCls = tone === "positive" ? "text-emerald-600" : tone === "warning" ? "text-amber-600" : "text-foreground";
-  return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-            <p className={`mt-1 text-xl font-bold tabular-nums sm:text-2xl ${toneCls}`}>{value}</p>
-            {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
-          </div>
-          {Icon && <div className="rounded-lg bg-primary/10 p-2 text-primary"><Icon className="h-4 w-4 sm:h-5 sm:w-5" /></div>}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function labelEstado(estado: string) {
-  const m: Record<string, string> = { pendiente: "Pendiente", aceptado: "Aceptado", en_ruta: "En ruta", entregado: "Entregado", cancelado: "Cancelado" };
-  return m[estado] || estado;
-}
-function colorEstado(estado: string) {
-  const m: Record<string, string> = { pendiente: "bg-amber-100 text-amber-800 border-amber-300", aceptado: "bg-blue-100 text-blue-800 border-blue-300", en_ruta: "bg-purple-100 text-purple-800 border-purple-300", entregado: "bg-emerald-100 text-emerald-800 border-emerald-300", cancelado: "bg-red-100 text-red-800 border-red-300" };
-  return m[estado] || "bg-gray-100 text-gray-800 border-gray-300";
-}
+const ESTADO_LABELS: Record<string, { label: string; color: string; icon?: any }> = {
+  pendiente: { label: "Buscando repartidor", color: "bg-amber-50 text-amber-700 border-amber-200", icon: Clock },
+  aceptado: { label: "Aceptado", color: "bg-blue-50 text-blue-700 border-blue-200", icon: User },
+  en_ruta: { label: "En camino", color: "bg-cyan-50 text-cyan-700 border-cyan-200", icon: Truck },
+  entregado: { label: "Entregado", color: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: ShieldCheck },
+  cancelado: { label: "Cancelado", color: "bg-muted text-muted-foreground", icon: ShieldCheck },
+};
 
 export function AkuosplashCliente() {
   const router = useRouter();
@@ -62,7 +39,6 @@ export function AkuosplashCliente() {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [historial, setHistorial] = useState<Pedido[]>([]);
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
-  const [showNuevoPedido, setShowNuevoPedido] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -91,315 +67,209 @@ export function AkuosplashCliente() {
 
   useEffect(() => { if (user) cargar(); }, [user, refreshKey]);
 
-  if (user === undefined) return <div className="flex min-h-screen items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
   if (!user) return null;
 
-  const pedidosActivos = pedidos.filter(p => p.estado === "pendiente" || p.estado === "aceptado" || p.estado === "en_ruta");
-  const entregados = historial.filter(h => h.estado === "entregado");
-  const litrosTotal = entregados.reduce((s, h) => s + h.litros, 0);
-  const gastosTotal = entregados.reduce((s, h) => s + (h.precioTotal || 0), 0);
+  const pedidosActivos = pedidos.filter(p => ["pendiente", "aceptado", "en_ruta"].includes(p.estado));
+  const ultimoPedido = historial.find(p => p.estado === "entregado");
+  const litrosTotal = historial.filter(h => h.estado === "entregado").reduce((s, h) => s + h.litros, 0);
+  const gastosTotal = historial.filter(h => h.estado === "entregado").reduce((s, h) => s + (h.precioTotal || 0), 0);
+
+  function repetirPedido(p: Pedido) {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("akuosplash-repetir", JSON.stringify({
+        litros: p.litros,
+        direccion: p.direccion,
+        nota: p.nota,
+      }));
+    }
+    router.push("/akuosplash/cliente/pedir?repetir=1");
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header — mismo estilo que Aljibe */}
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-          <button onClick={() => router.push("/akuosplash")} className="flex items-center gap-2">
-            <img src="/akuosplash/logo.png" alt="AkuoSplash" className="h-8 w-auto" />
-            <div className="text-left hidden sm:block">
-              <p className="font-bold text-primary">AkuoSplash</p>
-              <p className="-mt-1 text-xs text-muted-foreground">Cliente · {user.nombre}</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div className="mx-auto max-w-md px-4 py-3 flex items-center justify-between">
+          <Link href="/akuosplash/cliente" className="flex items-center gap-2.5">
+            <div className="rounded-xl bg-blue-500/10 p-2">
+              <Droplets className="h-4 w-4 text-blue-600" />
             </div>
-          </button>
-          <Button variant="outline" size="sm" onClick={async () => { await akuoPost("/api/akuosplash/auth/logout"); router.push("/akuosplash"); }}>
-            Salir
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 leading-none">AkuoSplash</p>
+              <p className="font-semibold text-sm leading-tight">{user.nombre}</p>
+            </div>
+          </Link>
+          <Button variant="ghost" size="sm" onClick={async () => { await akuoPost("/api/akuosplash/auth/logout"); router.push("/akuosplash"); }} className="text-gray-500">
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6">
-        {/* Botón nuevo pedido */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Hola, {user.nombre}</h1>
-            <p className="text-sm text-muted-foreground">Gestioná tus pedidos de agua</p>
-          </div>
-          <Button onClick={() => setShowNuevoPedido(true)} size="sm">
-            <Plus className="mr-1 h-4 w-4" /> Nuevo pedido
+      <main className="mx-auto max-w-md px-4 py-5 space-y-5">
+        {/* CTA principal: Pedir agua — GRANDE y obvio */}
+        <div className="space-y-3">
+          <Button
+            size="lg"
+            className="w-full h-16 text-base font-semibold rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
+            onClick={() => router.push("/akuosplash/cliente/pedir")}
+          >
+            <Droplets className="h-6 w-6" /> Pedir agua
           </Button>
+
+          {/* Repetir último pedido */}
+          {ultimoPedido && (
+            <Button
+              variant="outline"
+              className="w-full h-12 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
+              onClick={() => repetirPedido(ultimoPedido)}
+            >
+              <RotateCw className="mr-2 h-4 w-4" />
+              Repetir último pedido ({ultimoPedido.litros.toLocaleString("es-CL")} L)
+            </Button>
+          )}
         </div>
 
-        <Tabs defaultValue="dashboard">
-          <TabsList className="flex w-full overflow-x-auto">
-            <TabsTrigger value="dashboard" className="flex-1"><Droplets className="mr-1 h-4 w-4" /> Pedidos</TabsTrigger>
-            <TabsTrigger value="historial" className="flex-1"><History className="mr-1 h-4 w-4" /> Historial</TabsTrigger>
-            <TabsTrigger value="mensajes" className="flex-1"><MessageSquare className="mr-1 h-4 w-4" /> Mensajes</TabsTrigger>
-            <TabsTrigger value="perfil" className="flex-1"><User className="mr-1 h-4 w-4" /> Perfil</TabsTrigger>
-          </TabsList>
-
-          {/* === DASHBOARD === */}
-          <TabsContent value="dashboard" className="space-y-4 mt-4">
-            {/* Pedidos activos */}
-            <Card className="border-primary/20 bg-primary/5">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Pedidos activos ({pedidosActivos.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-                ) : pedidosActivos.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <Droplets className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">No tenés pedidos activos. Hacé clic en "Nuevo pedido".</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {pedidosActivos.map((p) => <PedidoRow key={p.id} p={p} onRefresh={() => setRefreshKey(k => k + 1)} />)}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* === HISTORIAL === */}
-          <TabsContent value="historial" className="space-y-4 mt-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Último pedido</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-                ) : historial.length === 0 ? (
-                  <div className="py-8 text-center">
-                    <History className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">Todavía no tenés entregas.</p>
-                  </div>
-                ) : (
-                  <>
-                    <PedidoRow p={historial[0]} />
-                    {historial.length > 1 && (
-                      <p className="mt-3 text-center text-sm text-muted-foreground">
-                        Y {historial.length - 1} pedido(s) más en tu historial
-                      </p>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* === MENSAJES === */}
-          <TabsContent value="mensajes" className="mt-4">
-            <Mensajeria conversaciones={conversaciones} userId={user.id} loading={loading} onRefresh={() => setRefreshKey(k => k + 1)} />
-          </TabsContent>
-
-          {/* === PERFIL === */}
-          <TabsContent value="perfil" className="mt-4">
-            <Perfil user={user} onUpdated={() => setRefreshKey(k => k + 1)} />
-          </TabsContent>
-        </Tabs>
-      </main>
-
-      {showNuevoPedido && <NuevoPedidoModal onClose={() => { setShowNuevoPedido(false); setRefreshKey(k => k + 1); }} />}
-    </div>
-  );
-}
-
-function PedidoRow({ p }: { p: Pedido; onRefresh?: () => void }) {
-  const yaEntregado = !!p.codigoVerificadoEn || p.estado === "entregado";
-
-  return (
-    <div className="rounded-lg border border-border p-3">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className={colorEstado(p.estado)}>{labelEstado(p.estado)}</Badge>
-            <span className="font-medium">{p.litros.toLocaleString("es-CL")} L</span>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground flex items-center gap-1">
-            <MapPin className="h-3 w-3" /> {p.direccion}{p.comuna ? `, ${p.comuna}` : ""}
-          </p>
-          <p className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1">
-            <Clock className="h-3 w-3" /> {new Date(p.creadoEn).toLocaleString("es-CL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-          </p>
-          {p.nota && <p className="mt-1 text-xs italic text-muted-foreground">"{p.nota}"</p>}
-        </div>
-        <div className="text-right shrink-0">
-          {p.precioTotal && <p className="font-bold tabular-nums">{formatCLP(p.precioTotal)}</p>}
-          <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-            <Banknote className="h-3 w-3" /> {p.metodoPago}
-          </p>
-        </div>
-      </div>
-
-      {/* Código de confirmación de entrega */}
-      {!yaEntregado && p.codigoConfirmacion && (
-        <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <KeyRound className="h-4 w-4 text-violet-700" />
-            <p className="text-xs font-medium text-violet-700">Tu código de entrega</p>
-          </div>
-          <p className="text-3xl font-bold tabular-nums tracking-[0.3em] text-violet-900">{p.codigoConfirmacion}</p>
-          <p className="text-[11px] text-violet-600 mt-1">Dáselo al repartidor al finalizar la entrega.</p>
-        </div>
-      )}
-
-      {yaEntregado && (
-        <div className="mt-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-2">
-          <ShieldCheck className="h-4 w-4 text-emerald-700" />
-          <p className="text-xs font-medium text-emerald-700">Entrega confirmada</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function NuevoPedidoModal({ onClose }: { onClose: () => void }) {
-  const [litros, setLitros] = useState("1000");
-  const [direccion, setDireccion] = useState("");
-  const [comuna, setComuna] = useState("");
-  const [metodoPago, setMetodoPago] = useState("efectivo");
-  const [fechaDeseada, setFechaDeseada] = useState("");
-  const [nota, setNota] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  // Pre-llenar dirección del perfil
-  useEffect(() => {
-    akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil").then(d => {
-      if (d.user?.direccion) setDireccion(d.user.direccion);
-      if (d.user?.comuna) setComuna(d.user.comuna);
-    });
-  }, []);
-
-  async function guardar() {
-    if (!direccion.trim()) { toast.error("Indicá tu dirección"); return; }
-    setSaving(true);
-    try {
-      await akuoPost("/api/akuosplash/cliente/pedidos", {
-        litros: Number(litros) || 1000, direccion: direccion.trim(), comuna: comuna.trim() || undefined,
-        metodoPago, fechaDeseada: fechaDeseada || undefined, nota: nota.trim() || undefined,
-      });
-      toast.success("¡Pedido creado!");
-      onClose();
-    } catch (e: any) { toast.error(e.message || "Error"); }
-    finally { setSaving(false); }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <Card className="w-full max-w-md border-2 border-primary/30 shadow-2xl">
-        <CardHeader><CardTitle className="text-lg">Pedir agua</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <Label>Cuántos litros</Label>
-            <div className="flex gap-2">
-              {[500, 1000, 2000, 5000].map(l => (
-                <button key={l} type="button" onClick={() => setLitros(String(l))} className={`flex-1 rounded-lg border py-2 text-sm font-medium ${litros === String(l) ? "border-primary bg-primary text-primary-foreground" : "border-border text-foreground hover:bg-muted"}`}>{l}L</button>
-              ))}
-            </div>
-          </div>
-          <div><Label>Dirección</Label><Input placeholder="Calle, número, depto" value={direccion} onChange={(e: any) => setDireccion(e.target.value)} /></div>
-          <div><Label>Comuna</Label><Input placeholder="Ej: Vitacura" value={comuna} onChange={(e: any) => setComuna(e.target.value)} /></div>
-          <div className="grid grid-cols-2 gap-2">
-            <div><Label>Fecha deseada</Label><Input type="date" value={fechaDeseada} onChange={(e: any) => setFechaDeseada(e.target.value)} /></div>
-            <div><Label>Pago</Label><select className="w-full rounded-md border px-3 py-2 text-sm" value={metodoPago} onChange={(e: any) => setMetodoPago(e.target.value)}><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option></select></div>
-          </div>
-          <div><Label>Nota (opcional)</Label><Textarea rows={2} placeholder="Ej: tocar timbre, dejar en portería" value={nota} onChange={(e: any) => setNota(e.target.value)} /></div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose} className="flex-1">Cancelar</Button>
-            <Button onClick={guardar} disabled={saving} className="flex-1">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Pedir"}</Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-}
-
-function Mensajeria({ conversaciones, userId, loading, onRefresh }: { conversaciones: Conversacion[]; userId: string; loading: boolean; onRefresh: () => void }) {
-  const [convActiva, setConvActiva] = useState<string | null>(null);
-  const [mensajes, setMensajes] = useState<Mensaje[]>([]);
-  const [nuevoMsg, setNuevoMsg] = useState("");
-  const [loadingMsgs, setLoadingMsgs] = useState(false);
-
-  useEffect(() => {
-    if (!convActiva) return;
-    setLoadingMsgs(true);
-    akuoGet<{ mensajes: Mensaje[] }>(`/api/akuosplash/mensajes?conversacionId=${convActiva}`).then(d => setMensajes(d.mensajes)).finally(() => setLoadingMsgs(false));
-  }, [convActiva]);
-
-  async function enviar() {
-    if (!nuevoMsg.trim() || !convActiva) return;
-    try {
-      await akuoPost("/api/akuosplash/mensajes", { conversacionId: convActiva, contenido: nuevoMsg.trim() });
-      setNuevoMsg("");
-      const d = await akuoGet<{ mensajes: Mensaje[] }>(`/api/akuosplash/mensajes?conversacionId=${convActiva}`);
-      setMensajes(d.mensajes);
-      onRefresh();
-    } catch (e: any) { toast.error(e.message || "Error"); }
-  }
-
-  if (convActiva) {
-    const conv = conversaciones.find(c => c.id === convActiva);
-    const otroNombre = conv?.clienteId === userId ? conv?.transportista?.nombre : conv?.cliente?.nombre;
-    return (
-      <Card>
-        <CardHeader className="pb-3">
-          <button onClick={() => setConvActiva(null)} className="flex items-center text-sm text-primary mb-2"><ChevronLeft className="h-4 w-4" /> Volver</button>
-          <CardTitle className="text-base">{otroNombre}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="max-h-[60vh] space-y-2 overflow-y-auto rounded-lg border border-border bg-muted/30 p-3">
-            {loadingMsgs ? <div className="text-center py-4"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" /></div> :
-            mensajes.length === 0 ? <p className="text-center py-4 text-sm text-muted-foreground">Sin mensajes. Escribí abajo.</p> :
-            mensajes.map(m => (
-              <div key={m.id} className={`flex ${m.remitenteId === userId ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[75%] rounded-lg px-3 py-2 ${m.remitenteId === userId ? "bg-primary text-primary-foreground" : "bg-background border"}`}>
-                  <p className="text-xs opacity-70">{m.remitente.nombre}</p>
-                  <p className="text-sm">{m.contenido}</p>
-                  <p className="text-[10px] opacity-50 mt-0.5">{new Date(m.creadoEn).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <Input placeholder="Escribí un mensaje..." value={nuevoMsg} onChange={(e: any) => setNuevoMsg(e.target.value)} onKeyDown={(e: any) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviar(); } }} />
-            <Button onClick={enviar}><Send className="h-4 w-4" /></Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <CardHeader className="pb-3"><CardTitle className="text-base">Mensajes ({conversaciones.length})</CardTitle></CardHeader>
-      <CardContent>
-        {loading ? <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div> :
-        conversaciones.length === 0 ? (
-          <div className="py-8 text-center">
-            <MessageSquare className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
-            <p className="text-muted-foreground">Todavía no tenés mensajes. Cuando un transportista acepte tu pedido, vas a poder chatear con él.</p>
-          </div>
-        ) : (
+        {/* Pedidos activos */}
+        {pedidosActivos.length > 0 && (
           <div className="space-y-2">
-            {conversaciones.map(c => {
-              const otro = c.clienteId === userId ? c.transportista : c.cliente;
-              const ultimo = c.mensajes?.[0];
-              return (
-                <button key={c.id} onClick={() => setConvActiva(c.id)} className="w-full text-left">
-                  <div className="flex items-center gap-3 rounded-lg border border-border p-3 transition hover:border-primary/40 hover:bg-muted/30">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">{otro?.nombre?.[0] || "?"}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{otro?.nombre}</p>
-                      <p className="text-sm text-muted-foreground truncate">{ultimo ? ultimo.contenido : "Sin mensajes"}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{new Date(c.ultimoMensajeEn).toLocaleDateString("es-CL")}</p>
-                  </div>
-                </button>
-              );
-            })}
+            <div className="flex items-center gap-2 px-1">
+              <Bell className="h-3.5 w-3.5 text-amber-500" />
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Pedidos activos ({pedidosActivos.length})
+              </h2>
+            </div>
+            {pedidosActivos.map((p) => <PedidoActivoCard key={p.id} p={p} />)}
+          </div>
+        )}
+
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-2">
+          <Card className="border-gray-100">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Pedidos</p>
+              <p className="text-lg font-bold tabular-nums">{historial.length}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-gray-100">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Litros</p>
+              <p className="text-lg font-bold tabular-nums">{litrosTotal.toLocaleString("es-CL")}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-gray-100">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Gastado</p>
+              <p className="text-sm font-bold tabular-nums">{formatCLP(gastosTotal)}</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Accesos rápidos */}
+        <div className="grid grid-cols-2 gap-2">
+          <Link href="/akuosplash/cliente/mensajes">
+            <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
+              <CardContent className="p-3 flex items-center gap-2">
+                <div className="rounded-lg bg-blue-500/10 p-2"><MessageSquare className="h-4 w-4 text-blue-600" /></div>
+                <div>
+                  <p className="text-xs text-gray-400">Mensajes</p>
+                  <p className="text-sm font-semibold">{conversaciones.length}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/akuosplash/cliente/perfil">
+            <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
+              <CardContent className="p-3 flex items-center gap-2">
+                <div className="rounded-lg bg-blue-500/10 p-2"><User className="h-4 w-4 text-blue-600" /></div>
+                <div>
+                  <p className="text-xs text-gray-400">Perfil</p>
+                  <p className="text-sm font-semibold">Datos</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
+        {/* Historial */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <History className="h-3.5 w-3.5 text-gray-400" />
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Historial</h2>
+            </div>
+            {historial.length > 5 && (
+              <Link href="/akuosplash/cliente/historial" className="text-xs text-blue-600 hover:underline">Ver todo</Link>
+            )}
+          </div>
+
+          {loading ? (
+            <Skeleton className="h-16 rounded-xl" />
+          ) : historial.length === 0 ? (
+            <Card className="border-gray-100">
+              <CardContent className="p-8 text-center">
+                <Droplets className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-400">Aún no tenés pedidos.</p>
+                <p className="text-xs text-gray-400 mt-1">Tocá "Pedir agua" para empezar.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {historial.slice(0, 5).map((p) => <PedidoHistorialCard key={p.id} p={p} onRepetir={() => repetirPedido(p)} />)}
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function PedidoActivoCard({ p }: { p: Pedido }) {
+  const estadoInfo = ESTADO_LABELS[p.estado] || { label: p.estado, color: "bg-muted text-muted-foreground", icon: Clock };
+  const Icon = estadoInfo.icon;
+  return (
+    <Card className="border-amber-200 bg-amber-50/50">
+      <CardContent className="p-3.5">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${estadoInfo.color}`}>
+            {Icon && <Icon className="h-3 w-3" />}
+            {estadoInfo.label}
+          </span>
+          <span className="text-[11px] text-gray-400">
+            {new Date(p.creadoEn).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
+          </span>
+        </div>
+        <div className="flex items-baseline gap-3">
+          <span className="text-lg font-bold tabular-nums">{p.litros.toLocaleString("es-CL")} L</span>
+          {p.precioTotal && <span className="text-sm text-gray-500">{formatCLP(p.precioTotal)}</span>}
+        </div>
+        <p className="mt-1.5 text-xs text-gray-500 flex items-center gap-1">
+          <MapPin className="h-3 w-3" /> {p.direccion}{p.comuna ? `, ${p.comuna}` : ""}
+        </p>
+
+        {/* Código de entrega */}
+        {p.codigoConfirmacion && !p.codigoVerificadoEn && (
+          <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-2.5 flex items-center justify-between gap-2">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-violet-600 flex items-center gap-1">
+                <KeyRound className="h-3 w-3" /> Tu código de entrega
+              </p>
+              <p className="text-xl font-bold tabular-nums tracking-[0.2em] text-violet-900">{p.codigoConfirmacion}</p>
+            </div>
+            <p className="text-[10px] text-violet-600 text-right max-w-[8rem]">Dáselo al repartidor al finalizar</p>
+          </div>
+        )}
+
+        {p.codigoVerificadoEn && (
+          <div className="mt-2 flex items-center gap-2 rounded-lg bg-emerald-50 p-2">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+            <p className="text-xs font-medium text-emerald-700">Entrega confirmada</p>
           </div>
         )}
       </CardContent>
@@ -407,113 +277,44 @@ function Mensajeria({ conversaciones, userId, loading, onRefresh }: { conversaci
   );
 }
 
-function Perfil({ user, onUpdated }: { user: AkuoUser; onUpdated: () => void }) {
-  const [form, setForm] = useState({
-    nombre: user.nombre || '',
-    telefono: user.telefono || '',
-    direccion: '',
-    comuna: '',
-    lat: '',
-    lng: '',
-    rut: '',
-    indicacionesAcceso: '',
-    requiereClientePresente: true,
-    usoAgua: 'consumo',
-  });
-  const [saving, setSaving] = useState(false);
-
-  // Cargar datos completos del perfil
-  useEffect(() => {
-    akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil").then(d => {
-      if (d.user) {
-        setForm({
-          nombre: d.user.nombre || '', telefono: d.user.telefono || '',
-          direccion: d.user.direccion || '', comuna: d.user.comuna || '',
-          lat: d.user.lat ? String(d.user.lat) : '', lng: d.user.lng ? String(d.user.lng) : '',
-          rut: d.user.rut || '', indicacionesAcceso: d.user.indicacionesAcceso || '',
-          requiereClientePresente: d.user.requiereClientePresente ?? true,
-          usoAgua: d.user.usoAgua || 'consumo',
-        });
-      }
-    });
-  }, []);
-
-  function update(field: string, value: any) {
-    setForm({ ...form, [field]: value });
-  }
-
-  async function guardar() {
-    setSaving(true);
-    try {
-      await akuoApi("/api/akuosplash/cliente/perfil", {
-        method: "PATCH",
-        body: JSON.stringify({
-          nombre: form.nombre, telefono: form.telefono,
-          direccion: form.direccion, comuna: form.comuna,
-          lat: form.lat || undefined, lng: form.lng || undefined,
-          rut: form.rut, indicacionesAcceso: form.indicacionesAcceso,
-          requiereClientePresente: form.requiereClientePresente,
-          usoAgua: form.usoAgua,
-        }),
-      });
-      toast.success("Perfil actualizado");
-      onUpdated();
-    } catch (e: any) { toast.error(e.message || "Error"); }
-    finally { setSaving(false); }
-  }
-
+function PedidoHistorialCard({ p, onRepetir }: { p: Pedido; onRepetir: () => void }) {
+  const estadoInfo = ESTADO_LABELS[p.estado] || { label: p.estado, color: "bg-muted text-muted-foreground", icon: Clock };
+  const Icon = estadoInfo.icon;
+  const esEntregado = p.estado === "entregado";
   return (
-    <div className="space-y-4">
-      {/* Datos personales */}
-      <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base">Datos personales</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">{form.nombre?.[0] || "?"}</div>
-            <div><p className="font-bold">{user.email}</p><Badge variant="outline">Plan: {user.plan}</Badge></div>
+    <Card className="border-gray-100">
+      <CardContent className="p-3.5">
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm font-medium">{new Date(p.creadoEn).toLocaleDateString("es-CL")}</span>
+            <span className="text-[11px] text-gray-400">
+              {new Date(p.creadoEn).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
+            </span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div><Label>Nombre</Label><Input value={form.nombre} onChange={(e: any) => update("nombre", e.target.value)} /></div>
-            <div><Label>RUT (opcional)</Label><Input placeholder="12.345.678-9" value={form.rut} onChange={(e: any) => update("rut", e.target.value)} /></div>
-            <div><Label>Teléfono</Label><Input placeholder="+56 9 1234 5678" value={form.telefono} onChange={(e: any) => update("telefono", e.target.value)} /></div>
-            <div><Label>Uso del agua</Label>
-              <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.usoAgua} onChange={(e: any) => update("usoAgua", e.target.value)}>
-                <option value="consumo">Consumo humano</option>
-                <option value="riego_pasto">Riego pasto</option>
-                <option value="riego_cultivos">Riego cultivos</option>
-                <option value="polvo_caminos">Polvo caminos</option>
-                <option value="construccion">Construcción</option>
-                <option value="otro">Otro</option>
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Ubicación */}
-      <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base">Ubicación de entrega</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div><Label>Dirección</Label><Input placeholder="Calle, número, depto" value={form.direccion} onChange={(e: any) => update("direccion", e.target.value)} /></div>
-          <div><Label>Comuna</Label><Input placeholder="Ej: Vitacura, Las Condes" value={form.comuna} onChange={(e: any) => update("comuna", e.target.value)} /></div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div><Label>Latitud (opcional)</Label><Input placeholder="-33.4" value={form.lat} onChange={(e: any) => update("lat", e.target.value)} /></div>
-            <div><Label>Longitud (opcional)</Label><Input placeholder="-70.6" value={form.lng} onChange={(e: any) => update("lng", e.target.value)} /></div>
-          </div>
-          <div>
-            <Label>Indicaciones de acceso</Label>
-            <Textarea rows={2} placeholder="Ej: tocar timbre 2, el estanque está atrás, pasar manguera por encima del portón" value={form.indicacionesAcceso} onChange={(e: any) => update("indicacionesAcceso", e.target.value)} />
-          </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.requiereClientePresente} onChange={(e: any) => update("requiereClientePresente", e.target.checked)} />
-            Requiere que el cliente esté presente para recibir el agua
-          </label>
-        </CardContent>
-      </Card>
-
-      <Button onClick={guardar} disabled={saving} className="w-full">
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar todos los cambios"}
-      </Button>
-    </div>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${estadoInfo.color}`}>
+            {Icon && <Icon className="h-3 w-3" />}
+            {estadoInfo.label}
+          </span>
+        </div>
+        <div className="flex items-baseline gap-3">
+          <span className="text-base font-bold tabular-nums">{p.litros.toLocaleString("es-CL")} L</span>
+          {p.precioTotal && <span className="text-sm text-gray-500">{formatCLP(p.precioTotal)}</span>}
+        </div>
+        <p className="mt-1.5 text-[11px] text-gray-500 flex items-center gap-1">
+          <MapPin className="h-3 w-3" /> {p.direccion}{p.comuna ? `, ${p.comuna}` : ""}
+        </p>
+        {p.nota && <p className="mt-1 text-[11px] italic text-gray-400">"{p.nota}"</p>}
+        {esEntregado && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="mt-2 h-7 px-2 text-[11px] text-gray-400 hover:text-blue-600"
+            onClick={onRepetir}
+          >
+            <RotateCw className="mr-1 h-3 w-3" /> Repetir
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }
