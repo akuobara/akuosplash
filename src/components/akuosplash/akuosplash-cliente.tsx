@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Droplets, User, History, MessageSquare, Plus, ChevronLeft, Send, MapPin, Banknote, Clock, Wallet, Truck, CheckCircle2, XCircle, KeyRound, RefreshCw, Copy, ShieldCheck } from "lucide-react";
+import { Loader2, Droplets, User, History, MessageSquare, Plus, ChevronLeft, Send, MapPin, Banknote, Clock, Wallet, Truck, CheckCircle2, XCircle, KeyRound, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; }
@@ -208,20 +208,9 @@ export function AkuosplashCliente() {
 
 function PedidoRow({ p, onRefresh }: { p: Pedido; onRefresh?: () => void }) {
   const [enviando, setEnviando] = useState(false);
-  const [regenerando, setRegenerando] = useState(false);
   const requiereCodigo = p.requierePresenciaCliente;
   const tieneTransportista = !!p.transportistaId;
   const yaEntregado = !!p.codigoVerificadoEn || p.estado === "entregado";
-
-  async function copiarCodigo() {
-    if (!p.codigoConfirmacion) return;
-    try {
-      await navigator.clipboard.writeText(p.codigoConfirmacion);
-      toast.success("Código copiado");
-    } catch {
-      toast.error("No se pudo copiar");
-    }
-  }
 
   async function enviarPorMensaje() {
     if (!p.codigoConfirmacion) return;
@@ -229,28 +218,13 @@ function PedidoRow({ p, onRefresh }: { p: Pedido; onRefresh?: () => void }) {
     try {
       const res = await akuoPost<{ ok: boolean; error?: string }>(`/api/akuosplash/cliente/pedidos/${p.id}/enviar-codigo`);
       if (res.ok) {
-        toast.success("Código enviado al repartidor por mensaje");
+        toast.success("Código enviado al repartidor");
         onRefresh?.();
       } else {
         toast.error(res.error || "No se pudo enviar");
       }
     } catch (e: any) { toast.error(e.message || "Error"); }
     finally { setEnviando(false); }
-  }
-
-  async function regenerarCodigo() {
-    if (!confirm("¿Generar un código nuevo? El código anterior dejará de funcionar.")) return;
-    setRegenerando(true);
-    try {
-      const res = await akuoPost<{ ok: boolean; codigo?: string; error?: string }>(`/api/akuosplash/cliente/pedidos/${p.id}/regenerar-codigo`);
-      if (res.ok) {
-        toast.success("Nuevo código generado");
-        onRefresh?.();
-      } else {
-        toast.error(res.error || "No se pudo regenerar");
-      }
-    } catch (e: any) { toast.error(e.message || "Error"); }
-    finally { setRegenerando(false); }
   }
 
   return (
@@ -278,38 +252,22 @@ function PedidoRow({ p, onRefresh }: { p: Pedido; onRefresh?: () => void }) {
         </div>
       </div>
 
-      {/* Sección del código de confirmación */}
+      {/* Código de confirmación */}
       {requiereCodigo && !yaEntregado && (
         <div className="mt-3 rounded-lg border border-violet-200 bg-violet-50 p-3">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-1">
             <KeyRound className="h-4 w-4 text-violet-700" />
-            <p className="text-xs font-medium text-violet-700">Código de confirmación de entrega</p>
+            <p className="text-xs font-medium text-violet-700">Tu código de confirmación</p>
           </div>
-          <div className="flex items-center justify-between gap-2">
-            <div>
-              <p className="text-2xl font-bold tabular-nums tracking-widest text-violet-900">{p.codigoConfirmacion || "—"}</p>
-              <p className="text-[10px] text-violet-600">
-                {p.codigoEnviadoPorMensaje
-                  ? `Enviado al repartidor ${p.codigoEnviadoEn ? new Date(p.codigoEnviadoEn).toLocaleString("es-CL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : ""}`
-                  : "Dale este código al repartidor al recibir el agua"}
-              </p>
-            </div>
-            <div className="flex gap-1">
-              <Button size="sm" variant="outline" onClick={copiarCodigo} disabled={!p.codigoConfirmacion} title="Copiar código">
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
-              <Button size="sm" variant="outline" onClick={regenerarCodigo} disabled={regenerando} title="Generar nuevo código">
-                {regenerando ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-              </Button>
-            </div>
-          </div>
-          <div className="mt-2">
+          <p className="text-3xl font-bold tabular-nums tracking-[0.3em] text-violet-900 mb-2">{p.codigoConfirmacion || "—"}</p>
+          <p className="text-[11px] text-violet-600 mb-2">Dale este código al repartidor al recibir el agua, o enviáselo por mensaje:</p>
+          <div>
             {!tieneTransportista ? (
-              <p className="text-[11px] text-violet-700">Esperando que un transportista acepte tu pedido para poder enviarle el código automáticamente.</p>
+              <p className="text-[11px] text-violet-700">Esperando que un repartidor acepte tu pedido para poder enviarle el código.</p>
             ) : (
               <Button size="sm" onClick={enviarPorMensaje} disabled={enviando} className="w-full bg-violet-600 text-white hover:bg-violet-700">
                 {enviando ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Send className="h-3.5 w-3.5 mr-1" />}
-                {p.codigoEnviadoPorMensaje ? "Reenviar código por mensaje" : "Enviar código al repartidor por mensaje"}
+                Enviar al repartidor por mensaje
               </Button>
             )}
           </div>
@@ -319,7 +277,7 @@ function PedidoRow({ p, onRefresh }: { p: Pedido; onRefresh?: () => void }) {
       {requiereCodigo && yaEntregado && (
         <div className="mt-3 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-2">
           <ShieldCheck className="h-4 w-4 text-emerald-700" />
-          <p className="text-xs font-medium text-emerald-700">Entrega verificada con código correcto</p>
+          <p className="text-xs font-medium text-emerald-700">Entrega verificada</p>
         </div>
       )}
     </div>

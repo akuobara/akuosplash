@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser, akuoNotificar } from "@/lib/akuosplash-auth";
-import crypto from "crypto";
 
+// Código PIN simple de 4 dígitos (0-9)
 function generarCodigo(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let codigo = "";
-  const bytes = crypto.randomBytes(6);
-  for (let i = 0; i < 6; i++) codigo += chars[bytes[i] % chars.length];
-  return codigo;
+  const n = Math.floor(1000 + Math.random() * 9000);
+  return String(n);
 }
 
 // POST /api/akuosplash/cliente/pedidos/[id]/enviar-codigo

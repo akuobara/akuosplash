@@ -331,11 +331,12 @@ function PedidoAsignadoRow({ p, userId, onRefresh }: { p: PedidoAsignado; userId
               </p>
               <div className="flex gap-2">
                 <Input
-                  placeholder="ABC123"
+                  placeholder="1234"
                   value={codigoInput}
-                  onChange={(e: any) => setCodigoInput(e.target.value.toUpperCase())}
-                  className="flex-1 font-mono tracking-widest"
-                  maxLength={6}
+                  onChange={(e: any) => setCodigoInput(e.target.value.replace(/[^0-9]/g, ""))}
+                  className="flex-1 font-mono tracking-[0.3em] text-center text-lg"
+                  maxLength={4}
+                  inputMode="numeric"
                 />
                 <Button onClick={verificarEntrega} disabled={verificando} className="bg-violet-600 hover:bg-violet-700">
                   {verificando ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}

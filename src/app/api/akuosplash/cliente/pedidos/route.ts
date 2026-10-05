@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
-import crypto from "crypto";
 
-// Genera un código de 6 caracteres A-Z0-9 sin caracteres ambiguos (no 0/O, no 1/I)
+// Código PIN simple de 4 dígitos (0-9)
 function generarCodigoConfirmacion(): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let codigo = "";
-  const bytes = crypto.randomBytes(6);
-  for (let i = 0; i < 6; i++) {
-    codigo += chars[bytes[i] % chars.length];
-  }
-  return codigo;
+  const n = Math.floor(1000 + Math.random() * 9000);
+  return String(n);
 }
 
 export async function GET() {
