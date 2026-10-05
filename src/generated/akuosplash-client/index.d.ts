@@ -2499,6 +2499,7 @@ export namespace Prisma {
   export type AkuoUsuarioAvgAggregateOutputType = {
     lat: number | null
     lng: number | null
+    saldo: number | null
     capacidadVehiculoKg: number | null
     vehiculosPermitidos: number | null
     choferesPermitidos: number | null
@@ -2507,6 +2508,7 @@ export namespace Prisma {
   export type AkuoUsuarioSumAggregateOutputType = {
     lat: number | null
     lng: number | null
+    saldo: number | null
     capacidadVehiculoKg: number | null
     vehiculosPermitidos: number | null
     choferesPermitidos: number | null
@@ -2525,6 +2527,7 @@ export namespace Prisma {
     indicacionesAcceso: string | null
     requiereClientePresente: boolean | null
     usoAgua: string | null
+    saldo: number | null
     passwordHash: string | null
     avatarUrl: string | null
     rol: string | null
@@ -2568,6 +2571,7 @@ export namespace Prisma {
     indicacionesAcceso: string | null
     requiereClientePresente: boolean | null
     usoAgua: string | null
+    saldo: number | null
     passwordHash: string | null
     avatarUrl: string | null
     rol: string | null
@@ -2611,6 +2615,7 @@ export namespace Prisma {
     indicacionesAcceso: number
     requiereClientePresente: number
     usoAgua: number
+    saldo: number
     passwordHash: number
     avatarUrl: number
     rol: number
@@ -2646,6 +2651,7 @@ export namespace Prisma {
   export type AkuoUsuarioAvgAggregateInputType = {
     lat?: true
     lng?: true
+    saldo?: true
     capacidadVehiculoKg?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
@@ -2654,6 +2660,7 @@ export namespace Prisma {
   export type AkuoUsuarioSumAggregateInputType = {
     lat?: true
     lng?: true
+    saldo?: true
     capacidadVehiculoKg?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
@@ -2672,6 +2679,7 @@ export namespace Prisma {
     indicacionesAcceso?: true
     requiereClientePresente?: true
     usoAgua?: true
+    saldo?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2715,6 +2723,7 @@ export namespace Prisma {
     indicacionesAcceso?: true
     requiereClientePresente?: true
     usoAgua?: true
+    saldo?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2758,6 +2767,7 @@ export namespace Prisma {
     indicacionesAcceso?: true
     requiereClientePresente?: true
     usoAgua?: true
+    saldo?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2888,6 +2898,7 @@ export namespace Prisma {
     indicacionesAcceso: string | null
     requiereClientePresente: boolean
     usoAgua: string
+    saldo: number
     passwordHash: string | null
     avatarUrl: string | null
     rol: string
@@ -2950,6 +2961,7 @@ export namespace Prisma {
     indicacionesAcceso?: boolean
     requiereClientePresente?: boolean
     usoAgua?: boolean
+    saldo?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3009,6 +3021,7 @@ export namespace Prisma {
     indicacionesAcceso?: boolean
     requiereClientePresente?: boolean
     usoAgua?: boolean
+    saldo?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3052,6 +3065,7 @@ export namespace Prisma {
     indicacionesAcceso?: boolean
     requiereClientePresente?: boolean
     usoAgua?: boolean
+    saldo?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3095,6 +3109,7 @@ export namespace Prisma {
     indicacionesAcceso?: boolean
     requiereClientePresente?: boolean
     usoAgua?: boolean
+    saldo?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3125,7 +3140,7 @@ export namespace Prisma {
     choferesPermitidos?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
     pedidosCliente?: boolean | AkuoUsuario$pedidosClienteArgs<ExtArgs>
@@ -3179,6 +3194,7 @@ export namespace Prisma {
       indicacionesAcceso: string | null
       requiereClientePresente: boolean
       usoAgua: string
+      saldo: number
       passwordHash: string | null
       avatarUrl: string | null
       rol: string
@@ -3657,6 +3673,7 @@ export namespace Prisma {
     readonly indicacionesAcceso: FieldRef<"AkuoUsuario", 'String'>
     readonly requiereClientePresente: FieldRef<"AkuoUsuario", 'Boolean'>
     readonly usoAgua: FieldRef<"AkuoUsuario", 'String'>
+    readonly saldo: FieldRef<"AkuoUsuario", 'Float'>
     readonly passwordHash: FieldRef<"AkuoUsuario", 'String'>
     readonly avatarUrl: FieldRef<"AkuoUsuario", 'String'>
     readonly rol: FieldRef<"AkuoUsuario", 'String'>
@@ -22135,6 +22152,7 @@ export namespace Prisma {
     indicacionesAcceso: 'indicacionesAcceso',
     requiereClientePresente: 'requiereClientePresente',
     usoAgua: 'usoAgua',
+    saldo: 'saldo',
     passwordHash: 'passwordHash',
     avatarUrl: 'avatarUrl',
     rol: 'rol',
@@ -22503,6 +22521,7 @@ export namespace Prisma {
     indicacionesAcceso?: StringNullableFilter<"AkuoUsuario"> | string | null
     requiereClientePresente?: BoolFilter<"AkuoUsuario"> | boolean
     usoAgua?: StringFilter<"AkuoUsuario"> | string
+    saldo?: FloatFilter<"AkuoUsuario"> | number
     passwordHash?: StringNullableFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     rol?: StringFilter<"AkuoUsuario"> | string
@@ -22561,6 +22580,7 @@ export namespace Prisma {
     indicacionesAcceso?: SortOrderInput | SortOrder
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
+    saldo?: SortOrder
     passwordHash?: SortOrderInput | SortOrder
     avatarUrl?: SortOrderInput | SortOrder
     rol?: SortOrder
@@ -22624,6 +22644,7 @@ export namespace Prisma {
     indicacionesAcceso?: StringNullableFilter<"AkuoUsuario"> | string | null
     requiereClientePresente?: BoolFilter<"AkuoUsuario"> | boolean
     usoAgua?: StringFilter<"AkuoUsuario"> | string
+    saldo?: FloatFilter<"AkuoUsuario"> | number
     passwordHash?: StringNullableFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     rol?: StringFilter<"AkuoUsuario"> | string
@@ -22680,6 +22701,7 @@ export namespace Prisma {
     indicacionesAcceso?: SortOrderInput | SortOrder
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
+    saldo?: SortOrder
     passwordHash?: SortOrderInput | SortOrder
     avatarUrl?: SortOrderInput | SortOrder
     rol?: SortOrder
@@ -22731,6 +22753,7 @@ export namespace Prisma {
     indicacionesAcceso?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     requiereClientePresente?: BoolWithAggregatesFilter<"AkuoUsuario"> | boolean
     usoAgua?: StringWithAggregatesFilter<"AkuoUsuario"> | string
+    saldo?: FloatWithAggregatesFilter<"AkuoUsuario"> | number
     passwordHash?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     rol?: StringWithAggregatesFilter<"AkuoUsuario"> | string
@@ -24123,6 +24146,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -24181,6 +24205,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -24239,6 +24264,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -24297,6 +24323,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -24355,6 +24382,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -24398,6 +24426,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -24441,6 +24470,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -26020,6 +26050,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -26212,6 +26253,7 @@ export namespace Prisma {
     indicacionesAcceso?: SortOrder
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
+    saldo?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -26245,6 +26287,7 @@ export namespace Prisma {
   export type AkuoUsuarioAvgOrderByAggregateInput = {
     lat?: SortOrder
     lng?: SortOrder
+    saldo?: SortOrder
     capacidadVehiculoKg?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
@@ -26263,6 +26306,7 @@ export namespace Prisma {
     indicacionesAcceso?: SortOrder
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
+    saldo?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -26306,6 +26350,7 @@ export namespace Prisma {
     indicacionesAcceso?: SortOrder
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
+    saldo?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -26339,6 +26384,7 @@ export namespace Prisma {
   export type AkuoUsuarioSumOrderByAggregateInput = {
     lat?: SortOrder
     lng?: SortOrder
+    saldo?: SortOrder
     capacidadVehiculoKg?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
@@ -26400,6 +26446,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -26585,17 +26647,6 @@ export namespace Prisma {
     año?: SortOrder
   }
 
-  export type FloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
   export type AkuoClienteCountOrderByAggregateInput = {
     id?: SortOrder
     creadoEn?: SortOrder
@@ -26671,22 +26722,6 @@ export namespace Prisma {
     lng?: SortOrder
     precioEfectivoPorLitro?: SortOrder
     precioTransferenciaPorLitro?: SortOrder
-  }
-
-  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type AkuoClienteNullableScalarRelationFilter = {
@@ -27524,6 +27559,14 @@ export namespace Prisma {
     set?: boolean
   }
 
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -28072,14 +28115,6 @@ export namespace Prisma {
     connect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
   }
 
-  export type FloatFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
   export type AkuoUsuarioUpdateOneRequiredWithoutClientesNestedInput = {
     create?: XOR<AkuoUsuarioCreateWithoutClientesInput, AkuoUsuarioUncheckedCreateWithoutClientesInput>
     connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutClientesInput
@@ -28512,6 +28547,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -28614,6 +28660,22 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[]
@@ -28672,33 +28734,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
-  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedFloatFilter<$PrismaModel>
-    _min?: NestedFloatFilter<$PrismaModel>
-    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type AkuoSesionCreateWithoutUsuarioInput = {
@@ -29760,6 +29795,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -29817,6 +29853,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -29890,6 +29927,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -29947,6 +29985,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30004,6 +30043,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30061,6 +30101,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30199,6 +30240,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30256,6 +30298,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30329,6 +30372,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30386,6 +30430,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30569,6 +30614,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30626,6 +30672,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -30715,6 +30762,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30772,6 +30820,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -30955,6 +31004,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31012,6 +31062,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31191,6 +31242,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31248,6 +31300,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31450,6 +31503,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31507,6 +31561,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31711,6 +31766,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31768,6 +31824,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31841,6 +31898,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31898,6 +31956,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31955,6 +32014,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32012,6 +32072,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32085,6 +32146,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32142,6 +32204,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32199,6 +32262,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32256,6 +32320,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32329,6 +32394,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32386,6 +32452,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32443,6 +32510,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32500,6 +32568,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32573,6 +32642,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32630,6 +32700,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32687,6 +32758,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32744,6 +32816,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32817,6 +32890,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32874,6 +32948,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32931,6 +33006,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32988,6 +33064,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33050,6 +33127,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33107,6 +33185,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33205,6 +33284,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33262,6 +33342,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33330,6 +33411,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33387,6 +33469,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33481,6 +33564,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33538,6 +33622,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33638,6 +33723,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33695,6 +33781,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33752,6 +33839,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33809,6 +33897,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33871,6 +33960,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33928,6 +34018,7 @@ export namespace Prisma {
     indicacionesAcceso?: string | null
     requiereClientePresente?: boolean
     usoAgua?: string
+    saldo?: number
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -34001,6 +34092,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -34058,6 +34150,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -34126,6 +34219,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -34183,6 +34277,7 @@ export namespace Prisma {
     indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string

@@ -26,6 +26,7 @@ model AkuoUsuario {
   indicacionesAcceso          String?
   requiereClientePresente     Boolean             @default(true)
   usoAgua                     String              @default("consumo")
+  saldo                       Float               @default(0)
   passwordHash                String?
   avatarUrl                   String?
   rol                         String              @default("cliente")

@@ -11,8 +11,7 @@ export async function GET() {
       direccion: (user as any).direccion, comuna: (user as any).comuna,
       lat: (user as any).lat, lng: (user as any).lng, rut: (user as any).rut,
       indicacionesAcceso: (user as any).indicacionesAcceso,
-      requiereClientePresente: (user as any).requiereClientePresente,
-      usoAgua: (user as any).usoAgua,
+      saldo: (user as any).saldo,
       // Campos de transportista
       razonSocial: (user as any).razonSocial,
       direccionEmpresa: (user as any).direccionEmpresa,
@@ -37,10 +36,12 @@ export async function PATCH(req: NextRequest) {
   if (body.comuna !== undefined) data.comuna = body.comuna?.trim() || null;
   if (body.lat !== undefined) data.lat = body.lat ? Number(body.lat) : null;
   if (body.lng !== undefined) data.lng = body.lng ? Number(body.lng) : null;
-  if (body.rut !== undefined) data.rut = body.rut?.trim() || null;
+  if (body.rut !== undefined) {
+    const rut = body.rut?.trim() || "";
+    if (!rut) return NextResponse.json({ error: "El RUT es obligatorio" }, { status: 400 });
+    data.rut = rut;
+  }
   if (body.indicacionesAcceso !== undefined) data.indicacionesAcceso = body.indicacionesAcceso?.trim() || null;
-  if (body.requiereClientePresente !== undefined) data.requiereClientePresente = !!body.requiereClientePresente;
-  if (body.usoAgua !== undefined) data.usoAgua = body.usoAgua;
   // Campos de transportista
   if (body.razonSocial !== undefined) data.razonSocial = body.razonSocial?.trim() || null;
   if (body.direccionEmpresa !== undefined) data.direccionEmpresa = body.direccionEmpresa?.trim() || null;
@@ -51,5 +52,5 @@ export async function PATCH(req: NextRequest) {
   if (body.descripcion !== undefined) data.descripcion = body.descripcion?.trim() || null;
 
   const actualizado = await akuosplashDb.akuoUsuario.update({ where: { id: user.id }, data });
-  return NextResponse.json({ ok: true, user: { id: actualizado.id, nombre: actualizado.nombre, telefono: actualizado.telefono } });
+  return NextResponse.json({ ok: true, user: { id: actualizado.id, nombre: actualizado.nombre, telefono: actualizado.telefono, saldo: actualizado.saldo } });
 }

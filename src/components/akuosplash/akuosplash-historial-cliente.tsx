@@ -62,6 +62,10 @@ export function AkuosplashHistorialCliente() {
     );
   }
 
+  const entregados = historial.filter(h => h.estado === "entregado");
+  const litrosTotal = entregados.reduce((s, h) => s + h.litros, 0);
+  const gastadoTotal = entregados.reduce((s, h) => s + (h.precioTotal || 0), 0);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-gray-100">
@@ -78,6 +82,28 @@ export function AkuosplashHistorialCliente() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Historial</h1>
           <p className="text-sm text-gray-500">{historial.length} pedidos en total</p>
+        </div>
+
+        {/* Stats resumen */}
+        <div className="grid grid-cols-3 gap-2">
+          <Card className="border-gray-100">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Pedidos</p>
+              <p className="text-lg font-bold tabular-nums">{historial.length}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-gray-100">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Litros</p>
+              <p className="text-lg font-bold tabular-nums">{litrosTotal.toLocaleString("es-CL")}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-gray-100">
+            <CardContent className="p-3 text-center">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Gastado</p>
+              <p className="text-sm font-bold tabular-nums">{formatCLP(gastadoTotal)}</p>
+            </CardContent>
+          </Card>
         </div>
 
         {loading ? (

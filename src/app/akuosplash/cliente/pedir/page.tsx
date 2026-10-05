@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Droplets, ArrowLeft, LogOut, MapPin, Loader2, Banknote, Calendar, CheckCircle2 } from "lucide-react";
+import { Droplets, ArrowLeft, LogOut, MapPin, Loader2, CreditCard, Calendar, CheckCircle2 } from "lucide-react";
 import { akuoGet, akuoPost } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
 
@@ -31,7 +31,7 @@ function PedirAguaInner() {
   const [direccion, setDireccion] = useState("");
   const [comuna, setComuna] = useState("");
   const [fechaDeseada, setFechaDeseada] = useState("");
-  const [metodoPago, setMetodoPago] = useState<"efectivo" | "transferencia">("efectivo");
+  const [tipoTarjeta, setTipoTarjeta] = useState<"debito" | "credito">("debito");
   const [nota, setNota] = useState("");
 
   useEffect(() => {
@@ -74,7 +74,7 @@ function PedirAguaInner() {
         litros: Number(litros),
         direccion: direccion.trim(),
         comuna: comuna.trim() || undefined,
-        metodoPago,
+        metodoPago: `tarjeta_${tipoTarjeta}`,
         fechaDeseada: fechaDeseada || undefined,
         nota: nota.trim() || undefined,
       });
@@ -192,42 +192,42 @@ function PedirAguaInner() {
             </CardContent>
           </Card>
 
-          {/* Método de pago */}
+          {/* Método de pago — solo tarjeta */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Método de pago</CardTitle>
+              <CardTitle className="text-base">Pago con tarjeta</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <button
                 type="button"
-                onClick={() => setMetodoPago("efectivo")}
-                className={`w-full text-left rounded-lg border p-3 transition ${metodoPago === "efectivo" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:bg-gray-50"}`}
+                onClick={() => setTipoTarjeta("debito")}
+                className={`w-full text-left rounded-lg border p-3 transition ${tipoTarjeta === "debito" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:bg-gray-50"}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Banknote className="h-4 w-4 text-gray-600" />
+                    <CreditCard className="h-4 w-4 text-gray-600" />
                     <div>
-                      <p className="font-medium text-sm">Efectivo</p>
-                      <p className="text-xs text-gray-500">Pagás al recibir el agua</p>
+                      <p className="font-medium text-sm">Tarjeta de débito</p>
+                      <p className="text-xs text-gray-500">Pagás al confirmar el pedido</p>
                     </div>
                   </div>
-                  {metodoPago === "efectivo" && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
+                  {tipoTarjeta === "debito" && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
                 </div>
               </button>
               <button
                 type="button"
-                onClick={() => setMetodoPago("transferencia")}
-                className={`w-full text-left rounded-lg border p-3 transition ${metodoPago === "transferencia" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:bg-gray-50"}`}
+                onClick={() => setTipoTarjeta("credito")}
+                className={`w-full text-left rounded-lg border p-3 transition ${tipoTarjeta === "credito" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:bg-gray-50"}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Banknote className="h-4 w-4 text-gray-600" />
+                    <CreditCard className="h-4 w-4 text-gray-600" />
                     <div>
-                      <p className="font-medium text-sm">Transferencia</p>
-                      <p className="text-xs text-gray-500">Coordinás con el repartidor</p>
+                      <p className="font-medium text-sm">Tarjeta de crédito</p>
+                      <p className="text-xs text-gray-500">Pagás al confirmar el pedido</p>
                     </div>
                   </div>
-                  {metodoPago === "transferencia" && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
+                  {tipoTarjeta === "credito" && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
                 </div>
               </button>
             </CardContent>
@@ -241,7 +241,7 @@ function PedirAguaInner() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Pago</span>
-              <span className="font-medium capitalize">{metodoPago}</span>
+              <span className="font-medium">Tarjeta {tipoTarjeta}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Dirección</span>
@@ -258,7 +258,7 @@ function PedirAguaInner() {
             {creando ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando…</>
             ) : (
-              <><Droplets className="mr-2 h-5 w-5" /> Pedir {litrosNum.toLocaleString("es-CL")} L de agua</>
+              <><CreditCard className="mr-2 h-5 w-5" /> Pagar con tarjeta y pedir {litrosNum.toLocaleString("es-CL")} L</>
             )}
           </Button>
 

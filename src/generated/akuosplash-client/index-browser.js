@@ -131,6 +131,7 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   indicacionesAcceso: 'indicacionesAcceso',
   requiereClientePresente: 'requiereClientePresente',
   usoAgua: 'usoAgua',
+  saldo: 'saldo',
   passwordHash: 'passwordHash',
   avatarUrl: 'avatarUrl',
   rol: 'rol',

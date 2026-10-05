@@ -6,15 +6,14 @@ import Link from "next/link";
 import { akuoGet, akuoPost, formatCLP } from "./akuosplash-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Loader2, Droplets, LogOut, RotateCw, MapPin, Clock, Truck, Bell,
-  KeyRound, ShieldCheck, User, MessageSquare, ChevronRight, Wallet, History,
+  KeyRound, ShieldCheck, User, MessageSquare, Wallet, History, Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 
-interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; }
+interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; saldo?: number; }
 interface Pedido {
   id: string; creadoEn: string; litros: number; direccion: string; comuna?: string; estado: string;
   metodoPago: string; nota?: string; precioTotal?: number;
@@ -53,14 +52,16 @@ export function AkuosplashCliente() {
     if (!user) return;
     setLoading(true);
     try {
-      const [peds, hist, convs] = await Promise.all([
+      const [peds, hist, convs, prof] = await Promise.all([
         akuoGet<{ pedidos: Pedido[] }>("/api/akuosplash/cliente/pedidos"),
         akuoGet<{ historial: Pedido[] }>("/api/akuosplash/cliente/historial"),
         akuoGet<{ conversaciones: Conversacion[] }>("/api/akuosplash/mensajes"),
+        akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil"),
       ]);
       setPedidos(peds.pedidos);
       setHistorial(hist.historial);
       setConversaciones(convs.conversaciones);
+      if (prof.user) setUser(u => ({ ...u!, saldo: prof.user.saldo }));
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }, [user, refreshKey]);
@@ -78,15 +79,12 @@ export function AkuosplashCliente() {
 
   const pedidosActivos = pedidos.filter(p => ["pendiente", "aceptado", "en_ruta"].includes(p.estado));
   const ultimoPedido = historial.find(p => p.estado === "entregado");
-  const litrosTotal = historial.filter(h => h.estado === "entregado").reduce((s, h) => s + h.litros, 0);
-  const gastosTotal = historial.filter(h => h.estado === "entregado").reduce((s, h) => s + (h.precioTotal || 0), 0);
+  const saldo = user.saldo || 0;
 
   function repetirPedido(p: Pedido) {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("akuosplash-repetir", JSON.stringify({
-        litros: p.litros,
-        direccion: p.direccion,
-        nota: p.nota,
+        litros: p.litros, direccion: p.direccion, nota: p.nota,
       }));
     }
     router.push("/akuosplash/cliente/pedir?repetir=1");
@@ -113,7 +111,7 @@ export function AkuosplashCliente() {
       </header>
 
       <main className="mx-auto max-w-md px-4 py-5 space-y-5">
-        {/* CTA principal: Pedir agua — GRANDE y obvio */}
+        {/* CTA principal: Pedir agua */}
         <div className="space-y-3">
           <Button
             size="lg"
@@ -136,6 +134,24 @@ export function AkuosplashCliente() {
           )}
         </div>
 
+        {/* Saldo disponible + Abonar */}
+        <Card className={saldo > 0 ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white" : ""}>
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-emerald-500/10 p-2">
+                <Wallet className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-gray-500">Saldo disponible</p>
+                <p className="text-2xl font-bold tabular-nums text-emerald-600">{formatCLP(saldo)}</p>
+              </div>
+            </div>
+            <Button size="sm" onClick={() => router.push("/akuosplash/cliente/saldo")} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Plus className="mr-1 h-4 w-4" /> Abonar saldo
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Pedidos activos */}
         {pedidosActivos.length > 0 && (
           <div className="space-y-2">
@@ -148,28 +164,6 @@ export function AkuosplashCliente() {
             {pedidosActivos.map((p) => <PedidoActivoCard key={p.id} p={p} />)}
           </div>
         )}
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-2">
-          <Card className="border-gray-100">
-            <CardContent className="p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Pedidos</p>
-              <p className="text-lg font-bold tabular-nums">{historial.length}</p>
-            </CardContent>
-          </Card>
-          <Card className="border-gray-100">
-            <CardContent className="p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Litros</p>
-              <p className="text-lg font-bold tabular-nums">{litrosTotal.toLocaleString("es-CL")}</p>
-            </CardContent>
-          </Card>
-          <Card className="border-gray-100">
-            <CardContent className="p-3 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Gastado</p>
-              <p className="text-sm font-bold tabular-nums">{formatCLP(gastosTotal)}</p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Accesos rápidos */}
         <div className="grid grid-cols-2 gap-2">
@@ -197,7 +191,7 @@ export function AkuosplashCliente() {
           </Link>
         </div>
 
-        {/* Historial */}
+        {/* Historial (resumen) */}
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">

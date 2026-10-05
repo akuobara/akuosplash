@@ -20,7 +20,7 @@ export function AkuosplashPerfilCliente() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     nombre: '', telefono: '', direccion: '', comuna: '',
-    lat: '', lng: '', rut: '', indicacionesAcceso: '', usoAgua: 'consumo',
+    lat: '', lng: '', rut: '', indicacionesAcceso: '',
   });
 
   useEffect(() => {
@@ -33,7 +33,6 @@ export function AkuosplashPerfilCliente() {
         direccion: u.direccion || '', comuna: u.comuna || '',
         lat: u.lat ? String(u.lat) : '', lng: u.lng ? String(u.lng) : '',
         rut: u.rut || '', indicacionesAcceso: u.indicacionesAcceso || '',
-        usoAgua: u.usoAgua || 'consumo',
       });
     }).finally(() => setLoading(false));
   }, [router]);
@@ -57,6 +56,7 @@ export function AkuosplashPerfilCliente() {
   }
 
   async function guardar() {
+    if (!form.rut.trim()) { toast.error("El RUT es obligatorio"); return; }
     setSaving(true);
     try {
       await akuoApi("/api/akuosplash/cliente/perfil", {
@@ -70,7 +70,6 @@ export function AkuosplashPerfilCliente() {
           lng: form.lng || undefined,
           rut: form.rut,
           indicacionesAcceso: form.indicacionesAcceso,
-          usoAgua: form.usoAgua,
         }),
       });
       toast.success("Perfil actualizado");
@@ -122,19 +121,12 @@ export function AkuosplashPerfilCliente() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div><Label>Nombre</Label><Input value={form.nombre} onChange={(e) => update("nombre", e.target.value)} /></div>
-              <div><Label>RUT (opcional)</Label><Input placeholder="12.345.678-9" value={form.rut} onChange={(e) => update("rut", e.target.value)} /></div>
-              <div><Label>Teléfono</Label><Input placeholder="+56 9 1234 5678" value={form.telefono} onChange={(e) => update("telefono", e.target.value)} /></div>
               <div>
-                <Label>Uso del agua</Label>
-                <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.usoAgua} onChange={(e) => update("usoAgua", e.target.value)}>
-                  <option value="consumo">Consumo humano</option>
-                  <option value="riego_pasto">Riego pasto</option>
-                  <option value="riego_cultivos">Riego cultivos</option>
-                  <option value="polvo_caminos">Polvo caminos</option>
-                  <option value="construccion">Construcción</option>
-                  <option value="otro">Otro</option>
-                </select>
+                <Label>RUT *</Label>
+                <Input placeholder="12.345.678-9" value={form.rut} onChange={(e) => update("rut", e.target.value)} required />
+                <p className="text-[11px] text-gray-400 mt-1">Obligatorio</p>
               </div>
+              <div><Label>Teléfono</Label><Input placeholder="+56 9 1234 5678" value={form.telefono} onChange={(e) => update("telefono", e.target.value)} /></div>
             </div>
           </CardContent>
         </Card>
