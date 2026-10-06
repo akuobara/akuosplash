@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
+import { crearPreferenciaPedidoAkuo, calcularPrecioTotal } from "@/lib/akuosplash-mercadopago";
 
 // Código PIN simple de 4 dígitos (0-9)
 function generarCodigoConfirmacion(): string {
@@ -28,7 +29,9 @@ export async function POST(req: NextRequest) {
 
   // El código siempre se genera — el repartidor lo necesitará al finalizar la entrega
   const codigoConfirmacion = generarCodigoConfirmacion();
+  const { total } = calcularPrecioTotal(Number(body.litros));
 
+  // Crear el pedido con estadoPago pendiente
   const pedido = await akuosplashDb.akuoPedidoCliente.create({
     data: {
       clienteId: user.id,
@@ -39,12 +42,49 @@ export async function POST(req: NextRequest) {
       lng: body.lng ? Number(body.lng) : null,
       fechaDeseada: body.fechaDeseada ? new Date(body.fechaDeseada) : null,
       franjaHoraria: body.franjaHoraria || null,
-      metodoPago: body.metodoPago || "efectivo",
+      metodoPago: body.metodoPago || "tarjeta_debito",
       nota: body.nota?.trim() || null,
       estado: "pendiente",
       codigoConfirmacion,
       codigoGeneradoEn: new Date(),
+      precioTotal: total,
+      estadoPago: "pendiente",
     },
   });
+
+  // Si el método de pago es tarjeta (débito/crédito), crear preferencia de MercadoPago
+  if (body.metodoPago === "tarjeta_debito" || body.metodoPago === "tarjeta_credito" || !body.metodoPago) {
+    try {
+      const pref = await crearPreferenciaPedidoAkuo({
+        clienteId: user.id,
+        clienteNombre: user.nombre,
+        email: user.email || "",
+        monto: total,
+        pedidoId: pedido.id,
+        litros: Number(body.litros) || 1000,
+      });
+
+      // Guardar el preferenceId en el pedido
+      await akuosplashDb.akuoPedidoCliente.update({
+        where: { id: pedido.id },
+        data: { mpPreferenceId: pref.preferenceId },
+      });
+
+      // Devolver el initPoint para que el frontend redirija a MercadoPago
+      // El webhook marcará el pedido como "pagado" cuando MP confirme el pago
+      return NextResponse.json({
+        ok: true,
+        pedido,
+        initPoint: pref.initPoint,
+        preferenceId: pref.preferenceId,
+      }, { status: 201 });
+    } catch (e: any) {
+      // Si MP falla, eliminar el pedido pendiente para que no quede huérfano
+      await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});
+      return NextResponse.json({ error: e.message || "No se pudo iniciar el pago con MercadoPago. Verificá que las credenciales estén configuradas." }, { status: 500 });
+    }
+  }
+
+  // Otros métodos de pago (futuro): solo crear el pedido
   return NextResponse.json({ ok: true, pedido }, { status: 201 });
 }

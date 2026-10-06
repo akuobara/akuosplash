@@ -20815,6 +20815,9 @@ export namespace Prisma {
     codigoVerificadoPor: string | null
     codigoEnviadoPorMensaje: boolean | null
     codigoEnviadoEn: Date | null
+    mpPreferenceId: string | null
+    mpPaymentId: string | null
+    estadoPago: string | null
   }
 
   export type AkuoPedidoClienteMaxAggregateOutputType = {
@@ -20841,6 +20844,9 @@ export namespace Prisma {
     codigoVerificadoPor: string | null
     codigoEnviadoPorMensaje: boolean | null
     codigoEnviadoEn: Date | null
+    mpPreferenceId: string | null
+    mpPaymentId: string | null
+    estadoPago: string | null
   }
 
   export type AkuoPedidoClienteCountAggregateOutputType = {
@@ -20867,6 +20873,9 @@ export namespace Prisma {
     codigoVerificadoPor: number
     codigoEnviadoPorMensaje: number
     codigoEnviadoEn: number
+    mpPreferenceId: number
+    mpPaymentId: number
+    estadoPago: number
     _all: number
   }
 
@@ -20909,6 +20918,9 @@ export namespace Prisma {
     codigoVerificadoPor?: true
     codigoEnviadoPorMensaje?: true
     codigoEnviadoEn?: true
+    mpPreferenceId?: true
+    mpPaymentId?: true
+    estadoPago?: true
   }
 
   export type AkuoPedidoClienteMaxAggregateInputType = {
@@ -20935,6 +20947,9 @@ export namespace Prisma {
     codigoVerificadoPor?: true
     codigoEnviadoPorMensaje?: true
     codigoEnviadoEn?: true
+    mpPreferenceId?: true
+    mpPaymentId?: true
+    estadoPago?: true
   }
 
   export type AkuoPedidoClienteCountAggregateInputType = {
@@ -20961,6 +20976,9 @@ export namespace Prisma {
     codigoVerificadoPor?: true
     codigoEnviadoPorMensaje?: true
     codigoEnviadoEn?: true
+    mpPreferenceId?: true
+    mpPaymentId?: true
+    estadoPago?: true
     _all?: true
   }
 
@@ -21074,6 +21092,9 @@ export namespace Prisma {
     codigoVerificadoPor: string | null
     codigoEnviadoPorMensaje: boolean
     codigoEnviadoEn: Date | null
+    mpPreferenceId: string | null
+    mpPaymentId: string | null
+    estadoPago: string
     _count: AkuoPedidoClienteCountAggregateOutputType | null
     _avg: AkuoPedidoClienteAvgAggregateOutputType | null
     _sum: AkuoPedidoClienteSumAggregateOutputType | null
@@ -21119,6 +21140,9 @@ export namespace Prisma {
     codigoVerificadoPor?: boolean
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: boolean
+    mpPreferenceId?: boolean
+    mpPaymentId?: boolean
+    estadoPago?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -21147,6 +21171,9 @@ export namespace Prisma {
     codigoVerificadoPor?: boolean
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: boolean
+    mpPreferenceId?: boolean
+    mpPaymentId?: boolean
+    estadoPago?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -21175,6 +21202,9 @@ export namespace Prisma {
     codigoVerificadoPor?: boolean
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: boolean
+    mpPreferenceId?: boolean
+    mpPaymentId?: boolean
+    estadoPago?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -21203,9 +21233,12 @@ export namespace Prisma {
     codigoVerificadoPor?: boolean
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: boolean
+    mpPreferenceId?: boolean
+    mpPaymentId?: boolean
+    estadoPago?: boolean
   }
 
-  export type AkuoPedidoClienteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "clienteId" | "transportistaId" | "litros" | "direccion" | "comuna" | "lat" | "lng" | "fechaDeseada" | "franjaHoraria" | "metodoPago" | "estado" | "nota" | "precioTotal" | "entregaId" | "requierePresenciaCliente" | "codigoConfirmacion" | "codigoGeneradoEn" | "codigoVerificadoEn" | "codigoVerificadoPor" | "codigoEnviadoPorMensaje" | "codigoEnviadoEn", ExtArgs["result"]["akuoPedidoCliente"]>
+  export type AkuoPedidoClienteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "clienteId" | "transportistaId" | "litros" | "direccion" | "comuna" | "lat" | "lng" | "fechaDeseada" | "franjaHoraria" | "metodoPago" | "estado" | "nota" | "precioTotal" | "entregaId" | "requierePresenciaCliente" | "codigoConfirmacion" | "codigoGeneradoEn" | "codigoVerificadoEn" | "codigoVerificadoPor" | "codigoEnviadoPorMensaje" | "codigoEnviadoEn" | "mpPreferenceId" | "mpPaymentId" | "estadoPago", ExtArgs["result"]["akuoPedidoCliente"]>
   export type AkuoPedidoClienteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
@@ -21249,6 +21282,9 @@ export namespace Prisma {
       codigoVerificadoPor: string | null
       codigoEnviadoPorMensaje: boolean
       codigoEnviadoEn: Date | null
+      mpPreferenceId: string | null
+      mpPaymentId: string | null
+      estadoPago: string
     }, ExtArgs["result"]["akuoPedidoCliente"]>
     composites: {}
   }
@@ -21697,6 +21733,9 @@ export namespace Prisma {
     readonly codigoVerificadoPor: FieldRef<"AkuoPedidoCliente", 'String'>
     readonly codigoEnviadoPorMensaje: FieldRef<"AkuoPedidoCliente", 'Boolean'>
     readonly codigoEnviadoEn: FieldRef<"AkuoPedidoCliente", 'DateTime'>
+    readonly mpPreferenceId: FieldRef<"AkuoPedidoCliente", 'String'>
+    readonly mpPaymentId: FieldRef<"AkuoPedidoCliente", 'String'>
+    readonly estadoPago: FieldRef<"AkuoPedidoCliente", 'String'>
   }
     
 
@@ -22440,7 +22479,10 @@ export namespace Prisma {
     codigoVerificadoEn: 'codigoVerificadoEn',
     codigoVerificadoPor: 'codigoVerificadoPor',
     codigoEnviadoPorMensaje: 'codigoEnviadoPorMensaje',
-    codigoEnviadoEn: 'codigoEnviadoEn'
+    codigoEnviadoEn: 'codigoEnviadoEn',
+    mpPreferenceId: 'mpPreferenceId',
+    mpPaymentId: 'mpPaymentId',
+    estadoPago: 'estadoPago'
   };
 
   export type AkuoPedidoClienteScalarFieldEnum = (typeof AkuoPedidoClienteScalarFieldEnum)[keyof typeof AkuoPedidoClienteScalarFieldEnum]
@@ -24010,6 +24052,9 @@ export namespace Prisma {
     codigoVerificadoPor?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     codigoEnviadoPorMensaje?: BoolFilter<"AkuoPedidoCliente"> | boolean
     codigoEnviadoEn?: DateTimeNullableFilter<"AkuoPedidoCliente"> | Date | string | null
+    mpPreferenceId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    mpPaymentId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    estadoPago?: StringFilter<"AkuoPedidoCliente"> | string
     cliente?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     transportista?: XOR<AkuoUsuarioNullableScalarRelationFilter, AkuoUsuarioWhereInput> | null
   }
@@ -24038,6 +24083,9 @@ export namespace Prisma {
     codigoVerificadoPor?: SortOrderInput | SortOrder
     codigoEnviadoPorMensaje?: SortOrder
     codigoEnviadoEn?: SortOrderInput | SortOrder
+    mpPreferenceId?: SortOrderInput | SortOrder
+    mpPaymentId?: SortOrderInput | SortOrder
+    estadoPago?: SortOrder
     cliente?: AkuoUsuarioOrderByWithRelationInput
     transportista?: AkuoUsuarioOrderByWithRelationInput
   }
@@ -24069,6 +24117,9 @@ export namespace Prisma {
     codigoVerificadoPor?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     codigoEnviadoPorMensaje?: BoolFilter<"AkuoPedidoCliente"> | boolean
     codigoEnviadoEn?: DateTimeNullableFilter<"AkuoPedidoCliente"> | Date | string | null
+    mpPreferenceId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    mpPaymentId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    estadoPago?: StringFilter<"AkuoPedidoCliente"> | string
     cliente?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     transportista?: XOR<AkuoUsuarioNullableScalarRelationFilter, AkuoUsuarioWhereInput> | null
   }, "id">
@@ -24097,6 +24148,9 @@ export namespace Prisma {
     codigoVerificadoPor?: SortOrderInput | SortOrder
     codigoEnviadoPorMensaje?: SortOrder
     codigoEnviadoEn?: SortOrderInput | SortOrder
+    mpPreferenceId?: SortOrderInput | SortOrder
+    mpPaymentId?: SortOrderInput | SortOrder
+    estadoPago?: SortOrder
     _count?: AkuoPedidoClienteCountOrderByAggregateInput
     _avg?: AkuoPedidoClienteAvgOrderByAggregateInput
     _max?: AkuoPedidoClienteMaxOrderByAggregateInput
@@ -24131,6 +24185,9 @@ export namespace Prisma {
     codigoVerificadoPor?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
     codigoEnviadoPorMensaje?: BoolWithAggregatesFilter<"AkuoPedidoCliente"> | boolean
     codigoEnviadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoPedidoCliente"> | Date | string | null
+    mpPreferenceId?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
+    mpPaymentId?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
+    estadoPago?: StringWithAggregatesFilter<"AkuoPedidoCliente"> | string
   }
 
   export type AkuoUsuarioCreateInput = {
@@ -25848,6 +25905,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
     cliente: AkuoUsuarioCreateNestedOneWithoutPedidosClienteAppInput
     transportista?: AkuoUsuarioCreateNestedOneWithoutPedidosTransportistaAppInput
   }
@@ -25876,6 +25936,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
   }
 
   export type AkuoPedidoClienteUpdateInput = {
@@ -25900,6 +25963,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
     cliente?: AkuoUsuarioUpdateOneRequiredWithoutPedidosClienteAppNestedInput
     transportista?: AkuoUsuarioUpdateOneWithoutPedidosTransportistaAppNestedInput
   }
@@ -25928,6 +25994,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
   }
 
   export type AkuoPedidoClienteCreateManyInput = {
@@ -25954,6 +26023,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
   }
 
   export type AkuoPedidoClienteUpdateManyMutationInput = {
@@ -25978,6 +26050,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyInput = {
@@ -26004,6 +26079,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -27261,6 +27339,9 @@ export namespace Prisma {
     codigoVerificadoPor?: SortOrder
     codigoEnviadoPorMensaje?: SortOrder
     codigoEnviadoEn?: SortOrder
+    mpPreferenceId?: SortOrder
+    mpPaymentId?: SortOrder
+    estadoPago?: SortOrder
   }
 
   export type AkuoPedidoClienteAvgOrderByAggregateInput = {
@@ -27294,6 +27375,9 @@ export namespace Prisma {
     codigoVerificadoPor?: SortOrder
     codigoEnviadoPorMensaje?: SortOrder
     codigoEnviadoEn?: SortOrder
+    mpPreferenceId?: SortOrder
+    mpPaymentId?: SortOrder
+    estadoPago?: SortOrder
   }
 
   export type AkuoPedidoClienteMinOrderByAggregateInput = {
@@ -27320,6 +27404,9 @@ export namespace Prisma {
     codigoVerificadoPor?: SortOrder
     codigoEnviadoPorMensaje?: SortOrder
     codigoEnviadoEn?: SortOrder
+    mpPreferenceId?: SortOrder
+    mpPaymentId?: SortOrder
+    estadoPago?: SortOrder
   }
 
   export type AkuoPedidoClienteSumOrderByAggregateInput = {
@@ -29213,6 +29300,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
     transportista?: AkuoUsuarioCreateNestedOneWithoutPedidosTransportistaAppInput
   }
 
@@ -29239,6 +29329,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
   }
 
   export type AkuoPedidoClienteCreateOrConnectWithoutClienteInput = {
@@ -29272,6 +29365,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
     cliente: AkuoUsuarioCreateNestedOneWithoutPedidosClienteAppInput
   }
 
@@ -29298,6 +29394,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
   }
 
   export type AkuoPedidoClienteCreateOrConnectWithoutTransportistaInput = {
@@ -29764,6 +29863,9 @@ export namespace Prisma {
     codigoVerificadoPor?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     codigoEnviadoPorMensaje?: BoolFilter<"AkuoPedidoCliente"> | boolean
     codigoEnviadoEn?: DateTimeNullableFilter<"AkuoPedidoCliente"> | Date | string | null
+    mpPreferenceId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    mpPaymentId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    estadoPago?: StringFilter<"AkuoPedidoCliente"> | string
   }
 
   export type AkuoPedidoClienteUpsertWithWhereUniqueWithoutTransportistaInput = {
@@ -34508,6 +34610,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
   }
 
   export type AkuoPedidoClienteCreateManyTransportistaInput = {
@@ -34533,6 +34638,9 @@ export namespace Prisma {
     codigoVerificadoPor?: string | null
     codigoEnviadoPorMensaje?: boolean
     codigoEnviadoEn?: Date | string | null
+    mpPreferenceId?: string | null
+    mpPaymentId?: string | null
+    estadoPago?: string
   }
 
   export type AkuoSesionUpdateWithoutUsuarioInput = {
@@ -35058,6 +35166,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
     transportista?: AkuoUsuarioUpdateOneWithoutPedidosTransportistaAppNestedInput
   }
 
@@ -35084,6 +35195,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyWithoutClienteInput = {
@@ -35109,6 +35223,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
   }
 
   export type AkuoPedidoClienteUpdateWithoutTransportistaInput = {
@@ -35133,6 +35250,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
     cliente?: AkuoUsuarioUpdateOneRequiredWithoutPedidosClienteAppNestedInput
   }
 
@@ -35159,6 +35279,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaInput = {
@@ -35184,6 +35307,9 @@ export namespace Prisma {
     codigoVerificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     codigoEnviadoPorMensaje?: BoolFieldUpdateOperationsInput | boolean
     codigoEnviadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoPago?: StringFieldUpdateOperationsInput | string
   }
 
   export type AkuoEntregaCreateManyVehiculoInput = {

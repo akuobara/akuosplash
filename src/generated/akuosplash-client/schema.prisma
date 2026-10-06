@@ -346,6 +346,10 @@ model AkuoPedidoCliente {
   codigoVerificadoPor      String?
   codigoEnviadoPorMensaje  Boolean      @default(false)
   codigoEnviadoEn          DateTime?
+  // --- MercadoPago ---
+  mpPreferenceId           String?
+  mpPaymentId              String?
+  estadoPago               String       @default("pendiente") // pendiente | pagado | rechazado
 
   @@index([clienteId, estado])
   @@index([transportistaId, estado])

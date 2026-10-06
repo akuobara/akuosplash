@@ -138,23 +138,27 @@ export function AkuosplashCliente() {
           )}
         </div>
 
-        {/* Saldo disponible + Abonar */}
-        <Card className={saldo > 0 ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white" : ""}>
-          <CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="rounded-full bg-emerald-500/10 p-2">
-                <Wallet className="h-5 w-5 text-emerald-600" />
+        {/* Saldo disponible + Abonar — DESHABILITADO temporalmente por temas contables
+            (se vuelve a habilitar cuando se confirme el tratamiento contable)
+        {saldo >= 0 && (
+          <Card className={saldo > 0 ? "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white" : ""}>
+            <CardContent className="p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-emerald-500/10 p-2">
+                  <Wallet className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-gray-500">Saldo disponible</p>
+                  <p className="text-2xl font-bold tabular-nums text-emerald-600">{formatCLP(saldo)}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-gray-500">Saldo disponible</p>
-                <p className="text-2xl font-bold tabular-nums text-emerald-600">{formatCLP(saldo)}</p>
-              </div>
-            </div>
-            <Button size="sm" onClick={() => router.push("/akuosplash/cliente/saldo")} className="bg-emerald-600 hover:bg-emerald-700 text-white">
-              <Plus className="mr-1 h-4 w-4" /> Abonar saldo
-            </Button>
-          </CardContent>
-        </Card>
+              <Button size="sm" onClick={() => router.push("/akuosplash/cliente/saldo")} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Plus className="mr-1 h-4 w-4" /> Abonar saldo
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+        */}
 
         {/* Pedidos activos */}
         {pedidosActivos.length > 0 && (

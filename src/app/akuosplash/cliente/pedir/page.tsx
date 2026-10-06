@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Droplets, ArrowLeft, LogOut, MapPin, Loader2, CreditCard, Calendar, CheckCircle2 } from "lucide-react";
-import { akuoGet, akuoPost } from "@/components/akuosplash/akuosplash-utils";
+import { akuoGet, akuoPost, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
 
 export default function PedirAguaPage() {
@@ -26,6 +26,7 @@ function PedirAguaInner() {
   const [perfil, setPerfil] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [creando, setCreando] = useState(false);
+  const [config, setConfig] = useState<{ precioPorLitro: number; comisionPct: number }>({ precioPorLitro: 50, comisionPct: 0 });
 
   const [litros, setLitros] = useState("1000");
   const [direccion, setDireccion] = useState("");
@@ -59,6 +60,8 @@ function PedirAguaInner() {
         }
       }
     }).finally(() => setLoading(false));
+    // Cargar configuración de precios
+    akuoGet<{ precioPorLitro: number; comisionPct: number }>("/api/akuosplash/config/precios").then(setConfig).catch(() => {});
   }, [router, params]);
 
   async function handlePedir(e: React.FormEvent) {
@@ -70,7 +73,7 @@ function PedirAguaInner() {
 
     setCreando(true);
     try {
-      await akuoPost("/api/akuosplash/cliente/pedidos", {
+      const res = await akuoPost<{ ok: boolean; initPoint?: string; error?: string }>("/api/akuosplash/cliente/pedidos", {
         litros: Number(litros),
         direccion: direccion.trim(),
         comuna: comuna.trim() || undefined,
@@ -78,8 +81,14 @@ function PedirAguaInner() {
         fechaDeseada: fechaDeseada || undefined,
         nota: nota.trim() || undefined,
       });
-      toast.success("¡Pedido creado! Mirá tu código de entrega abajo");
-      router.push("/akuosplash/cliente");
+      if (res.ok && res.initPoint) {
+        // Redirigir a MercadoPago para que el cliente pague
+        toast.success("Pedido creado. Vas a ser redirigido a MercadoPago para pagar.");
+        setTimeout(() => { window.location.href = res.initPoint!; }, 800);
+      } else {
+        toast.success("Pedido creado");
+        router.push("/akuosplash/cliente");
+      }
     } catch (e: any) { toast.error(e.message || "No se pudo crear el pedido"); }
     finally { setCreando(false); }
   }
@@ -240,12 +249,32 @@ function PedirAguaInner() {
               <span className="font-semibold tabular-nums">{litrosNum.toLocaleString("es-CL")} L</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Pago</span>
-              <span className="font-medium">Tarjeta {tipoTarjeta}</span>
+              <span className="text-gray-600">Precio por litro</span>
+              <span className="font-medium tabular-nums">{formatCLP(config.precioPorLitro)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Dirección</span>
-              <span className="font-medium text-right max-w-[60%] truncate">{direccion || "—"}</span>
+              <span className="text-gray-600">Subtotal</span>
+              <span className="font-medium tabular-nums">{formatCLP(litrosNum * config.precioPorLitro)}</span>
+            </div>
+            {config.comisionPct > 0 && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Comisión app ({config.comisionPct}%)</span>
+                <span className="font-medium tabular-nums">{formatCLP(Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100))}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t border-blue-200 pt-1 mt-1">
+              <span className="font-semibold text-gray-900">Total a pagar</span>
+              <span className="font-bold tabular-nums text-blue-700 text-base">
+                {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))}
+              </span>
+            </div>
+            <div className="flex justify-between text-[11px] text-gray-500 mt-1">
+              <span>Método de pago</span>
+              <span className="capitalize">Tarjeta {tipoTarjeta}</span>
+            </div>
+            <div className="flex justify-between text-[11px] text-gray-500">
+              <span>Dirección</span>
+              <span className="text-right max-w-[60%] truncate">{direccion || "—"}</span>
             </div>
           </div>
 
@@ -258,12 +287,12 @@ function PedirAguaInner() {
             {creando ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando…</>
             ) : (
-              <><CreditCard className="mr-2 h-5 w-5" /> Pagar con tarjeta y pedir {litrosNum.toLocaleString("es-CL")} L</>
+              <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))} y pedir</>
             )}
           </Button>
 
           <p className="text-center text-[11px] text-gray-400">
-            Al confirmar se generará tu código de entrega de 4 dígitos.
+            Serás redirigido a MercadoPago para realizar el pago. Al confirmar, se generará tu código de entrega de 4 dígitos.
           </p>
         </form>
       </main>

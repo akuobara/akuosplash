@@ -374,7 +374,10 @@ exports.Prisma.AkuoPedidoClienteScalarFieldEnum = {
   codigoVerificadoEn: 'codigoVerificadoEn',
   codigoVerificadoPor: 'codigoVerificadoPor',
   codigoEnviadoPorMensaje: 'codigoEnviadoPorMensaje',
-  codigoEnviadoEn: 'codigoEnviadoEn'
+  codigoEnviadoEn: 'codigoEnviadoEn',
+  mpPreferenceId: 'mpPreferenceId',
+  mpPaymentId: 'mpPaymentId',
+  estadoPago: 'estadoPago'
 };
 
 exports.Prisma.SortOrder = {
