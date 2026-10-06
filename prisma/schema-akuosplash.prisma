@@ -58,6 +58,13 @@ model AkuoUsuario {
   suscripcionFin       DateTime?
   vehiculosPermitidos  Int     @default(1)
   choferesPermitidos   Int     @default(1)
+  // MercadoPago Marketplace — OAuth para que el repartidor conecte su cuenta
+  // y reciba su parte del pago (split payment automático)
+  mpUserId             String?  // ID de usuario MP del repartidor
+  mpAccessToken        String?  // token de acceso (caduca, hay que refrescar con mpRefreshToken)
+  mpRefreshToken       String?
+  mpTokenExpiresAt     DateTime?
+  mpConnectedAt        DateTime?
   sesiones          AkuoSesion[]
   pedidosCliente    AkuoPedido[]
   entregasHechas    AkuoEntrega[]      @relation("EntregaTransportista")

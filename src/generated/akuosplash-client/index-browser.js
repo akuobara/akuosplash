@@ -160,7 +160,12 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   suscripcionInicio: 'suscripcionInicio',
   suscripcionFin: 'suscripcionFin',
   vehiculosPermitidos: 'vehiculosPermitidos',
-  choferesPermitidos: 'choferesPermitidos'
+  choferesPermitidos: 'choferesPermitidos',
+  mpUserId: 'mpUserId',
+  mpAccessToken: 'mpAccessToken',
+  mpRefreshToken: 'mpRefreshToken',
+  mpTokenExpiresAt: 'mpTokenExpiresAt',
+  mpConnectedAt: 'mpConnectedAt'
 };
 
 exports.Prisma.AkuoSesionScalarFieldEnum = {

@@ -69,6 +69,25 @@ export async function POST(req: NextRequest) {
   // Si el método de pago es tarjeta (débito/crédito), crear preferencia de MercadoPago
   if (body.metodoPago === "tarjeta_debito" || body.metodoPago === "tarjeta_credito" || !body.metodoPago) {
     try {
+      // Si el pedido tiene repartidor asignado y ese repartidor tiene MP conectado, hacer split
+      let repartidorMpAccessToken: string | null = null;
+      let repartidorMpUserId: string | null = null;
+      if (pedido.transportistaId) {
+        const repartidor = await akuosplashDb.akuoUsuario.findUnique({
+          where: { id: pedido.transportistaId },
+          select: { mpAccessToken: true, mpUserId: true, mpTokenExpiresAt: true },
+        });
+        if (repartidor?.mpAccessToken && repartidor?.mpUserId) {
+          // Refrescar token si está por vencer (menos de 1 hora)
+          const expiresAt = repartidor.mpTokenExpiresAt;
+          if (!expiresAt || expiresAt.getTime() - Date.now() > 3600 * 1000) {
+            repartidorMpAccessToken = repartidor.mpAccessToken;
+            repartidorMpUserId = repartidor.mpUserId;
+          }
+          // TODO: si está vencido, refrescar con mpRefreshToken
+        }
+      }
+
       const pref = await crearPreferenciaPedidoAkuo({
         clienteId: user.id,
         clienteNombre: user.nombre,
@@ -76,6 +95,9 @@ export async function POST(req: NextRequest) {
         monto: total,
         pedidoId: pedido.id,
         litros: Number(body.litros) || 1000,
+        comisionApp: precioCalc.comision,
+        repartidorMpAccessToken,
+        repartidorMpUserId,
       });
 
       await akuosplashDb.akuoPedidoCliente.update({
@@ -88,6 +110,7 @@ export async function POST(req: NextRequest) {
         pedido,
         initPoint: pref.initPoint,
         preferenceId: pref.preferenceId,
+        splitPayment: pref.splitPayment,
       }, { status: 201 });
     } catch (e: any) {
       await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});

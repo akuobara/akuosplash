@@ -94,6 +94,9 @@ export async function calcularPrecioTotal(litros: number, zonaId?: string | null
 }
 
 // External reference con prefijo "akuo_pedido_pago:" para distinguirlo del de Aljibe
+// Si se pasa repartidorMpAccessToken + repartidorMpUserId, hace split payment (marketplace):
+//   - El repartidor recibe el pago del agua
+//   - La plataforma retiene la comisión (marketplace_fee)
 export async function crearPreferenciaPedidoAkuo(params: {
   clienteId: string;
   clienteNombre: string;
@@ -101,7 +104,56 @@ export async function crearPreferenciaPedidoAkuo(params: {
   monto: number;
   pedidoId: string;
   litros: number;
-}): Promise<{ preferenceId: string; initPoint: string; sandboxInitPoint: string }> {
+  comisionApp: number; // monto en CLP que retiene la plataforma
+  // Opcional: si el repartidor tiene su cuenta MP conectada, hacer split
+  repartidorMpAccessToken?: string | null;
+  repartidorMpUserId?: string | null;
+}): Promise<{ preferenceId: string; initPoint: string; sandboxInitPoint: string; splitPayment: boolean }> {
+  // Si el repartidor tiene MP conectado, crear preferencia con su token (split automático)
+  if (params.repartidorMpAccessToken && params.repartidorMpUserId) {
+    const sellerClient = new MercadoPagoConfig({ accessToken: params.repartidorMpAccessToken });
+    const preference = new Preference(sellerClient);
+
+    const result = await preference.create({
+      body: {
+        items: [
+          {
+            id: params.pedidoId,
+            title: `AkuoSplash — Pedido de agua`,
+            description: `Pedido de ${params.litros} litros de agua para ${params.clienteNombre}`,
+            quantity: 1,
+            unit_price: params.monto,
+            currency_id: "CLP",
+          },
+        ],
+        payer: {
+          name: params.clienteNombre,
+          email: params.email,
+        },
+        external_reference: `akuo_pedido_pago:${params.clienteId}:${params.pedidoId}`,
+        back_urls: {
+          success: `${APP_URL}/akuosplash/cliente?status=success`,
+          failure: `${APP_URL}/akuosplash/cliente?status=failure`,
+          pending: `${APP_URL}/akuosplash/cliente?status=pending`,
+        },
+        auto_return: "approved",
+        notification_url: `${APP_URL}/api/akuosplash/webhooks/mercadopago`,
+        // Marketplace: retención de comisión para la plataforma
+        // El repartidor recibe (monto - comisionApp), la plataforma retiene comisionApp
+        marketplace_fee: params.comisionApp,
+      },
+    });
+
+    return {
+      preferenceId: result.id!,
+      initPoint: result.init_point!,
+      sandboxInitPoint: result.sandbox_init_point!,
+      splitPayment: true,
+    };
+  }
+
+  // Sin repartidor conectado: el pago va a la cuenta de la plataforma (sin split)
+  // La plataforma luego transfiere manualmente al repartidor
   const client = getClient();
   const preference = new Preference(client);
 
@@ -136,6 +188,7 @@ export async function crearPreferenciaPedidoAkuo(params: {
     preferenceId: result.id!,
     initPoint: result.init_point!,
     sandboxInitPoint: result.sandbox_init_point!,
+    splitPayment: false,
   };
 }
 

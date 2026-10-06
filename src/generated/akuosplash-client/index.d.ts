@@ -2679,6 +2679,11 @@ export namespace Prisma {
     suscripcionFin: Date | null
     vehiculosPermitidos: number | null
     choferesPermitidos: number | null
+    mpUserId: string | null
+    mpAccessToken: string | null
+    mpRefreshToken: string | null
+    mpTokenExpiresAt: Date | null
+    mpConnectedAt: Date | null
   }
 
   export type AkuoUsuarioMaxAggregateOutputType = {
@@ -2724,6 +2729,11 @@ export namespace Prisma {
     suscripcionFin: Date | null
     vehiculosPermitidos: number | null
     choferesPermitidos: number | null
+    mpUserId: string | null
+    mpAccessToken: string | null
+    mpRefreshToken: string | null
+    mpTokenExpiresAt: Date | null
+    mpConnectedAt: Date | null
   }
 
   export type AkuoUsuarioCountAggregateOutputType = {
@@ -2769,6 +2779,11 @@ export namespace Prisma {
     suscripcionFin: number
     vehiculosPermitidos: number
     choferesPermitidos: number
+    mpUserId: number
+    mpAccessToken: number
+    mpRefreshToken: number
+    mpTokenExpiresAt: number
+    mpConnectedAt: number
     _all: number
   }
 
@@ -2834,6 +2849,11 @@ export namespace Prisma {
     suscripcionFin?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
+    mpUserId?: true
+    mpAccessToken?: true
+    mpRefreshToken?: true
+    mpTokenExpiresAt?: true
+    mpConnectedAt?: true
   }
 
   export type AkuoUsuarioMaxAggregateInputType = {
@@ -2879,6 +2899,11 @@ export namespace Prisma {
     suscripcionFin?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
+    mpUserId?: true
+    mpAccessToken?: true
+    mpRefreshToken?: true
+    mpTokenExpiresAt?: true
+    mpConnectedAt?: true
   }
 
   export type AkuoUsuarioCountAggregateInputType = {
@@ -2924,6 +2949,11 @@ export namespace Prisma {
     suscripcionFin?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
+    mpUserId?: true
+    mpAccessToken?: true
+    mpRefreshToken?: true
+    mpTokenExpiresAt?: true
+    mpConnectedAt?: true
     _all?: true
   }
 
@@ -3056,6 +3086,11 @@ export namespace Prisma {
     suscripcionFin: Date | null
     vehiculosPermitidos: number
     choferesPermitidos: number
+    mpUserId: string | null
+    mpAccessToken: string | null
+    mpRefreshToken: string | null
+    mpTokenExpiresAt: Date | null
+    mpConnectedAt: Date | null
     _count: AkuoUsuarioCountAggregateOutputType | null
     _avg: AkuoUsuarioAvgAggregateOutputType | null
     _sum: AkuoUsuarioSumAggregateOutputType | null
@@ -3120,6 +3155,11 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    mpUserId?: boolean
+    mpAccessToken?: boolean
+    mpRefreshToken?: boolean
+    mpTokenExpiresAt?: boolean
+    mpConnectedAt?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
     pedidosCliente?: boolean | AkuoUsuario$pedidosClienteArgs<ExtArgs>
@@ -3182,6 +3222,11 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    mpUserId?: boolean
+    mpAccessToken?: boolean
+    mpRefreshToken?: boolean
+    mpTokenExpiresAt?: boolean
+    mpConnectedAt?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
@@ -3228,6 +3273,11 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    mpUserId?: boolean
+    mpAccessToken?: boolean
+    mpRefreshToken?: boolean
+    mpTokenExpiresAt?: boolean
+    mpConnectedAt?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
@@ -3274,9 +3324,14 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    mpUserId?: boolean
+    mpAccessToken?: boolean
+    mpRefreshToken?: boolean
+    mpTokenExpiresAt?: boolean
+    mpConnectedAt?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -3366,6 +3421,11 @@ export namespace Prisma {
       suscripcionFin: Date | null
       vehiculosPermitidos: number
       choferesPermitidos: number
+      mpUserId: string | null
+      mpAccessToken: string | null
+      mpRefreshToken: string | null
+      mpTokenExpiresAt: Date | null
+      mpConnectedAt: Date | null
     }, ExtArgs["result"]["akuoUsuario"]>
     composites: {}
   }
@@ -3847,6 +3907,11 @@ export namespace Prisma {
     readonly suscripcionFin: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly vehiculosPermitidos: FieldRef<"AkuoUsuario", 'Int'>
     readonly choferesPermitidos: FieldRef<"AkuoUsuario", 'Int'>
+    readonly mpUserId: FieldRef<"AkuoUsuario", 'String'>
+    readonly mpAccessToken: FieldRef<"AkuoUsuario", 'String'>
+    readonly mpRefreshToken: FieldRef<"AkuoUsuario", 'String'>
+    readonly mpTokenExpiresAt: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly mpConnectedAt: FieldRef<"AkuoUsuario", 'DateTime'>
   }
     
 
@@ -23601,7 +23666,12 @@ export namespace Prisma {
     suscripcionInicio: 'suscripcionInicio',
     suscripcionFin: 'suscripcionFin',
     vehiculosPermitidos: 'vehiculosPermitidos',
-    choferesPermitidos: 'choferesPermitidos'
+    choferesPermitidos: 'choferesPermitidos',
+    mpUserId: 'mpUserId',
+    mpAccessToken: 'mpAccessToken',
+    mpRefreshToken: 'mpRefreshToken',
+    mpTokenExpiresAt: 'mpTokenExpiresAt',
+    mpConnectedAt: 'mpConnectedAt'
   };
 
   export type AkuoUsuarioScalarFieldEnum = (typeof AkuoUsuarioScalarFieldEnum)[keyof typeof AkuoUsuarioScalarFieldEnum]
@@ -23993,6 +24063,11 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+    mpUserId?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpAccessToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpRefreshToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpTokenExpiresAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    mpConnectedAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
     pedidosCliente?: AkuoPedidoListRelationFilter
@@ -24054,6 +24129,11 @@ export namespace Prisma {
     suscripcionFin?: SortOrderInput | SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    mpUserId?: SortOrderInput | SortOrder
+    mpAccessToken?: SortOrderInput | SortOrder
+    mpRefreshToken?: SortOrderInput | SortOrder
+    mpTokenExpiresAt?: SortOrderInput | SortOrder
+    mpConnectedAt?: SortOrderInput | SortOrder
     zona?: AkuoZonaOrderByWithRelationInput
     sesiones?: AkuoSesionOrderByRelationAggregateInput
     pedidosCliente?: AkuoPedidoOrderByRelationAggregateInput
@@ -24118,6 +24198,11 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+    mpUserId?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpAccessToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpRefreshToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpTokenExpiresAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    mpConnectedAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
     pedidosCliente?: AkuoPedidoListRelationFilter
@@ -24179,6 +24264,11 @@ export namespace Prisma {
     suscripcionFin?: SortOrderInput | SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    mpUserId?: SortOrderInput | SortOrder
+    mpAccessToken?: SortOrderInput | SortOrder
+    mpRefreshToken?: SortOrderInput | SortOrder
+    mpTokenExpiresAt?: SortOrderInput | SortOrder
+    mpConnectedAt?: SortOrderInput | SortOrder
     _count?: AkuoUsuarioCountOrderByAggregateInput
     _avg?: AkuoUsuarioAvgOrderByAggregateInput
     _max?: AkuoUsuarioMaxOrderByAggregateInput
@@ -24232,6 +24322,11 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntWithAggregatesFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntWithAggregatesFilter<"AkuoUsuario"> | number
+    mpUserId?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    mpAccessToken?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    mpRefreshToken?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    mpTokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    mpConnectedAt?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
   }
 
   export type AkuoSesionWhereInput = {
@@ -25732,6 +25827,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -25793,6 +25893,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -25852,6 +25957,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -25913,6 +26023,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -25973,6 +26088,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
   }
 
   export type AkuoUsuarioUpdateManyMutationInput = {
@@ -26017,6 +26137,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type AkuoUsuarioUncheckedUpdateManyInput = {
@@ -26062,6 +26187,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type AkuoSesionCreateInput = {
@@ -27981,6 +28111,11 @@ export namespace Prisma {
     suscripcionFin?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    mpUserId?: SortOrder
+    mpAccessToken?: SortOrder
+    mpRefreshToken?: SortOrder
+    mpTokenExpiresAt?: SortOrder
+    mpConnectedAt?: SortOrder
   }
 
   export type AkuoUsuarioAvgOrderByAggregateInput = {
@@ -28035,6 +28170,11 @@ export namespace Prisma {
     suscripcionFin?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    mpUserId?: SortOrder
+    mpAccessToken?: SortOrder
+    mpRefreshToken?: SortOrder
+    mpTokenExpiresAt?: SortOrder
+    mpConnectedAt?: SortOrder
   }
 
   export type AkuoUsuarioMinOrderByAggregateInput = {
@@ -28080,6 +28220,11 @@ export namespace Prisma {
     suscripcionFin?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    mpUserId?: SortOrder
+    mpAccessToken?: SortOrder
+    mpRefreshToken?: SortOrder
+    mpTokenExpiresAt?: SortOrder
+    mpConnectedAt?: SortOrder
   }
 
   export type AkuoUsuarioSumOrderByAggregateInput = {
@@ -31754,6 +31899,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -31814,6 +31964,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -31888,6 +32043,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -31948,6 +32108,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -32006,6 +32171,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -32066,6 +32236,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -32205,6 +32380,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -32265,6 +32445,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -32339,6 +32524,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -32399,6 +32589,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -32583,6 +32778,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -32643,6 +32843,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -32733,6 +32938,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -32793,6 +33003,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -32977,6 +33192,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -33037,6 +33257,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -33217,6 +33442,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -33277,6 +33507,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -33480,6 +33715,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -33540,6 +33780,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -33745,6 +33990,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -33805,6 +34055,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -33879,6 +34134,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -33939,6 +34199,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -33997,6 +34262,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -34057,6 +34327,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -34131,6 +34406,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -34191,6 +34471,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -34249,6 +34534,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -34309,6 +34599,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -34383,6 +34678,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -34443,6 +34743,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -34501,6 +34806,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -34561,6 +34871,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -34635,6 +34950,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -34695,6 +35015,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -34753,6 +35078,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -34813,6 +35143,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -34887,6 +35222,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -34947,6 +35287,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -35005,6 +35350,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -35064,6 +35414,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -35152,6 +35507,11 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+    mpUserId?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpAccessToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpRefreshToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpTokenExpiresAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    mpConnectedAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
   }
 
   export type AkuoUsuarioCreateWithoutConversacionesClienteInput = {
@@ -35196,6 +35556,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -35256,6 +35621,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -35319,6 +35689,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -35379,6 +35754,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -35478,6 +35858,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -35538,6 +35923,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -35607,6 +35997,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -35667,6 +36062,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -35762,6 +36162,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -35822,6 +36227,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -35923,6 +36333,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -35983,6 +36398,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -36041,6 +36461,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -36101,6 +36526,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -36164,6 +36594,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -36224,6 +36659,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -36298,6 +36738,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -36358,6 +36803,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -36427,6 +36877,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -36487,6 +36942,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -37725,6 +38185,11 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
   }
 
   export type AkuoUsuarioUpdateWithoutZonaInput = {
@@ -37769,6 +38234,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -37828,6 +38298,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -37887,6 +38362,11 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type AkuoMensajeCreateManyConversacionInput = {
