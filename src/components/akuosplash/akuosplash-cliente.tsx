@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { akuoGet, akuoPost, formatCLP } from "./akuosplash-utils";
@@ -34,39 +34,44 @@ const ESTADO_LABELS: Record<string, { label: string; color: string; icon?: any }
 export function AkuosplashCliente() {
   const router = useRouter();
   const [user, setUser] = useState<AkuoUser | null | undefined>(undefined);
+  const [saldo, setSaldo] = useState(0);
   const [loading, setLoading] = useState(true);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [historial, setHistorial] = useState<Pedido[]>([]);
   const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // Cargar todo en un solo efecto con cleanup para evitar loops
   useEffect(() => {
-    akuoGet<{ user: AkuoUser | null }>("/api/akuosplash/auth/me").then((d) => {
-      if (!d.user) { router.push("/akuosplash"); return; }
-      if (d.user.rol !== "cliente" && d.user.rol !== "superadmin") { router.push("/akuosplash/" + d.user.rol); return; }
-      setUser(d.user);
-    });
-  }, [router]);
-
-  const cargar = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    try {
-      const [peds, hist, convs, prof] = await Promise.all([
-        akuoGet<{ pedidos: Pedido[] }>("/api/akuosplash/cliente/pedidos"),
-        akuoGet<{ historial: Pedido[] }>("/api/akuosplash/cliente/historial"),
-        akuoGet<{ conversaciones: Conversacion[] }>("/api/akuosplash/mensajes"),
-        akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil"),
-      ]);
-      setPedidos(peds.pedidos);
-      setHistorial(hist.historial);
-      setConversaciones(convs.conversaciones);
-      if (prof.user) setUser(u => ({ ...u!, saldo: prof.user.saldo }));
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
-  }, [user, refreshKey]);
-
-  useEffect(() => { if (user) cargar(); }, [user, refreshKey]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const meRes = await akuoGet<{ user: AkuoUser | null }>("/api/akuosplash/auth/me");
+        if (cancelled) return;
+        if (!meRes.user) { router.push("/akuosplash"); return; }
+        if (meRes.user.rol !== "cliente" && meRes.user.rol !== "superadmin") {
+          router.push("/akuosplash/" + meRes.user.rol);
+          return;
+        }
+        setUser(meRes.user);
+        setLoading(true);
+        const [peds, hist, convs, prof] = await Promise.all([
+          akuoGet<{ pedidos: Pedido[] }>("/api/akuosplash/cliente/pedidos"),
+          akuoGet<{ historial: Pedido[] }>("/api/akuosplash/cliente/historial"),
+          akuoGet<{ conversaciones: Conversacion[] }>("/api/akuosplash/mensajes"),
+          akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil"),
+        ]);
+        if (cancelled) return;
+        setPedidos(peds.pedidos);
+        setHistorial(hist.historial);
+        setConversaciones(convs.conversaciones);
+        if (prof.user) setSaldo(prof.user.saldo || 0);
+      } catch (e) { console.error(e); }
+      finally { if (!cancelled) setLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey]);
 
   if (user === undefined) {
     return (
@@ -79,7 +84,6 @@ export function AkuosplashCliente() {
 
   const pedidosActivos = pedidos.filter(p => ["pendiente", "aceptado", "en_ruta"].includes(p.estado));
   const ultimoPedido = historial.find(p => p.estado === "entregado");
-  const saldo = user.saldo || 0;
 
   function repetirPedido(p: Pedido) {
     if (typeof window !== "undefined") {
