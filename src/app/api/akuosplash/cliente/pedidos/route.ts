@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
-import { crearPreferenciaPedidoAkuo, calcularPrecioTotal } from "@/lib/akuosplash-mercadopago";
+import { crearOrdenAkuo, calcularPrecioTotal } from "@/lib/akuosplash-mercadopago";
 
 // Código PIN simple de 4 dígitos (0-9)
 function generarCodigoConfirmacion(): string {
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Si el método de pago es tarjeta (débito/crédito), crear preferencia de MercadoPago
+  // Si el método de pago es tarjeta (débito/crédito), crear orden de MercadoPago (API de Orders)
   if (body.metodoPago === "tarjeta_debito" || body.metodoPago === "tarjeta_credito" || !body.metodoPago) {
     try {
       // Si el pedido tiene repartidor asignado y ese repartidor tiene MP conectado, hacer split
@@ -78,17 +78,17 @@ export async function POST(req: NextRequest) {
           select: { mpAccessToken: true, mpUserId: true, mpTokenExpiresAt: true },
         });
         if (repartidor?.mpAccessToken && repartidor?.mpUserId) {
-          // Refrescar token si está por vencer (menos de 1 hora)
           const expiresAt = repartidor.mpTokenExpiresAt;
+          // Token válido si no expira dentro de 1 hora (para tener margen de refresh)
           if (!expiresAt || expiresAt.getTime() - Date.now() > 3600 * 1000) {
             repartidorMpAccessToken = repartidor.mpAccessToken;
             repartidorMpUserId = repartidor.mpUserId;
           }
-          // TODO: si está vencido, refrescar con mpRefreshToken
+          // TODO: si está vencido, refrescar con mpRefreshToken antes de usarlo
         }
       }
 
-      const pref = await crearPreferenciaPedidoAkuo({
+      const orden = await crearOrdenAkuo({
         clienteId: user.id,
         clienteNombre: user.nombre,
         email: user.email || "",
@@ -102,15 +102,15 @@ export async function POST(req: NextRequest) {
 
       await akuosplashDb.akuoPedidoCliente.update({
         where: { id: pedido.id },
-        data: { mpPreferenceId: pref.preferenceId },
+        data: { mpPreferenceId: orden.orderId },
       });
 
       return NextResponse.json({
         ok: true,
         pedido,
-        initPoint: pref.initPoint,
-        preferenceId: pref.preferenceId,
-        splitPayment: pref.splitPayment,
+        initPoint: orden.initPoint,
+        orderId: orden.orderId,
+        splitPayment: orden.splitPayment,
       }, { status: 201 });
     } catch (e: any) {
       await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});
