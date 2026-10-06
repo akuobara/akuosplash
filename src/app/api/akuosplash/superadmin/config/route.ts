@@ -3,7 +3,6 @@ import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
 
 // GET /api/akuosplash/superadmin/config
-// Devuelve la configuración global (precio default + comisión)
 export async function GET() {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -15,14 +14,12 @@ export async function GET() {
   }
   return NextResponse.json({
     config: {
-      precioPorLitroAguaDefault: config.precioPorLitroAguaDefault,
       comisionPorcentaje: config.comisionPorcentaje,
     },
   });
 }
 
 // PATCH /api/akuosplash/superadmin/config
-// Actualiza el precio default y la comisión
 export async function PATCH(req: NextRequest) {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -30,11 +27,6 @@ export async function PATCH(req: NextRequest) {
 
   const body = await req.json();
   const data: any = {};
-  if (body.precioPorLitroAguaDefault !== undefined) {
-    const v = Number(body.precioPorLitroAguaDefault);
-    if (isNaN(v) || v < 0) return NextResponse.json({ error: "Precio inválido" }, { status: 400 });
-    data.precioPorLitroAguaDefault = v;
-  }
   if (body.comisionPorcentaje !== undefined) {
     const v = Number(body.comisionPorcentaje);
     if (isNaN(v) || v < 0 || v > 100) return NextResponse.json({ error: "Comisión inválida (0-100)" }, { status: 400 });
@@ -51,7 +43,6 @@ export async function PATCH(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     config: {
-      precioPorLitroAguaDefault: config.precioPorLitroAguaDefault,
       comisionPorcentaje: config.comisionPorcentaje,
     },
   });

@@ -1,34 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
+import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
-import { getPrecioPorLitro, getComisionPorcentaje } from "@/lib/akuosplash-mercadopago";
+import { getComisionPorcentaje } from "@/lib/akuosplash-mercadopago";
 
-// GET /api/akuosplash/cliente/precio?lat=-33.4&lng=-70.6&comuna=Vitacura
-// Devuelve el precio por litro y comisión según la zona del cliente
+// GET /api/akuosplash/cliente/precio
+// Devuelve el precio por litro y comisión según la zona del cliente logueado
 // Requiere auth — el precio NO es público
-export async function GET(req: NextRequest) {
+export async function GET() {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   if (user.rol !== "cliente" && user.rol !== "superadmin") {
     return NextResponse.json({ error: "Solo clientes" }, { status: 403 });
   }
-  const { searchParams } = new URL(req.url);
-  const latParam = searchParams.get("lat");
-  const lngParam = searchParams.get("lng");
-  const comunaParam = searchParams.get("comuna");
 
-  // Si no hay query params, usar la ubicación del perfil del cliente
-  const lat = latParam ? Number(latParam) : (user as any).lat;
-  const lng = lngParam ? Number(lngParam) : (user as any).lng;
-  const comuna = comunaParam || (user as any).comuna || undefined;
+  // Recargar usuario con su zona
+  const usuarioConZona = await akuosplashDb.akuoUsuario.findUnique({
+    where: { id: user.id },
+    include: { zona: true },
+  });
+  if (!usuarioConZona) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
 
-  const { precio, zona, precioDefault } = await getPrecioPorLitro(lat, lng, comuna);
   const comisionPct = await getComisionPorcentaje();
+
+  if (!usuarioConZona.zonaId || !usuarioConZona.zona) {
+    // Sin zona asignada — no hay servicio disponible
+    return NextResponse.json({
+      precioPorLitro: null,
+      comisionPct,
+      zona: null,
+      hayServicio: false,
+      litrosMinimos: null,
+    });
+  }
+
   return NextResponse.json({
-    precioPorLitro: precio,
+    precioPorLitro: usuarioConZona.zona.precioPorLitro,
     comisionPct,
-    zona: zona ? { id: zona.id, nombre: zona.nombre, litrosMinimos: zona.litrosMinimos } : null,
-    precioDefault,
-    esDefault: zona === null,
-    ubicacion: { lat, lng, comuna },
+    zona: {
+      id: usuarioConZona.zona.id,
+      nombre: usuarioConZona.zona.nombre,
+      litrosMinimos: usuarioConZona.zona.litrosMinimos,
+    },
+    hayServicio: true,
+    litrosMinimos: usuarioConZona.zona.litrosMinimos,
   });
 }

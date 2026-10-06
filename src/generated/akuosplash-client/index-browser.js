@@ -132,6 +132,7 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   requiereClientePresente: 'requiereClientePresente',
   usoAgua: 'usoAgua',
   saldo: 'saldo',
+  zonaId: 'zonaId',
   passwordHash: 'passwordHash',
   avatarUrl: 'avatarUrl',
   rol: 'rol',
@@ -331,7 +332,6 @@ exports.Prisma.AkuoConfigScalarFieldEnum = {
   maxVehiculosFree: 'maxVehiculosFree',
   maxVehiculosPro: 'maxVehiculosPro',
   maxVehiculosEnterprise: 'maxVehiculosEnterprise',
-  precioPorLitroAguaDefault: 'precioPorLitroAguaDefault',
   activo: 'activo'
 };
 

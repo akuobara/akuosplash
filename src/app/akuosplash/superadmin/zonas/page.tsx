@@ -24,7 +24,6 @@ export default function SuperadminZonasPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [precioDefault, setPrecioDefault] = useState("50");
   const [comision, setComision] = useState("0");
   const [zonas, setZonas] = useState<Zona[]>([]);
   const [editando, setEditando] = useState<Zona | null>(null);
@@ -43,10 +42,9 @@ export default function SuperadminZonasPage() {
     setLoading(true);
     try {
       const [cfgRes, zonasRes] = await Promise.all([
-        akuoGet<{ config: { precioPorLitroAguaDefault: number; comisionPorcentaje: number } }>("/api/akuosplash/superadmin/config"),
+        akuoGet<{ config: { comisionPorcentaje: number } }>("/api/akuosplash/superadmin/config"),
         akuoGet<{ zonas: Zona[] }>("/api/akuosplash/superadmin/zonas"),
       ]);
-      setPrecioDefault(String(cfgRes.config.precioPorLitroAguaDefault));
       setComision(String(cfgRes.config.comisionPorcentaje));
       setZonas(zonasRes.zonas);
     } catch (e: any) { toast.error(e.message || "Error"); }
@@ -67,7 +65,6 @@ export default function SuperadminZonasPage() {
       await akuoApi("/api/akuosplash/superadmin/config", {
         method: "PATCH",
         body: JSON.stringify({
-          precioPorLitroAguaDefault: Number(precioDefault),
           comisionPorcentaje: Number(comision),
         }),
       });
@@ -171,25 +168,20 @@ export default function SuperadminZonasPage() {
           <p className="text-sm text-gray-500">Definí zonas geográficas con su precio por litro</p>
         </div>
 
-        {/* Precio default + comisión */}
+        {/* Comisión */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2"><DollarSign className="h-4 w-4" /> Precio default</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2"><DollarSign className="h-4 w-4" /> Comisión de la app</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <Label className="text-xs">Precio por litro default (CLP)</Label>
-              <Input type="number" min="0" value={precioDefault} onChange={(e) => setPrecioDefault(e.target.value)} />
-              <p className="text-xs text-gray-400 mt-1">Se aplica cuando el cliente no cae en ninguna zona específica</p>
-            </div>
-            <div>
-              <Label className="text-xs">Comisión de la app (%)</Label>
+              <Label className="text-xs">Comisión (%)</Label>
               <Input type="number" min="0" max="100" value={comision} onChange={(e) => setComision(e.target.value)} />
-              <p className="text-xs text-gray-400 mt-1">Porcentaje que se cobra encima del subtotal (0 = sin comisión)</p>
+              <p className="text-xs text-gray-400 mt-1">Porcentaje que se cobra encima del subtotal del pedido (0 = sin comisión)</p>
             </div>
             <Button onClick={guardarConfig} disabled={saving} className="w-full bg-blue-600 hover:bg-blue-700">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
-              Guardar configuración
+              Guardar
             </Button>
           </CardContent>
         </Card>
@@ -197,17 +189,17 @@ export default function SuperadminZonasPage() {
         {/* Zonas */}
         <Card>
           <CardHeader className="pb-3 flex-row flex items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" /> Zonas</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" /> Zonas de cobertura</CardTitle>
             <Button size="sm" onClick={abrirCrear} className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-1" /> Nueva zona
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
             {zonas.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4">
-                Sin zonas. Los clientes pagan el precio default.<br/>
-                Creá zonas para definir precios por ubicación.
-              </p>
+              <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 text-center">
+                <p className="text-sm font-medium text-amber-700">Sin zonas creadas</p>
+                <p className="text-xs text-amber-600 mt-1">Si no hay zonas, los clientes no pueden registrarse (no se les puede asignar un precio). Creá al menos una zona de cobertura.</p>
+              </div>
             ) : (
               <div className="space-y-2">
                 {zonas.map(z => (

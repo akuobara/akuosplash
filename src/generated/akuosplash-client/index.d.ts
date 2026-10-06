@@ -2541,6 +2541,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type AkuoZonaCountOutputType
+   */
+
+  export type AkuoZonaCountOutputType = {
+    usuarios: number
+  }
+
+  export type AkuoZonaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    usuarios?: boolean | AkuoZonaCountOutputTypeCountUsuariosArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AkuoZonaCountOutputType without action
+   */
+  export type AkuoZonaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaCountOutputType
+     */
+    select?: AkuoZonaCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AkuoZonaCountOutputType without action
+   */
+  export type AkuoZonaCountOutputTypeCountUsuariosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoUsuarioWhereInput
+  }
+
+
+  /**
    * Count Type AkuoConversacionCountOutputType
    */
 
@@ -2619,6 +2650,7 @@ export namespace Prisma {
     requiereClientePresente: boolean | null
     usoAgua: string | null
     saldo: number | null
+    zonaId: string | null
     passwordHash: string | null
     avatarUrl: string | null
     rol: string | null
@@ -2663,6 +2695,7 @@ export namespace Prisma {
     requiereClientePresente: boolean | null
     usoAgua: string | null
     saldo: number | null
+    zonaId: string | null
     passwordHash: string | null
     avatarUrl: string | null
     rol: string | null
@@ -2707,6 +2740,7 @@ export namespace Prisma {
     requiereClientePresente: number
     usoAgua: number
     saldo: number
+    zonaId: number
     passwordHash: number
     avatarUrl: number
     rol: number
@@ -2771,6 +2805,7 @@ export namespace Prisma {
     requiereClientePresente?: true
     usoAgua?: true
     saldo?: true
+    zonaId?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2815,6 +2850,7 @@ export namespace Prisma {
     requiereClientePresente?: true
     usoAgua?: true
     saldo?: true
+    zonaId?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2859,6 +2895,7 @@ export namespace Prisma {
     requiereClientePresente?: true
     usoAgua?: true
     saldo?: true
+    zonaId?: true
     passwordHash?: true
     avatarUrl?: true
     rol?: true
@@ -2990,6 +3027,7 @@ export namespace Prisma {
     requiereClientePresente: boolean
     usoAgua: string
     saldo: number
+    zonaId: string | null
     passwordHash: string | null
     avatarUrl: string | null
     rol: string
@@ -3053,6 +3091,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: boolean
     saldo?: boolean
+    zonaId?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3081,6 +3120,7 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
     pedidosCliente?: boolean | AkuoUsuario$pedidosClienteArgs<ExtArgs>
     entregasHechas?: boolean | AkuoUsuario$entregasHechasArgs<ExtArgs>
@@ -3113,6 +3153,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: boolean
     saldo?: boolean
+    zonaId?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3141,6 +3182,7 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
   export type AkuoUsuarioSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3157,6 +3199,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: boolean
     saldo?: boolean
+    zonaId?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3185,6 +3228,7 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
   export type AkuoUsuarioSelectScalar = {
@@ -3201,6 +3245,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: boolean
     saldo?: boolean
+    zonaId?: boolean
     passwordHash?: boolean
     avatarUrl?: boolean
     rol?: boolean
@@ -3231,8 +3276,9 @@ export namespace Prisma {
     choferesPermitidos?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
     pedidosCliente?: boolean | AkuoUsuario$pedidosClienteArgs<ExtArgs>
     entregasHechas?: boolean | AkuoUsuario$entregasHechasArgs<ExtArgs>
@@ -3250,12 +3296,17 @@ export namespace Prisma {
     pedidosTransportistaApp?: boolean | AkuoUsuario$pedidosTransportistaAppArgs<ExtArgs>
     _count?: boolean | AkuoUsuarioCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type AkuoUsuarioIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type AkuoUsuarioIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AkuoUsuarioIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
+  }
+  export type AkuoUsuarioIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
+  }
 
   export type $AkuoUsuarioPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoUsuario"
     objects: {
+      zona: Prisma.$AkuoZonaPayload<ExtArgs> | null
       sesiones: Prisma.$AkuoSesionPayload<ExtArgs>[]
       pedidosCliente: Prisma.$AkuoPedidoPayload<ExtArgs>[]
       entregasHechas: Prisma.$AkuoEntregaPayload<ExtArgs>[]
@@ -3286,6 +3337,7 @@ export namespace Prisma {
       requiereClientePresente: boolean
       usoAgua: string
       saldo: number
+      zonaId: string | null
       passwordHash: string | null
       avatarUrl: string | null
       rol: string
@@ -3708,6 +3760,7 @@ export namespace Prisma {
    */
   export interface Prisma__AkuoUsuarioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    zona<T extends AkuoUsuario$zonaArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$zonaArgs<ExtArgs>>): Prisma__AkuoZonaClient<$Result.GetResult<Prisma.$AkuoZonaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     sesiones<T extends AkuoUsuario$sesionesArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$sesionesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoSesionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pedidosCliente<T extends AkuoUsuario$pedidosClienteArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$pedidosClienteArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoPedidoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     entregasHechas<T extends AkuoUsuario$entregasHechasArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$entregasHechasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoEntregaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3765,6 +3818,7 @@ export namespace Prisma {
     readonly requiereClientePresente: FieldRef<"AkuoUsuario", 'Boolean'>
     readonly usoAgua: FieldRef<"AkuoUsuario", 'String'>
     readonly saldo: FieldRef<"AkuoUsuario", 'Float'>
+    readonly zonaId: FieldRef<"AkuoUsuario", 'String'>
     readonly passwordHash: FieldRef<"AkuoUsuario", 'String'>
     readonly avatarUrl: FieldRef<"AkuoUsuario", 'String'>
     readonly rol: FieldRef<"AkuoUsuario", 'String'>
@@ -4040,6 +4094,10 @@ export namespace Prisma {
      * The data used to create many AkuoUsuarios.
      */
     data: AkuoUsuarioCreateManyInput | AkuoUsuarioCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -4110,6 +4168,10 @@ export namespace Prisma {
      * Limit how many AkuoUsuarios to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -4176,6 +4238,25 @@ export namespace Prisma {
      * Limit how many AkuoUsuarios to delete.
      */
     limit?: number
+  }
+
+  /**
+   * AkuoUsuario.zona
+   */
+  export type AkuoUsuario$zonaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZona
+     */
+    select?: AkuoZonaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZona
+     */
+    omit?: AkuoZonaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    where?: AkuoZonaWhereInput
   }
 
   /**
@@ -17605,7 +17686,6 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
-    precioPorLitroAguaDefault: number | null
   }
 
   export type AkuoConfigSumAggregateOutputType = {
@@ -17615,7 +17695,6 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
-    precioPorLitroAguaDefault: number | null
   }
 
   export type AkuoConfigMinAggregateOutputType = {
@@ -17627,7 +17706,6 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
-    precioPorLitroAguaDefault: number | null
     activo: boolean | null
   }
 
@@ -17640,7 +17718,6 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
-    precioPorLitroAguaDefault: number | null
     activo: boolean | null
   }
 
@@ -17653,7 +17730,6 @@ export namespace Prisma {
     maxVehiculosFree: number
     maxVehiculosPro: number
     maxVehiculosEnterprise: number
-    precioPorLitroAguaDefault: number
     activo: number
     _all: number
   }
@@ -17666,7 +17742,6 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
-    precioPorLitroAguaDefault?: true
   }
 
   export type AkuoConfigSumAggregateInputType = {
@@ -17676,7 +17751,6 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
-    precioPorLitroAguaDefault?: true
   }
 
   export type AkuoConfigMinAggregateInputType = {
@@ -17688,7 +17762,6 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
-    precioPorLitroAguaDefault?: true
     activo?: true
   }
 
@@ -17701,7 +17774,6 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
-    precioPorLitroAguaDefault?: true
     activo?: true
   }
 
@@ -17714,7 +17786,6 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
-    precioPorLitroAguaDefault?: true
     activo?: true
     _all?: true
   }
@@ -17814,7 +17885,6 @@ export namespace Prisma {
     maxVehiculosFree: number
     maxVehiculosPro: number
     maxVehiculosEnterprise: number
-    precioPorLitroAguaDefault: number
     activo: boolean
     _count: AkuoConfigCountAggregateOutputType | null
     _avg: AkuoConfigAvgAggregateOutputType | null
@@ -17846,7 +17916,6 @@ export namespace Prisma {
     maxVehiculosFree?: boolean
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
-    precioPorLitroAguaDefault?: boolean
     activo?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -17859,7 +17928,6 @@ export namespace Prisma {
     maxVehiculosFree?: boolean
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
-    precioPorLitroAguaDefault?: boolean
     activo?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -17872,7 +17940,6 @@ export namespace Prisma {
     maxVehiculosFree?: boolean
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
-    precioPorLitroAguaDefault?: boolean
     activo?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -17885,11 +17952,10 @@ export namespace Prisma {
     maxVehiculosFree?: boolean
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
-    precioPorLitroAguaDefault?: boolean
     activo?: boolean
   }
 
-  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "precioPorLitroAguaDefault" | "activo", ExtArgs["result"]["akuoConfig"]>
+  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo", ExtArgs["result"]["akuoConfig"]>
 
   export type $AkuoConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoConfig"
@@ -17903,7 +17969,6 @@ export namespace Prisma {
       maxVehiculosFree: number
       maxVehiculosPro: number
       maxVehiculosEnterprise: number
-      precioPorLitroAguaDefault: number
       activo: boolean
     }, ExtArgs["result"]["akuoConfig"]>
     composites: {}
@@ -18336,7 +18401,6 @@ export namespace Prisma {
     readonly maxVehiculosFree: FieldRef<"AkuoConfig", 'Int'>
     readonly maxVehiculosPro: FieldRef<"AkuoConfig", 'Int'>
     readonly maxVehiculosEnterprise: FieldRef<"AkuoConfig", 'Int'>
-    readonly precioPorLitroAguaDefault: FieldRef<"AkuoConfig", 'Float'>
     readonly activo: FieldRef<"AkuoConfig", 'Boolean'>
   }
     
@@ -18972,6 +19036,8 @@ export namespace Prisma {
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
+    usuarios?: boolean | AkuoZona$usuariosArgs<ExtArgs>
+    _count?: boolean | AkuoZonaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["akuoZona"]>
 
   export type AkuoZonaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -19020,10 +19086,18 @@ export namespace Prisma {
   }
 
   export type AkuoZonaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "actualizadoEn" | "nombre" | "descripcion" | "zonaGeoJson" | "centroLat" | "centroLng" | "precioPorLitro" | "litrosMinimos" | "radioKm" | "activa", ExtArgs["result"]["akuoZona"]>
+  export type AkuoZonaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    usuarios?: boolean | AkuoZona$usuariosArgs<ExtArgs>
+    _count?: boolean | AkuoZonaCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AkuoZonaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AkuoZonaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $AkuoZonaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoZona"
-    objects: {}
+    objects: {
+      usuarios: Prisma.$AkuoUsuarioPayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       creadoEn: Date
@@ -19431,6 +19505,7 @@ export namespace Prisma {
    */
   export interface Prisma__AkuoZonaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    usuarios<T extends AkuoZona$usuariosArgs<ExtArgs> = {}>(args?: Subset<T, AkuoZona$usuariosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoUsuarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -19489,6 +19564,10 @@ export namespace Prisma {
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    /**
      * Filter, which AkuoZona to fetch.
      */
     where: AkuoZonaWhereUniqueInput
@@ -19507,6 +19586,10 @@ export namespace Prisma {
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    /**
      * Filter, which AkuoZona to fetch.
      */
     where: AkuoZonaWhereUniqueInput
@@ -19524,6 +19607,10 @@ export namespace Prisma {
      * Omit specific fields from the AkuoZona
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
     /**
      * Filter, which AkuoZona to fetch.
      */
@@ -19573,6 +19660,10 @@ export namespace Prisma {
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    /**
      * Filter, which AkuoZona to fetch.
      */
     where?: AkuoZonaWhereInput
@@ -19621,6 +19712,10 @@ export namespace Prisma {
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    /**
      * Filter, which AkuoZonas to fetch.
      */
     where?: AkuoZonaWhereInput
@@ -19663,6 +19758,10 @@ export namespace Prisma {
      * Omit specific fields from the AkuoZona
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
     /**
      * The data needed to create a AkuoZona.
      */
@@ -19709,6 +19808,10 @@ export namespace Prisma {
      * Omit specific fields from the AkuoZona
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
     /**
      * The data needed to update a AkuoZona.
      */
@@ -19776,6 +19879,10 @@ export namespace Prisma {
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    /**
      * The filter to search for the AkuoZona to update in case it exists.
      */
     where: AkuoZonaWhereUniqueInput
@@ -19802,6 +19909,10 @@ export namespace Prisma {
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    /**
      * Filter which AkuoZona to delete.
      */
     where: AkuoZonaWhereUniqueInput
@@ -19822,6 +19933,30 @@ export namespace Prisma {
   }
 
   /**
+   * AkuoZona.usuarios
+   */
+  export type AkuoZona$usuariosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuario
+     */
+    select?: AkuoUsuarioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuario
+     */
+    omit?: AkuoUsuarioOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioInclude<ExtArgs> | null
+    where?: AkuoUsuarioWhereInput
+    orderBy?: AkuoUsuarioOrderByWithRelationInput | AkuoUsuarioOrderByWithRelationInput[]
+    cursor?: AkuoUsuarioWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AkuoUsuarioScalarFieldEnum | AkuoUsuarioScalarFieldEnum[]
+  }
+
+  /**
    * AkuoZona without action
    */
   export type AkuoZonaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -19833,6 +19968,10 @@ export namespace Prisma {
      * Omit specific fields from the AkuoZona
      */
     omit?: AkuoZonaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
   }
 
 
@@ -23434,6 +23573,7 @@ export namespace Prisma {
     requiereClientePresente: 'requiereClientePresente',
     usoAgua: 'usoAgua',
     saldo: 'saldo',
+    zonaId: 'zonaId',
     passwordHash: 'passwordHash',
     avatarUrl: 'avatarUrl',
     rol: 'rol',
@@ -23669,7 +23809,6 @@ export namespace Prisma {
     maxVehiculosFree: 'maxVehiculosFree',
     maxVehiculosPro: 'maxVehiculosPro',
     maxVehiculosEnterprise: 'maxVehiculosEnterprise',
-    precioPorLitroAguaDefault: 'precioPorLitroAguaDefault',
     activo: 'activo'
   };
 
@@ -23825,6 +23964,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFilter<"AkuoUsuario"> | boolean
     usoAgua?: StringFilter<"AkuoUsuario"> | string
     saldo?: FloatFilter<"AkuoUsuario"> | number
+    zonaId?: StringNullableFilter<"AkuoUsuario"> | string | null
     passwordHash?: StringNullableFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     rol?: StringFilter<"AkuoUsuario"> | string
@@ -23853,6 +23993,7 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+    zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
     pedidosCliente?: AkuoPedidoListRelationFilter
     entregasHechas?: AkuoEntregaListRelationFilter
@@ -23884,6 +24025,7 @@ export namespace Prisma {
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
     saldo?: SortOrder
+    zonaId?: SortOrderInput | SortOrder
     passwordHash?: SortOrderInput | SortOrder
     avatarUrl?: SortOrderInput | SortOrder
     rol?: SortOrder
@@ -23912,6 +24054,7 @@ export namespace Prisma {
     suscripcionFin?: SortOrderInput | SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    zona?: AkuoZonaOrderByWithRelationInput
     sesiones?: AkuoSesionOrderByRelationAggregateInput
     pedidosCliente?: AkuoPedidoOrderByRelationAggregateInput
     entregasHechas?: AkuoEntregaOrderByRelationAggregateInput
@@ -23948,6 +24091,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFilter<"AkuoUsuario"> | boolean
     usoAgua?: StringFilter<"AkuoUsuario"> | string
     saldo?: FloatFilter<"AkuoUsuario"> | number
+    zonaId?: StringNullableFilter<"AkuoUsuario"> | string | null
     passwordHash?: StringNullableFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     rol?: StringFilter<"AkuoUsuario"> | string
@@ -23974,6 +24118,7 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+    zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
     pedidosCliente?: AkuoPedidoListRelationFilter
     entregasHechas?: AkuoEntregaListRelationFilter
@@ -24005,6 +24150,7 @@ export namespace Prisma {
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
     saldo?: SortOrder
+    zonaId?: SortOrderInput | SortOrder
     passwordHash?: SortOrderInput | SortOrder
     avatarUrl?: SortOrderInput | SortOrder
     rol?: SortOrder
@@ -24057,6 +24203,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolWithAggregatesFilter<"AkuoUsuario"> | boolean
     usoAgua?: StringWithAggregatesFilter<"AkuoUsuario"> | string
     saldo?: FloatWithAggregatesFilter<"AkuoUsuario"> | number
+    zonaId?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     passwordHash?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     avatarUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     rol?: StringWithAggregatesFilter<"AkuoUsuario"> | string
@@ -25099,7 +25246,6 @@ export namespace Prisma {
     maxVehiculosFree?: IntFilter<"AkuoConfig"> | number
     maxVehiculosPro?: IntFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntFilter<"AkuoConfig"> | number
-    precioPorLitroAguaDefault?: FloatFilter<"AkuoConfig"> | number
     activo?: BoolFilter<"AkuoConfig"> | boolean
   }
 
@@ -25112,7 +25258,6 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
-    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
   }
 
@@ -25128,7 +25273,6 @@ export namespace Prisma {
     maxVehiculosFree?: IntFilter<"AkuoConfig"> | number
     maxVehiculosPro?: IntFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntFilter<"AkuoConfig"> | number
-    precioPorLitroAguaDefault?: FloatFilter<"AkuoConfig"> | number
     activo?: BoolFilter<"AkuoConfig"> | boolean
   }, "id">
 
@@ -25141,7 +25285,6 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
-    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
     _count?: AkuoConfigCountOrderByAggregateInput
     _avg?: AkuoConfigAvgOrderByAggregateInput
@@ -25162,7 +25305,6 @@ export namespace Prisma {
     maxVehiculosFree?: IntWithAggregatesFilter<"AkuoConfig"> | number
     maxVehiculosPro?: IntWithAggregatesFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntWithAggregatesFilter<"AkuoConfig"> | number
-    precioPorLitroAguaDefault?: FloatWithAggregatesFilter<"AkuoConfig"> | number
     activo?: BoolWithAggregatesFilter<"AkuoConfig"> | boolean
   }
 
@@ -25182,6 +25324,7 @@ export namespace Prisma {
     litrosMinimos?: IntFilter<"AkuoZona"> | number
     radioKm?: FloatNullableFilter<"AkuoZona"> | number | null
     activa?: BoolFilter<"AkuoZona"> | boolean
+    usuarios?: AkuoUsuarioListRelationFilter
   }
 
   export type AkuoZonaOrderByWithRelationInput = {
@@ -25197,6 +25340,7 @@ export namespace Prisma {
     litrosMinimos?: SortOrder
     radioKm?: SortOrderInput | SortOrder
     activa?: SortOrder
+    usuarios?: AkuoUsuarioOrderByRelationAggregateInput
   }
 
   export type AkuoZonaWhereUniqueInput = Prisma.AtLeast<{
@@ -25215,6 +25359,7 @@ export namespace Prisma {
     litrosMinimos?: IntFilter<"AkuoZona"> | number
     radioKm?: FloatNullableFilter<"AkuoZona"> | number | null
     activa?: BoolFilter<"AkuoZona"> | boolean
+    usuarios?: AkuoUsuarioListRelationFilter
   }, "id">
 
   export type AkuoZonaOrderByWithAggregationInput = {
@@ -25587,6 +25732,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -25618,6 +25764,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -25705,6 +25852,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -25736,6 +25884,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -25795,6 +25944,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -25883,6 +26033,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -27044,7 +27195,6 @@ export namespace Prisma {
     maxVehiculosFree?: number
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
-    precioPorLitroAguaDefault?: number
     activo?: boolean
   }
 
@@ -27057,7 +27207,6 @@ export namespace Prisma {
     maxVehiculosFree?: number
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
-    precioPorLitroAguaDefault?: number
     activo?: boolean
   }
 
@@ -27070,7 +27219,6 @@ export namespace Prisma {
     maxVehiculosFree?: IntFieldUpdateOperationsInput | number
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
-    precioPorLitroAguaDefault?: FloatFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -27083,7 +27231,6 @@ export namespace Prisma {
     maxVehiculosFree?: IntFieldUpdateOperationsInput | number
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
-    precioPorLitroAguaDefault?: FloatFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -27096,7 +27243,6 @@ export namespace Prisma {
     maxVehiculosFree?: number
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
-    precioPorLitroAguaDefault?: number
     activo?: boolean
   }
 
@@ -27109,7 +27255,6 @@ export namespace Prisma {
     maxVehiculosFree?: IntFieldUpdateOperationsInput | number
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
-    precioPorLitroAguaDefault?: FloatFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -27122,7 +27267,6 @@ export namespace Prisma {
     maxVehiculosFree?: IntFieldUpdateOperationsInput | number
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
-    precioPorLitroAguaDefault?: FloatFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -27139,6 +27283,7 @@ export namespace Prisma {
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
+    usuarios?: AkuoUsuarioCreateNestedManyWithoutZonaInput
   }
 
   export type AkuoZonaUncheckedCreateInput = {
@@ -27154,6 +27299,7 @@ export namespace Prisma {
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
+    usuarios?: AkuoUsuarioUncheckedCreateNestedManyWithoutZonaInput
   }
 
   export type AkuoZonaUpdateInput = {
@@ -27169,6 +27315,7 @@ export namespace Prisma {
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
+    usuarios?: AkuoUsuarioUpdateManyWithoutZonaNestedInput
   }
 
   export type AkuoZonaUncheckedUpdateInput = {
@@ -27184,6 +27331,7 @@ export namespace Prisma {
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
+    usuarios?: AkuoUsuarioUncheckedUpdateManyWithoutZonaNestedInput
   }
 
   export type AkuoZonaCreateManyInput = {
@@ -27650,6 +27798,11 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type AkuoZonaNullableScalarRelationFilter = {
+    is?: AkuoZonaWhereInput | null
+    isNot?: AkuoZonaWhereInput | null
+  }
+
   export type AkuoSesionListRelationFilter = {
     every?: AkuoSesionWhereInput
     some?: AkuoSesionWhereInput
@@ -27799,6 +27952,7 @@ export namespace Prisma {
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
     saldo?: SortOrder
+    zonaId?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -27852,6 +28006,7 @@ export namespace Prisma {
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
     saldo?: SortOrder
+    zonaId?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -27896,6 +28051,7 @@ export namespace Prisma {
     requiereClientePresente?: SortOrder
     usoAgua?: SortOrder
     saldo?: SortOrder
+    zonaId?: SortOrder
     passwordHash?: SortOrder
     avatarUrl?: SortOrder
     rol?: SortOrder
@@ -28676,7 +28832,6 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
-    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
   }
 
@@ -28687,7 +28842,6 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
-    precioPorLitroAguaDefault?: SortOrder
   }
 
   export type AkuoConfigMaxOrderByAggregateInput = {
@@ -28699,7 +28853,6 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
-    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
   }
 
@@ -28712,7 +28865,6 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
-    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
   }
 
@@ -28723,7 +28875,16 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
-    precioPorLitroAguaDefault?: SortOrder
+  }
+
+  export type AkuoUsuarioListRelationFilter = {
+    every?: AkuoUsuarioWhereInput
+    some?: AkuoUsuarioWhereInput
+    none?: AkuoUsuarioWhereInput
+  }
+
+  export type AkuoUsuarioOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type AkuoZonaCountOrderByAggregateInput = {
@@ -28947,6 +29108,12 @@ export namespace Prisma {
     lat?: SortOrder
     lng?: SortOrder
     precioTotal?: SortOrder
+  }
+
+  export type AkuoZonaCreateNestedOneWithoutUsuariosInput = {
+    create?: XOR<AkuoZonaCreateWithoutUsuariosInput, AkuoZonaUncheckedCreateWithoutUsuariosInput>
+    connectOrCreate?: AkuoZonaCreateOrConnectWithoutUsuariosInput
+    connect?: AkuoZonaWhereUniqueInput
   }
 
   export type AkuoSesionCreateNestedManyWithoutUsuarioInput = {
@@ -29209,6 +29376,16 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type AkuoZonaUpdateOneWithoutUsuariosNestedInput = {
+    create?: XOR<AkuoZonaCreateWithoutUsuariosInput, AkuoZonaUncheckedCreateWithoutUsuariosInput>
+    connectOrCreate?: AkuoZonaCreateOrConnectWithoutUsuariosInput
+    upsert?: AkuoZonaUpsertWithoutUsuariosInput
+    disconnect?: AkuoZonaWhereInput | boolean
+    delete?: AkuoZonaWhereInput | boolean
+    connect?: AkuoZonaWhereUniqueInput
+    update?: XOR<XOR<AkuoZonaUpdateToOneWithWhereWithoutUsuariosInput, AkuoZonaUpdateWithoutUsuariosInput>, AkuoZonaUncheckedUpdateWithoutUsuariosInput>
   }
 
   export type AkuoSesionUpdateManyWithoutUsuarioNestedInput = {
@@ -29995,6 +30172,48 @@ export namespace Prisma {
     update?: XOR<XOR<AkuoUsuarioUpdateToOneWithWhereWithoutAuditLogsInput, AkuoUsuarioUpdateWithoutAuditLogsInput>, AkuoUsuarioUncheckedUpdateWithoutAuditLogsInput>
   }
 
+  export type AkuoUsuarioCreateNestedManyWithoutZonaInput = {
+    create?: XOR<AkuoUsuarioCreateWithoutZonaInput, AkuoUsuarioUncheckedCreateWithoutZonaInput> | AkuoUsuarioCreateWithoutZonaInput[] | AkuoUsuarioUncheckedCreateWithoutZonaInput[]
+    connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutZonaInput | AkuoUsuarioCreateOrConnectWithoutZonaInput[]
+    createMany?: AkuoUsuarioCreateManyZonaInputEnvelope
+    connect?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+  }
+
+  export type AkuoUsuarioUncheckedCreateNestedManyWithoutZonaInput = {
+    create?: XOR<AkuoUsuarioCreateWithoutZonaInput, AkuoUsuarioUncheckedCreateWithoutZonaInput> | AkuoUsuarioCreateWithoutZonaInput[] | AkuoUsuarioUncheckedCreateWithoutZonaInput[]
+    connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutZonaInput | AkuoUsuarioCreateOrConnectWithoutZonaInput[]
+    createMany?: AkuoUsuarioCreateManyZonaInputEnvelope
+    connect?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+  }
+
+  export type AkuoUsuarioUpdateManyWithoutZonaNestedInput = {
+    create?: XOR<AkuoUsuarioCreateWithoutZonaInput, AkuoUsuarioUncheckedCreateWithoutZonaInput> | AkuoUsuarioCreateWithoutZonaInput[] | AkuoUsuarioUncheckedCreateWithoutZonaInput[]
+    connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutZonaInput | AkuoUsuarioCreateOrConnectWithoutZonaInput[]
+    upsert?: AkuoUsuarioUpsertWithWhereUniqueWithoutZonaInput | AkuoUsuarioUpsertWithWhereUniqueWithoutZonaInput[]
+    createMany?: AkuoUsuarioCreateManyZonaInputEnvelope
+    set?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+    disconnect?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+    delete?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+    connect?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+    update?: AkuoUsuarioUpdateWithWhereUniqueWithoutZonaInput | AkuoUsuarioUpdateWithWhereUniqueWithoutZonaInput[]
+    updateMany?: AkuoUsuarioUpdateManyWithWhereWithoutZonaInput | AkuoUsuarioUpdateManyWithWhereWithoutZonaInput[]
+    deleteMany?: AkuoUsuarioScalarWhereInput | AkuoUsuarioScalarWhereInput[]
+  }
+
+  export type AkuoUsuarioUncheckedUpdateManyWithoutZonaNestedInput = {
+    create?: XOR<AkuoUsuarioCreateWithoutZonaInput, AkuoUsuarioUncheckedCreateWithoutZonaInput> | AkuoUsuarioCreateWithoutZonaInput[] | AkuoUsuarioUncheckedCreateWithoutZonaInput[]
+    connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutZonaInput | AkuoUsuarioCreateOrConnectWithoutZonaInput[]
+    upsert?: AkuoUsuarioUpsertWithWhereUniqueWithoutZonaInput | AkuoUsuarioUpsertWithWhereUniqueWithoutZonaInput[]
+    createMany?: AkuoUsuarioCreateManyZonaInputEnvelope
+    set?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+    disconnect?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+    delete?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+    connect?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+    update?: AkuoUsuarioUpdateWithWhereUniqueWithoutZonaInput | AkuoUsuarioUpdateWithWhereUniqueWithoutZonaInput[]
+    updateMany?: AkuoUsuarioUpdateManyWithWhereWithoutZonaInput | AkuoUsuarioUpdateManyWithWhereWithoutZonaInput[]
+    deleteMany?: AkuoUsuarioScalarWhereInput | AkuoUsuarioScalarWhereInput[]
+  }
+
   export type AkuoUsuarioCreateNestedOneWithoutConversacionesClienteInput = {
     create?: XOR<AkuoUsuarioCreateWithoutConversacionesClienteInput, AkuoUsuarioUncheckedCreateWithoutConversacionesClienteInput>
     connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutConversacionesClienteInput
@@ -30354,6 +30573,41 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type AkuoZonaCreateWithoutUsuariosInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    nombre: string
+    descripcion?: string | null
+    zonaGeoJson: string
+    centroLat?: number | null
+    centroLng?: number | null
+    precioPorLitro: number
+    litrosMinimos?: number
+    radioKm?: number | null
+    activa?: boolean
+  }
+
+  export type AkuoZonaUncheckedCreateWithoutUsuariosInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    nombre: string
+    descripcion?: string | null
+    zonaGeoJson: string
+    centroLat?: number | null
+    centroLng?: number | null
+    precioPorLitro: number
+    litrosMinimos?: number
+    radioKm?: number | null
+    activa?: boolean
+  }
+
+  export type AkuoZonaCreateOrConnectWithoutUsuariosInput = {
+    where: AkuoZonaWhereUniqueInput
+    create: XOR<AkuoZonaCreateWithoutUsuariosInput, AkuoZonaUncheckedCreateWithoutUsuariosInput>
   }
 
   export type AkuoSesionCreateWithoutUsuarioInput = {
@@ -30941,6 +31195,47 @@ export namespace Prisma {
     data: AkuoPedidoClienteCreateManyTransportistaInput | AkuoPedidoClienteCreateManyTransportistaInput[]
   }
 
+  export type AkuoZonaUpsertWithoutUsuariosInput = {
+    update: XOR<AkuoZonaUpdateWithoutUsuariosInput, AkuoZonaUncheckedUpdateWithoutUsuariosInput>
+    create: XOR<AkuoZonaCreateWithoutUsuariosInput, AkuoZonaUncheckedCreateWithoutUsuariosInput>
+    where?: AkuoZonaWhereInput
+  }
+
+  export type AkuoZonaUpdateToOneWithWhereWithoutUsuariosInput = {
+    where?: AkuoZonaWhereInput
+    data: XOR<AkuoZonaUpdateWithoutUsuariosInput, AkuoZonaUncheckedUpdateWithoutUsuariosInput>
+  }
+
+  export type AkuoZonaUpdateWithoutUsuariosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    zonaGeoJson?: StringFieldUpdateOperationsInput | string
+    centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    litrosMinimos?: IntFieldUpdateOperationsInput | number
+    radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AkuoZonaUncheckedUpdateWithoutUsuariosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    zonaGeoJson?: StringFieldUpdateOperationsInput | string
+    centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    litrosMinimos?: IntFieldUpdateOperationsInput | number
+    radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+  }
+
   export type AkuoSesionUpsertWithWhereUniqueWithoutUsuarioInput = {
     where: AkuoSesionWhereUniqueInput
     update: XOR<AkuoSesionUpdateWithoutUsuarioInput, AkuoSesionUncheckedUpdateWithoutUsuarioInput>
@@ -31459,6 +31754,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoCreateNestedManyWithoutTransportistaInput
@@ -31489,6 +31785,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31591,6 +31888,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUpdateManyWithoutTransportistaNestedInput
@@ -31621,6 +31919,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -31707,6 +32006,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -31737,6 +32037,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -31904,6 +32205,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -31934,6 +32236,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32036,6 +32339,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -32066,6 +32370,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32278,6 +32583,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -32308,6 +32614,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32426,6 +32733,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoCreateNestedManyWithoutTransportistaInput
@@ -32456,6 +32764,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -32668,6 +32977,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUpdateManyWithoutTransportistaNestedInput
@@ -32698,6 +33008,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -32906,6 +33217,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoCreateNestedManyWithoutTransportistaInput
@@ -32936,6 +33248,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33167,6 +33480,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUpdateManyWithoutTransportistaNestedInput
@@ -33197,6 +33511,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33430,6 +33745,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -33460,6 +33776,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33562,6 +33879,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -33592,6 +33910,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33678,6 +33997,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -33708,6 +34028,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -33810,6 +34131,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -33840,6 +34162,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -33926,6 +34249,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -33956,6 +34280,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -34058,6 +34383,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -34088,6 +34414,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -34174,6 +34501,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -34204,6 +34532,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -34306,6 +34635,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -34336,6 +34666,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -34422,6 +34753,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -34452,6 +34784,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -34554,6 +34887,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -34584,6 +34918,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -34628,7 +34963,7 @@ export namespace Prisma {
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
-  export type AkuoUsuarioCreateWithoutConversacionesClienteInput = {
+  export type AkuoUsuarioCreateWithoutZonaInput = {
     id?: string
     email: string
     nombre: string
@@ -34680,6 +35015,198 @@ export namespace Prisma {
     notificaciones?: AkuoNotificacionCreateNestedManyWithoutUsuarioInput
     auditLogs?: AkuoAuditLogCreateNestedManyWithoutSuperadminInput
     suscripciones?: AkuoSuscripcionCreateNestedManyWithoutTransportistaInput
+    conversacionesCliente?: AkuoConversacionCreateNestedManyWithoutClienteInput
+    conversacionesTransportista?: AkuoConversacionCreateNestedManyWithoutTransportistaInput
+    mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
+    pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
+    pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+  }
+
+  export type AkuoUsuarioUncheckedCreateWithoutZonaInput = {
+    id?: string
+    email: string
+    nombre: string
+    telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
+    saldo?: number
+    passwordHash?: string | null
+    avatarUrl?: string | null
+    rol?: string
+    activo?: boolean
+    aprobado?: boolean
+    banned?: boolean
+    banRazon?: string | null
+    creadoEn?: Date | string
+    ultimoLoginEn?: Date | string | null
+    googleId?: string | null
+    facebookId?: string | null
+    rutEmpresa?: string | null
+    razonSocial?: string | null
+    direccionEmpresa?: string | null
+    capacidadVehiculoKg?: number | null
+    patenteVehiculo?: string | null
+    tipoVehiculo?: string | null
+    licenciaConducirUrl?: string | null
+    permisoCircUrl?: string | null
+    seguroUrl?: string | null
+    areasCobertura?: string | null
+    descripcion?: string | null
+    plan?: string
+    suscripcionActiva?: boolean
+    suscripcionInicio?: Date | string | null
+    suscripcionFin?: Date | string | null
+    vehiculosPermitidos?: number
+    choferesPermitidos?: number
+    sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
+    pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
+    entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
+    vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
+    clientes?: AkuoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    pagos?: AkuoPagoUncheckedCreateNestedManyWithoutTransportistaInput
+    valoracionesRecibidas?: AkuoValoracionUncheckedCreateNestedManyWithoutTransportistaInput
+    notificaciones?: AkuoNotificacionUncheckedCreateNestedManyWithoutUsuarioInput
+    auditLogs?: AkuoAuditLogUncheckedCreateNestedManyWithoutSuperadminInput
+    suscripciones?: AkuoSuscripcionUncheckedCreateNestedManyWithoutTransportistaInput
+    conversacionesCliente?: AkuoConversacionUncheckedCreateNestedManyWithoutClienteInput
+    conversacionesTransportista?: AkuoConversacionUncheckedCreateNestedManyWithoutTransportistaInput
+    mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
+    pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+  }
+
+  export type AkuoUsuarioCreateOrConnectWithoutZonaInput = {
+    where: AkuoUsuarioWhereUniqueInput
+    create: XOR<AkuoUsuarioCreateWithoutZonaInput, AkuoUsuarioUncheckedCreateWithoutZonaInput>
+  }
+
+  export type AkuoUsuarioCreateManyZonaInputEnvelope = {
+    data: AkuoUsuarioCreateManyZonaInput | AkuoUsuarioCreateManyZonaInput[]
+  }
+
+  export type AkuoUsuarioUpsertWithWhereUniqueWithoutZonaInput = {
+    where: AkuoUsuarioWhereUniqueInput
+    update: XOR<AkuoUsuarioUpdateWithoutZonaInput, AkuoUsuarioUncheckedUpdateWithoutZonaInput>
+    create: XOR<AkuoUsuarioCreateWithoutZonaInput, AkuoUsuarioUncheckedCreateWithoutZonaInput>
+  }
+
+  export type AkuoUsuarioUpdateWithWhereUniqueWithoutZonaInput = {
+    where: AkuoUsuarioWhereUniqueInput
+    data: XOR<AkuoUsuarioUpdateWithoutZonaInput, AkuoUsuarioUncheckedUpdateWithoutZonaInput>
+  }
+
+  export type AkuoUsuarioUpdateManyWithWhereWithoutZonaInput = {
+    where: AkuoUsuarioScalarWhereInput
+    data: XOR<AkuoUsuarioUpdateManyMutationInput, AkuoUsuarioUncheckedUpdateManyWithoutZonaInput>
+  }
+
+  export type AkuoUsuarioScalarWhereInput = {
+    AND?: AkuoUsuarioScalarWhereInput | AkuoUsuarioScalarWhereInput[]
+    OR?: AkuoUsuarioScalarWhereInput[]
+    NOT?: AkuoUsuarioScalarWhereInput | AkuoUsuarioScalarWhereInput[]
+    id?: StringFilter<"AkuoUsuario"> | string
+    email?: StringFilter<"AkuoUsuario"> | string
+    nombre?: StringFilter<"AkuoUsuario"> | string
+    telefono?: StringNullableFilter<"AkuoUsuario"> | string | null
+    direccion?: StringNullableFilter<"AkuoUsuario"> | string | null
+    comuna?: StringNullableFilter<"AkuoUsuario"> | string | null
+    lat?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    lng?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    rut?: StringNullableFilter<"AkuoUsuario"> | string | null
+    indicacionesAcceso?: StringNullableFilter<"AkuoUsuario"> | string | null
+    requiereClientePresente?: BoolFilter<"AkuoUsuario"> | boolean
+    usoAgua?: StringFilter<"AkuoUsuario"> | string
+    saldo?: FloatFilter<"AkuoUsuario"> | number
+    zonaId?: StringNullableFilter<"AkuoUsuario"> | string | null
+    passwordHash?: StringNullableFilter<"AkuoUsuario"> | string | null
+    avatarUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    rol?: StringFilter<"AkuoUsuario"> | string
+    activo?: BoolFilter<"AkuoUsuario"> | boolean
+    aprobado?: BoolFilter<"AkuoUsuario"> | boolean
+    banned?: BoolFilter<"AkuoUsuario"> | boolean
+    banRazon?: StringNullableFilter<"AkuoUsuario"> | string | null
+    creadoEn?: DateTimeFilter<"AkuoUsuario"> | Date | string
+    ultimoLoginEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    googleId?: StringNullableFilter<"AkuoUsuario"> | string | null
+    facebookId?: StringNullableFilter<"AkuoUsuario"> | string | null
+    rutEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    razonSocial?: StringNullableFilter<"AkuoUsuario"> | string | null
+    direccionEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    capacidadVehiculoKg?: IntNullableFilter<"AkuoUsuario"> | number | null
+    patenteVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tipoVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
+    licenciaConducirUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    permisoCircUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    seguroUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
+    descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
+    plan?: StringFilter<"AkuoUsuario"> | string
+    suscripcionActiva?: BoolFilter<"AkuoUsuario"> | boolean
+    suscripcionInicio?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
+    choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+  }
+
+  export type AkuoUsuarioCreateWithoutConversacionesClienteInput = {
+    id?: string
+    email: string
+    nombre: string
+    telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
+    saldo?: number
+    passwordHash?: string | null
+    avatarUrl?: string | null
+    rol?: string
+    activo?: boolean
+    aprobado?: boolean
+    banned?: boolean
+    banRazon?: string | null
+    creadoEn?: Date | string
+    ultimoLoginEn?: Date | string | null
+    googleId?: string | null
+    facebookId?: string | null
+    rutEmpresa?: string | null
+    razonSocial?: string | null
+    direccionEmpresa?: string | null
+    capacidadVehiculoKg?: number | null
+    patenteVehiculo?: string | null
+    tipoVehiculo?: string | null
+    licenciaConducirUrl?: string | null
+    permisoCircUrl?: string | null
+    seguroUrl?: string | null
+    areasCobertura?: string | null
+    descripcion?: string | null
+    plan?: string
+    suscripcionActiva?: boolean
+    suscripcionInicio?: Date | string | null
+    suscripcionFin?: Date | string | null
+    vehiculosPermitidos?: number
+    choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
+    sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
+    pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
+    entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
+    vehiculos?: AkuoVehiculoCreateNestedManyWithoutTransportistaInput
+    clientes?: AkuoClienteCreateNestedManyWithoutTransportistaInput
+    pagos?: AkuoPagoCreateNestedManyWithoutTransportistaInput
+    valoracionesRecibidas?: AkuoValoracionCreateNestedManyWithoutTransportistaInput
+    notificaciones?: AkuoNotificacionCreateNestedManyWithoutUsuarioInput
+    auditLogs?: AkuoAuditLogCreateNestedManyWithoutSuperadminInput
+    suscripciones?: AkuoSuscripcionCreateNestedManyWithoutTransportistaInput
     conversacionesTransportista?: AkuoConversacionCreateNestedManyWithoutTransportistaInput
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
@@ -34700,6 +35227,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -34791,6 +35319,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -34821,6 +35350,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -34948,6 +35478,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -34978,6 +35509,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -35075,6 +35607,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -35105,6 +35638,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -35228,6 +35762,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -35258,6 +35793,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -35387,6 +35923,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -35417,6 +35954,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -35503,6 +36041,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -35533,6 +36072,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -35624,6 +36164,7 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -35654,6 +36195,7 @@ export namespace Prisma {
     requiereClientePresente?: boolean
     usoAgua?: string
     saldo?: number
+    zonaId?: string | null
     passwordHash?: string | null
     avatarUrl?: string | null
     rol?: string
@@ -35756,6 +36298,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -35786,6 +36329,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -35883,6 +36427,7 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -35913,6 +36458,7 @@ export namespace Prisma {
     requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
     usoAgua?: StringFieldUpdateOperationsInput | string
     saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
     passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
     avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
     rol?: StringFieldUpdateOperationsInput | string
@@ -37135,6 +37681,212 @@ export namespace Prisma {
     detalleEstanquesJson?: NullableStringFieldUpdateOperationsInput | string | null
     lecturaAnterior?: NullableFloatFieldUpdateOperationsInput | number | null
     lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type AkuoUsuarioCreateManyZonaInput = {
+    id?: string
+    email: string
+    nombre: string
+    telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
+    saldo?: number
+    passwordHash?: string | null
+    avatarUrl?: string | null
+    rol?: string
+    activo?: boolean
+    aprobado?: boolean
+    banned?: boolean
+    banRazon?: string | null
+    creadoEn?: Date | string
+    ultimoLoginEn?: Date | string | null
+    googleId?: string | null
+    facebookId?: string | null
+    rutEmpresa?: string | null
+    razonSocial?: string | null
+    direccionEmpresa?: string | null
+    capacidadVehiculoKg?: number | null
+    patenteVehiculo?: string | null
+    tipoVehiculo?: string | null
+    licenciaConducirUrl?: string | null
+    permisoCircUrl?: string | null
+    seguroUrl?: string | null
+    areasCobertura?: string | null
+    descripcion?: string | null
+    plan?: string
+    suscripcionActiva?: boolean
+    suscripcionInicio?: Date | string | null
+    suscripcionFin?: Date | string | null
+    vehiculosPermitidos?: number
+    choferesPermitidos?: number
+  }
+
+  export type AkuoUsuarioUpdateWithoutZonaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rol?: StringFieldUpdateOperationsInput | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    aprobado?: BoolFieldUpdateOperationsInput | boolean
+    banned?: BoolFieldUpdateOperationsInput | boolean
+    banRazon?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
+    direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
+    patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    suscripcionActiva?: BoolFieldUpdateOperationsInput | boolean
+    suscripcionInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
+    choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
+    pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
+    entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
+    vehiculos?: AkuoVehiculoUpdateManyWithoutTransportistaNestedInput
+    clientes?: AkuoClienteUpdateManyWithoutTransportistaNestedInput
+    pagos?: AkuoPagoUpdateManyWithoutTransportistaNestedInput
+    valoracionesRecibidas?: AkuoValoracionUpdateManyWithoutTransportistaNestedInput
+    notificaciones?: AkuoNotificacionUpdateManyWithoutUsuarioNestedInput
+    auditLogs?: AkuoAuditLogUpdateManyWithoutSuperadminNestedInput
+    suscripciones?: AkuoSuscripcionUpdateManyWithoutTransportistaNestedInput
+    conversacionesCliente?: AkuoConversacionUpdateManyWithoutClienteNestedInput
+    conversacionesTransportista?: AkuoConversacionUpdateManyWithoutTransportistaNestedInput
+    mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
+    pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+  }
+
+  export type AkuoUsuarioUncheckedUpdateWithoutZonaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rol?: StringFieldUpdateOperationsInput | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    aprobado?: BoolFieldUpdateOperationsInput | boolean
+    banned?: BoolFieldUpdateOperationsInput | boolean
+    banRazon?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
+    direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
+    patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    suscripcionActiva?: BoolFieldUpdateOperationsInput | boolean
+    suscripcionInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
+    choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
+    pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
+    entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
+    vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
+    clientes?: AkuoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    pagos?: AkuoPagoUncheckedUpdateManyWithoutTransportistaNestedInput
+    valoracionesRecibidas?: AkuoValoracionUncheckedUpdateManyWithoutTransportistaNestedInput
+    notificaciones?: AkuoNotificacionUncheckedUpdateManyWithoutUsuarioNestedInput
+    auditLogs?: AkuoAuditLogUncheckedUpdateManyWithoutSuperadminNestedInput
+    suscripciones?: AkuoSuscripcionUncheckedUpdateManyWithoutTransportistaNestedInput
+    conversacionesCliente?: AkuoConversacionUncheckedUpdateManyWithoutClienteNestedInput
+    conversacionesTransportista?: AkuoConversacionUncheckedUpdateManyWithoutTransportistaNestedInput
+    mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+    pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+  }
+
+  export type AkuoUsuarioUncheckedUpdateManyWithoutZonaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rol?: StringFieldUpdateOperationsInput | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    aprobado?: BoolFieldUpdateOperationsInput | boolean
+    banned?: BoolFieldUpdateOperationsInput | boolean
+    banRazon?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
+    direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
+    patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    suscripcionActiva?: BoolFieldUpdateOperationsInput | boolean
+    suscripcionInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
+    choferesPermitidos?: IntFieldUpdateOperationsInput | number
   }
 
   export type AkuoMensajeCreateManyConversacionInput = {

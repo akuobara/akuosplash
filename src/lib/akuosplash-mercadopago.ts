@@ -24,15 +24,13 @@ function distanciaKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Verifica si un punto (lat, lng) está dentro de un polígono GeoJSON
+// Verifica si un punto [lng, lat] está dentro de un polígono GeoJSON (ray casting)
 function puntoEnPoligono(lat: number, lng: number, geoJsonStr: string): boolean {
   try {
     const geo = JSON.parse(geoJsonStr);
     if (!geo.coordinates || !Array.isArray(geo.coordinates)) return false;
-    // Polygon: coordinates[0] = anillo exterior
     const polygon = geo.coordinates[0];
     if (!polygon || polygon.length < 3) return false;
-    // Algoritmo ray casting
     let dentro = false;
     for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
       const xi = polygon[i][0], yi = polygon[i][1];
@@ -46,41 +44,27 @@ function puntoEnPoligono(lat: number, lng: number, geoJsonStr: string): boolean 
   }
 }
 
-// Devuelve la zona aplicable al cliente según su lat/lng
-// Si no cae en ninguna zona, devuelve null (se usa el default)
-export async function getZonaCliente(lat?: number, lng?: number, comuna?: string): Promise<any | null> {
+// Detecta la zona aplicable a una ubicación (lat/lng).
+// Igual que en Aljibe: primero polígono, después radio desde centro.
+// Devuelve null si el punto no cae en ninguna zona.
+export async function detectarZona(lat?: number, lng?: number): Promise<any | null> {
+  if (lat === undefined || lng === undefined || isNaN(lat) || isNaN(lng)) return null;
   const zonas = await akuosplashDb.akuoZona.findMany({ where: { activa: true } });
-  // 1) Si hay lat/lng, buscar por polígono
-  if (lat !== undefined && lng !== undefined && zonas.length > 0) {
-    for (const z of zonas) {
-      if (z.zonaGeoJson && z.zonaGeoJson !== '{"type":"Polygon","coordinates":[]}' && puntoEnPoligono(lat, lng, z.zonaGeoJson)) {
-        return z;
-      }
-    }
-    // 2) Buscar por radio desde centro
-    for (const z of zonas) {
-      if (z.centroLat !== null && z.centroLng !== null && z.radioKm) {
-        const dist = distanciaKm(lat, lng, z.centroLat, z.centroLng);
-        if (dist <= z.radioKm) return z;
-      }
+  if (zonas.length === 0) return null;
+  // 1) Polígono
+  for (const z of zonas) {
+    if (z.zonaGeoJson && z.zonaGeoJson !== '{"type":"Polygon","coordinates":[]}' && puntoEnPoligono(lat, lng, z.zonaGeoJson)) {
+      return z;
     }
   }
-  // 3) Si no hay zona geográfica pero hay comuna, intentar match exacto por nombre
-  if (comuna && zonas.length > 0) {
-    const zonaPorComuna = zonas.find(z => z.nombre.toLowerCase() === comuna.trim().toLowerCase());
-    if (zonaPorComuna) return zonaPorComuna;
+  // 2) Radio desde centro
+  for (const z of zonas) {
+    if (z.centroLat !== null && z.centroLng !== null && z.radioKm !== null) {
+      const dist = distanciaKm(lat, lng, z.centroLat, z.centroLng);
+      if (dist <= z.radioKm) return z;
+    }
   }
   return null;
-}
-
-// Devuelve el precio por litro para el cliente, basado en su zona (lat/lng o comuna)
-// Si no hay zona aplicable, devuelve el default de AkuoConfig
-export async function getPrecioPorLitro(lat?: number, lng?: number, comuna?: string): Promise<{ precio: number; zona: any | null; precioDefault: number }> {
-  const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
-  const precioDefault = config?.precioPorLitroAguaDefault ?? 50;
-  const zona = await getZonaCliente(lat, lng, comuna);
-  if (zona) return { precio: zona.precioPorLitro, zona, precioDefault };
-  return { precio: precioDefault, zona: null, precioDefault };
 }
 
 // Devuelve la comisión de la app en % (configurada por superadmin en AkuoConfig)
@@ -89,14 +73,24 @@ export async function getComisionPorcentaje(): Promise<number> {
   return config?.comisionPorcentaje ?? 0;
 }
 
-// Calcula el monto total que paga el cliente:
-// litros × precioPorLitro + comisión% sobre ese subtotal
-export async function calcularPrecioTotal(litros: number, lat?: number, lng?: number, comuna?: string): Promise<{ subtotal: number; comision: number; total: number; precioPorLitro: number; comisionPct: number; zonaNombre: string | null }> {
-  const { precio, zona } = await getPrecioPorLitro(lat, lng, comuna);
-  const subtotal = Math.round(litros * precio);
+// Calcula el monto total que paga el cliente basado en su zona asignada:
+// litros × zona.precioPorLitro + comisión% sobre ese subtotal
+// Si el cliente no tiene zona, devuelve null (sin servicio)
+export async function calcularPrecioTotal(litros: number, zonaId?: string | null): Promise<{ subtotal: number; comision: number; total: number; precioPorLitro: number; comisionPct: number; zonaNombre: string | null } | null> {
+  if (!zonaId) return null;
+  const zona = await akuosplashDb.akuoZona.findUnique({ where: { id: zonaId } });
+  if (!zona) return null;
+  const subtotal = Math.round(litros * zona.precioPorLitro);
   const comisionPct = await getComisionPorcentaje();
   const comision = Math.round((subtotal * comisionPct) / 100);
-  return { subtotal, comision, total: subtotal + comision, precioPorLitro: precio, comisionPct, zonaNombre: zona?.nombre || null };
+  return {
+    subtotal,
+    comision,
+    total: subtotal + comision,
+    precioPorLitro: zona.precioPorLitro,
+    comisionPct,
+    zonaNombre: zona.nombre,
+  };
 }
 
 // External reference con prefijo "akuo_pedido_pago:" para distinguirlo del de Aljibe

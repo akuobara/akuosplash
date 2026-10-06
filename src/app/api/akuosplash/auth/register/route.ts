@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoSignToken, akuoSetSessionCookie, akuoNotificar } from "@/lib/akuosplash-auth";
+import { detectarZona } from "@/lib/akuosplash-mercadopago";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
@@ -11,16 +12,49 @@ export async function POST(req: NextRequest) {
     const nombre = body.nombre?.trim();
     const telefono = body.telefono?.trim() || null;
     const rol = body.rol || "cliente";
+    const rut = body.rut?.trim() || null;
+    const direccion = body.direccion?.trim() || null;
+    const comuna = body.comuna?.trim() || null;
+    const lat = body.lat != null && body.lat !== "" ? Number(body.lat) : null;
+    const lng = body.lng != null && body.lng !== "" ? Number(body.lng) : null;
+    const indicacionesAcceso = body.indicacionesAcceso?.trim() || null;
+
     if (!email || !password || !nombre) return NextResponse.json({ error: "Email, contraseña y nombre son obligatorios" }, { status: 400 });
     if (password.length < 6) return NextResponse.json({ error: "La contraseña debe tener al menos 6 caracteres" }, { status: 400 });
     if (!["cliente", "transportista"].includes(rol)) return NextResponse.json({ error: "Rol inválido" }, { status: 400 });
+    // Para clientes, RUT y lat/lng son obligatorios (la zona se asigna por ubicación)
+    if (rol === "cliente") {
+      if (!rut) return NextResponse.json({ error: "El RUT es obligatorio" }, { status: 400 });
+      if (lat == null || lng == null) return NextResponse.json({ error: "Tu ubicación (lat/lng) es obligatoria para asignarte una zona de servicio. Usá el botón 'Usar mi ubicación'." }, { status: 400 });
+    }
+
     const existente = await akuosplashDb.akuoUsuario.findUnique({ where: { email } });
     if (existente) return NextResponse.json({ error: "Ya existe una cuenta con ese email" }, { status: 409 });
+
+    // Detectar zona por lat/lng (igual que Aljibe)
+    let zonaId: string | null = null;
+    if (rol === "cliente" && lat != null && lng != null) {
+      const zona = await detectarZona(lat, lng);
+      if (!zona) {
+        return NextResponse.json({
+          error: "Lo sentimos, todavía no tenemos servicio en tu zona. Contactanos para verificar cobertura.",
+        }, { status: 400 });
+      }
+      zonaId = zona.id;
+    }
+
     const superadminExistente = await akuosplashDb.akuoUsuario.findFirst({ where: { rol: "superadmin" } });
     const rolFinal = superadminExistente ? rol : "superadmin";
     const passwordHash = await bcrypt.hash(password, 10);
     const vehiculosPermitidos = rolFinal === "superadmin" ? 999 : 1;
-    const usuario = await akuosplashDb.akuoUsuario.create({ data: { email, nombre, telefono, passwordHash, rol: rolFinal, aprobado: rolFinal !== "transportista", plan: "free", vehiculosPermitidos } });
+
+    const usuario = await akuosplashDb.akuoUsuario.create({
+      data: {
+        email, nombre, telefono, passwordHash, rol: rolFinal,
+        aprobado: rolFinal !== "transportista", plan: "free", vehiculosPermitidos,
+        rut, direccion, comuna, lat, lng, indicacionesAcceso, zonaId,
+      },
+    });
     await akuoNotificar(usuario.id, "bienvenida", "¡Bienvenido a AkuoSplash!", `Hola ${nombre}, tu cuenta fue creada como ${rolFinal}.`, "/akuosplash");
     const token = await akuoSignToken({ userId: usuario.id, rol: usuario.rol, nombre: usuario.nombre });
     await akuoSetSessionCookie(token);

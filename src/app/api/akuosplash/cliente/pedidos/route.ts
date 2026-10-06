@@ -27,13 +27,24 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   if (!body.direccion?.trim() || !body.litros) return NextResponse.json({ error: "Dirección y litros son obligatorios" }, { status: 400 });
 
+  // Recargar usuario con su zona
+  const usuarioConZona = await akuosplashDb.akuoUsuario.findUnique({
+    where: { id: user.id },
+    include: { zona: true },
+  });
+  if (!usuarioConZona) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
+  if (!usuarioConZona.zonaId || !usuarioConZona.zona) {
+    return NextResponse.json({ error: "No tenés zona de servicio asignada. Contactá soporte." }, { status: 400 });
+  }
+
   // El código siempre se genera — el repartidor lo necesitará al finalizar la entrega
   const codigoConfirmacion = generarCodigoConfirmacion();
-  // El precio depende de la zona del cliente (lat/lng o comuna)
-  const lat = body.lat ? Number(body.lat) : (user as any).lat;
-  const lng = body.lng ? Number(body.lng) : (user as any).lng;
-  const comuna = body.comuna?.trim() || (user as any).comuna || undefined;
-  const { total } = await calcularPrecioTotal(Number(body.litros), lat, lng, comuna);
+  // El precio sale de la zona asignada al usuario
+  const precioCalc = await calcularPrecioTotal(Number(body.litros), usuarioConZona.zonaId);
+  if (!precioCalc) {
+    return NextResponse.json({ error: "No se pudo calcular el precio (zona inválida)" }, { status: 400 });
+  }
+  const total = precioCalc.total;
 
   const pedido = await akuosplashDb.akuoPedidoCliente.create({
     data: {

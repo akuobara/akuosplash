@@ -26,7 +26,7 @@ function PedirAguaInner() {
   const [perfil, setPerfil] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [creando, setCreando] = useState(false);
-  const [config, setConfig] = useState<{ precioPorLitro: number; comisionPct: number; zona?: { nombre: string } | null }>({ precioPorLitro: 0, comisionPct: 0 });
+  const [config, setConfig] = useState<{ precioPorLitro: number | null; comisionPct: number; zona?: { nombre: string } | null; hayServicio?: boolean; litrosMinimos?: number | null }>({ precioPorLitro: null, comisionPct: 0 });
 
   const [litros, setLitros] = useState("1000");
   const [direccion, setDireccion] = useState("");
@@ -61,18 +61,13 @@ function PedirAguaInner() {
     }).finally(() => setLoading(false));
   }, [router, params]);
 
-  // Re-fetch del precio cuando cambia la comuna o el cliente tiene lat/lng
+  // Cargar precio según la zona del cliente
   useEffect(() => {
     if (!perfil) return;
-    const params = new URLSearchParams();
-    if (comuna.trim()) params.set("comuna", comuna.trim());
-    if (perfil.lat) params.set("lat", String(perfil.lat));
-    if (perfil.lng) params.set("lng", String(perfil.lng));
-    const query = params.toString() ? `?${params.toString()}` : "";
-    akuoGet<{ precioPorLitro: number; comisionPct: number; zona: { nombre: string } | null }>(`/api/akuosplash/cliente/precio${query}`)
+    akuoGet<{ precioPorLitro: number | null; comisionPct: number; zona: { nombre: string } | null; hayServicio: boolean; litrosMinimos: number | null }>(`/api/akuosplash/cliente/precio`)
       .then(setConfig)
-      .catch(() => setConfig({ precioPorLitro: 50, comisionPct: 0 }));
-  }, [perfil, comuna]);
+      .catch(() => setConfig({ precioPorLitro: null, comisionPct: 0, hayServicio: false }));
+  }, [perfil]);
 
   async function handlePedir(e: React.FormEvent) {
     e.preventDefault();
@@ -258,10 +253,14 @@ function PedirAguaInner() {
               <span className="text-gray-600">Cantidad</span>
               <span className="font-semibold tabular-nums">{litrosNum.toLocaleString("es-CL")} L</span>
             </div>
-            {config.precioPorLitro > 0 ? (
+            {config.hayServicio && config.precioPorLitro ? (
               <>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Precio por litro {config.zona ? `(${config.zona.nombre})` : comuna ? `(${comuna})` : ""}</span>
+                  <span className="text-gray-600">Zona</span>
+                  <span className="font-medium">{config.zona?.nombre || "—"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Precio por litro</span>
                   <span className="font-medium tabular-nums">{formatCLP(config.precioPorLitro)}</span>
                 </div>
                 <div className="flex justify-between">
@@ -280,7 +279,15 @@ function PedirAguaInner() {
                     {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))}
                   </span>
                 </div>
+                {config.litrosMinimos && config.litrosMinimos > 0 && litrosNum < config.litrosMinimos && (
+                  <p className="text-[11px] text-amber-600 mt-1">Mínimo para tu zona: {config.litrosMinimos} L</p>
+                )}
               </>
+            ) : config.hayServicio === false ? (
+              <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-center">
+                <p className="font-medium text-red-700">Sin servicio en tu zona</p>
+                <p className="text-xs text-red-600 mt-1">Tu ubicación no tiene zona de cobertura asignada. Contactanos para verificar.</p>
+              </div>
             ) : (
               <div className="flex justify-between text-gray-500">
                 <span>Consultando precio para tu zona…</span>
@@ -301,11 +308,13 @@ function PedirAguaInner() {
             type="submit"
             size="lg"
             className="w-full h-14 text-base font-semibold rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20"
-            disabled={creando || !direccion.trim() || !litros || config.precioPorLitro <= 0}
+            disabled={creando || !direccion.trim() || !litros || !config.hayServicio || !config.precioPorLitro}
           >
             {creando ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando…</>
-            ) : config.precioPorLitro <= 0 ? (
+            ) : !config.hayServicio ? (
+              <>Sin servicio en tu zona</>
+            ) : config.precioPorLitro == null ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Consultando precio…</>
             ) : (
               <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))} y pedir</>
