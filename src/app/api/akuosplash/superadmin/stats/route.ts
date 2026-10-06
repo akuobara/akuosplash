@@ -25,6 +25,24 @@ export async function GET() {
   const pedidosPorEstadoObj: Record<string, number> = {};
   pedidosPorEstado.forEach(p => { pedidosPorEstadoObj[p.estado] = p._count; });
 
+  // Repartidores pendientes (para mostrar inline en el dashboard)
+  const repartidoresPendientes = await akuosplashDb.akuoUsuario.findMany({
+    where: { rol: "transportista", aprobado: false },
+    orderBy: { creadoEn: "desc" },
+    take: 5,
+    select: { id: true, email: true, nombre: true, telefono: true, razonSocial: true, creadoEn: true },
+  });
+
+  // Últimos pedidos
+  const ultimosPedidos = await akuosplashDb.akuoPedidoCliente.findMany({
+    orderBy: { creadoEn: "desc" },
+    take: 5,
+    include: {
+      cliente: { select: { id: true, nombre: true } },
+      transportista: { select: { id: true, nombre: true } },
+    },
+  });
+
   return NextResponse.json({
     clientesCount,
     transportistasCount,
@@ -34,5 +52,7 @@ export async function GET() {
     transportistasPendientes,
     ingresosTotal: ingresos._sum.precioTotal || 0,
     pedidosPorEstado: pedidosPorEstadoObj,
+    repartidoresPendientesLista: repartidoresPendientes,
+    ultimosPedidos,
   });
 }

@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2, LogOut, Users, Truck, MapPin, ShoppingBag, DollarSign,
-  Settings, ChevronRight, Bell,
+  Settings, ChevronRight, Bell, Check, X,
 } from "lucide-react";
-import { akuoGet, akuoPost, formatCLP } from "@/components/akuosplash/akuosplash-utils";
+import { akuoGet, akuoPost, akuoApi, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
 
 interface Stats {
@@ -22,6 +22,8 @@ interface Stats {
   transportistasPendientes: number;
   ingresosTotal: number;
   pedidosPorEstado: Record<string, number>;
+  repartidoresPendientesLista: Array<{ id: string; email: string | null; nombre: string; telefono: string | null; razonSocial?: string | null; creadoEn: string }>;
+  ultimosPedidos: Array<{ id: string; creadoEn: string; litros: number; estado: string; precioTotal?: number | null; cliente: { nombre: string }; transportista?: { nombre: string } | null }>;
 }
 
 const ESTADO_LABELS: Record<string, { label: string; color: string }> = {
@@ -57,6 +59,27 @@ export default function SuperadminPage() {
   }, [user, refreshKey]);
 
   useEffect(() => { if (user) cargar(); }, [user, refreshKey]);
+
+  async function aprobarRepartidor(id: string, nombre: string) {
+    try {
+      await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${id}`, {
+        method: "PATCH", body: JSON.stringify({ aprobado: true }),
+      });
+      toast.success(`Repartidor ${nombre} aprobado`);
+      setRefreshKey(k => k + 1);
+    } catch (e: any) { toast.error(e.message || "Error"); }
+  }
+
+  async function rechazarRepartidor(id: string, nombre: string) {
+    if (!confirm(`¿Rechazar la solicitud de ${nombre}?`)) return;
+    try {
+      await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${id}`, {
+        method: "PATCH", body: JSON.stringify({ activo: false }),
+      });
+      toast.success(`Solicitud de ${nombre} rechazada`);
+      setRefreshKey(k => k + 1);
+    } catch (e: any) { toast.error(e.message || "Error"); }
+  }
 
   if (user === undefined) {
     return (
@@ -132,20 +155,64 @@ export default function SuperadminPage() {
           </Card>
         </div>
 
-        {/* Pedidos pendientes de aprobación */}
-        {stats && stats.transportistasPendientes > 0 && (
-          <Link href="/akuosplash/superadmin/transportistas">
-            <Card className="border-amber-200 bg-amber-50 cursor-pointer hover:bg-amber-100/50 transition">
-              <CardContent className="p-3 flex items-center gap-2">
-                <Bell className="h-5 w-5 text-amber-600" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-amber-900">{stats.transportistasPendientes} repartidor{stats.transportistasPendientes > 1 ? "es" : ""} esperando aprobación</p>
-                  <p className="text-xs text-amber-700">Tocá para revisar</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-amber-600" />
-              </CardContent>
-            </Card>
-          </Link>
+        {/* Repartidores pendientes de aprobación — INLINE ACTIONS */}
+        {stats && stats.repartidoresPendientesLista && stats.repartidoresPendientesLista.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 px-1">
+              <Bell className="h-3.5 w-3.5 text-amber-500" />
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Repartidores esperando aprobación
+              </h2>
+            </div>
+            {stats.repartidoresPendientesLista.map(u => (
+              <Card key={u.id} className="border-amber-200 bg-amber-50/50">
+                <CardContent className="p-3.5 space-y-2">
+                  <div>
+                    <p className="font-medium text-sm">{u.nombre}</p>
+                    <p className="text-xs text-gray-500">{u.email}</p>
+                    {u.telefono && <p className="text-xs text-gray-500">Tel: {u.telefono}</p>}
+                    {u.razonSocial && <p className="text-xs text-gray-500">Empresa: {u.razonSocial}</p>}
+                    <p className="text-[10px] text-gray-400 mt-0.5">Solicitud: {new Date(u.creadoEn).toLocaleDateString("es-CL")}</p>
+                  </div>
+                  <div className="flex gap-2 pt-2 border-t border-amber-200">
+                    <Button size="sm" onClick={() => aprobarRepartidor(u.id, u.nombre)} className="bg-emerald-600 hover:bg-emerald-700 flex-1">
+                      <Check className="h-4 w-4 mr-1" /> Aprobar
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => rechazarRepartidor(u.id, u.nombre)} className="text-red-600 border-red-300 hover:bg-red-50">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Últimos pedidos */}
+        {stats && stats.ultimosPedidos && stats.ultimosPedidos.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Últimos pedidos</h2>
+              <Link href="/akuosplash/superadmin/pedidos" className="text-xs text-blue-600 hover:underline">Ver todos</Link>
+            </div>
+            {stats.ultimosPedidos.map(p => (
+              <Card key={p.id} className="border-gray-100">
+                <CardContent className="p-3 flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-bold tabular-nums text-sm">{p.litros.toLocaleString("es-CL")} L</span>
+                      {p.precioTotal && <span className="text-xs text-gray-500">{formatCLP(p.precioTotal)}</span>}
+                    </div>
+                    <p className="text-xs text-gray-500 truncate">
+                      {p.cliente?.nombre} {p.transportista && `→ ${p.transportista.nombre}`}
+                    </p>
+                    <p className="text-[10px] text-gray-400">{new Date(p.creadoEn).toLocaleString("es-CL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</p>
+                  </div>
+                  <Badge variant="outline" className={ESTADO_LABELS[p.estado]?.color || "text-gray-500"}>{ESTADO_LABELS[p.estado]?.label || p.estado}</Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
 
         {/* Pedidos por estado */}
