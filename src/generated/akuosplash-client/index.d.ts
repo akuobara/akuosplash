@@ -79,6 +79,11 @@ export type AkuoAuditLog = $Result.DefaultSelection<Prisma.$AkuoAuditLogPayload>
  */
 export type AkuoConfig = $Result.DefaultSelection<Prisma.$AkuoConfigPayload>
 /**
+ * Model AkuoZonaPrecio
+ * 
+ */
+export type AkuoZonaPrecio = $Result.DefaultSelection<Prisma.$AkuoZonaPrecioPayload>
+/**
  * Model AkuoConversacion
  * 
  */
@@ -341,6 +346,16 @@ export class PrismaClient<
     * ```
     */
   get akuoConfig(): Prisma.AkuoConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.akuoZonaPrecio`: Exposes CRUD operations for the **AkuoZonaPrecio** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AkuoZonaPrecios
+    * const akuoZonaPrecios = await prisma.akuoZonaPrecio.findMany()
+    * ```
+    */
+  get akuoZonaPrecio(): Prisma.AkuoZonaPrecioDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.akuoConversacion`: Exposes CRUD operations for the **AkuoConversacion** model.
@@ -825,6 +840,7 @@ export namespace Prisma {
     AkuoNotificacion: 'AkuoNotificacion',
     AkuoAuditLog: 'AkuoAuditLog',
     AkuoConfig: 'AkuoConfig',
+    AkuoZonaPrecio: 'AkuoZonaPrecio',
     AkuoConversacion: 'AkuoConversacion',
     AkuoMensaje: 'AkuoMensaje',
     AkuoPedidoCliente: 'AkuoPedidoCliente'
@@ -846,7 +862,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "akuoUsuario" | "akuoSesion" | "akuoCodigoLogin" | "akuoVehiculo" | "akuoCliente" | "akuoPedido" | "akuoEntrega" | "akuoPago" | "akuoSuscripcion" | "akuoValoracion" | "akuoNotificacion" | "akuoAuditLog" | "akuoConfig" | "akuoConversacion" | "akuoMensaje" | "akuoPedidoCliente"
+      modelProps: "akuoUsuario" | "akuoSesion" | "akuoCodigoLogin" | "akuoVehiculo" | "akuoCliente" | "akuoPedido" | "akuoEntrega" | "akuoPago" | "akuoSuscripcion" | "akuoValoracion" | "akuoNotificacion" | "akuoAuditLog" | "akuoConfig" | "akuoZonaPrecio" | "akuoConversacion" | "akuoMensaje" | "akuoPedidoCliente"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1812,6 +1828,80 @@ export namespace Prisma {
           }
         }
       }
+      AkuoZonaPrecio: {
+        payload: Prisma.$AkuoZonaPrecioPayload<ExtArgs>
+        fields: Prisma.AkuoZonaPrecioFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AkuoZonaPrecioFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AkuoZonaPrecioFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>
+          }
+          findFirst: {
+            args: Prisma.AkuoZonaPrecioFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AkuoZonaPrecioFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>
+          }
+          findMany: {
+            args: Prisma.AkuoZonaPrecioFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>[]
+          }
+          create: {
+            args: Prisma.AkuoZonaPrecioCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>
+          }
+          createMany: {
+            args: Prisma.AkuoZonaPrecioCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AkuoZonaPrecioCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>[]
+          }
+          delete: {
+            args: Prisma.AkuoZonaPrecioDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>
+          }
+          update: {
+            args: Prisma.AkuoZonaPrecioUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>
+          }
+          deleteMany: {
+            args: Prisma.AkuoZonaPrecioDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AkuoZonaPrecioUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AkuoZonaPrecioUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>[]
+          }
+          upsert: {
+            args: Prisma.AkuoZonaPrecioUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoZonaPrecioPayload>
+          }
+          aggregate: {
+            args: Prisma.AkuoZonaPrecioAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAkuoZonaPrecio>
+          }
+          groupBy: {
+            args: Prisma.AkuoZonaPrecioGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AkuoZonaPrecioGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AkuoZonaPrecioCountArgs<ExtArgs>
+            result: $Utils.Optional<AkuoZonaPrecioCountAggregateOutputType> | number
+          }
+        }
+      }
       AkuoConversacion: {
         payload: Prisma.$AkuoConversacionPayload<ExtArgs>
         fields: Prisma.AkuoConversacionFieldRefs
@@ -2143,6 +2233,7 @@ export namespace Prisma {
     akuoNotificacion?: AkuoNotificacionOmit
     akuoAuditLog?: AkuoAuditLogOmit
     akuoConfig?: AkuoConfigOmit
+    akuoZonaPrecio?: AkuoZonaPrecioOmit
     akuoConversacion?: AkuoConversacionOmit
     akuoMensaje?: AkuoMensajeOmit
     akuoPedidoCliente?: AkuoPedidoClienteOmit
@@ -17514,6 +17605,7 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
+    precioPorLitroAguaDefault: number | null
   }
 
   export type AkuoConfigSumAggregateOutputType = {
@@ -17523,6 +17615,7 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
+    precioPorLitroAguaDefault: number | null
   }
 
   export type AkuoConfigMinAggregateOutputType = {
@@ -17534,6 +17627,7 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
+    precioPorLitroAguaDefault: number | null
     activo: boolean | null
   }
 
@@ -17546,6 +17640,7 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
+    precioPorLitroAguaDefault: number | null
     activo: boolean | null
   }
 
@@ -17558,6 +17653,7 @@ export namespace Prisma {
     maxVehiculosFree: number
     maxVehiculosPro: number
     maxVehiculosEnterprise: number
+    precioPorLitroAguaDefault: number
     activo: number
     _all: number
   }
@@ -17570,6 +17666,7 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
+    precioPorLitroAguaDefault?: true
   }
 
   export type AkuoConfigSumAggregateInputType = {
@@ -17579,6 +17676,7 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
+    precioPorLitroAguaDefault?: true
   }
 
   export type AkuoConfigMinAggregateInputType = {
@@ -17590,6 +17688,7 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
+    precioPorLitroAguaDefault?: true
     activo?: true
   }
 
@@ -17602,6 +17701,7 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
+    precioPorLitroAguaDefault?: true
     activo?: true
   }
 
@@ -17614,6 +17714,7 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
+    precioPorLitroAguaDefault?: true
     activo?: true
     _all?: true
   }
@@ -17713,6 +17814,7 @@ export namespace Prisma {
     maxVehiculosFree: number
     maxVehiculosPro: number
     maxVehiculosEnterprise: number
+    precioPorLitroAguaDefault: number
     activo: boolean
     _count: AkuoConfigCountAggregateOutputType | null
     _avg: AkuoConfigAvgAggregateOutputType | null
@@ -17744,6 +17846,7 @@ export namespace Prisma {
     maxVehiculosFree?: boolean
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
+    precioPorLitroAguaDefault?: boolean
     activo?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -17756,6 +17859,7 @@ export namespace Prisma {
     maxVehiculosFree?: boolean
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
+    precioPorLitroAguaDefault?: boolean
     activo?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -17768,6 +17872,7 @@ export namespace Prisma {
     maxVehiculosFree?: boolean
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
+    precioPorLitroAguaDefault?: boolean
     activo?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -17780,10 +17885,11 @@ export namespace Prisma {
     maxVehiculosFree?: boolean
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
+    precioPorLitroAguaDefault?: boolean
     activo?: boolean
   }
 
-  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo", ExtArgs["result"]["akuoConfig"]>
+  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "precioPorLitroAguaDefault" | "activo", ExtArgs["result"]["akuoConfig"]>
 
   export type $AkuoConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoConfig"
@@ -17797,6 +17903,7 @@ export namespace Prisma {
       maxVehiculosFree: number
       maxVehiculosPro: number
       maxVehiculosEnterprise: number
+      precioPorLitroAguaDefault: number
       activo: boolean
     }, ExtArgs["result"]["akuoConfig"]>
     composites: {}
@@ -18229,6 +18336,7 @@ export namespace Prisma {
     readonly maxVehiculosFree: FieldRef<"AkuoConfig", 'Int'>
     readonly maxVehiculosPro: FieldRef<"AkuoConfig", 'Int'>
     readonly maxVehiculosEnterprise: FieldRef<"AkuoConfig", 'Int'>
+    readonly precioPorLitroAguaDefault: FieldRef<"AkuoConfig", 'Float'>
     readonly activo: FieldRef<"AkuoConfig", 'Boolean'>
   }
     
@@ -18591,6 +18699,1033 @@ export namespace Prisma {
      * Omit specific fields from the AkuoConfig
      */
     omit?: AkuoConfigOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AkuoZonaPrecio
+   */
+
+  export type AggregateAkuoZonaPrecio = {
+    _count: AkuoZonaPrecioCountAggregateOutputType | null
+    _avg: AkuoZonaPrecioAvgAggregateOutputType | null
+    _sum: AkuoZonaPrecioSumAggregateOutputType | null
+    _min: AkuoZonaPrecioMinAggregateOutputType | null
+    _max: AkuoZonaPrecioMaxAggregateOutputType | null
+  }
+
+  export type AkuoZonaPrecioAvgAggregateOutputType = {
+    precioPorLitro: number | null
+  }
+
+  export type AkuoZonaPrecioSumAggregateOutputType = {
+    precioPorLitro: number | null
+  }
+
+  export type AkuoZonaPrecioMinAggregateOutputType = {
+    id: string | null
+    creadoEn: Date | null
+    comuna: string | null
+    precioPorLitro: number | null
+    activo: boolean | null
+  }
+
+  export type AkuoZonaPrecioMaxAggregateOutputType = {
+    id: string | null
+    creadoEn: Date | null
+    comuna: string | null
+    precioPorLitro: number | null
+    activo: boolean | null
+  }
+
+  export type AkuoZonaPrecioCountAggregateOutputType = {
+    id: number
+    creadoEn: number
+    comuna: number
+    precioPorLitro: number
+    activo: number
+    _all: number
+  }
+
+
+  export type AkuoZonaPrecioAvgAggregateInputType = {
+    precioPorLitro?: true
+  }
+
+  export type AkuoZonaPrecioSumAggregateInputType = {
+    precioPorLitro?: true
+  }
+
+  export type AkuoZonaPrecioMinAggregateInputType = {
+    id?: true
+    creadoEn?: true
+    comuna?: true
+    precioPorLitro?: true
+    activo?: true
+  }
+
+  export type AkuoZonaPrecioMaxAggregateInputType = {
+    id?: true
+    creadoEn?: true
+    comuna?: true
+    precioPorLitro?: true
+    activo?: true
+  }
+
+  export type AkuoZonaPrecioCountAggregateInputType = {
+    id?: true
+    creadoEn?: true
+    comuna?: true
+    precioPorLitro?: true
+    activo?: true
+    _all?: true
+  }
+
+  export type AkuoZonaPrecioAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoZonaPrecio to aggregate.
+     */
+    where?: AkuoZonaPrecioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoZonaPrecios to fetch.
+     */
+    orderBy?: AkuoZonaPrecioOrderByWithRelationInput | AkuoZonaPrecioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AkuoZonaPrecioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoZonaPrecios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoZonaPrecios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AkuoZonaPrecios
+    **/
+    _count?: true | AkuoZonaPrecioCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AkuoZonaPrecioAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AkuoZonaPrecioSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AkuoZonaPrecioMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AkuoZonaPrecioMaxAggregateInputType
+  }
+
+  export type GetAkuoZonaPrecioAggregateType<T extends AkuoZonaPrecioAggregateArgs> = {
+        [P in keyof T & keyof AggregateAkuoZonaPrecio]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAkuoZonaPrecio[P]>
+      : GetScalarType<T[P], AggregateAkuoZonaPrecio[P]>
+  }
+
+
+
+
+  export type AkuoZonaPrecioGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoZonaPrecioWhereInput
+    orderBy?: AkuoZonaPrecioOrderByWithAggregationInput | AkuoZonaPrecioOrderByWithAggregationInput[]
+    by: AkuoZonaPrecioScalarFieldEnum[] | AkuoZonaPrecioScalarFieldEnum
+    having?: AkuoZonaPrecioScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AkuoZonaPrecioCountAggregateInputType | true
+    _avg?: AkuoZonaPrecioAvgAggregateInputType
+    _sum?: AkuoZonaPrecioSumAggregateInputType
+    _min?: AkuoZonaPrecioMinAggregateInputType
+    _max?: AkuoZonaPrecioMaxAggregateInputType
+  }
+
+  export type AkuoZonaPrecioGroupByOutputType = {
+    id: string
+    creadoEn: Date
+    comuna: string
+    precioPorLitro: number
+    activo: boolean
+    _count: AkuoZonaPrecioCountAggregateOutputType | null
+    _avg: AkuoZonaPrecioAvgAggregateOutputType | null
+    _sum: AkuoZonaPrecioSumAggregateOutputType | null
+    _min: AkuoZonaPrecioMinAggregateOutputType | null
+    _max: AkuoZonaPrecioMaxAggregateOutputType | null
+  }
+
+  type GetAkuoZonaPrecioGroupByPayload<T extends AkuoZonaPrecioGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AkuoZonaPrecioGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AkuoZonaPrecioGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AkuoZonaPrecioGroupByOutputType[P]>
+            : GetScalarType<T[P], AkuoZonaPrecioGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AkuoZonaPrecioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    creadoEn?: boolean
+    comuna?: boolean
+    precioPorLitro?: boolean
+    activo?: boolean
+  }, ExtArgs["result"]["akuoZonaPrecio"]>
+
+  export type AkuoZonaPrecioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    creadoEn?: boolean
+    comuna?: boolean
+    precioPorLitro?: boolean
+    activo?: boolean
+  }, ExtArgs["result"]["akuoZonaPrecio"]>
+
+  export type AkuoZonaPrecioSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    creadoEn?: boolean
+    comuna?: boolean
+    precioPorLitro?: boolean
+    activo?: boolean
+  }, ExtArgs["result"]["akuoZonaPrecio"]>
+
+  export type AkuoZonaPrecioSelectScalar = {
+    id?: boolean
+    creadoEn?: boolean
+    comuna?: boolean
+    precioPorLitro?: boolean
+    activo?: boolean
+  }
+
+  export type AkuoZonaPrecioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comuna" | "precioPorLitro" | "activo", ExtArgs["result"]["akuoZonaPrecio"]>
+
+  export type $AkuoZonaPrecioPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AkuoZonaPrecio"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      creadoEn: Date
+      comuna: string
+      precioPorLitro: number
+      activo: boolean
+    }, ExtArgs["result"]["akuoZonaPrecio"]>
+    composites: {}
+  }
+
+  type AkuoZonaPrecioGetPayload<S extends boolean | null | undefined | AkuoZonaPrecioDefaultArgs> = $Result.GetResult<Prisma.$AkuoZonaPrecioPayload, S>
+
+  type AkuoZonaPrecioCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AkuoZonaPrecioFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AkuoZonaPrecioCountAggregateInputType | true
+    }
+
+  export interface AkuoZonaPrecioDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AkuoZonaPrecio'], meta: { name: 'AkuoZonaPrecio' } }
+    /**
+     * Find zero or one AkuoZonaPrecio that matches the filter.
+     * @param {AkuoZonaPrecioFindUniqueArgs} args - Arguments to find a AkuoZonaPrecio
+     * @example
+     * // Get one AkuoZonaPrecio
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AkuoZonaPrecioFindUniqueArgs>(args: SelectSubset<T, AkuoZonaPrecioFindUniqueArgs<ExtArgs>>): Prisma__AkuoZonaPrecioClient<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AkuoZonaPrecio that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AkuoZonaPrecioFindUniqueOrThrowArgs} args - Arguments to find a AkuoZonaPrecio
+     * @example
+     * // Get one AkuoZonaPrecio
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AkuoZonaPrecioFindUniqueOrThrowArgs>(args: SelectSubset<T, AkuoZonaPrecioFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AkuoZonaPrecioClient<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoZonaPrecio that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoZonaPrecioFindFirstArgs} args - Arguments to find a AkuoZonaPrecio
+     * @example
+     * // Get one AkuoZonaPrecio
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AkuoZonaPrecioFindFirstArgs>(args?: SelectSubset<T, AkuoZonaPrecioFindFirstArgs<ExtArgs>>): Prisma__AkuoZonaPrecioClient<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoZonaPrecio that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoZonaPrecioFindFirstOrThrowArgs} args - Arguments to find a AkuoZonaPrecio
+     * @example
+     * // Get one AkuoZonaPrecio
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AkuoZonaPrecioFindFirstOrThrowArgs>(args?: SelectSubset<T, AkuoZonaPrecioFindFirstOrThrowArgs<ExtArgs>>): Prisma__AkuoZonaPrecioClient<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AkuoZonaPrecios that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoZonaPrecioFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AkuoZonaPrecios
+     * const akuoZonaPrecios = await prisma.akuoZonaPrecio.findMany()
+     * 
+     * // Get first 10 AkuoZonaPrecios
+     * const akuoZonaPrecios = await prisma.akuoZonaPrecio.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const akuoZonaPrecioWithIdOnly = await prisma.akuoZonaPrecio.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AkuoZonaPrecioFindManyArgs>(args?: SelectSubset<T, AkuoZonaPrecioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AkuoZonaPrecio.
+     * @param {AkuoZonaPrecioCreateArgs} args - Arguments to create a AkuoZonaPrecio.
+     * @example
+     * // Create one AkuoZonaPrecio
+     * const AkuoZonaPrecio = await prisma.akuoZonaPrecio.create({
+     *   data: {
+     *     // ... data to create a AkuoZonaPrecio
+     *   }
+     * })
+     * 
+     */
+    create<T extends AkuoZonaPrecioCreateArgs>(args: SelectSubset<T, AkuoZonaPrecioCreateArgs<ExtArgs>>): Prisma__AkuoZonaPrecioClient<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AkuoZonaPrecios.
+     * @param {AkuoZonaPrecioCreateManyArgs} args - Arguments to create many AkuoZonaPrecios.
+     * @example
+     * // Create many AkuoZonaPrecios
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AkuoZonaPrecioCreateManyArgs>(args?: SelectSubset<T, AkuoZonaPrecioCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AkuoZonaPrecios and returns the data saved in the database.
+     * @param {AkuoZonaPrecioCreateManyAndReturnArgs} args - Arguments to create many AkuoZonaPrecios.
+     * @example
+     * // Create many AkuoZonaPrecios
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AkuoZonaPrecios and only return the `id`
+     * const akuoZonaPrecioWithIdOnly = await prisma.akuoZonaPrecio.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AkuoZonaPrecioCreateManyAndReturnArgs>(args?: SelectSubset<T, AkuoZonaPrecioCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AkuoZonaPrecio.
+     * @param {AkuoZonaPrecioDeleteArgs} args - Arguments to delete one AkuoZonaPrecio.
+     * @example
+     * // Delete one AkuoZonaPrecio
+     * const AkuoZonaPrecio = await prisma.akuoZonaPrecio.delete({
+     *   where: {
+     *     // ... filter to delete one AkuoZonaPrecio
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AkuoZonaPrecioDeleteArgs>(args: SelectSubset<T, AkuoZonaPrecioDeleteArgs<ExtArgs>>): Prisma__AkuoZonaPrecioClient<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AkuoZonaPrecio.
+     * @param {AkuoZonaPrecioUpdateArgs} args - Arguments to update one AkuoZonaPrecio.
+     * @example
+     * // Update one AkuoZonaPrecio
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AkuoZonaPrecioUpdateArgs>(args: SelectSubset<T, AkuoZonaPrecioUpdateArgs<ExtArgs>>): Prisma__AkuoZonaPrecioClient<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AkuoZonaPrecios.
+     * @param {AkuoZonaPrecioDeleteManyArgs} args - Arguments to filter AkuoZonaPrecios to delete.
+     * @example
+     * // Delete a few AkuoZonaPrecios
+     * const { count } = await prisma.akuoZonaPrecio.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AkuoZonaPrecioDeleteManyArgs>(args?: SelectSubset<T, AkuoZonaPrecioDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoZonaPrecios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoZonaPrecioUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AkuoZonaPrecios
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AkuoZonaPrecioUpdateManyArgs>(args: SelectSubset<T, AkuoZonaPrecioUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoZonaPrecios and returns the data updated in the database.
+     * @param {AkuoZonaPrecioUpdateManyAndReturnArgs} args - Arguments to update many AkuoZonaPrecios.
+     * @example
+     * // Update many AkuoZonaPrecios
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AkuoZonaPrecios and only return the `id`
+     * const akuoZonaPrecioWithIdOnly = await prisma.akuoZonaPrecio.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AkuoZonaPrecioUpdateManyAndReturnArgs>(args: SelectSubset<T, AkuoZonaPrecioUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AkuoZonaPrecio.
+     * @param {AkuoZonaPrecioUpsertArgs} args - Arguments to update or create a AkuoZonaPrecio.
+     * @example
+     * // Update or create a AkuoZonaPrecio
+     * const akuoZonaPrecio = await prisma.akuoZonaPrecio.upsert({
+     *   create: {
+     *     // ... data to create a AkuoZonaPrecio
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AkuoZonaPrecio we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AkuoZonaPrecioUpsertArgs>(args: SelectSubset<T, AkuoZonaPrecioUpsertArgs<ExtArgs>>): Prisma__AkuoZonaPrecioClient<$Result.GetResult<Prisma.$AkuoZonaPrecioPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AkuoZonaPrecios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoZonaPrecioCountArgs} args - Arguments to filter AkuoZonaPrecios to count.
+     * @example
+     * // Count the number of AkuoZonaPrecios
+     * const count = await prisma.akuoZonaPrecio.count({
+     *   where: {
+     *     // ... the filter for the AkuoZonaPrecios we want to count
+     *   }
+     * })
+    **/
+    count<T extends AkuoZonaPrecioCountArgs>(
+      args?: Subset<T, AkuoZonaPrecioCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AkuoZonaPrecioCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AkuoZonaPrecio.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoZonaPrecioAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AkuoZonaPrecioAggregateArgs>(args: Subset<T, AkuoZonaPrecioAggregateArgs>): Prisma.PrismaPromise<GetAkuoZonaPrecioAggregateType<T>>
+
+    /**
+     * Group by AkuoZonaPrecio.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoZonaPrecioGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AkuoZonaPrecioGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AkuoZonaPrecioGroupByArgs['orderBy'] }
+        : { orderBy?: AkuoZonaPrecioGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AkuoZonaPrecioGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAkuoZonaPrecioGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AkuoZonaPrecio model
+   */
+  readonly fields: AkuoZonaPrecioFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AkuoZonaPrecio.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AkuoZonaPrecioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AkuoZonaPrecio model
+   */
+  interface AkuoZonaPrecioFieldRefs {
+    readonly id: FieldRef<"AkuoZonaPrecio", 'String'>
+    readonly creadoEn: FieldRef<"AkuoZonaPrecio", 'DateTime'>
+    readonly comuna: FieldRef<"AkuoZonaPrecio", 'String'>
+    readonly precioPorLitro: FieldRef<"AkuoZonaPrecio", 'Float'>
+    readonly activo: FieldRef<"AkuoZonaPrecio", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AkuoZonaPrecio findUnique
+   */
+  export type AkuoZonaPrecioFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * Filter, which AkuoZonaPrecio to fetch.
+     */
+    where: AkuoZonaPrecioWhereUniqueInput
+  }
+
+  /**
+   * AkuoZonaPrecio findUniqueOrThrow
+   */
+  export type AkuoZonaPrecioFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * Filter, which AkuoZonaPrecio to fetch.
+     */
+    where: AkuoZonaPrecioWhereUniqueInput
+  }
+
+  /**
+   * AkuoZonaPrecio findFirst
+   */
+  export type AkuoZonaPrecioFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * Filter, which AkuoZonaPrecio to fetch.
+     */
+    where?: AkuoZonaPrecioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoZonaPrecios to fetch.
+     */
+    orderBy?: AkuoZonaPrecioOrderByWithRelationInput | AkuoZonaPrecioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoZonaPrecios.
+     */
+    cursor?: AkuoZonaPrecioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoZonaPrecios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoZonaPrecios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoZonaPrecios.
+     */
+    distinct?: AkuoZonaPrecioScalarFieldEnum | AkuoZonaPrecioScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoZonaPrecio findFirstOrThrow
+   */
+  export type AkuoZonaPrecioFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * Filter, which AkuoZonaPrecio to fetch.
+     */
+    where?: AkuoZonaPrecioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoZonaPrecios to fetch.
+     */
+    orderBy?: AkuoZonaPrecioOrderByWithRelationInput | AkuoZonaPrecioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoZonaPrecios.
+     */
+    cursor?: AkuoZonaPrecioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoZonaPrecios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoZonaPrecios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoZonaPrecios.
+     */
+    distinct?: AkuoZonaPrecioScalarFieldEnum | AkuoZonaPrecioScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoZonaPrecio findMany
+   */
+  export type AkuoZonaPrecioFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * Filter, which AkuoZonaPrecios to fetch.
+     */
+    where?: AkuoZonaPrecioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoZonaPrecios to fetch.
+     */
+    orderBy?: AkuoZonaPrecioOrderByWithRelationInput | AkuoZonaPrecioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AkuoZonaPrecios.
+     */
+    cursor?: AkuoZonaPrecioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoZonaPrecios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoZonaPrecios.
+     */
+    skip?: number
+    distinct?: AkuoZonaPrecioScalarFieldEnum | AkuoZonaPrecioScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoZonaPrecio create
+   */
+  export type AkuoZonaPrecioCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * The data needed to create a AkuoZonaPrecio.
+     */
+    data: XOR<AkuoZonaPrecioCreateInput, AkuoZonaPrecioUncheckedCreateInput>
+  }
+
+  /**
+   * AkuoZonaPrecio createMany
+   */
+  export type AkuoZonaPrecioCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AkuoZonaPrecios.
+     */
+    data: AkuoZonaPrecioCreateManyInput | AkuoZonaPrecioCreateManyInput[]
+  }
+
+  /**
+   * AkuoZonaPrecio createManyAndReturn
+   */
+  export type AkuoZonaPrecioCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * The data used to create many AkuoZonaPrecios.
+     */
+    data: AkuoZonaPrecioCreateManyInput | AkuoZonaPrecioCreateManyInput[]
+  }
+
+  /**
+   * AkuoZonaPrecio update
+   */
+  export type AkuoZonaPrecioUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * The data needed to update a AkuoZonaPrecio.
+     */
+    data: XOR<AkuoZonaPrecioUpdateInput, AkuoZonaPrecioUncheckedUpdateInput>
+    /**
+     * Choose, which AkuoZonaPrecio to update.
+     */
+    where: AkuoZonaPrecioWhereUniqueInput
+  }
+
+  /**
+   * AkuoZonaPrecio updateMany
+   */
+  export type AkuoZonaPrecioUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AkuoZonaPrecios.
+     */
+    data: XOR<AkuoZonaPrecioUpdateManyMutationInput, AkuoZonaPrecioUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoZonaPrecios to update
+     */
+    where?: AkuoZonaPrecioWhereInput
+    /**
+     * Limit how many AkuoZonaPrecios to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoZonaPrecio updateManyAndReturn
+   */
+  export type AkuoZonaPrecioUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * The data used to update AkuoZonaPrecios.
+     */
+    data: XOR<AkuoZonaPrecioUpdateManyMutationInput, AkuoZonaPrecioUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoZonaPrecios to update
+     */
+    where?: AkuoZonaPrecioWhereInput
+    /**
+     * Limit how many AkuoZonaPrecios to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoZonaPrecio upsert
+   */
+  export type AkuoZonaPrecioUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * The filter to search for the AkuoZonaPrecio to update in case it exists.
+     */
+    where: AkuoZonaPrecioWhereUniqueInput
+    /**
+     * In case the AkuoZonaPrecio found by the `where` argument doesn't exist, create a new AkuoZonaPrecio with this data.
+     */
+    create: XOR<AkuoZonaPrecioCreateInput, AkuoZonaPrecioUncheckedCreateInput>
+    /**
+     * In case the AkuoZonaPrecio was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AkuoZonaPrecioUpdateInput, AkuoZonaPrecioUncheckedUpdateInput>
+  }
+
+  /**
+   * AkuoZonaPrecio delete
+   */
+  export type AkuoZonaPrecioDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
+    /**
+     * Filter which AkuoZonaPrecio to delete.
+     */
+    where: AkuoZonaPrecioWhereUniqueInput
+  }
+
+  /**
+   * AkuoZonaPrecio deleteMany
+   */
+  export type AkuoZonaPrecioDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoZonaPrecios to delete
+     */
+    where?: AkuoZonaPrecioWhereInput
+    /**
+     * Limit how many AkuoZonaPrecios to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoZonaPrecio without action
+   */
+  export type AkuoZonaPrecioDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZonaPrecio
+     */
+    select?: AkuoZonaPrecioSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZonaPrecio
+     */
+    omit?: AkuoZonaPrecioOmit<ExtArgs> | null
   }
 
 
@@ -22427,10 +23562,22 @@ export namespace Prisma {
     maxVehiculosFree: 'maxVehiculosFree',
     maxVehiculosPro: 'maxVehiculosPro',
     maxVehiculosEnterprise: 'maxVehiculosEnterprise',
+    precioPorLitroAguaDefault: 'precioPorLitroAguaDefault',
     activo: 'activo'
   };
 
   export type AkuoConfigScalarFieldEnum = (typeof AkuoConfigScalarFieldEnum)[keyof typeof AkuoConfigScalarFieldEnum]
+
+
+  export const AkuoZonaPrecioScalarFieldEnum: {
+    id: 'id',
+    creadoEn: 'creadoEn',
+    comuna: 'comuna',
+    precioPorLitro: 'precioPorLitro',
+    activo: 'activo'
+  };
+
+  export type AkuoZonaPrecioScalarFieldEnum = (typeof AkuoZonaPrecioScalarFieldEnum)[keyof typeof AkuoZonaPrecioScalarFieldEnum]
 
 
   export const AkuoConversacionScalarFieldEnum: {
@@ -23838,6 +24985,7 @@ export namespace Prisma {
     maxVehiculosFree?: IntFilter<"AkuoConfig"> | number
     maxVehiculosPro?: IntFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntFilter<"AkuoConfig"> | number
+    precioPorLitroAguaDefault?: FloatFilter<"AkuoConfig"> | number
     activo?: BoolFilter<"AkuoConfig"> | boolean
   }
 
@@ -23850,6 +24998,7 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
   }
 
@@ -23865,6 +25014,7 @@ export namespace Prisma {
     maxVehiculosFree?: IntFilter<"AkuoConfig"> | number
     maxVehiculosPro?: IntFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntFilter<"AkuoConfig"> | number
+    precioPorLitroAguaDefault?: FloatFilter<"AkuoConfig"> | number
     activo?: BoolFilter<"AkuoConfig"> | boolean
   }, "id">
 
@@ -23877,6 +25027,7 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
     _count?: AkuoConfigCountOrderByAggregateInput
     _avg?: AkuoConfigAvgOrderByAggregateInput
@@ -23897,7 +25048,62 @@ export namespace Prisma {
     maxVehiculosFree?: IntWithAggregatesFilter<"AkuoConfig"> | number
     maxVehiculosPro?: IntWithAggregatesFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntWithAggregatesFilter<"AkuoConfig"> | number
+    precioPorLitroAguaDefault?: FloatWithAggregatesFilter<"AkuoConfig"> | number
     activo?: BoolWithAggregatesFilter<"AkuoConfig"> | boolean
+  }
+
+  export type AkuoZonaPrecioWhereInput = {
+    AND?: AkuoZonaPrecioWhereInput | AkuoZonaPrecioWhereInput[]
+    OR?: AkuoZonaPrecioWhereInput[]
+    NOT?: AkuoZonaPrecioWhereInput | AkuoZonaPrecioWhereInput[]
+    id?: StringFilter<"AkuoZonaPrecio"> | string
+    creadoEn?: DateTimeFilter<"AkuoZonaPrecio"> | Date | string
+    comuna?: StringFilter<"AkuoZonaPrecio"> | string
+    precioPorLitro?: FloatFilter<"AkuoZonaPrecio"> | number
+    activo?: BoolFilter<"AkuoZonaPrecio"> | boolean
+  }
+
+  export type AkuoZonaPrecioOrderByWithRelationInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    comuna?: SortOrder
+    precioPorLitro?: SortOrder
+    activo?: SortOrder
+  }
+
+  export type AkuoZonaPrecioWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    comuna?: string
+    AND?: AkuoZonaPrecioWhereInput | AkuoZonaPrecioWhereInput[]
+    OR?: AkuoZonaPrecioWhereInput[]
+    NOT?: AkuoZonaPrecioWhereInput | AkuoZonaPrecioWhereInput[]
+    creadoEn?: DateTimeFilter<"AkuoZonaPrecio"> | Date | string
+    precioPorLitro?: FloatFilter<"AkuoZonaPrecio"> | number
+    activo?: BoolFilter<"AkuoZonaPrecio"> | boolean
+  }, "id" | "comuna">
+
+  export type AkuoZonaPrecioOrderByWithAggregationInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    comuna?: SortOrder
+    precioPorLitro?: SortOrder
+    activo?: SortOrder
+    _count?: AkuoZonaPrecioCountOrderByAggregateInput
+    _avg?: AkuoZonaPrecioAvgOrderByAggregateInput
+    _max?: AkuoZonaPrecioMaxOrderByAggregateInput
+    _min?: AkuoZonaPrecioMinOrderByAggregateInput
+    _sum?: AkuoZonaPrecioSumOrderByAggregateInput
+  }
+
+  export type AkuoZonaPrecioScalarWhereWithAggregatesInput = {
+    AND?: AkuoZonaPrecioScalarWhereWithAggregatesInput | AkuoZonaPrecioScalarWhereWithAggregatesInput[]
+    OR?: AkuoZonaPrecioScalarWhereWithAggregatesInput[]
+    NOT?: AkuoZonaPrecioScalarWhereWithAggregatesInput | AkuoZonaPrecioScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AkuoZonaPrecio"> | string
+    creadoEn?: DateTimeWithAggregatesFilter<"AkuoZonaPrecio"> | Date | string
+    comuna?: StringWithAggregatesFilter<"AkuoZonaPrecio"> | string
+    precioPorLitro?: FloatWithAggregatesFilter<"AkuoZonaPrecio"> | number
+    activo?: BoolWithAggregatesFilter<"AkuoZonaPrecio"> | boolean
   }
 
   export type AkuoConversacionWhereInput = {
@@ -25689,6 +26895,7 @@ export namespace Prisma {
     maxVehiculosFree?: number
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
+    precioPorLitroAguaDefault?: number
     activo?: boolean
   }
 
@@ -25701,6 +26908,7 @@ export namespace Prisma {
     maxVehiculosFree?: number
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
+    precioPorLitroAguaDefault?: number
     activo?: boolean
   }
 
@@ -25713,6 +26921,7 @@ export namespace Prisma {
     maxVehiculosFree?: IntFieldUpdateOperationsInput | number
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
+    precioPorLitroAguaDefault?: FloatFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -25725,6 +26934,7 @@ export namespace Prisma {
     maxVehiculosFree?: IntFieldUpdateOperationsInput | number
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
+    precioPorLitroAguaDefault?: FloatFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -25737,6 +26947,7 @@ export namespace Prisma {
     maxVehiculosFree?: number
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
+    precioPorLitroAguaDefault?: number
     activo?: boolean
   }
 
@@ -25749,6 +26960,7 @@ export namespace Prisma {
     maxVehiculosFree?: IntFieldUpdateOperationsInput | number
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
+    precioPorLitroAguaDefault?: FloatFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -25761,6 +26973,63 @@ export namespace Prisma {
     maxVehiculosFree?: IntFieldUpdateOperationsInput | number
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
+    precioPorLitroAguaDefault?: FloatFieldUpdateOperationsInput | number
+    activo?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AkuoZonaPrecioCreateInput = {
+    id?: string
+    creadoEn?: Date | string
+    comuna: string
+    precioPorLitro: number
+    activo?: boolean
+  }
+
+  export type AkuoZonaPrecioUncheckedCreateInput = {
+    id?: string
+    creadoEn?: Date | string
+    comuna: string
+    precioPorLitro: number
+    activo?: boolean
+  }
+
+  export type AkuoZonaPrecioUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    comuna?: StringFieldUpdateOperationsInput | string
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    activo?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AkuoZonaPrecioUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    comuna?: StringFieldUpdateOperationsInput | string
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    activo?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AkuoZonaPrecioCreateManyInput = {
+    id?: string
+    creadoEn?: Date | string
+    comuna: string
+    precioPorLitro: number
+    activo?: boolean
+  }
+
+  export type AkuoZonaPrecioUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    comuna?: StringFieldUpdateOperationsInput | string
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    activo?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AkuoZonaPrecioUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    comuna?: StringFieldUpdateOperationsInput | string
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -27209,6 +28478,7 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
   }
 
@@ -27219,6 +28489,7 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    precioPorLitroAguaDefault?: SortOrder
   }
 
   export type AkuoConfigMaxOrderByAggregateInput = {
@@ -27230,6 +28501,7 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
   }
 
@@ -27242,6 +28514,7 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    precioPorLitroAguaDefault?: SortOrder
     activo?: SortOrder
   }
 
@@ -27252,6 +28525,39 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    precioPorLitroAguaDefault?: SortOrder
+  }
+
+  export type AkuoZonaPrecioCountOrderByAggregateInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    comuna?: SortOrder
+    precioPorLitro?: SortOrder
+    activo?: SortOrder
+  }
+
+  export type AkuoZonaPrecioAvgOrderByAggregateInput = {
+    precioPorLitro?: SortOrder
+  }
+
+  export type AkuoZonaPrecioMaxOrderByAggregateInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    comuna?: SortOrder
+    precioPorLitro?: SortOrder
+    activo?: SortOrder
+  }
+
+  export type AkuoZonaPrecioMinOrderByAggregateInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    comuna?: SortOrder
+    precioPorLitro?: SortOrder
+    activo?: SortOrder
+  }
+
+  export type AkuoZonaPrecioSumOrderByAggregateInput = {
+    precioPorLitro?: SortOrder
   }
 
   export type AkuoConversacionClienteIdTransportistaIdCompoundUniqueInput = {

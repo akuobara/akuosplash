@@ -280,15 +280,29 @@ model AkuoAuditLog {
 }
 
 model AkuoConfig {
-  id                     String   @id @default(cuid())
-  creadoEn               DateTime @default(now())
-  comisionPorcentaje     Float    @default(0)
-  precioPlanPro          Float    @default(15000)
-  precioPlanEnterprise   Float    @default(50000)
-  maxVehiculosFree       Int      @default(1)
-  maxVehiculosPro        Int      @default(5)
-  maxVehiculosEnterprise Int      @default(999)
-  activo                 Boolean  @default(true)
+  id                        String   @id @default(cuid())
+  creadoEn                  DateTime @default(now())
+  comisionPorcentaje        Float    @default(0)
+  precioPlanPro             Float    @default(15000)
+  precioPlanEnterprise      Float    @default(50000)
+  maxVehiculosFree          Int      @default(1)
+  maxVehiculosPro           Int      @default(5)
+  maxVehiculosEnterprise    Int      @default(999)
+  // Precio por litro de agua — configurado por el superadmin
+  precioPorLitroAguaDefault Float    @default(50)
+  activo                    Boolean  @default(true)
+}
+
+// Precios por comuna/zona — el superadmin puede setear precios específicos por zona
+// Si no hay precio para la comuna, se usa el default de AkuoConfig
+model AkuoZonaPrecio {
+  id             String   @id @default(cuid())
+  creadoEn       DateTime @default(now())
+  comuna         String   @unique
+  precioPorLitro Float
+  activo         Boolean  @default(true)
+
+  @@index([comuna, activo])
 }
 
 model AkuoConversacion {

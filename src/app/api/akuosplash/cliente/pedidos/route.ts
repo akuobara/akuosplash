@@ -29,15 +29,16 @@ export async function POST(req: NextRequest) {
 
   // El código siempre se genera — el repartidor lo necesitará al finalizar la entrega
   const codigoConfirmacion = generarCodigoConfirmacion();
-  const { total } = calcularPrecioTotal(Number(body.litros));
+  // El precio depende de la comuna (zona) del cliente
+  const comuna = body.comuna?.trim() || (user as any).comuna || undefined;
+  const { total } = await calcularPrecioTotal(Number(body.litros), comuna);
 
-  // Crear el pedido con estadoPago pendiente
   const pedido = await akuosplashDb.akuoPedidoCliente.create({
     data: {
       clienteId: user.id,
       litros: Number(body.litros) || 1000,
       direccion: body.direccion.trim(),
-      comuna: body.comuna?.trim() || null,
+      comuna: comuna || null,
       lat: body.lat ? Number(body.lat) : null,
       lng: body.lng ? Number(body.lng) : null,
       fechaDeseada: body.fechaDeseada ? new Date(body.fechaDeseada) : null,
@@ -64,14 +65,11 @@ export async function POST(req: NextRequest) {
         litros: Number(body.litros) || 1000,
       });
 
-      // Guardar el preferenceId en el pedido
       await akuosplashDb.akuoPedidoCliente.update({
         where: { id: pedido.id },
         data: { mpPreferenceId: pref.preferenceId },
       });
 
-      // Devolver el initPoint para que el frontend redirija a MercadoPago
-      // El webhook marcará el pedido como "pagado" cuando MP confirme el pago
       return NextResponse.json({
         ok: true,
         pedido,
@@ -79,12 +77,11 @@ export async function POST(req: NextRequest) {
         preferenceId: pref.preferenceId,
       }, { status: 201 });
     } catch (e: any) {
-      // Si MP falla, eliminar el pedido pendiente para que no quede huérfano
       await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});
       return NextResponse.json({ error: e.message || "No se pudo iniciar el pago con MercadoPago. Verificá que las credenciales estén configuradas." }, { status: 500 });
     }
   }
 
-  // Otros métodos de pago (futuro): solo crear el pedido
   return NextResponse.json({ ok: true, pedido }, { status: 201 });
 }
+

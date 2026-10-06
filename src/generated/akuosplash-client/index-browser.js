@@ -331,6 +331,15 @@ exports.Prisma.AkuoConfigScalarFieldEnum = {
   maxVehiculosFree: 'maxVehiculosFree',
   maxVehiculosPro: 'maxVehiculosPro',
   maxVehiculosEnterprise: 'maxVehiculosEnterprise',
+  precioPorLitroAguaDefault: 'precioPorLitroAguaDefault',
+  activo: 'activo'
+};
+
+exports.Prisma.AkuoZonaPrecioScalarFieldEnum = {
+  id: 'id',
+  creadoEn: 'creadoEn',
+  comuna: 'comuna',
+  precioPorLitro: 'precioPorLitro',
   activo: 'activo'
 };
 
@@ -405,6 +414,7 @@ exports.Prisma.ModelName = {
   AkuoNotificacion: 'AkuoNotificacion',
   AkuoAuditLog: 'AkuoAuditLog',
   AkuoConfig: 'AkuoConfig',
+  AkuoZonaPrecio: 'AkuoZonaPrecio',
   AkuoConversacion: 'AkuoConversacion',
   AkuoMensaje: 'AkuoMensaje',
   AkuoPedidoCliente: 'AkuoPedidoCliente'

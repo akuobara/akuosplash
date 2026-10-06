@@ -1,11 +1,9 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
+import { akuosplashDb } from "./akuosplash-db";
 
 // Configuración de MercadoPago para AkuoSplash
 // Env vars:
 //   AKUO_MP_ACCESS_TOKEN = access token de tu cuenta empresa
-//   AKUO_MP_PUBLIC_KEY = public key (no se usa para backend, solo informativa)
-//   AKUO_PRECIO_POR_LITRO = precio por litro en CLP (default 50)
-//   AKUO_COMISION_PORCENTAJE = comisión de la app en % (default 0)
 
 function getClient() {
   const accessToken = process.env.AKUO_MP_ACCESS_TOKEN;
@@ -17,24 +15,35 @@ function getClient() {
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://akuosplash.cl";
 
-export function getPrecioPorLitro(): number {
-  const v = process.env.AKUO_PRECIO_POR_LITRO;
-  return v ? Number(v) : 50;
+// Devuelve el precio por litro para una comuna dada
+// Si no hay precio específico para la comuna, usa el default de AkuoConfig (default $50)
+export async function getPrecioPorLitro(comuna?: string): Promise<number> {
+  // Buscar precio específico para la comuna
+  if (comuna && comuna.trim()) {
+    const zona = await akuosplashDb.akuoZonaPrecio.findFirst({
+      where: { comuna: comuna.trim(), activo: true },
+    });
+    if (zona) return zona.precioPorLitro;
+  }
+  // Default del AkuoConfig
+  const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
+  return config?.precioPorLitroAguaDefault ?? 50;
 }
 
-export function getComisionPorcentaje(): number {
-  const v = process.env.AKUO_COMISION_PORCENTAJE;
-  return v ? Number(v) : 0;
+// Devuelve la comisión de la app en % (configurada por superadmin en AkuoConfig)
+export async function getComisionPorcentaje(): Promise<number> {
+  const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
+  return config?.comisionPorcentaje ?? 0;
 }
 
 // Calcula el monto total que paga el cliente:
 // litros × precioPorLitro + comisión% sobre ese subtotal
-export function calcularPrecioTotal(litros: number): { subtotal: number; comision: number; total: number } {
-  const precio = getPrecioPorLitro();
+export async function calcularPrecioTotal(litros: number, comuna?: string): Promise<{ subtotal: number; comision: number; total: number; precioPorLitro: number; comisionPct: number }> {
+  const precio = await getPrecioPorLitro(comuna);
   const subtotal = Math.round(litros * precio);
-  const comisionPct = getComisionPorcentaje();
+  const comisionPct = await getComisionPorcentaje();
   const comision = Math.round((subtotal * comisionPct) / 100);
-  return { subtotal, comision, total: subtotal + comision };
+  return { subtotal, comision, total: subtotal + comision, precioPorLitro: precio, comisionPct };
 }
 
 // External reference con prefijo "akuo_pedido_pago:" para distinguirlo del de Aljibe
@@ -98,7 +107,7 @@ export async function verificarPagoAkuo(paymentId: string): Promise<{
   if (!res.ok) return null;
   const data = await res.json();
   return {
-    status: data.status, // approved, pending, rejected
+    status: data.status,
     externalReference: data.external_reference || "",
     transactionAmount: data.transaction_amount || 0,
   };

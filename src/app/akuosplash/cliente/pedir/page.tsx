@@ -26,7 +26,7 @@ function PedirAguaInner() {
   const [perfil, setPerfil] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [creando, setCreando] = useState(false);
-  const [config, setConfig] = useState<{ precioPorLitro: number; comisionPct: number }>({ precioPorLitro: 50, comisionPct: 0 });
+  const [config, setConfig] = useState<{ precioPorLitro: number; comisionPct: number }>({ precioPorLitro: 0, comisionPct: 0 });
 
   const [litros, setLitros] = useState("1000");
   const [direccion, setDireccion] = useState("");
@@ -45,7 +45,6 @@ function PedirAguaInner() {
       setDireccion(d.user.direccion || "");
       setComuna(d.user.comuna || "");
 
-      // Si vino de "repetir pedido", precargar los datos del último pedido
       if (params.get("repetir") === "1" && typeof window !== "undefined") {
         const repetirData = sessionStorage.getItem("akuosplash-repetir");
         if (repetirData) {
@@ -60,9 +59,16 @@ function PedirAguaInner() {
         }
       }
     }).finally(() => setLoading(false));
-    // Cargar configuración de precios
-    akuoGet<{ precioPorLitro: number; comisionPct: number }>("/api/akuosplash/config/precios").then(setConfig).catch(() => {});
   }, [router, params]);
+
+  // Re-fetch del precio cuando cambia la comuna
+  useEffect(() => {
+    if (!perfil) return;
+    const comunaQuery = comuna.trim() ? `?comuna=${encodeURIComponent(comuna.trim())}` : "";
+    akuoGet<{ precioPorLitro: number; comisionPct: number }>(`/api/akuosplash/cliente/precio${comunaQuery}`)
+      .then(setConfig)
+      .catch(() => setConfig({ precioPorLitro: 50, comisionPct: 0 }));
+  }, [perfil, comuna]);
 
   async function handlePedir(e: React.FormEvent) {
     e.preventDefault();
@@ -248,26 +254,35 @@ function PedirAguaInner() {
               <span className="text-gray-600">Cantidad</span>
               <span className="font-semibold tabular-nums">{litrosNum.toLocaleString("es-CL")} L</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Precio por litro</span>
-              <span className="font-medium tabular-nums">{formatCLP(config.precioPorLitro)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium tabular-nums">{formatCLP(litrosNum * config.precioPorLitro)}</span>
-            </div>
-            {config.comisionPct > 0 && (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Comisión app ({config.comisionPct}%)</span>
-                <span className="font-medium tabular-nums">{formatCLP(Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100))}</span>
+            {config.precioPorLitro > 0 ? (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Precio por litro {comuna && `(${comuna})`}</span>
+                  <span className="font-medium tabular-nums">{formatCLP(config.precioPorLitro)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-medium tabular-nums">{formatCLP(litrosNum * config.precioPorLitro)}</span>
+                </div>
+                {config.comisionPct > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Comisión app ({config.comisionPct}%)</span>
+                    <span className="font-medium tabular-nums">{formatCLP(Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100))}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-blue-200 pt-1 mt-1">
+                  <span className="font-semibold text-gray-900">Total a pagar</span>
+                  <span className="font-bold tabular-nums text-blue-700 text-base">
+                    {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-between text-gray-500">
+                <span>Consultando precio para tu zona…</span>
+                <Loader2 className="h-4 w-4 animate-spin" />
               </div>
             )}
-            <div className="flex justify-between border-t border-blue-200 pt-1 mt-1">
-              <span className="font-semibold text-gray-900">Total a pagar</span>
-              <span className="font-bold tabular-nums text-blue-700 text-base">
-                {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))}
-              </span>
-            </div>
             <div className="flex justify-between text-[11px] text-gray-500 mt-1">
               <span>Método de pago</span>
               <span className="capitalize">Tarjeta {tipoTarjeta}</span>
@@ -282,10 +297,12 @@ function PedirAguaInner() {
             type="submit"
             size="lg"
             className="w-full h-14 text-base font-semibold rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20"
-            disabled={creando || !direccion.trim() || !litros}
+            disabled={creando || !direccion.trim() || !litros || config.precioPorLitro <= 0}
           >
             {creando ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando…</>
+            ) : config.precioPorLitro <= 0 ? (
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Consultando precio…</>
             ) : (
               <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))} y pedir</>
             )}
