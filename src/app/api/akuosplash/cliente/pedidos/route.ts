@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
-import { crearOrdenAkuo, calcularPrecioTotal } from "@/lib/akuosplash-mercadopago";
+import { crearPreferenciaAkuo, calcularPrecioTotal } from "@/lib/akuosplash-mercadopago";
 
 // Código PIN simple de 4 dígitos (0-9)
 function generarCodigoConfirmacion(): string {
@@ -21,103 +21,114 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const user = await akuoGetCurrentUser();
-  if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  if (user.rol !== "cliente") return NextResponse.json({ error: "Solo clientes pueden pedir" }, { status: 403 });
-  const body = await req.json();
-  if (!body.direccion?.trim() || !body.litros) return NextResponse.json({ error: "Dirección y litros son obligatorios" }, { status: 400 });
+  try {
+    const user = await akuoGetCurrentUser();
+    if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    if (user.rol !== "cliente") return NextResponse.json({ error: "Solo clientes pueden pedir" }, { status: 403 });
+    const body = await req.json();
+    if (!body.direccion?.trim() || !body.litros) return NextResponse.json({ error: "Dirección y litros son obligatorios" }, { status: 400 });
 
-  // Recargar usuario con su zona
-  const usuarioConZona = await akuosplashDb.akuoUsuario.findUnique({
-    where: { id: user.id },
-    include: { zona: true },
-  });
-  if (!usuarioConZona) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
-  if (!usuarioConZona.zonaId || !usuarioConZona.zona) {
-    return NextResponse.json({ error: "No tenés zona de servicio asignada. Contactá soporte." }, { status: 400 });
-  }
-
-  // El código siempre se genera — el repartidor lo necesitará al finalizar la entrega
-  const codigoConfirmacion = generarCodigoConfirmacion();
-  // El precio sale de la zona asignada al usuario
-  const precioCalc = await calcularPrecioTotal(Number(body.litros), usuarioConZona.zonaId);
-  if (!precioCalc) {
-    return NextResponse.json({ error: "No se pudo calcular el precio (zona inválida)" }, { status: 400 });
-  }
-  const total = precioCalc.total;
-
-  const pedido = await akuosplashDb.akuoPedidoCliente.create({
-    data: {
-      clienteId: user.id,
-      litros: Number(body.litros) || 1000,
-      direccion: body.direccion.trim(),
-      comuna: comuna || null,
-      lat: body.lat ? Number(body.lat) : null,
-      lng: body.lng ? Number(body.lng) : null,
-      fechaDeseada: body.fechaDeseada ? new Date(body.fechaDeseada) : null,
-      franjaHoraria: body.franjaHoraria || null,
-      metodoPago: body.metodoPago || "tarjeta_debito",
-      nota: body.nota?.trim() || null,
-      estado: "pendiente",
-      codigoConfirmacion,
-      codigoGeneradoEn: new Date(),
-      precioTotal: total,
-      estadoPago: "pendiente",
-    },
-  });
-
-  // Si el método de pago es tarjeta (débito/crédito), crear orden de MercadoPago (API de Orders)
-  if (body.metodoPago === "tarjeta_debito" || body.metodoPago === "tarjeta_credito" || !body.metodoPago) {
-    try {
-      // Si el pedido tiene repartidor asignado y ese repartidor tiene MP conectado, hacer split
-      let repartidorMpAccessToken: string | null = null;
-      let repartidorMpUserId: string | null = null;
-      if (pedido.transportistaId) {
-        const repartidor = await akuosplashDb.akuoUsuario.findUnique({
-          where: { id: pedido.transportistaId },
-          select: { mpAccessToken: true, mpUserId: true, mpTokenExpiresAt: true },
-        });
-        if (repartidor?.mpAccessToken && repartidor?.mpUserId) {
-          const expiresAt = repartidor.mpTokenExpiresAt;
-          // Token válido si no expira dentro de 1 hora (para tener margen de refresh)
-          if (!expiresAt || expiresAt.getTime() - Date.now() > 3600 * 1000) {
-            repartidorMpAccessToken = repartidor.mpAccessToken;
-            repartidorMpUserId = repartidor.mpUserId;
-          }
-          // TODO: si está vencido, refrescar con mpRefreshToken antes de usarlo
-        }
-      }
-
-      const orden = await crearOrdenAkuo({
-        clienteId: user.id,
-        clienteNombre: user.nombre,
-        email: user.email || "",
-        monto: total,
-        pedidoId: pedido.id,
-        litros: Number(body.litros) || 1000,
-        comisionApp: precioCalc.comision,
-        repartidorMpAccessToken,
-        repartidorMpUserId,
-      });
-
-      await akuosplashDb.akuoPedidoCliente.update({
-        where: { id: pedido.id },
-        data: { mpPreferenceId: orden.orderId },
-      });
-
-      return NextResponse.json({
-        ok: true,
-        pedido,
-        initPoint: orden.initPoint,
-        orderId: orden.orderId,
-        splitPayment: orden.splitPayment,
-      }, { status: 201 });
-    } catch (e: any) {
-      await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});
-      return NextResponse.json({ error: e.message || "No se pudo iniciar el pago con MercadoPago. Verificá que las credenciales estén configuradas." }, { status: 500 });
+    // Recargar usuario con su zona
+    const usuarioConZona = await akuosplashDb.akuoUsuario.findUnique({
+      where: { id: user.id },
+      include: { zona: true },
+    });
+    if (!usuarioConZona) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
+    if (!usuarioConZona.zonaId || !usuarioConZona.zona) {
+      return NextResponse.json({ error: "No tenés zona de servicio asignada. Contactá soporte." }, { status: 400 });
     }
+
+    // El código siempre se genera — el repartidor lo necesitará al finalizar la entrega
+    const codigoConfirmacion = generarCodigoConfirmacion();
+    // El precio sale de la zona asignada al usuario
+    const precioCalc = await calcularPrecioTotal(Number(body.litros), usuarioConZona.zonaId);
+    if (!precioCalc) {
+      return NextResponse.json({ error: "No se pudo calcular el precio (zona inválida)" }, { status: 400 });
+    }
+    const total = precioCalc.total;
+
+    const pedido = await akuosplashDb.akuoPedidoCliente.create({
+      data: {
+        clienteId: user.id,
+        litros: Number(body.litros) || 1000,
+        direccion: body.direccion.trim(),
+        comuna: body.comuna?.trim() || null,
+        lat: body.lat ? Number(body.lat) : null,
+        lng: body.lng ? Number(body.lng) : null,
+        fechaDeseada: body.fechaDeseada ? new Date(body.fechaDeseada) : null,
+        franjaHoraria: body.franjaHoraria || null,
+        metodoPago: body.metodoPago || "tarjeta_debito",
+        nota: body.nota?.trim() || null,
+        estado: "pendiente",
+        codigoConfirmacion,
+        codigoGeneradoEn: new Date(),
+        precioTotal: total,
+        estadoPago: "pendiente",
+      },
+    });
+
+    // Si el método de pago es tarjeta (débito/crédito), crear preferencia en MercadoPago
+    if (body.metodoPago === "tarjeta_debito" || body.metodoPago === "tarjeta_credito" || !body.metodoPago) {
+      try {
+        // Si el pedido tiene repartidor asignado y ese repartidor tiene MP conectado, hacer split
+        let repartidorMpAccessToken: string | null = null;
+        let repartidorMpUserId: string | null = null;
+        if (pedido.transportistaId) {
+          const repartidor = await akuosplashDb.akuoUsuario.findUnique({
+            where: { id: pedido.transportistaId },
+            select: { mpAccessToken: true, mpUserId: true, mpTokenExpiresAt: true },
+          });
+          if (repartidor?.mpAccessToken && repartidor?.mpUserId) {
+            const expiresAt = repartidor.mpTokenExpiresAt;
+            if (!expiresAt || expiresAt.getTime() - Date.now() > 3600 * 1000) {
+              repartidorMpAccessToken = repartidor.mpAccessToken;
+              repartidorMpUserId = repartidor.mpUserId;
+            }
+          }
+        }
+
+        const orden = await crearPreferenciaAkuo({
+          clienteId: user.id,
+          clienteNombre: user.nombre,
+          email: user.email || "",
+          monto: total,
+          pedidoId: pedido.id,
+          litros: Number(body.litros) || 1000,
+          comisionApp: precioCalc.comision,
+          repartidorMpAccessToken,
+          repartidorMpUserId,
+        });
+
+        await akuosplashDb.akuoPedidoCliente.update({
+          where: { id: pedido.id },
+          data: { mpPreferenceId: orden.preferenceId },
+        });
+
+        return NextResponse.json({
+          ok: true,
+          pedido,
+          initPoint: orden.initPoint,
+          preferenceId: orden.preferenceId,
+          splitPayment: orden.splitPayment,
+        }, { status: 201 });
+      } catch (e: any) {
+        await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});
+        console.error("MP preference error:", e.message, e.stack);
+        return NextResponse.json({
+          error: e.message || "No se pudo iniciar el pago con MercadoPago",
+          errorName: e.name,
+          stack: e.stack?.split("\n").slice(0, 5),
+        }, { status: 500 });
+      }
+    }
+
+    return NextResponse.json({ ok: true, pedido }, { status: 201 });
+  } catch (e: any) {
+    console.error("POST pedidos outer error:", e.message, e.stack);
+    return NextResponse.json({
+      error: e.message || "Error interno del servidor",
+      errorName: e.name,
+      stack: e.stack?.split("\n").slice(0, 5),
+    }, { status: 500 });
   }
-
-  return NextResponse.json({ ok: true, pedido }, { status: 201 });
 }
-
