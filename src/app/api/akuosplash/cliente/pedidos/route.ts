@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
-import { crearPreferenciaAkuo, calcularPrecioTotal } from "@/lib/akuosplash-mercadopago";
+import { crearOrdenDirectaAkuo, calcularPrecioTotal } from "@/lib/akuosplash-mercadopago";
 
 // Código PIN simple de 4 dígitos (0-9)
 function generarCodigoConfirmacion(): string {
@@ -67,9 +67,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Si el método de pago es tarjeta (débito/crédito), crear preferencia en MercadoPago
+    // Pago directo con tarjeta via Orders API (sin redirect a MP)
     if (body.metodoPago === "tarjeta_debito" || body.metodoPago === "tarjeta_credito" || !body.metodoPago) {
       try {
+        if (!body.cardToken) {
+          await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});
+          return NextResponse.json({ error: "Falta el token de la tarjeta (cardToken)" }, { status: 400 });
+        }
+
         // Si el pedido tiene repartidor asignado y ese repartidor tiene MP conectado, hacer split
         let repartidorMpAccessToken: string | null = null;
         let repartidorMpUserId: string | null = null;
@@ -87,7 +92,7 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        const orden = await crearPreferenciaAkuo({
+        const orden = await crearOrdenDirectaAkuo({
           clienteId: user.id,
           clienteNombre: user.nombre,
           email: user.email || "",
@@ -95,29 +100,39 @@ export async function POST(req: NextRequest) {
           pedidoId: pedido.id,
           litros: Number(body.litros) || 1000,
           comisionApp: precioCalc.comision,
+          cardToken: body.cardToken,
+          installments: body.installments || 1,
+          cardFirstSix: body.cardFirstSix,
           repartidorMpAccessToken,
           repartidorMpUserId,
         });
 
+        // Guardar el orderId y estado
         await akuosplashDb.akuoPedidoCliente.update({
           where: { id: pedido.id },
-          data: { mpPreferenceId: orden.preferenceId },
+          data: {
+            mpPreferenceId: orden.orderId,
+            // Si el pago se aprobó inmediatamente, marcarlo
+            estadoPago: orden.status === "approved" ? "pagado" : (orden.status === "rejected" ? "rechazado" : "pendiente"),
+            mpPaymentId: orden.orderId,
+          },
         });
 
         return NextResponse.json({
           ok: true,
           pedido,
-          initPoint: orden.initPoint,
-          preferenceId: orden.preferenceId,
+          orderId: orden.orderId,
+          status: orden.status,
+          redirectUrl: orden.redirectUrl, // solo si requiere 3DS
           splitPayment: orden.splitPayment,
+          detail: orden.detail,
         }, { status: 201 });
       } catch (e: any) {
         await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});
-        console.error("MP preference error:", e.message, e.stack);
+        console.error("MP order error:", e.message, e.stack);
         return NextResponse.json({
-          error: e.message || "No se pudo iniciar el pago con MercadoPago",
+          error: e.message || "No se pudo procesar el pago",
           errorName: e.name,
-          stack: e.stack?.split("\n").slice(0, 5),
         }, { status: 500 });
       }
     }

@@ -34,6 +34,13 @@ function PedirAguaInner() {
   const [fechaDeseada, setFechaDeseada] = useState("");
   const [tipoTarjeta, setTipoTarjeta] = useState<"debito" | "credito">("debito");
   const [nota, setNota] = useState("");
+  // Campos de tarjeta
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExp, setCardExp] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [cardRut, setCardRut] = useState("");
+  const [cardInstallments, setCardInstallments] = useState(1);
 
   useEffect(() => {
     akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil").then(d => {
@@ -75,24 +82,80 @@ function PedirAguaInner() {
 
     if (!direccion.trim()) { toast.error("Indicá tu dirección"); return; }
     if (!litros || Number(litros) < 100) { toast.error("Indicá al menos 100 litros"); return; }
+    // Validaciones de tarjeta
+    if (cardNumber.replace(/\D/g, "").length < 13) { toast.error("Número de tarjeta inválido"); return; }
+    if (!/^\d{2}\/\d{2}$/.test(cardExp)) { toast.error("Vencimiento inválido (MM/AA)"); return; }
+    if (cardCvv.length < 3) { toast.error("CVV inválido"); return; }
+    if (!cardName.trim()) { toast.error("Indicá el nombre del titular"); return; }
+    if (!cardRut.trim()) { toast.error("Indicá el RUT del titular"); return; }
 
     setCreando(true);
     try {
-      const res = await akuoPost<{ ok: boolean; initPoint?: string; error?: string }>("/api/akuosplash/cliente/pedidos", {
+      // 1) Tokenizar la tarjeta con la Public Key de MP
+      const publicKey = process.env.NEXT_PUBLIC_AKUO_MP_PUBLIC_KEY;
+      // En el frontend no tenemos process.env — usamos variable inline que inyectaremos
+      const MP_PUBLIC_KEY = (window as any).AKUO_MP_PUBLIC_KEY || "APP_USR-01c8fba9-52cb-4fc9-92f3-0ee8cbf73c0b";
+      const [expMonth, expYear] = cardExp.split("/");
+      const expYearFull = "20" + expYear;
+      const rutClean = cardRut.replace(/[.\-]/g, "");
+      const rutNum = rutClean.replace(/\D/g, "");
+      const rutDv = rutClean.slice(-1).toUpperCase();
+
+      const tokenRes = await fetch(`https://api.mercadopago.com/v1/card_tokens?public_key=${MP_PUBLIC_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          card_number: cardNumber.replace(/\D/g, ""),
+          expiration_month: Number(expMonth),
+          expiration_year: Number(expYearFull),
+          security_code: cardCvv,
+          cardholder: {
+            name: cardName,
+            identification: {
+              type: "rut",
+              number: rutNum,
+            },
+          },
+        }),
+      });
+      const tokenData = await tokenRes.json();
+      if (!tokenRes.ok || !tokenData.id) {
+        toast.error(tokenData.message || "No se pudo tokenizar la tarjeta");
+        setCreando(false);
+        return;
+      }
+      const cardToken = tokenData.id;
+
+      // 2) Crear el pedido + procesar pago en el backend
+      const res = await akuoPost<{ ok: boolean; status?: string; redirectUrl?: string; error?: string }>("/api/akuosplash/cliente/pedidos", {
         litros: Number(litros),
         direccion: direccion.trim(),
         comuna: comuna.trim() || undefined,
         metodoPago: `tarjeta_${tipoTarjeta}`,
         fechaDeseada: fechaDeseada || undefined,
         nota: nota.trim() || undefined,
+        cardToken,
+        installments: tipoTarjeta === "credito" ? cardInstallments : 1,
+        cardFirstSix: cardNumber.replace(/\D/g, "").slice(0, 6),
       });
-      if (res.ok && res.initPoint) {
-        // Redirigir a MercadoPago para que el cliente pague
-        toast.success("Pedido creado. Vas a ser redirigido a MercadoPago para pagar.");
-        setTimeout(() => { window.location.href = res.initPoint!; }, 800);
-      } else {
-        toast.success("Pedido creado");
+      if (res.ok) {
+        // Si MP requiere 3DS, redirigir
+        if (res.redirectUrl) {
+          toast.info("Tu banco requiere verificación 3D Secure. Vas a ser redirigido.");
+          setTimeout(() => { window.location.href = res.redirectUrl!; }, 1000);
+          return;
+        }
+        if (res.status === "approved") {
+          toast.success("¡Pago aprobado! Pedido confirmado.");
+        } else if (res.status === "in_process") {
+          toast.info("Pago en proceso. Te avisaremos cuando se confirme.");
+        } else if (res.status === "rejected") {
+          toast.error("El pago fue rechazado. Probá con otra tarjeta.");
+          return;
+        }
         router.push("/akuosplash/cliente");
+      } else {
+        toast.error(res.error || "No se pudo procesar el pago");
       }
     } catch (e: any) { toast.error(e.message || "No se pudo crear el pedido"); }
     finally { setCreando(false); }
@@ -206,44 +269,98 @@ function PedirAguaInner() {
             </CardContent>
           </Card>
 
-          {/* Método de pago — solo tarjeta */}
+          {/* Datos de tarjeta — pago directo via API */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Pago con tarjeta</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2"><CreditCard className="h-4 w-4" /> Datos de la tarjeta</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <button
-                type="button"
-                onClick={() => setTipoTarjeta("debito")}
-                className={`w-full text-left rounded-lg border p-3 transition ${tipoTarjeta === "debito" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:bg-gray-50"}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-gray-600" />
-                    <div>
-                      <p className="font-medium text-sm">Tarjeta de débito</p>
-                      <p className="text-xs text-gray-500">Pagás al confirmar el pedido</p>
-                    </div>
-                  </div>
-                  {tipoTarjeta === "debito" && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTipoTarjeta("debito")}
+                  className={`rounded-lg border py-2 text-sm font-medium ${tipoTarjeta === "debito" ? "border-blue-600 bg-blue-600 text-white" : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+                >
+                  Débito
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTipoTarjeta("credito")}
+                  className={`rounded-lg border py-2 text-sm font-medium ${tipoTarjeta === "credito" ? "border-blue-600 bg-blue-600 text-white" : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+                >
+                  Crédito
+                </button>
+              </div>
+              <div>
+                <Label className="text-xs">Número de tarjeta</Label>
+                <Input
+                  inputMode="numeric"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
+                  placeholder="4509 9535 6623 3704"
+                  className="font-mono"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs">Vencimiento (MM/AA)</Label>
+                  <Input
+                    value={cardExp}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      if (v.length >= 3) v = v.slice(0, 2) + "/" + v.slice(2);
+                      setCardExp(v);
+                    }}
+                    placeholder="11/25"
+                    className="font-mono"
+                  />
                 </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setTipoTarjeta("credito")}
-                className={`w-full text-left rounded-lg border p-3 transition ${tipoTarjeta === "credito" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:bg-gray-50"}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-gray-600" />
-                    <div>
-                      <p className="font-medium text-sm">Tarjeta de crédito</p>
-                      <p className="text-xs text-gray-500">Pagás al confirmar el pedido</p>
-                    </div>
-                  </div>
-                  {tipoTarjeta === "credito" && <CheckCircle2 className="h-4 w-4 text-blue-600" />}
+                <div>
+                  <Label className="text-xs">CVV</Label>
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    value={cardCvv}
+                    onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                    placeholder="123"
+                    className="font-mono"
+                  />
                 </div>
-              </button>
+              </div>
+              <div>
+                <Label className="text-xs">Nombre del titular</Label>
+                <Input
+                  value={cardName}
+                  onChange={(e) => setCardName(e.target.value)}
+                  placeholder="Como figura en la tarjeta"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">RUT del titular</Label>
+                <Input
+                  value={cardRut}
+                  onChange={(e) => setCardRut(e.target.value)}
+                  placeholder="12.345.678-9"
+                />
+              </div>
+              {tipoTarjeta === "credito" && (
+                <div>
+                  <Label className="text-xs">Cuotas</Label>
+                  <select
+                    value={cardInstallments}
+                    onChange={(e) => setCardInstallments(Number(e.target.value))}
+                    className="w-full rounded-md border px-3 py-2 text-sm"
+                  >
+                    <option value={1}>1 (Pago único)</option>
+                    <option value={3}>3 cuotas</option>
+                    <option value={6}>6 cuotas</option>
+                    <option value={12}>12 cuotas</option>
+                  </select>
+                </div>
+              )}
+              <p className="text-[11px] text-gray-400">
+                Tus datos de tarjeta se procesan directamente en MercadoPago. No los guardamos.
+              </p>
             </CardContent>
           </Card>
 
@@ -308,10 +425,10 @@ function PedirAguaInner() {
             type="submit"
             size="lg"
             className="w-full h-14 text-base font-semibold rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20"
-            disabled={creando || !direccion.trim() || !litros || !config.hayServicio || !config.precioPorLitro}
+            disabled={creando || !direccion.trim() || !litros || !config.hayServicio || !config.precioPorLitro || !cardNumber || !cardExp || !cardCvv || !cardName}
           >
             {creando ? (
-              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando…</>
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando pago…</>
             ) : !config.hayServicio ? (
               <>Sin servicio en tu zona</>
             ) : config.precioPorLitro == null ? (
@@ -322,7 +439,7 @@ function PedirAguaInner() {
           </Button>
 
           <p className="text-center text-[11px] text-gray-400">
-            Serás redirigido a MercadoPago para realizar el pago. Al confirmar, se generará tu código de entrega de 4 dígitos.
+            Al confirmar, MercadoPago procesará el pago directo con tu tarjeta. Si tu banco requiere 3D Secure, vas a ser redirigido.
           </p>
         </form>
       </main>

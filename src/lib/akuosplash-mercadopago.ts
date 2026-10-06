@@ -166,3 +166,130 @@ export async function verificarPagoAkuo(paymentId: string): Promise<{
     transactionAmount: data.transaction_amount || 0,
   };
 }
+
+// Pago directo con tarjeta via Orders API (sin redirect a MP)
+// El cliente ingresa su tarjeta en nuestro sitio, la tokenizamos con la Public Key,
+// mandamos el token al backend, y creamos la orden con ese token
+export async function crearOrdenDirectaAkuo(params: {
+  clienteId: string;
+  clienteNombre: string;
+  email: string;
+  monto: number;
+  pedidoId: string;
+  litros: number;
+  comisionApp: number;
+  cardToken: string; // token de la tarjeta (de MP frontend SDK)
+  installments?: number; // cuotas (default 1)
+  cardFirstSix?: string; // primeros 6 dígitos para inferir el brand
+  // Split payment (opcional): si el repartidor tiene MP conectado
+  repartidorMpAccessToken?: string | null;
+  repartidorMpUserId?: string | null;
+}): Promise<{
+  orderId: string;
+  status: string; // "approved" | "in_process" | "rejected"
+  redirectUrl?: string; // solo si requiere 3DS
+  splitPayment: boolean;
+  detail?: string;
+}> {
+  const accessToken = process.env.AKUO_MP_ACCESS_TOKEN;
+  if (!accessToken) throw new Error("AKUO_MP_ACCESS_TOKEN no configurado");
+
+  const idempotencyKey = `akuo-${params.pedidoId}-${Date.now()}`;
+  const externalRef = `akuo-pedido-${params.pedidoId}`;
+
+  // Inferir el brand de la tarjeta por el BIN (primeros dígitos)
+  // MP Orders API requiere payment_method.id = "visa" | "master" | "amex" | "diners" | "presto"
+  const firstDigit = params.cardFirstSix ? params.cardFirstSix[0] : "4";
+  let paymentMethodId = "visa";
+  if (firstDigit === "5") paymentMethodId = "master";
+  else if (firstDigit === "3") paymentMethodId = "amex";
+
+  const body: any = {
+    type: "online",
+    total_amount: String(params.monto),
+    external_reference: externalRef,
+    items: [{
+      title: "AkuoSplash — Pedido de agua",
+      description: `Pedido de ${params.litros} litros`,
+      quantity: 1,
+      unit_price: String(params.monto),
+      category_id: "services",
+    }],
+    transactions: {
+      payments: [{
+        amount: String(params.monto),
+        payment_method: {
+          type: "credit_card",
+          id: paymentMethodId, // brand de la tarjeta
+          token: params.cardToken, // token de la tarjeta (de MP frontend SDK)
+          installments: params.installments || 1, // cuotas
+        },
+      }],
+    },
+    payer: {
+      email: params.email,
+    },
+  };
+
+  // Split payment: si el repartidor tiene MP conectado
+  let splitPayment = false;
+  if (params.repartidorMpAccessToken && params.repartidorMpUserId) {
+    const plataformaUserId = process.env.AKUO_MP_USER_ID;
+    if (!plataformaUserId) {
+      throw new Error("AKUO_MP_USER_ID no configurado — necesario para el split");
+    }
+    body.splitter = {
+      items: [{
+        item_id: "1",
+        splitter_distributions: [
+          {
+            collector: { id: Number(params.repartidorMpUserId) },
+            amount: String(params.monto - params.comisionApp),
+          },
+          {
+            collector: { id: Number(plataformaUserId) },
+            amount: String(params.comisionApp),
+          },
+        ],
+      }],
+    };
+    splitPayment = true;
+  }
+
+  const res = await fetch("https://api.mercadopago.com/v1/orders", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "X-Idempotency-Key": idempotencyKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    let errMsg = `MP Orders API error ${res.status}`;
+    try {
+      const errJson = JSON.parse(errText);
+      const firstError = errJson.errors?.[0] || errJson;
+      errMsg = `${errMsg}: ${firstError.message || errJson.message || errText.substring(0, 400)}`;
+      if (firstError.details) errMsg += ` — ${firstError.details.join(", ")}`;
+    } catch {
+      errMsg = `${errMsg}: ${errText.substring(0, 400)}`;
+    }
+    throw new Error(errMsg);
+  }
+
+  const data = await res.json();
+
+  const status = data.status || data.transactions?.payments?.[0]?.status || "unknown";
+  const redirectUrl = data.transactions?.payments?.[0]?.redirect_url || data.redirect_url;
+
+  return {
+    orderId: String(data.id || ""),
+    status,
+    redirectUrl,
+    splitPayment,
+    detail: data.transactions?.payments?.[0]?.status_detail,
+  };
+}

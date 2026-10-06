@@ -25,11 +25,47 @@ export async function POST(req: NextRequest) {
 
     if (pago.status !== "approved") return NextResponse.json({ ok: true });
 
-    // Parsear external_reference: "akuo_pedido_pago:clienteId:pedidoId"
-    const parts = pago.externalReference.split(":");
-    if (parts[0] !== "akuo_pedido_pago") return NextResponse.json({ ok: true });
-    const clienteId = parts[1];
-    const pedidoId = parts[2];
+    // Parsear external_reference: dos formatos posibles:
+    // - "akuo_pedido_pago:userId:pedidoId" (legacy Preferences)
+    // - "akuo-pedido-pago-userId-pedidoId" (Orders API anterior)
+    // - "akuo-pedido-{pedidoId}" (Orders API actual — acortado por límite de 64 chars)
+    let clienteId: string, pedidoId: string;
+    if (pago.externalReference.startsWith("akuo_pedido_pago:")) {
+      const parts = pago.externalReference.split(":");
+      clienteId = parts[1];
+      pedidoId = parts[2];
+    } else if (pago.externalReference.startsWith("akuo-pedido-pago-")) {
+      const parts = pago.externalReference.split("-");
+      clienteId = parts[3];
+      pedidoId = parts[4];
+    } else if (pago.externalReference.startsWith("akuo-pedido-")) {
+      // Formato actual: akuo-pedido-{pedidoId}
+      const parts = pago.externalReference.split("-");
+      pedidoId = parts[2];
+      // Sacar el clienteId del propio pedido
+      const pedido = await akuosplashDb.akuoPedidoCliente.findUnique({ where: { id: pedidoId } });
+      if (!pedido) return NextResponse.json({ ok: true });
+      if (pedido.estadoPago === "pagado") return NextResponse.json({ ok: true });
+      clienteId = pedido.clienteId;
+      await akuosplashDb.akuoPedidoCliente.update({
+        where: { id: pedidoId },
+        data: {
+          estadoPago: "pagado",
+          mpPaymentId: String(finalPaymentId),
+          precioTotal: pago.transactionAmount,
+        },
+      });
+      await akuoNotificar(
+        clienteId,
+        "pago_confirmado",
+        "Pago confirmado",
+        `Tu pago de $${pago.transactionAmount.toLocaleString("es-CL")} fue confirmado. El pedido está listo para que un repartidor lo tome.`,
+        "/akuosplash/cliente",
+      );
+      return NextResponse.json({ ok: true });
+    } else {
+      return NextResponse.json({ ok: true });
+    }
 
     const pedido = await akuosplashDb.akuoPedidoCliente.findUnique({ where: { id: pedidoId } });
     if (!pedido) return NextResponse.json({ ok: true });
