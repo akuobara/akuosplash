@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { akuoGet, akuoPost, akuoApi, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; }
+interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; saldo?: number; }
 interface PedidoDisponible {
   id: string; creadoEn: string; litros: number; direccion: string; comuna?: string; estado: string;
   metodoPago: string; nota?: string; requierePresenciaCliente?: boolean;
@@ -116,6 +117,13 @@ export function AkuosplashTransportista() {
           </Button>
         </div>
       </header>
+
+      {/* Banner superadmin: atajo para volver al panel admin */}
+      {user.rol === "superadmin" && (
+        <Link href="/akuosplash/superadmin" className="block bg-violet-600 text-white text-xs py-1.5 text-center font-medium hover:bg-violet-700 transition">
+          Estás viendo como repartidor (modo superadmin) — Tocá para volver al panel de administración
+        </Link>
+      )}
 
       <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 sm:px-6">
         <div>

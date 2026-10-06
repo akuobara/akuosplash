@@ -115,6 +115,31 @@ export default function SuperadminPage() {
           <p className="text-sm text-gray-500">Panel de administración</p>
         </div>
 
+        {/* Cambiar de interfaz */}
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 px-1">Ver como</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Link href="/akuosplash/cliente">
+              <Card className="border-gray-100 hover:border-blue-300 hover:bg-blue-50/50 transition cursor-pointer">
+                <CardContent className="p-3 flex flex-col items-center gap-1.5">
+                  <div className="rounded-lg bg-blue-500/10 p-2"><Users className="h-5 w-5 text-blue-600" /></div>
+                  <p className="font-medium text-sm">Cliente</p>
+                  <p className="text-[10px] text-gray-500 text-center">Pedir agua, ver historial</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/akuosplash/transportista">
+              <Card className="border-gray-100 hover:border-blue-300 hover:bg-blue-50/50 transition cursor-pointer">
+                <CardContent className="p-3 flex flex-col items-center gap-1.5">
+                  <div className="rounded-lg bg-emerald-500/10 p-2"><Truck className="h-5 w-5 text-emerald-600" /></div>
+                  <p className="font-medium text-sm">Repartidor</p>
+                  <p className="text-[10px] text-gray-500 text-center">Ver pedidos disponibles</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
+
         {/* Stats principales */}
         <div className="grid grid-cols-2 gap-2">
           <Card className="border-gray-100">

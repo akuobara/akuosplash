@@ -114,6 +114,13 @@ export function AkuosplashCliente() {
         </div>
       </header>
 
+      {/* Banner superadmin: atajo para volver al panel admin */}
+      {user.rol === "superadmin" && (
+        <Link href="/akuosplash/superadmin" className="block bg-violet-600 text-white text-xs py-1.5 text-center font-medium hover:bg-violet-700 transition">
+          Estás viendo como cliente (modo superadmin) — Tocá para volver al panel de administración
+        </Link>
+      )}
+
       <main className="mx-auto max-w-md px-4 py-5 space-y-5">
         {/* CTA principal: Pedir agua */}
         <div className="space-y-3">
