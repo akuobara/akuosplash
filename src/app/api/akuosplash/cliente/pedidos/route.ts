@@ -29,9 +29,11 @@ export async function POST(req: NextRequest) {
 
   // El código siempre se genera — el repartidor lo necesitará al finalizar la entrega
   const codigoConfirmacion = generarCodigoConfirmacion();
-  // El precio depende de la comuna (zona) del cliente
+  // El precio depende de la zona del cliente (lat/lng o comuna)
+  const lat = body.lat ? Number(body.lat) : (user as any).lat;
+  const lng = body.lng ? Number(body.lng) : (user as any).lng;
   const comuna = body.comuna?.trim() || (user as any).comuna || undefined;
-  const { total } = await calcularPrecioTotal(Number(body.litros), comuna);
+  const { total } = await calcularPrecioTotal(Number(body.litros), lat, lng, comuna);
 
   const pedido = await akuosplashDb.akuoPedidoCliente.create({
     data: {

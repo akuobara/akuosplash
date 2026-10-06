@@ -335,12 +335,19 @@ exports.Prisma.AkuoConfigScalarFieldEnum = {
   activo: 'activo'
 };
 
-exports.Prisma.AkuoZonaPrecioScalarFieldEnum = {
+exports.Prisma.AkuoZonaScalarFieldEnum = {
   id: 'id',
   creadoEn: 'creadoEn',
-  comuna: 'comuna',
+  actualizadoEn: 'actualizadoEn',
+  nombre: 'nombre',
+  descripcion: 'descripcion',
+  zonaGeoJson: 'zonaGeoJson',
+  centroLat: 'centroLat',
+  centroLng: 'centroLng',
   precioPorLitro: 'precioPorLitro',
-  activo: 'activo'
+  litrosMinimos: 'litrosMinimos',
+  radioKm: 'radioKm',
+  activa: 'activa'
 };
 
 exports.Prisma.AkuoConversacionScalarFieldEnum = {
@@ -414,7 +421,7 @@ exports.Prisma.ModelName = {
   AkuoNotificacion: 'AkuoNotificacion',
   AkuoAuditLog: 'AkuoAuditLog',
   AkuoConfig: 'AkuoConfig',
-  AkuoZonaPrecio: 'AkuoZonaPrecio',
+  AkuoZona: 'AkuoZona',
   AkuoConversacion: 'AkuoConversacion',
   AkuoMensaje: 'AkuoMensaje',
   AkuoPedidoCliente: 'AkuoPedidoCliente'

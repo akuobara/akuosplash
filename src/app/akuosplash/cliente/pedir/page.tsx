@@ -26,7 +26,7 @@ function PedirAguaInner() {
   const [perfil, setPerfil] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [creando, setCreando] = useState(false);
-  const [config, setConfig] = useState<{ precioPorLitro: number; comisionPct: number }>({ precioPorLitro: 0, comisionPct: 0 });
+  const [config, setConfig] = useState<{ precioPorLitro: number; comisionPct: number; zona?: { nombre: string } | null }>({ precioPorLitro: 0, comisionPct: 0 });
 
   const [litros, setLitros] = useState("1000");
   const [direccion, setDireccion] = useState("");
@@ -61,11 +61,15 @@ function PedirAguaInner() {
     }).finally(() => setLoading(false));
   }, [router, params]);
 
-  // Re-fetch del precio cuando cambia la comuna
+  // Re-fetch del precio cuando cambia la comuna o el cliente tiene lat/lng
   useEffect(() => {
     if (!perfil) return;
-    const comunaQuery = comuna.trim() ? `?comuna=${encodeURIComponent(comuna.trim())}` : "";
-    akuoGet<{ precioPorLitro: number; comisionPct: number }>(`/api/akuosplash/cliente/precio${comunaQuery}`)
+    const params = new URLSearchParams();
+    if (comuna.trim()) params.set("comuna", comuna.trim());
+    if (perfil.lat) params.set("lat", String(perfil.lat));
+    if (perfil.lng) params.set("lng", String(perfil.lng));
+    const query = params.toString() ? `?${params.toString()}` : "";
+    akuoGet<{ precioPorLitro: number; comisionPct: number; zona: { nombre: string } | null }>(`/api/akuosplash/cliente/precio${query}`)
       .then(setConfig)
       .catch(() => setConfig({ precioPorLitro: 50, comisionPct: 0 }));
   }, [perfil, comuna]);
@@ -257,7 +261,7 @@ function PedirAguaInner() {
             {config.precioPorLitro > 0 ? (
               <>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Precio por litro {comuna && `(${comuna})`}</span>
+                  <span className="text-gray-600">Precio por litro {config.zona ? `(${config.zona.nombre})` : comuna ? `(${comuna})` : ""}</span>
                   <span className="font-medium tabular-nums">{formatCLP(config.precioPorLitro)}</span>
                 </div>
                 <div className="flex justify-between">

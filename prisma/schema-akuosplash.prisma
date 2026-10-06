@@ -277,19 +277,34 @@ model AkuoConfig {
   maxVehiculosPro    Int    @default(5)
   maxVehiculosEnterprise Int @default(999)
   // Precio por litro de agua — configurado por el superadmin
+  // Se usa cuando el cliente no cae en ninguna zona específica
   precioPorLitroAguaDefault Float @default(50)
   activo              Boolean @default(true)
 }
 
-// Precios por comuna/zona — el superadmin puede setear precios específicos por zona
-// Si no hay precio para la comuna, se usa el default de AkuoConfig
-model AkuoZonaPrecio {
+// Zona geográfica con precio definido por el superadmin — mismo modelo que Aljibe
+// El polígono se guarda como GeoJSON (string JSON) en zonaGeoJson
+// El cliente cae en una zona si su lat/lng está dentro del polígono
+// o si está dentro del radioKm desde centroLat/centroLng
+model AkuoZona {
   id              String   @id @default(cuid())
   creadoEn        DateTime @default(now())
-  comuna          String   @unique
+  actualizadoEn   DateTime @updatedAt
+  nombre          String   // Ej: "Las Condes", "Maipú Norte"
+  descripcion     String?
+  // Polígono en formato GeoJSON: {"type":"Polygon","coordinates":[[[lng,lat],[lng,lat],...]]}
+  zonaGeoJson     String
+  // Centro aproximado para mostrar en mapa y fallback de cobertura por radio
+  centroLat       Float?
+  centroLng       Float?
+  // Precio por litro en esta zona
   precioPorLitro  Float
-  activo          Boolean  @default(true)
-  @@index([comuna, activo])
+  // Cantidad mínima de litros por pedido en esta zona (default 1000)
+  litrosMinimos   Int      @default(1000)
+  // Radio de cobertura (km) si no hay polígono
+  radioKm         Float?
+  activa          Boolean  @default(true)
+  @@index([activa])
 }
 
 model AkuoConversacion {
