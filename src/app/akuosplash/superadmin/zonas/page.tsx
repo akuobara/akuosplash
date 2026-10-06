@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  ArrowLeft, LogOut, Loader2, Plus, Trash2, MapPin, DollarSign, Save, Pencil, Navigation
+  ArrowLeft, LogOut, Loader2, Plus, Trash2, MapPin, DollarSign, Save, Pencil, Navigation, Upload
 } from "lucide-react";
 import { akuoGet, akuoPost, akuoApi, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
@@ -37,6 +37,14 @@ export default function SuperadminZonasPage() {
   const [centroLng, setCentroLng] = useState("");
   const [radioKm, setRadioKm] = useState("");
   const [litrosMinimos, setLitrosMinimos] = useState("1000");
+
+  // Importar KML
+  const [showKmlModal, setShowKmlModal] = useState(false);
+  const [kmlFile, setKmlFile] = useState<File | null>(null);
+  const [kmlNombre, setKmlNombre] = useState("");
+  const [kmlPrecio, setKmlPrecio] = useState("50");
+  const [kmlLitrosMin, setKmlLitrosMin] = useState("1000");
+  const [importando, setImportando] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -141,6 +149,38 @@ export default function SuperadminZonasPage() {
     } catch (e: any) { toast.error(e.message || "Error"); }
   }
 
+  async function importarKml() {
+    if (!kmlFile) { toast.error("Seleccioná un archivo KML"); return; }
+    if (!kmlPrecio) { toast.error("Indicá el precio por litro"); return; }
+    setImportando(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", kmlFile);
+      formData.append("nombre", kmlNombre);
+      formData.append("precioPorLitro", kmlPrecio);
+      formData.append("litrosMinimos", kmlLitrosMin);
+      // Hacer fetch directo porque akuoApi espera JSON
+      const res = await fetch("/api/akuosplash/superadmin/zonas/importar-kml", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        toast.success(data.message || "Zona importada");
+        setShowKmlModal(false);
+        setKmlFile(null);
+        setKmlNombre("");
+        setKmlPrecio("50");
+        setKmlLitrosMin("1000");
+        cargar();
+      } else {
+        toast.error(data.error || "Error al importar");
+      }
+    } catch (e: any) { toast.error(e.message || "Error"); }
+    finally { setImportando(false); }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -190,9 +230,14 @@ export default function SuperadminZonasPage() {
         <Card>
           <CardHeader className="pb-3 flex-row flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4" /> Zonas de cobertura</CardTitle>
-            <Button size="sm" onClick={abrirCrear} className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="h-4 w-4 mr-1" /> Nueva zona
-            </Button>
+            <div className="flex gap-1">
+              <Button size="sm" variant="outline" onClick={() => setShowKmlModal(true)}>
+                <Upload className="h-4 w-4 mr-1" /> KML
+              </Button>
+              <Button size="sm" onClick={abrirCrear} className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-1" /> Nueva
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {zonas.length === 0 ? (
@@ -257,6 +302,59 @@ export default function SuperadminZonasPage() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Modal Importar KML */}
+      {showKmlModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md border-2 border-blue-300 shadow-2xl">
+            <CardHeader className="pb-3"><CardTitle className="text-base">Importar zona desde KML</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <Label className="text-xs">Archivo KML *</Label>
+                <input
+                  type="file"
+                  accept=".kml"
+                  onChange={(e) => setKmlFile(e.target.files?.[0] || null)}
+                  className="block w-full text-sm text-gray-500 file:mr-3 file:rounded-md file:border-0 file:bg-blue-600 file:px-3 file:py-1.5 file:text-white hover:file:bg-blue-700"
+                />
+                {kmlFile && (
+                  <p className="mt-1 text-xs text-emerald-600">✓ {kmlFile.name} ({(kmlFile.size / 1024).toFixed(1)} KB)</p>
+                )}
+              </div>
+              <div>
+                <Label className="text-xs">Nombre de la zona (opcional — se usa el del KML si no se completa)</Label>
+                <Input value={kmlNombre} onChange={(e) => setKmlNombre(e.target.value)} placeholder="Ej: Las Condes" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label className="text-xs">Precio por litro *</Label>
+                  <Input type="number" min="0" value={kmlPrecio} onChange={(e) => setKmlPrecio(e.target.value)} placeholder="50" />
+                </div>
+                <div>
+                  <Label className="text-xs">Litros mínimos</Label>
+                  <Input type="number" min="0" value={kmlLitrosMin} onChange={(e) => setKmlLitrosMin(e.target.value)} placeholder="1000" />
+                </div>
+              </div>
+              <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 text-xs text-blue-700 space-y-1">
+                <p className="font-medium">Cómo exportar desde Google Earth:</p>
+                <ol className="ml-4 list-decimal space-y-0.5">
+                  <li>Dibujá un polígono en Google Earth (botón "Agregar polígono")</li>
+                  <li>Clic derecho sobre el polígono → "Guardar lugar como..."</li>
+                  <li>Tipo: Archivo KML (*.kml)</li>
+                  <li>Subí el archivo acá</li>
+                </ol>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" onClick={() => { setShowKmlModal(false); setKmlFile(null); }} className="flex-1">Cancelar</Button>
+                <Button onClick={importarKml} disabled={importando || !kmlFile} className="flex-1 bg-blue-600 hover:bg-blue-700">
+                  {importando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 mr-1" />}
+                  Importar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
