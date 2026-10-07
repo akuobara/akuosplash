@@ -149,7 +149,8 @@ export function labelAplicaImpuestoSobre(sobre: string): string {
   return APLICA_IMPUESTO_SOBRE.find((a) => a.value === sobre)?.label ?? sobre;
 }
 
-export function formatCurrency(value: number): string {
+export function formatCurrency(value: number | null | undefined): string {
+  if (value == null) return "$0";
   // Si el valor tiene decimales significativos, mostrarlos (ej. precio por litro: 8.7)
   const hasDecimals = value % 1 !== 0;
   return new Intl.NumberFormat("es-CL", {
@@ -160,15 +161,17 @@ export function formatCurrency(value: number): string {
   }).format(value || 0);
 }
 
-export function formatNumber(value: number, decimals = 0): string {
+export function formatNumber(value: number | null | undefined, decimals = 0): string {
   return new Intl.NumberFormat("es-CL", {
     maximumFractionDigits: decimals,
     minimumFractionDigits: decimals,
   }).format(value || 0);
 }
 
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return "—";
   const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "—";
   return d.toLocaleDateString("es-CL", {
     day: "2-digit",
     month: "2-digit",
@@ -182,7 +185,8 @@ export function formatDate(date: Date | string): string {
 // "YYYY-MM-DDT00:00:00Z" y que el usuario quiere ver como "el día YYYY-MM-DD"
 // (sin importar su zona horaria). Ej: pedido recurrente para "4 de septiembre"
 // se guarda como 2026-09-04T00:00:00Z y debe mostrarse como "04-09-2024", no "03-09".
-export function formatDateUTC(date: Date | string): string {
+export function formatDateUTC(date: Date | string | null | undefined): string {
+  if (!date) return "—";
   const isoStr = typeof date === "string" ? date : date.toISOString();
   const yyyyMmDd = isoStr.split("T")[0];
   if (!yyyyMmDd) return formatDate(date);
@@ -190,7 +194,8 @@ export function formatDateUTC(date: Date | string): string {
   return `${d}-${m}-${y}`;
 }
 
-export function formatDateTime(date: Date | string): string {
+export function formatDateTime(date: Date | string | null | undefined): string {
+  if (!date) return "—";
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleString("es-CL", {
     day: "2-digit",
@@ -241,7 +246,8 @@ export function parseDateTimeLocalInput(value: string): Date {
   return new Date(normalized);
 }
 
-export function formatTime(date: Date | string): string {
+export function formatTime(date: Date | string | null | undefined): string {
+  if (!date) return "—";
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleTimeString("es-CL", {
     hour: "2-digit",
