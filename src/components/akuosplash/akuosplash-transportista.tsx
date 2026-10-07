@@ -429,6 +429,8 @@ function Mensajeria({ conversaciones, userId, loading, onRefresh }: { conversaci
 }
 
 function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: () => void }) {
+  const [perfil, setPerfil] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     nombre: user.nombre || '',
     telefono: '',
@@ -440,21 +442,19 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
     areasCobertura: '',
     descripcion: '',
   });
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    akuoGet<{ user: any }>("/api/akuosplash/auth/me").then(d => {
-      const u = d.user;
-      if (u) {
-        setForm({
-          nombre: u.nombre || '', telefono: u.telefono || '',
-          razonSocial: u.razonSocial || '', direccionEmpresa: u.direccionEmpresa || '',
-          patenteVehiculo: u.patenteVehiculo || '', tipoVehiculo: u.tipoVehiculo || 'aljibe',
-          capacidadVehiculoKg: u.capacidadVehiculoKg ? String(u.capacidadVehiculoKg) : '',
-          areasCobertura: u.areasCobertura || '', descripcion: u.descripcion || '',
-        });
-      }
-    });
+    akuoGet<{ usuario: any; vehiculos: any[]; stats: any }>("/api/akuosplash/transportista/perfil").then(d => {
+      setPerfil(d);
+      const u = d.usuario;
+      setForm({
+        nombre: u.nombre || '', telefono: u.telefono || '',
+        razonSocial: u.razonSocial || '', direccionEmpresa: u.direccionEmpresa || '',
+        patenteVehiculo: u.patenteVehiculo || '', tipoVehiculo: u.tipoVehiculo || 'aljibe',
+        capacidadVehiculoKg: u.capacidadVehiculoKg ? String(u.capacidadVehiculoKg) : '',
+        areasCobertura: u.areasCobertura || '', descripcion: u.descripcion || '',
+      });
+    }).catch(() => {});
   }, []);
 
   function update(field: string, value: any) { setForm({ ...form, [field]: value }); }
@@ -480,14 +480,20 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
 
   return (
     <div className="space-y-4">
+      {/* Datos personales */}
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base">Datos personales y empresa</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><User className="h-4 w-4 text-primary" /> Mis datos</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center gap-4 mb-2">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">{form.nombre?.[0] || "?"}</div>
             <div>
               <p className="font-bold">{user.email}</p>
-              <Badge variant="outline">Plan: {user.plan}</Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">Plan: {user.plan}</Badge>
+                {perfil?.usuario?.mpConnected && (
+                  <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50">MP conectado</Badge>
+                )}
+              </div>
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -499,8 +505,9 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
         </CardContent>
       </Card>
 
+      {/* Mi vehículo */}
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base">Vehículo</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> Mi vehículo</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div><Label>Patente</Label><Input placeholder="AB-CD-12" value={form.patenteVehiculo} onChange={(e: any) => update("patenteVehiculo", e.target.value)} /></div>
@@ -517,16 +524,72 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
         </CardContent>
       </Card>
 
+      {/* Mis estadísticas */}
+      {perfil?.stats && (
+        <Card>
+          <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Droplets className="h-4 w-4 text-primary" /> Mis estadísticas</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg border border-border p-3 text-center">
+                <p className="text-xs text-muted-foreground">Total entregas</p>
+                <p className="text-xl font-bold tabular-nums">{perfil.stats.totalEntregas}</p>
+              </div>
+              <div className="rounded-lg border border-border p-3 text-center">
+                <p className="text-xs text-muted-foreground">Total litros</p>
+                <p className="text-xl font-bold tabular-nums">{perfil.stats.totalLitros.toLocaleString("es-CL")} L</p>
+              </div>
+              <div className="rounded-lg border border-border p-3 text-center">
+                <p className="text-xs text-muted-foreground">Ingresos del mes</p>
+                <p className="text-xl font-bold tabular-nums">{formatCLP(perfil.stats.ventasMes)}</p>
+              </div>
+              <div className="rounded-lg border border-border p-3 text-center">
+                <p className="text-xs text-muted-foreground">Valoración</p>
+                <p className="text-xl font-bold tabular-nums">
+                  {perfil.stats.totalValoraciones > 0 ? `★ ${perfil.stats.valoracionPromedio}` : "—"}
+                </p>
+                <p className="text-[10px] text-muted-foreground">{perfil.stats.totalValoraciones} reseñas</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Áreas de cobertura */}
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base">Áreas de cobertura</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Áreas de cobertura</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div><Label>Comunas / zonas</Label><Input placeholder="Vitacura, Las Condes, Lo Barnechea..." value={form.areasCobertura} onChange={(e: any) => update("areasCobertura", e.target.value)} /></div>
           <div><Label>Descripción</Label><Input placeholder="Servicio rápido, horarios, etc." value={form.descripcion} onChange={(e: any) => update("descripcion", e.target.value)} /></div>
         </CardContent>
       </Card>
 
-      <Button onClick={guardar} disabled={saving} className="w-full">
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar todos los cambios"}
+      {/* MercadoPago */}
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> MercadoPago</CardTitle></CardHeader>
+        <CardContent>
+          {perfil?.usuario?.mpConnected ? (
+            <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700">
+              <p className="font-medium">✓ Tu cuenta MercadoPago está conectada</p>
+              <p className="text-xs mt-1">Vas a recibir los pagos automáticamente cuando un cliente pague un pedido que aceptaste.</p>
+              {perfil.usuario.mpConnectedAt && (
+                <p className="text-[10px] mt-1 text-emerald-600">Conectada el {new Date(perfil.usuario.mpConnectedAt).toLocaleDateString("es-CL")}</p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Conectá tu cuenta MercadoPago para recibir los pagos automáticamente cuando entregues un pedido.
+              </p>
+              <Button onClick={() => { window.location.href = "/api/akuosplash/auth/mp/oauth"; }} className="w-full bg-blue-600 hover:bg-blue-700">
+                <Wallet className="h-4 w-4 mr-1" /> Conectar MercadoPago
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Button onClick={guardar} disabled={saving} className="w-full h-12">
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cambios"}
       </Button>
     </div>
   );
