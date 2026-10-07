@@ -156,7 +156,7 @@ export default function TransportistaPage() {
           <TabsContent value="gastos" className="mt-4"><ErrorBoundary><GastosTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
           <TabsContent value="liquidacion" className="mt-4"><ErrorBoundary><LiquidacionTab clientes={clientes} config={config} refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
           <TabsContent value="clientes" className="mt-4"><ErrorBoundary><ClientesTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
-          <TabsContent value="recurrentes" className="mt-4"><ErrorBoundary><PedidosRecurrentesTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
+          <TabsContent value="recurrentes" className="mt-4"><ErrorBoundary><PedidosRecurrentesTab clientes={clientes} choferes={[]} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
           <TabsContent value="historial" className="mt-4"><ErrorBoundary><HistorialVueltasTab refreshKey={refreshKey} /></ErrorBoundary></TabsContent>
           <TabsContent value="config" className="mt-4"><ErrorBoundary><ConfiguracionTab config={config} onSaved={refresh} /></ErrorBoundary></TabsContent>
           <TabsContent value="equipo" className="mt-4"><ErrorBoundary><EquipoTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
