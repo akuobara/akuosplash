@@ -80,6 +80,9 @@ model AkuoUsuario {
   mensajesEnviados            AkuoMensaje[]       @relation("MensajeRemitente")
   pedidosClienteApp           AkuoPedidoCliente[] @relation("PedidoClienteApp")
   pedidosTransportistaApp     AkuoPedidoCliente[] @relation("PedidoTransportistaApp")
+  // Vueltas, gastos (para admin/chofer dashboard)
+  vueltas                     AkuoVuelta[]        @relation("VueltaTransportista")
+  gastos                      AkuoGasto[]         @relation("GastoTransportista")
 
   @@index([rol, activo])
   @@index([email])
@@ -129,6 +132,7 @@ model AkuoVehiculo {
   seguroUrl       String?
   fotoUrl         String?
   entregas        AkuoEntrega[]
+  vueltas         AkuoVuelta[]
 
   @@index([transportistaId, activo])
 }
@@ -199,6 +203,9 @@ model AkuoEntrega {
   clienteLng           Float?
   vehiculoId           String?
   vehiculo             AkuoVehiculo? @relation(fields: [vehiculoId], references: [id])
+  // Vuelta a la que pertenece esta entrega (null si se hace fuera de una vuelta)
+  vueltaId             String?
+  vuelta               AkuoVuelta?   @relation(fields: [vueltaId], references: [id])
   litros               Float
   total                Float
   montoEfectivo        Float         @default(0)
@@ -217,6 +224,50 @@ model AkuoEntrega {
 
   @@index([transportistaId, creadoEn])
   @@index([clienteId])
+  @@index([vueltaId])
+}
+
+// Vuelta = sesión de trabajo del repartidor (sale con camión, hace entregas, vuelve)
+// Igual a Aljibe
+model AkuoVuelta {
+  id                  String    @id @default(cuid())
+  numero              Int
+  iniciadaEn          DateTime  @default(now())
+  cerradaEn           DateTime?
+  nota                String?
+  activa              Boolean   @default(true)
+  validadaManualmente Boolean?
+
+  transportistaId String
+  transportista   AkuoUsuario @relation("VueltaTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+
+  vehiculoId String?
+  vehiculo   AkuoVehiculo? @relation(fields: [vehiculoId], references: [id])
+
+  entregas AkuoEntrega[]
+  gastos   AkuoGasto[]
+
+  @@index([transportistaId, activa])
+}
+
+// Gasto operativo del repartidor (combustible, peajes, etc.)
+// Igual a Aljibe
+model AkuoGasto {
+  id          String   @id @default(cuid())
+  fecha       DateTime @default(now())
+  tipo        String
+  monto       Float
+  descripcion String?
+  metodoPago  String   @default("efectivo")
+
+  transportistaId String
+  transportista   AkuoUsuario @relation("GastoTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+
+  // Gasto puede estar asociado a una vuelta específica o ser general
+  vueltaId String?
+  vuelta   AkuoVuelta? @relation(fields: [vueltaId], references: [id])
+
+  @@index([transportistaId, fecha])
 }
 
 model AkuoPago {

@@ -49,6 +49,16 @@ export type AkuoPedido = $Result.DefaultSelection<Prisma.$AkuoPedidoPayload>
  */
 export type AkuoEntrega = $Result.DefaultSelection<Prisma.$AkuoEntregaPayload>
 /**
+ * Model AkuoVuelta
+ * 
+ */
+export type AkuoVuelta = $Result.DefaultSelection<Prisma.$AkuoVueltaPayload>
+/**
+ * Model AkuoGasto
+ * 
+ */
+export type AkuoGasto = $Result.DefaultSelection<Prisma.$AkuoGastoPayload>
+/**
  * Model AkuoPago
  * 
  */
@@ -286,6 +296,26 @@ export class PrismaClient<
     * ```
     */
   get akuoEntrega(): Prisma.AkuoEntregaDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.akuoVuelta`: Exposes CRUD operations for the **AkuoVuelta** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AkuoVueltas
+    * const akuoVueltas = await prisma.akuoVuelta.findMany()
+    * ```
+    */
+  get akuoVuelta(): Prisma.AkuoVueltaDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.akuoGasto`: Exposes CRUD operations for the **AkuoGasto** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AkuoGastos
+    * const akuoGastos = await prisma.akuoGasto.findMany()
+    * ```
+    */
+  get akuoGasto(): Prisma.AkuoGastoDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.akuoPago`: Exposes CRUD operations for the **AkuoPago** model.
@@ -834,6 +864,8 @@ export namespace Prisma {
     AkuoCliente: 'AkuoCliente',
     AkuoPedido: 'AkuoPedido',
     AkuoEntrega: 'AkuoEntrega',
+    AkuoVuelta: 'AkuoVuelta',
+    AkuoGasto: 'AkuoGasto',
     AkuoPago: 'AkuoPago',
     AkuoSuscripcion: 'AkuoSuscripcion',
     AkuoValoracion: 'AkuoValoracion',
@@ -862,7 +894,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "akuoUsuario" | "akuoSesion" | "akuoCodigoLogin" | "akuoVehiculo" | "akuoCliente" | "akuoPedido" | "akuoEntrega" | "akuoPago" | "akuoSuscripcion" | "akuoValoracion" | "akuoNotificacion" | "akuoAuditLog" | "akuoConfig" | "akuoZona" | "akuoConversacion" | "akuoMensaje" | "akuoPedidoCliente"
+      modelProps: "akuoUsuario" | "akuoSesion" | "akuoCodigoLogin" | "akuoVehiculo" | "akuoCliente" | "akuoPedido" | "akuoEntrega" | "akuoVuelta" | "akuoGasto" | "akuoPago" | "akuoSuscripcion" | "akuoValoracion" | "akuoNotificacion" | "akuoAuditLog" | "akuoConfig" | "akuoZona" | "akuoConversacion" | "akuoMensaje" | "akuoPedidoCliente"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1381,6 +1413,154 @@ export namespace Prisma {
           count: {
             args: Prisma.AkuoEntregaCountArgs<ExtArgs>
             result: $Utils.Optional<AkuoEntregaCountAggregateOutputType> | number
+          }
+        }
+      }
+      AkuoVuelta: {
+        payload: Prisma.$AkuoVueltaPayload<ExtArgs>
+        fields: Prisma.AkuoVueltaFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AkuoVueltaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AkuoVueltaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>
+          }
+          findFirst: {
+            args: Prisma.AkuoVueltaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AkuoVueltaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>
+          }
+          findMany: {
+            args: Prisma.AkuoVueltaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>[]
+          }
+          create: {
+            args: Prisma.AkuoVueltaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>
+          }
+          createMany: {
+            args: Prisma.AkuoVueltaCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AkuoVueltaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>[]
+          }
+          delete: {
+            args: Prisma.AkuoVueltaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>
+          }
+          update: {
+            args: Prisma.AkuoVueltaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>
+          }
+          deleteMany: {
+            args: Prisma.AkuoVueltaDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AkuoVueltaUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AkuoVueltaUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>[]
+          }
+          upsert: {
+            args: Prisma.AkuoVueltaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoVueltaPayload>
+          }
+          aggregate: {
+            args: Prisma.AkuoVueltaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAkuoVuelta>
+          }
+          groupBy: {
+            args: Prisma.AkuoVueltaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AkuoVueltaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AkuoVueltaCountArgs<ExtArgs>
+            result: $Utils.Optional<AkuoVueltaCountAggregateOutputType> | number
+          }
+        }
+      }
+      AkuoGasto: {
+        payload: Prisma.$AkuoGastoPayload<ExtArgs>
+        fields: Prisma.AkuoGastoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AkuoGastoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AkuoGastoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>
+          }
+          findFirst: {
+            args: Prisma.AkuoGastoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AkuoGastoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>
+          }
+          findMany: {
+            args: Prisma.AkuoGastoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>[]
+          }
+          create: {
+            args: Prisma.AkuoGastoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>
+          }
+          createMany: {
+            args: Prisma.AkuoGastoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AkuoGastoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>[]
+          }
+          delete: {
+            args: Prisma.AkuoGastoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>
+          }
+          update: {
+            args: Prisma.AkuoGastoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>
+          }
+          deleteMany: {
+            args: Prisma.AkuoGastoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AkuoGastoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AkuoGastoUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>[]
+          }
+          upsert: {
+            args: Prisma.AkuoGastoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoGastoPayload>
+          }
+          aggregate: {
+            args: Prisma.AkuoGastoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAkuoGasto>
+          }
+          groupBy: {
+            args: Prisma.AkuoGastoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AkuoGastoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AkuoGastoCountArgs<ExtArgs>
+            result: $Utils.Optional<AkuoGastoCountAggregateOutputType> | number
           }
         }
       }
@@ -2227,6 +2407,8 @@ export namespace Prisma {
     akuoCliente?: AkuoClienteOmit
     akuoPedido?: AkuoPedidoOmit
     akuoEntrega?: AkuoEntregaOmit
+    akuoVuelta?: AkuoVueltaOmit
+    akuoGasto?: AkuoGastoOmit
     akuoPago?: AkuoPagoOmit
     akuoSuscripcion?: AkuoSuscripcionOmit
     akuoValoracion?: AkuoValoracionOmit
@@ -2332,6 +2514,8 @@ export namespace Prisma {
     mensajesEnviados: number
     pedidosClienteApp: number
     pedidosTransportistaApp: number
+    vueltas: number
+    gastos: number
   }
 
   export type AkuoUsuarioCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2350,6 +2534,8 @@ export namespace Prisma {
     mensajesEnviados?: boolean | AkuoUsuarioCountOutputTypeCountMensajesEnviadosArgs
     pedidosClienteApp?: boolean | AkuoUsuarioCountOutputTypeCountPedidosClienteAppArgs
     pedidosTransportistaApp?: boolean | AkuoUsuarioCountOutputTypeCountPedidosTransportistaAppArgs
+    vueltas?: boolean | AkuoUsuarioCountOutputTypeCountVueltasArgs
+    gastos?: boolean | AkuoUsuarioCountOutputTypeCountGastosArgs
   }
 
   // Custom InputTypes
@@ -2468,6 +2654,20 @@ export namespace Prisma {
     where?: AkuoPedidoClienteWhereInput
   }
 
+  /**
+   * AkuoUsuarioCountOutputType without action
+   */
+  export type AkuoUsuarioCountOutputTypeCountVueltasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoVueltaWhereInput
+  }
+
+  /**
+   * AkuoUsuarioCountOutputType without action
+   */
+  export type AkuoUsuarioCountOutputTypeCountGastosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoGastoWhereInput
+  }
+
 
   /**
    * Count Type AkuoVehiculoCountOutputType
@@ -2475,10 +2675,12 @@ export namespace Prisma {
 
   export type AkuoVehiculoCountOutputType = {
     entregas: number
+    vueltas: number
   }
 
   export type AkuoVehiculoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     entregas?: boolean | AkuoVehiculoCountOutputTypeCountEntregasArgs
+    vueltas?: boolean | AkuoVehiculoCountOutputTypeCountVueltasArgs
   }
 
   // Custom InputTypes
@@ -2497,6 +2699,13 @@ export namespace Prisma {
    */
   export type AkuoVehiculoCountOutputTypeCountEntregasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AkuoEntregaWhereInput
+  }
+
+  /**
+   * AkuoVehiculoCountOutputType without action
+   */
+  export type AkuoVehiculoCountOutputTypeCountVueltasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoVueltaWhereInput
   }
 
 
@@ -2537,6 +2746,46 @@ export namespace Prisma {
    */
   export type AkuoClienteCountOutputTypeCountEntregasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AkuoEntregaWhereInput
+  }
+
+
+  /**
+   * Count Type AkuoVueltaCountOutputType
+   */
+
+  export type AkuoVueltaCountOutputType = {
+    entregas: number
+    gastos: number
+  }
+
+  export type AkuoVueltaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    entregas?: boolean | AkuoVueltaCountOutputTypeCountEntregasArgs
+    gastos?: boolean | AkuoVueltaCountOutputTypeCountGastosArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AkuoVueltaCountOutputType without action
+   */
+  export type AkuoVueltaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVueltaCountOutputType
+     */
+    select?: AkuoVueltaCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AkuoVueltaCountOutputType without action
+   */
+  export type AkuoVueltaCountOutputTypeCountEntregasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoEntregaWhereInput
+  }
+
+  /**
+   * AkuoVueltaCountOutputType without action
+   */
+  export type AkuoVueltaCountOutputTypeCountGastosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoGastoWhereInput
   }
 
 
@@ -3176,6 +3425,8 @@ export namespace Prisma {
     mensajesEnviados?: boolean | AkuoUsuario$mensajesEnviadosArgs<ExtArgs>
     pedidosClienteApp?: boolean | AkuoUsuario$pedidosClienteAppArgs<ExtArgs>
     pedidosTransportistaApp?: boolean | AkuoUsuario$pedidosTransportistaAppArgs<ExtArgs>
+    vueltas?: boolean | AkuoUsuario$vueltasArgs<ExtArgs>
+    gastos?: boolean | AkuoUsuario$gastosArgs<ExtArgs>
     _count?: boolean | AkuoUsuarioCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
@@ -3349,6 +3600,8 @@ export namespace Prisma {
     mensajesEnviados?: boolean | AkuoUsuario$mensajesEnviadosArgs<ExtArgs>
     pedidosClienteApp?: boolean | AkuoUsuario$pedidosClienteAppArgs<ExtArgs>
     pedidosTransportistaApp?: boolean | AkuoUsuario$pedidosTransportistaAppArgs<ExtArgs>
+    vueltas?: boolean | AkuoUsuario$vueltasArgs<ExtArgs>
+    gastos?: boolean | AkuoUsuario$gastosArgs<ExtArgs>
     _count?: boolean | AkuoUsuarioCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AkuoUsuarioIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3377,6 +3630,8 @@ export namespace Prisma {
       mensajesEnviados: Prisma.$AkuoMensajePayload<ExtArgs>[]
       pedidosClienteApp: Prisma.$AkuoPedidoClientePayload<ExtArgs>[]
       pedidosTransportistaApp: Prisma.$AkuoPedidoClientePayload<ExtArgs>[]
+      vueltas: Prisma.$AkuoVueltaPayload<ExtArgs>[]
+      gastos: Prisma.$AkuoGastoPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3836,6 +4091,8 @@ export namespace Prisma {
     mensajesEnviados<T extends AkuoUsuario$mensajesEnviadosArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$mensajesEnviadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoMensajePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pedidosClienteApp<T extends AkuoUsuario$pedidosClienteAppArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$pedidosClienteAppArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoPedidoClientePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     pedidosTransportistaApp<T extends AkuoUsuario$pedidosTransportistaAppArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$pedidosTransportistaAppArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoPedidoClientePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    vueltas<T extends AkuoUsuario$vueltasArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$vueltasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    gastos<T extends AkuoUsuario$gastosArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuario$gastosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4682,6 +4939,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AkuoPedidoClienteScalarFieldEnum | AkuoPedidoClienteScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoUsuario.vueltas
+   */
+  export type AkuoUsuario$vueltasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    where?: AkuoVueltaWhereInput
+    orderBy?: AkuoVueltaOrderByWithRelationInput | AkuoVueltaOrderByWithRelationInput[]
+    cursor?: AkuoVueltaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AkuoVueltaScalarFieldEnum | AkuoVueltaScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoUsuario.gastos
+   */
+  export type AkuoUsuario$gastosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    where?: AkuoGastoWhereInput
+    orderBy?: AkuoGastoOrderByWithRelationInput | AkuoGastoOrderByWithRelationInput[]
+    cursor?: AkuoGastoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AkuoGastoScalarFieldEnum | AkuoGastoScalarFieldEnum[]
   }
 
   /**
@@ -7067,6 +7372,7 @@ export namespace Prisma {
     fotoUrl?: boolean
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     entregas?: boolean | AkuoVehiculo$entregasArgs<ExtArgs>
+    vueltas?: boolean | AkuoVehiculo$vueltasArgs<ExtArgs>
     _count?: boolean | AkuoVehiculoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["akuoVehiculo"]>
 
@@ -7127,6 +7433,7 @@ export namespace Prisma {
   export type AkuoVehiculoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     entregas?: boolean | AkuoVehiculo$entregasArgs<ExtArgs>
+    vueltas?: boolean | AkuoVehiculo$vueltasArgs<ExtArgs>
     _count?: boolean | AkuoVehiculoCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AkuoVehiculoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7141,6 +7448,7 @@ export namespace Prisma {
     objects: {
       transportista: Prisma.$AkuoUsuarioPayload<ExtArgs>
       entregas: Prisma.$AkuoEntregaPayload<ExtArgs>[]
+      vueltas: Prisma.$AkuoVueltaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7553,6 +7861,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     transportista<T extends AkuoUsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuarioDefaultArgs<ExtArgs>>): Prisma__AkuoUsuarioClient<$Result.GetResult<Prisma.$AkuoUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     entregas<T extends AkuoVehiculo$entregasArgs<ExtArgs> = {}>(args?: Subset<T, AkuoVehiculo$entregasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoEntregaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    vueltas<T extends AkuoVehiculo$vueltasArgs<ExtArgs> = {}>(args?: Subset<T, AkuoVehiculo$vueltasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8011,6 +8320,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AkuoEntregaScalarFieldEnum | AkuoEntregaScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoVehiculo.vueltas
+   */
+  export type AkuoVehiculo$vueltasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    where?: AkuoVueltaWhereInput
+    orderBy?: AkuoVueltaOrderByWithRelationInput | AkuoVueltaOrderByWithRelationInput[]
+    cursor?: AkuoVueltaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AkuoVueltaScalarFieldEnum | AkuoVueltaScalarFieldEnum[]
   }
 
   /**
@@ -10706,6 +11039,7 @@ export namespace Prisma {
     clienteLat: number | null
     clienteLng: number | null
     vehiculoId: string | null
+    vueltaId: string | null
     litros: number | null
     total: number | null
     montoEfectivo: number | null
@@ -10734,6 +11068,7 @@ export namespace Prisma {
     clienteLat: number | null
     clienteLng: number | null
     vehiculoId: string | null
+    vueltaId: string | null
     litros: number | null
     total: number | null
     montoEfectivo: number | null
@@ -10762,6 +11097,7 @@ export namespace Prisma {
     clienteLat: number
     clienteLng: number
     vehiculoId: number
+    vueltaId: number
     litros: number
     total: number
     montoEfectivo: number
@@ -10818,6 +11154,7 @@ export namespace Prisma {
     clienteLat?: true
     clienteLng?: true
     vehiculoId?: true
+    vueltaId?: true
     litros?: true
     total?: true
     montoEfectivo?: true
@@ -10846,6 +11183,7 @@ export namespace Prisma {
     clienteLat?: true
     clienteLng?: true
     vehiculoId?: true
+    vueltaId?: true
     litros?: true
     total?: true
     montoEfectivo?: true
@@ -10874,6 +11212,7 @@ export namespace Prisma {
     clienteLat?: true
     clienteLng?: true
     vehiculoId?: true
+    vueltaId?: true
     litros?: true
     total?: true
     montoEfectivo?: true
@@ -10989,6 +11328,7 @@ export namespace Prisma {
     clienteLat: number | null
     clienteLng: number | null
     vehiculoId: string | null
+    vueltaId: string | null
     litros: number
     total: number
     montoEfectivo: number
@@ -11036,6 +11376,7 @@ export namespace Prisma {
     clienteLat?: boolean
     clienteLng?: boolean
     vehiculoId?: boolean
+    vueltaId?: boolean
     litros?: boolean
     total?: boolean
     montoEfectivo?: boolean
@@ -11053,6 +11394,7 @@ export namespace Prisma {
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     cliente?: boolean | AkuoEntrega$clienteArgs<ExtArgs>
     vehiculo?: boolean | AkuoEntrega$vehiculoArgs<ExtArgs>
+    vuelta?: boolean | AkuoEntrega$vueltaArgs<ExtArgs>
     pedido?: boolean | AkuoEntrega$pedidoArgs<ExtArgs>
   }, ExtArgs["result"]["akuoEntrega"]>
 
@@ -11068,6 +11410,7 @@ export namespace Prisma {
     clienteLat?: boolean
     clienteLng?: boolean
     vehiculoId?: boolean
+    vueltaId?: boolean
     litros?: boolean
     total?: boolean
     montoEfectivo?: boolean
@@ -11085,6 +11428,7 @@ export namespace Prisma {
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     cliente?: boolean | AkuoEntrega$clienteArgs<ExtArgs>
     vehiculo?: boolean | AkuoEntrega$vehiculoArgs<ExtArgs>
+    vuelta?: boolean | AkuoEntrega$vueltaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoEntrega"]>
 
   export type AkuoEntregaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -11099,6 +11443,7 @@ export namespace Prisma {
     clienteLat?: boolean
     clienteLng?: boolean
     vehiculoId?: boolean
+    vueltaId?: boolean
     litros?: boolean
     total?: boolean
     montoEfectivo?: boolean
@@ -11116,6 +11461,7 @@ export namespace Prisma {
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     cliente?: boolean | AkuoEntrega$clienteArgs<ExtArgs>
     vehiculo?: boolean | AkuoEntrega$vehiculoArgs<ExtArgs>
+    vuelta?: boolean | AkuoEntrega$vueltaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoEntrega"]>
 
   export type AkuoEntregaSelectScalar = {
@@ -11130,6 +11476,7 @@ export namespace Prisma {
     clienteLat?: boolean
     clienteLng?: boolean
     vehiculoId?: boolean
+    vueltaId?: boolean
     litros?: boolean
     total?: boolean
     montoEfectivo?: boolean
@@ -11146,22 +11493,25 @@ export namespace Prisma {
     lecturaActual?: boolean
   }
 
-  export type AkuoEntregaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "transportistaId" | "clienteId" | "clienteNombre" | "clienteDireccion" | "clienteTelefono" | "clienteZona" | "clienteLat" | "clienteLng" | "vehiculoId" | "litros" | "total" | "montoEfectivo" | "montoTransferencia" | "montoRecibido" | "metodoPago" | "estadoPago" | "descuento" | "descuentoPor" | "fotoMedidorUrl" | "nota" | "detalleEstanquesJson" | "lecturaAnterior" | "lecturaActual", ExtArgs["result"]["akuoEntrega"]>
+  export type AkuoEntregaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "transportistaId" | "clienteId" | "clienteNombre" | "clienteDireccion" | "clienteTelefono" | "clienteZona" | "clienteLat" | "clienteLng" | "vehiculoId" | "vueltaId" | "litros" | "total" | "montoEfectivo" | "montoTransferencia" | "montoRecibido" | "metodoPago" | "estadoPago" | "descuento" | "descuentoPor" | "fotoMedidorUrl" | "nota" | "detalleEstanquesJson" | "lecturaAnterior" | "lecturaActual", ExtArgs["result"]["akuoEntrega"]>
   export type AkuoEntregaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     cliente?: boolean | AkuoEntrega$clienteArgs<ExtArgs>
     vehiculo?: boolean | AkuoEntrega$vehiculoArgs<ExtArgs>
+    vuelta?: boolean | AkuoEntrega$vueltaArgs<ExtArgs>
     pedido?: boolean | AkuoEntrega$pedidoArgs<ExtArgs>
   }
   export type AkuoEntregaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     cliente?: boolean | AkuoEntrega$clienteArgs<ExtArgs>
     vehiculo?: boolean | AkuoEntrega$vehiculoArgs<ExtArgs>
+    vuelta?: boolean | AkuoEntrega$vueltaArgs<ExtArgs>
   }
   export type AkuoEntregaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     cliente?: boolean | AkuoEntrega$clienteArgs<ExtArgs>
     vehiculo?: boolean | AkuoEntrega$vehiculoArgs<ExtArgs>
+    vuelta?: boolean | AkuoEntrega$vueltaArgs<ExtArgs>
   }
 
   export type $AkuoEntregaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11170,6 +11520,7 @@ export namespace Prisma {
       transportista: Prisma.$AkuoUsuarioPayload<ExtArgs>
       cliente: Prisma.$AkuoClientePayload<ExtArgs> | null
       vehiculo: Prisma.$AkuoVehiculoPayload<ExtArgs> | null
+      vuelta: Prisma.$AkuoVueltaPayload<ExtArgs> | null
       pedido: Prisma.$AkuoPedidoPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -11184,6 +11535,7 @@ export namespace Prisma {
       clienteLat: number | null
       clienteLng: number | null
       vehiculoId: string | null
+      vueltaId: string | null
       litros: number
       total: number
       montoEfectivo: number
@@ -11595,6 +11947,7 @@ export namespace Prisma {
     transportista<T extends AkuoUsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuarioDefaultArgs<ExtArgs>>): Prisma__AkuoUsuarioClient<$Result.GetResult<Prisma.$AkuoUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     cliente<T extends AkuoEntrega$clienteArgs<ExtArgs> = {}>(args?: Subset<T, AkuoEntrega$clienteArgs<ExtArgs>>): Prisma__AkuoClienteClient<$Result.GetResult<Prisma.$AkuoClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     vehiculo<T extends AkuoEntrega$vehiculoArgs<ExtArgs> = {}>(args?: Subset<T, AkuoEntrega$vehiculoArgs<ExtArgs>>): Prisma__AkuoVehiculoClient<$Result.GetResult<Prisma.$AkuoVehiculoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    vuelta<T extends AkuoEntrega$vueltaArgs<ExtArgs> = {}>(args?: Subset<T, AkuoEntrega$vueltaArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     pedido<T extends AkuoEntrega$pedidoArgs<ExtArgs> = {}>(args?: Subset<T, AkuoEntrega$pedidoArgs<ExtArgs>>): Prisma__AkuoPedidoClient<$Result.GetResult<Prisma.$AkuoPedidoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -11636,6 +11989,7 @@ export namespace Prisma {
     readonly clienteLat: FieldRef<"AkuoEntrega", 'Float'>
     readonly clienteLng: FieldRef<"AkuoEntrega", 'Float'>
     readonly vehiculoId: FieldRef<"AkuoEntrega", 'String'>
+    readonly vueltaId: FieldRef<"AkuoEntrega", 'String'>
     readonly litros: FieldRef<"AkuoEntrega", 'Float'>
     readonly total: FieldRef<"AkuoEntrega", 'Float'>
     readonly montoEfectivo: FieldRef<"AkuoEntrega", 'Float'>
@@ -12082,6 +12436,25 @@ export namespace Prisma {
   }
 
   /**
+   * AkuoEntrega.vuelta
+   */
+  export type AkuoEntrega$vueltaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    where?: AkuoVueltaWhereInput
+  }
+
+  /**
    * AkuoEntrega.pedido
    */
   export type AkuoEntrega$pedidoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12116,6 +12489,2389 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: AkuoEntregaInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AkuoVuelta
+   */
+
+  export type AggregateAkuoVuelta = {
+    _count: AkuoVueltaCountAggregateOutputType | null
+    _avg: AkuoVueltaAvgAggregateOutputType | null
+    _sum: AkuoVueltaSumAggregateOutputType | null
+    _min: AkuoVueltaMinAggregateOutputType | null
+    _max: AkuoVueltaMaxAggregateOutputType | null
+  }
+
+  export type AkuoVueltaAvgAggregateOutputType = {
+    numero: number | null
+  }
+
+  export type AkuoVueltaSumAggregateOutputType = {
+    numero: number | null
+  }
+
+  export type AkuoVueltaMinAggregateOutputType = {
+    id: string | null
+    numero: number | null
+    iniciadaEn: Date | null
+    cerradaEn: Date | null
+    nota: string | null
+    activa: boolean | null
+    validadaManualmente: boolean | null
+    transportistaId: string | null
+    vehiculoId: string | null
+  }
+
+  export type AkuoVueltaMaxAggregateOutputType = {
+    id: string | null
+    numero: number | null
+    iniciadaEn: Date | null
+    cerradaEn: Date | null
+    nota: string | null
+    activa: boolean | null
+    validadaManualmente: boolean | null
+    transportistaId: string | null
+    vehiculoId: string | null
+  }
+
+  export type AkuoVueltaCountAggregateOutputType = {
+    id: number
+    numero: number
+    iniciadaEn: number
+    cerradaEn: number
+    nota: number
+    activa: number
+    validadaManualmente: number
+    transportistaId: number
+    vehiculoId: number
+    _all: number
+  }
+
+
+  export type AkuoVueltaAvgAggregateInputType = {
+    numero?: true
+  }
+
+  export type AkuoVueltaSumAggregateInputType = {
+    numero?: true
+  }
+
+  export type AkuoVueltaMinAggregateInputType = {
+    id?: true
+    numero?: true
+    iniciadaEn?: true
+    cerradaEn?: true
+    nota?: true
+    activa?: true
+    validadaManualmente?: true
+    transportistaId?: true
+    vehiculoId?: true
+  }
+
+  export type AkuoVueltaMaxAggregateInputType = {
+    id?: true
+    numero?: true
+    iniciadaEn?: true
+    cerradaEn?: true
+    nota?: true
+    activa?: true
+    validadaManualmente?: true
+    transportistaId?: true
+    vehiculoId?: true
+  }
+
+  export type AkuoVueltaCountAggregateInputType = {
+    id?: true
+    numero?: true
+    iniciadaEn?: true
+    cerradaEn?: true
+    nota?: true
+    activa?: true
+    validadaManualmente?: true
+    transportistaId?: true
+    vehiculoId?: true
+    _all?: true
+  }
+
+  export type AkuoVueltaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoVuelta to aggregate.
+     */
+    where?: AkuoVueltaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoVueltas to fetch.
+     */
+    orderBy?: AkuoVueltaOrderByWithRelationInput | AkuoVueltaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AkuoVueltaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoVueltas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoVueltas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AkuoVueltas
+    **/
+    _count?: true | AkuoVueltaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AkuoVueltaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AkuoVueltaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AkuoVueltaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AkuoVueltaMaxAggregateInputType
+  }
+
+  export type GetAkuoVueltaAggregateType<T extends AkuoVueltaAggregateArgs> = {
+        [P in keyof T & keyof AggregateAkuoVuelta]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAkuoVuelta[P]>
+      : GetScalarType<T[P], AggregateAkuoVuelta[P]>
+  }
+
+
+
+
+  export type AkuoVueltaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoVueltaWhereInput
+    orderBy?: AkuoVueltaOrderByWithAggregationInput | AkuoVueltaOrderByWithAggregationInput[]
+    by: AkuoVueltaScalarFieldEnum[] | AkuoVueltaScalarFieldEnum
+    having?: AkuoVueltaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AkuoVueltaCountAggregateInputType | true
+    _avg?: AkuoVueltaAvgAggregateInputType
+    _sum?: AkuoVueltaSumAggregateInputType
+    _min?: AkuoVueltaMinAggregateInputType
+    _max?: AkuoVueltaMaxAggregateInputType
+  }
+
+  export type AkuoVueltaGroupByOutputType = {
+    id: string
+    numero: number
+    iniciadaEn: Date
+    cerradaEn: Date | null
+    nota: string | null
+    activa: boolean
+    validadaManualmente: boolean | null
+    transportistaId: string
+    vehiculoId: string | null
+    _count: AkuoVueltaCountAggregateOutputType | null
+    _avg: AkuoVueltaAvgAggregateOutputType | null
+    _sum: AkuoVueltaSumAggregateOutputType | null
+    _min: AkuoVueltaMinAggregateOutputType | null
+    _max: AkuoVueltaMaxAggregateOutputType | null
+  }
+
+  type GetAkuoVueltaGroupByPayload<T extends AkuoVueltaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AkuoVueltaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AkuoVueltaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AkuoVueltaGroupByOutputType[P]>
+            : GetScalarType<T[P], AkuoVueltaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AkuoVueltaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    numero?: boolean
+    iniciadaEn?: boolean
+    cerradaEn?: boolean
+    nota?: boolean
+    activa?: boolean
+    validadaManualmente?: boolean
+    transportistaId?: boolean
+    vehiculoId?: boolean
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vehiculo?: boolean | AkuoVuelta$vehiculoArgs<ExtArgs>
+    entregas?: boolean | AkuoVuelta$entregasArgs<ExtArgs>
+    gastos?: boolean | AkuoVuelta$gastosArgs<ExtArgs>
+    _count?: boolean | AkuoVueltaCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoVuelta"]>
+
+  export type AkuoVueltaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    numero?: boolean
+    iniciadaEn?: boolean
+    cerradaEn?: boolean
+    nota?: boolean
+    activa?: boolean
+    validadaManualmente?: boolean
+    transportistaId?: boolean
+    vehiculoId?: boolean
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vehiculo?: boolean | AkuoVuelta$vehiculoArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoVuelta"]>
+
+  export type AkuoVueltaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    numero?: boolean
+    iniciadaEn?: boolean
+    cerradaEn?: boolean
+    nota?: boolean
+    activa?: boolean
+    validadaManualmente?: boolean
+    transportistaId?: boolean
+    vehiculoId?: boolean
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vehiculo?: boolean | AkuoVuelta$vehiculoArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoVuelta"]>
+
+  export type AkuoVueltaSelectScalar = {
+    id?: boolean
+    numero?: boolean
+    iniciadaEn?: boolean
+    cerradaEn?: boolean
+    nota?: boolean
+    activa?: boolean
+    validadaManualmente?: boolean
+    transportistaId?: boolean
+    vehiculoId?: boolean
+  }
+
+  export type AkuoVueltaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "numero" | "iniciadaEn" | "cerradaEn" | "nota" | "activa" | "validadaManualmente" | "transportistaId" | "vehiculoId", ExtArgs["result"]["akuoVuelta"]>
+  export type AkuoVueltaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vehiculo?: boolean | AkuoVuelta$vehiculoArgs<ExtArgs>
+    entregas?: boolean | AkuoVuelta$entregasArgs<ExtArgs>
+    gastos?: boolean | AkuoVuelta$gastosArgs<ExtArgs>
+    _count?: boolean | AkuoVueltaCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AkuoVueltaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vehiculo?: boolean | AkuoVuelta$vehiculoArgs<ExtArgs>
+  }
+  export type AkuoVueltaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vehiculo?: boolean | AkuoVuelta$vehiculoArgs<ExtArgs>
+  }
+
+  export type $AkuoVueltaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AkuoVuelta"
+    objects: {
+      transportista: Prisma.$AkuoUsuarioPayload<ExtArgs>
+      vehiculo: Prisma.$AkuoVehiculoPayload<ExtArgs> | null
+      entregas: Prisma.$AkuoEntregaPayload<ExtArgs>[]
+      gastos: Prisma.$AkuoGastoPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      numero: number
+      iniciadaEn: Date
+      cerradaEn: Date | null
+      nota: string | null
+      activa: boolean
+      validadaManualmente: boolean | null
+      transportistaId: string
+      vehiculoId: string | null
+    }, ExtArgs["result"]["akuoVuelta"]>
+    composites: {}
+  }
+
+  type AkuoVueltaGetPayload<S extends boolean | null | undefined | AkuoVueltaDefaultArgs> = $Result.GetResult<Prisma.$AkuoVueltaPayload, S>
+
+  type AkuoVueltaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AkuoVueltaFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AkuoVueltaCountAggregateInputType | true
+    }
+
+  export interface AkuoVueltaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AkuoVuelta'], meta: { name: 'AkuoVuelta' } }
+    /**
+     * Find zero or one AkuoVuelta that matches the filter.
+     * @param {AkuoVueltaFindUniqueArgs} args - Arguments to find a AkuoVuelta
+     * @example
+     * // Get one AkuoVuelta
+     * const akuoVuelta = await prisma.akuoVuelta.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AkuoVueltaFindUniqueArgs>(args: SelectSubset<T, AkuoVueltaFindUniqueArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AkuoVuelta that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AkuoVueltaFindUniqueOrThrowArgs} args - Arguments to find a AkuoVuelta
+     * @example
+     * // Get one AkuoVuelta
+     * const akuoVuelta = await prisma.akuoVuelta.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AkuoVueltaFindUniqueOrThrowArgs>(args: SelectSubset<T, AkuoVueltaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoVuelta that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoVueltaFindFirstArgs} args - Arguments to find a AkuoVuelta
+     * @example
+     * // Get one AkuoVuelta
+     * const akuoVuelta = await prisma.akuoVuelta.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AkuoVueltaFindFirstArgs>(args?: SelectSubset<T, AkuoVueltaFindFirstArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoVuelta that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoVueltaFindFirstOrThrowArgs} args - Arguments to find a AkuoVuelta
+     * @example
+     * // Get one AkuoVuelta
+     * const akuoVuelta = await prisma.akuoVuelta.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AkuoVueltaFindFirstOrThrowArgs>(args?: SelectSubset<T, AkuoVueltaFindFirstOrThrowArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AkuoVueltas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoVueltaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AkuoVueltas
+     * const akuoVueltas = await prisma.akuoVuelta.findMany()
+     * 
+     * // Get first 10 AkuoVueltas
+     * const akuoVueltas = await prisma.akuoVuelta.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const akuoVueltaWithIdOnly = await prisma.akuoVuelta.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AkuoVueltaFindManyArgs>(args?: SelectSubset<T, AkuoVueltaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AkuoVuelta.
+     * @param {AkuoVueltaCreateArgs} args - Arguments to create a AkuoVuelta.
+     * @example
+     * // Create one AkuoVuelta
+     * const AkuoVuelta = await prisma.akuoVuelta.create({
+     *   data: {
+     *     // ... data to create a AkuoVuelta
+     *   }
+     * })
+     * 
+     */
+    create<T extends AkuoVueltaCreateArgs>(args: SelectSubset<T, AkuoVueltaCreateArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AkuoVueltas.
+     * @param {AkuoVueltaCreateManyArgs} args - Arguments to create many AkuoVueltas.
+     * @example
+     * // Create many AkuoVueltas
+     * const akuoVuelta = await prisma.akuoVuelta.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AkuoVueltaCreateManyArgs>(args?: SelectSubset<T, AkuoVueltaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AkuoVueltas and returns the data saved in the database.
+     * @param {AkuoVueltaCreateManyAndReturnArgs} args - Arguments to create many AkuoVueltas.
+     * @example
+     * // Create many AkuoVueltas
+     * const akuoVuelta = await prisma.akuoVuelta.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AkuoVueltas and only return the `id`
+     * const akuoVueltaWithIdOnly = await prisma.akuoVuelta.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AkuoVueltaCreateManyAndReturnArgs>(args?: SelectSubset<T, AkuoVueltaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AkuoVuelta.
+     * @param {AkuoVueltaDeleteArgs} args - Arguments to delete one AkuoVuelta.
+     * @example
+     * // Delete one AkuoVuelta
+     * const AkuoVuelta = await prisma.akuoVuelta.delete({
+     *   where: {
+     *     // ... filter to delete one AkuoVuelta
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AkuoVueltaDeleteArgs>(args: SelectSubset<T, AkuoVueltaDeleteArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AkuoVuelta.
+     * @param {AkuoVueltaUpdateArgs} args - Arguments to update one AkuoVuelta.
+     * @example
+     * // Update one AkuoVuelta
+     * const akuoVuelta = await prisma.akuoVuelta.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AkuoVueltaUpdateArgs>(args: SelectSubset<T, AkuoVueltaUpdateArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AkuoVueltas.
+     * @param {AkuoVueltaDeleteManyArgs} args - Arguments to filter AkuoVueltas to delete.
+     * @example
+     * // Delete a few AkuoVueltas
+     * const { count } = await prisma.akuoVuelta.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AkuoVueltaDeleteManyArgs>(args?: SelectSubset<T, AkuoVueltaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoVueltas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoVueltaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AkuoVueltas
+     * const akuoVuelta = await prisma.akuoVuelta.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AkuoVueltaUpdateManyArgs>(args: SelectSubset<T, AkuoVueltaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoVueltas and returns the data updated in the database.
+     * @param {AkuoVueltaUpdateManyAndReturnArgs} args - Arguments to update many AkuoVueltas.
+     * @example
+     * // Update many AkuoVueltas
+     * const akuoVuelta = await prisma.akuoVuelta.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AkuoVueltas and only return the `id`
+     * const akuoVueltaWithIdOnly = await prisma.akuoVuelta.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AkuoVueltaUpdateManyAndReturnArgs>(args: SelectSubset<T, AkuoVueltaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AkuoVuelta.
+     * @param {AkuoVueltaUpsertArgs} args - Arguments to update or create a AkuoVuelta.
+     * @example
+     * // Update or create a AkuoVuelta
+     * const akuoVuelta = await prisma.akuoVuelta.upsert({
+     *   create: {
+     *     // ... data to create a AkuoVuelta
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AkuoVuelta we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AkuoVueltaUpsertArgs>(args: SelectSubset<T, AkuoVueltaUpsertArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AkuoVueltas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoVueltaCountArgs} args - Arguments to filter AkuoVueltas to count.
+     * @example
+     * // Count the number of AkuoVueltas
+     * const count = await prisma.akuoVuelta.count({
+     *   where: {
+     *     // ... the filter for the AkuoVueltas we want to count
+     *   }
+     * })
+    **/
+    count<T extends AkuoVueltaCountArgs>(
+      args?: Subset<T, AkuoVueltaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AkuoVueltaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AkuoVuelta.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoVueltaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AkuoVueltaAggregateArgs>(args: Subset<T, AkuoVueltaAggregateArgs>): Prisma.PrismaPromise<GetAkuoVueltaAggregateType<T>>
+
+    /**
+     * Group by AkuoVuelta.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoVueltaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AkuoVueltaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AkuoVueltaGroupByArgs['orderBy'] }
+        : { orderBy?: AkuoVueltaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AkuoVueltaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAkuoVueltaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AkuoVuelta model
+   */
+  readonly fields: AkuoVueltaFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AkuoVuelta.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AkuoVueltaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    transportista<T extends AkuoUsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuarioDefaultArgs<ExtArgs>>): Prisma__AkuoUsuarioClient<$Result.GetResult<Prisma.$AkuoUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    vehiculo<T extends AkuoVuelta$vehiculoArgs<ExtArgs> = {}>(args?: Subset<T, AkuoVuelta$vehiculoArgs<ExtArgs>>): Prisma__AkuoVehiculoClient<$Result.GetResult<Prisma.$AkuoVehiculoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    entregas<T extends AkuoVuelta$entregasArgs<ExtArgs> = {}>(args?: Subset<T, AkuoVuelta$entregasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoEntregaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    gastos<T extends AkuoVuelta$gastosArgs<ExtArgs> = {}>(args?: Subset<T, AkuoVuelta$gastosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AkuoVuelta model
+   */
+  interface AkuoVueltaFieldRefs {
+    readonly id: FieldRef<"AkuoVuelta", 'String'>
+    readonly numero: FieldRef<"AkuoVuelta", 'Int'>
+    readonly iniciadaEn: FieldRef<"AkuoVuelta", 'DateTime'>
+    readonly cerradaEn: FieldRef<"AkuoVuelta", 'DateTime'>
+    readonly nota: FieldRef<"AkuoVuelta", 'String'>
+    readonly activa: FieldRef<"AkuoVuelta", 'Boolean'>
+    readonly validadaManualmente: FieldRef<"AkuoVuelta", 'Boolean'>
+    readonly transportistaId: FieldRef<"AkuoVuelta", 'String'>
+    readonly vehiculoId: FieldRef<"AkuoVuelta", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AkuoVuelta findUnique
+   */
+  export type AkuoVueltaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoVuelta to fetch.
+     */
+    where: AkuoVueltaWhereUniqueInput
+  }
+
+  /**
+   * AkuoVuelta findUniqueOrThrow
+   */
+  export type AkuoVueltaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoVuelta to fetch.
+     */
+    where: AkuoVueltaWhereUniqueInput
+  }
+
+  /**
+   * AkuoVuelta findFirst
+   */
+  export type AkuoVueltaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoVuelta to fetch.
+     */
+    where?: AkuoVueltaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoVueltas to fetch.
+     */
+    orderBy?: AkuoVueltaOrderByWithRelationInput | AkuoVueltaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoVueltas.
+     */
+    cursor?: AkuoVueltaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoVueltas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoVueltas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoVueltas.
+     */
+    distinct?: AkuoVueltaScalarFieldEnum | AkuoVueltaScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoVuelta findFirstOrThrow
+   */
+  export type AkuoVueltaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoVuelta to fetch.
+     */
+    where?: AkuoVueltaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoVueltas to fetch.
+     */
+    orderBy?: AkuoVueltaOrderByWithRelationInput | AkuoVueltaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoVueltas.
+     */
+    cursor?: AkuoVueltaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoVueltas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoVueltas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoVueltas.
+     */
+    distinct?: AkuoVueltaScalarFieldEnum | AkuoVueltaScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoVuelta findMany
+   */
+  export type AkuoVueltaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoVueltas to fetch.
+     */
+    where?: AkuoVueltaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoVueltas to fetch.
+     */
+    orderBy?: AkuoVueltaOrderByWithRelationInput | AkuoVueltaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AkuoVueltas.
+     */
+    cursor?: AkuoVueltaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoVueltas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoVueltas.
+     */
+    skip?: number
+    distinct?: AkuoVueltaScalarFieldEnum | AkuoVueltaScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoVuelta create
+   */
+  export type AkuoVueltaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AkuoVuelta.
+     */
+    data: XOR<AkuoVueltaCreateInput, AkuoVueltaUncheckedCreateInput>
+  }
+
+  /**
+   * AkuoVuelta createMany
+   */
+  export type AkuoVueltaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AkuoVueltas.
+     */
+    data: AkuoVueltaCreateManyInput | AkuoVueltaCreateManyInput[]
+  }
+
+  /**
+   * AkuoVuelta createManyAndReturn
+   */
+  export type AkuoVueltaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * The data used to create many AkuoVueltas.
+     */
+    data: AkuoVueltaCreateManyInput | AkuoVueltaCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AkuoVuelta update
+   */
+  export type AkuoVueltaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AkuoVuelta.
+     */
+    data: XOR<AkuoVueltaUpdateInput, AkuoVueltaUncheckedUpdateInput>
+    /**
+     * Choose, which AkuoVuelta to update.
+     */
+    where: AkuoVueltaWhereUniqueInput
+  }
+
+  /**
+   * AkuoVuelta updateMany
+   */
+  export type AkuoVueltaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AkuoVueltas.
+     */
+    data: XOR<AkuoVueltaUpdateManyMutationInput, AkuoVueltaUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoVueltas to update
+     */
+    where?: AkuoVueltaWhereInput
+    /**
+     * Limit how many AkuoVueltas to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoVuelta updateManyAndReturn
+   */
+  export type AkuoVueltaUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * The data used to update AkuoVueltas.
+     */
+    data: XOR<AkuoVueltaUpdateManyMutationInput, AkuoVueltaUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoVueltas to update
+     */
+    where?: AkuoVueltaWhereInput
+    /**
+     * Limit how many AkuoVueltas to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AkuoVuelta upsert
+   */
+  export type AkuoVueltaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AkuoVuelta to update in case it exists.
+     */
+    where: AkuoVueltaWhereUniqueInput
+    /**
+     * In case the AkuoVuelta found by the `where` argument doesn't exist, create a new AkuoVuelta with this data.
+     */
+    create: XOR<AkuoVueltaCreateInput, AkuoVueltaUncheckedCreateInput>
+    /**
+     * In case the AkuoVuelta was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AkuoVueltaUpdateInput, AkuoVueltaUncheckedUpdateInput>
+  }
+
+  /**
+   * AkuoVuelta delete
+   */
+  export type AkuoVueltaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    /**
+     * Filter which AkuoVuelta to delete.
+     */
+    where: AkuoVueltaWhereUniqueInput
+  }
+
+  /**
+   * AkuoVuelta deleteMany
+   */
+  export type AkuoVueltaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoVueltas to delete
+     */
+    where?: AkuoVueltaWhereInput
+    /**
+     * Limit how many AkuoVueltas to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoVuelta.vehiculo
+   */
+  export type AkuoVuelta$vehiculoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVehiculo
+     */
+    select?: AkuoVehiculoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVehiculo
+     */
+    omit?: AkuoVehiculoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVehiculoInclude<ExtArgs> | null
+    where?: AkuoVehiculoWhereInput
+  }
+
+  /**
+   * AkuoVuelta.entregas
+   */
+  export type AkuoVuelta$entregasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoEntrega
+     */
+    select?: AkuoEntregaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoEntrega
+     */
+    omit?: AkuoEntregaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoEntregaInclude<ExtArgs> | null
+    where?: AkuoEntregaWhereInput
+    orderBy?: AkuoEntregaOrderByWithRelationInput | AkuoEntregaOrderByWithRelationInput[]
+    cursor?: AkuoEntregaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AkuoEntregaScalarFieldEnum | AkuoEntregaScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoVuelta.gastos
+   */
+  export type AkuoVuelta$gastosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    where?: AkuoGastoWhereInput
+    orderBy?: AkuoGastoOrderByWithRelationInput | AkuoGastoOrderByWithRelationInput[]
+    cursor?: AkuoGastoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AkuoGastoScalarFieldEnum | AkuoGastoScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoVuelta without action
+   */
+  export type AkuoVueltaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AkuoGasto
+   */
+
+  export type AggregateAkuoGasto = {
+    _count: AkuoGastoCountAggregateOutputType | null
+    _avg: AkuoGastoAvgAggregateOutputType | null
+    _sum: AkuoGastoSumAggregateOutputType | null
+    _min: AkuoGastoMinAggregateOutputType | null
+    _max: AkuoGastoMaxAggregateOutputType | null
+  }
+
+  export type AkuoGastoAvgAggregateOutputType = {
+    monto: number | null
+  }
+
+  export type AkuoGastoSumAggregateOutputType = {
+    monto: number | null
+  }
+
+  export type AkuoGastoMinAggregateOutputType = {
+    id: string | null
+    fecha: Date | null
+    tipo: string | null
+    monto: number | null
+    descripcion: string | null
+    metodoPago: string | null
+    transportistaId: string | null
+    vueltaId: string | null
+  }
+
+  export type AkuoGastoMaxAggregateOutputType = {
+    id: string | null
+    fecha: Date | null
+    tipo: string | null
+    monto: number | null
+    descripcion: string | null
+    metodoPago: string | null
+    transportistaId: string | null
+    vueltaId: string | null
+  }
+
+  export type AkuoGastoCountAggregateOutputType = {
+    id: number
+    fecha: number
+    tipo: number
+    monto: number
+    descripcion: number
+    metodoPago: number
+    transportistaId: number
+    vueltaId: number
+    _all: number
+  }
+
+
+  export type AkuoGastoAvgAggregateInputType = {
+    monto?: true
+  }
+
+  export type AkuoGastoSumAggregateInputType = {
+    monto?: true
+  }
+
+  export type AkuoGastoMinAggregateInputType = {
+    id?: true
+    fecha?: true
+    tipo?: true
+    monto?: true
+    descripcion?: true
+    metodoPago?: true
+    transportistaId?: true
+    vueltaId?: true
+  }
+
+  export type AkuoGastoMaxAggregateInputType = {
+    id?: true
+    fecha?: true
+    tipo?: true
+    monto?: true
+    descripcion?: true
+    metodoPago?: true
+    transportistaId?: true
+    vueltaId?: true
+  }
+
+  export type AkuoGastoCountAggregateInputType = {
+    id?: true
+    fecha?: true
+    tipo?: true
+    monto?: true
+    descripcion?: true
+    metodoPago?: true
+    transportistaId?: true
+    vueltaId?: true
+    _all?: true
+  }
+
+  export type AkuoGastoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoGasto to aggregate.
+     */
+    where?: AkuoGastoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoGastos to fetch.
+     */
+    orderBy?: AkuoGastoOrderByWithRelationInput | AkuoGastoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AkuoGastoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoGastos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoGastos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AkuoGastos
+    **/
+    _count?: true | AkuoGastoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AkuoGastoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AkuoGastoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AkuoGastoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AkuoGastoMaxAggregateInputType
+  }
+
+  export type GetAkuoGastoAggregateType<T extends AkuoGastoAggregateArgs> = {
+        [P in keyof T & keyof AggregateAkuoGasto]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAkuoGasto[P]>
+      : GetScalarType<T[P], AggregateAkuoGasto[P]>
+  }
+
+
+
+
+  export type AkuoGastoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoGastoWhereInput
+    orderBy?: AkuoGastoOrderByWithAggregationInput | AkuoGastoOrderByWithAggregationInput[]
+    by: AkuoGastoScalarFieldEnum[] | AkuoGastoScalarFieldEnum
+    having?: AkuoGastoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AkuoGastoCountAggregateInputType | true
+    _avg?: AkuoGastoAvgAggregateInputType
+    _sum?: AkuoGastoSumAggregateInputType
+    _min?: AkuoGastoMinAggregateInputType
+    _max?: AkuoGastoMaxAggregateInputType
+  }
+
+  export type AkuoGastoGroupByOutputType = {
+    id: string
+    fecha: Date
+    tipo: string
+    monto: number
+    descripcion: string | null
+    metodoPago: string
+    transportistaId: string
+    vueltaId: string | null
+    _count: AkuoGastoCountAggregateOutputType | null
+    _avg: AkuoGastoAvgAggregateOutputType | null
+    _sum: AkuoGastoSumAggregateOutputType | null
+    _min: AkuoGastoMinAggregateOutputType | null
+    _max: AkuoGastoMaxAggregateOutputType | null
+  }
+
+  type GetAkuoGastoGroupByPayload<T extends AkuoGastoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AkuoGastoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AkuoGastoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AkuoGastoGroupByOutputType[P]>
+            : GetScalarType<T[P], AkuoGastoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AkuoGastoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fecha?: boolean
+    tipo?: boolean
+    monto?: boolean
+    descripcion?: boolean
+    metodoPago?: boolean
+    transportistaId?: boolean
+    vueltaId?: boolean
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vuelta?: boolean | AkuoGasto$vueltaArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoGasto"]>
+
+  export type AkuoGastoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fecha?: boolean
+    tipo?: boolean
+    monto?: boolean
+    descripcion?: boolean
+    metodoPago?: boolean
+    transportistaId?: boolean
+    vueltaId?: boolean
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vuelta?: boolean | AkuoGasto$vueltaArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoGasto"]>
+
+  export type AkuoGastoSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fecha?: boolean
+    tipo?: boolean
+    monto?: boolean
+    descripcion?: boolean
+    metodoPago?: boolean
+    transportistaId?: boolean
+    vueltaId?: boolean
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vuelta?: boolean | AkuoGasto$vueltaArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoGasto"]>
+
+  export type AkuoGastoSelectScalar = {
+    id?: boolean
+    fecha?: boolean
+    tipo?: boolean
+    monto?: boolean
+    descripcion?: boolean
+    metodoPago?: boolean
+    transportistaId?: boolean
+    vueltaId?: boolean
+  }
+
+  export type AkuoGastoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fecha" | "tipo" | "monto" | "descripcion" | "metodoPago" | "transportistaId" | "vueltaId", ExtArgs["result"]["akuoGasto"]>
+  export type AkuoGastoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vuelta?: boolean | AkuoGasto$vueltaArgs<ExtArgs>
+  }
+  export type AkuoGastoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vuelta?: boolean | AkuoGasto$vueltaArgs<ExtArgs>
+  }
+  export type AkuoGastoIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
+    vuelta?: boolean | AkuoGasto$vueltaArgs<ExtArgs>
+  }
+
+  export type $AkuoGastoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AkuoGasto"
+    objects: {
+      transportista: Prisma.$AkuoUsuarioPayload<ExtArgs>
+      vuelta: Prisma.$AkuoVueltaPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      fecha: Date
+      tipo: string
+      monto: number
+      descripcion: string | null
+      metodoPago: string
+      transportistaId: string
+      vueltaId: string | null
+    }, ExtArgs["result"]["akuoGasto"]>
+    composites: {}
+  }
+
+  type AkuoGastoGetPayload<S extends boolean | null | undefined | AkuoGastoDefaultArgs> = $Result.GetResult<Prisma.$AkuoGastoPayload, S>
+
+  type AkuoGastoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AkuoGastoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AkuoGastoCountAggregateInputType | true
+    }
+
+  export interface AkuoGastoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AkuoGasto'], meta: { name: 'AkuoGasto' } }
+    /**
+     * Find zero or one AkuoGasto that matches the filter.
+     * @param {AkuoGastoFindUniqueArgs} args - Arguments to find a AkuoGasto
+     * @example
+     * // Get one AkuoGasto
+     * const akuoGasto = await prisma.akuoGasto.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AkuoGastoFindUniqueArgs>(args: SelectSubset<T, AkuoGastoFindUniqueArgs<ExtArgs>>): Prisma__AkuoGastoClient<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AkuoGasto that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AkuoGastoFindUniqueOrThrowArgs} args - Arguments to find a AkuoGasto
+     * @example
+     * // Get one AkuoGasto
+     * const akuoGasto = await prisma.akuoGasto.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AkuoGastoFindUniqueOrThrowArgs>(args: SelectSubset<T, AkuoGastoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AkuoGastoClient<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoGasto that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoGastoFindFirstArgs} args - Arguments to find a AkuoGasto
+     * @example
+     * // Get one AkuoGasto
+     * const akuoGasto = await prisma.akuoGasto.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AkuoGastoFindFirstArgs>(args?: SelectSubset<T, AkuoGastoFindFirstArgs<ExtArgs>>): Prisma__AkuoGastoClient<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoGasto that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoGastoFindFirstOrThrowArgs} args - Arguments to find a AkuoGasto
+     * @example
+     * // Get one AkuoGasto
+     * const akuoGasto = await prisma.akuoGasto.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AkuoGastoFindFirstOrThrowArgs>(args?: SelectSubset<T, AkuoGastoFindFirstOrThrowArgs<ExtArgs>>): Prisma__AkuoGastoClient<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AkuoGastos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoGastoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AkuoGastos
+     * const akuoGastos = await prisma.akuoGasto.findMany()
+     * 
+     * // Get first 10 AkuoGastos
+     * const akuoGastos = await prisma.akuoGasto.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const akuoGastoWithIdOnly = await prisma.akuoGasto.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AkuoGastoFindManyArgs>(args?: SelectSubset<T, AkuoGastoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AkuoGasto.
+     * @param {AkuoGastoCreateArgs} args - Arguments to create a AkuoGasto.
+     * @example
+     * // Create one AkuoGasto
+     * const AkuoGasto = await prisma.akuoGasto.create({
+     *   data: {
+     *     // ... data to create a AkuoGasto
+     *   }
+     * })
+     * 
+     */
+    create<T extends AkuoGastoCreateArgs>(args: SelectSubset<T, AkuoGastoCreateArgs<ExtArgs>>): Prisma__AkuoGastoClient<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AkuoGastos.
+     * @param {AkuoGastoCreateManyArgs} args - Arguments to create many AkuoGastos.
+     * @example
+     * // Create many AkuoGastos
+     * const akuoGasto = await prisma.akuoGasto.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AkuoGastoCreateManyArgs>(args?: SelectSubset<T, AkuoGastoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AkuoGastos and returns the data saved in the database.
+     * @param {AkuoGastoCreateManyAndReturnArgs} args - Arguments to create many AkuoGastos.
+     * @example
+     * // Create many AkuoGastos
+     * const akuoGasto = await prisma.akuoGasto.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AkuoGastos and only return the `id`
+     * const akuoGastoWithIdOnly = await prisma.akuoGasto.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AkuoGastoCreateManyAndReturnArgs>(args?: SelectSubset<T, AkuoGastoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AkuoGasto.
+     * @param {AkuoGastoDeleteArgs} args - Arguments to delete one AkuoGasto.
+     * @example
+     * // Delete one AkuoGasto
+     * const AkuoGasto = await prisma.akuoGasto.delete({
+     *   where: {
+     *     // ... filter to delete one AkuoGasto
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AkuoGastoDeleteArgs>(args: SelectSubset<T, AkuoGastoDeleteArgs<ExtArgs>>): Prisma__AkuoGastoClient<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AkuoGasto.
+     * @param {AkuoGastoUpdateArgs} args - Arguments to update one AkuoGasto.
+     * @example
+     * // Update one AkuoGasto
+     * const akuoGasto = await prisma.akuoGasto.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AkuoGastoUpdateArgs>(args: SelectSubset<T, AkuoGastoUpdateArgs<ExtArgs>>): Prisma__AkuoGastoClient<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AkuoGastos.
+     * @param {AkuoGastoDeleteManyArgs} args - Arguments to filter AkuoGastos to delete.
+     * @example
+     * // Delete a few AkuoGastos
+     * const { count } = await prisma.akuoGasto.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AkuoGastoDeleteManyArgs>(args?: SelectSubset<T, AkuoGastoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoGastos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoGastoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AkuoGastos
+     * const akuoGasto = await prisma.akuoGasto.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AkuoGastoUpdateManyArgs>(args: SelectSubset<T, AkuoGastoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoGastos and returns the data updated in the database.
+     * @param {AkuoGastoUpdateManyAndReturnArgs} args - Arguments to update many AkuoGastos.
+     * @example
+     * // Update many AkuoGastos
+     * const akuoGasto = await prisma.akuoGasto.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AkuoGastos and only return the `id`
+     * const akuoGastoWithIdOnly = await prisma.akuoGasto.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AkuoGastoUpdateManyAndReturnArgs>(args: SelectSubset<T, AkuoGastoUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AkuoGasto.
+     * @param {AkuoGastoUpsertArgs} args - Arguments to update or create a AkuoGasto.
+     * @example
+     * // Update or create a AkuoGasto
+     * const akuoGasto = await prisma.akuoGasto.upsert({
+     *   create: {
+     *     // ... data to create a AkuoGasto
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AkuoGasto we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AkuoGastoUpsertArgs>(args: SelectSubset<T, AkuoGastoUpsertArgs<ExtArgs>>): Prisma__AkuoGastoClient<$Result.GetResult<Prisma.$AkuoGastoPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AkuoGastos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoGastoCountArgs} args - Arguments to filter AkuoGastos to count.
+     * @example
+     * // Count the number of AkuoGastos
+     * const count = await prisma.akuoGasto.count({
+     *   where: {
+     *     // ... the filter for the AkuoGastos we want to count
+     *   }
+     * })
+    **/
+    count<T extends AkuoGastoCountArgs>(
+      args?: Subset<T, AkuoGastoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AkuoGastoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AkuoGasto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoGastoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AkuoGastoAggregateArgs>(args: Subset<T, AkuoGastoAggregateArgs>): Prisma.PrismaPromise<GetAkuoGastoAggregateType<T>>
+
+    /**
+     * Group by AkuoGasto.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoGastoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AkuoGastoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AkuoGastoGroupByArgs['orderBy'] }
+        : { orderBy?: AkuoGastoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AkuoGastoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAkuoGastoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AkuoGasto model
+   */
+  readonly fields: AkuoGastoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AkuoGasto.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AkuoGastoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    transportista<T extends AkuoUsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AkuoUsuarioDefaultArgs<ExtArgs>>): Prisma__AkuoUsuarioClient<$Result.GetResult<Prisma.$AkuoUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    vuelta<T extends AkuoGasto$vueltaArgs<ExtArgs> = {}>(args?: Subset<T, AkuoGasto$vueltaArgs<ExtArgs>>): Prisma__AkuoVueltaClient<$Result.GetResult<Prisma.$AkuoVueltaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AkuoGasto model
+   */
+  interface AkuoGastoFieldRefs {
+    readonly id: FieldRef<"AkuoGasto", 'String'>
+    readonly fecha: FieldRef<"AkuoGasto", 'DateTime'>
+    readonly tipo: FieldRef<"AkuoGasto", 'String'>
+    readonly monto: FieldRef<"AkuoGasto", 'Float'>
+    readonly descripcion: FieldRef<"AkuoGasto", 'String'>
+    readonly metodoPago: FieldRef<"AkuoGasto", 'String'>
+    readonly transportistaId: FieldRef<"AkuoGasto", 'String'>
+    readonly vueltaId: FieldRef<"AkuoGasto", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AkuoGasto findUnique
+   */
+  export type AkuoGastoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoGasto to fetch.
+     */
+    where: AkuoGastoWhereUniqueInput
+  }
+
+  /**
+   * AkuoGasto findUniqueOrThrow
+   */
+  export type AkuoGastoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoGasto to fetch.
+     */
+    where: AkuoGastoWhereUniqueInput
+  }
+
+  /**
+   * AkuoGasto findFirst
+   */
+  export type AkuoGastoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoGasto to fetch.
+     */
+    where?: AkuoGastoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoGastos to fetch.
+     */
+    orderBy?: AkuoGastoOrderByWithRelationInput | AkuoGastoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoGastos.
+     */
+    cursor?: AkuoGastoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoGastos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoGastos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoGastos.
+     */
+    distinct?: AkuoGastoScalarFieldEnum | AkuoGastoScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoGasto findFirstOrThrow
+   */
+  export type AkuoGastoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoGasto to fetch.
+     */
+    where?: AkuoGastoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoGastos to fetch.
+     */
+    orderBy?: AkuoGastoOrderByWithRelationInput | AkuoGastoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoGastos.
+     */
+    cursor?: AkuoGastoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoGastos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoGastos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoGastos.
+     */
+    distinct?: AkuoGastoScalarFieldEnum | AkuoGastoScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoGasto findMany
+   */
+  export type AkuoGastoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoGastos to fetch.
+     */
+    where?: AkuoGastoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoGastos to fetch.
+     */
+    orderBy?: AkuoGastoOrderByWithRelationInput | AkuoGastoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AkuoGastos.
+     */
+    cursor?: AkuoGastoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoGastos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoGastos.
+     */
+    skip?: number
+    distinct?: AkuoGastoScalarFieldEnum | AkuoGastoScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoGasto create
+   */
+  export type AkuoGastoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AkuoGasto.
+     */
+    data: XOR<AkuoGastoCreateInput, AkuoGastoUncheckedCreateInput>
+  }
+
+  /**
+   * AkuoGasto createMany
+   */
+  export type AkuoGastoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AkuoGastos.
+     */
+    data: AkuoGastoCreateManyInput | AkuoGastoCreateManyInput[]
+  }
+
+  /**
+   * AkuoGasto createManyAndReturn
+   */
+  export type AkuoGastoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * The data used to create many AkuoGastos.
+     */
+    data: AkuoGastoCreateManyInput | AkuoGastoCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AkuoGasto update
+   */
+  export type AkuoGastoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AkuoGasto.
+     */
+    data: XOR<AkuoGastoUpdateInput, AkuoGastoUncheckedUpdateInput>
+    /**
+     * Choose, which AkuoGasto to update.
+     */
+    where: AkuoGastoWhereUniqueInput
+  }
+
+  /**
+   * AkuoGasto updateMany
+   */
+  export type AkuoGastoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AkuoGastos.
+     */
+    data: XOR<AkuoGastoUpdateManyMutationInput, AkuoGastoUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoGastos to update
+     */
+    where?: AkuoGastoWhereInput
+    /**
+     * Limit how many AkuoGastos to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoGasto updateManyAndReturn
+   */
+  export type AkuoGastoUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * The data used to update AkuoGastos.
+     */
+    data: XOR<AkuoGastoUpdateManyMutationInput, AkuoGastoUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoGastos to update
+     */
+    where?: AkuoGastoWhereInput
+    /**
+     * Limit how many AkuoGastos to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AkuoGasto upsert
+   */
+  export type AkuoGastoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AkuoGasto to update in case it exists.
+     */
+    where: AkuoGastoWhereUniqueInput
+    /**
+     * In case the AkuoGasto found by the `where` argument doesn't exist, create a new AkuoGasto with this data.
+     */
+    create: XOR<AkuoGastoCreateInput, AkuoGastoUncheckedCreateInput>
+    /**
+     * In case the AkuoGasto was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AkuoGastoUpdateInput, AkuoGastoUncheckedUpdateInput>
+  }
+
+  /**
+   * AkuoGasto delete
+   */
+  export type AkuoGastoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
+    /**
+     * Filter which AkuoGasto to delete.
+     */
+    where: AkuoGastoWhereUniqueInput
+  }
+
+  /**
+   * AkuoGasto deleteMany
+   */
+  export type AkuoGastoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoGastos to delete
+     */
+    where?: AkuoGastoWhereInput
+    /**
+     * Limit how many AkuoGastos to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoGasto.vuelta
+   */
+  export type AkuoGasto$vueltaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoVuelta
+     */
+    select?: AkuoVueltaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoVuelta
+     */
+    omit?: AkuoVueltaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoVueltaInclude<ExtArgs> | null
+    where?: AkuoVueltaWhereInput
+  }
+
+  /**
+   * AkuoGasto without action
+   */
+  export type AkuoGastoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoGasto
+     */
+    select?: AkuoGastoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoGasto
+     */
+    omit?: AkuoGastoOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoGastoInclude<ExtArgs> | null
   }
 
 
@@ -23780,6 +26536,7 @@ export namespace Prisma {
     clienteLat: 'clienteLat',
     clienteLng: 'clienteLng',
     vehiculoId: 'vehiculoId',
+    vueltaId: 'vueltaId',
     litros: 'litros',
     total: 'total',
     montoEfectivo: 'montoEfectivo',
@@ -23797,6 +26554,35 @@ export namespace Prisma {
   };
 
   export type AkuoEntregaScalarFieldEnum = (typeof AkuoEntregaScalarFieldEnum)[keyof typeof AkuoEntregaScalarFieldEnum]
+
+
+  export const AkuoVueltaScalarFieldEnum: {
+    id: 'id',
+    numero: 'numero',
+    iniciadaEn: 'iniciadaEn',
+    cerradaEn: 'cerradaEn',
+    nota: 'nota',
+    activa: 'activa',
+    validadaManualmente: 'validadaManualmente',
+    transportistaId: 'transportistaId',
+    vehiculoId: 'vehiculoId'
+  };
+
+  export type AkuoVueltaScalarFieldEnum = (typeof AkuoVueltaScalarFieldEnum)[keyof typeof AkuoVueltaScalarFieldEnum]
+
+
+  export const AkuoGastoScalarFieldEnum: {
+    id: 'id',
+    fecha: 'fecha',
+    tipo: 'tipo',
+    monto: 'monto',
+    descripcion: 'descripcion',
+    metodoPago: 'metodoPago',
+    transportistaId: 'transportistaId',
+    vueltaId: 'vueltaId'
+  };
+
+  export type AkuoGastoScalarFieldEnum = (typeof AkuoGastoScalarFieldEnum)[keyof typeof AkuoGastoScalarFieldEnum]
 
 
   export const AkuoPagoScalarFieldEnum: {
@@ -24084,6 +26870,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeListRelationFilter
     pedidosClienteApp?: AkuoPedidoClienteListRelationFilter
     pedidosTransportistaApp?: AkuoPedidoClienteListRelationFilter
+    vueltas?: AkuoVueltaListRelationFilter
+    gastos?: AkuoGastoListRelationFilter
   }
 
   export type AkuoUsuarioOrderByWithRelationInput = {
@@ -24150,6 +26938,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeOrderByRelationAggregateInput
     pedidosClienteApp?: AkuoPedidoClienteOrderByRelationAggregateInput
     pedidosTransportistaApp?: AkuoPedidoClienteOrderByRelationAggregateInput
+    vueltas?: AkuoVueltaOrderByRelationAggregateInput
+    gastos?: AkuoGastoOrderByRelationAggregateInput
   }
 
   export type AkuoUsuarioWhereUniqueInput = Prisma.AtLeast<{
@@ -24219,6 +27009,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeListRelationFilter
     pedidosClienteApp?: AkuoPedidoClienteListRelationFilter
     pedidosTransportistaApp?: AkuoPedidoClienteListRelationFilter
+    vueltas?: AkuoVueltaListRelationFilter
+    gastos?: AkuoGastoListRelationFilter
   }, "id" | "email" | "googleId" | "facebookId">
 
   export type AkuoUsuarioOrderByWithAggregationInput = {
@@ -24471,6 +27263,7 @@ export namespace Prisma {
     fotoUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     entregas?: AkuoEntregaListRelationFilter
+    vueltas?: AkuoVueltaListRelationFilter
   }
 
   export type AkuoVehiculoOrderByWithRelationInput = {
@@ -24490,6 +27283,7 @@ export namespace Prisma {
     fotoUrl?: SortOrderInput | SortOrder
     transportista?: AkuoUsuarioOrderByWithRelationInput
     entregas?: AkuoEntregaOrderByRelationAggregateInput
+    vueltas?: AkuoVueltaOrderByRelationAggregateInput
   }
 
   export type AkuoVehiculoWhereUniqueInput = Prisma.AtLeast<{
@@ -24512,6 +27306,7 @@ export namespace Prisma {
     fotoUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     entregas?: AkuoEntregaListRelationFilter
+    vueltas?: AkuoVueltaListRelationFilter
   }, "id">
 
   export type AkuoVehiculoOrderByWithAggregationInput = {
@@ -24817,6 +27612,7 @@ export namespace Prisma {
     clienteLat?: FloatNullableFilter<"AkuoEntrega"> | number | null
     clienteLng?: FloatNullableFilter<"AkuoEntrega"> | number | null
     vehiculoId?: StringNullableFilter<"AkuoEntrega"> | string | null
+    vueltaId?: StringNullableFilter<"AkuoEntrega"> | string | null
     litros?: FloatFilter<"AkuoEntrega"> | number
     total?: FloatFilter<"AkuoEntrega"> | number
     montoEfectivo?: FloatFilter<"AkuoEntrega"> | number
@@ -24834,6 +27630,7 @@ export namespace Prisma {
     transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     cliente?: XOR<AkuoClienteNullableScalarRelationFilter, AkuoClienteWhereInput> | null
     vehiculo?: XOR<AkuoVehiculoNullableScalarRelationFilter, AkuoVehiculoWhereInput> | null
+    vuelta?: XOR<AkuoVueltaNullableScalarRelationFilter, AkuoVueltaWhereInput> | null
     pedido?: XOR<AkuoPedidoNullableScalarRelationFilter, AkuoPedidoWhereInput> | null
   }
 
@@ -24849,6 +27646,7 @@ export namespace Prisma {
     clienteLat?: SortOrderInput | SortOrder
     clienteLng?: SortOrderInput | SortOrder
     vehiculoId?: SortOrderInput | SortOrder
+    vueltaId?: SortOrderInput | SortOrder
     litros?: SortOrder
     total?: SortOrder
     montoEfectivo?: SortOrder
@@ -24866,6 +27664,7 @@ export namespace Prisma {
     transportista?: AkuoUsuarioOrderByWithRelationInput
     cliente?: AkuoClienteOrderByWithRelationInput
     vehiculo?: AkuoVehiculoOrderByWithRelationInput
+    vuelta?: AkuoVueltaOrderByWithRelationInput
     pedido?: AkuoPedidoOrderByWithRelationInput
   }
 
@@ -24884,6 +27683,7 @@ export namespace Prisma {
     clienteLat?: FloatNullableFilter<"AkuoEntrega"> | number | null
     clienteLng?: FloatNullableFilter<"AkuoEntrega"> | number | null
     vehiculoId?: StringNullableFilter<"AkuoEntrega"> | string | null
+    vueltaId?: StringNullableFilter<"AkuoEntrega"> | string | null
     litros?: FloatFilter<"AkuoEntrega"> | number
     total?: FloatFilter<"AkuoEntrega"> | number
     montoEfectivo?: FloatFilter<"AkuoEntrega"> | number
@@ -24901,6 +27701,7 @@ export namespace Prisma {
     transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     cliente?: XOR<AkuoClienteNullableScalarRelationFilter, AkuoClienteWhereInput> | null
     vehiculo?: XOR<AkuoVehiculoNullableScalarRelationFilter, AkuoVehiculoWhereInput> | null
+    vuelta?: XOR<AkuoVueltaNullableScalarRelationFilter, AkuoVueltaWhereInput> | null
     pedido?: XOR<AkuoPedidoNullableScalarRelationFilter, AkuoPedidoWhereInput> | null
   }, "id">
 
@@ -24916,6 +27717,7 @@ export namespace Prisma {
     clienteLat?: SortOrderInput | SortOrder
     clienteLng?: SortOrderInput | SortOrder
     vehiculoId?: SortOrderInput | SortOrder
+    vueltaId?: SortOrderInput | SortOrder
     litros?: SortOrder
     total?: SortOrder
     montoEfectivo?: SortOrder
@@ -24952,6 +27754,7 @@ export namespace Prisma {
     clienteLat?: FloatNullableWithAggregatesFilter<"AkuoEntrega"> | number | null
     clienteLng?: FloatNullableWithAggregatesFilter<"AkuoEntrega"> | number | null
     vehiculoId?: StringNullableWithAggregatesFilter<"AkuoEntrega"> | string | null
+    vueltaId?: StringNullableWithAggregatesFilter<"AkuoEntrega"> | string | null
     litros?: FloatWithAggregatesFilter<"AkuoEntrega"> | number
     total?: FloatWithAggregatesFilter<"AkuoEntrega"> | number
     montoEfectivo?: FloatWithAggregatesFilter<"AkuoEntrega"> | number
@@ -24966,6 +27769,167 @@ export namespace Prisma {
     detalleEstanquesJson?: StringNullableWithAggregatesFilter<"AkuoEntrega"> | string | null
     lecturaAnterior?: FloatNullableWithAggregatesFilter<"AkuoEntrega"> | number | null
     lecturaActual?: FloatNullableWithAggregatesFilter<"AkuoEntrega"> | number | null
+  }
+
+  export type AkuoVueltaWhereInput = {
+    AND?: AkuoVueltaWhereInput | AkuoVueltaWhereInput[]
+    OR?: AkuoVueltaWhereInput[]
+    NOT?: AkuoVueltaWhereInput | AkuoVueltaWhereInput[]
+    id?: StringFilter<"AkuoVuelta"> | string
+    numero?: IntFilter<"AkuoVuelta"> | number
+    iniciadaEn?: DateTimeFilter<"AkuoVuelta"> | Date | string
+    cerradaEn?: DateTimeNullableFilter<"AkuoVuelta"> | Date | string | null
+    nota?: StringNullableFilter<"AkuoVuelta"> | string | null
+    activa?: BoolFilter<"AkuoVuelta"> | boolean
+    validadaManualmente?: BoolNullableFilter<"AkuoVuelta"> | boolean | null
+    transportistaId?: StringFilter<"AkuoVuelta"> | string
+    vehiculoId?: StringNullableFilter<"AkuoVuelta"> | string | null
+    transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
+    vehiculo?: XOR<AkuoVehiculoNullableScalarRelationFilter, AkuoVehiculoWhereInput> | null
+    entregas?: AkuoEntregaListRelationFilter
+    gastos?: AkuoGastoListRelationFilter
+  }
+
+  export type AkuoVueltaOrderByWithRelationInput = {
+    id?: SortOrder
+    numero?: SortOrder
+    iniciadaEn?: SortOrder
+    cerradaEn?: SortOrderInput | SortOrder
+    nota?: SortOrderInput | SortOrder
+    activa?: SortOrder
+    validadaManualmente?: SortOrderInput | SortOrder
+    transportistaId?: SortOrder
+    vehiculoId?: SortOrderInput | SortOrder
+    transportista?: AkuoUsuarioOrderByWithRelationInput
+    vehiculo?: AkuoVehiculoOrderByWithRelationInput
+    entregas?: AkuoEntregaOrderByRelationAggregateInput
+    gastos?: AkuoGastoOrderByRelationAggregateInput
+  }
+
+  export type AkuoVueltaWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AkuoVueltaWhereInput | AkuoVueltaWhereInput[]
+    OR?: AkuoVueltaWhereInput[]
+    NOT?: AkuoVueltaWhereInput | AkuoVueltaWhereInput[]
+    numero?: IntFilter<"AkuoVuelta"> | number
+    iniciadaEn?: DateTimeFilter<"AkuoVuelta"> | Date | string
+    cerradaEn?: DateTimeNullableFilter<"AkuoVuelta"> | Date | string | null
+    nota?: StringNullableFilter<"AkuoVuelta"> | string | null
+    activa?: BoolFilter<"AkuoVuelta"> | boolean
+    validadaManualmente?: BoolNullableFilter<"AkuoVuelta"> | boolean | null
+    transportistaId?: StringFilter<"AkuoVuelta"> | string
+    vehiculoId?: StringNullableFilter<"AkuoVuelta"> | string | null
+    transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
+    vehiculo?: XOR<AkuoVehiculoNullableScalarRelationFilter, AkuoVehiculoWhereInput> | null
+    entregas?: AkuoEntregaListRelationFilter
+    gastos?: AkuoGastoListRelationFilter
+  }, "id">
+
+  export type AkuoVueltaOrderByWithAggregationInput = {
+    id?: SortOrder
+    numero?: SortOrder
+    iniciadaEn?: SortOrder
+    cerradaEn?: SortOrderInput | SortOrder
+    nota?: SortOrderInput | SortOrder
+    activa?: SortOrder
+    validadaManualmente?: SortOrderInput | SortOrder
+    transportistaId?: SortOrder
+    vehiculoId?: SortOrderInput | SortOrder
+    _count?: AkuoVueltaCountOrderByAggregateInput
+    _avg?: AkuoVueltaAvgOrderByAggregateInput
+    _max?: AkuoVueltaMaxOrderByAggregateInput
+    _min?: AkuoVueltaMinOrderByAggregateInput
+    _sum?: AkuoVueltaSumOrderByAggregateInput
+  }
+
+  export type AkuoVueltaScalarWhereWithAggregatesInput = {
+    AND?: AkuoVueltaScalarWhereWithAggregatesInput | AkuoVueltaScalarWhereWithAggregatesInput[]
+    OR?: AkuoVueltaScalarWhereWithAggregatesInput[]
+    NOT?: AkuoVueltaScalarWhereWithAggregatesInput | AkuoVueltaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AkuoVuelta"> | string
+    numero?: IntWithAggregatesFilter<"AkuoVuelta"> | number
+    iniciadaEn?: DateTimeWithAggregatesFilter<"AkuoVuelta"> | Date | string
+    cerradaEn?: DateTimeNullableWithAggregatesFilter<"AkuoVuelta"> | Date | string | null
+    nota?: StringNullableWithAggregatesFilter<"AkuoVuelta"> | string | null
+    activa?: BoolWithAggregatesFilter<"AkuoVuelta"> | boolean
+    validadaManualmente?: BoolNullableWithAggregatesFilter<"AkuoVuelta"> | boolean | null
+    transportistaId?: StringWithAggregatesFilter<"AkuoVuelta"> | string
+    vehiculoId?: StringNullableWithAggregatesFilter<"AkuoVuelta"> | string | null
+  }
+
+  export type AkuoGastoWhereInput = {
+    AND?: AkuoGastoWhereInput | AkuoGastoWhereInput[]
+    OR?: AkuoGastoWhereInput[]
+    NOT?: AkuoGastoWhereInput | AkuoGastoWhereInput[]
+    id?: StringFilter<"AkuoGasto"> | string
+    fecha?: DateTimeFilter<"AkuoGasto"> | Date | string
+    tipo?: StringFilter<"AkuoGasto"> | string
+    monto?: FloatFilter<"AkuoGasto"> | number
+    descripcion?: StringNullableFilter<"AkuoGasto"> | string | null
+    metodoPago?: StringFilter<"AkuoGasto"> | string
+    transportistaId?: StringFilter<"AkuoGasto"> | string
+    vueltaId?: StringNullableFilter<"AkuoGasto"> | string | null
+    transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
+    vuelta?: XOR<AkuoVueltaNullableScalarRelationFilter, AkuoVueltaWhereInput> | null
+  }
+
+  export type AkuoGastoOrderByWithRelationInput = {
+    id?: SortOrder
+    fecha?: SortOrder
+    tipo?: SortOrder
+    monto?: SortOrder
+    descripcion?: SortOrderInput | SortOrder
+    metodoPago?: SortOrder
+    transportistaId?: SortOrder
+    vueltaId?: SortOrderInput | SortOrder
+    transportista?: AkuoUsuarioOrderByWithRelationInput
+    vuelta?: AkuoVueltaOrderByWithRelationInput
+  }
+
+  export type AkuoGastoWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AkuoGastoWhereInput | AkuoGastoWhereInput[]
+    OR?: AkuoGastoWhereInput[]
+    NOT?: AkuoGastoWhereInput | AkuoGastoWhereInput[]
+    fecha?: DateTimeFilter<"AkuoGasto"> | Date | string
+    tipo?: StringFilter<"AkuoGasto"> | string
+    monto?: FloatFilter<"AkuoGasto"> | number
+    descripcion?: StringNullableFilter<"AkuoGasto"> | string | null
+    metodoPago?: StringFilter<"AkuoGasto"> | string
+    transportistaId?: StringFilter<"AkuoGasto"> | string
+    vueltaId?: StringNullableFilter<"AkuoGasto"> | string | null
+    transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
+    vuelta?: XOR<AkuoVueltaNullableScalarRelationFilter, AkuoVueltaWhereInput> | null
+  }, "id">
+
+  export type AkuoGastoOrderByWithAggregationInput = {
+    id?: SortOrder
+    fecha?: SortOrder
+    tipo?: SortOrder
+    monto?: SortOrder
+    descripcion?: SortOrderInput | SortOrder
+    metodoPago?: SortOrder
+    transportistaId?: SortOrder
+    vueltaId?: SortOrderInput | SortOrder
+    _count?: AkuoGastoCountOrderByAggregateInput
+    _avg?: AkuoGastoAvgOrderByAggregateInput
+    _max?: AkuoGastoMaxOrderByAggregateInput
+    _min?: AkuoGastoMinOrderByAggregateInput
+    _sum?: AkuoGastoSumOrderByAggregateInput
+  }
+
+  export type AkuoGastoScalarWhereWithAggregatesInput = {
+    AND?: AkuoGastoScalarWhereWithAggregatesInput | AkuoGastoScalarWhereWithAggregatesInput[]
+    OR?: AkuoGastoScalarWhereWithAggregatesInput[]
+    NOT?: AkuoGastoScalarWhereWithAggregatesInput | AkuoGastoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AkuoGasto"> | string
+    fecha?: DateTimeWithAggregatesFilter<"AkuoGasto"> | Date | string
+    tipo?: StringWithAggregatesFilter<"AkuoGasto"> | string
+    monto?: FloatWithAggregatesFilter<"AkuoGasto"> | number
+    descripcion?: StringNullableWithAggregatesFilter<"AkuoGasto"> | string | null
+    metodoPago?: StringWithAggregatesFilter<"AkuoGasto"> | string
+    transportistaId?: StringWithAggregatesFilter<"AkuoGasto"> | string
+    vueltaId?: StringNullableWithAggregatesFilter<"AkuoGasto"> | string | null
   }
 
   export type AkuoPagoWhereInput = {
@@ -25848,6 +28812,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateInput = {
@@ -25913,6 +28879,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUpdateInput = {
@@ -25978,6 +28946,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateInput = {
@@ -26043,6 +29013,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioCreateManyInput = {
@@ -26342,6 +29314,7 @@ export namespace Prisma {
     fotoUrl?: string | null
     transportista: AkuoUsuarioCreateNestedOneWithoutVehiculosInput
     entregas?: AkuoEntregaCreateNestedManyWithoutVehiculoInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutVehiculoInput
   }
 
   export type AkuoVehiculoUncheckedCreateInput = {
@@ -26360,6 +29333,7 @@ export namespace Prisma {
     seguroUrl?: string | null
     fotoUrl?: string | null
     entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVehiculoInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutVehiculoInput
   }
 
   export type AkuoVehiculoUpdateInput = {
@@ -26378,6 +29352,7 @@ export namespace Prisma {
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutVehiculosNestedInput
     entregas?: AkuoEntregaUpdateManyWithoutVehiculoNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutVehiculoNestedInput
   }
 
   export type AkuoVehiculoUncheckedUpdateInput = {
@@ -26396,6 +29371,7 @@ export namespace Prisma {
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     entregas?: AkuoEntregaUncheckedUpdateManyWithoutVehiculoNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutVehiculoNestedInput
   }
 
   export type AkuoVehiculoCreateManyInput = {
@@ -26758,6 +29734,7 @@ export namespace Prisma {
     transportista: AkuoUsuarioCreateNestedOneWithoutEntregasHechasInput
     cliente?: AkuoClienteCreateNestedOneWithoutEntregasInput
     vehiculo?: AkuoVehiculoCreateNestedOneWithoutEntregasInput
+    vuelta?: AkuoVueltaCreateNestedOneWithoutEntregasInput
     pedido?: AkuoPedidoCreateNestedOneWithoutEntregaInput
   }
 
@@ -26773,6 +29750,7 @@ export namespace Prisma {
     clienteLat?: number | null
     clienteLng?: number | null
     vehiculoId?: string | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -26816,6 +29794,7 @@ export namespace Prisma {
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutEntregasHechasNestedInput
     cliente?: AkuoClienteUpdateOneWithoutEntregasNestedInput
     vehiculo?: AkuoVehiculoUpdateOneWithoutEntregasNestedInput
+    vuelta?: AkuoVueltaUpdateOneWithoutEntregasNestedInput
     pedido?: AkuoPedidoUpdateOneWithoutEntregaNestedInput
   }
 
@@ -26831,6 +29810,7 @@ export namespace Prisma {
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
     vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -26860,6 +29840,7 @@ export namespace Prisma {
     clienteLat?: number | null
     clienteLng?: number | null
     vehiculoId?: string | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -26913,6 +29894,7 @@ export namespace Prisma {
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
     vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -26927,6 +29909,171 @@ export namespace Prisma {
     detalleEstanquesJson?: NullableStringFieldUpdateOperationsInput | string | null
     lecturaAnterior?: NullableFloatFieldUpdateOperationsInput | number | null
     lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type AkuoVueltaCreateInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportista: AkuoUsuarioCreateNestedOneWithoutVueltasInput
+    vehiculo?: AkuoVehiculoCreateNestedOneWithoutVueltasInput
+    entregas?: AkuoEntregaCreateNestedManyWithoutVueltaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaUncheckedCreateInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportistaId: string
+    vehiculoId?: string | null
+    entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVueltaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportista?: AkuoUsuarioUpdateOneRequiredWithoutVueltasNestedInput
+    vehiculo?: AkuoVehiculoUpdateOneWithoutVueltasNestedInput
+    entregas?: AkuoEntregaUpdateManyWithoutVueltaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutVueltaNestedInput
+  }
+
+  export type AkuoVueltaUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    entregas?: AkuoEntregaUncheckedUpdateManyWithoutVueltaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutVueltaNestedInput
+  }
+
+  export type AkuoVueltaCreateManyInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportistaId: string
+    vehiculoId?: string | null
+  }
+
+  export type AkuoVueltaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+  }
+
+  export type AkuoVueltaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoGastoCreateInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    transportista: AkuoUsuarioCreateNestedOneWithoutGastosInput
+    vuelta?: AkuoVueltaCreateNestedOneWithoutGastosInput
+  }
+
+  export type AkuoGastoUncheckedCreateInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    transportistaId: string
+    vueltaId?: string | null
+  }
+
+  export type AkuoGastoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    transportista?: AkuoUsuarioUpdateOneRequiredWithoutGastosNestedInput
+    vuelta?: AkuoVueltaUpdateOneWithoutGastosNestedInput
+  }
+
+  export type AkuoGastoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoGastoCreateManyInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    transportistaId: string
+    vueltaId?: string | null
+  }
+
+  export type AkuoGastoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AkuoGastoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoPagoCreateInput = {
@@ -28011,6 +31158,18 @@ export namespace Prisma {
     none?: AkuoPedidoClienteWhereInput
   }
 
+  export type AkuoVueltaListRelationFilter = {
+    every?: AkuoVueltaWhereInput
+    some?: AkuoVueltaWhereInput
+    none?: AkuoVueltaWhereInput
+  }
+
+  export type AkuoGastoListRelationFilter = {
+    every?: AkuoGastoWhereInput
+    some?: AkuoGastoWhereInput
+    none?: AkuoGastoWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -28065,6 +31224,14 @@ export namespace Prisma {
   }
 
   export type AkuoPedidoClienteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AkuoVueltaOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AkuoGastoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28654,6 +31821,11 @@ export namespace Prisma {
     isNot?: AkuoVehiculoWhereInput | null
   }
 
+  export type AkuoVueltaNullableScalarRelationFilter = {
+    is?: AkuoVueltaWhereInput | null
+    isNot?: AkuoVueltaWhereInput | null
+  }
+
   export type AkuoPedidoNullableScalarRelationFilter = {
     is?: AkuoPedidoWhereInput | null
     isNot?: AkuoPedidoWhereInput | null
@@ -28671,6 +31843,7 @@ export namespace Prisma {
     clienteLat?: SortOrder
     clienteLng?: SortOrder
     vehiculoId?: SortOrder
+    vueltaId?: SortOrder
     litros?: SortOrder
     total?: SortOrder
     montoEfectivo?: SortOrder
@@ -28712,6 +31885,7 @@ export namespace Prisma {
     clienteLat?: SortOrder
     clienteLng?: SortOrder
     vehiculoId?: SortOrder
+    vueltaId?: SortOrder
     litros?: SortOrder
     total?: SortOrder
     montoEfectivo?: SortOrder
@@ -28740,6 +31914,7 @@ export namespace Prisma {
     clienteLat?: SortOrder
     clienteLng?: SortOrder
     vehiculoId?: SortOrder
+    vueltaId?: SortOrder
     litros?: SortOrder
     total?: SortOrder
     montoEfectivo?: SortOrder
@@ -28767,6 +31942,104 @@ export namespace Prisma {
     descuento?: SortOrder
     lecturaAnterior?: SortOrder
     lecturaActual?: SortOrder
+  }
+
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type AkuoVueltaCountOrderByAggregateInput = {
+    id?: SortOrder
+    numero?: SortOrder
+    iniciadaEn?: SortOrder
+    cerradaEn?: SortOrder
+    nota?: SortOrder
+    activa?: SortOrder
+    validadaManualmente?: SortOrder
+    transportistaId?: SortOrder
+    vehiculoId?: SortOrder
+  }
+
+  export type AkuoVueltaAvgOrderByAggregateInput = {
+    numero?: SortOrder
+  }
+
+  export type AkuoVueltaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    numero?: SortOrder
+    iniciadaEn?: SortOrder
+    cerradaEn?: SortOrder
+    nota?: SortOrder
+    activa?: SortOrder
+    validadaManualmente?: SortOrder
+    transportistaId?: SortOrder
+    vehiculoId?: SortOrder
+  }
+
+  export type AkuoVueltaMinOrderByAggregateInput = {
+    id?: SortOrder
+    numero?: SortOrder
+    iniciadaEn?: SortOrder
+    cerradaEn?: SortOrder
+    nota?: SortOrder
+    activa?: SortOrder
+    validadaManualmente?: SortOrder
+    transportistaId?: SortOrder
+    vehiculoId?: SortOrder
+  }
+
+  export type AkuoVueltaSumOrderByAggregateInput = {
+    numero?: SortOrder
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
+  export type AkuoGastoCountOrderByAggregateInput = {
+    id?: SortOrder
+    fecha?: SortOrder
+    tipo?: SortOrder
+    monto?: SortOrder
+    descripcion?: SortOrder
+    metodoPago?: SortOrder
+    transportistaId?: SortOrder
+    vueltaId?: SortOrder
+  }
+
+  export type AkuoGastoAvgOrderByAggregateInput = {
+    monto?: SortOrder
+  }
+
+  export type AkuoGastoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    fecha?: SortOrder
+    tipo?: SortOrder
+    monto?: SortOrder
+    descripcion?: SortOrder
+    metodoPago?: SortOrder
+    transportistaId?: SortOrder
+    vueltaId?: SortOrder
+  }
+
+  export type AkuoGastoMinOrderByAggregateInput = {
+    id?: SortOrder
+    fecha?: SortOrder
+    tipo?: SortOrder
+    monto?: SortOrder
+    descripcion?: SortOrder
+    metodoPago?: SortOrder
+    transportistaId?: SortOrder
+    vueltaId?: SortOrder
+  }
+
+  export type AkuoGastoSumOrderByAggregateInput = {
+    monto?: SortOrder
   }
 
   export type AkuoPagoCountOrderByAggregateInput = {
@@ -29366,6 +32639,20 @@ export namespace Prisma {
     connect?: AkuoPedidoClienteWhereUniqueInput | AkuoPedidoClienteWhereUniqueInput[]
   }
 
+  export type AkuoVueltaCreateNestedManyWithoutTransportistaInput = {
+    create?: XOR<AkuoVueltaCreateWithoutTransportistaInput, AkuoVueltaUncheckedCreateWithoutTransportistaInput> | AkuoVueltaCreateWithoutTransportistaInput[] | AkuoVueltaUncheckedCreateWithoutTransportistaInput[]
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutTransportistaInput | AkuoVueltaCreateOrConnectWithoutTransportistaInput[]
+    createMany?: AkuoVueltaCreateManyTransportistaInputEnvelope
+    connect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+  }
+
+  export type AkuoGastoCreateNestedManyWithoutTransportistaInput = {
+    create?: XOR<AkuoGastoCreateWithoutTransportistaInput, AkuoGastoUncheckedCreateWithoutTransportistaInput> | AkuoGastoCreateWithoutTransportistaInput[] | AkuoGastoUncheckedCreateWithoutTransportistaInput[]
+    connectOrCreate?: AkuoGastoCreateOrConnectWithoutTransportistaInput | AkuoGastoCreateOrConnectWithoutTransportistaInput[]
+    createMany?: AkuoGastoCreateManyTransportistaInputEnvelope
+    connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+  }
+
   export type AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput = {
     create?: XOR<AkuoSesionCreateWithoutUsuarioInput, AkuoSesionUncheckedCreateWithoutUsuarioInput> | AkuoSesionCreateWithoutUsuarioInput[] | AkuoSesionUncheckedCreateWithoutUsuarioInput[]
     connectOrCreate?: AkuoSesionCreateOrConnectWithoutUsuarioInput | AkuoSesionCreateOrConnectWithoutUsuarioInput[]
@@ -29469,6 +32756,20 @@ export namespace Prisma {
     connectOrCreate?: AkuoPedidoClienteCreateOrConnectWithoutTransportistaInput | AkuoPedidoClienteCreateOrConnectWithoutTransportistaInput[]
     createMany?: AkuoPedidoClienteCreateManyTransportistaInputEnvelope
     connect?: AkuoPedidoClienteWhereUniqueInput | AkuoPedidoClienteWhereUniqueInput[]
+  }
+
+  export type AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput = {
+    create?: XOR<AkuoVueltaCreateWithoutTransportistaInput, AkuoVueltaUncheckedCreateWithoutTransportistaInput> | AkuoVueltaCreateWithoutTransportistaInput[] | AkuoVueltaUncheckedCreateWithoutTransportistaInput[]
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutTransportistaInput | AkuoVueltaCreateOrConnectWithoutTransportistaInput[]
+    createMany?: AkuoVueltaCreateManyTransportistaInputEnvelope
+    connect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+  }
+
+  export type AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput = {
+    create?: XOR<AkuoGastoCreateWithoutTransportistaInput, AkuoGastoUncheckedCreateWithoutTransportistaInput> | AkuoGastoCreateWithoutTransportistaInput[] | AkuoGastoUncheckedCreateWithoutTransportistaInput[]
+    connectOrCreate?: AkuoGastoCreateOrConnectWithoutTransportistaInput | AkuoGastoCreateOrConnectWithoutTransportistaInput[]
+    createMany?: AkuoGastoCreateManyTransportistaInputEnvelope
+    connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -29743,6 +33044,34 @@ export namespace Prisma {
     deleteMany?: AkuoPedidoClienteScalarWhereInput | AkuoPedidoClienteScalarWhereInput[]
   }
 
+  export type AkuoVueltaUpdateManyWithoutTransportistaNestedInput = {
+    create?: XOR<AkuoVueltaCreateWithoutTransportistaInput, AkuoVueltaUncheckedCreateWithoutTransportistaInput> | AkuoVueltaCreateWithoutTransportistaInput[] | AkuoVueltaUncheckedCreateWithoutTransportistaInput[]
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutTransportistaInput | AkuoVueltaCreateOrConnectWithoutTransportistaInput[]
+    upsert?: AkuoVueltaUpsertWithWhereUniqueWithoutTransportistaInput | AkuoVueltaUpsertWithWhereUniqueWithoutTransportistaInput[]
+    createMany?: AkuoVueltaCreateManyTransportistaInputEnvelope
+    set?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    disconnect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    delete?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    connect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    update?: AkuoVueltaUpdateWithWhereUniqueWithoutTransportistaInput | AkuoVueltaUpdateWithWhereUniqueWithoutTransportistaInput[]
+    updateMany?: AkuoVueltaUpdateManyWithWhereWithoutTransportistaInput | AkuoVueltaUpdateManyWithWhereWithoutTransportistaInput[]
+    deleteMany?: AkuoVueltaScalarWhereInput | AkuoVueltaScalarWhereInput[]
+  }
+
+  export type AkuoGastoUpdateManyWithoutTransportistaNestedInput = {
+    create?: XOR<AkuoGastoCreateWithoutTransportistaInput, AkuoGastoUncheckedCreateWithoutTransportistaInput> | AkuoGastoCreateWithoutTransportistaInput[] | AkuoGastoUncheckedCreateWithoutTransportistaInput[]
+    connectOrCreate?: AkuoGastoCreateOrConnectWithoutTransportistaInput | AkuoGastoCreateOrConnectWithoutTransportistaInput[]
+    upsert?: AkuoGastoUpsertWithWhereUniqueWithoutTransportistaInput | AkuoGastoUpsertWithWhereUniqueWithoutTransportistaInput[]
+    createMany?: AkuoGastoCreateManyTransportistaInputEnvelope
+    set?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    disconnect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    delete?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    update?: AkuoGastoUpdateWithWhereUniqueWithoutTransportistaInput | AkuoGastoUpdateWithWhereUniqueWithoutTransportistaInput[]
+    updateMany?: AkuoGastoUpdateManyWithWhereWithoutTransportistaInput | AkuoGastoUpdateManyWithWhereWithoutTransportistaInput[]
+    deleteMany?: AkuoGastoScalarWhereInput | AkuoGastoScalarWhereInput[]
+  }
+
   export type AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput = {
     create?: XOR<AkuoSesionCreateWithoutUsuarioInput, AkuoSesionUncheckedCreateWithoutUsuarioInput> | AkuoSesionCreateWithoutUsuarioInput[] | AkuoSesionUncheckedCreateWithoutUsuarioInput[]
     connectOrCreate?: AkuoSesionCreateOrConnectWithoutUsuarioInput | AkuoSesionCreateOrConnectWithoutUsuarioInput[]
@@ -29953,6 +33282,34 @@ export namespace Prisma {
     deleteMany?: AkuoPedidoClienteScalarWhereInput | AkuoPedidoClienteScalarWhereInput[]
   }
 
+  export type AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput = {
+    create?: XOR<AkuoVueltaCreateWithoutTransportistaInput, AkuoVueltaUncheckedCreateWithoutTransportistaInput> | AkuoVueltaCreateWithoutTransportistaInput[] | AkuoVueltaUncheckedCreateWithoutTransportistaInput[]
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutTransportistaInput | AkuoVueltaCreateOrConnectWithoutTransportistaInput[]
+    upsert?: AkuoVueltaUpsertWithWhereUniqueWithoutTransportistaInput | AkuoVueltaUpsertWithWhereUniqueWithoutTransportistaInput[]
+    createMany?: AkuoVueltaCreateManyTransportistaInputEnvelope
+    set?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    disconnect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    delete?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    connect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    update?: AkuoVueltaUpdateWithWhereUniqueWithoutTransportistaInput | AkuoVueltaUpdateWithWhereUniqueWithoutTransportistaInput[]
+    updateMany?: AkuoVueltaUpdateManyWithWhereWithoutTransportistaInput | AkuoVueltaUpdateManyWithWhereWithoutTransportistaInput[]
+    deleteMany?: AkuoVueltaScalarWhereInput | AkuoVueltaScalarWhereInput[]
+  }
+
+  export type AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput = {
+    create?: XOR<AkuoGastoCreateWithoutTransportistaInput, AkuoGastoUncheckedCreateWithoutTransportistaInput> | AkuoGastoCreateWithoutTransportistaInput[] | AkuoGastoUncheckedCreateWithoutTransportistaInput[]
+    connectOrCreate?: AkuoGastoCreateOrConnectWithoutTransportistaInput | AkuoGastoCreateOrConnectWithoutTransportistaInput[]
+    upsert?: AkuoGastoUpsertWithWhereUniqueWithoutTransportistaInput | AkuoGastoUpsertWithWhereUniqueWithoutTransportistaInput[]
+    createMany?: AkuoGastoCreateManyTransportistaInputEnvelope
+    set?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    disconnect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    delete?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    update?: AkuoGastoUpdateWithWhereUniqueWithoutTransportistaInput | AkuoGastoUpdateWithWhereUniqueWithoutTransportistaInput[]
+    updateMany?: AkuoGastoUpdateManyWithWhereWithoutTransportistaInput | AkuoGastoUpdateManyWithWhereWithoutTransportistaInput[]
+    deleteMany?: AkuoGastoScalarWhereInput | AkuoGastoScalarWhereInput[]
+  }
+
   export type AkuoUsuarioCreateNestedOneWithoutSesionesInput = {
     create?: XOR<AkuoUsuarioCreateWithoutSesionesInput, AkuoUsuarioUncheckedCreateWithoutSesionesInput>
     connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutSesionesInput
@@ -29980,11 +33337,25 @@ export namespace Prisma {
     connect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
   }
 
+  export type AkuoVueltaCreateNestedManyWithoutVehiculoInput = {
+    create?: XOR<AkuoVueltaCreateWithoutVehiculoInput, AkuoVueltaUncheckedCreateWithoutVehiculoInput> | AkuoVueltaCreateWithoutVehiculoInput[] | AkuoVueltaUncheckedCreateWithoutVehiculoInput[]
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutVehiculoInput | AkuoVueltaCreateOrConnectWithoutVehiculoInput[]
+    createMany?: AkuoVueltaCreateManyVehiculoInputEnvelope
+    connect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+  }
+
   export type AkuoEntregaUncheckedCreateNestedManyWithoutVehiculoInput = {
     create?: XOR<AkuoEntregaCreateWithoutVehiculoInput, AkuoEntregaUncheckedCreateWithoutVehiculoInput> | AkuoEntregaCreateWithoutVehiculoInput[] | AkuoEntregaUncheckedCreateWithoutVehiculoInput[]
     connectOrCreate?: AkuoEntregaCreateOrConnectWithoutVehiculoInput | AkuoEntregaCreateOrConnectWithoutVehiculoInput[]
     createMany?: AkuoEntregaCreateManyVehiculoInputEnvelope
     connect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+  }
+
+  export type AkuoVueltaUncheckedCreateNestedManyWithoutVehiculoInput = {
+    create?: XOR<AkuoVueltaCreateWithoutVehiculoInput, AkuoVueltaUncheckedCreateWithoutVehiculoInput> | AkuoVueltaCreateWithoutVehiculoInput[] | AkuoVueltaUncheckedCreateWithoutVehiculoInput[]
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutVehiculoInput | AkuoVueltaCreateOrConnectWithoutVehiculoInput[]
+    createMany?: AkuoVueltaCreateManyVehiculoInputEnvelope
+    connect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
   }
 
   export type AkuoUsuarioUpdateOneRequiredWithoutVehiculosNestedInput = {
@@ -30009,6 +33380,20 @@ export namespace Prisma {
     deleteMany?: AkuoEntregaScalarWhereInput | AkuoEntregaScalarWhereInput[]
   }
 
+  export type AkuoVueltaUpdateManyWithoutVehiculoNestedInput = {
+    create?: XOR<AkuoVueltaCreateWithoutVehiculoInput, AkuoVueltaUncheckedCreateWithoutVehiculoInput> | AkuoVueltaCreateWithoutVehiculoInput[] | AkuoVueltaUncheckedCreateWithoutVehiculoInput[]
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutVehiculoInput | AkuoVueltaCreateOrConnectWithoutVehiculoInput[]
+    upsert?: AkuoVueltaUpsertWithWhereUniqueWithoutVehiculoInput | AkuoVueltaUpsertWithWhereUniqueWithoutVehiculoInput[]
+    createMany?: AkuoVueltaCreateManyVehiculoInputEnvelope
+    set?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    disconnect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    delete?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    connect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    update?: AkuoVueltaUpdateWithWhereUniqueWithoutVehiculoInput | AkuoVueltaUpdateWithWhereUniqueWithoutVehiculoInput[]
+    updateMany?: AkuoVueltaUpdateManyWithWhereWithoutVehiculoInput | AkuoVueltaUpdateManyWithWhereWithoutVehiculoInput[]
+    deleteMany?: AkuoVueltaScalarWhereInput | AkuoVueltaScalarWhereInput[]
+  }
+
   export type AkuoEntregaUncheckedUpdateManyWithoutVehiculoNestedInput = {
     create?: XOR<AkuoEntregaCreateWithoutVehiculoInput, AkuoEntregaUncheckedCreateWithoutVehiculoInput> | AkuoEntregaCreateWithoutVehiculoInput[] | AkuoEntregaUncheckedCreateWithoutVehiculoInput[]
     connectOrCreate?: AkuoEntregaCreateOrConnectWithoutVehiculoInput | AkuoEntregaCreateOrConnectWithoutVehiculoInput[]
@@ -30021,6 +33406,20 @@ export namespace Prisma {
     update?: AkuoEntregaUpdateWithWhereUniqueWithoutVehiculoInput | AkuoEntregaUpdateWithWhereUniqueWithoutVehiculoInput[]
     updateMany?: AkuoEntregaUpdateManyWithWhereWithoutVehiculoInput | AkuoEntregaUpdateManyWithWhereWithoutVehiculoInput[]
     deleteMany?: AkuoEntregaScalarWhereInput | AkuoEntregaScalarWhereInput[]
+  }
+
+  export type AkuoVueltaUncheckedUpdateManyWithoutVehiculoNestedInput = {
+    create?: XOR<AkuoVueltaCreateWithoutVehiculoInput, AkuoVueltaUncheckedCreateWithoutVehiculoInput> | AkuoVueltaCreateWithoutVehiculoInput[] | AkuoVueltaUncheckedCreateWithoutVehiculoInput[]
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutVehiculoInput | AkuoVueltaCreateOrConnectWithoutVehiculoInput[]
+    upsert?: AkuoVueltaUpsertWithWhereUniqueWithoutVehiculoInput | AkuoVueltaUpsertWithWhereUniqueWithoutVehiculoInput[]
+    createMany?: AkuoVueltaCreateManyVehiculoInputEnvelope
+    set?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    disconnect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    delete?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    connect?: AkuoVueltaWhereUniqueInput | AkuoVueltaWhereUniqueInput[]
+    update?: AkuoVueltaUpdateWithWhereUniqueWithoutVehiculoInput | AkuoVueltaUpdateWithWhereUniqueWithoutVehiculoInput[]
+    updateMany?: AkuoVueltaUpdateManyWithWhereWithoutVehiculoInput | AkuoVueltaUpdateManyWithWhereWithoutVehiculoInput[]
+    deleteMany?: AkuoVueltaScalarWhereInput | AkuoVueltaScalarWhereInput[]
   }
 
   export type AkuoUsuarioCreateNestedOneWithoutClientesInput = {
@@ -30185,6 +33584,12 @@ export namespace Prisma {
     connect?: AkuoVehiculoWhereUniqueInput
   }
 
+  export type AkuoVueltaCreateNestedOneWithoutEntregasInput = {
+    create?: XOR<AkuoVueltaCreateWithoutEntregasInput, AkuoVueltaUncheckedCreateWithoutEntregasInput>
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutEntregasInput
+    connect?: AkuoVueltaWhereUniqueInput
+  }
+
   export type AkuoPedidoCreateNestedOneWithoutEntregaInput = {
     create?: XOR<AkuoPedidoCreateWithoutEntregaInput, AkuoPedidoUncheckedCreateWithoutEntregaInput>
     connectOrCreate?: AkuoPedidoCreateOrConnectWithoutEntregaInput
@@ -30225,6 +33630,16 @@ export namespace Prisma {
     update?: XOR<XOR<AkuoVehiculoUpdateToOneWithWhereWithoutEntregasInput, AkuoVehiculoUpdateWithoutEntregasInput>, AkuoVehiculoUncheckedUpdateWithoutEntregasInput>
   }
 
+  export type AkuoVueltaUpdateOneWithoutEntregasNestedInput = {
+    create?: XOR<AkuoVueltaCreateWithoutEntregasInput, AkuoVueltaUncheckedCreateWithoutEntregasInput>
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutEntregasInput
+    upsert?: AkuoVueltaUpsertWithoutEntregasInput
+    disconnect?: AkuoVueltaWhereInput | boolean
+    delete?: AkuoVueltaWhereInput | boolean
+    connect?: AkuoVueltaWhereUniqueInput
+    update?: XOR<XOR<AkuoVueltaUpdateToOneWithWhereWithoutEntregasInput, AkuoVueltaUpdateWithoutEntregasInput>, AkuoVueltaUncheckedUpdateWithoutEntregasInput>
+  }
+
   export type AkuoPedidoUpdateOneWithoutEntregaNestedInput = {
     create?: XOR<AkuoPedidoCreateWithoutEntregaInput, AkuoPedidoUncheckedCreateWithoutEntregaInput>
     connectOrCreate?: AkuoPedidoCreateOrConnectWithoutEntregaInput
@@ -30243,6 +33658,154 @@ export namespace Prisma {
     delete?: AkuoPedidoWhereInput | boolean
     connect?: AkuoPedidoWhereUniqueInput
     update?: XOR<XOR<AkuoPedidoUpdateToOneWithWhereWithoutEntregaInput, AkuoPedidoUpdateWithoutEntregaInput>, AkuoPedidoUncheckedUpdateWithoutEntregaInput>
+  }
+
+  export type AkuoUsuarioCreateNestedOneWithoutVueltasInput = {
+    create?: XOR<AkuoUsuarioCreateWithoutVueltasInput, AkuoUsuarioUncheckedCreateWithoutVueltasInput>
+    connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutVueltasInput
+    connect?: AkuoUsuarioWhereUniqueInput
+  }
+
+  export type AkuoVehiculoCreateNestedOneWithoutVueltasInput = {
+    create?: XOR<AkuoVehiculoCreateWithoutVueltasInput, AkuoVehiculoUncheckedCreateWithoutVueltasInput>
+    connectOrCreate?: AkuoVehiculoCreateOrConnectWithoutVueltasInput
+    connect?: AkuoVehiculoWhereUniqueInput
+  }
+
+  export type AkuoEntregaCreateNestedManyWithoutVueltaInput = {
+    create?: XOR<AkuoEntregaCreateWithoutVueltaInput, AkuoEntregaUncheckedCreateWithoutVueltaInput> | AkuoEntregaCreateWithoutVueltaInput[] | AkuoEntregaUncheckedCreateWithoutVueltaInput[]
+    connectOrCreate?: AkuoEntregaCreateOrConnectWithoutVueltaInput | AkuoEntregaCreateOrConnectWithoutVueltaInput[]
+    createMany?: AkuoEntregaCreateManyVueltaInputEnvelope
+    connect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+  }
+
+  export type AkuoGastoCreateNestedManyWithoutVueltaInput = {
+    create?: XOR<AkuoGastoCreateWithoutVueltaInput, AkuoGastoUncheckedCreateWithoutVueltaInput> | AkuoGastoCreateWithoutVueltaInput[] | AkuoGastoUncheckedCreateWithoutVueltaInput[]
+    connectOrCreate?: AkuoGastoCreateOrConnectWithoutVueltaInput | AkuoGastoCreateOrConnectWithoutVueltaInput[]
+    createMany?: AkuoGastoCreateManyVueltaInputEnvelope
+    connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+  }
+
+  export type AkuoEntregaUncheckedCreateNestedManyWithoutVueltaInput = {
+    create?: XOR<AkuoEntregaCreateWithoutVueltaInput, AkuoEntregaUncheckedCreateWithoutVueltaInput> | AkuoEntregaCreateWithoutVueltaInput[] | AkuoEntregaUncheckedCreateWithoutVueltaInput[]
+    connectOrCreate?: AkuoEntregaCreateOrConnectWithoutVueltaInput | AkuoEntregaCreateOrConnectWithoutVueltaInput[]
+    createMany?: AkuoEntregaCreateManyVueltaInputEnvelope
+    connect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+  }
+
+  export type AkuoGastoUncheckedCreateNestedManyWithoutVueltaInput = {
+    create?: XOR<AkuoGastoCreateWithoutVueltaInput, AkuoGastoUncheckedCreateWithoutVueltaInput> | AkuoGastoCreateWithoutVueltaInput[] | AkuoGastoUncheckedCreateWithoutVueltaInput[]
+    connectOrCreate?: AkuoGastoCreateOrConnectWithoutVueltaInput | AkuoGastoCreateOrConnectWithoutVueltaInput[]
+    createMany?: AkuoGastoCreateManyVueltaInputEnvelope
+    connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+  }
+
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
+  }
+
+  export type AkuoUsuarioUpdateOneRequiredWithoutVueltasNestedInput = {
+    create?: XOR<AkuoUsuarioCreateWithoutVueltasInput, AkuoUsuarioUncheckedCreateWithoutVueltasInput>
+    connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutVueltasInput
+    upsert?: AkuoUsuarioUpsertWithoutVueltasInput
+    connect?: AkuoUsuarioWhereUniqueInput
+    update?: XOR<XOR<AkuoUsuarioUpdateToOneWithWhereWithoutVueltasInput, AkuoUsuarioUpdateWithoutVueltasInput>, AkuoUsuarioUncheckedUpdateWithoutVueltasInput>
+  }
+
+  export type AkuoVehiculoUpdateOneWithoutVueltasNestedInput = {
+    create?: XOR<AkuoVehiculoCreateWithoutVueltasInput, AkuoVehiculoUncheckedCreateWithoutVueltasInput>
+    connectOrCreate?: AkuoVehiculoCreateOrConnectWithoutVueltasInput
+    upsert?: AkuoVehiculoUpsertWithoutVueltasInput
+    disconnect?: AkuoVehiculoWhereInput | boolean
+    delete?: AkuoVehiculoWhereInput | boolean
+    connect?: AkuoVehiculoWhereUniqueInput
+    update?: XOR<XOR<AkuoVehiculoUpdateToOneWithWhereWithoutVueltasInput, AkuoVehiculoUpdateWithoutVueltasInput>, AkuoVehiculoUncheckedUpdateWithoutVueltasInput>
+  }
+
+  export type AkuoEntregaUpdateManyWithoutVueltaNestedInput = {
+    create?: XOR<AkuoEntregaCreateWithoutVueltaInput, AkuoEntregaUncheckedCreateWithoutVueltaInput> | AkuoEntregaCreateWithoutVueltaInput[] | AkuoEntregaUncheckedCreateWithoutVueltaInput[]
+    connectOrCreate?: AkuoEntregaCreateOrConnectWithoutVueltaInput | AkuoEntregaCreateOrConnectWithoutVueltaInput[]
+    upsert?: AkuoEntregaUpsertWithWhereUniqueWithoutVueltaInput | AkuoEntregaUpsertWithWhereUniqueWithoutVueltaInput[]
+    createMany?: AkuoEntregaCreateManyVueltaInputEnvelope
+    set?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+    disconnect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+    delete?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+    connect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+    update?: AkuoEntregaUpdateWithWhereUniqueWithoutVueltaInput | AkuoEntregaUpdateWithWhereUniqueWithoutVueltaInput[]
+    updateMany?: AkuoEntregaUpdateManyWithWhereWithoutVueltaInput | AkuoEntregaUpdateManyWithWhereWithoutVueltaInput[]
+    deleteMany?: AkuoEntregaScalarWhereInput | AkuoEntregaScalarWhereInput[]
+  }
+
+  export type AkuoGastoUpdateManyWithoutVueltaNestedInput = {
+    create?: XOR<AkuoGastoCreateWithoutVueltaInput, AkuoGastoUncheckedCreateWithoutVueltaInput> | AkuoGastoCreateWithoutVueltaInput[] | AkuoGastoUncheckedCreateWithoutVueltaInput[]
+    connectOrCreate?: AkuoGastoCreateOrConnectWithoutVueltaInput | AkuoGastoCreateOrConnectWithoutVueltaInput[]
+    upsert?: AkuoGastoUpsertWithWhereUniqueWithoutVueltaInput | AkuoGastoUpsertWithWhereUniqueWithoutVueltaInput[]
+    createMany?: AkuoGastoCreateManyVueltaInputEnvelope
+    set?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    disconnect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    delete?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    update?: AkuoGastoUpdateWithWhereUniqueWithoutVueltaInput | AkuoGastoUpdateWithWhereUniqueWithoutVueltaInput[]
+    updateMany?: AkuoGastoUpdateManyWithWhereWithoutVueltaInput | AkuoGastoUpdateManyWithWhereWithoutVueltaInput[]
+    deleteMany?: AkuoGastoScalarWhereInput | AkuoGastoScalarWhereInput[]
+  }
+
+  export type AkuoEntregaUncheckedUpdateManyWithoutVueltaNestedInput = {
+    create?: XOR<AkuoEntregaCreateWithoutVueltaInput, AkuoEntregaUncheckedCreateWithoutVueltaInput> | AkuoEntregaCreateWithoutVueltaInput[] | AkuoEntregaUncheckedCreateWithoutVueltaInput[]
+    connectOrCreate?: AkuoEntregaCreateOrConnectWithoutVueltaInput | AkuoEntregaCreateOrConnectWithoutVueltaInput[]
+    upsert?: AkuoEntregaUpsertWithWhereUniqueWithoutVueltaInput | AkuoEntregaUpsertWithWhereUniqueWithoutVueltaInput[]
+    createMany?: AkuoEntregaCreateManyVueltaInputEnvelope
+    set?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+    disconnect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+    delete?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+    connect?: AkuoEntregaWhereUniqueInput | AkuoEntregaWhereUniqueInput[]
+    update?: AkuoEntregaUpdateWithWhereUniqueWithoutVueltaInput | AkuoEntregaUpdateWithWhereUniqueWithoutVueltaInput[]
+    updateMany?: AkuoEntregaUpdateManyWithWhereWithoutVueltaInput | AkuoEntregaUpdateManyWithWhereWithoutVueltaInput[]
+    deleteMany?: AkuoEntregaScalarWhereInput | AkuoEntregaScalarWhereInput[]
+  }
+
+  export type AkuoGastoUncheckedUpdateManyWithoutVueltaNestedInput = {
+    create?: XOR<AkuoGastoCreateWithoutVueltaInput, AkuoGastoUncheckedCreateWithoutVueltaInput> | AkuoGastoCreateWithoutVueltaInput[] | AkuoGastoUncheckedCreateWithoutVueltaInput[]
+    connectOrCreate?: AkuoGastoCreateOrConnectWithoutVueltaInput | AkuoGastoCreateOrConnectWithoutVueltaInput[]
+    upsert?: AkuoGastoUpsertWithWhereUniqueWithoutVueltaInput | AkuoGastoUpsertWithWhereUniqueWithoutVueltaInput[]
+    createMany?: AkuoGastoCreateManyVueltaInputEnvelope
+    set?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    disconnect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    delete?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
+    update?: AkuoGastoUpdateWithWhereUniqueWithoutVueltaInput | AkuoGastoUpdateWithWhereUniqueWithoutVueltaInput[]
+    updateMany?: AkuoGastoUpdateManyWithWhereWithoutVueltaInput | AkuoGastoUpdateManyWithWhereWithoutVueltaInput[]
+    deleteMany?: AkuoGastoScalarWhereInput | AkuoGastoScalarWhereInput[]
+  }
+
+  export type AkuoUsuarioCreateNestedOneWithoutGastosInput = {
+    create?: XOR<AkuoUsuarioCreateWithoutGastosInput, AkuoUsuarioUncheckedCreateWithoutGastosInput>
+    connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutGastosInput
+    connect?: AkuoUsuarioWhereUniqueInput
+  }
+
+  export type AkuoVueltaCreateNestedOneWithoutGastosInput = {
+    create?: XOR<AkuoVueltaCreateWithoutGastosInput, AkuoVueltaUncheckedCreateWithoutGastosInput>
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutGastosInput
+    connect?: AkuoVueltaWhereUniqueInput
+  }
+
+  export type AkuoUsuarioUpdateOneRequiredWithoutGastosNestedInput = {
+    create?: XOR<AkuoUsuarioCreateWithoutGastosInput, AkuoUsuarioUncheckedCreateWithoutGastosInput>
+    connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutGastosInput
+    upsert?: AkuoUsuarioUpsertWithoutGastosInput
+    connect?: AkuoUsuarioWhereUniqueInput
+    update?: XOR<XOR<AkuoUsuarioUpdateToOneWithWhereWithoutGastosInput, AkuoUsuarioUpdateWithoutGastosInput>, AkuoUsuarioUncheckedUpdateWithoutGastosInput>
+  }
+
+  export type AkuoVueltaUpdateOneWithoutGastosNestedInput = {
+    create?: XOR<AkuoVueltaCreateWithoutGastosInput, AkuoVueltaUncheckedCreateWithoutGastosInput>
+    connectOrCreate?: AkuoVueltaCreateOrConnectWithoutGastosInput
+    upsert?: AkuoVueltaUpsertWithoutGastosInput
+    disconnect?: AkuoVueltaWhereInput | boolean
+    delete?: AkuoVueltaWhereInput | boolean
+    connect?: AkuoVueltaWhereUniqueInput
+    update?: XOR<XOR<AkuoVueltaUpdateToOneWithWhereWithoutGastosInput, AkuoVueltaUpdateWithoutGastosInput>, AkuoVueltaUncheckedUpdateWithoutGastosInput>
   }
 
   export type AkuoUsuarioCreateNestedOneWithoutPagosInput = {
@@ -30720,6 +34283,19 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
   export type AkuoZonaCreateWithoutUsuariosInput = {
     id?: string
     creadoEn?: Date | string
@@ -30852,6 +34428,7 @@ export namespace Prisma {
     lecturaActual?: number | null
     cliente?: AkuoClienteCreateNestedOneWithoutEntregasInput
     vehiculo?: AkuoVehiculoCreateNestedOneWithoutEntregasInput
+    vuelta?: AkuoVueltaCreateNestedOneWithoutEntregasInput
     pedido?: AkuoPedidoCreateNestedOneWithoutEntregaInput
   }
 
@@ -30866,6 +34443,7 @@ export namespace Prisma {
     clienteLat?: number | null
     clienteLng?: number | null
     vehiculoId?: string | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -30907,6 +34485,7 @@ export namespace Prisma {
     seguroUrl?: string | null
     fotoUrl?: string | null
     entregas?: AkuoEntregaCreateNestedManyWithoutVehiculoInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutVehiculoInput
   }
 
   export type AkuoVehiculoUncheckedCreateWithoutTransportistaInput = {
@@ -30924,6 +34503,7 @@ export namespace Prisma {
     seguroUrl?: string | null
     fotoUrl?: string | null
     entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVehiculoInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutVehiculoInput
   }
 
   export type AkuoVehiculoCreateOrConnectWithoutTransportistaInput = {
@@ -31340,6 +34920,70 @@ export namespace Prisma {
     data: AkuoPedidoClienteCreateManyTransportistaInput | AkuoPedidoClienteCreateManyTransportistaInput[]
   }
 
+  export type AkuoVueltaCreateWithoutTransportistaInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    vehiculo?: AkuoVehiculoCreateNestedOneWithoutVueltasInput
+    entregas?: AkuoEntregaCreateNestedManyWithoutVueltaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaUncheckedCreateWithoutTransportistaInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    vehiculoId?: string | null
+    entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVueltaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaCreateOrConnectWithoutTransportistaInput = {
+    where: AkuoVueltaWhereUniqueInput
+    create: XOR<AkuoVueltaCreateWithoutTransportistaInput, AkuoVueltaUncheckedCreateWithoutTransportistaInput>
+  }
+
+  export type AkuoVueltaCreateManyTransportistaInputEnvelope = {
+    data: AkuoVueltaCreateManyTransportistaInput | AkuoVueltaCreateManyTransportistaInput[]
+  }
+
+  export type AkuoGastoCreateWithoutTransportistaInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    vuelta?: AkuoVueltaCreateNestedOneWithoutGastosInput
+  }
+
+  export type AkuoGastoUncheckedCreateWithoutTransportistaInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    vueltaId?: string | null
+  }
+
+  export type AkuoGastoCreateOrConnectWithoutTransportistaInput = {
+    where: AkuoGastoWhereUniqueInput
+    create: XOR<AkuoGastoCreateWithoutTransportistaInput, AkuoGastoUncheckedCreateWithoutTransportistaInput>
+  }
+
+  export type AkuoGastoCreateManyTransportistaInputEnvelope = {
+    data: AkuoGastoCreateManyTransportistaInput | AkuoGastoCreateManyTransportistaInput[]
+  }
+
   export type AkuoZonaUpsertWithoutUsuariosInput = {
     update: XOR<AkuoZonaUpdateWithoutUsuariosInput, AkuoZonaUncheckedUpdateWithoutUsuariosInput>
     create: XOR<AkuoZonaCreateWithoutUsuariosInput, AkuoZonaUncheckedCreateWithoutUsuariosInput>
@@ -31479,6 +35123,7 @@ export namespace Prisma {
     clienteLat?: FloatNullableFilter<"AkuoEntrega"> | number | null
     clienteLng?: FloatNullableFilter<"AkuoEntrega"> | number | null
     vehiculoId?: StringNullableFilter<"AkuoEntrega"> | string | null
+    vueltaId?: StringNullableFilter<"AkuoEntrega"> | string | null
     litros?: FloatFilter<"AkuoEntrega"> | number
     total?: FloatFilter<"AkuoEntrega"> | number
     montoEfectivo?: FloatFilter<"AkuoEntrega"> | number
@@ -31857,6 +35502,67 @@ export namespace Prisma {
     data: XOR<AkuoPedidoClienteUpdateManyMutationInput, AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaInput>
   }
 
+  export type AkuoVueltaUpsertWithWhereUniqueWithoutTransportistaInput = {
+    where: AkuoVueltaWhereUniqueInput
+    update: XOR<AkuoVueltaUpdateWithoutTransportistaInput, AkuoVueltaUncheckedUpdateWithoutTransportistaInput>
+    create: XOR<AkuoVueltaCreateWithoutTransportistaInput, AkuoVueltaUncheckedCreateWithoutTransportistaInput>
+  }
+
+  export type AkuoVueltaUpdateWithWhereUniqueWithoutTransportistaInput = {
+    where: AkuoVueltaWhereUniqueInput
+    data: XOR<AkuoVueltaUpdateWithoutTransportistaInput, AkuoVueltaUncheckedUpdateWithoutTransportistaInput>
+  }
+
+  export type AkuoVueltaUpdateManyWithWhereWithoutTransportistaInput = {
+    where: AkuoVueltaScalarWhereInput
+    data: XOR<AkuoVueltaUpdateManyMutationInput, AkuoVueltaUncheckedUpdateManyWithoutTransportistaInput>
+  }
+
+  export type AkuoVueltaScalarWhereInput = {
+    AND?: AkuoVueltaScalarWhereInput | AkuoVueltaScalarWhereInput[]
+    OR?: AkuoVueltaScalarWhereInput[]
+    NOT?: AkuoVueltaScalarWhereInput | AkuoVueltaScalarWhereInput[]
+    id?: StringFilter<"AkuoVuelta"> | string
+    numero?: IntFilter<"AkuoVuelta"> | number
+    iniciadaEn?: DateTimeFilter<"AkuoVuelta"> | Date | string
+    cerradaEn?: DateTimeNullableFilter<"AkuoVuelta"> | Date | string | null
+    nota?: StringNullableFilter<"AkuoVuelta"> | string | null
+    activa?: BoolFilter<"AkuoVuelta"> | boolean
+    validadaManualmente?: BoolNullableFilter<"AkuoVuelta"> | boolean | null
+    transportistaId?: StringFilter<"AkuoVuelta"> | string
+    vehiculoId?: StringNullableFilter<"AkuoVuelta"> | string | null
+  }
+
+  export type AkuoGastoUpsertWithWhereUniqueWithoutTransportistaInput = {
+    where: AkuoGastoWhereUniqueInput
+    update: XOR<AkuoGastoUpdateWithoutTransportistaInput, AkuoGastoUncheckedUpdateWithoutTransportistaInput>
+    create: XOR<AkuoGastoCreateWithoutTransportistaInput, AkuoGastoUncheckedCreateWithoutTransportistaInput>
+  }
+
+  export type AkuoGastoUpdateWithWhereUniqueWithoutTransportistaInput = {
+    where: AkuoGastoWhereUniqueInput
+    data: XOR<AkuoGastoUpdateWithoutTransportistaInput, AkuoGastoUncheckedUpdateWithoutTransportistaInput>
+  }
+
+  export type AkuoGastoUpdateManyWithWhereWithoutTransportistaInput = {
+    where: AkuoGastoScalarWhereInput
+    data: XOR<AkuoGastoUpdateManyMutationInput, AkuoGastoUncheckedUpdateManyWithoutTransportistaInput>
+  }
+
+  export type AkuoGastoScalarWhereInput = {
+    AND?: AkuoGastoScalarWhereInput | AkuoGastoScalarWhereInput[]
+    OR?: AkuoGastoScalarWhereInput[]
+    NOT?: AkuoGastoScalarWhereInput | AkuoGastoScalarWhereInput[]
+    id?: StringFilter<"AkuoGasto"> | string
+    fecha?: DateTimeFilter<"AkuoGasto"> | Date | string
+    tipo?: StringFilter<"AkuoGasto"> | string
+    monto?: FloatFilter<"AkuoGasto"> | number
+    descripcion?: StringNullableFilter<"AkuoGasto"> | string | null
+    metodoPago?: StringFilter<"AkuoGasto"> | string
+    transportistaId?: StringFilter<"AkuoGasto"> | string
+    vueltaId?: StringNullableFilter<"AkuoGasto"> | string | null
+  }
+
   export type AkuoUsuarioCreateWithoutSesionesInput = {
     id?: string
     email: string
@@ -31919,6 +35625,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutSesionesInput = {
@@ -31983,6 +35691,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutSesionesInput = {
@@ -32063,6 +35773,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutSesionesInput = {
@@ -32127,6 +35839,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutVehiculosInput = {
@@ -32191,6 +35905,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutVehiculosInput = {
@@ -32255,6 +35971,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutVehiculosInput = {
@@ -32287,6 +36005,7 @@ export namespace Prisma {
     lecturaActual?: number | null
     transportista: AkuoUsuarioCreateNestedOneWithoutEntregasHechasInput
     cliente?: AkuoClienteCreateNestedOneWithoutEntregasInput
+    vuelta?: AkuoVueltaCreateNestedOneWithoutEntregasInput
     pedido?: AkuoPedidoCreateNestedOneWithoutEntregaInput
   }
 
@@ -32301,6 +36020,7 @@ export namespace Prisma {
     clienteZona?: string | null
     clienteLat?: number | null
     clienteLng?: number | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -32325,6 +36045,41 @@ export namespace Prisma {
 
   export type AkuoEntregaCreateManyVehiculoInputEnvelope = {
     data: AkuoEntregaCreateManyVehiculoInput | AkuoEntregaCreateManyVehiculoInput[]
+  }
+
+  export type AkuoVueltaCreateWithoutVehiculoInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportista: AkuoUsuarioCreateNestedOneWithoutVueltasInput
+    entregas?: AkuoEntregaCreateNestedManyWithoutVueltaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaUncheckedCreateWithoutVehiculoInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportistaId: string
+    entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVueltaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaCreateOrConnectWithoutVehiculoInput = {
+    where: AkuoVueltaWhereUniqueInput
+    create: XOR<AkuoVueltaCreateWithoutVehiculoInput, AkuoVueltaUncheckedCreateWithoutVehiculoInput>
+  }
+
+  export type AkuoVueltaCreateManyVehiculoInputEnvelope = {
+    data: AkuoVueltaCreateManyVehiculoInput | AkuoVueltaCreateManyVehiculoInput[]
   }
 
   export type AkuoUsuarioUpsertWithoutVehiculosInput = {
@@ -32400,6 +36155,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutVehiculosInput = {
@@ -32464,6 +36221,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoEntregaUpsertWithWhereUniqueWithoutVehiculoInput = {
@@ -32480,6 +36239,22 @@ export namespace Prisma {
   export type AkuoEntregaUpdateManyWithWhereWithoutVehiculoInput = {
     where: AkuoEntregaScalarWhereInput
     data: XOR<AkuoEntregaUpdateManyMutationInput, AkuoEntregaUncheckedUpdateManyWithoutVehiculoInput>
+  }
+
+  export type AkuoVueltaUpsertWithWhereUniqueWithoutVehiculoInput = {
+    where: AkuoVueltaWhereUniqueInput
+    update: XOR<AkuoVueltaUpdateWithoutVehiculoInput, AkuoVueltaUncheckedUpdateWithoutVehiculoInput>
+    create: XOR<AkuoVueltaCreateWithoutVehiculoInput, AkuoVueltaUncheckedCreateWithoutVehiculoInput>
+  }
+
+  export type AkuoVueltaUpdateWithWhereUniqueWithoutVehiculoInput = {
+    where: AkuoVueltaWhereUniqueInput
+    data: XOR<AkuoVueltaUpdateWithoutVehiculoInput, AkuoVueltaUncheckedUpdateWithoutVehiculoInput>
+  }
+
+  export type AkuoVueltaUpdateManyWithWhereWithoutVehiculoInput = {
+    where: AkuoVueltaScalarWhereInput
+    data: XOR<AkuoVueltaUpdateManyMutationInput, AkuoVueltaUncheckedUpdateManyWithoutVehiculoInput>
   }
 
   export type AkuoUsuarioCreateWithoutClientesInput = {
@@ -32544,6 +36319,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutClientesInput = {
@@ -32608,6 +36385,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutClientesInput = {
@@ -32685,6 +36464,7 @@ export namespace Prisma {
     lecturaActual?: number | null
     transportista: AkuoUsuarioCreateNestedOneWithoutEntregasHechasInput
     vehiculo?: AkuoVehiculoCreateNestedOneWithoutEntregasInput
+    vuelta?: AkuoVueltaCreateNestedOneWithoutEntregasInput
     pedido?: AkuoPedidoCreateNestedOneWithoutEntregaInput
   }
 
@@ -32699,6 +36479,7 @@ export namespace Prisma {
     clienteLat?: number | null
     clienteLng?: number | null
     vehiculoId?: string | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -32798,6 +36579,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutClientesInput = {
@@ -32862,6 +36645,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoPedidoUpsertWithWhereUniqueWithoutClienteInput = {
@@ -32958,6 +36743,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutPedidosClienteInput = {
@@ -33022,6 +36809,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutPedidosClienteInput = {
@@ -33104,6 +36893,7 @@ export namespace Prisma {
     transportista: AkuoUsuarioCreateNestedOneWithoutEntregasHechasInput
     cliente?: AkuoClienteCreateNestedOneWithoutEntregasInput
     vehiculo?: AkuoVehiculoCreateNestedOneWithoutEntregasInput
+    vuelta?: AkuoVueltaCreateNestedOneWithoutEntregasInput
   }
 
   export type AkuoEntregaUncheckedCreateWithoutPedidoInput = {
@@ -33118,6 +36908,7 @@ export namespace Prisma {
     clienteLat?: number | null
     clienteLng?: number | null
     vehiculoId?: string | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -33212,6 +37003,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutPedidosClienteInput = {
@@ -33276,6 +37069,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoClienteUpsertWithoutPedidosInput = {
@@ -33370,6 +37165,7 @@ export namespace Prisma {
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutEntregasHechasNestedInput
     cliente?: AkuoClienteUpdateOneWithoutEntregasNestedInput
     vehiculo?: AkuoVehiculoUpdateOneWithoutEntregasNestedInput
+    vuelta?: AkuoVueltaUpdateOneWithoutEntregasNestedInput
   }
 
   export type AkuoEntregaUncheckedUpdateWithoutPedidoInput = {
@@ -33384,6 +37180,7 @@ export namespace Prisma {
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
     vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -33462,6 +37259,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutEntregasHechasInput = {
@@ -33526,6 +37325,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutEntregasHechasInput = {
@@ -33597,6 +37398,7 @@ export namespace Prisma {
     seguroUrl?: string | null
     fotoUrl?: string | null
     transportista: AkuoUsuarioCreateNestedOneWithoutVehiculosInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutVehiculoInput
   }
 
   export type AkuoVehiculoUncheckedCreateWithoutEntregasInput = {
@@ -33614,11 +37416,43 @@ export namespace Prisma {
     revisionTecUrl?: string | null
     seguroUrl?: string | null
     fotoUrl?: string | null
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutVehiculoInput
   }
 
   export type AkuoVehiculoCreateOrConnectWithoutEntregasInput = {
     where: AkuoVehiculoWhereUniqueInput
     create: XOR<AkuoVehiculoCreateWithoutEntregasInput, AkuoVehiculoUncheckedCreateWithoutEntregasInput>
+  }
+
+  export type AkuoVueltaCreateWithoutEntregasInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportista: AkuoUsuarioCreateNestedOneWithoutVueltasInput
+    vehiculo?: AkuoVehiculoCreateNestedOneWithoutVueltasInput
+    gastos?: AkuoGastoCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaUncheckedCreateWithoutEntregasInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportistaId: string
+    vehiculoId?: string | null
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaCreateOrConnectWithoutEntregasInput = {
+    where: AkuoVueltaWhereUniqueInput
+    create: XOR<AkuoVueltaCreateWithoutEntregasInput, AkuoVueltaUncheckedCreateWithoutEntregasInput>
   }
 
   export type AkuoPedidoCreateWithoutEntregaInput = {
@@ -33735,6 +37569,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutEntregasHechasInput = {
@@ -33799,6 +37635,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoClienteUpsertWithoutEntregasInput = {
@@ -33882,6 +37720,7 @@ export namespace Prisma {
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutVehiculosNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutVehiculoNestedInput
   }
 
   export type AkuoVehiculoUncheckedUpdateWithoutEntregasInput = {
@@ -33899,6 +37738,44 @@ export namespace Prisma {
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutVehiculoNestedInput
+  }
+
+  export type AkuoVueltaUpsertWithoutEntregasInput = {
+    update: XOR<AkuoVueltaUpdateWithoutEntregasInput, AkuoVueltaUncheckedUpdateWithoutEntregasInput>
+    create: XOR<AkuoVueltaCreateWithoutEntregasInput, AkuoVueltaUncheckedCreateWithoutEntregasInput>
+    where?: AkuoVueltaWhereInput
+  }
+
+  export type AkuoVueltaUpdateToOneWithWhereWithoutEntregasInput = {
+    where?: AkuoVueltaWhereInput
+    data: XOR<AkuoVueltaUpdateWithoutEntregasInput, AkuoVueltaUncheckedUpdateWithoutEntregasInput>
+  }
+
+  export type AkuoVueltaUpdateWithoutEntregasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportista?: AkuoUsuarioUpdateOneRequiredWithoutVueltasNestedInput
+    vehiculo?: AkuoVehiculoUpdateOneWithoutVueltasNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutVueltaNestedInput
+  }
+
+  export type AkuoVueltaUncheckedUpdateWithoutEntregasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutVueltaNestedInput
   }
 
   export type AkuoPedidoUpsertWithoutEntregaInput = {
@@ -33946,6 +37823,850 @@ export namespace Prisma {
     estado?: StringFieldUpdateOperationsInput | string
     metodoPagoPreferido?: StringFieldUpdateOperationsInput | string
     nota?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoUsuarioCreateWithoutVueltasInput = {
+    id?: string
+    email: string
+    nombre: string
+    telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
+    saldo?: number
+    passwordHash?: string | null
+    avatarUrl?: string | null
+    rol?: string
+    activo?: boolean
+    aprobado?: boolean
+    banned?: boolean
+    banRazon?: string | null
+    creadoEn?: Date | string
+    ultimoLoginEn?: Date | string | null
+    googleId?: string | null
+    facebookId?: string | null
+    rutEmpresa?: string | null
+    razonSocial?: string | null
+    direccionEmpresa?: string | null
+    capacidadVehiculoKg?: number | null
+    patenteVehiculo?: string | null
+    tipoVehiculo?: string | null
+    licenciaConducirUrl?: string | null
+    permisoCircUrl?: string | null
+    seguroUrl?: string | null
+    areasCobertura?: string | null
+    descripcion?: string | null
+    plan?: string
+    suscripcionActiva?: boolean
+    suscripcionInicio?: Date | string | null
+    suscripcionFin?: Date | string | null
+    vehiculosPermitidos?: number
+    choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
+    sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
+    pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
+    entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
+    vehiculos?: AkuoVehiculoCreateNestedManyWithoutTransportistaInput
+    clientes?: AkuoClienteCreateNestedManyWithoutTransportistaInput
+    pagos?: AkuoPagoCreateNestedManyWithoutTransportistaInput
+    valoracionesRecibidas?: AkuoValoracionCreateNestedManyWithoutTransportistaInput
+    notificaciones?: AkuoNotificacionCreateNestedManyWithoutUsuarioInput
+    auditLogs?: AkuoAuditLogCreateNestedManyWithoutSuperadminInput
+    suscripciones?: AkuoSuscripcionCreateNestedManyWithoutTransportistaInput
+    conversacionesCliente?: AkuoConversacionCreateNestedManyWithoutClienteInput
+    conversacionesTransportista?: AkuoConversacionCreateNestedManyWithoutTransportistaInput
+    mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
+    pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
+    pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
+  }
+
+  export type AkuoUsuarioUncheckedCreateWithoutVueltasInput = {
+    id?: string
+    email: string
+    nombre: string
+    telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
+    saldo?: number
+    zonaId?: string | null
+    passwordHash?: string | null
+    avatarUrl?: string | null
+    rol?: string
+    activo?: boolean
+    aprobado?: boolean
+    banned?: boolean
+    banRazon?: string | null
+    creadoEn?: Date | string
+    ultimoLoginEn?: Date | string | null
+    googleId?: string | null
+    facebookId?: string | null
+    rutEmpresa?: string | null
+    razonSocial?: string | null
+    direccionEmpresa?: string | null
+    capacidadVehiculoKg?: number | null
+    patenteVehiculo?: string | null
+    tipoVehiculo?: string | null
+    licenciaConducirUrl?: string | null
+    permisoCircUrl?: string | null
+    seguroUrl?: string | null
+    areasCobertura?: string | null
+    descripcion?: string | null
+    plan?: string
+    suscripcionActiva?: boolean
+    suscripcionInicio?: Date | string | null
+    suscripcionFin?: Date | string | null
+    vehiculosPermitidos?: number
+    choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
+    sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
+    pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
+    entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
+    vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
+    clientes?: AkuoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    pagos?: AkuoPagoUncheckedCreateNestedManyWithoutTransportistaInput
+    valoracionesRecibidas?: AkuoValoracionUncheckedCreateNestedManyWithoutTransportistaInput
+    notificaciones?: AkuoNotificacionUncheckedCreateNestedManyWithoutUsuarioInput
+    auditLogs?: AkuoAuditLogUncheckedCreateNestedManyWithoutSuperadminInput
+    suscripciones?: AkuoSuscripcionUncheckedCreateNestedManyWithoutTransportistaInput
+    conversacionesCliente?: AkuoConversacionUncheckedCreateNestedManyWithoutClienteInput
+    conversacionesTransportista?: AkuoConversacionUncheckedCreateNestedManyWithoutTransportistaInput
+    mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
+    pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
+  }
+
+  export type AkuoUsuarioCreateOrConnectWithoutVueltasInput = {
+    where: AkuoUsuarioWhereUniqueInput
+    create: XOR<AkuoUsuarioCreateWithoutVueltasInput, AkuoUsuarioUncheckedCreateWithoutVueltasInput>
+  }
+
+  export type AkuoVehiculoCreateWithoutVueltasInput = {
+    id?: string
+    creadoEn?: Date | string
+    patente: string
+    tipo?: string
+    capacidadLitros: number
+    marca?: string | null
+    modelo?: string | null
+    año?: number | null
+    activo?: boolean
+    permisoCircUrl?: string | null
+    revisionTecUrl?: string | null
+    seguroUrl?: string | null
+    fotoUrl?: string | null
+    transportista: AkuoUsuarioCreateNestedOneWithoutVehiculosInput
+    entregas?: AkuoEntregaCreateNestedManyWithoutVehiculoInput
+  }
+
+  export type AkuoVehiculoUncheckedCreateWithoutVueltasInput = {
+    id?: string
+    creadoEn?: Date | string
+    transportistaId: string
+    patente: string
+    tipo?: string
+    capacidadLitros: number
+    marca?: string | null
+    modelo?: string | null
+    año?: number | null
+    activo?: boolean
+    permisoCircUrl?: string | null
+    revisionTecUrl?: string | null
+    seguroUrl?: string | null
+    fotoUrl?: string | null
+    entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVehiculoInput
+  }
+
+  export type AkuoVehiculoCreateOrConnectWithoutVueltasInput = {
+    where: AkuoVehiculoWhereUniqueInput
+    create: XOR<AkuoVehiculoCreateWithoutVueltasInput, AkuoVehiculoUncheckedCreateWithoutVueltasInput>
+  }
+
+  export type AkuoEntregaCreateWithoutVueltaInput = {
+    id?: string
+    creadoEn?: Date | string
+    clienteNombre: string
+    clienteDireccion?: string | null
+    clienteTelefono?: string | null
+    clienteZona?: string | null
+    clienteLat?: number | null
+    clienteLng?: number | null
+    litros: number
+    total: number
+    montoEfectivo?: number
+    montoTransferencia?: number
+    montoRecibido?: number
+    metodoPago?: string
+    estadoPago?: string
+    descuento?: number
+    descuentoPor?: string | null
+    fotoMedidorUrl?: string | null
+    nota?: string | null
+    detalleEstanquesJson?: string | null
+    lecturaAnterior?: number | null
+    lecturaActual?: number | null
+    transportista: AkuoUsuarioCreateNestedOneWithoutEntregasHechasInput
+    cliente?: AkuoClienteCreateNestedOneWithoutEntregasInput
+    vehiculo?: AkuoVehiculoCreateNestedOneWithoutEntregasInput
+    pedido?: AkuoPedidoCreateNestedOneWithoutEntregaInput
+  }
+
+  export type AkuoEntregaUncheckedCreateWithoutVueltaInput = {
+    id?: string
+    creadoEn?: Date | string
+    transportistaId: string
+    clienteId?: string | null
+    clienteNombre: string
+    clienteDireccion?: string | null
+    clienteTelefono?: string | null
+    clienteZona?: string | null
+    clienteLat?: number | null
+    clienteLng?: number | null
+    vehiculoId?: string | null
+    litros: number
+    total: number
+    montoEfectivo?: number
+    montoTransferencia?: number
+    montoRecibido?: number
+    metodoPago?: string
+    estadoPago?: string
+    descuento?: number
+    descuentoPor?: string | null
+    fotoMedidorUrl?: string | null
+    nota?: string | null
+    detalleEstanquesJson?: string | null
+    lecturaAnterior?: number | null
+    lecturaActual?: number | null
+    pedido?: AkuoPedidoUncheckedCreateNestedOneWithoutEntregaInput
+  }
+
+  export type AkuoEntregaCreateOrConnectWithoutVueltaInput = {
+    where: AkuoEntregaWhereUniqueInput
+    create: XOR<AkuoEntregaCreateWithoutVueltaInput, AkuoEntregaUncheckedCreateWithoutVueltaInput>
+  }
+
+  export type AkuoEntregaCreateManyVueltaInputEnvelope = {
+    data: AkuoEntregaCreateManyVueltaInput | AkuoEntregaCreateManyVueltaInput[]
+  }
+
+  export type AkuoGastoCreateWithoutVueltaInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    transportista: AkuoUsuarioCreateNestedOneWithoutGastosInput
+  }
+
+  export type AkuoGastoUncheckedCreateWithoutVueltaInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    transportistaId: string
+  }
+
+  export type AkuoGastoCreateOrConnectWithoutVueltaInput = {
+    where: AkuoGastoWhereUniqueInput
+    create: XOR<AkuoGastoCreateWithoutVueltaInput, AkuoGastoUncheckedCreateWithoutVueltaInput>
+  }
+
+  export type AkuoGastoCreateManyVueltaInputEnvelope = {
+    data: AkuoGastoCreateManyVueltaInput | AkuoGastoCreateManyVueltaInput[]
+  }
+
+  export type AkuoUsuarioUpsertWithoutVueltasInput = {
+    update: XOR<AkuoUsuarioUpdateWithoutVueltasInput, AkuoUsuarioUncheckedUpdateWithoutVueltasInput>
+    create: XOR<AkuoUsuarioCreateWithoutVueltasInput, AkuoUsuarioUncheckedCreateWithoutVueltasInput>
+    where?: AkuoUsuarioWhereInput
+  }
+
+  export type AkuoUsuarioUpdateToOneWithWhereWithoutVueltasInput = {
+    where?: AkuoUsuarioWhereInput
+    data: XOR<AkuoUsuarioUpdateWithoutVueltasInput, AkuoUsuarioUncheckedUpdateWithoutVueltasInput>
+  }
+
+  export type AkuoUsuarioUpdateWithoutVueltasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rol?: StringFieldUpdateOperationsInput | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    aprobado?: BoolFieldUpdateOperationsInput | boolean
+    banned?: BoolFieldUpdateOperationsInput | boolean
+    banRazon?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
+    direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
+    patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    suscripcionActiva?: BoolFieldUpdateOperationsInput | boolean
+    suscripcionInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
+    choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
+    sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
+    pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
+    entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
+    vehiculos?: AkuoVehiculoUpdateManyWithoutTransportistaNestedInput
+    clientes?: AkuoClienteUpdateManyWithoutTransportistaNestedInput
+    pagos?: AkuoPagoUpdateManyWithoutTransportistaNestedInput
+    valoracionesRecibidas?: AkuoValoracionUpdateManyWithoutTransportistaNestedInput
+    notificaciones?: AkuoNotificacionUpdateManyWithoutUsuarioNestedInput
+    auditLogs?: AkuoAuditLogUpdateManyWithoutSuperadminNestedInput
+    suscripciones?: AkuoSuscripcionUpdateManyWithoutTransportistaNestedInput
+    conversacionesCliente?: AkuoConversacionUpdateManyWithoutClienteNestedInput
+    conversacionesTransportista?: AkuoConversacionUpdateManyWithoutTransportistaNestedInput
+    mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
+    pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
+  }
+
+  export type AkuoUsuarioUncheckedUpdateWithoutVueltasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rol?: StringFieldUpdateOperationsInput | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    aprobado?: BoolFieldUpdateOperationsInput | boolean
+    banned?: BoolFieldUpdateOperationsInput | boolean
+    banRazon?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
+    direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
+    patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    suscripcionActiva?: BoolFieldUpdateOperationsInput | boolean
+    suscripcionInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
+    choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
+    pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
+    entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
+    vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
+    clientes?: AkuoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    pagos?: AkuoPagoUncheckedUpdateManyWithoutTransportistaNestedInput
+    valoracionesRecibidas?: AkuoValoracionUncheckedUpdateManyWithoutTransportistaNestedInput
+    notificaciones?: AkuoNotificacionUncheckedUpdateManyWithoutUsuarioNestedInput
+    auditLogs?: AkuoAuditLogUncheckedUpdateManyWithoutSuperadminNestedInput
+    suscripciones?: AkuoSuscripcionUncheckedUpdateManyWithoutTransportistaNestedInput
+    conversacionesCliente?: AkuoConversacionUncheckedUpdateManyWithoutClienteNestedInput
+    conversacionesTransportista?: AkuoConversacionUncheckedUpdateManyWithoutTransportistaNestedInput
+    mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+    pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
+  }
+
+  export type AkuoVehiculoUpsertWithoutVueltasInput = {
+    update: XOR<AkuoVehiculoUpdateWithoutVueltasInput, AkuoVehiculoUncheckedUpdateWithoutVueltasInput>
+    create: XOR<AkuoVehiculoCreateWithoutVueltasInput, AkuoVehiculoUncheckedCreateWithoutVueltasInput>
+    where?: AkuoVehiculoWhereInput
+  }
+
+  export type AkuoVehiculoUpdateToOneWithWhereWithoutVueltasInput = {
+    where?: AkuoVehiculoWhereInput
+    data: XOR<AkuoVehiculoUpdateWithoutVueltasInput, AkuoVehiculoUncheckedUpdateWithoutVueltasInput>
+  }
+
+  export type AkuoVehiculoUpdateWithoutVueltasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    patente?: StringFieldUpdateOperationsInput | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    capacidadLitros?: IntFieldUpdateOperationsInput | number
+    marca?: NullableStringFieldUpdateOperationsInput | string | null
+    modelo?: NullableStringFieldUpdateOperationsInput | string | null
+    año?: NullableIntFieldUpdateOperationsInput | number | null
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    transportista?: AkuoUsuarioUpdateOneRequiredWithoutVehiculosNestedInput
+    entregas?: AkuoEntregaUpdateManyWithoutVehiculoNestedInput
+  }
+
+  export type AkuoVehiculoUncheckedUpdateWithoutVueltasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    patente?: StringFieldUpdateOperationsInput | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    capacidadLitros?: IntFieldUpdateOperationsInput | number
+    marca?: NullableStringFieldUpdateOperationsInput | string | null
+    modelo?: NullableStringFieldUpdateOperationsInput | string | null
+    año?: NullableIntFieldUpdateOperationsInput | number | null
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    entregas?: AkuoEntregaUncheckedUpdateManyWithoutVehiculoNestedInput
+  }
+
+  export type AkuoEntregaUpsertWithWhereUniqueWithoutVueltaInput = {
+    where: AkuoEntregaWhereUniqueInput
+    update: XOR<AkuoEntregaUpdateWithoutVueltaInput, AkuoEntregaUncheckedUpdateWithoutVueltaInput>
+    create: XOR<AkuoEntregaCreateWithoutVueltaInput, AkuoEntregaUncheckedCreateWithoutVueltaInput>
+  }
+
+  export type AkuoEntregaUpdateWithWhereUniqueWithoutVueltaInput = {
+    where: AkuoEntregaWhereUniqueInput
+    data: XOR<AkuoEntregaUpdateWithoutVueltaInput, AkuoEntregaUncheckedUpdateWithoutVueltaInput>
+  }
+
+  export type AkuoEntregaUpdateManyWithWhereWithoutVueltaInput = {
+    where: AkuoEntregaScalarWhereInput
+    data: XOR<AkuoEntregaUpdateManyMutationInput, AkuoEntregaUncheckedUpdateManyWithoutVueltaInput>
+  }
+
+  export type AkuoGastoUpsertWithWhereUniqueWithoutVueltaInput = {
+    where: AkuoGastoWhereUniqueInput
+    update: XOR<AkuoGastoUpdateWithoutVueltaInput, AkuoGastoUncheckedUpdateWithoutVueltaInput>
+    create: XOR<AkuoGastoCreateWithoutVueltaInput, AkuoGastoUncheckedCreateWithoutVueltaInput>
+  }
+
+  export type AkuoGastoUpdateWithWhereUniqueWithoutVueltaInput = {
+    where: AkuoGastoWhereUniqueInput
+    data: XOR<AkuoGastoUpdateWithoutVueltaInput, AkuoGastoUncheckedUpdateWithoutVueltaInput>
+  }
+
+  export type AkuoGastoUpdateManyWithWhereWithoutVueltaInput = {
+    where: AkuoGastoScalarWhereInput
+    data: XOR<AkuoGastoUpdateManyMutationInput, AkuoGastoUncheckedUpdateManyWithoutVueltaInput>
+  }
+
+  export type AkuoUsuarioCreateWithoutGastosInput = {
+    id?: string
+    email: string
+    nombre: string
+    telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
+    saldo?: number
+    passwordHash?: string | null
+    avatarUrl?: string | null
+    rol?: string
+    activo?: boolean
+    aprobado?: boolean
+    banned?: boolean
+    banRazon?: string | null
+    creadoEn?: Date | string
+    ultimoLoginEn?: Date | string | null
+    googleId?: string | null
+    facebookId?: string | null
+    rutEmpresa?: string | null
+    razonSocial?: string | null
+    direccionEmpresa?: string | null
+    capacidadVehiculoKg?: number | null
+    patenteVehiculo?: string | null
+    tipoVehiculo?: string | null
+    licenciaConducirUrl?: string | null
+    permisoCircUrl?: string | null
+    seguroUrl?: string | null
+    areasCobertura?: string | null
+    descripcion?: string | null
+    plan?: string
+    suscripcionActiva?: boolean
+    suscripcionInicio?: Date | string | null
+    suscripcionFin?: Date | string | null
+    vehiculosPermitidos?: number
+    choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
+    zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
+    sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
+    pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
+    entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
+    vehiculos?: AkuoVehiculoCreateNestedManyWithoutTransportistaInput
+    clientes?: AkuoClienteCreateNestedManyWithoutTransportistaInput
+    pagos?: AkuoPagoCreateNestedManyWithoutTransportistaInput
+    valoracionesRecibidas?: AkuoValoracionCreateNestedManyWithoutTransportistaInput
+    notificaciones?: AkuoNotificacionCreateNestedManyWithoutUsuarioInput
+    auditLogs?: AkuoAuditLogCreateNestedManyWithoutSuperadminInput
+    suscripciones?: AkuoSuscripcionCreateNestedManyWithoutTransportistaInput
+    conversacionesCliente?: AkuoConversacionCreateNestedManyWithoutClienteInput
+    conversacionesTransportista?: AkuoConversacionCreateNestedManyWithoutTransportistaInput
+    mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
+    pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
+    pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+  }
+
+  export type AkuoUsuarioUncheckedCreateWithoutGastosInput = {
+    id?: string
+    email: string
+    nombre: string
+    telefono?: string | null
+    direccion?: string | null
+    comuna?: string | null
+    lat?: number | null
+    lng?: number | null
+    rut?: string | null
+    indicacionesAcceso?: string | null
+    requiereClientePresente?: boolean
+    usoAgua?: string
+    saldo?: number
+    zonaId?: string | null
+    passwordHash?: string | null
+    avatarUrl?: string | null
+    rol?: string
+    activo?: boolean
+    aprobado?: boolean
+    banned?: boolean
+    banRazon?: string | null
+    creadoEn?: Date | string
+    ultimoLoginEn?: Date | string | null
+    googleId?: string | null
+    facebookId?: string | null
+    rutEmpresa?: string | null
+    razonSocial?: string | null
+    direccionEmpresa?: string | null
+    capacidadVehiculoKg?: number | null
+    patenteVehiculo?: string | null
+    tipoVehiculo?: string | null
+    licenciaConducirUrl?: string | null
+    permisoCircUrl?: string | null
+    seguroUrl?: string | null
+    areasCobertura?: string | null
+    descripcion?: string | null
+    plan?: string
+    suscripcionActiva?: boolean
+    suscripcionInicio?: Date | string | null
+    suscripcionFin?: Date | string | null
+    vehiculosPermitidos?: number
+    choferesPermitidos?: number
+    mpUserId?: string | null
+    mpAccessToken?: string | null
+    mpRefreshToken?: string | null
+    mpTokenExpiresAt?: Date | string | null
+    mpConnectedAt?: Date | string | null
+    sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
+    pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
+    entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
+    vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
+    clientes?: AkuoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    pagos?: AkuoPagoUncheckedCreateNestedManyWithoutTransportistaInput
+    valoracionesRecibidas?: AkuoValoracionUncheckedCreateNestedManyWithoutTransportistaInput
+    notificaciones?: AkuoNotificacionUncheckedCreateNestedManyWithoutUsuarioInput
+    auditLogs?: AkuoAuditLogUncheckedCreateNestedManyWithoutSuperadminInput
+    suscripciones?: AkuoSuscripcionUncheckedCreateNestedManyWithoutTransportistaInput
+    conversacionesCliente?: AkuoConversacionUncheckedCreateNestedManyWithoutClienteInput
+    conversacionesTransportista?: AkuoConversacionUncheckedCreateNestedManyWithoutTransportistaInput
+    mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
+    pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+  }
+
+  export type AkuoUsuarioCreateOrConnectWithoutGastosInput = {
+    where: AkuoUsuarioWhereUniqueInput
+    create: XOR<AkuoUsuarioCreateWithoutGastosInput, AkuoUsuarioUncheckedCreateWithoutGastosInput>
+  }
+
+  export type AkuoVueltaCreateWithoutGastosInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportista: AkuoUsuarioCreateNestedOneWithoutVueltasInput
+    vehiculo?: AkuoVehiculoCreateNestedOneWithoutVueltasInput
+    entregas?: AkuoEntregaCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaUncheckedCreateWithoutGastosInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportistaId: string
+    vehiculoId?: string | null
+    entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVueltaInput
+  }
+
+  export type AkuoVueltaCreateOrConnectWithoutGastosInput = {
+    where: AkuoVueltaWhereUniqueInput
+    create: XOR<AkuoVueltaCreateWithoutGastosInput, AkuoVueltaUncheckedCreateWithoutGastosInput>
+  }
+
+  export type AkuoUsuarioUpsertWithoutGastosInput = {
+    update: XOR<AkuoUsuarioUpdateWithoutGastosInput, AkuoUsuarioUncheckedUpdateWithoutGastosInput>
+    create: XOR<AkuoUsuarioCreateWithoutGastosInput, AkuoUsuarioUncheckedCreateWithoutGastosInput>
+    where?: AkuoUsuarioWhereInput
+  }
+
+  export type AkuoUsuarioUpdateToOneWithWhereWithoutGastosInput = {
+    where?: AkuoUsuarioWhereInput
+    data: XOR<AkuoUsuarioUpdateWithoutGastosInput, AkuoUsuarioUncheckedUpdateWithoutGastosInput>
+  }
+
+  export type AkuoUsuarioUpdateWithoutGastosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rol?: StringFieldUpdateOperationsInput | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    aprobado?: BoolFieldUpdateOperationsInput | boolean
+    banned?: BoolFieldUpdateOperationsInput | boolean
+    banRazon?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
+    direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
+    patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    suscripcionActiva?: BoolFieldUpdateOperationsInput | boolean
+    suscripcionInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
+    choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
+    sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
+    pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
+    entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
+    vehiculos?: AkuoVehiculoUpdateManyWithoutTransportistaNestedInput
+    clientes?: AkuoClienteUpdateManyWithoutTransportistaNestedInput
+    pagos?: AkuoPagoUpdateManyWithoutTransportistaNestedInput
+    valoracionesRecibidas?: AkuoValoracionUpdateManyWithoutTransportistaNestedInput
+    notificaciones?: AkuoNotificacionUpdateManyWithoutUsuarioNestedInput
+    auditLogs?: AkuoAuditLogUpdateManyWithoutSuperadminNestedInput
+    suscripciones?: AkuoSuscripcionUpdateManyWithoutTransportistaNestedInput
+    conversacionesCliente?: AkuoConversacionUpdateManyWithoutClienteNestedInput
+    conversacionesTransportista?: AkuoConversacionUpdateManyWithoutTransportistaNestedInput
+    mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
+    pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+  }
+
+  export type AkuoUsuarioUncheckedUpdateWithoutGastosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    telefono?: NullableStringFieldUpdateOperationsInput | string | null
+    direccion?: NullableStringFieldUpdateOperationsInput | string | null
+    comuna?: NullableStringFieldUpdateOperationsInput | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    lng?: NullableFloatFieldUpdateOperationsInput | number | null
+    rut?: NullableStringFieldUpdateOperationsInput | string | null
+    indicacionesAcceso?: NullableStringFieldUpdateOperationsInput | string | null
+    requiereClientePresente?: BoolFieldUpdateOperationsInput | boolean
+    usoAgua?: StringFieldUpdateOperationsInput | string
+    saldo?: FloatFieldUpdateOperationsInput | number
+    zonaId?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    rol?: StringFieldUpdateOperationsInput | string
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    aprobado?: BoolFieldUpdateOperationsInput | boolean
+    banned?: BoolFieldUpdateOperationsInput | boolean
+    banRazon?: NullableStringFieldUpdateOperationsInput | string | null
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    googleId?: NullableStringFieldUpdateOperationsInput | string | null
+    facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
+    direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
+    patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    suscripcionActiva?: BoolFieldUpdateOperationsInput | boolean
+    suscripcionInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
+    choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
+    pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
+    entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
+    vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
+    clientes?: AkuoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    pagos?: AkuoPagoUncheckedUpdateManyWithoutTransportistaNestedInput
+    valoracionesRecibidas?: AkuoValoracionUncheckedUpdateManyWithoutTransportistaNestedInput
+    notificaciones?: AkuoNotificacionUncheckedUpdateManyWithoutUsuarioNestedInput
+    auditLogs?: AkuoAuditLogUncheckedUpdateManyWithoutSuperadminNestedInput
+    suscripciones?: AkuoSuscripcionUncheckedUpdateManyWithoutTransportistaNestedInput
+    conversacionesCliente?: AkuoConversacionUncheckedUpdateManyWithoutClienteNestedInput
+    conversacionesTransportista?: AkuoConversacionUncheckedUpdateManyWithoutTransportistaNestedInput
+    mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+    pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
+    pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+  }
+
+  export type AkuoVueltaUpsertWithoutGastosInput = {
+    update: XOR<AkuoVueltaUpdateWithoutGastosInput, AkuoVueltaUncheckedUpdateWithoutGastosInput>
+    create: XOR<AkuoVueltaCreateWithoutGastosInput, AkuoVueltaUncheckedCreateWithoutGastosInput>
+    where?: AkuoVueltaWhereInput
+  }
+
+  export type AkuoVueltaUpdateToOneWithWhereWithoutGastosInput = {
+    where?: AkuoVueltaWhereInput
+    data: XOR<AkuoVueltaUpdateWithoutGastosInput, AkuoVueltaUncheckedUpdateWithoutGastosInput>
+  }
+
+  export type AkuoVueltaUpdateWithoutGastosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportista?: AkuoUsuarioUpdateOneRequiredWithoutVueltasNestedInput
+    vehiculo?: AkuoVehiculoUpdateOneWithoutVueltasNestedInput
+    entregas?: AkuoEntregaUpdateManyWithoutVueltaNestedInput
+  }
+
+  export type AkuoVueltaUncheckedUpdateWithoutGastosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    entregas?: AkuoEntregaUncheckedUpdateManyWithoutVueltaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutPagosInput = {
@@ -34010,6 +38731,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutPagosInput = {
@@ -34074,6 +38797,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutPagosInput = {
@@ -34154,6 +38879,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutPagosInput = {
@@ -34218,6 +38945,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutSuscripcionesInput = {
@@ -34282,6 +39011,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutSuscripcionesInput = {
@@ -34346,6 +39077,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutSuscripcionesInput = {
@@ -34426,6 +39159,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutSuscripcionesInput = {
@@ -34490,6 +39225,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutValoracionesRecibidasInput = {
@@ -34554,6 +39291,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutValoracionesRecibidasInput = {
@@ -34618,6 +39357,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutValoracionesRecibidasInput = {
@@ -34698,6 +39439,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutValoracionesRecibidasInput = {
@@ -34762,6 +39505,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutNotificacionesInput = {
@@ -34826,6 +39571,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutNotificacionesInput = {
@@ -34890,6 +39637,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutNotificacionesInput = {
@@ -34970,6 +39719,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutNotificacionesInput = {
@@ -35034,6 +39785,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutAuditLogsInput = {
@@ -35098,6 +39851,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutAuditLogsInput = {
@@ -35162,6 +39917,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutAuditLogsInput = {
@@ -35242,6 +39999,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutAuditLogsInput = {
@@ -35306,6 +40065,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutZonaInput = {
@@ -35370,6 +40131,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutZonaInput = {
@@ -35434,6 +40197,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutZonaInput = {
@@ -35576,6 +40341,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutConversacionesClienteInput = {
@@ -35640,6 +40407,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutConversacionesClienteInput = {
@@ -35709,6 +40478,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutConversacionesTransportistaInput = {
@@ -35773,6 +40544,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutConversacionesTransportistaInput = {
@@ -35878,6 +40651,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutConversacionesClienteInput = {
@@ -35942,6 +40717,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUpsertWithoutConversacionesTransportistaInput = {
@@ -36017,6 +40794,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutConversacionesTransportistaInput = {
@@ -36081,6 +40860,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoMensajeUpsertWithWhereUniqueWithoutConversacionInput = {
@@ -36182,6 +40963,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionCreateNestedManyWithoutTransportistaInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutMensajesEnviadosInput = {
@@ -36246,6 +41029,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUncheckedCreateNestedManyWithoutTransportistaInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutMensajesEnviadosInput = {
@@ -36353,6 +41138,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUpdateManyWithoutTransportistaNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutMensajesEnviadosInput = {
@@ -36417,6 +41204,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUncheckedUpdateManyWithoutTransportistaNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutPedidosClienteAppInput = {
@@ -36481,6 +41270,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionCreateNestedManyWithoutTransportistaInput
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosTransportistaApp?: AkuoPedidoClienteCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutPedidosClienteAppInput = {
@@ -36545,6 +41336,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUncheckedCreateNestedManyWithoutTransportistaInput
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutTransportistaInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutPedidosClienteAppInput = {
@@ -36614,6 +41407,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionCreateNestedManyWithoutTransportistaInput
     mensajesEnviados?: AkuoMensajeCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteCreateNestedManyWithoutClienteInput
+    vueltas?: AkuoVueltaCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioUncheckedCreateWithoutPedidosTransportistaAppInput = {
@@ -36678,6 +41473,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUncheckedCreateNestedManyWithoutTransportistaInput
     mensajesEnviados?: AkuoMensajeUncheckedCreateNestedManyWithoutRemitenteInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedCreateNestedManyWithoutClienteInput
+    vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutTransportistaInput
+    gastos?: AkuoGastoUncheckedCreateNestedManyWithoutTransportistaInput
   }
 
   export type AkuoUsuarioCreateOrConnectWithoutPedidosTransportistaAppInput = {
@@ -36758,6 +41555,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUpdateManyWithoutTransportistaNestedInput
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutPedidosClienteAppInput = {
@@ -36822,6 +41621,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUncheckedUpdateManyWithoutTransportistaNestedInput
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUpsertWithoutPedidosTransportistaAppInput = {
@@ -36897,6 +41698,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUpdateManyWithoutTransportistaNestedInput
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutPedidosTransportistaAppInput = {
@@ -36961,6 +41764,8 @@ export namespace Prisma {
     conversacionesTransportista?: AkuoConversacionUncheckedUpdateManyWithoutTransportistaNestedInput
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoSesionCreateManyUsuarioInput = {
@@ -37001,6 +41806,7 @@ export namespace Prisma {
     clienteLat?: number | null
     clienteLng?: number | null
     vehiculoId?: string | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -37182,6 +41988,27 @@ export namespace Prisma {
     estadoPago?: string
   }
 
+  export type AkuoVueltaCreateManyTransportistaInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    vehiculoId?: string | null
+  }
+
+  export type AkuoGastoCreateManyTransportistaInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    vueltaId?: string | null
+  }
+
   export type AkuoSesionUpdateWithoutUsuarioInput = {
     id?: StringFieldUpdateOperationsInput | string
     token?: StringFieldUpdateOperationsInput | string
@@ -37288,6 +42115,7 @@ export namespace Prisma {
     lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
     cliente?: AkuoClienteUpdateOneWithoutEntregasNestedInput
     vehiculo?: AkuoVehiculoUpdateOneWithoutEntregasNestedInput
+    vuelta?: AkuoVueltaUpdateOneWithoutEntregasNestedInput
     pedido?: AkuoPedidoUpdateOneWithoutEntregaNestedInput
   }
 
@@ -37302,6 +42130,7 @@ export namespace Prisma {
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
     vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -37330,6 +42159,7 @@ export namespace Prisma {
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
     vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -37361,6 +42191,7 @@ export namespace Prisma {
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     entregas?: AkuoEntregaUpdateManyWithoutVehiculoNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutVehiculoNestedInput
   }
 
   export type AkuoVehiculoUncheckedUpdateWithoutTransportistaInput = {
@@ -37378,6 +42209,7 @@ export namespace Prisma {
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     entregas?: AkuoEntregaUncheckedUpdateManyWithoutVehiculoNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutVehiculoNestedInput
   }
 
   export type AkuoVehiculoUncheckedUpdateManyWithoutTransportistaInput = {
@@ -37851,6 +42683,73 @@ export namespace Prisma {
     estadoPago?: StringFieldUpdateOperationsInput | string
   }
 
+  export type AkuoVueltaUpdateWithoutTransportistaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    vehiculo?: AkuoVehiculoUpdateOneWithoutVueltasNestedInput
+    entregas?: AkuoEntregaUpdateManyWithoutVueltaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutVueltaNestedInput
+  }
+
+  export type AkuoVueltaUncheckedUpdateWithoutTransportistaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    entregas?: AkuoEntregaUncheckedUpdateManyWithoutVueltaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutVueltaNestedInput
+  }
+
+  export type AkuoVueltaUncheckedUpdateManyWithoutTransportistaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoGastoUpdateWithoutTransportistaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    vuelta?: AkuoVueltaUpdateOneWithoutGastosNestedInput
+  }
+
+  export type AkuoGastoUncheckedUpdateWithoutTransportistaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoGastoUncheckedUpdateManyWithoutTransportistaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type AkuoEntregaCreateManyVehiculoInput = {
     id?: string
     creadoEn?: Date | string
@@ -37862,6 +42761,7 @@ export namespace Prisma {
     clienteZona?: string | null
     clienteLat?: number | null
     clienteLng?: number | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -37876,6 +42776,17 @@ export namespace Prisma {
     detalleEstanquesJson?: string | null
     lecturaAnterior?: number | null
     lecturaActual?: number | null
+  }
+
+  export type AkuoVueltaCreateManyVehiculoInput = {
+    id?: string
+    numero: number
+    iniciadaEn?: Date | string
+    cerradaEn?: Date | string | null
+    nota?: string | null
+    activa?: boolean
+    validadaManualmente?: boolean | null
+    transportistaId: string
   }
 
   export type AkuoEntregaUpdateWithoutVehiculoInput = {
@@ -37903,6 +42814,7 @@ export namespace Prisma {
     lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutEntregasHechasNestedInput
     cliente?: AkuoClienteUpdateOneWithoutEntregasNestedInput
+    vuelta?: AkuoVueltaUpdateOneWithoutEntregasNestedInput
     pedido?: AkuoPedidoUpdateOneWithoutEntregaNestedInput
   }
 
@@ -37917,6 +42829,7 @@ export namespace Prisma {
     clienteZona?: NullableStringFieldUpdateOperationsInput | string | null
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -37945,6 +42858,7 @@ export namespace Prisma {
     clienteZona?: NullableStringFieldUpdateOperationsInput | string | null
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -37959,6 +42873,43 @@ export namespace Prisma {
     detalleEstanquesJson?: NullableStringFieldUpdateOperationsInput | string | null
     lecturaAnterior?: NullableFloatFieldUpdateOperationsInput | number | null
     lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type AkuoVueltaUpdateWithoutVehiculoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportista?: AkuoUsuarioUpdateOneRequiredWithoutVueltasNestedInput
+    entregas?: AkuoEntregaUpdateManyWithoutVueltaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutVueltaNestedInput
+  }
+
+  export type AkuoVueltaUncheckedUpdateWithoutVehiculoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    entregas?: AkuoEntregaUncheckedUpdateManyWithoutVueltaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutVueltaNestedInput
+  }
+
+  export type AkuoVueltaUncheckedUpdateManyWithoutVehiculoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: IntFieldUpdateOperationsInput | number
+    iniciadaEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cerradaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    validadaManualmente?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    transportistaId?: StringFieldUpdateOperationsInput | string
   }
 
   export type AkuoPedidoCreateManyClienteInput = {
@@ -37990,6 +42941,7 @@ export namespace Prisma {
     clienteLat?: number | null
     clienteLng?: number | null
     vehiculoId?: string | null
+    vueltaId?: string | null
     litros: number
     total: number
     montoEfectivo?: number
@@ -38085,6 +43037,7 @@ export namespace Prisma {
     lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutEntregasHechasNestedInput
     vehiculo?: AkuoVehiculoUpdateOneWithoutEntregasNestedInput
+    vuelta?: AkuoVueltaUpdateOneWithoutEntregasNestedInput
     pedido?: AkuoPedidoUpdateOneWithoutEntregaNestedInput
   }
 
@@ -38099,6 +43052,7 @@ export namespace Prisma {
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
     vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -38127,6 +43081,7 @@ export namespace Prisma {
     clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
     clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
     vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    vueltaId?: NullableStringFieldUpdateOperationsInput | string | null
     litros?: FloatFieldUpdateOperationsInput | number
     total?: FloatFieldUpdateOperationsInput | number
     montoEfectivo?: FloatFieldUpdateOperationsInput | number
@@ -38141,6 +43096,160 @@ export namespace Prisma {
     detalleEstanquesJson?: NullableStringFieldUpdateOperationsInput | string | null
     lecturaAnterior?: NullableFloatFieldUpdateOperationsInput | number | null
     lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type AkuoEntregaCreateManyVueltaInput = {
+    id?: string
+    creadoEn?: Date | string
+    transportistaId: string
+    clienteId?: string | null
+    clienteNombre: string
+    clienteDireccion?: string | null
+    clienteTelefono?: string | null
+    clienteZona?: string | null
+    clienteLat?: number | null
+    clienteLng?: number | null
+    vehiculoId?: string | null
+    litros: number
+    total: number
+    montoEfectivo?: number
+    montoTransferencia?: number
+    montoRecibido?: number
+    metodoPago?: string
+    estadoPago?: string
+    descuento?: number
+    descuentoPor?: string | null
+    fotoMedidorUrl?: string | null
+    nota?: string | null
+    detalleEstanquesJson?: string | null
+    lecturaAnterior?: number | null
+    lecturaActual?: number | null
+  }
+
+  export type AkuoGastoCreateManyVueltaInput = {
+    id?: string
+    fecha?: Date | string
+    tipo: string
+    monto: number
+    descripcion?: string | null
+    metodoPago?: string
+    transportistaId: string
+  }
+
+  export type AkuoEntregaUpdateWithoutVueltaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    clienteNombre?: StringFieldUpdateOperationsInput | string
+    clienteDireccion?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteTelefono?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteZona?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    litros?: FloatFieldUpdateOperationsInput | number
+    total?: FloatFieldUpdateOperationsInput | number
+    montoEfectivo?: FloatFieldUpdateOperationsInput | number
+    montoTransferencia?: FloatFieldUpdateOperationsInput | number
+    montoRecibido?: FloatFieldUpdateOperationsInput | number
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    estadoPago?: StringFieldUpdateOperationsInput | string
+    descuento?: FloatFieldUpdateOperationsInput | number
+    descuentoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoMedidorUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    detalleEstanquesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    lecturaAnterior?: NullableFloatFieldUpdateOperationsInput | number | null
+    lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
+    transportista?: AkuoUsuarioUpdateOneRequiredWithoutEntregasHechasNestedInput
+    cliente?: AkuoClienteUpdateOneWithoutEntregasNestedInput
+    vehiculo?: AkuoVehiculoUpdateOneWithoutEntregasNestedInput
+    pedido?: AkuoPedidoUpdateOneWithoutEntregaNestedInput
+  }
+
+  export type AkuoEntregaUncheckedUpdateWithoutVueltaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    clienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteNombre?: StringFieldUpdateOperationsInput | string
+    clienteDireccion?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteTelefono?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteZona?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    litros?: FloatFieldUpdateOperationsInput | number
+    total?: FloatFieldUpdateOperationsInput | number
+    montoEfectivo?: FloatFieldUpdateOperationsInput | number
+    montoTransferencia?: FloatFieldUpdateOperationsInput | number
+    montoRecibido?: FloatFieldUpdateOperationsInput | number
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    estadoPago?: StringFieldUpdateOperationsInput | string
+    descuento?: FloatFieldUpdateOperationsInput | number
+    descuentoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoMedidorUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    detalleEstanquesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    lecturaAnterior?: NullableFloatFieldUpdateOperationsInput | number | null
+    lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
+    pedido?: AkuoPedidoUncheckedUpdateOneWithoutEntregaNestedInput
+  }
+
+  export type AkuoEntregaUncheckedUpdateManyWithoutVueltaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    transportistaId?: StringFieldUpdateOperationsInput | string
+    clienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteNombre?: StringFieldUpdateOperationsInput | string
+    clienteDireccion?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteTelefono?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteZona?: NullableStringFieldUpdateOperationsInput | string | null
+    clienteLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    clienteLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    vehiculoId?: NullableStringFieldUpdateOperationsInput | string | null
+    litros?: FloatFieldUpdateOperationsInput | number
+    total?: FloatFieldUpdateOperationsInput | number
+    montoEfectivo?: FloatFieldUpdateOperationsInput | number
+    montoTransferencia?: FloatFieldUpdateOperationsInput | number
+    montoRecibido?: FloatFieldUpdateOperationsInput | number
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    estadoPago?: StringFieldUpdateOperationsInput | string
+    descuento?: FloatFieldUpdateOperationsInput | number
+    descuentoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoMedidorUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    detalleEstanquesJson?: NullableStringFieldUpdateOperationsInput | string | null
+    lecturaAnterior?: NullableFloatFieldUpdateOperationsInput | number | null
+    lecturaActual?: NullableFloatFieldUpdateOperationsInput | number | null
+  }
+
+  export type AkuoGastoUpdateWithoutVueltaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    transportista?: AkuoUsuarioUpdateOneRequiredWithoutGastosNestedInput
+  }
+
+  export type AkuoGastoUncheckedUpdateWithoutVueltaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    transportistaId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AkuoGastoUncheckedUpdateManyWithoutVueltaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fecha?: DateTimeFieldUpdateOperationsInput | Date | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    monto?: FloatFieldUpdateOperationsInput | number
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    metodoPago?: StringFieldUpdateOperationsInput | string
+    transportistaId?: StringFieldUpdateOperationsInput | string
   }
 
   export type AkuoUsuarioCreateManyZonaInput = {
@@ -38254,6 +43363,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateWithoutZonaInput = {
@@ -38318,6 +43429,8 @@ export namespace Prisma {
     mensajesEnviados?: AkuoMensajeUncheckedUpdateManyWithoutRemitenteNestedInput
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     pedidosTransportistaApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaNestedInput
+    vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
+    gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
   }
 
   export type AkuoUsuarioUncheckedUpdateManyWithoutZonaInput = {

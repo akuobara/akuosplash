@@ -256,6 +256,7 @@ exports.Prisma.AkuoEntregaScalarFieldEnum = {
   clienteLat: 'clienteLat',
   clienteLng: 'clienteLng',
   vehiculoId: 'vehiculoId',
+  vueltaId: 'vueltaId',
   litros: 'litros',
   total: 'total',
   montoEfectivo: 'montoEfectivo',
@@ -270,6 +271,29 @@ exports.Prisma.AkuoEntregaScalarFieldEnum = {
   detalleEstanquesJson: 'detalleEstanquesJson',
   lecturaAnterior: 'lecturaAnterior',
   lecturaActual: 'lecturaActual'
+};
+
+exports.Prisma.AkuoVueltaScalarFieldEnum = {
+  id: 'id',
+  numero: 'numero',
+  iniciadaEn: 'iniciadaEn',
+  cerradaEn: 'cerradaEn',
+  nota: 'nota',
+  activa: 'activa',
+  validadaManualmente: 'validadaManualmente',
+  transportistaId: 'transportistaId',
+  vehiculoId: 'vehiculoId'
+};
+
+exports.Prisma.AkuoGastoScalarFieldEnum = {
+  id: 'id',
+  fecha: 'fecha',
+  tipo: 'tipo',
+  monto: 'monto',
+  descripcion: 'descripcion',
+  metodoPago: 'metodoPago',
+  transportistaId: 'transportistaId',
+  vueltaId: 'vueltaId'
 };
 
 exports.Prisma.AkuoPagoScalarFieldEnum = {
@@ -420,6 +444,8 @@ exports.Prisma.ModelName = {
   AkuoCliente: 'AkuoCliente',
   AkuoPedido: 'AkuoPedido',
   AkuoEntrega: 'AkuoEntrega',
+  AkuoVuelta: 'AkuoVuelta',
+  AkuoGasto: 'AkuoGasto',
   AkuoPago: 'AkuoPago',
   AkuoSuscripcion: 'AkuoSuscripcion',
   AkuoValoracion: 'AkuoValoracion',
