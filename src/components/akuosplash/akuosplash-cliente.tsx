@@ -108,9 +108,18 @@ export function AkuosplashCliente() {
               <p className="font-semibold text-sm leading-tight">{user.nombre}</p>
             </div>
           </Link>
-          <Button variant="ghost" size="sm" onClick={async () => { await akuoPost("/api/akuosplash/auth/logout"); router.push("/akuosplash"); }} className="text-gray-500">
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {user.rol === "superadmin" && (
+              <Link href="/akuosplash/superadmin">
+                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 text-white">
+                  <LayoutDashboard className="h-4 w-4 mr-1" /> Panel
+                </Button>
+              </Link>
+            )}
+            <Button variant="ghost" size="sm" onClick={async () => { await akuoPost("/api/akuosplash/auth/logout"); router.push("/akuosplash"); }} className="text-gray-500">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </header>
 

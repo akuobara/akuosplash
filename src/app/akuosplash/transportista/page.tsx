@@ -114,7 +114,13 @@ export default function TransportistaPage() {
             <div className="hidden sm:block"><p className="font-bold text-blue-600">AkuoSplash</p><p className="-mt-1 text-xs text-muted-foreground">Repartidor · {user.nombre}</p></div>
           </div>
           <div className="flex items-center gap-2">
-            {user.rol === "superadmin" && <Link href="/akuosplash/superadmin" className="text-xs text-violet-600 hover:underline">Volver a admin</Link>}
+            {user.rol === "superadmin" && (
+              <Link href="/akuosplash/superadmin">
+                <Button size="sm" className="bg-violet-600 hover:bg-violet-700 text-white">
+                  <LayoutDashboard className="h-4 w-4 mr-1" /> Panel admin
+                </Button>
+              </Link>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><Settings className="h-5 w-5" /></Button></DropdownMenuTrigger>
               <DropdownMenuContent align="end">
