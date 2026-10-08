@@ -220,7 +220,7 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
         seguroNumero: seguroNumero.trim() || null,
       };
       if (editando) {
-        await apiPatch(`/api/akuosplash/camiones/${editando.id}`, payload);
+        await apiPatch(`/api/akuosplash/vehiculos/${editando.id}`, payload);
         toast.success("Camión actualizado");
       } else {
         await apiPost("/api/akuosplash/vehiculos", payload);
@@ -237,7 +237,7 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
 
   async function handleBorrar(c: Camion) {
     try {
-      await apiDelete(`/api/akuosplash/camiones/${c.id}`);
+      await apiDelete(`/api/akuosplash/vehiculos/${c.id}`);
       toast.success("Camión eliminado");
       setBorrando(null);
       onRefresh();
@@ -256,10 +256,10 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
     try {
       await Promise.all([
         ...agregar.map((choferId) =>
-          apiPost(`/api/akuosplash/camiones/${asignando.id}/choferes`, { choferId })
+          apiPost(`/api/akuosplash/vehiculos/${asignando.id}/choferes`, { choferId })
         ),
         ...quitar.map((choferId) =>
-          apiDelete(`/api/akuosplash/camiones/${asignando.id}/choferes?choferId=${choferId}`)
+          apiDelete(`/api/akuosplash/vehiculos/${asignando.id}/choferes?choferId=${choferId}`)
         ),
       ]);
       toast.success("Choferes asignados");

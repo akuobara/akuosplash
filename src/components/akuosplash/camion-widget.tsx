@@ -140,7 +140,7 @@ export function CamionWidget({ camiones, isDueno, refreshKey }: CamionWidgetProp
     if (!camionActual) return;
     setCargandoBitacora(true);
     try {
-      const data = await apiGet<{ entradas: BitacoraEntrada[] }>(`/api/akuosplash/camiones/${camionActual.id}/bitacora`);
+      const data = await apiGet<{ entradas: BitacoraEntrada[] }>(`/api/akuosplash/vehiculos/${camionActual.id}/bitacora`);
       setBitacora(data.entradas);
     } catch (e) {
       console.error(e);
@@ -165,7 +165,7 @@ export function CamionWidget({ camiones, isDueno, refreshKey }: CamionWidgetProp
     }
     setSaving(true);
     try {
-      await apiPost(`/api/akuosplash/camiones/${camionActual.id}/bitacora`, {
+      await apiPost(`/api/akuosplash/vehiculos/${camionActual.id}/bitacora`, {
         tipo: tipoEntrada,
         severidad: severidadEntrada || null,
         descripcion: descripcionEntrada.trim(),
@@ -190,7 +190,7 @@ export function CamionWidget({ camiones, isDueno, refreshKey }: CamionWidgetProp
       return;
     }
     try {
-      await apiPatch(`/api/akuosplash/camiones/${camionActual.id}/bitacora?entradaId=${entrada.id}`, {
+      await apiPatch(`/api/akuosplash/vehiculos/${camionActual.id}/bitacora?entradaId=${entrada.id}`, {
         resuelta: !entrada.resuelta,
       });
       cargarBitacora();
