@@ -136,7 +136,7 @@ export default function TransportistaPage() {
       <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-6">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
           <TabsList className="flex w-full overflow-x-auto">
-            <TabsTrigger value="dashboard"><LayoutDashboard className="mr-1 h-4 w-4" /> Resumen</TabsTrigger>
+            <TabsTrigger value="dashboard"><LayoutDashboard className="mr-1 h-4 w-4" /> Panel</TabsTrigger>
             <TabsTrigger value="pedidos"><ClipboardList className="mr-1 h-4 w-4" /> Pedidos</TabsTrigger>
             <TabsTrigger value="entregas"><Droplets className="mr-1 h-4 w-4" /> Entregas</TabsTrigger>
             <TabsTrigger value="camiones"><Truck className="mr-1 h-4 w-4" /> Camiones</TabsTrigger>
