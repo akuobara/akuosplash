@@ -6,9 +6,10 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Loader2, LogOut, Users, Truck, MapPin, ShoppingBag, DollarSign,
-  Settings, ChevronRight, Bell, Check, X,
+  Settings, ChevronRight, Bell, Check, X, LayoutDashboard, Wallet,
 } from "lucide-react";
 import { akuoGet, akuoPost, akuoApi, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
@@ -40,6 +41,7 @@ export default function SuperadminPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [tab, setTab] = useState("panel");
 
   useEffect(() => {
     akuoGet<{ user: any }>("/api/akuosplash/auth/me").then(d => {
@@ -109,214 +111,228 @@ export default function SuperadminPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-md px-4 py-5 space-y-5">
-        <div>
+      <main className="mx-auto max-w-md px-4 py-5">
+        <div className="mb-4">
           <h1 className="text-2xl font-bold text-gray-900">Hola, {user.nombre}</h1>
           <p className="text-sm text-gray-500">Panel de administración</p>
         </div>
 
         {/* Cambiar de interfaz */}
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 px-1">Ver como</p>
-          <div className="grid grid-cols-2 gap-2">
-            <Link href="/akuosplash/cliente">
-              <Card className="border-gray-100 hover:border-blue-300 hover:bg-blue-50/50 transition cursor-pointer">
-                <CardContent className="p-3 flex flex-col items-center gap-1.5">
-                  <div className="rounded-lg bg-blue-500/10 p-2"><Users className="h-5 w-5 text-blue-600" /></div>
-                  <p className="font-medium text-sm">Cliente</p>
-                  <p className="text-[10px] text-gray-500 text-center">Pedir agua, ver historial</p>
-                </CardContent>
-              </Card>
-            </Link>
-            <Link href="/akuosplash/transportista">
-              <Card className="border-gray-100 hover:border-blue-300 hover:bg-blue-50/50 transition cursor-pointer">
-                <CardContent className="p-3 flex flex-col items-center gap-1.5">
-                  <div className="rounded-lg bg-emerald-500/10 p-2"><Truck className="h-5 w-5 text-emerald-600" /></div>
-                  <p className="font-medium text-sm">Repartidor</p>
-                  <p className="text-[10px] text-gray-500 text-center">Ver pedidos disponibles</p>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-        </div>
-
-        {/* Stats principales */}
-        <div className="grid grid-cols-2 gap-2">
-          <Card className="border-gray-100">
-            <CardContent className="p-3 flex items-center gap-2">
-              <div className="rounded-lg bg-blue-500/10 p-2"><Users className="h-4 w-4 text-blue-600" /></div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-gray-400">Clientes</p>
-                <p className="text-lg font-bold tabular-nums">{stats?.clientesCount ?? "—"}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-gray-100">
-            <CardContent className="p-3 flex items-center gap-2">
-              <div className="rounded-lg bg-emerald-500/10 p-2"><Truck className="h-4 w-4 text-emerald-600" /></div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-gray-400">Repartidores</p>
-                <p className="text-lg font-bold tabular-nums">{stats?.transportistasCount ?? "—"}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-gray-100">
-            <CardContent className="p-3 flex items-center gap-2">
-              <div className="rounded-lg bg-amber-500/10 p-2"><ShoppingBag className="h-4 w-4 text-amber-600" /></div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-gray-400">Pedidos</p>
-                <p className="text-lg font-bold tabular-nums">{stats?.pedidosCount ?? "—"}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-gray-100">
-            <CardContent className="p-3 flex items-center gap-2">
-              <div className="rounded-lg bg-purple-500/10 p-2"><DollarSign className="h-4 w-4 text-purple-600" /></div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-gray-400">Ingresos</p>
-                <p className="text-sm font-bold tabular-nums">{stats ? formatCLP(stats.ingresosTotal) : "—"}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Repartidores pendientes de aprobación — INLINE ACTIONS */}
-        {stats && stats.repartidoresPendientesLista && stats.repartidoresPendientesLista.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 px-1">
-              <Bell className="h-3.5 w-3.5 text-amber-500" />
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                Repartidores esperando aprobación
-              </h2>
-            </div>
-            {stats.repartidoresPendientesLista.map(u => (
-              <Card key={u.id} className="border-amber-200 bg-amber-50/50">
-                <CardContent className="p-3.5 space-y-2">
-                  <div>
-                    <p className="font-medium text-sm">{u.nombre}</p>
-                    <p className="text-xs text-gray-500">{u.email}</p>
-                    {u.telefono && <p className="text-xs text-gray-500">Tel: {u.telefono}</p>}
-                    {u.razonSocial && <p className="text-xs text-gray-500">Empresa: {u.razonSocial}</p>}
-                    <p className="text-[10px] text-gray-400 mt-0.5">Solicitud: {new Date(u.creadoEn).toLocaleDateString("es-CL")}</p>
-                  </div>
-                  <div className="flex gap-2 pt-2 border-t border-amber-200">
-                    <Button size="sm" onClick={() => aprobarRepartidor(u.id, u.nombre)} className="bg-emerald-600 hover:bg-emerald-700 flex-1">
-                      <Check className="h-4 w-4 mr-1" /> Aprobar
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => rechazarRepartidor(u.id, u.nombre)} className="text-red-600 border-red-300 hover:bg-red-50">
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Últimos pedidos */}
-        {stats && stats.ultimosPedidos && stats.ultimosPedidos.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Últimos pedidos</h2>
-              <Link href="/akuosplash/superadmin/pedidos" className="text-xs text-blue-600 hover:underline">Ver todos</Link>
-            </div>
-            {stats.ultimosPedidos.map(p => (
-              <Card key={p.id} className="border-gray-100">
-                <CardContent className="p-3 flex items-center justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-bold tabular-nums text-sm">{p.litros.toLocaleString("es-CL")} L</span>
-                      {p.precioTotal && <span className="text-xs text-gray-500">{formatCLP(p.precioTotal)}</span>}
-                    </div>
-                    <p className="text-xs text-gray-500 truncate">
-                      {p.cliente?.nombre} {p.transportista && `→ ${p.transportista.nombre}`}
-                    </p>
-                    <p className="text-[10px] text-gray-400">{new Date(p.creadoEn).toLocaleString("es-CL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</p>
-                  </div>
-                  <Badge variant="outline" className={ESTADO_LABELS[p.estado]?.color || "text-gray-500"}>{ESTADO_LABELS[p.estado]?.label || p.estado}</Badge>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Pedidos por estado */}
-        {stats && (
-          <Card className="border-gray-100">
-            <CardContent className="p-3 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Pedidos por estado</p>
-              <div className="space-y-1.5">
-                {Object.entries(ESTADO_LABELS).map(([estado, info]) => {
-                  const count = stats.pedidosPorEstado?.[estado] || 0;
-                  return (
-                    <div key={estado} className="flex items-center justify-between">
-                      <span className={`text-sm ${info.color}`}>{info.label}</span>
-                      <span className="font-bold tabular-nums">{count}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Accesos rápidos */}
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 px-1">Gestión</p>
-          <Link href="/akuosplash/superadmin/zonas">
-            <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
-              <CardContent className="p-3 flex items-center gap-3">
-                <div className="rounded-lg bg-blue-500/10 p-2"><MapPin className="h-5 w-5 text-blue-600" /></div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">Zonas de cobertura</p>
-                  <p className="text-xs text-gray-500">{stats?.zonasCount ?? 0} zonas activas</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </CardContent>
-            </Card>
-          </Link>
-          <Link href="/akuosplash/superadmin/transportistas">
-            <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
-              <CardContent className="p-3 flex items-center gap-3">
-                <div className="rounded-lg bg-blue-500/10 p-2"><Truck className="h-5 w-5 text-blue-600" /></div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">Repartidores</p>
-                  <p className="text-xs text-gray-500">{stats?.transportistasAprobados ?? 0} aprobados · {stats?.transportistasPendientes ?? 0} pendientes</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </CardContent>
-            </Card>
-          </Link>
-          <Link href="/akuosplash/superadmin/clientes">
-            <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
-              <CardContent className="p-3 flex items-center gap-3">
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Link href="/akuosplash/cliente">
+            <Card className="border-gray-100 hover:border-blue-300 hover:bg-blue-50/50 transition cursor-pointer">
+              <CardContent className="p-3 flex flex-col items-center gap-1.5">
                 <div className="rounded-lg bg-blue-500/10 p-2"><Users className="h-5 w-5 text-blue-600" /></div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">Clientes</p>
-                  <p className="text-xs text-gray-500">{stats?.clientesCount ?? 0} registrados</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
+                <p className="font-medium text-sm">Cliente</p>
+                <p className="text-[10px] text-gray-500 text-center">Pedir agua, ver historial</p>
               </CardContent>
             </Card>
           </Link>
-          <Link href="/akuosplash/superadmin/pedidos">
-            <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
-              <CardContent className="p-3 flex items-center gap-3">
-                <div className="rounded-lg bg-blue-500/10 p-2"><ShoppingBag className="h-5 w-5 text-blue-600" /></div>
-                <div className="flex-1">
-                  <p className="font-medium text-sm">Pedidos</p>
-                  <p className="text-xs text-gray-500">{stats?.pedidosCount ?? 0} en total</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-gray-400" />
+          <Link href="/akuosplash/transportista">
+            <Card className="border-gray-100 hover:border-blue-300 hover:bg-blue-50/50 transition cursor-pointer">
+              <CardContent className="p-3 flex flex-col items-center gap-1.5">
+                <div className="rounded-lg bg-emerald-500/10 p-2"><Truck className="h-5 w-5 text-emerald-600" /></div>
+                <p className="font-medium text-sm">Repartidor</p>
+                <p className="text-[10px] text-gray-500 text-center">Ver pedidos disponibles</p>
               </CardContent>
             </Card>
           </Link>
         </div>
 
-        {/* Botón refresh */}
-        <Button variant="outline" onClick={() => setRefreshKey(k => k + 1)} className="w-full">
-          Actualizar
-        </Button>
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="flex w-full overflow-x-auto">
+            <TabsTrigger value="panel" className="flex-1"><LayoutDashboard className="mr-1 h-4 w-4" /> Panel</TabsTrigger>
+            <TabsTrigger value="zonas" className="flex-1"><MapPin className="mr-1 h-4 w-4" /> Zonas</TabsTrigger>
+            <TabsTrigger value="repartidores" className="flex-1"><Truck className="mr-1 h-4 w-4" /> Repartidores</TabsTrigger>
+            <TabsTrigger value="clientes" className="flex-1"><Users className="mr-1 h-4 w-4" /> Clientes</TabsTrigger>
+            <TabsTrigger value="pedidos" className="flex-1"><ShoppingBag className="mr-1 h-4 w-4" /> Pedidos</TabsTrigger>
+          </TabsList>
+
+          {/* === PANEL === */}
+          <TabsContent value="panel" className="space-y-4 mt-4">
+            {/* Stats principales */}
+            <div className="grid grid-cols-2 gap-2">
+              <Card className="border-gray-100">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <div className="rounded-lg bg-blue-500/10 p-2"><Users className="h-4 w-4 text-blue-600" /></div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400">Clientes</p>
+                    <p className="text-lg font-bold tabular-nums">{stats?.clientesCount ?? "—"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-gray-100">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <div className="rounded-lg bg-emerald-500/10 p-2"><Truck className="h-4 w-4 text-emerald-600" /></div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400">Repartidores</p>
+                    <p className="text-lg font-bold tabular-nums">{stats?.transportistasCount ?? "—"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-gray-100">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <div className="rounded-lg bg-amber-500/10 p-2"><ShoppingBag className="h-4 w-4 text-amber-600" /></div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400">Pedidos</p>
+                    <p className="text-lg font-bold tabular-nums">{stats?.pedidosCount ?? "—"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-gray-100">
+                <CardContent className="p-3 flex items-center gap-2">
+                  <div className="rounded-lg bg-purple-500/10 p-2"><DollarSign className="h-4 w-4 text-purple-600" /></div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-gray-400">Ingresos</p>
+                    <p className="text-sm font-bold tabular-nums">{stats ? formatCLP(stats.ingresosTotal) : "—"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Repartidores pendientes */}
+            {stats && stats.repartidoresPendientesLista && stats.repartidoresPendientesLista.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 px-1">
+                  <Bell className="h-3.5 w-3.5 text-amber-500" />
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Repartidores esperando aprobación</h2>
+                </div>
+                {stats.repartidoresPendientesLista.map(u => (
+                  <Card key={u.id} className="border-amber-200 bg-amber-50/50">
+                    <CardContent className="p-3.5 space-y-2">
+                    <div>
+                      <p className="font-medium text-sm">{u.nombre}</p>
+                      <p className="text-xs text-gray-500">{u.email}</p>
+                      {u.telefono && <p className="text-xs text-gray-500">Tel: {u.telefono}</p>}
+                      {u.razonSocial && <p className="text-xs text-gray-500">Empresa: {u.razonSocial}</p>}
+                    </div>
+                    <div className="flex gap-2 pt-2 border-t border-amber-200">
+                      <Button size="sm" onClick={() => aprobarRepartidor(u.id, u.nombre)} className="bg-emerald-600 hover:bg-emerald-700 flex-1">
+                        <Check className="h-4 w-4 mr-1" /> Aprobar
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => rechazarRepartidor(u.id, u.nombre)} className="text-red-600 border-red-300 hover:bg-red-50">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Últimos pedidos */}
+            {stats && stats.ultimosPedidos && stats.ultimosPedidos.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Últimos pedidos</h2>
+                  <button onClick={() => setTab("pedidos")} className="text-xs text-blue-600 hover:underline">Ver todos</button>
+                </div>
+                {stats.ultimosPedidos.map(p => (
+                  <Card key={p.id} className="border-gray-100">
+                    <CardContent className="p-3 flex items-center justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-bold tabular-nums text-sm">{p.litros.toLocaleString("es-CL")} L</span>
+                          {p.precioTotal && <span className="text-xs text-gray-500">{formatCLP(p.precioTotal)}</span>}
+                        </div>
+                        <p className="text-xs text-gray-500 truncate">
+                          {p.cliente?.nombre} {p.transportista && `→ ${p.transportista.nombre}`}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className={ESTADO_LABELS[p.estado]?.color || "text-gray-500"}>{ESTADO_LABELS[p.estado]?.label || p.estado}</Badge>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Pedidos por estado */}
+            {stats && (
+              <Card className="border-gray-100">
+                <CardContent className="p-3 space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Pedidos por estado</p>
+                  <div className="space-y-1.5">
+                    {Object.entries(ESTADO_LABELS).map(([estado, info]) => {
+                      const count = stats.pedidosPorEstado?.[estado] || 0;
+                      return (
+                        <div key={estado} className="flex items-center justify-between">
+                          <span className={`text-sm ${info.color}`}>{info.label}</span>
+                          <span className="font-bold tabular-nums">{count}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* === ZONAS === */}
+          <TabsContent value="zonas" className="mt-4">
+            <Link href="/akuosplash/superadmin/zonas">
+              <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="rounded-lg bg-blue-500/10 p-2"><MapPin className="h-5 w-5 text-blue-600" /></div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">Gestionar zonas</p>
+                    <p className="text-xs text-gray-500">{stats?.zonasCount ?? 0} zonas activas</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </CardContent>
+              </Card>
+            </Link>
+          </TabsContent>
+
+          {/* === REPARTIDORES === */}
+          <TabsContent value="repartidores" className="mt-4">
+            <Link href="/akuosplash/superadmin/transportistas">
+              <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="rounded-lg bg-blue-500/10 p-2"><Truck className="h-5 w-5 text-blue-600" /></div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">Gestionar repartidores</p>
+                    <p className="text-xs text-gray-500">{stats?.transportistasAprobados ?? 0} aprobados · {stats?.transportistasPendientes ?? 0} pendientes</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </CardContent>
+              </Card>
+            </Link>
+          </TabsContent>
+
+          {/* === CLIENTES === */}
+          <TabsContent value="clientes" className="mt-4">
+            <Link href="/akuosplash/superadmin/clientes">
+              <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="rounded-lg bg-blue-500/10 p-2"><Users className="h-5 w-5 text-blue-600" /></div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">Gestionar clientes</p>
+                    <p className="text-xs text-gray-500">{stats?.clientesCount ?? 0} registrados</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </CardContent>
+              </Card>
+            </Link>
+          </TabsContent>
+
+          {/* === PEDIDOS === */}
+          <TabsContent value="pedidos" className="mt-4">
+            <Link href="/akuosplash/superadmin/pedidos">
+              <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <div className="rounded-lg bg-blue-500/10 p-2"><ShoppingBag className="h-5 w-5 text-blue-600" /></div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">Ver todos los pedidos</p>
+                    <p className="text-xs text-gray-500">{stats?.pedidosCount ?? 0} en total</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </CardContent>
+              </Card>
+            </Link>
+          </TabsContent>
+        </Tabs>
+
+        <Button variant="outline" onClick={() => setRefreshKey(k => k + 1)} className="w-full mt-4">Actualizar</Button>
       </main>
     </div>
   );
