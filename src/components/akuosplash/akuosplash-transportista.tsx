@@ -439,8 +439,8 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
     direccionEmpresa: '', comunaEmpresa: '', ciudadEmpresa: '', telefonoEmpresa: '', emailEmpresa: '',
     bancoNombre: '', bancoTipoCuenta: '', bancoNumeroCuenta: '', bancoTitular: '', bancoRutTitular: '', bancoEmail: '',
     facturacionPlataforma: '', facturacionApiKey: '',
-    patenteVehiculo: '', tipoVehiculo: 'aljibe', capacidadVehiculoKg: '',
     areasCobertura: '', descripcion: '',
+    precioEfectivoPorLitro: '', precioTransferenciaPorLitro: '',
   });
 
   useEffect(() => {
@@ -461,6 +461,8 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
         patenteVehiculo: u.patenteVehiculo || '', tipoVehiculo: u.tipoVehiculo || 'aljibe',
         capacidadVehiculoKg: u.capacidadVehiculoKg ? String(u.capacidadVehiculoKg) : '',
         areasCobertura: u.areasCobertura || '', descripcion: u.descripcion || '',
+        precioEfectivoPorLitro: u.precioEfectivoPorLitro ? String(u.precioEfectivoPorLitro) : '',
+        precioTransferenciaPorLitro: u.precioTransferenciaPorLitro ? String(u.precioTransferenciaPorLitro) : '',
       });
     }).catch(() => {});
   }, []);
@@ -471,7 +473,14 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
     if (!form.rut.trim()) { toast.error("El RUT personal es obligatorio"); return; }
     setSaving(true);
     try {
-      await akuoApi("/api/akuosplash/cliente/perfil", { method: "PATCH", body: JSON.stringify(form) });
+      await akuoApi("/api/akuosplash/cliente/perfil", {
+        method: "PATCH",
+        body: JSON.stringify({
+          ...form,
+          precioEfectivoPorLitro: form.precioEfectivoPorLitro ? Number(form.precioEfectivoPorLitro) : undefined,
+          precioTransferenciaPorLitro: form.precioTransferenciaPorLitro ? Number(form.precioTransferenciaPorLitro) : undefined,
+        }),
+      });
       toast.success("Perfil actualizado");
       onUpdated();
     } catch (e: any) { toast.error(e.message || "Error"); }
@@ -573,6 +582,18 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
               </Button>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Precios por litro */}
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Droplets className="h-4 w-4 text-primary" /> Precios por litro</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div><Label>Precio efectivo ($/litro)</Label><Input type="number" step="any" value={form.precioEfectivoPorLitro || ""} onChange={(e) => update("precioEfectivoPorLitro", e.target.value)} placeholder="50" /></div>
+            <div><Label>Precio transferencia ($/litro)</Label><Input type="number" step="any" value={form.precioTransferenciaPorLitro || ""} onChange={(e) => update("precioTransferenciaPorLitro", e.target.value)} placeholder="50" /></div>
+          </div>
+          <p className="text-xs text-muted-foreground">Al registrar una entrega, el precio se autocompleta según el método de pago elegido.</p>
         </CardContent>
       </Card>
 

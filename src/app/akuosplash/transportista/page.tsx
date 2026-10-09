@@ -18,14 +18,13 @@ import { EntregasTab } from "@/components/akuosplash/entregas-tab";
 import { GastosTab } from "@/components/akuosplash/gastos-tab";
 import { LiquidacionTab } from "@/components/akuosplash/liquidacion-tab";
 import { ClientesTab } from "@/components/akuosplash/clientes-tab";
-import { ConfiguracionTab } from "@/components/akuosplash/configuracion-tab";
 import { EquipoTab } from "@/components/akuosplash/equipo-tab";
-import { MiPerfilTab } from "@/components/akuosplash/mi-perfil-tab";
 import { PedidosTab } from "@/components/akuosplash/pedidos-tab";
 import { PedidosRecurrentesTab } from "@/components/akuosplash/pedidos-recurrentes-tab";
 import { CamionesManager } from "@/components/akuosplash/camiones-manager";
 import { CuentaDialog } from "@/components/akuosplash/cuenta-dialog";
 import { HistorialVueltasTab } from "@/components/akuosplash/historial-vueltas-tab";
+import { PerfilTransportista } from "@/components/akuosplash/akuosplash-transportista";
 import { apiGet, apiPost } from "@/components/akuosplash/akuosplash-api-client";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -50,7 +49,7 @@ const Dashboard = dynamicImport(() => import("@/components/akuosplash/dashboard"
 interface Cliente { id: string; nombre: string; rut: string | null; direccion: string | null; telefono: string | null; email: string | null; zona: string | null; precioEfectivoPorLitro: number; precioTransferenciaPorLitro: number; precioCamionCompleto: number; lat: number | null; lng: number | null; requiereIngresoPropiedad: boolean; entregaDesdeAfuera: boolean; conexionExterna: boolean; requiereClientePresente: boolean; indicacionesAcceso: string | null; usoAgua: string; deudaInicial?: number; usoAguaNota: string | null; estanquesJson: string | null; choferPreferidoId: string | null; }
 interface Camion { id: string; nombre: string; patente: string | null; capacidad: number; activo: boolean; }
 interface VueltaActual { id: string; numero: number; iniciadaEn: string; cantidadEntregas: number; litros: number; litrosRestantes?: number; capacidadCamion?: number; camion?: { id: string; nombre: string; patente: string | null; capacidad: number; } | null; }
-type TabKey = "dashboard" | "pedidos" | "entregas" | "camiones" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "config" | "equipo" | "perfil";
+type TabKey = "dashboard" | "pedidos" | "entregas" | "camiones" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "equipo" | "perfil";
 
 export default function TransportistaPage() {
   const router = useRouter();
@@ -156,9 +155,8 @@ export default function TransportistaPage() {
             <option value="clientes">👥 Clientes</option>
             <option value="recurrentes">🔁 Recurrentes</option>
             <option value="historial">📜 Historial</option>
-            <option value="config">⚙️ Config</option>
             <option value="equipo">👤 Equipo</option>
-            <option value="perfil">🙋 Perfil</option>
+            <option value="perfil">⚙️ Perfil y configuración</option>
           </select>
 
           <TabsContent value="dashboard" className="mt-4">
@@ -175,9 +173,8 @@ export default function TransportistaPage() {
           <TabsContent value="clientes" className="mt-4"><ErrorBoundary><ClientesTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
           <TabsContent value="recurrentes" className="mt-4"><ErrorBoundary><PedidosRecurrentesTab clientes={clientes} choferes={[]} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
           <TabsContent value="historial" className="mt-4"><ErrorBoundary><HistorialVueltasTab refreshKey={refreshKey} /></ErrorBoundary></TabsContent>
-          <TabsContent value="config" className="mt-4"><ErrorBoundary><ConfiguracionTab config={config} onSaved={refresh} /></ErrorBoundary></TabsContent>
           <TabsContent value="equipo" className="mt-4"><ErrorBoundary><EquipoTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
-          <TabsContent value="perfil" className="mt-4"><ErrorBoundary><MiPerfilTab onLogout={async () => { await apiPost("/api/akuosplash/auth/logout"); window.location.href = "/akuosplash"; }} /></ErrorBoundary></TabsContent>
+          <TabsContent value="perfil" className="mt-4"><ErrorBoundary><PerfilTransportista user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
         </Tabs>
       </div>
 
