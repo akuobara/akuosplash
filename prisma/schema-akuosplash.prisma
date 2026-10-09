@@ -44,6 +44,23 @@ model AkuoUsuario {
   rutEmpresa           String?
   razonSocial          String?
   direccionEmpresa     String?
+  // Datos legales / facturación SII
+  giro                 String?
+  inicioActividades    DateTime?
+  comunaEmpresa        String?
+  ciudadEmpresa        String?
+  telefonoEmpresa     String?
+  emailEmpresa         String?
+  // Datos bancarios (para recibir pagos por transferencia)
+  bancoNombre          String?
+  bancoTipoCuenta      String?  // cuenta_corriente | cuenta_vista | cuenta_ahorro
+  bancoNumeroCuenta    String?
+  bancoTitular         String?
+  bancoRutTitular      String?
+  bancoEmail           String?
+  // Plataforma de facturación electrónica externa (SII)
+  facturacionPlataforma String?  // ej: "facturador" | "libro_derecho" | "otro"
+  facturacionApiKey     String?
   capacidadVehiculoKg  Int?
   patenteVehiculo      String?
   tipoVehiculo         String?

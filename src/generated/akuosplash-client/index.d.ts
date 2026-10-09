@@ -2914,6 +2914,20 @@ export namespace Prisma {
     rutEmpresa: string | null
     razonSocial: string | null
     direccionEmpresa: string | null
+    giro: string | null
+    inicioActividades: Date | null
+    comunaEmpresa: string | null
+    ciudadEmpresa: string | null
+    telefonoEmpresa: string | null
+    emailEmpresa: string | null
+    bancoNombre: string | null
+    bancoTipoCuenta: string | null
+    bancoNumeroCuenta: string | null
+    bancoTitular: string | null
+    bancoRutTitular: string | null
+    bancoEmail: string | null
+    facturacionPlataforma: string | null
+    facturacionApiKey: string | null
     capacidadVehiculoKg: number | null
     patenteVehiculo: string | null
     tipoVehiculo: string | null
@@ -2964,6 +2978,20 @@ export namespace Prisma {
     rutEmpresa: string | null
     razonSocial: string | null
     direccionEmpresa: string | null
+    giro: string | null
+    inicioActividades: Date | null
+    comunaEmpresa: string | null
+    ciudadEmpresa: string | null
+    telefonoEmpresa: string | null
+    emailEmpresa: string | null
+    bancoNombre: string | null
+    bancoTipoCuenta: string | null
+    bancoNumeroCuenta: string | null
+    bancoTitular: string | null
+    bancoRutTitular: string | null
+    bancoEmail: string | null
+    facturacionPlataforma: string | null
+    facturacionApiKey: string | null
     capacidadVehiculoKg: number | null
     patenteVehiculo: string | null
     tipoVehiculo: string | null
@@ -3014,6 +3042,20 @@ export namespace Prisma {
     rutEmpresa: number
     razonSocial: number
     direccionEmpresa: number
+    giro: number
+    inicioActividades: number
+    comunaEmpresa: number
+    ciudadEmpresa: number
+    telefonoEmpresa: number
+    emailEmpresa: number
+    bancoNombre: number
+    bancoTipoCuenta: number
+    bancoNumeroCuenta: number
+    bancoTitular: number
+    bancoRutTitular: number
+    bancoEmail: number
+    facturacionPlataforma: number
+    facturacionApiKey: number
     capacidadVehiculoKg: number
     patenteVehiculo: number
     tipoVehiculo: number
@@ -3084,6 +3126,20 @@ export namespace Prisma {
     rutEmpresa?: true
     razonSocial?: true
     direccionEmpresa?: true
+    giro?: true
+    inicioActividades?: true
+    comunaEmpresa?: true
+    ciudadEmpresa?: true
+    telefonoEmpresa?: true
+    emailEmpresa?: true
+    bancoNombre?: true
+    bancoTipoCuenta?: true
+    bancoNumeroCuenta?: true
+    bancoTitular?: true
+    bancoRutTitular?: true
+    bancoEmail?: true
+    facturacionPlataforma?: true
+    facturacionApiKey?: true
     capacidadVehiculoKg?: true
     patenteVehiculo?: true
     tipoVehiculo?: true
@@ -3134,6 +3190,20 @@ export namespace Prisma {
     rutEmpresa?: true
     razonSocial?: true
     direccionEmpresa?: true
+    giro?: true
+    inicioActividades?: true
+    comunaEmpresa?: true
+    ciudadEmpresa?: true
+    telefonoEmpresa?: true
+    emailEmpresa?: true
+    bancoNombre?: true
+    bancoTipoCuenta?: true
+    bancoNumeroCuenta?: true
+    bancoTitular?: true
+    bancoRutTitular?: true
+    bancoEmail?: true
+    facturacionPlataforma?: true
+    facturacionApiKey?: true
     capacidadVehiculoKg?: true
     patenteVehiculo?: true
     tipoVehiculo?: true
@@ -3184,6 +3254,20 @@ export namespace Prisma {
     rutEmpresa?: true
     razonSocial?: true
     direccionEmpresa?: true
+    giro?: true
+    inicioActividades?: true
+    comunaEmpresa?: true
+    ciudadEmpresa?: true
+    telefonoEmpresa?: true
+    emailEmpresa?: true
+    bancoNombre?: true
+    bancoTipoCuenta?: true
+    bancoNumeroCuenta?: true
+    bancoTitular?: true
+    bancoRutTitular?: true
+    bancoEmail?: true
+    facturacionPlataforma?: true
+    facturacionApiKey?: true
     capacidadVehiculoKg?: true
     patenteVehiculo?: true
     tipoVehiculo?: true
@@ -3321,6 +3405,20 @@ export namespace Prisma {
     rutEmpresa: string | null
     razonSocial: string | null
     direccionEmpresa: string | null
+    giro: string | null
+    inicioActividades: Date | null
+    comunaEmpresa: string | null
+    ciudadEmpresa: string | null
+    telefonoEmpresa: string | null
+    emailEmpresa: string | null
+    bancoNombre: string | null
+    bancoTipoCuenta: string | null
+    bancoNumeroCuenta: string | null
+    bancoTitular: string | null
+    bancoRutTitular: string | null
+    bancoEmail: string | null
+    facturacionPlataforma: string | null
+    facturacionApiKey: string | null
     capacidadVehiculoKg: number | null
     patenteVehiculo: string | null
     tipoVehiculo: string | null
@@ -3390,6 +3488,20 @@ export namespace Prisma {
     rutEmpresa?: boolean
     razonSocial?: boolean
     direccionEmpresa?: boolean
+    giro?: boolean
+    inicioActividades?: boolean
+    comunaEmpresa?: boolean
+    ciudadEmpresa?: boolean
+    telefonoEmpresa?: boolean
+    emailEmpresa?: boolean
+    bancoNombre?: boolean
+    bancoTipoCuenta?: boolean
+    bancoNumeroCuenta?: boolean
+    bancoTitular?: boolean
+    bancoRutTitular?: boolean
+    bancoEmail?: boolean
+    facturacionPlataforma?: boolean
+    facturacionApiKey?: boolean
     capacidadVehiculoKg?: boolean
     patenteVehiculo?: boolean
     tipoVehiculo?: boolean
@@ -3459,6 +3571,20 @@ export namespace Prisma {
     rutEmpresa?: boolean
     razonSocial?: boolean
     direccionEmpresa?: boolean
+    giro?: boolean
+    inicioActividades?: boolean
+    comunaEmpresa?: boolean
+    ciudadEmpresa?: boolean
+    telefonoEmpresa?: boolean
+    emailEmpresa?: boolean
+    bancoNombre?: boolean
+    bancoTipoCuenta?: boolean
+    bancoNumeroCuenta?: boolean
+    bancoTitular?: boolean
+    bancoRutTitular?: boolean
+    bancoEmail?: boolean
+    facturacionPlataforma?: boolean
+    facturacionApiKey?: boolean
     capacidadVehiculoKg?: boolean
     patenteVehiculo?: boolean
     tipoVehiculo?: boolean
@@ -3510,6 +3636,20 @@ export namespace Prisma {
     rutEmpresa?: boolean
     razonSocial?: boolean
     direccionEmpresa?: boolean
+    giro?: boolean
+    inicioActividades?: boolean
+    comunaEmpresa?: boolean
+    ciudadEmpresa?: boolean
+    telefonoEmpresa?: boolean
+    emailEmpresa?: boolean
+    bancoNombre?: boolean
+    bancoTipoCuenta?: boolean
+    bancoNumeroCuenta?: boolean
+    bancoTitular?: boolean
+    bancoRutTitular?: boolean
+    bancoEmail?: boolean
+    facturacionPlataforma?: boolean
+    facturacionApiKey?: boolean
     capacidadVehiculoKg?: boolean
     patenteVehiculo?: boolean
     tipoVehiculo?: boolean
@@ -3561,6 +3701,20 @@ export namespace Prisma {
     rutEmpresa?: boolean
     razonSocial?: boolean
     direccionEmpresa?: boolean
+    giro?: boolean
+    inicioActividades?: boolean
+    comunaEmpresa?: boolean
+    ciudadEmpresa?: boolean
+    telefonoEmpresa?: boolean
+    emailEmpresa?: boolean
+    bancoNombre?: boolean
+    bancoTipoCuenta?: boolean
+    bancoNumeroCuenta?: boolean
+    bancoTitular?: boolean
+    bancoRutTitular?: boolean
+    bancoEmail?: boolean
+    facturacionPlataforma?: boolean
+    facturacionApiKey?: boolean
     capacidadVehiculoKg?: boolean
     patenteVehiculo?: boolean
     tipoVehiculo?: boolean
@@ -3582,7 +3736,7 @@ export namespace Prisma {
     mpConnectedAt?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -3662,6 +3816,20 @@ export namespace Prisma {
       rutEmpresa: string | null
       razonSocial: string | null
       direccionEmpresa: string | null
+      giro: string | null
+      inicioActividades: Date | null
+      comunaEmpresa: string | null
+      ciudadEmpresa: string | null
+      telefonoEmpresa: string | null
+      emailEmpresa: string | null
+      bancoNombre: string | null
+      bancoTipoCuenta: string | null
+      bancoNumeroCuenta: string | null
+      bancoTitular: string | null
+      bancoRutTitular: string | null
+      bancoEmail: string | null
+      facturacionPlataforma: string | null
+      facturacionApiKey: string | null
       capacidadVehiculoKg: number | null
       patenteVehiculo: string | null
       tipoVehiculo: string | null
@@ -4150,6 +4318,20 @@ export namespace Prisma {
     readonly rutEmpresa: FieldRef<"AkuoUsuario", 'String'>
     readonly razonSocial: FieldRef<"AkuoUsuario", 'String'>
     readonly direccionEmpresa: FieldRef<"AkuoUsuario", 'String'>
+    readonly giro: FieldRef<"AkuoUsuario", 'String'>
+    readonly inicioActividades: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly comunaEmpresa: FieldRef<"AkuoUsuario", 'String'>
+    readonly ciudadEmpresa: FieldRef<"AkuoUsuario", 'String'>
+    readonly telefonoEmpresa: FieldRef<"AkuoUsuario", 'String'>
+    readonly emailEmpresa: FieldRef<"AkuoUsuario", 'String'>
+    readonly bancoNombre: FieldRef<"AkuoUsuario", 'String'>
+    readonly bancoTipoCuenta: FieldRef<"AkuoUsuario", 'String'>
+    readonly bancoNumeroCuenta: FieldRef<"AkuoUsuario", 'String'>
+    readonly bancoTitular: FieldRef<"AkuoUsuario", 'String'>
+    readonly bancoRutTitular: FieldRef<"AkuoUsuario", 'String'>
+    readonly bancoEmail: FieldRef<"AkuoUsuario", 'String'>
+    readonly facturacionPlataforma: FieldRef<"AkuoUsuario", 'String'>
+    readonly facturacionApiKey: FieldRef<"AkuoUsuario", 'String'>
     readonly capacidadVehiculoKg: FieldRef<"AkuoUsuario", 'Int'>
     readonly patenteVehiculo: FieldRef<"AkuoUsuario", 'String'>
     readonly tipoVehiculo: FieldRef<"AkuoUsuario", 'String'>
@@ -26409,6 +26591,20 @@ export namespace Prisma {
     rutEmpresa: 'rutEmpresa',
     razonSocial: 'razonSocial',
     direccionEmpresa: 'direccionEmpresa',
+    giro: 'giro',
+    inicioActividades: 'inicioActividades',
+    comunaEmpresa: 'comunaEmpresa',
+    ciudadEmpresa: 'ciudadEmpresa',
+    telefonoEmpresa: 'telefonoEmpresa',
+    emailEmpresa: 'emailEmpresa',
+    bancoNombre: 'bancoNombre',
+    bancoTipoCuenta: 'bancoTipoCuenta',
+    bancoNumeroCuenta: 'bancoNumeroCuenta',
+    bancoTitular: 'bancoTitular',
+    bancoRutTitular: 'bancoRutTitular',
+    bancoEmail: 'bancoEmail',
+    facturacionPlataforma: 'facturacionPlataforma',
+    facturacionApiKey: 'facturacionApiKey',
     capacidadVehiculoKg: 'capacidadVehiculoKg',
     patenteVehiculo: 'patenteVehiculo',
     tipoVehiculo: 'tipoVehiculo',
@@ -26835,6 +27031,20 @@ export namespace Prisma {
     rutEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
     razonSocial?: StringNullableFilter<"AkuoUsuario"> | string | null
     direccionEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    giro?: StringNullableFilter<"AkuoUsuario"> | string | null
+    inicioActividades?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    comunaEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    ciudadEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    telefonoEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    emailEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoNombre?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoTipoCuenta?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoNumeroCuenta?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoTitular?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoRutTitular?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
+    facturacionPlataforma?: StringNullableFilter<"AkuoUsuario"> | string | null
+    facturacionApiKey?: StringNullableFilter<"AkuoUsuario"> | string | null
     capacidadVehiculoKg?: IntNullableFilter<"AkuoUsuario"> | number | null
     patenteVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     tipoVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -26903,6 +27113,20 @@ export namespace Prisma {
     rutEmpresa?: SortOrderInput | SortOrder
     razonSocial?: SortOrderInput | SortOrder
     direccionEmpresa?: SortOrderInput | SortOrder
+    giro?: SortOrderInput | SortOrder
+    inicioActividades?: SortOrderInput | SortOrder
+    comunaEmpresa?: SortOrderInput | SortOrder
+    ciudadEmpresa?: SortOrderInput | SortOrder
+    telefonoEmpresa?: SortOrderInput | SortOrder
+    emailEmpresa?: SortOrderInput | SortOrder
+    bancoNombre?: SortOrderInput | SortOrder
+    bancoTipoCuenta?: SortOrderInput | SortOrder
+    bancoNumeroCuenta?: SortOrderInput | SortOrder
+    bancoTitular?: SortOrderInput | SortOrder
+    bancoRutTitular?: SortOrderInput | SortOrder
+    bancoEmail?: SortOrderInput | SortOrder
+    facturacionPlataforma?: SortOrderInput | SortOrder
+    facturacionApiKey?: SortOrderInput | SortOrder
     capacidadVehiculoKg?: SortOrderInput | SortOrder
     patenteVehiculo?: SortOrderInput | SortOrder
     tipoVehiculo?: SortOrderInput | SortOrder
@@ -26974,6 +27198,20 @@ export namespace Prisma {
     rutEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
     razonSocial?: StringNullableFilter<"AkuoUsuario"> | string | null
     direccionEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    giro?: StringNullableFilter<"AkuoUsuario"> | string | null
+    inicioActividades?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    comunaEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    ciudadEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    telefonoEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    emailEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoNombre?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoTipoCuenta?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoNumeroCuenta?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoTitular?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoRutTitular?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
+    facturacionPlataforma?: StringNullableFilter<"AkuoUsuario"> | string | null
+    facturacionApiKey?: StringNullableFilter<"AkuoUsuario"> | string | null
     capacidadVehiculoKg?: IntNullableFilter<"AkuoUsuario"> | number | null
     patenteVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     tipoVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -27042,6 +27280,20 @@ export namespace Prisma {
     rutEmpresa?: SortOrderInput | SortOrder
     razonSocial?: SortOrderInput | SortOrder
     direccionEmpresa?: SortOrderInput | SortOrder
+    giro?: SortOrderInput | SortOrder
+    inicioActividades?: SortOrderInput | SortOrder
+    comunaEmpresa?: SortOrderInput | SortOrder
+    ciudadEmpresa?: SortOrderInput | SortOrder
+    telefonoEmpresa?: SortOrderInput | SortOrder
+    emailEmpresa?: SortOrderInput | SortOrder
+    bancoNombre?: SortOrderInput | SortOrder
+    bancoTipoCuenta?: SortOrderInput | SortOrder
+    bancoNumeroCuenta?: SortOrderInput | SortOrder
+    bancoTitular?: SortOrderInput | SortOrder
+    bancoRutTitular?: SortOrderInput | SortOrder
+    bancoEmail?: SortOrderInput | SortOrder
+    facturacionPlataforma?: SortOrderInput | SortOrder
+    facturacionApiKey?: SortOrderInput | SortOrder
     capacidadVehiculoKg?: SortOrderInput | SortOrder
     patenteVehiculo?: SortOrderInput | SortOrder
     tipoVehiculo?: SortOrderInput | SortOrder
@@ -27100,6 +27352,20 @@ export namespace Prisma {
     rutEmpresa?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     razonSocial?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     direccionEmpresa?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    giro?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    inicioActividades?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    comunaEmpresa?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    ciudadEmpresa?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    telefonoEmpresa?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    emailEmpresa?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    bancoNombre?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    bancoTipoCuenta?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    bancoNumeroCuenta?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    bancoTitular?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    bancoRutTitular?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    bancoEmail?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    facturacionPlataforma?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    facturacionApiKey?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     capacidadVehiculoKg?: IntNullableWithAggregatesFilter<"AkuoUsuario"> | number | null
     patenteVehiculo?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     tipoVehiculo?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
@@ -28777,6 +29043,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -28845,6 +29125,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -28911,6 +29205,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28979,6 +29287,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29046,6 +29368,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -29095,6 +29431,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29145,6 +29495,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31264,6 +31628,20 @@ export namespace Prisma {
     rutEmpresa?: SortOrder
     razonSocial?: SortOrder
     direccionEmpresa?: SortOrder
+    giro?: SortOrder
+    inicioActividades?: SortOrder
+    comunaEmpresa?: SortOrder
+    ciudadEmpresa?: SortOrder
+    telefonoEmpresa?: SortOrder
+    emailEmpresa?: SortOrder
+    bancoNombre?: SortOrder
+    bancoTipoCuenta?: SortOrder
+    bancoNumeroCuenta?: SortOrder
+    bancoTitular?: SortOrder
+    bancoRutTitular?: SortOrder
+    bancoEmail?: SortOrder
+    facturacionPlataforma?: SortOrder
+    facturacionApiKey?: SortOrder
     capacidadVehiculoKg?: SortOrder
     patenteVehiculo?: SortOrder
     tipoVehiculo?: SortOrder
@@ -31323,6 +31701,20 @@ export namespace Prisma {
     rutEmpresa?: SortOrder
     razonSocial?: SortOrder
     direccionEmpresa?: SortOrder
+    giro?: SortOrder
+    inicioActividades?: SortOrder
+    comunaEmpresa?: SortOrder
+    ciudadEmpresa?: SortOrder
+    telefonoEmpresa?: SortOrder
+    emailEmpresa?: SortOrder
+    bancoNombre?: SortOrder
+    bancoTipoCuenta?: SortOrder
+    bancoNumeroCuenta?: SortOrder
+    bancoTitular?: SortOrder
+    bancoRutTitular?: SortOrder
+    bancoEmail?: SortOrder
+    facturacionPlataforma?: SortOrder
+    facturacionApiKey?: SortOrder
     capacidadVehiculoKg?: SortOrder
     patenteVehiculo?: SortOrder
     tipoVehiculo?: SortOrder
@@ -31373,6 +31765,20 @@ export namespace Prisma {
     rutEmpresa?: SortOrder
     razonSocial?: SortOrder
     direccionEmpresa?: SortOrder
+    giro?: SortOrder
+    inicioActividades?: SortOrder
+    comunaEmpresa?: SortOrder
+    ciudadEmpresa?: SortOrder
+    telefonoEmpresa?: SortOrder
+    emailEmpresa?: SortOrder
+    bancoNombre?: SortOrder
+    bancoTipoCuenta?: SortOrder
+    bancoNumeroCuenta?: SortOrder
+    bancoTitular?: SortOrder
+    bancoRutTitular?: SortOrder
+    bancoEmail?: SortOrder
+    facturacionPlataforma?: SortOrder
+    facturacionApiKey?: SortOrder
     capacidadVehiculoKg?: SortOrder
     patenteVehiculo?: SortOrder
     tipoVehiculo?: SortOrder
@@ -35591,6 +35997,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -35658,6 +36078,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -35739,6 +36173,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35806,6 +36254,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35871,6 +36333,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -35938,6 +36414,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -36121,6 +36611,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36188,6 +36692,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36285,6 +36803,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -36352,6 +36884,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -36545,6 +37091,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36612,6 +37172,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36709,6 +37283,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -36776,6 +37364,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -36969,6 +37571,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37036,6 +37652,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37225,6 +37855,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -37292,6 +37936,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -37535,6 +38193,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37602,6 +38274,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37853,6 +38539,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -37920,6 +38620,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -38138,6 +38852,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38205,6 +38933,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38349,6 +39091,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -38416,6 +39172,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -38528,6 +39298,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38595,6 +39379,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38697,6 +39495,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -38764,6 +39576,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -38845,6 +39671,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38912,6 +39752,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38977,6 +39831,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -39044,6 +39912,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -39125,6 +40007,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39192,6 +40088,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39257,6 +40167,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -39324,6 +40248,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -39405,6 +40343,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39472,6 +40424,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39537,6 +40503,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -39604,6 +40584,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -39685,6 +40679,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39752,6 +40760,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39817,6 +40839,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -39884,6 +40920,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -39965,6 +41015,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40032,6 +41096,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40097,6 +41175,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -40163,6 +41255,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -40258,6 +41364,20 @@ export namespace Prisma {
     rutEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
     razonSocial?: StringNullableFilter<"AkuoUsuario"> | string | null
     direccionEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    giro?: StringNullableFilter<"AkuoUsuario"> | string | null
+    inicioActividades?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    comunaEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    ciudadEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    telefonoEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    emailEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoNombre?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoTipoCuenta?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoNumeroCuenta?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoTitular?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoRutTitular?: StringNullableFilter<"AkuoUsuario"> | string | null
+    bancoEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
+    facturacionPlataforma?: StringNullableFilter<"AkuoUsuario"> | string | null
+    facturacionApiKey?: StringNullableFilter<"AkuoUsuario"> | string | null
     capacidadVehiculoKg?: IntNullableFilter<"AkuoUsuario"> | number | null
     patenteVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     tipoVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -40307,6 +41427,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -40374,6 +41508,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -40444,6 +41592,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -40511,6 +41673,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -40617,6 +41793,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40684,6 +41874,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40760,6 +41964,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40827,6 +42045,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40929,6 +42161,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -40996,6 +42242,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -41104,6 +42364,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41171,6 +42445,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41236,6 +42524,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -41303,6 +42605,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -41373,6 +42689,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -41440,6 +42770,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -41521,6 +42865,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41588,6 +42946,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41664,6 +43036,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41731,6 +43117,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43280,6 +44680,20 @@ export namespace Prisma {
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
+    giro?: string | null
+    inicioActividades?: Date | string | null
+    comunaEmpresa?: string | null
+    ciudadEmpresa?: string | null
+    telefonoEmpresa?: string | null
+    emailEmpresa?: string | null
+    bancoNombre?: string | null
+    bancoTipoCuenta?: string | null
+    bancoNumeroCuenta?: string | null
+    bancoTitular?: string | null
+    bancoRutTitular?: string | null
+    bancoEmail?: string | null
+    facturacionPlataforma?: string | null
+    facturacionApiKey?: string | null
     capacidadVehiculoKg?: number | null
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
@@ -43329,6 +44743,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43395,6 +44823,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43461,6 +44903,20 @@ export namespace Prisma {
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    giro?: NullableStringFieldUpdateOperationsInput | string | null
+    inicioActividades?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    comunaEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    ciudadEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefonoEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    emailEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTipoCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoNumeroCuenta?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoRutTitular?: NullableStringFieldUpdateOperationsInput | string | null
+    bancoEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionPlataforma?: NullableStringFieldUpdateOperationsInput | string | null
+    facturacionApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     capacidadVehiculoKg?: NullableIntFieldUpdateOperationsInput | number | null
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null

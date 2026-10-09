@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Loader2, Droplets, Truck, History, MessageSquare, User, Plus, ChevronLeft, Send,
-  MapPin, Banknote, Clock, KeyRound, CheckCircle2, ShieldCheck, Phone, Navigation, Wallet
+  MapPin, Banknote, Clock, KeyRound, CheckCircle2, ShieldCheck, Phone, Navigation, Wallet,
+  Building2, FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -428,28 +429,35 @@ function Mensajeria({ conversaciones, userId, loading, onRefresh }: { conversaci
   );
 }
 
+
 function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: () => void }) {
   const [perfil, setPerfil] = useState<any>(null);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    nombre: user.nombre || '',
-    telefono: '',
-    razonSocial: '',
-    direccionEmpresa: '',
-    patenteVehiculo: '',
-    tipoVehiculo: 'aljibe',
-    capacidadVehiculoKg: '',
-    areasCobertura: '',
-    descripcion: '',
+  const [form, setForm] = useState<any>({
+    nombre: '', telefono: '', rut: '',
+    razonSocial: '', rutEmpresa: '', giro: '', inicioActividades: '',
+    direccionEmpresa: '', comunaEmpresa: '', ciudadEmpresa: '', telefonoEmpresa: '', emailEmpresa: '',
+    bancoNombre: '', bancoTipoCuenta: '', bancoNumeroCuenta: '', bancoTitular: '', bancoRutTitular: '', bancoEmail: '',
+    facturacionPlataforma: '', facturacionApiKey: '',
+    patenteVehiculo: '', tipoVehiculo: 'aljibe', capacidadVehiculoKg: '',
+    areasCobertura: '', descripcion: '',
   });
 
   useEffect(() => {
-    akuoGet<{ usuario: any; vehiculos: any[]; stats: any }>("/api/akuosplash/transportista/perfil").then(d => {
+    akuoGet<{ user: any }>("/api/akuosplash/cliente/perfil").then(d => {
+      if (!d.user) return;
+      const u = d.user;
       setPerfil(d);
-      const u = d.usuario;
       setForm({
-        nombre: u.nombre || '', telefono: u.telefono || '',
-        razonSocial: u.razonSocial || '', direccionEmpresa: u.direccionEmpresa || '',
+        nombre: u.nombre || '', telefono: u.telefono || '', rut: u.rut || '',
+        razonSocial: u.razonSocial || '', rutEmpresa: u.rutEmpresa || '', giro: u.giro || '',
+        inicioActividades: u.inicioActividades ? new Date(u.inicioActividades).toISOString().split('T')[0] : '',
+        direccionEmpresa: u.direccionEmpresa || '', comunaEmpresa: u.comunaEmpresa || '',
+        ciudadEmpresa: u.ciudadEmpresa || '', telefonoEmpresa: u.telefonoEmpresa || '', emailEmpresa: u.emailEmpresa || '',
+        bancoNombre: u.bancoNombre || '', bancoTipoCuenta: u.bancoTipoCuenta || '',
+        bancoNumeroCuenta: u.bancoNumeroCuenta || '', bancoTitular: u.bancoTitular || '',
+        bancoRutTitular: u.bancoRutTitular || '', bancoEmail: u.bancoEmail || '',
+        facturacionPlataforma: u.facturacionPlataforma || '', facturacionApiKey: u.facturacionApiKey || '',
         patenteVehiculo: u.patenteVehiculo || '', tipoVehiculo: u.tipoVehiculo || 'aljibe',
         capacidadVehiculoKg: u.capacidadVehiculoKg ? String(u.capacidadVehiculoKg) : '',
         areasCobertura: u.areasCobertura || '', descripcion: u.descripcion || '',
@@ -460,18 +468,10 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
   function update(field: string, value: any) { setForm({ ...form, [field]: value }); }
 
   async function guardar() {
+    if (!form.rut.trim()) { toast.error("El RUT personal es obligatorio"); return; }
     setSaving(true);
     try {
-      await akuoApi("/api/akuosplash/cliente/perfil", {
-        method: "PATCH",
-        body: JSON.stringify({
-          nombre: form.nombre, telefono: form.telefono,
-          razonSocial: form.razonSocial, direccionEmpresa: form.direccionEmpresa,
-          patenteVehiculo: form.patenteVehiculo, tipoVehiculo: form.tipoVehiculo,
-          capacidadVehiculoKg: form.capacidadVehiculoKg ? Number(form.capacidadVehiculoKg) : undefined,
-          areasCobertura: form.areasCobertura, descripcion: form.descripcion,
-        }),
-      });
+      await akuoApi("/api/akuosplash/cliente/perfil", { method: "PATCH", body: JSON.stringify(form) });
       toast.success("Perfil actualizado");
       onUpdated();
     } catch (e: any) { toast.error(e.message || "Error"); }
@@ -482,104 +482,122 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
     <div className="space-y-4">
       {/* Datos personales */}
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><User className="h-4 w-4 text-primary" /> Mis datos</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><User className="h-4 w-4 text-primary" /> Datos personales</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center gap-4 mb-2">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-bold">{form.nombre?.[0] || "?"}</div>
-            <div>
-              <p className="font-bold">{user.email}</p>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">Plan: {user.plan}</Badge>
-                {perfil?.usuario?.mpConnected && (
-                  <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50">MP conectado</Badge>
-                )}
-              </div>
-            </div>
+            <div><p className="font-bold">{user.email}</p><Badge variant="outline">Plan: {user.plan}</Badge></div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div><Label>Nombre</Label><Input value={form.nombre} onChange={(e: any) => update("nombre", e.target.value)} /></div>
-            <div><Label>Teléfono</Label><Input placeholder="+56 9 1234 5678" value={form.telefono} onChange={(e: any) => update("telefono", e.target.value)} /></div>
-            <div><Label>Razón social (empresa)</Label><Input placeholder="Agua San Pedro Ltda." value={form.razonSocial} onChange={(e: any) => update("razonSocial", e.target.value)} /></div>
-            <div><Label>Dirección empresa</Label><Input placeholder="Sucursal, calle..." value={form.direccionEmpresa} onChange={(e: any) => update("direccionEmpresa", e.target.value)} /></div>
+            <div><Label>Nombre *</Label><Input value={form.nombre} onChange={(e) => update("nombre", e.target.value)} /></div>
+            <div><Label>RUT personal *</Label><Input placeholder="12.345.678-9" value={form.rut} onChange={(e) => update("rut", e.target.value)} /></div>
+            <div><Label>Teléfono</Label><Input placeholder="+56 9 1234 5678" value={form.telefono} onChange={(e) => update("telefono", e.target.value)} /></div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Mi vehículo */}
+      {/* Datos de la empresa */}
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> Mi vehículo</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Building2 className="h-4 w-4 text-primary" /> Datos de la empresa</CardTitle></CardHeader>
         <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">Datos legales necesarios para facturación ante el SII.</p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div><Label>Patente</Label><Input placeholder="AB-CD-12" value={form.patenteVehiculo} onChange={(e: any) => update("patenteVehiculo", e.target.value)} /></div>
+            <div><Label>Razón social</Label><Input placeholder="Agua San Pedro Ltda." value={form.razonSocial} onChange={(e) => update("razonSocial", e.target.value)} /></div>
+            <div><Label>RUT empresa</Label><Input placeholder="76.123.456-7" value={form.rutEmpresa} onChange={(e) => update("rutEmpresa", e.target.value)} /></div>
+            <div><Label>Giro</Label><Input placeholder="Distribución de agua potable" value={form.giro} onChange={(e) => update("giro", e.target.value)} /></div>
+            <div><Label>Inicio de actividades</Label><Input type="date" value={form.inicioActividades} onChange={(e) => update("inicioActividades", e.target.value)} /></div>
+            <div><Label>Dirección fiscal</Label><Input placeholder="Av. Las Condes 123" value={form.direccionEmpresa} onChange={(e) => update("direccionEmpresa", e.target.value)} /></div>
+            <div><Label>Comuna</Label><Input placeholder="Las Condes" value={form.comunaEmpresa} onChange={(e) => update("comunaEmpresa", e.target.value)} /></div>
+            <div><Label>Ciudad</Label><Input placeholder="Santiago" value={form.ciudadEmpresa} onChange={(e) => update("ciudadEmpresa", e.target.value)} /></div>
+            <div><Label>Teléfono empresa</Label><Input placeholder="+56 2 2345 6789" value={form.telefonoEmpresa} onChange={(e) => update("telefonoEmpresa", e.target.value)} /></div>
+            <div><Label>Email empresa</Label><Input placeholder="contacto@empresa.cl" value={form.emailEmpresa} onChange={(e) => update("emailEmpresa", e.target.value)} /></div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Datos bancarios */}
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> Datos bancarios</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">Para recibir pagos por transferencia bancaria de los clientes.</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div><Label>Banco</Label><Input placeholder="Banco de Chile" value={form.bancoNombre} onChange={(e) => update("bancoNombre", e.target.value)} /></div>
+            <div><Label>Tipo de cuenta</Label>
+              <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.bancoTipoCuenta} onChange={(e) => update("bancoTipoCuenta", e.target.value)}>
+                <option value="">Seleccionar...</option>
+                <option value="cuenta_corriente">Cuenta corriente</option>
+                <option value="cuenta_vista">Cuenta vista</option>
+                <option value="cuenta_ahorro">Cuenta de ahorro</option>
+              </select>
+            </div>
+            <div><Label>Número de cuenta</Label><Input placeholder="000-12345678-90" value={form.bancoNumeroCuenta} onChange={(e) => update("bancoNumeroCuenta", e.target.value)} /></div>
+            <div><Label>Titular de la cuenta</Label><Input placeholder="Nombre del titular" value={form.bancoTitular} onChange={(e) => update("bancoTitular", e.target.value)} /></div>
+            <div><Label>RUT del titular</Label><Input placeholder="12.345.678-9" value={form.bancoRutTitular} onChange={(e) => update("bancoRutTitular", e.target.value)} /></div>
+            <div><Label>Email para comprobante</Label><Input placeholder="pagos@empresa.cl" value={form.bancoEmail} onChange={(e) => update("bancoEmail", e.target.value)} /></div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Facturación electrónica SII */}
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Facturación electrónica (SII)</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">Integración con plataforma externa de facturación electrónica ante el SII.</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div><Label>Plataforma de facturación</Label>
+              <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.facturacionPlataforma} onChange={(e) => update("facturacionPlataforma", e.target.value)}>
+                <option value="">Sin plataforma</option>
+                <option value="facturador">Facturador</option>
+                <option value="libro_derecho">Libro Derecho</option>
+                <option value="facturacion_cloud">Facturación Cloud</option>
+                <option value="otro">Otra</option>
+              </select>
+            </div>
+            <div><Label>API Key</Label><Input type="password" placeholder="Clave de API de la plataforma" value={form.facturacionApiKey} onChange={(e) => update("facturacionApiKey", e.target.value)} /></div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Vehículo */}
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> Vehículo</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div><Label>Patente</Label><Input placeholder="AB-CD-12" value={form.patenteVehiculo} onChange={(e) => update("patenteVehiculo", e.target.value)} /></div>
             <div><Label>Tipo</Label>
-              <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.tipoVehiculo} onChange={(e: any) => update("tipoVehiculo", e.target.value)}>
+              <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.tipoVehiculo} onChange={(e) => update("tipoVehiculo", e.target.value)}>
                 <option value="aljibe">Aljibe (camión agua)</option>
                 <option value="camioneta">Camioneta</option>
                 <option value="camion">Camión</option>
                 <option value="otro">Otro</option>
               </select>
             </div>
-            <div><Label>Capacidad (litros)</Label><Input type="number" placeholder="5000" value={form.capacidadVehiculoKg} onChange={(e: any) => update("capacidadVehiculoKg", e.target.value)} /></div>
+            <div><Label>Capacidad (L)</Label><Input type="number" placeholder="5000" value={form.capacidadVehiculoKg} onChange={(e) => update("capacidadVehiculoKg", e.target.value)} /></div>
           </div>
         </CardContent>
       </Card>
-
-      {/* Mis estadísticas */}
-      {perfil?.stats && (
-        <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Droplets className="h-4 w-4 text-primary" /> Mis estadísticas</CardTitle></CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-border p-3 text-center">
-                <p className="text-xs text-muted-foreground">Total entregas</p>
-                <p className="text-xl font-bold tabular-nums">{perfil.stats.totalEntregas}</p>
-              </div>
-              <div className="rounded-lg border border-border p-3 text-center">
-                <p className="text-xs text-muted-foreground">Total litros</p>
-                <p className="text-xl font-bold tabular-nums">{perfil.stats.totalLitros.toLocaleString("es-CL")} L</p>
-              </div>
-              <div className="rounded-lg border border-border p-3 text-center">
-                <p className="text-xs text-muted-foreground">Ingresos del mes</p>
-                <p className="text-xl font-bold tabular-nums">{formatCLP(perfil.stats.ventasMes)}</p>
-              </div>
-              <div className="rounded-lg border border-border p-3 text-center">
-                <p className="text-xs text-muted-foreground">Valoración</p>
-                <p className="text-xl font-bold tabular-nums">
-                  {perfil.stats.totalValoraciones > 0 ? `★ ${perfil.stats.valoracionPromedio}` : "—"}
-                </p>
-                <p className="text-[10px] text-muted-foreground">{perfil.stats.totalValoraciones} reseñas</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Áreas de cobertura */}
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Áreas de cobertura</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div><Label>Comunas / zonas</Label><Input placeholder="Vitacura, Las Condes, Lo Barnechea..." value={form.areasCobertura} onChange={(e: any) => update("areasCobertura", e.target.value)} /></div>
-          <div><Label>Descripción</Label><Input placeholder="Servicio rápido, horarios, etc." value={form.descripcion} onChange={(e: any) => update("descripcion", e.target.value)} /></div>
+          <div><Label>Comunas / zonas</Label><Input placeholder="Vitacura, Las Condes, Lo Barnechea..." value={form.areasCobertura} onChange={(e) => update("areasCobertura", e.target.value)} /></div>
+          <div><Label>Descripción</Label><Input placeholder="Servicio rápido, horarios, etc." value={form.descripcion} onChange={(e) => update("descripcion", e.target.value)} /></div>
         </CardContent>
       </Card>
 
       {/* MercadoPago */}
       <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> MercadoPago</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> MercadoPago (split payment)</CardTitle></CardHeader>
         <CardContent>
-          {perfil?.usuario?.mpConnected ? (
+          {perfil?.user?.mpConnected ? (
             <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700">
-              <p className="font-medium">✓ Tu cuenta MercadoPago está conectada</p>
-              <p className="text-xs mt-1">Vas a recibir los pagos automáticamente cuando un cliente pague un pedido que aceptaste.</p>
-              {perfil.usuario.mpConnectedAt && (
-                <p className="text-[10px] mt-1 text-emerald-600">Conectada el {new Date(perfil.usuario.mpConnectedAt).toLocaleDateString("es-CL")}</p>
-              )}
+              <p className="font-medium">✓ MercadoPago conectado</p>
+              <p className="text-xs mt-1">Los pagos se dividen automáticamente: el cliente paga, MP envía tu parte y retiene la comisión de la plataforma.</p>
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Conectá tu cuenta MercadoPago para recibir los pagos automáticamente cuando entregues un pedido.
-              </p>
+              <p className="text-sm text-muted-foreground">Conectá tu cuenta MercadoPago para recibir pagos automáticamente con división (split payment).</p>
               <Button onClick={() => { window.location.href = "/api/akuosplash/auth/mp/oauth"; }} className="w-full bg-blue-600 hover:bg-blue-700">
                 <Wallet className="h-4 w-4 mr-1" /> Conectar MercadoPago
               </Button>
@@ -589,7 +607,7 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
       </Card>
 
       <Button onClick={guardar} disabled={saving} className="w-full h-12">
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cambios"}
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar todos los cambios"}
       </Button>
     </div>
   );
