@@ -35,6 +35,7 @@ import {
   User,
   Users,
   ExternalLink,
+  Camera,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -517,16 +518,21 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                 <div className="space-y-1">
                   <Label className="text-xs">Foto del permiso</Label>
                   <div className="flex gap-2">
-                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+                    <label className="flex-1 cursor-pointer">
+                      <span className="inline-flex items-center justify-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-50 w-full">
+                        <Camera className="h-3.5 w-3.5" /> {permisoCircFoto ? "Cambiar foto" : "Subir foto"}
+                      </span>
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
                         const result = await uploadFile(f, { tipo: "permiso_circ" });
                         setPermisoCircFoto(result.url);
                         if (result.uploadedToServer) toast.success("Foto subida");
-                        else toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
+                        else toast.success("Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
+                    </label>
                     {permisoCircFoto && <a href={permisoCircFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
                   </div>
                 </div>
@@ -541,16 +547,21 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                 <div className="space-y-1">
                   <Label className="text-xs">Foto de la revisión</Label>
                   <div className="flex gap-2">
-                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+                    <label className="flex-1 cursor-pointer">
+                      <span className="inline-flex items-center justify-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-50 w-full">
+                        <Camera className="h-3.5 w-3.5" /> {revisionTecFoto ? "Cambiar foto" : "Subir foto"}
+                      </span>
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
                         const result = await uploadFile(f, { tipo: "revision_tec" });
                         setRevisionTecFoto(result.url);
                         if (result.uploadedToServer) toast.success("Foto subida");
-                        else toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
+                        else toast.success("Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
+                    </label>
                     {revisionTecFoto && <a href={revisionTecFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
                   </div>
                 </div>
@@ -565,16 +576,21 @@ export function CamionesManager({ refreshKey, onRefresh, onCamionesChange, isDue
                 <div className="space-y-1">
                   <Label className="text-xs">Foto de la póliza</Label>
                   <div className="flex gap-2">
-                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+                    <label className="flex-1 cursor-pointer">
+                      <span className="inline-flex items-center justify-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-50 w-full">
+                        <Camera className="h-3.5 w-3.5" /> {seguroFoto ? "Cambiar foto" : "Subir foto"}
+                      </span>
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
                         const result = await uploadFile(f, { tipo: "seguro" });
                         setSeguroFoto(result.url);
                         if (result.uploadedToServer) toast.success("Foto subida");
-                        else toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
+                        else toast.success("Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
+                    </label>
                     {seguroFoto && <a href={seguroFoto} target="_blank" className="text-xs text-primary hover:underline">Ver</a>}
                   </div>
                 </div>
