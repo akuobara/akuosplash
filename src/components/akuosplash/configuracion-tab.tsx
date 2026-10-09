@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText, Calendar, Smartphone } from "lucide-react";
+import { Loader2, Save, Info, Droplets, HandCoins, Users, Receipt, FileText, Calendar, Smartphone, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { apiPut } from "@/components/akuosplash/akuosplash-api-client";
 import {
@@ -23,7 +23,7 @@ import {
   APLICA_IMPUESTO_SOBRE,
   formatCurrency,
 } from "@/components/akuosplash/akuosplash-helpers";
-import { CamionesManager } from "./camiones-manager";
+
 
 interface Config {
   id: string;
@@ -131,6 +131,7 @@ export function ConfiguracionTab({
   const [diaCierreSemana, setDiaCierreSemana] = useState("6");
 
   const [saving, setSaving] = useState(false);
+  const [sifacturaApiKey, setSifacturaApiKey] = useState("");
 
   useEffect(() => {
     if (config) {
@@ -236,6 +237,8 @@ export function ConfiguracionTab({
         transfRutTitular,
         transfEmail,
         transfTelefono,
+        // sifactura.com
+        sifacturaApiKey,
       });
       onConfigChange(r.configuracion);
       toast.success("Configuración guardada");
@@ -362,14 +365,6 @@ export function ConfiguracionTab({
           </div>
         </CardContent>
       </Card>
-
-      {/* Camiones — gestionar multiples */}
-      <CamionesManager
-        refreshKey={refreshKey}
-        onRefresh={onRefresh}
-        onCamionesChange={onCamionesChange}
-        isDueno={true}
-      />
 
       {/* Precios por método de pago */}
       <Card>
@@ -762,6 +757,56 @@ export function ConfiguracionTab({
             <strong>Consejo:</strong> Los choferes pueden registrar pedidos cuando reciben llamadas
             de clientes directamente. Así registran el pedido en el momento y después lo convierten en
             entrega cuando lo llevan.
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* MercadoPago */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Wallet className="h-4 w-4 text-primary" />
+            <CardTitle className="text-base">MercadoPago</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Conectá tu cuenta MercadoPago para recibir pagos automáticamente con división (split payment).
+            Cuando un cliente paga, MercadoPago envía tu parte y retiene la comisión de la plataforma.
+          </p>
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm">
+            <p className="font-medium text-blue-700">Estado: pendiente de conexión</p>
+            <p className="text-xs text-blue-600 mt-1">Conectá tu cuenta desde la pestaña "Perfil".</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Facturación electrónica SII — sifactura.com */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-primary" />
+            <CardTitle className="text-base">Facturación electrónica (SII)</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Integración con <a href="https://sifactura.com" target="_blank" className="text-blue-600 hover:underline font-medium">sifactura.com</a> para emitir facturas electrónicas ante el SII de forma automática.
+          </p>
+          <div className="grid gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Plataforma</Label>
+              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium">sifactura.com</div>
+              <p className="text-[10px] text-muted-foreground">Plataforma externa de facturación electrónica integrada</p>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="sifacturaApiKey" className="text-xs">API Key de sifactura.com</Label>
+              <Input id="sifacturaApiKey" type="password" placeholder="Tu API key de sifactura.com" value={sifacturaApiKey} onChange={(e) => setSifacturaApiKey(e.target.value)} />
+              <p className="text-[10px] text-muted-foreground">Obtené tu API key desde tu cuenta de sifactura.com → Configuración → API</p>
+            </div>
+            <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
+              <Info className="mb-1 inline h-3 w-3" /> Las facturas se emiten automáticamente cuando se confirma una entrega. El cliente recibe la factura por email.
+            </div>
           </div>
         </CardContent>
       </Card>
