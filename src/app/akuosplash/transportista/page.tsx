@@ -167,7 +167,7 @@ export default function TransportistaPage() {
           </TabsContent>
           <TabsContent value="pedidos" className="mt-4"><ErrorBoundary><PedidosTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} camiones={camiones} vueltaActual={vueltaActual} /></ErrorBoundary></TabsContent>
           <TabsContent value="entregas" className="mt-4"><ErrorBoundary><EntregasTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} camiones={camiones} vueltaActual={vueltaActual} /></ErrorBoundary></TabsContent>
-          <TabsContent value="camiones" className="mt-4"><ErrorBoundary><CamionesManager camiones={camiones} onRefresh={refresh} /></ErrorBoundary></TabsContent>
+          <TabsContent value="camiones" className="mt-4"><ErrorBoundary><CamionesManager refreshKey={refreshKey} onRefresh={refresh} onCamionesChange={() => {}} isDueno={true} /></ErrorBoundary></TabsContent>
           <TabsContent value="gastos" className="mt-4"><ErrorBoundary><GastosTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
           <TabsContent value="liquidacion" className="mt-4"><ErrorBoundary><LiquidacionTab clientes={clientes} config={config} refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
           <TabsContent value="clientes" className="mt-4"><ErrorBoundary><ClientesTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
