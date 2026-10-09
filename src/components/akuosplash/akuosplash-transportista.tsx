@@ -430,7 +430,7 @@ function Mensajeria({ conversaciones, userId, loading, onRefresh }: { conversaci
 }
 
 
-function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: () => void }) {
+export function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: () => void }) {
   const [perfil, setPerfil] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<any>({

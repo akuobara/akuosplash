@@ -75,8 +75,10 @@ model AkuoUsuario {
   suscripcionFin       DateTime?
   vehiculosPermitidos  Int     @default(1)
   choferesPermitidos   Int     @default(1)
-  // MercadoPago Marketplace — OAuth para que el repartidor conecte su cuenta
-  // y reciba su parte del pago (split payment automático)
+  // Precios por litro del transportista
+  precioEfectivoPorLitro  Float?
+  precioTransferenciaPorLitro Float?
+  // MercadoPago Marketplace
   mpUserId             String?  // ID de usuario MP del repartidor
   mpAccessToken        String?  // token de acceso (caduca, hay que refrescar con mpRefreshToken)
   mpRefreshToken       String?

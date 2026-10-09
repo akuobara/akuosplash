@@ -175,6 +175,8 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   suscripcionFin: 'suscripcionFin',
   vehiculosPermitidos: 'vehiculosPermitidos',
   choferesPermitidos: 'choferesPermitidos',
+  precioEfectivoPorLitro: 'precioEfectivoPorLitro',
+  precioTransferenciaPorLitro: 'precioTransferenciaPorLitro',
   mpUserId: 'mpUserId',
   mpAccessToken: 'mpAccessToken',
   mpRefreshToken: 'mpRefreshToken',

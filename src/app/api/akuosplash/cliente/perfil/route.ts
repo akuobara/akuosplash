@@ -26,6 +26,8 @@ export async function GET() {
       patenteVehiculo: u.patenteVehiculo, tipoVehiculo: u.tipoVehiculo, capacidadVehiculoKg: u.capacidadVehiculoKg,
       // Cobertura
       areasCobertura: u.areasCobertura, descripcion: u.descripcion,
+      // Precios
+      precioEfectivoPorLitro: u.precioEfectivoPorLitro, precioTransferenciaPorLitro: u.precioTransferenciaPorLitro,
       // MP
       mpConnected: !!u.mpUserId && !!u.mpAccessToken, mpConnectedAt: u.mpConnectedAt,
       // General
@@ -75,6 +77,9 @@ export async function PATCH(req: NextRequest) {
   // Cobertura
   if (body.areasCobertura !== undefined) data.areasCobertura = body.areasCobertura?.trim() || null;
   if (body.descripcion !== undefined) data.descripcion = body.descripcion?.trim() || null;
+  // Precios
+  if (body.precioEfectivoPorLitro !== undefined) data.precioEfectivoPorLitro = body.precioEfectivoPorLitro ? Number(body.precioEfectivoPorLitro) : null;
+  if (body.precioTransferenciaPorLitro !== undefined) data.precioTransferenciaPorLitro = body.precioTransferenciaPorLitro ? Number(body.precioTransferenciaPorLitro) : null;
 
   const actualizado = await akuosplashDb.akuoUsuario.update({ where: { id: user.id }, data });
   return NextResponse.json({ ok: true, user: { id: actualizado.id, nombre: actualizado.nombre, telefono: actualizado.telefono, saldo: actualizado.saldo } });
