@@ -135,20 +135,24 @@ export default function TransportistaPage() {
 
       <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-6">
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
-          <TabsList className="flex flex-wrap w-full">
-            <TabsTrigger value="dashboard"><LayoutDashboard className="mr-1 h-4 w-4" /> Panel</TabsTrigger>
-            <TabsTrigger value="pedidos"><ClipboardList className="mr-1 h-4 w-4" /> Pedidos</TabsTrigger>
-            <TabsTrigger value="entregas"><Droplets className="mr-1 h-4 w-4" /> Entregas</TabsTrigger>
-            <TabsTrigger value="camiones"><Truck className="mr-1 h-4 w-4" /> Camiones</TabsTrigger>
-            <TabsTrigger value="gastos"><Receipt className="mr-1 h-4 w-4" /> Gastos</TabsTrigger>
-            <TabsTrigger value="liquidacion"><Calculator className="mr-1 h-4 w-4" /> Liquidación</TabsTrigger>
-            <TabsTrigger value="clientes"><Users className="mr-1 h-4 w-4" /> Clientes</TabsTrigger>
-            <TabsTrigger value="recurrentes"><Repeat className="mr-1 h-4 w-4" /> Recurrentes</TabsTrigger>
-            <TabsTrigger value="historial"><History className="mr-1 h-4 w-4" /> Historial</TabsTrigger>
-            <TabsTrigger value="config"><Settings className="mr-1 h-4 w-4" /> Config</TabsTrigger>
-            <TabsTrigger value="equipo"><UserCog className="mr-1 h-4 w-4" /> Equipo</TabsTrigger>
-            <TabsTrigger value="perfil"><UserCog className="mr-1 h-4 w-4" /> Perfil</TabsTrigger>
-          </TabsList>
+          <select
+            value={tab}
+            onChange={(e) => setTab(e.target.value as TabKey)}
+            className="w-full mb-4 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium"
+          >
+            <option value="dashboard">📊 Panel</option>
+            <option value="pedidos">📋 Pedidos</option>
+            <option value="entregas">💧 Entregas</option>
+            <option value="camiones">🚛 Camiones</option>
+            <option value="gastos">💵 Gastos</option>
+            <option value="liquidacion">🧮 Liquidación</option>
+            <option value="clientes">👥 Clientes</option>
+            <option value="recurrentes">🔁 Recurrentes</option>
+            <option value="historial">📜 Historial</option>
+            <option value="config">⚙️ Config</option>
+            <option value="equipo">👤 Equipo</option>
+            <option value="perfil">🙋 Perfil</option>
+          </select>
 
           <TabsContent value="dashboard" className="mt-4">
             <ErrorBoundary>
