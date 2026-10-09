@@ -33,6 +33,7 @@ import {
   Users,
   Truck,
   CalendarOff,
+  Camera,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete, uploadFile } from "@/components/akuosplash/akuosplash-api-client";
@@ -456,16 +457,21 @@ export function EquipoTab({ refreshKey, onRefresh }: EquipoTabProps) {
                 <div className="space-y-2">
                   <Label className="text-xs">Foto de la licencia</Label>
                   <div className="flex gap-2">
-                    <input type="file" accept="image/*" className="text-xs flex-1" onChange={async (e) => {
+                    <label className="flex-1 cursor-pointer">
+                      <span className="inline-flex items-center justify-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-50 w-full">
+                        <Camera className="h-3.5 w-3.5" /> {licenciaFoto ? "Cambiar foto" : "Subir foto"}
+                      </span>
+                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                       const f = e.target.files?.[0]; if (!f) return;
                       setSubiendoDoc(true);
                       try {
                         const result = await uploadFile(f, { tipo: "licencia" });
                         setLicenciaFoto(result.url);
                         if (result.uploadedToServer) toast.success("Foto subida");
-                        else toast.success("📷 Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
+                        else toast.success("Foto guardada en el dispositivo (sin señal). Se subirá cuando tengas conexión.", { duration: 8000 });
                       } catch { toast.error("Error al subir"); } finally { setSubiendoDoc(false); }
                     }} />
+                    </label>
                     {licenciaFoto && <a href={licenciaFoto} target="_blank" className="text-xs text-primary hover:underline self-center">Ver</a>}
                   </div>
                 </div>

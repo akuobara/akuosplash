@@ -131,7 +131,7 @@ export function ConfiguracionTab({
   const [diaCierreSemana, setDiaCierreSemana] = useState("6");
 
   const [saving, setSaving] = useState(false);
-  const [sifacturaApiKey, setSifacturaApiKey] = useState("");
+  const [wasabilApiKey, setWasabilApiKey] = useState("");
 
   useEffect(() => {
     if (config) {
@@ -237,8 +237,8 @@ export function ConfiguracionTab({
         transfRutTitular,
         transfEmail,
         transfTelefono,
-        // sifactura.com
-        sifacturaApiKey,
+        // wasabil.com
+        wasabilApiKey,
       });
       onConfigChange(r.configuracion);
       toast.success("Configuración guardada");
@@ -781,7 +781,7 @@ export function ConfiguracionTab({
         </CardContent>
       </Card>
 
-      {/* Facturación electrónica SII — sifactura.com */}
+      {/* Facturación electrónica SII — wasabil.com */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
@@ -791,18 +791,18 @@ export function ConfiguracionTab({
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-xs text-muted-foreground">
-            Integración con <a href="https://sifactura.com" target="_blank" className="text-blue-600 hover:underline font-medium">sifactura.com</a> para emitir facturas electrónicas ante el SII de forma automática.
+            Integración con <a href="https://wasabil.com" target="_blank" className="text-blue-600 hover:underline font-medium">wasabil.com</a> para emitir facturas electrónicas ante el SII de forma automática.
           </p>
           <div className="grid gap-3">
             <div className="space-y-1">
               <Label className="text-xs">Plataforma</Label>
-              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium">sifactura.com</div>
+              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium">wasabil.com</div>
               <p className="text-[10px] text-muted-foreground">Plataforma externa de facturación electrónica integrada</p>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="sifacturaApiKey" className="text-xs">API Key de sifactura.com</Label>
-              <Input id="sifacturaApiKey" type="password" placeholder="Tu API key de sifactura.com" value={sifacturaApiKey} onChange={(e) => setSifacturaApiKey(e.target.value)} />
-              <p className="text-[10px] text-muted-foreground">Obtené tu API key desde tu cuenta de sifactura.com → Configuración → API</p>
+              <Label htmlFor="wasabilApiKey" className="text-xs">API Key de wasabil.com</Label>
+              <Input id="wasabilApiKey" type="password" placeholder="Tu API key de wasabil.com" value={wasabilApiKey} onChange={(e) => setWasabilApiKey(e.target.value)} />
+              <p className="text-[10px] text-muted-foreground">Obtené tu API key desde tu cuenta de wasabil.com → Configuración → API</p>
             </div>
             <div className="rounded-lg bg-muted/40 p-3 text-xs text-muted-foreground">
               <Info className="mb-1 inline h-3 w-3" /> Las facturas se emiten automáticamente cuando se confirma una entrega. El cliente recibe la factura por email.

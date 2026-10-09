@@ -547,9 +547,7 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
             <div><Label>Plataforma de facturación</Label>
               <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.facturacionPlataforma} onChange={(e) => update("facturacionPlataforma", e.target.value)}>
                 <option value="">Sin plataforma</option>
-                <option value="facturador">Facturador</option>
-                <option value="libro_derecho">Libro Derecho</option>
-                <option value="facturacion_cloud">Facturación Cloud</option>
+                <option value="wasabil">wasabil.com</option>
                 <option value="otro">Otra</option>
               </select>
             </div>
