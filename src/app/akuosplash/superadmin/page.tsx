@@ -113,8 +113,8 @@ export default function SuperadminPage() {
 
       <main className="mx-auto max-w-md px-4 py-5">
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">Hola, {user.nombre}</h1>
-          <p className="text-sm text-gray-500">Panel de administración</p>
+          <h1 className="text-2xl font-bold text-gray-900">Panel de administración</h1>
+          <p className="text-sm text-gray-500">Monitoreo y gestión de la plataforma</p>
         </div>
 
         {/* Cambiar de interfaz */}

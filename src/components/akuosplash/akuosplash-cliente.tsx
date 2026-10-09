@@ -105,7 +105,9 @@ export function AkuosplashCliente() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-gray-400 leading-none">AkuoSplash</p>
-              <p className="font-semibold text-sm leading-tight">{user.nombre}</p>
+              <p className="font-semibold text-sm leading-tight">
+                {user.rol === "superadmin" ? "Superadmin (monitoreo)" : user.nombre}
+              </p>
             </div>
           </Link>
           <div className="flex items-center gap-2">
@@ -123,11 +125,13 @@ export function AkuosplashCliente() {
         </div>
       </header>
 
-      {/* Banner superadmin: atajo para volver al panel admin */}
+      {/* Banner superadmin: switcher entre interfaces */}
       {user.rol === "superadmin" && (
-        <Link href="/akuosplash/superadmin" className="block bg-violet-600 text-white text-xs py-1.5 text-center font-medium hover:bg-violet-700 transition">
-          Estás viendo como cliente (modo superadmin) — Tocá para volver al panel de administración
-        </Link>
+        <div className="flex items-center justify-center gap-3 bg-violet-600 text-white text-xs py-2 px-4">
+          <span>Modo monitoreo — viendo como cliente</span>
+          <Link href="/akuosplash/superadmin" className="underline font-semibold">← Panel admin</Link>
+          <Link href="/akuosplash/transportista" className="underline font-semibold">→ Repartidor</Link>
+        </div>
       )}
 
       <main className="mx-auto max-w-md px-4 py-5 space-y-5">

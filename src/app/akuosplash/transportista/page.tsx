@@ -102,16 +102,23 @@ export default function TransportistaPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {user.rol === "superadmin" && (
-        <Link href="/akuosplash/superadmin" className="block bg-violet-600 text-white text-xs py-1.5 text-center font-medium hover:bg-violet-700">
-          Estás viendo como repartidor (modo superadmin) — Volver al panel
-        </Link>
+        <div className="flex items-center justify-center gap-3 bg-violet-600 text-white text-xs py-2 px-4">
+          <span>Modo monitoreo — viendo como repartidor</span>
+          <Link href="/akuosplash/superadmin" className="underline font-semibold">← Panel admin</Link>
+          <Link href="/akuosplash/cliente" className="underline font-semibold">→ Cliente</Link>
+        </div>
       )}
 
       <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-6">
           <div className="flex items-center gap-2">
             <img src="/akuosplash/logo.png" alt="AkuoSplash" className="h-8 w-auto" />
-            <div className="hidden sm:block"><p className="font-bold text-blue-600">AkuoSplash</p><p className="-mt-1 text-xs text-muted-foreground">Repartidor · {user.nombre}</p></div>
+            <div className="hidden sm:block">
+              <p className="font-bold text-blue-600">AkuoSplash</p>
+              <p className="-mt-1 text-xs text-muted-foreground">
+                {user.rol === "superadmin" ? "Superadmin (monitoreo)" : `Repartidor · ${user.nombre}`}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {user.rol === "superadmin" && (
