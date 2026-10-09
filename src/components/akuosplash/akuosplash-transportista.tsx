@@ -558,34 +558,6 @@ function PerfilTransportista({ user, onUpdated }: { user: AkuoUser; onUpdated: (
         </CardContent>
       </Card>
 
-      {/* Vehículo */}
-      <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Truck className="h-4 w-4 text-primary" /> Vehículo</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div><Label>Patente</Label><Input placeholder="AB-CD-12" value={form.patenteVehiculo} onChange={(e) => update("patenteVehiculo", e.target.value)} /></div>
-            <div><Label>Tipo</Label>
-              <select className="w-full rounded-md border px-3 py-2 text-sm" value={form.tipoVehiculo} onChange={(e) => update("tipoVehiculo", e.target.value)}>
-                <option value="aljibe">Aljibe (camión agua)</option>
-                <option value="camioneta">Camioneta</option>
-                <option value="camion">Camión</option>
-                <option value="otro">Otro</option>
-              </select>
-            </div>
-            <div><Label>Capacidad (L)</Label><Input type="number" placeholder="5000" value={form.capacidadVehiculoKg} onChange={(e) => update("capacidadVehiculoKg", e.target.value)} /></div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Áreas de cobertura */}
-      <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Áreas de cobertura</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div><Label>Comunas / zonas</Label><Input placeholder="Vitacura, Las Condes, Lo Barnechea..." value={form.areasCobertura} onChange={(e) => update("areasCobertura", e.target.value)} /></div>
-          <div><Label>Descripción</Label><Input placeholder="Servicio rápido, horarios, etc." value={form.descripcion} onChange={(e) => update("descripcion", e.target.value)} /></div>
-        </CardContent>
-      </Card>
-
       {/* MercadoPago */}
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Wallet className="h-4 w-4 text-primary" /> MercadoPago (split payment)</CardTitle></CardHeader>

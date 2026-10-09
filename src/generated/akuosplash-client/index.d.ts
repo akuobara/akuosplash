@@ -7314,7 +7314,14 @@ export namespace Prisma {
     permisoCircUrl: string | null
     revisionTecUrl: string | null
     seguroUrl: string | null
+    fotoFrenteUrl: string | null
+    fotoAtrasUrl: string | null
+    fotoDerechaUrl: string | null
+    fotoIzquierdaUrl: string | null
     fotoUrl: string | null
+    documentosVerificados: boolean | null
+    verificadoEn: Date | null
+    verificadoPor: string | null
   }
 
   export type AkuoVehiculoMaxAggregateOutputType = {
@@ -7331,7 +7338,14 @@ export namespace Prisma {
     permisoCircUrl: string | null
     revisionTecUrl: string | null
     seguroUrl: string | null
+    fotoFrenteUrl: string | null
+    fotoAtrasUrl: string | null
+    fotoDerechaUrl: string | null
+    fotoIzquierdaUrl: string | null
     fotoUrl: string | null
+    documentosVerificados: boolean | null
+    verificadoEn: Date | null
+    verificadoPor: string | null
   }
 
   export type AkuoVehiculoCountAggregateOutputType = {
@@ -7348,7 +7362,14 @@ export namespace Prisma {
     permisoCircUrl: number
     revisionTecUrl: number
     seguroUrl: number
+    fotoFrenteUrl: number
+    fotoAtrasUrl: number
+    fotoDerechaUrl: number
+    fotoIzquierdaUrl: number
     fotoUrl: number
+    documentosVerificados: number
+    verificadoEn: number
+    verificadoPor: number
     _all: number
   }
 
@@ -7377,7 +7398,14 @@ export namespace Prisma {
     permisoCircUrl?: true
     revisionTecUrl?: true
     seguroUrl?: true
+    fotoFrenteUrl?: true
+    fotoAtrasUrl?: true
+    fotoDerechaUrl?: true
+    fotoIzquierdaUrl?: true
     fotoUrl?: true
+    documentosVerificados?: true
+    verificadoEn?: true
+    verificadoPor?: true
   }
 
   export type AkuoVehiculoMaxAggregateInputType = {
@@ -7394,7 +7422,14 @@ export namespace Prisma {
     permisoCircUrl?: true
     revisionTecUrl?: true
     seguroUrl?: true
+    fotoFrenteUrl?: true
+    fotoAtrasUrl?: true
+    fotoDerechaUrl?: true
+    fotoIzquierdaUrl?: true
     fotoUrl?: true
+    documentosVerificados?: true
+    verificadoEn?: true
+    verificadoPor?: true
   }
 
   export type AkuoVehiculoCountAggregateInputType = {
@@ -7411,7 +7446,14 @@ export namespace Prisma {
     permisoCircUrl?: true
     revisionTecUrl?: true
     seguroUrl?: true
+    fotoFrenteUrl?: true
+    fotoAtrasUrl?: true
+    fotoDerechaUrl?: true
+    fotoIzquierdaUrl?: true
     fotoUrl?: true
+    documentosVerificados?: true
+    verificadoEn?: true
+    verificadoPor?: true
     _all?: true
   }
 
@@ -7515,7 +7557,14 @@ export namespace Prisma {
     permisoCircUrl: string | null
     revisionTecUrl: string | null
     seguroUrl: string | null
+    fotoFrenteUrl: string | null
+    fotoAtrasUrl: string | null
+    fotoDerechaUrl: string | null
+    fotoIzquierdaUrl: string | null
     fotoUrl: string | null
+    documentosVerificados: boolean
+    verificadoEn: Date | null
+    verificadoPor: string | null
     _count: AkuoVehiculoCountAggregateOutputType | null
     _avg: AkuoVehiculoAvgAggregateOutputType | null
     _sum: AkuoVehiculoSumAggregateOutputType | null
@@ -7551,7 +7600,14 @@ export namespace Prisma {
     permisoCircUrl?: boolean
     revisionTecUrl?: boolean
     seguroUrl?: boolean
+    fotoFrenteUrl?: boolean
+    fotoAtrasUrl?: boolean
+    fotoDerechaUrl?: boolean
+    fotoIzquierdaUrl?: boolean
     fotoUrl?: boolean
+    documentosVerificados?: boolean
+    verificadoEn?: boolean
+    verificadoPor?: boolean
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     entregas?: boolean | AkuoVehiculo$entregasArgs<ExtArgs>
     vueltas?: boolean | AkuoVehiculo$vueltasArgs<ExtArgs>
@@ -7572,7 +7628,14 @@ export namespace Prisma {
     permisoCircUrl?: boolean
     revisionTecUrl?: boolean
     seguroUrl?: boolean
+    fotoFrenteUrl?: boolean
+    fotoAtrasUrl?: boolean
+    fotoDerechaUrl?: boolean
+    fotoIzquierdaUrl?: boolean
     fotoUrl?: boolean
+    documentosVerificados?: boolean
+    verificadoEn?: boolean
+    verificadoPor?: boolean
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["akuoVehiculo"]>
 
@@ -7590,7 +7653,14 @@ export namespace Prisma {
     permisoCircUrl?: boolean
     revisionTecUrl?: boolean
     seguroUrl?: boolean
+    fotoFrenteUrl?: boolean
+    fotoAtrasUrl?: boolean
+    fotoDerechaUrl?: boolean
+    fotoIzquierdaUrl?: boolean
     fotoUrl?: boolean
+    documentosVerificados?: boolean
+    verificadoEn?: boolean
+    verificadoPor?: boolean
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["akuoVehiculo"]>
 
@@ -7608,10 +7678,17 @@ export namespace Prisma {
     permisoCircUrl?: boolean
     revisionTecUrl?: boolean
     seguroUrl?: boolean
+    fotoFrenteUrl?: boolean
+    fotoAtrasUrl?: boolean
+    fotoDerechaUrl?: boolean
+    fotoIzquierdaUrl?: boolean
     fotoUrl?: boolean
+    documentosVerificados?: boolean
+    verificadoEn?: boolean
+    verificadoPor?: boolean
   }
 
-  export type AkuoVehiculoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "transportistaId" | "patente" | "tipo" | "capacidadLitros" | "marca" | "modelo" | "año" | "activo" | "permisoCircUrl" | "revisionTecUrl" | "seguroUrl" | "fotoUrl", ExtArgs["result"]["akuoVehiculo"]>
+  export type AkuoVehiculoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "transportistaId" | "patente" | "tipo" | "capacidadLitros" | "marca" | "modelo" | "año" | "activo" | "permisoCircUrl" | "revisionTecUrl" | "seguroUrl" | "fotoFrenteUrl" | "fotoAtrasUrl" | "fotoDerechaUrl" | "fotoIzquierdaUrl" | "fotoUrl" | "documentosVerificados" | "verificadoEn" | "verificadoPor", ExtArgs["result"]["akuoVehiculo"]>
   export type AkuoVehiculoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transportista?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     entregas?: boolean | AkuoVehiculo$entregasArgs<ExtArgs>
@@ -7646,7 +7723,14 @@ export namespace Prisma {
       permisoCircUrl: string | null
       revisionTecUrl: string | null
       seguroUrl: string | null
+      fotoFrenteUrl: string | null
+      fotoAtrasUrl: string | null
+      fotoDerechaUrl: string | null
+      fotoIzquierdaUrl: string | null
       fotoUrl: string | null
+      documentosVerificados: boolean
+      verificadoEn: Date | null
+      verificadoPor: string | null
     }, ExtArgs["result"]["akuoVehiculo"]>
     composites: {}
   }
@@ -8086,7 +8170,14 @@ export namespace Prisma {
     readonly permisoCircUrl: FieldRef<"AkuoVehiculo", 'String'>
     readonly revisionTecUrl: FieldRef<"AkuoVehiculo", 'String'>
     readonly seguroUrl: FieldRef<"AkuoVehiculo", 'String'>
+    readonly fotoFrenteUrl: FieldRef<"AkuoVehiculo", 'String'>
+    readonly fotoAtrasUrl: FieldRef<"AkuoVehiculo", 'String'>
+    readonly fotoDerechaUrl: FieldRef<"AkuoVehiculo", 'String'>
+    readonly fotoIzquierdaUrl: FieldRef<"AkuoVehiculo", 'String'>
     readonly fotoUrl: FieldRef<"AkuoVehiculo", 'String'>
+    readonly documentosVerificados: FieldRef<"AkuoVehiculo", 'Boolean'>
+    readonly verificadoEn: FieldRef<"AkuoVehiculo", 'DateTime'>
+    readonly verificadoPor: FieldRef<"AkuoVehiculo", 'String'>
   }
     
 
@@ -26668,7 +26759,14 @@ export namespace Prisma {
     permisoCircUrl: 'permisoCircUrl',
     revisionTecUrl: 'revisionTecUrl',
     seguroUrl: 'seguroUrl',
-    fotoUrl: 'fotoUrl'
+    fotoFrenteUrl: 'fotoFrenteUrl',
+    fotoAtrasUrl: 'fotoAtrasUrl',
+    fotoDerechaUrl: 'fotoDerechaUrl',
+    fotoIzquierdaUrl: 'fotoIzquierdaUrl',
+    fotoUrl: 'fotoUrl',
+    documentosVerificados: 'documentosVerificados',
+    verificadoEn: 'verificadoEn',
+    verificadoPor: 'verificadoPor'
   };
 
   export type AkuoVehiculoScalarFieldEnum = (typeof AkuoVehiculoScalarFieldEnum)[keyof typeof AkuoVehiculoScalarFieldEnum]
@@ -27526,7 +27624,14 @@ export namespace Prisma {
     permisoCircUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     revisionTecUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     seguroUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoFrenteUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoAtrasUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoDerechaUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoIzquierdaUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     fotoUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    documentosVerificados?: BoolFilter<"AkuoVehiculo"> | boolean
+    verificadoEn?: DateTimeNullableFilter<"AkuoVehiculo"> | Date | string | null
+    verificadoPor?: StringNullableFilter<"AkuoVehiculo"> | string | null
     transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     entregas?: AkuoEntregaListRelationFilter
     vueltas?: AkuoVueltaListRelationFilter
@@ -27546,7 +27651,14 @@ export namespace Prisma {
     permisoCircUrl?: SortOrderInput | SortOrder
     revisionTecUrl?: SortOrderInput | SortOrder
     seguroUrl?: SortOrderInput | SortOrder
+    fotoFrenteUrl?: SortOrderInput | SortOrder
+    fotoAtrasUrl?: SortOrderInput | SortOrder
+    fotoDerechaUrl?: SortOrderInput | SortOrder
+    fotoIzquierdaUrl?: SortOrderInput | SortOrder
     fotoUrl?: SortOrderInput | SortOrder
+    documentosVerificados?: SortOrder
+    verificadoEn?: SortOrderInput | SortOrder
+    verificadoPor?: SortOrderInput | SortOrder
     transportista?: AkuoUsuarioOrderByWithRelationInput
     entregas?: AkuoEntregaOrderByRelationAggregateInput
     vueltas?: AkuoVueltaOrderByRelationAggregateInput
@@ -27569,7 +27681,14 @@ export namespace Prisma {
     permisoCircUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     revisionTecUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     seguroUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoFrenteUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoAtrasUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoDerechaUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoIzquierdaUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     fotoUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    documentosVerificados?: BoolFilter<"AkuoVehiculo"> | boolean
+    verificadoEn?: DateTimeNullableFilter<"AkuoVehiculo"> | Date | string | null
+    verificadoPor?: StringNullableFilter<"AkuoVehiculo"> | string | null
     transportista?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     entregas?: AkuoEntregaListRelationFilter
     vueltas?: AkuoVueltaListRelationFilter
@@ -27589,7 +27708,14 @@ export namespace Prisma {
     permisoCircUrl?: SortOrderInput | SortOrder
     revisionTecUrl?: SortOrderInput | SortOrder
     seguroUrl?: SortOrderInput | SortOrder
+    fotoFrenteUrl?: SortOrderInput | SortOrder
+    fotoAtrasUrl?: SortOrderInput | SortOrder
+    fotoDerechaUrl?: SortOrderInput | SortOrder
+    fotoIzquierdaUrl?: SortOrderInput | SortOrder
     fotoUrl?: SortOrderInput | SortOrder
+    documentosVerificados?: SortOrder
+    verificadoEn?: SortOrderInput | SortOrder
+    verificadoPor?: SortOrderInput | SortOrder
     _count?: AkuoVehiculoCountOrderByAggregateInput
     _avg?: AkuoVehiculoAvgOrderByAggregateInput
     _max?: AkuoVehiculoMaxOrderByAggregateInput
@@ -27614,7 +27740,14 @@ export namespace Prisma {
     permisoCircUrl?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
     revisionTecUrl?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
     seguroUrl?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
+    fotoFrenteUrl?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
+    fotoAtrasUrl?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
+    fotoDerechaUrl?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
+    fotoIzquierdaUrl?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
     fotoUrl?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
+    documentosVerificados?: BoolWithAggregatesFilter<"AkuoVehiculo"> | boolean
+    verificadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoVehiculo"> | Date | string | null
+    verificadoPor?: StringNullableWithAggregatesFilter<"AkuoVehiculo"> | string | null
   }
 
   export type AkuoClienteWhereInput = {
@@ -29675,7 +29808,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     transportista: AkuoUsuarioCreateNestedOneWithoutVehiculosInput
     entregas?: AkuoEntregaCreateNestedManyWithoutVehiculoInput
     vueltas?: AkuoVueltaCreateNestedManyWithoutVehiculoInput
@@ -29695,7 +29835,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVehiculoInput
     vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutVehiculoInput
   }
@@ -29713,7 +29860,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutVehiculosNestedInput
     entregas?: AkuoEntregaUpdateManyWithoutVehiculoNestedInput
     vueltas?: AkuoVueltaUpdateManyWithoutVehiculoNestedInput
@@ -29733,7 +29887,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     entregas?: AkuoEntregaUncheckedUpdateManyWithoutVehiculoNestedInput
     vueltas?: AkuoVueltaUncheckedUpdateManyWithoutVehiculoNestedInput
   }
@@ -29752,7 +29913,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
   }
 
   export type AkuoVehiculoUpdateManyMutationInput = {
@@ -29768,7 +29936,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoVehiculoUncheckedUpdateManyInput = {
@@ -29785,7 +29960,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoClienteCreateInput = {
@@ -32019,7 +32201,14 @@ export namespace Prisma {
     permisoCircUrl?: SortOrder
     revisionTecUrl?: SortOrder
     seguroUrl?: SortOrder
+    fotoFrenteUrl?: SortOrder
+    fotoAtrasUrl?: SortOrder
+    fotoDerechaUrl?: SortOrder
+    fotoIzquierdaUrl?: SortOrder
     fotoUrl?: SortOrder
+    documentosVerificados?: SortOrder
+    verificadoEn?: SortOrder
+    verificadoPor?: SortOrder
   }
 
   export type AkuoVehiculoAvgOrderByAggregateInput = {
@@ -32041,7 +32230,14 @@ export namespace Prisma {
     permisoCircUrl?: SortOrder
     revisionTecUrl?: SortOrder
     seguroUrl?: SortOrder
+    fotoFrenteUrl?: SortOrder
+    fotoAtrasUrl?: SortOrder
+    fotoDerechaUrl?: SortOrder
+    fotoIzquierdaUrl?: SortOrder
     fotoUrl?: SortOrder
+    documentosVerificados?: SortOrder
+    verificadoEn?: SortOrder
+    verificadoPor?: SortOrder
   }
 
   export type AkuoVehiculoMinOrderByAggregateInput = {
@@ -32058,7 +32254,14 @@ export namespace Prisma {
     permisoCircUrl?: SortOrder
     revisionTecUrl?: SortOrder
     seguroUrl?: SortOrder
+    fotoFrenteUrl?: SortOrder
+    fotoAtrasUrl?: SortOrder
+    fotoDerechaUrl?: SortOrder
+    fotoIzquierdaUrl?: SortOrder
     fotoUrl?: SortOrder
+    documentosVerificados?: SortOrder
+    verificadoEn?: SortOrder
+    verificadoPor?: SortOrder
   }
 
   export type AkuoVehiculoSumOrderByAggregateInput = {
@@ -34889,7 +35092,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     entregas?: AkuoEntregaCreateNestedManyWithoutVehiculoInput
     vueltas?: AkuoVueltaCreateNestedManyWithoutVehiculoInput
   }
@@ -34907,7 +35117,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVehiculoInput
     vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutVehiculoInput
   }
@@ -35579,7 +35796,14 @@ export namespace Prisma {
     permisoCircUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     revisionTecUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     seguroUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoFrenteUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoAtrasUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoDerechaUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    fotoIzquierdaUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
     fotoUrl?: StringNullableFilter<"AkuoVehiculo"> | string | null
+    documentosVerificados?: BoolFilter<"AkuoVehiculo"> | boolean
+    verificadoEn?: DateTimeNullableFilter<"AkuoVehiculo"> | Date | string | null
+    verificadoPor?: StringNullableFilter<"AkuoVehiculo"> | string | null
   }
 
   export type AkuoClienteUpsertWithWhereUniqueWithoutTransportistaInput = {
@@ -38054,7 +38278,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     transportista: AkuoUsuarioCreateNestedOneWithoutVehiculosInput
     vueltas?: AkuoVueltaCreateNestedManyWithoutVehiculoInput
   }
@@ -38073,7 +38304,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     vueltas?: AkuoVueltaUncheckedCreateNestedManyWithoutVehiculoInput
   }
 
@@ -38404,7 +38642,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutVehiculosNestedInput
     vueltas?: AkuoVueltaUpdateManyWithoutVehiculoNestedInput
   }
@@ -38423,7 +38668,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     vueltas?: AkuoVueltaUncheckedUpdateManyWithoutVehiculoNestedInput
   }
 
@@ -38689,7 +38941,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     transportista: AkuoUsuarioCreateNestedOneWithoutVehiculosInput
     entregas?: AkuoEntregaCreateNestedManyWithoutVehiculoInput
   }
@@ -38708,7 +38967,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     entregas?: AkuoEntregaUncheckedCreateNestedManyWithoutVehiculoInput
   }
 
@@ -39008,7 +39274,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     transportista?: AkuoUsuarioUpdateOneRequiredWithoutVehiculosNestedInput
     entregas?: AkuoEntregaUpdateManyWithoutVehiculoNestedInput
   }
@@ -39027,7 +39300,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     entregas?: AkuoEntregaUncheckedUpdateManyWithoutVehiculoNestedInput
   }
 
@@ -43236,7 +43516,14 @@ export namespace Prisma {
     permisoCircUrl?: string | null
     revisionTecUrl?: string | null
     seguroUrl?: string | null
+    fotoFrenteUrl?: string | null
+    fotoAtrasUrl?: string | null
+    fotoDerechaUrl?: string | null
+    fotoIzquierdaUrl?: string | null
     fotoUrl?: string | null
+    documentosVerificados?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
   }
 
   export type AkuoClienteCreateManyTransportistaInput = {
@@ -43589,7 +43876,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     entregas?: AkuoEntregaUpdateManyWithoutVehiculoNestedInput
     vueltas?: AkuoVueltaUpdateManyWithoutVehiculoNestedInput
   }
@@ -43607,7 +43901,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     entregas?: AkuoEntregaUncheckedUpdateManyWithoutVehiculoNestedInput
     vueltas?: AkuoVueltaUncheckedUpdateManyWithoutVehiculoNestedInput
   }
@@ -43625,7 +43926,14 @@ export namespace Prisma {
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     revisionTecUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    documentosVerificados?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoClienteUpdateWithoutTransportistaInput = {

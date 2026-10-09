@@ -144,7 +144,16 @@ model AkuoVehiculo {
   permisoCircUrl  String?
   revisionTecUrl  String?
   seguroUrl       String?
+  // 4 fotos del vehículo (obligatorias)
+  fotoFrenteUrl   String?
+  fotoAtrasUrl   String?
+  fotoDerechaUrl  String?
+  fotoIzquierdaUrl String?
   fotoUrl         String?
+  // Estado de revisión de documentos
+  documentosVerificados Boolean @default(false)
+  verificadoEn    DateTime?
+  verificadoPor   String? // superadminId que verificó
   entregas        AkuoEntrega[]
   vueltas         AkuoVuelta[]
   @@index([transportistaId, activo])

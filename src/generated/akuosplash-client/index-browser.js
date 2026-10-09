@@ -215,7 +215,14 @@ exports.Prisma.AkuoVehiculoScalarFieldEnum = {
   permisoCircUrl: 'permisoCircUrl',
   revisionTecUrl: 'revisionTecUrl',
   seguroUrl: 'seguroUrl',
-  fotoUrl: 'fotoUrl'
+  fotoFrenteUrl: 'fotoFrenteUrl',
+  fotoAtrasUrl: 'fotoAtrasUrl',
+  fotoDerechaUrl: 'fotoDerechaUrl',
+  fotoIzquierdaUrl: 'fotoIzquierdaUrl',
+  fotoUrl: 'fotoUrl',
+  documentosVerificados: 'documentosVerificados',
+  verificadoEn: 'verificadoEn',
+  verificadoPor: 'verificadoPor'
 };
 
 exports.Prisma.AkuoClienteScalarFieldEnum = {

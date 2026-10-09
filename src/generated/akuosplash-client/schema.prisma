@@ -133,23 +133,32 @@ model AkuoCodigoLogin {
 }
 
 model AkuoVehiculo {
-  id              String        @id @default(cuid())
-  creadoEn        DateTime      @default(now())
-  transportistaId String
-  transportista   AkuoUsuario   @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
-  patente         String
-  tipo            String        @default("aljibe")
-  capacidadLitros Int
-  marca           String?
-  modelo          String?
-  año            Int?
-  activo          Boolean       @default(true)
-  permisoCircUrl  String?
-  revisionTecUrl  String?
-  seguroUrl       String?
-  fotoUrl         String?
-  entregas        AkuoEntrega[]
-  vueltas         AkuoVuelta[]
+  id                    String        @id @default(cuid())
+  creadoEn              DateTime      @default(now())
+  transportistaId       String
+  transportista         AkuoUsuario   @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  patente               String
+  tipo                  String        @default("aljibe")
+  capacidadLitros       Int
+  marca                 String?
+  modelo                String?
+  año                  Int?
+  activo                Boolean       @default(true)
+  permisoCircUrl        String?
+  revisionTecUrl        String?
+  seguroUrl             String?
+  // 4 fotos del vehículo (obligatorias)
+  fotoFrenteUrl         String?
+  fotoAtrasUrl          String?
+  fotoDerechaUrl        String?
+  fotoIzquierdaUrl      String?
+  fotoUrl               String?
+  // Estado de revisión de documentos
+  documentosVerificados Boolean       @default(false)
+  verificadoEn          DateTime?
+  verificadoPor         String? // superadminId que verificó
+  entregas              AkuoEntrega[]
+  vueltas               AkuoVuelta[]
 
   @@index([transportistaId, activo])
 }
