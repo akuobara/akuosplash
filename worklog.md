@@ -714,3 +714,102 @@ Stage Summary:
   * Polígonos de zonas AkuoSplash dibujados en el mapa (en vez de KML externo)
   * Distance Matrix para tarifa dinámica según distancia al depot
   * Place Picker con fotos (Places Details)
+
+---
+Task ID: google-maps-additional-features
+Agent: main
+Task: Implementar features adicionales de Google Maps pedidos por el usuario: (1) Autocomplete en input de dirección del cliente, (2) Geofencing "Estoy aquí" en entrega-form, (3) Heatmap de clientes en ClientesMapa, (6) Place Picker para buscar negocio por nombre con foto+tel+horarios+autofill. Deploy a producción.
+
+Work Log:
+- CREADO `src/lib/google-maps.ts` extensión:
+  * Agregada librería `visualization` al script loader (`libraries=places,geometry,marker,visualization`)
+  * `haversineMeters(lat1,lng1,lat2,lng2)` → distancia en metros entre 2 puntos
+  * `getCurrentPosition()` → Promise con {lat, lng, accuracyMeters} usando navigator.geolocation
+  * `evaluateGeofence(choferLat, choferLng, accuracy, clienteLat, clienteLng)` → status "ok" (<100m), "near" (100-500m), "far" (>500m), "no_gps" (cliente sin GPS), "error" + message
+  * Tipos `GeofenceStatus`, `GeofenceCheck` exportados
+
+- ITEM 1 — Autocomplete en input de dirección:
+  * CREADO `src/components/app/address-autocomplete.tsx` (+ copia en akuosplash):
+    - Componente `AddressAutocomplete` reutilizable con prop `value/onChange/onSelect`
+    - Adjunta `google.maps.places.Autocomplete` al input cuando Google Maps carga
+    - Types: `geocode` (no businesses), `componentRestrictions` country=cl
+    - Fields: formatted_address, geometry, address_components, place_id, name
+    - Cuando el usuario selecciona una sugerencia, llama `onSelect(place: PlaceDetails)` con todos los components parseados (streetNumber, route, locality, sublocality, administrativeAreaLevel2, postalCode, country)
+    - Maneja loading + error states
+  * INTEGRADO en `clientes-tab.tsx` (Aljibe + AkuoSplash):
+    - Reemplazado `<Input id="direccionCliente">` con `<AddressAutocomplete id="direccionCliente">`
+    - `onSelect`: autocompleta `lat/lng` con geometry.location, `zona` con locality/sublocality/adminAreaLevel2 (si está vacío), `direccion` con formattedAddress si más completo
+    - Toast "Dirección autocompletada desde Google Maps"
+
+- ITEM 2 — Geofencing "Estoy aquí":
+  * CREADO `src/components/app/geofence-widget.tsx` (+ copia en akuosplash):
+    - Componente `GeofenceWidget` con props `clienteLat/clienteLng/clienteNombre/onConfirm/compact`
+    - Botón "Estoy aquí" → llama `getCurrentPosition()` → `evaluateGeofence()` con la posición
+    - Muestra badge verde (ok <100m) / amber (near 100-500m) / rojo (far >500m) / gris (no_gps)
+    - Botón "Confirmar de todas formas" en modo near/far para forzar confirmación manual
+    - Llama `onConfirm(result)` cuando se confirma (auto en ok, manual en near/far)
+    - Modo compact: botón + badge en una línea, sin texto extra (para use en entrega-form)
+    - Modo full: tarjeta con detalles, precisión del GPS, mensaje explicativo
+  * INTEGRADO en `entrega-form.tsx` (Aljibe + AkuoSplash):
+    - Import `GeofenceWidget` from `./geofence-widget`
+    - Cuando un cliente seleccionado tiene lat/lng, renderiza `<GeofenceWidget compact />` después del link "Cómo llegar" en el `<details>` del cliente
+    - Permite al chofer confirmar que está en la ubicación correcta antes de registrar la entrega
+    - Soft check: no bloquea el registro, solo informa
+
+- ITEM 3 — Heatmap de clientes:
+  * ACTUALIZADO `src/lib/google-maps.ts`: script loader ahora incluye `visualization` library
+  * ACTUALIZADO `src/components/app/clientes-mapa.tsx` (+ copia en akuosplash):
+    - Estado `heatmapMode: "off" | "cantidad" | "deuda" | "actividad"`
+    - Ref `heatmapRef` para guardar instancia de `google.maps.visualization.HeatmapLayer`
+    - Effect nuevo que re-renderiza el heatmap cuando cambia `heatmapMode` o `filtrados`:
+      - Limpia heatmap anterior con `setMap(null)`
+      - Si modo="off", no crea nada
+      - Calcula `maxWeight` según modo (deuda max, actividad max, cantidad=1)
+      - Construye `data: [{location, weight}]` con pesos normalizados × 10
+      - Crea `HeatmapLayer({ data, map, radius: 50, dissipating: true, gradient: [cyan→blue→purple→red] })`
+    - Cleanup extendido para destruir heatmap junto con markers/listeners
+    - UI: toggle de 4 botones en panel lateral (Off / Cant. / Deuda / Activ.) con texto explicativo debajo
+
+- ITEM 6 — Place Picker (negocios):
+  * CREADO `src/components/app/place-picker.tsx` (+ copia en akuosplash):
+    - Componente `PlacePicker` con dialog full-screen
+    - `PlacesService.findPlaceFromQuery(query, fields=[name, formatted_address, geometry, place_id, rating, user_ratings_total, business_status])` → lista de resultados
+    - Si solo 1 resultado, auto-selecciona
+    - Para el seleccionado, llama `PlacesService.getDetails(placeId, fields=[name, formatted_address, geometry, address_components, international_phone_number, formatted_phone_number, website, url, opening_hours, photos, rating, user_ratings_total, business_status])`
+    - Muestra: nombre, dirección, teléfono (click-to-call), sitio web, horarios (expandible), rating, fotos (galería 4 thumbnails 400x300)
+    - Botón "Autocompletar datos" → llama `onSelect(PlacePickerResult)` con todos los fields
+    - Tipo `PlacePickerResult` extends `PlaceDetails` (de address-autocomplete) + phone, website, url, weekdayDescriptions, photos, rating, userRatingsTotal, businessStatus
+  * INTEGRADO en `clientes-tab.tsx` (Aljibe + AkuoSplash):
+    - Import `Store` icon from lucide-react
+    - Estado `placePickerOpen`
+    - Botón outline con icono `Store` al lado del input "Nombre" del formulario
+    - `<PlacePicker>` con `initialQuery={nombre}` (si ya tipeaste el nombre del negocio, lo usa como búsqueda inicial)
+    - `onSelect`: autocompleta `nombre` (place.name), `direccion` (formattedAddress), `telefono` (phone), `lat/lng`, `zona` (locality o sublocality o adminAreaLevel2)
+    - Toast "Datos autocompletados desde Google: [nombre]"
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos. Los ~20 errores restantes son pre-existentes en `akuosplash/transportista/page.tsx`, `bolson/bolson-cliente.tsx`, `auth-screen.tsx`, `akuosplash/cliente.tsx`, etc.
+  * `bun run lint` → 0 errores en mis archivos.
+  * Build Vercel exitoso: `dpl_BtnSxQcEFjPKpqxFLBX91UmhMgSN` READY en ~75s
+  * Smoke test producción (my-project-azure-five-82.vercel.app):
+    * `/` → HTTP 200
+    * `/akuosplash` → HTTP 200
+    * `/api/vueltas/activa` → HTTP 401 (auth required)
+    * `/api/clientes` → HTTP 401 (auth required)
+
+Stage Summary:
+- ✅ Item 1: Autocomplete en input de dirección del cliente (Aljibe + AkuoSplash)
+- ✅ Item 2: Geofencing "Estoy aquí" en entrega-form con badge verde/amber/rojo + botón confirmar manual (Aljibe + AkuoSplash)
+- ✅ Item 3: Heatmap de clientes con 3 modos (cantidad/deuda/actividad) usando Visualization layer (Aljibe + AkuoSplash)
+- ✅ Item 6: Place Picker para buscar negocio por nombre con foto+tel+horarios+autofill (Aljibe + AkuoSplash)
+- ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
+- ⏳ Items 4 y 5 (polígonos de zonas + Distance Matrix para tarifa dinámica) diferidos — el usuario lo quiere pero atado al sistema de precios dinámicos que se verá después
+- ⏳ ACCIÓN REQUERIDA POR EL USUARIO (igual que antes):
+  1. Conseguir API key de Google Cloud con APIs: Maps JavaScript API, Places API, Geocoding API, Directions API, Maps Visualization (Maps Datasets API no necesaria)
+  2. `python3 /home/z/my-project/scripts/set-google-maps-env.py "AIzaSy..."`
+  3. `python3 /home/z/my-project/scripts/deploy-vercel-direct.py` (re-deploy para que la key se inyecte)
+  4. Probar los 4 flujos nuevos:
+     a. Autocomplete: Clientes → Nuevo cliente → escribir dirección → elegir sugerencia → ver que se autocompleten lat/lng/zona
+     b. Geofence: Iniciar vuelta → nueva entrega → elegir cliente → "Estoy aquí" → ver badge con distancia
+     c. Heatmap: Clientes → "Mapa" → toggle "Cant./Deuda/Activ." → ver capa de calor sobre el mapa
+     d. Place Picker: Clientes → Nuevo cliente → click botón Store al lado de Nombre → buscar "Restaurant X" → ver foto+tel+horarios → "Autocompletar datos"

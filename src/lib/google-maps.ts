@@ -72,7 +72,7 @@ export function loadGoogleMaps(): Promise<any> {
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
       apiKey
-    )}&libraries=places,geometry,marker&v=weekly&callback=${callbackName}`;
+    )}&libraries=places,geometry,marker,visualization&v=weekly&callback=${callbackName}`;
     script.async = true;
     script.defer = true;
     script.onerror = () => {
@@ -278,4 +278,115 @@ export function formatDuration(seconds: number): string {
   const h = Math.floor(min / 60);
   const m = min % 60;
   return `${h} h ${m} min`;
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/* Geofencing — Haversine                                              */
+/* ──────────────────────────────────────────────────────────────────── */
+
+/**
+ * Distancia en metros entre dos puntos GPS (Haversine).
+ * No requiere Google Maps API — cálculo puro en el browser.
+ */
+export function haversineMeters(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const R = 6371000; // m
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+/**
+ * Pide la ubicación actual del browser. Resuelve con {lat, lng, accuracyMeters}.
+ * Rechaza si el browser no soporta geolocation o el usuario la rechaza.
+ */
+export function getCurrentPosition(): Promise<{
+  lat: number;
+  lng: number;
+  accuracyMeters: number;
+}> {
+  return new Promise((resolve, reject) => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      reject(new Error("Tu navegador no soporta geolocalización"));
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracyMeters: pos.coords.accuracy,
+        });
+      },
+      (err) => {
+        reject(new Error(err.message || "No se pudo obtener tu ubicación"));
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+    );
+  });
+}
+
+export type GeofenceStatus = "ok" | "near" | "far" | "no_gps" | "error";
+
+export interface GeofenceCheck {
+  status: GeofenceStatus;
+  distanceMeters: number | null;
+  accuracyMeters: number | null;
+  message: string;
+}
+
+/**
+ * Verifica si el chofer está cerca del cliente.
+ * - < 100 m → ok (verde)
+ * - 100–500 m → near (amarillo)
+ * - > 500 m → far (rojo)
+ * - cliente sin lat/lng → no_gps
+ */
+export function evaluateGeofence(
+  choferLat: number,
+  choferLng: number,
+  choferAccuracy: number | null,
+  clienteLat: number | null,
+  clienteLng: number | null
+): GeofenceCheck {
+  if (clienteLat == null || clienteLng == null) {
+    return {
+      status: "no_gps",
+      distanceMeters: null,
+      accuracyMeters: choferAccuracy,
+      message: "El cliente no tiene ubicación GPS registrada. No se puede verificar la llegada.",
+    };
+  }
+  const d = haversineMeters(choferLat, choferLng, clienteLat, clienteLng);
+  if (d <= 100) {
+    return {
+      status: "ok",
+      distanceMeters: d,
+      accuracyMeters: choferAccuracy,
+      message: `Llegada confirmada — a ${Math.round(d)} m del cliente.`,
+    };
+  }
+  if (d <= 500) {
+    return {
+      status: "near",
+      distanceMeters: d,
+      accuracyMeters: choferAccuracy,
+      message: `Estás a ${Math.round(d)} m del cliente. Si la ubicación registrada no es exacta, podés confirmar de todas formas.`,
+    };
+  }
+  return {
+    status: "far",
+    distanceMeters: d,
+    accuracyMeters: choferAccuracy,
+    message: `Estás a ${Math.round(d)} m del cliente registrado. ¿Seguro que es la ubicación correcta?`,
+  };
 }

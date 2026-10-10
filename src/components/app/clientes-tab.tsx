@@ -56,6 +56,7 @@ import {
   X,
   UserX,
   Map as MapIcon,
+  Store,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -63,6 +64,8 @@ import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
 import { formatCurrency, formatNumber, formatDate, formatTime, labelMetodoPago, labelEstadoPago, USOS_AGUA, TIPOS_ESTANQUE, labelUsoAgua, labelTipoEstanque } from "@/lib/helpers";
 import { MapPicker } from "./map-picker";
 import { ClientesMapa } from "./clientes-mapa";
+import { AddressAutocomplete } from "./address-autocomplete";
+import { PlacePicker } from "./place-picker";
 
 interface Cliente {
   id: string;
@@ -168,6 +171,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [choferPreferidoId, setChoferPreferidoId] = useState<string>("");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [clientesMapaOpen, setClientesMapaOpen] = useState(false);
+  const [placePickerOpen, setPlacePickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -734,13 +738,25 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="nombreCliente">Nombre *</Label>
-                <Input
-                  id="nombreCliente"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  placeholder="Ej. Juan Pérez"
-                  required
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="nombreCliente"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    placeholder="Ej. Juan Pérez"
+                    required
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPlacePickerOpen(true)}
+                    title="Buscar un negocio por nombre (Google Places)"
+                  >
+                    <Store className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="rutCliente">RUT</Label>
@@ -774,15 +790,29 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-              <div className="space-y-2">
-                <Label htmlFor="direccionCliente">Dirección</Label>
-                <Input
-                  id="direccionCliente"
-                  value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-                placeholder="Calle, número, comuna"
+              <AddressAutocomplete
+                id="direccionCliente"
+                value={direccion}
+                onChange={setDireccion}
+                onSelect={(place) => {
+                  // Autocompletar lat/lng/zona a partir del place seleccionado
+                  if (place.lat != null && place.lng != null) {
+                    setLat(String(place.lat));
+                    setLng(String(place.lng));
+                  }
+                  // Zona: usar locality (comuna) o sublocality (barrio) o administrativeAreaLevel2 (región)
+                  if (!zona && (place.locality || place.sublocality || place.administrativeAreaLevel2)) {
+                    setZona(place.locality || place.sublocality || place.administrativeAreaLevel2 || "");
+                  }
+                  // Si la dirección formateada es más completa que lo que tenía, reemplazar
+                  if (place.formattedAddress && (!direccion || direccion.length < place.formattedAddress.length)) {
+                    setDireccion(place.formattedAddress);
+                  }
+                  toast.success("Dirección autocompletada desde Google Maps");
+                }}
+                placeholder="Ej: Av Las Hualtatas 123, Las Condes"
+                label="Dirección"
               />
-            </div>
               <div className="space-y-2">
                 <Label htmlFor="zonaCliente">Zona</Label>
                 <Input
@@ -1202,6 +1232,27 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         onSelectCliente={(id) => {
           const c = clientes.find((x) => x.id === id);
           if (c) abrirEditar(c);
+        }}
+      />
+
+      {/* Place Picker: buscar negocio por nombre y autocompletar */}
+      <PlacePicker
+        open={placePickerOpen}
+        onOpenChange={setPlacePickerOpen}
+        initialQuery={nombre}
+        onSelect={(place) => {
+          // Autocompletar todos los campos relevantes
+          if (place.name) setNombre(place.name);
+          if (place.formattedAddress) setDireccion(place.formattedAddress);
+          if (place.phone) setTelefono(place.phone);
+          if (place.lat != null && place.lng != null) {
+            setLat(String(place.lat));
+            setLng(String(place.lng));
+          }
+          if (!zona) {
+            setZona(place.locality || place.sublocality || place.administrativeAreaLevel2 || "");
+          }
+          toast.success(`Datos autocompletados desde Google: ${place.name || place.formattedAddress}`);
         }}
       />
 

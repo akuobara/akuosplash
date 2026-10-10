@@ -24,6 +24,7 @@ import {
 import { Loader2, Camera, X, Droplets, MapPin, Navigation, DoorOpen, Fence, KeyRound, UserCheck, ExternalLink, Banknote, Smartphone, Clock, ClipboardList, RotateCcw, Plus, AlertTriangle, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, uploadFile } from "@/lib/api-client";
+import { GeofenceWidget } from "./geofence-widget";
 import {
   ESTADOS_PAGO,
   METODOS_PAGO,
@@ -1144,6 +1145,17 @@ export function EntregaForm({
                       </a>
                     )}
                   </div>
+                  {/* Geofence: verificar llegada */}
+                  {c.lat != null && c.lng != null && (
+                    <div className="mt-2">
+                      <GeofenceWidget
+                        clienteLat={c.lat}
+                        clienteLng={c.lng}
+                        clienteNombre={c.nombre}
+                        compact
+                      />
+                    </div>
+                  )}
                 </details>
               );
             })()}
