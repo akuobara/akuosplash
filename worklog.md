@@ -1100,3 +1100,72 @@ Stage Summary:
 - ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
 - ⚠️ Reglas activas por defecto (8): volumen, metodo_pago, urgencia, horario, dia_semana, historial_pago, frecuencia, disponibilidad_zona, demanda_oferta
 - ⚠️ Reglas desactivadas por defecto (4): distancia (depot), demanda (legacy, reemplazada por demanda_oferta), clima, capacidad
+
+---
+Task ID: akuosplash-precio-dinamico-editable-rules
+Agent: main
+Task: Hacer que las reglas del motor de precio dinámico sean totalmente editables desde la UI del superadmin (no solo enable/disable, sino que cada parámetro sea editable inline).
+
+Work Log:
+- AGREGADO estado `expandedReglaId` en `precio-dinamico-tab.tsx` para trackear qué regla está expandida y muestra su editor.
+
+- REEMPLAZADA la row estática de cada regla (que solo tenía el toggle enable/disable) por una versión expandible:
+  * Click en la row → expande/contrae el editor inline
+  * Ícono ChevronRight/Down para indicar estado
+  * Badge "desactivada" visible si `enabled=false`
+  * Switch sigue en la row para activar/desactivar sin expandir
+  * Switch tiene `stopPropagation` para no toggle el expand
+
+- CREADO componente `ReglaEditor` que recibe `{regla, onChange, onPrioridadChange}` y renderiza:
+  * Sección común "Orden de aplicación" con input numérico para editar la `prioridad` de la regla (las de menor número se aplican primero)
+  * Editor específico según `regla.tipo` con inputs apropiados:
+    - `volumen`: array dinámico de escalones (min + descuentoPct + botón agregar/eliminar) — componente `VolumenEditor`
+    - `metodo_pago`: 4 inputs (efectivo, transferencia, credito, tarjeta) con suffix "%"
+    - `urgencia`: 3 inputs (standard, express, emergency) con suffix "%"
+    - `horario`: 3 secciones (valle, peak, noche), cada una con `desde` (input time), `hasta` (input time), `ajuste` (number con suffix "%")
+    - `dia_semana`: 2 inputs (sábado, domingo) con suffix "%"
+    - `distancia`: 2 inputs (radioBaseKm + costoPorKmExtra con suffix "$")
+    - `historial_pago`: 2 inputs (moroso + umbralDeuda con suffix "$")
+    - `frecuencia`: 2 inputs (premium_meses_min + ajuste con suffix "%")
+    - `disponibilidad_zona`: array dinámico de umbrales (min/max/ajuste + botón agregar/eliminar) — componente `DisponibilidadEditor`
+    - `demanda_oferta`: 3 inputs (umbral_ratio, ajuste_pct_base, max_ajuste_pct)
+    - `demanda`: 3 inputs (umbral_pedidos_hora, ajuste_pct, max_ajuste_pct)
+    - `clima`: 3 inputs (temp_threshold_c, dias_consecutivos, ajuste_pct)
+    - `capacidad`: 2 inputs (umbral_pct, ajuste_pct)
+  * Helper `NumInput` reutilizable: input numérico con label, placeholder, suffix opcional, step configurable (acepta negativos y decimales)
+  * Helpers `setField` y `setNested` para updates simples y anidados
+
+- CREADOS 2 sub-componentes para reglas con arrays dinámicos:
+  * `VolumenEditor` — escalones de descuento por cantidad
+    - Botón "Agregar escalón" añade `{ min: 5000, descuentoPct: 5 }` por defecto
+    - Cada escalón tiene: mínimo (L), descuento (%), botón eliminar
+  * `DisponibilidadEditor` — umbrales de disponibilidad
+    - Botón "Agregar umbral" añade `{ minRepartidores: 0, maxRepartidores: 0, ajustePct: 0 }` por defecto
+    - Cada umbral tiene: min rep, max rep, ajuste (%), botón eliminar
+
+- VALIDACIONES:
+  * Los inputs numéricos aceptan negativos (descuentos son negativos) y decimales (steps "any" por defecto, "1" para integer fields)
+  * `parseFloat(v) || 0` para evitar NaN si el usuario borra el contenido
+  * Click fuera del switch no expande/contrae la row (stopPropagation en onClick del switch)
+
+- CAMBIOS SE PERSISTEN:
+  * Cada input onChange actualiza el estado local de reglas en memoria
+  * Botón "Guardar reglas" al final de la lista hace PUT a `/api/akuosplash/precio/reglas` con el array completo
+  * Toast de confirmación al guardar
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos
+  * `bun run lint` → 0 errores/warnings nuevos en mis archivos
+  * Build Vercel exitoso: `dpl_FhbPV4QpehqL6hYZv5dZZb2sH1tc` READY en ~80s
+  * Smoke test producción: `/akuosplash/superadmin` → HTTP 200
+
+Stage Summary:
+- ✅ Las 13 reglas del motor son totalmente editables desde la UI del superadmin
+- ✅ Cada tipo de regla tiene inputs específicos apropiados (no inputs genéricos)
+- ✅ Arrays dinámicos (volumen escalones, disponibilidad umbrales) se pueden agregar/eliminar filas
+- ✅ Inputs aceptan negativos (descuentos) y decimales donde aplica
+- ✅ Prioridad de cada regla también es editable
+- ✅ Switch enable/disable sigue funcionando igual que antes
+- ✅ Cambios en memoria hasta tocar "Guardar reglas" que persiste en AkuoConfig.reglasPrecioJson
+- ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
+- ⏳ El usuario puede ahora: ir a superadmin → tab "Precio dinámico" → expandir cada regla → editar parámetros → guardar

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Calculator, Save, RefreshCw, MapPin, AlertTriangle, Play } from "lucide-react";
+import { Loader2, Calculator, Save, RefreshCw, MapPin, AlertTriangle, Play, ChevronDown, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { akuoGet, akuoPost, akuoPut, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import type { ReglaPrecio, PrecioResultado, TipoMetodoPago, TipoUrgencia } from "@/lib/precio-dinamico";
@@ -47,6 +47,7 @@ export function PrecioDinamicoTab() {
   const [previewDistancia, setPreviewDistancia] = useState(""); // km (para override de cálculo)
   const [previewClienteLat, setPreviewClienteLat] = useState("");
   const [previewClienteLng, setPreviewClienteLng] = useState("");
+  const [expandedReglaId, setExpandedReglaId] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -214,17 +215,55 @@ export function PrecioDinamicoTab() {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          {reglas.map((r) => (
-            <div key={r.id} className="flex items-center justify-between rounded-md border border-border p-2.5">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">{r.tipo.replace(/_/g, " ")}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Prioridad {r.prioridad} · {descripcionCorta(r)}
-                </p>
+          {reglas.map((r) => {
+            const isExpanded = expandedReglaId === r.id;
+            return (
+              <div key={r.id} className="rounded-md border border-border overflow-hidden">
+                <div className="flex items-center justify-between p-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedReglaId(isExpanded ? null : r.id)}
+                    className="flex flex-1 items-center gap-2 text-left min-w-0"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium flex items-center gap-2">
+                        {r.tipo.replace(/_/g, " ")}
+                        {!r.enabled && (
+                          <Badge variant="secondary" className="text-[10px]">desactivada</Badge>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Prioridad {r.prioridad} · {descripcionCorta(r)}
+                      </p>
+                    </div>
+                  </button>
+                  <Switch
+                    checked={r.enabled}
+                    onCheckedChange={() => toggleRegla(r.id)}
+                    onClick={(e: any) => e.stopPropagation()}
+                  />
+                </div>
+                {isExpanded && (
+                  <div className="border-t border-border bg-muted/30 p-3">
+                    <ReglaEditor
+                      regla={r}
+                      onChange={(parametros) => {
+                        setReglas((rs) => rs.map((rr) => rr.id === r.id ? { ...rr, parametros } : rr));
+                      }}
+                      onPrioridadChange={(prioridad) => {
+                        setReglas((rs) => rs.map((rr) => rr.id === r.id ? { ...rr, prioridad } : rr));
+                      }}
+                    />
+                  </div>
+                )}
               </div>
-              <Switch checked={r.enabled} onCheckedChange={() => toggleRegla(r.id)} />
-            </div>
-          ))}
+            );
+          })}
           <Button onClick={guardarReglas} disabled={saving} className="w-full mt-2">
             {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
             Guardar reglas
@@ -404,4 +443,330 @@ function descripcionCorta(r: ReglaPrecio): string {
   } catch {
     return "(sin params)";
   }
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/* Editor de parámetros por regla — totalmente editable desde la UI    */
+/* ──────────────────────────────────────────────────────────────────── */
+
+interface ReglaEditorProps {
+  regla: ReglaPrecio;
+  onChange: (parametros: any) => void;
+  onPrioridadChange: (prioridad: number) => void;
+}
+
+function ReglaEditor({ regla, onChange, onPrioridadChange }: ReglaEditorProps) {
+  const p = regla.parametros || {};
+
+  // Helpers genéricos para editar campos
+  const setField = (field: string, value: any) => {
+    onChange({ ...p, [field]: value });
+  };
+  const setNested = (parent: string, field: string, value: any) => {
+    onChange({ ...p, [parent]: { ...(p[parent] || {}), [field]: value } });
+  };
+
+  // Input numérico reutilizable (acepta negativos y decimales)
+  const NumInput = ({
+    label,
+    value,
+    onChange,
+    placeholder,
+    suffix,
+    step = "any",
+  }: {
+    label: string;
+    value: number | undefined;
+    onChange: (v: number) => void;
+    placeholder?: string;
+    suffix?: string;
+    step?: string;
+  }) => (
+    <div className="space-y-1">
+      <Label className="text-xs">{label}</Label>
+      <div className="flex items-center gap-1">
+        <Input
+          type="number"
+          step={step}
+          value={value ?? ""}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v === "" || v === "-") onChange(0);
+            else onChange(parseFloat(v) || 0);
+          }}
+          placeholder={placeholder}
+          className="h-8 text-sm"
+        />
+        {suffix && <span className="text-xs text-muted-foreground shrink-0">{suffix}</span>}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-3">
+      {/* Prioridad de aplicación — común a todas las reglas */}
+      <div className="rounded-md bg-primary/5 border border-primary/20 p-2">
+        <p className="text-[10px] text-muted-foreground mb-1 uppercase font-medium tracking-wide">Orden de aplicación</p>
+        <p className="text-xs text-muted-foreground">
+          Las reglas con prioridad menor se aplican primero. Cambiala si querés que esta regla impacte antes o después que las demás sobre el subtotal acumulado.
+        </p>
+        <div className="mt-2 w-32">
+          <Input
+            type="number"
+            value={regla.prioridad}
+            onChange={(e) => onPrioridadChange(parseInt(e.target.value) || 0)}
+            className="h-8 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Editor específico por tipo */}
+      {regla.tipo === "volumen" && <VolumenEditor p={p} onChange={onChange} NumInput={NumInput} />}
+      {regla.tipo === "metodo_pago" && (
+        <div className="grid grid-cols-2 gap-2">
+          <NumInput label="Efectivo (%)" value={p.efectivo} onChange={(v) => setField("efectivo", v)} placeholder="-2" suffix="%" />
+          <NumInput label="Transferencia (%)" value={p.transferencia} onChange={(v) => setField("transferencia", v)} placeholder="0" suffix="%" />
+          <NumInput label="Crédito (%)" value={p.credito} onChange={(v) => setField("credito", v)} placeholder="3" suffix="%" />
+          <NumInput label="Tarjeta (%)" value={p.tarjeta} onChange={(v) => setField("tarjeta", v)} placeholder="2" suffix="%" />
+        </div>
+      )}
+      {regla.tipo === "urgencia" && (
+        <div className="grid grid-cols-3 gap-2">
+          <NumInput label="Standard (%)" value={p.standard} onChange={(v) => setField("standard", v)} placeholder="0" suffix="%" />
+          <NumInput label="Express (%)" value={p.express} onChange={(v) => setField("express", v)} placeholder="15" suffix="%" />
+          <NumInput label="Emergency (%)" value={p.emergency} onChange={(v) => setField("emergency", v)} placeholder="30" suffix="%" />
+        </div>
+      )}
+      {regla.tipo === "horario" && (
+        <div className="space-y-2">
+          {["valle", "peak", "noche"].map((slot) => (
+            <div key={slot} className="rounded-md border border-border p-2 space-y-2">
+              <p className="text-xs font-medium capitalize">{slot}</p>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Desde (HH:MM)</Label>
+                  <Input
+                    type="time"
+                    value={p[slot]?.desde || ""}
+                    onChange={(e) => setNested(slot, "desde", e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Hasta (HH:MM)</Label>
+                  <Input
+                    type="time"
+                    value={p[slot]?.hasta || ""}
+                    onChange={(e) => setNested(slot, "hasta", e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <NumInput
+                  label="Ajuste (%)"
+                  value={p[slot]?.ajuste}
+                  onChange={(v) => setNested(slot, "ajuste", v)}
+                  placeholder="0"
+                  suffix="%"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {regla.tipo === "dia_semana" && (
+        <div className="grid grid-cols-2 gap-2">
+          <NumInput label="Sábado (%)" value={p.sabado} onChange={(v) => setField("sabado", v)} placeholder="5" suffix="%" />
+          <NumInput label="Domingo (%)" value={p.domingo} onChange={(v) => setField("domingo", v)} placeholder="5" suffix="%" />
+        </div>
+      )}
+      {regla.tipo === "distancia" && (
+        <div className="grid grid-cols-2 gap-2">
+          <NumInput label="Radio base (km)" value={p.radioBaseKm} onChange={(v) => setField("radioBaseKm", v)} placeholder="5" suffix="km" />
+          <NumInput label="Costo por km extra ($)" value={p.costoPorKmExtra} onChange={(v) => setField("costoPorKmExtra", v)} placeholder="50" suffix="$" />
+        </div>
+      )}
+      {regla.tipo === "historial_pago" && (
+        <div className="grid grid-cols-2 gap-2">
+          <NumInput label="Surcharge moroso (%)" value={p.moroso} onChange={(v) => setField("moroso", v)} placeholder="15" suffix="%" />
+          <NumInput label="Umbral deuda ($)" value={p.umbralDeuda} onChange={(v) => setField("umbralDeuda", v)} placeholder="50000" suffix="$" />
+        </div>
+      )}
+      {regla.tipo === "frecuencia" && (
+        <div className="grid grid-cols-2 gap-2">
+          <NumInput label="Antigüedad mínima (meses)" value={p.premium_meses_min} onChange={(v) => setField("premium_meses_min", v)} placeholder="24" suffix="meses" />
+          <NumInput label="Descuento (%)" value={p.ajuste} onChange={(v) => setField("ajuste", v)} placeholder="-2" suffix="%" />
+        </div>
+      )}
+      {regla.tipo === "disponibilidad_zona" && <DisponibilidadEditor p={p} onChange={onChange} NumInput={NumInput} />}
+      {regla.tipo === "demanda_oferta" && (
+        <div className="grid grid-cols-3 gap-2">
+          <NumInput label="Umbral ratio (D/O)" value={p.umbral_ratio} onChange={(v) => setField("umbral_ratio", v)} placeholder="1.5" step="0.1" />
+          <NumInput label="Ajuste base (%)" value={p.ajuste_pct_base} onChange={(v) => setField("ajuste_pct_base", v)} placeholder="10" suffix="%" />
+          <NumInput label="Ajuste máx (%)" value={p.max_ajuste_pct} onChange={(v) => setField("max_ajuste_pct", v)} placeholder="25" suffix="%" />
+        </div>
+      )}
+      {regla.tipo === "demanda" && (
+        <div className="grid grid-cols-3 gap-2">
+          <NumInput label="Umbral pedidos/hora" value={p.umbral_pedidos_hora} onChange={(v) => setField("umbral_pedidos_hora", v)} placeholder="10" />
+          <NumInput label="Ajuste (%)" value={p.ajuste_pct} onChange={(v) => setField("ajuste_pct", v)} placeholder="15" suffix="%" />
+          <NumInput label="Ajuste máx (%)" value={p.max_ajuste_pct} onChange={(v) => setField("max_ajuste_pct", v)} placeholder="20" suffix="%" />
+        </div>
+      )}
+      {regla.tipo === "clima" && (
+        <div className="grid grid-cols-3 gap-2">
+          <NumInput label="Temp umbral (°C)" value={p.temp_threshold_c} onChange={(v) => setField("temp_threshold_c", v)} placeholder="30" suffix="°C" />
+          <NumInput label="Días consecutivos" value={p.dias_consecutivos} onChange={(v) => setField("dias_consecutivos", v)} placeholder="3" step="1" />
+          <NumInput label="Ajuste (%)" value={p.ajuste_pct} onChange={(v) => setField("ajuste_pct", v)} placeholder="5" suffix="%" />
+        </div>
+      )}
+      {regla.tipo === "capacidad" && (
+        <div className="grid grid-cols-2 gap-2">
+          <NumInput label="Umbral capacidad (%)" value={p.umbral_pct} onChange={(v) => setField("umbral_pct", v)} placeholder="90" suffix="%" />
+          <NumInput label="Ajuste (%)" value={p.ajuste_pct} onChange={(v) => setField("ajuste_pct", v)} placeholder="5" suffix="%" />
+        </div>
+      )}
+
+      <div className="text-[10px] text-muted-foreground italic">
+        Los cambios se guardan en memoria. Tocá "Guardar reglas" al final de la lista para persistirlos en el servidor.
+      </div>
+    </div>
+  );
+}
+
+// Editor para "volumen" con escalones dinámicos
+function VolumenEditor({
+  p,
+  onChange,
+  NumInput,
+}: {
+  p: any;
+  onChange: (parametros: any) => void;
+  NumInput: any;
+}) {
+  const escalones = p.escalones || [];
+
+  const addEscalon = () => {
+    onChange({ ...p, escalones: [...escalones, { min: 5000, descuentoPct: 5 }] });
+  };
+  const removeEscalon = (idx: number) => {
+    onChange({ ...p, escalones: escalones.filter((_: any, i: number) => i !== idx) });
+  };
+  const updateEscalon = (idx: number, field: string, value: number) => {
+    const nuevos = escalones.map((e: any, i: number) => i === idx ? { ...e, [field]: value } : e);
+    onChange({ ...p, escalones: nuevos });
+  };
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-muted-foreground">
+        Descuento por cantidad. Cuando los litros ≥ el mínimo de un escalón, se aplica el descuento del escalón más alto aplicable.
+      </p>
+      {escalones.map((e: any, idx: number) => (
+        <div key={idx} className="grid grid-cols-[1fr_1fr_auto] gap-2 items-end">
+          <NumInput
+            label={idx === 0 ? "Mínimo (litros)" : ""}
+            value={e.min}
+            onChange={(v) => updateEscalon(idx, "min", v)}
+            placeholder="5000"
+            suffix="L"
+          />
+          <NumInput
+            label={idx === 0 ? "Descuento (%)" : ""}
+            value={e.descuentoPct}
+            onChange={(v) => updateEscalon(idx, "descuentoPct", v)}
+            placeholder="3"
+            suffix="%"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => removeEscalon(idx)}
+            className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      ))}
+      <Button type="button" variant="outline" size="sm" onClick={addEscalon} className="w-full">
+        <Plus className="mr-1 h-3 w-3" /> Agregar escalón
+      </Button>
+    </div>
+  );
+}
+
+// Editor para "disponibilidad_zona" con umbrales dinámicos
+function DisponibilidadEditor({
+  p,
+  onChange,
+  NumInput,
+}: {
+  p: any;
+  onChange: (parametros: any) => void;
+  NumInput: any;
+}) {
+  const umbrales = p.umbrales || [];
+
+  const addUmbral = () => {
+    onChange({ ...p, umbrales: [...umbrales, { minRepartidores: 0, maxRepartidores: 0, ajustePct: 0 }] });
+  };
+  const removeUmbral = (idx: number) => {
+    onChange({ ...p, umbrales: umbrales.filter((_: any, i: number) => i !== idx) });
+  };
+  const updateUmbral = (idx: number, field: string, value: number) => {
+    const nuevos = umbrales.map((u: any, i: number) => i === idx ? { ...u, [field]: value } : u);
+    onChange({ ...p, umbrales: nuevos });
+  };
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-muted-foreground">
+        Surge o descuento según cuántos repartidores activos hay en la zona del cliente. El primer umbral que aplique (min ≤ N ≤ max) determina el ajuste.
+      </p>
+      <div className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 text-[10px] font-medium uppercase text-muted-foreground">
+        <span>Min rep</span>
+        <span>Max rep</span>
+        <span>Ajuste</span>
+        <span></span>
+      </div>
+      {umbrales.map((u: any, idx: number) => (
+        <div key={idx} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
+          <Input
+            type="number"
+            value={u.minRepartidores}
+            onChange={(e) => updateUmbral(idx, "minRepartidores", parseInt(e.target.value) || 0)}
+            placeholder="0"
+            className="h-8 text-sm"
+          />
+          <Input
+            type="number"
+            value={u.maxRepartidores}
+            onChange={(e) => updateUmbral(idx, "maxRepartidores", parseInt(e.target.value) || 0)}
+            placeholder="0"
+            className="h-8 text-sm"
+          />
+          <Input
+            type="number"
+            step="any"
+            value={u.ajustePct}
+            onChange={(e) => updateUmbral(idx, "ajustePct", parseFloat(e.target.value) || 0)}
+            placeholder="20"
+            className="h-8 text-sm"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => removeUmbral(idx)}
+            className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      ))}
+      <Button type="button" variant="outline" size="sm" onClick={addUmbral} className="w-full">
+        <Plus className="mr-1 h-3 w-3" /> Agregar umbral
+      </Button>
+    </div>
+  );
 }
