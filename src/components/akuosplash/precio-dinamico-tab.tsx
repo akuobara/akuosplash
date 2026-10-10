@@ -171,16 +171,14 @@ export function PrecioDinamicoTab() {
         </CardContent>
       </Card>
 
-      {/* Depot de la plataforma */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-1.5">
-            <MapPin className="h-4 w-4 text-primary" /> Depot de la plataforma
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-xs text-muted-foreground">
-            Punto de referencia (galpón central de la plataforma) usado para calcular la distancia a cada cliente con Haversine.
+      {/* Depot de la plataforma — opcional, solo se usa si la regla "distancia" está activa */}
+      <details className="rounded-lg border border-amber-200 bg-amber-50/50 p-3 dark:border-amber-900 dark:bg-amber-950/20">
+        <summary className="cursor-pointer text-sm font-medium flex items-center gap-1.5 text-amber-900 dark:text-amber-200">
+          <MapPin className="h-4 w-4" /> Depot de la plataforma (opcional — no usado por defecto)
+        </summary>
+        <div className="mt-3 space-y-2">
+          <p className="text-xs text-amber-800 dark:text-amber-300">
+            Este depot solo se usa si activás la regla <strong>distancia</strong> (que está desactivada por defecto). Las principales reglas del marketplace son: precio base por zona, disponibilidad en la zona, demanda/oferta, cantidad, urgencia y horario.
           </p>
           <div className="grid grid-cols-3 gap-2">
             <div className="space-y-1">
@@ -200,8 +198,8 @@ export function PrecioDinamicoTab() {
             {depotSaving ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Save className="mr-1 h-3 w-3" />}
             Guardar depot
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </details>
 
       {/* Reglas activas */}
       <Card>
@@ -386,6 +384,14 @@ function descripcionCorta(r: ReglaPrecio): string {
         return `moroso +${p.moroso}% si deuda > $${p.umbralDeuda}`;
       case "frecuencia":
         return `premium -${Math.abs(p.ajuste)}% si antigüedad ≥ ${p.premium_meses_min} meses`;
+      case "disponibilidad_zona": {
+        const umbrales = p.umbrales || [];
+        return umbrales.map((u: any) =>
+          `${u.minRepartidores === u.maxRepartidores ? u.minRepartidores : `${u.minRepartidores}-${u.maxRepartidores}`} rep: ${u.ajustePct > 0 ? "+" : ""}${u.ajustePct}%`
+        ).join(", ");
+      }
+      case "demanda_oferta":
+        return `surge si ratio D/O > ${p.umbral_ratio} (cap +${p.max_ajuste_pct}%) — sin oferta: surge máx`;
       case "demanda":
         return `surge +${p.ajuste_pct}% si > ${p.umbral_pedidos_hora} ped/hora`;
       case "clima":

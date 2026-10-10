@@ -1030,3 +1030,73 @@ Stage Summary:
      - Expandir para ver detalle financiero (bruto + IVA + comisión + ganancia)
 - El cliente NO ve el desglose, solo el total. La boleta/factura se genera por wasabil con el total.
 - Los transportistas con sus clientes propios (AkuoCliente) siguen con el precio estático — no se ve afectado por este sistema.
+
+---
+Task ID: akuosplash-precio-dinamico-mercado-rules
+Agent: main
+Task: Ajustar el sistema de precio dinámico según feedback del usuario: (1) depot de la plataforma no es prioritario, dejar como opcional; (2) las reglas principales son: precios base por zonas, disponibilidad en la zona o cercanas, demanda/oferta, cantidad, etc.
+
+Work Log:
+- AGREGADAS 2 nuevas reglas al motor `src/lib/precio-dinamico.ts`:
+  * `disponibilidad_zona` — surge/discount según cantidad de repartidores activos en la zona del cliente:
+    - 0 repartidores: +20% (surge)
+    - 1 repartidor: +10% (surge chico)
+    - 2-5 repartidores: 0% (normal)
+    - 6+ repartidores: -5% (descuento por competencia)
+    - Implementación con array de umbrales: { minRepartidores, maxRepartidores, ajustePct }[]
+  * `demanda_oferta` — surge si ratio demanda/oferta supera umbral:
+    - Caso 1: sin oferta (0 repartidores) → surge máximo (+25%)
+    - Caso 2: oferta ≥ demanda → no surge
+    - Caso 3: ratio > umbral (default 1.5) → surge proporcional (cap 25%)
+    - Concepto en el breakdown: "Demanda/oferta (D:5/O:2, ratio 2.5): +15.0%"
+
+- ACTUALIZADAS REGLAS_DEFAULT (13 reglas totales):
+  * `distancia` ahora está DESACTIVADA por defecto (era activa) — el depot no es prioritario
+  * `disponibilidad_zona_default` NUEVA, activa, prioridad 90
+  * `demanda_oferta_default` NUEVA, activa, prioridad 100
+  * `demanda_default` (la versión simple de solo demanda, sin ratio) ahora DESACTIVADA — reemplazada por demanda_oferta
+  * Reglas activas por defecto ahora: 8 → base (implícita) + volumen + metodo_pago + urgencia + horario + dia_semana + historial_pago + frecuencia + disponibilidad_zona + demanda_oferta
+
+- EXTENDIDO PrecioInput con 2 campos nuevos:
+  * `disponibilidadZona?: number` — cantidad de repartidores activos en zona del cliente (o cercanas)
+  * `demandaUltimaHora?: number` — ya existía, ahora usado por demanda_oferta
+
+- MODIFICADO `POST /api/akuosplash/precio/calcular`:
+  * Cálculo real de disponibilidadZona:
+    - Cuenta `akuoUsuario` con rol="transportista", activo=true, aprobado=true, zonaId=zona.id, ultimoLoginEn ≥ hace2Horas (repartidores en la misma zona)
+    - PLUS: para cliente con lat/lng, busca con bounding box de 0.09 grados (~10km) y filtra con Haversine para incluir repartidores cercanos SIN zona asignada o en otra zona
+    - disponibilidadZona = repartidoresMismaZona + repartidoresCercanosSinZona
+  * Cálculo real de demandaUltimaHora:
+    - Cuenta `akuoPedidoCliente` con creadoEn ≥ hace1Hora, estado in [pendiente, aceptado, en_ruta], cliente.zonaId = zona.id
+  * Respuesta incluye nuevo campo `mercado: { disponibilidadZona, repartidoresMismaZona, repartidoresCercanosSinZona, demandaUltimaHora, ratio }` para debug/transparencia
+
+- MODIFICADO `POST /api/akuosplash/cliente/pedidos`:
+  * Mismo cálculo de disponibilidad/demanda replicado (igual que /calcular) para que el snapshot persistido tenga los valores reales del momento de creación del pedido
+  * El snapshot JSON ahora incluye estos valores en `input.disponibilidadZona` y `input.demandaUltimaHora`
+
+- UI `precio-dinamico-tab.tsx` actualizada:
+  * Card "Depot de la plataforma" → ahora es un `<details>` colapsable con estilo amber (warning) y nota explícita: "Este depot solo se usa si activás la regla distancia (que está desactivada por defecto). Las principales reglas del marketplace son: precio base por zona, disponibilidad en la zona, demanda/oferta, cantidad, urgencia y horario."
+  * Agregadas descripciones cortas para las 2 nuevas reglas en `descripcionCorta()`:
+    - `disponibilidad_zona`: "0 rep: +20%, 1 rep: +10%, 2-5 rep: 0%, 6-99 rep: -5%"
+    - `demanda_oferta`: "surge si ratio D/O > 1.5 (cap +25%) — sin oferta: surge máx"
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos
+  * `bun run lint` → 0 errores/warnings nuevos en mis archivos
+  * Build Vercel exitoso: `dpl_kVRHEbKpDBZ918UeoewQwgki8yyy` READY en ~70s
+  * Smoke test producción:
+    * `/akuosplash/superadmin` → HTTP 200
+    * `/akuosplash/cliente/pedir` → HTTP 200
+    * `/api/akuosplash/precio/calcular` → HTTP 405 (GET no permitido, endpoint existe)
+
+Stage Summary:
+- ✅ 2 nuevas reglas principales: disponibilidad_zona + demanda_oferta (las prioritarias según feedback)
+- ✅ Regla distancia (depot) desactivada por defecto — depot queda como opcional, solo visible si superadmin lo necesita
+- ✅ Cálculo real de disponibilidad: repartidores activos en la zona del cliente + cercanos (Haversine 10km) si cliente tiene lat/lng
+- ✅ Cálculo real de demanda: pedidos creados en última hora en la zona del cliente (estado pendiente/aceptado/en_ruta)
+- ✅ Snapshot persiste los valores reales de disponibilidad/demanda al momento de crear el pedido — para auditoría del superadmin
+- ✅ Respuesta de /calcular ahora incluye objeto `mercado` con datos completos para debug
+- ✅ UI del superadmin muestra el depot como opcional colapsable con nota explicativa
+- ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
+- ⚠️ Reglas activas por defecto (8): volumen, metodo_pago, urgencia, horario, dia_semana, historial_pago, frecuencia, disponibilidad_zona, demanda_oferta
+- ⚠️ Reglas desactivadas por defecto (4): distancia (depot), demanda (legacy, reemplazada por demanda_oferta), clima, capacidad

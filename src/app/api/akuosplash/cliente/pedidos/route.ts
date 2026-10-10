@@ -78,6 +78,57 @@ export async function POST(req: NextRequest) {
       const creadoEn = user.creadoEn instanceof Date ? user.creadoEn : new Date(user.creadoEn);
       const antiguedadMeses = Math.max(0, (Date.now() - creadoEn.getTime()) / (1000 * 60 * 60 * 24 * 30));
 
+      // Disponibilidad y demanda en la zona (igual que en /calcular)
+      const hace2Horas = new Date(Date.now() - 2 * 60 * 60 * 1000);
+      const repartidoresMismaZona = await akuosplashDb.akuoUsuario.count({
+        where: {
+          rol: "transportista",
+          activo: true,
+          aprobado: true,
+          zonaId: zona.id,
+          ultimoLoginEn: { gte: hace2Horas },
+        },
+      });
+      let repartidoresCercanosSinZona = 0;
+      if (user.lat != null && user.lng != null) {
+        const lat = user.lat;
+        const lng = user.lng;
+        const delta = 0.09;
+        const cercanos = await akuosplashDb.akuoUsuario.findMany({
+          where: {
+            rol: "transportista",
+            activo: true,
+            aprobado: true,
+            ultimoLoginEn: { gte: hace2Horas },
+            OR: [{ zonaId: null }, { zonaId: { not: zona.id } }],
+            lat: { gte: lat - delta, lte: lat + delta },
+            lng: { gte: lng - delta, lte: lng + delta },
+          },
+          select: { id: true, lat: true, lng: true },
+        });
+        const toRad = (d: number) => (d * Math.PI) / 180;
+        const R = 6371;
+        for (const r of cercanos) {
+          if (r.lat == null || r.lng == null) continue;
+          const dLat = toRad(r.lat - lat);
+          const dLng = toRad(r.lng - lng);
+          const a =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRad(lat)) * Math.cos(toRad(r.lat)) * Math.sin(dLng / 2) ** 2;
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          if (R * c <= 10) repartidoresCercanosSinZona++;
+        }
+      }
+      const disponibilidadZona = repartidoresMismaZona + repartidoresCercanosSinZona;
+      const hace1Hora = new Date(Date.now() - 60 * 60 * 1000);
+      const demandaUltimaHora = await akuosplashDb.akuoPedidoCliente.count({
+        where: {
+          creadoEn: { gte: hace1Hora },
+          estado: { in: ["pendiente", "aceptado", "en_ruta"] },
+          cliente: { zonaId: zona.id },
+        },
+      });
+
       // Mapear método de pago
       const metodoPagoStr = body.metodoPago || "tarjeta_debito";
       const metodoPagoMotor: TipoMetodoPago = metodoPagoStr.startsWith("tarjeta_credito")
@@ -107,6 +158,8 @@ export async function POST(req: NextRequest) {
         zonaPrecioMaximoLitro: zona.precioMaximoPorLitro ?? null,
         depotLat: config.depotLat ?? null,
         depotLng: config.depotLng ?? null,
+        disponibilidadZona,
+        demandaUltimaHora,
       };
 
       const resultado = aplicarComision(calcularPrecio(input, reglas), config.comisionPorcentaje);

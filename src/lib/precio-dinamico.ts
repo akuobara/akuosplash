@@ -15,9 +15,13 @@
  * - urgencia: surcharge por entrega express/emergency
  * - horario: peak/valle/noche
  * - dia_semana: fin de semana
- * - distancia: costo por km extra desde el depot de la plataforma
+ * - distancia: costo por km extra desde el depot de la plataforma (DESACTIVADA por defecto)
  * - historial_pago: surcharge si cliente moroso
  * - frecuencia: descuento por cliente con antigüedad
+ *
+ * Factores de mercado (fase 2 — principales según feedback):
+ * - disponibilidad_zona: surge/discount según cantidad de repartidores activos en la zona (o cercanas)
+ * - demanda_oferta: surge si demanda > oferta (ratio > umbral), con cap
  *
  * Factores pendientes (fase 3):
  * - demanda: surge por pedidos en última hora (necesita cache de demanda)
@@ -40,6 +44,8 @@ export type TipoRegla =
   | "distancia"
   | "historial_pago"
   | "frecuencia"
+  | "disponibilidad_zona"
+  | "demanda_oferta"
   | "demanda"
   | "clima"
   | "capacidad";
@@ -70,11 +76,13 @@ export interface PrecioInput {
   zonaPrecioMinimoLitro?: number | null;
   zonaPrecioMinimoTotal?: number | null;
   zonaPrecioMaximoLitro?: number | null;
-  // Datos del depot (plataforma)
+  // Datos del depot (plataforma) — opcional, no usado por defecto
   depotLat?: number | null;
   depotLng?: number | null;
+  // Mercado (fase 2 — reglas principales según feedback del usuario)
+  disponibilidadZona?: number; // cantidad de repartidores activos en la zona del cliente (o cercanas)
+  demandaUltimaHora?: number; // cantidad de pedidos creados en la última hora en la zona del cliente
   // Fase 3 (opcional)
-  demandaUltimaHora?: number;
   climaTempC?: number;
   capacidadCamionUsadaPct?: number;
 }
@@ -423,6 +431,63 @@ function aplicarRegla(
       };
     }
 
+    // ─── Fase 2: reglas de mercado (disponibilidad + demanda/oferta) ───
+    case "disponibilidad_zona": {
+      const params = regla.parametros as {
+        umbrales: { minRepartidores: number; maxRepartidores: number; ajustePct: number }[];
+      };
+      if (!params?.umbrales) return null;
+      const disp = input.disponibilidadZona ?? 0;
+      // Tomar el primer umbral que aplique (ordenados por minRepartidores asc)
+      const umbrelAplicable = [...params.umbrales]
+        .sort((a, b) => a.minRepartidores - b.minRepartidores)
+        .find((u) => disp >= u.minRepartidores && disp <= u.maxRepartidores);
+      if (!umbrelAplicable || umbrelAplicable.ajustePct === 0) return null;
+      const delta = (subtotalActual * umbrelAplicable.ajustePct) / 100;
+      const signo = umbrelAplicable.ajustePct > 0 ? "+" : "";
+      return {
+        delta,
+        concepto: `Disponibilidad zona (${disp} repartidores): ${signo}${umbrelAplicable.ajustePct}%`,
+        tipo: umbrelAplicable.ajustePct > 0 ? "ajuste" : "descuento",
+      };
+    }
+
+    case "demanda_oferta": {
+      const params = regla.parametros as {
+        umbral_ratio: number; // ratio crítico (ej: 1.5)
+        ajuste_pct_base: number; // ajuste por cada unidad de exceso
+        max_ajuste_pct: number;
+      };
+      if (!params) return null;
+      const demanda = input.demandaUltimaHora ?? 0;
+      const oferta = input.disponibilidadZona ?? 0;
+      // Caso 1: sin oferta (no hay repartidores en la zona) → surge máximo
+      if (oferta === 0) {
+        const delta = (subtotalActual * params.max_ajuste_pct) / 100;
+        return {
+          delta,
+          concepto: `Sin repartidores disponibles en zona: +${params.max_ajuste_pct}% (surge máximo)`,
+          tipo: "ajuste",
+        };
+      }
+      // Caso 2: oferta ≥ demanda → no surge
+      if (demanda <= oferta) return null;
+      // Caso 3: demanda > oferta → surge proporcional al ratio (con cap)
+      const ratio = demanda / oferta;
+      if (ratio < params.umbral_ratio) return null;
+      const exceso = ratio - 1;
+      const ajustePct = Math.min(
+        params.max_ajuste_pct,
+        params.ajuste_pct_base * exceso
+      );
+      const delta = (subtotalActual * ajustePct) / 100;
+      return {
+        delta,
+        concepto: `Demanda/oferta (D:${demanda}/O:${oferta}, ratio ${ratio.toFixed(1)}): +${ajustePct.toFixed(1)}%`,
+        tipo: "ajuste",
+      };
+    }
+
     // ─── Fase 3 (reglas avanzadas) ───
     case "demanda": {
       const params = regla.parametros as {
@@ -576,7 +641,7 @@ export const REGLAS_DEFAULT: ReglaPrecio[] = [
   {
     id: "distancia_default",
     tipo: "distancia",
-    enabled: true,
+    enabled: false, // desactivada por defecto — el depot de la plataforma no es prioritario
     prioridad: 60,
     parametros: {
       radioBaseKm: 5,
@@ -603,12 +668,38 @@ export const REGLAS_DEFAULT: ReglaPrecio[] = [
       ajuste: -2,
     },
   },
+  // Reglas de mercado (fase 2) — activas por defecto, son las prioritarias
+  {
+    id: "disponibilidad_zona_default",
+    tipo: "disponibilidad_zona",
+    enabled: true,
+    prioridad: 90,
+    parametros: {
+      umbrales: [
+        { minRepartidores: 0, maxRepartidores: 0, ajustePct: 20 }, // sin rep → surge
+        { minRepartidores: 1, maxRepartidores: 1, ajustePct: 10 },  // 1 rep → surge chico
+        { minRepartidores: 2, maxRepartidores: 5, ajustePct: 0 },   // 2-5 → normal
+        { minRepartidores: 6, maxRepartidores: 99, ajustePct: -5 }, // 6+ → descuento por competencia
+      ],
+    },
+  },
+  {
+    id: "demanda_oferta_default",
+    tipo: "demanda_oferta",
+    enabled: true,
+    prioridad: 100,
+    parametros: {
+      umbral_ratio: 1.5,
+      ajuste_pct_base: 10,
+      max_ajuste_pct: 25,
+    },
+  },
   // Reglas avanzadas (fase 3) — desactivadas por defecto
   {
     id: "demanda_default",
     tipo: "demanda",
-    enabled: false,
-    prioridad: 90,
+    enabled: false, // reemplazada por demanda_oferta que es más completa
+    prioridad: 110,
     parametros: {
       umbral_pedidos_hora: 10,
       ajuste_pct: 15,
@@ -619,7 +710,7 @@ export const REGLAS_DEFAULT: ReglaPrecio[] = [
     id: "clima_default",
     tipo: "clima",
     enabled: false,
-    prioridad: 100,
+    prioridad: 120,
     parametros: {
       temp_threshold_c: 30,
       dias_consecutivos: 3,
@@ -630,7 +721,7 @@ export const REGLAS_DEFAULT: ReglaPrecio[] = [
     id: "capacidad_default",
     tipo: "capacidad",
     enabled: false,
-    prioridad: 110,
+    prioridad: 130,
     parametros: {
       umbral_pct: 90,
       ajuste_pct: 5,
