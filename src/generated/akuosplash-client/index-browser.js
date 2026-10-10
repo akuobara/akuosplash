@@ -387,7 +387,12 @@ exports.Prisma.AkuoConfigScalarFieldEnum = {
   maxVehiculosFree: 'maxVehiculosFree',
   maxVehiculosPro: 'maxVehiculosPro',
   maxVehiculosEnterprise: 'maxVehiculosEnterprise',
-  activo: 'activo'
+  activo: 'activo',
+  precioDinamicoHabilitado: 'precioDinamicoHabilitado',
+  reglasPrecioJson: 'reglasPrecioJson',
+  depotLat: 'depotLat',
+  depotLng: 'depotLng',
+  depotNombre: 'depotNombre'
 };
 
 exports.Prisma.AkuoZonaScalarFieldEnum = {
@@ -400,6 +405,9 @@ exports.Prisma.AkuoZonaScalarFieldEnum = {
   centroLat: 'centroLat',
   centroLng: 'centroLng',
   precioPorLitro: 'precioPorLitro',
+  precioMinimoPorLitro: 'precioMinimoPorLitro',
+  precioMinimoTotal: 'precioMinimoTotal',
+  precioMaximoPorLitro: 'precioMaximoPorLitro',
   litrosMinimos: 'litrosMinimos',
   radioKm: 'radioKm',
   activa: 'activa'
@@ -448,7 +456,10 @@ exports.Prisma.AkuoPedidoClienteScalarFieldEnum = {
   codigoEnviadoEn: 'codigoEnviadoEn',
   mpPreferenceId: 'mpPreferenceId',
   mpPaymentId: 'mpPaymentId',
-  estadoPago: 'estadoPago'
+  estadoPago: 'estadoPago',
+  precioSnapshotJson: 'precioSnapshotJson',
+  precioDinamicoHabilitado: 'precioDinamicoHabilitado',
+  precioPorLitroFinal: 'precioPorLitroFinal'
 };
 
 exports.Prisma.SortOrder = {

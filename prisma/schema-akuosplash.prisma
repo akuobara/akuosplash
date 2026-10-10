@@ -371,6 +371,13 @@ model AkuoConfig {
   maxVehiculosPro    Int    @default(5)
   maxVehiculosEnterprise Int @default(999)
   activo              Boolean @default(true)
+  // --- Precio dinámico (marketplace) ---
+  precioDinamicoHabilitado Boolean @default(false)
+  reglasPrecioJson         String?  // JSON: array de reglas (ver src/lib/precio-dinamico.ts)
+  // Depot de referencia de la plataforma (para cálculo de distancia Haversine)
+  depotLat                 Float?
+  depotLng                 Float?
+  depotNombre              String?
 }
 
 // Zona geográfica con precio definido por el superadmin — mismo modelo que Aljibe
@@ -390,6 +397,12 @@ model AkuoZona {
   centroLng       Float?
   // Precio por litro en esta zona
   precioPorLitro  Float
+  // Precio mínimo por litro (floor) — si el motor calcula menos, se usa este
+  precioMinimoPorLitro Float?
+  // Precio mínimo total por viaje (floor absoluto) — ej: $50.000 mínimo
+  precioMinimoTotal    Float?
+  // Precio máximo por litro (cap opcional) — anti-surge abusivo
+  precioMaximoPorLitro Float?
   // Cantidad mínima de litros por pedido en esta zona (default 1000)
   litrosMinimos   Int      @default(1000)
   // Radio de cobertura (km) si no hay polígono
@@ -457,6 +470,10 @@ model AkuoPedidoCliente {
   mpPreferenceId          String?
   mpPaymentId             String?
   estadoPago              String  @default("pendiente") // pendiente | pagado | rechazado
+  // --- Precio dinámico (snapshot al confirmar el pedido) ---
+  precioSnapshotJson       String?  // JSON: {input, resultado, version, creadoEn}
+  precioDinamicoHabilitado Boolean @default(false)  // si este pedido se calculó con motor
+  precioPorLitroFinal      Float?   // precio unitario final al momento del cálculo
   @@index([clienteId, estado])
   @@index([transportistaId, estado])
   @@index([codigoConfirmacion])

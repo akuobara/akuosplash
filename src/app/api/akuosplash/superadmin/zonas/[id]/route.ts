@@ -20,6 +20,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (body.litrosMinimos !== undefined) data.litrosMinimos = Number(body.litrosMinimos);
   if (body.radioKm !== undefined) data.radioKm = body.radioKm ? Number(body.radioKm) : null;
   if (body.activa !== undefined) data.activa = !!body.activa;
+  // Precio dinámico
+  if (body.precioMinimoPorLitro !== undefined) data.precioMinimoPorLitro = body.precioMinimoPorLitro != null ? Number(body.precioMinimoPorLitro) : null;
+  if (body.precioMinimoTotal !== undefined) data.precioMinimoTotal = body.precioMinimoTotal != null ? Number(body.precioMinimoTotal) : null;
+  if (body.precioMaximoPorLitro !== undefined) data.precioMaximoPorLitro = body.precioMaximoPorLitro != null ? Number(body.precioMaximoPorLitro) : null;
 
   const zona = await akuosplashDb.akuoZona.update({ where: { id }, data });
   return NextResponse.json({ zona });

@@ -21,6 +21,8 @@ export async function GET() {
   if (!usuarioConZona) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
 
   const comisionPct = await getComisionPorcentaje();
+  const config = await akuosplashDb.akuoConfig.findFirst();
+  const precioDinamicoHabilitado = config?.precioDinamicoHabilitado ?? false;
 
   if (!usuarioConZona.zonaId || !usuarioConZona.zona) {
     // Sin zona asignada — no hay servicio disponible
@@ -30,6 +32,7 @@ export async function GET() {
       zona: null,
       hayServicio: false,
       litrosMinimos: null,
+      precioDinamicoHabilitado,
     });
   }
 
@@ -43,5 +46,6 @@ export async function GET() {
     },
     hayServicio: true,
     litrosMinimos: usuarioConZona.zona.litrosMinimos,
+    precioDinamicoHabilitado,
   });
 }

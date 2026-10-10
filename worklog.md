@@ -910,3 +910,123 @@ Stage Summary:
     e. Distance Matrix: Clientes → Mapa → "Configurar depot" → ver distancias en cada cliente
     f. Ruta óptima + distancia round-trip desde depot
     g. "Enviar al móvil" (icono Smartphone en VueltaWidget o botón en RutaEntregas) → QR aparece → escanear con celular
+
+---
+Task ID: akuosplash-precio-dinamico
+Agent: main
+Task: Implementar sistema de precio dinámico para AkuoSplash marketplace (exclusivo, no Aljibe). Solo para pedidos que los clientes hacen por la app; los transportistas con sus clientes propios siguen con precio estático. Floor y cap por zona. Sin Google Maps API (Haversine). Deploy a producción.
+
+Work Log:
+- SCHEMA CHANGES en `prisma/schema-akuosplash.prisma` (3 tablas, 9 columnas nuevas):
+  * `AkuoConfig`: `precioDinamicoHabilitado Boolean @default(false)`, `reglasPrecioJson String?`, `depotLat Float?`, `depotLng Float?`, `depotNombre String?`
+  * `AkuoZona`: `precioMinimoPorLitro Float?`, `precioMinimoTotal Float?`, `precioMaximoPorLitro Float?`
+  * `AkuoPedidoCliente`: `precioSnapshotJson String?`, `precioDinamicoHabilitado Boolean @default(false)`, `precioPorLitroFinal Float?`
+- Generado Prisma client + sincronizada DB local con `prisma db push --schema=prisma/schema-akuosplash.prisma`
+
+- ENDPOINT DE MIGRACIÓN `POST /api/akuosplash/admin/migrate-precio-dinamico`:
+  * Requiere superadmin (akuoGetCurrentUser)
+  * ALTER TABLE con `BOOLEAN NOT NULL DEFAULT 0`, `TEXT`, `REAL` para SQLite/Turso
+  * Idempotente: "duplicate column name" lo reporta como "ya existía"
+  * Backfill: crea la fila de AkuoConfig si estaba vacía con defaults
+
+- MOTOR `src/lib/precio-dinamico.ts` (~450 líneas):
+  * Tipos: `TipoRegla`, `TipoMetodoPago`, `TipoUrgencia`, `ReglaPrecio`, `PrecioInput`, `TipoItemBreakdown`, `ItemBreakdown`, `PrecioResultado`
+  * Función pura `calcularPrecio(input, reglas)` — no toca DB ni APIs
+  * Orden de aplicación:
+    1. base = zonaPrecioBase × litros
+    2. reglas por prioridad (descuentos y surcharges)
+    3. floor por litro (precioMinimoPorLitro de la zona)
+    4. floor total (precioMinimoTotal)
+    5. cap (precioMaximoPorLitro)
+    6. Cálculo IVA 19% + total con IVA
+  * `aplicarComision(resultado, comisionPct)` mutación pura que calcula comisión y ganancia repartidor
+  * Reglas soportadas fase 1: base, volumen (escalones), metodo_pago, urgencia, horario (peak/valle/noche), dia_semana, distancia (Haversine), historial_pago (moroso), frecuencia (premium)
+  * Reglas fase 3 (desactivadas por defecto): demanda (surge), clima, capacidad
+  * `REGLAS_DEFAULT` array de 11 reglas con valores razonables (volumen -3/-5/-7%, efectivo -2%, credito +3%, express +15%, emergency +30%, peak +10%, valle -5%, noche +10%, sab/dom +5%, distancia $50/km > 5km base, moroso +15%, premium -2%)
+  * `VERSION_MOTOR = "1.0.0"` para tracking de snapshots
+
+- APIs nuevas bajo `/api/akuosplash/precio/`:
+  * `POST /calcular` — recibe `{ litros, metodoPago, urgencia, horario }` desde el cliente logueado. Devuelve `{ resultado, version, validoHasta (5min), zona, config }`. Carga reglas de AkuoConfig + zona del usuario + depot. Antigüedad calculada desde creadoEn del usuario.
+  * `GET/PUT /reglas` — solo superadmin. GET devuelve reglas + defaults + flag de habilitado. PUT persiste en AkuoConfig.reglasPrecioJson + toggle precioDinamicoHabilitado.
+  * `GET/PUT /depot` — solo superadmin. Edita depotLat/depotLng/depotNombre en AkuoConfig.
+  * `POST /preview` — solo superadmin. Testing: recibe PrecioInput hipotético, devuelve resultado sin persistir nada.
+
+- UI nueva — tab "Precio dinámico" en superadmin (`src/components/akuosplash/precio-dinamico-tab.tsx`):
+  * Toggle master "Precio dinámico habilitado" (Switch)
+  * Card "Depot de la plataforma" con inputs lat/lng/nombre
+  * Card "Reglas activas" con toggle enable/disable por cada regla, badge con descripción corta, botón "Reset a defaults"
+  * Card "Vista previa" con inputs para simular un pedido (litros, método, urgencia, precio base zona, coords cliente) y ver el resultado con desglose completo + IVA + comisión + ganancia
+  * Card "Migración pendiente" con link al endpoint POST migrate-precio-dinamico
+- Agregada tab en `superadmin/page.tsx`: `<TabsTrigger value="precio">` entre Pedidos y...
+
+- UI extendida — tab Zonas en superadmin (`superadmin/zonas/page.tsx`):
+  * 3 nuevos inputs en el form de crear/editar zona (dentro de card "Precio dinámico opcional"):
+    - Precio mínimo por litro ($/L) — floor
+    - Precio mínimo total por viaje ($) — floor absoluto
+    - Precio máximo por litro ($/L) — cap anti-surge
+  * Estados y handlers nuevos (precioMinimoPorLitro, precioMinimoTotal, precioMaximoPorLitro)
+  * Persistencia vía `POST /api/akuosplash/superadmin/zonas` y `PATCH /api/akuosplash/superadmin/zonas/[id]` (ambos extendidos para aceptar los nuevos campos)
+
+- UI cliente — `/akuosplash/cliente/pedir` (`cliente/pedir/page.tsx`):
+  * Nuevo estado `precioDinamico` con `{ total, validoHasta }` y `precioDinamicoLoading`
+  * Effect con debounce 500ms: cuando cambia litros/tipoTarjeta/fechaDeseada, llama `POST /api/akuosplash/precio/calcular` y actualiza el total
+  * Resumen del pedido bifurcado:
+    - Si `config.precioDinamicoHabilitado`: solo muestra "Total a pagar" + "Válido hasta HH:MM"
+    - Si NO habilitado: muestra el desglose estático anterior (precio/L × litros + comisión = total)
+  * Botón submit actualizado para deshabilitarse cuando el precio dinámico está calculando
+- Endpoint `GET /api/akuosplash/cliente/precio` extendido: ahora devuelve `precioDinamicoHabilitado` para que el frontend sepa qué modo usar
+
+- UI repartidor — `akuosplash-transportista.tsx`:
+  * Nuevo componente `PrecioDesglose` que muestra tarjeta verde con "Tu ganancia: $X" y expandible con detalle financiero
+  * Detalle financiero: Precio bruto (paga cliente con IVA), Subtotal neto (sin IVA), IVA 19%, Comisión plataforma (-$), Ganancia final
+  * Solo el repartidor lo ve (no el cliente)
+  * Endpoint `GET /api/akuosplash/transportista/pedidos` extendido: ahora incluye `_precio` precalculado con `{ total, iva, totalConIva, comision, comisionPct, gananciaRepartidor, precioDinamico, precioPorLitroFinal, snapshot }` por cada pedido (disponibles + asignados)
+- Agregado `akuoPut` y `akuoDelete` helpers a `akuosplash-utils.ts` (faltaban)
+
+- SNAPSHOT en creación de pedido — `POST /api/akuosplash/cliente/pedidos`:
+  * Si `config.precioDinamicoHabilitado`: corre el motor (mismo código que /calcular) en lugar del cálculo estático, persiste `precioSnapshotJson` con `{ version, creadoEn, input, resultado }` + `precioDinamicoHabilitado = true` + `precioPorLitroFinal`
+  * Si NO habilitado: sigue el flujo legacy con `calcularPrecioTotal` de akuosplash-mercadopago.ts
+  * `comisionApp` (para MP Orders API) usa el valor calculado por el motor, no el legacy
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos
+  * `bun run lint` → 0 errores/warnings en mis archivos
+  * Build Vercel exitoso: `dpl_5JEX6CxrbzWU2UsBmXpP9NM8FhVc` READY en ~85s
+  * Smoke test producción (my-project-azure-five-82.vercel.app):
+    * `/` → HTTP 200
+    * `/akuosplash` → HTTP 200
+    * `/akuosplash/superadmin` → HTTP 200
+    * `/akuosplash/cliente/pedir` → HTTP 200
+    * `POST /api/akuosplash/precio/calcular` → HTTP 405 (GET no permitido, endpoint existe)
+    * `POST /api/akuosplash/admin/migrate-precio-dinamico` → HTTP 405 (idem)
+
+Stage Summary:
+- ✅ Sistema de precio dinámico completo, exclusivo AkuoSplash marketplace
+- ✅ Motor puro y testeable (function `calcularPrecio`)
+- ✅ 11 reglas iniciales (8 fase 1 activas, 3 fase 3 desactivadas)
+- ✅ Floor (mínimo) + Cap (máximo) por zona configurables
+- ✅ Depot de la plataforma persistido en AkuoConfig
+- ✅ Distancia por Haversine (sin Google API, sin costo)
+- ✅ Snapshot completo al confirmar pedido (input + resultado + versión) para auditoría
+- ✅ Cliente solo ve el total, sin desglose dinámico
+- ✅ Repartidor ve "Tu ganancia: $X" con detalle financiero expandible (bruto/neto/IVA/comisión/ganancia)
+- ✅ Superadmin puede activar/desactivar el sistema + configurar todas las reglas
+- ✅ Vista previa para superadmin con inputs hipotéticos
+- ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
+- ⏳ ACCIÓN REQUERIDA POR EL USUARIO:
+  1. Loguearse como superadmin en https://my-project-azure-five-82.vercel.app/akuosplash/superadmin
+  2. Abrir en el navegador (estando logueado) la URL: `POST /api/akuosplash/admin/migrate-precio-dinamico` (esto corre la migración que agrega las 9 columnas nuevas a la DB de producción)
+     - Hacer un fetch POST desde la consola del browser: `fetch('/api/akuosplash/admin/migrate-precio-dinamico', {method:'POST'}).then(r=>r.json()).then(console.log)`
+  3. Ir a la tab "Precio dinámico" en superadmin
+  4. Activar el toggle master "Precio dinámico habilitado"
+  5. Configurar depot de la plataforma (lat/lng del galpón central)
+  6. Opcional: ajustar reglas o dejar los defaults
+  7. En la tab Zonas, configurar los mínimos por zona si querés
+  8. Probar el flujo como cliente en `/akuosplash/cliente/pedir`:
+     - Seleccionar litros → ver el total (debe ser más alto que el cálculo estático si hay peak + urgencia)
+     - Confirmar pedido → snapshot se persiste en AkuoPedidoCliente.precioSnapshotJson
+  9. Probar como repartidor en `/akuosplash/transportista`:
+     - Ver pedidos disponibles → ver "Tu ganancia: $X" en cada uno
+     - Expandir para ver detalle financiero (bruto + IVA + comisión + ganancia)
+- El cliente NO ve el desglose, solo el total. La boleta/factura se genera por wasabil con el total.
+- Los transportistas con sus clientes propios (AkuoCliente) siguen con el precio estático — no se ve afectado por este sistema.

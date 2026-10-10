@@ -374,15 +374,22 @@ model AkuoAuditLog {
 }
 
 model AkuoConfig {
-  id                     String   @id @default(cuid())
-  creadoEn               DateTime @default(now())
-  comisionPorcentaje     Float    @default(0)
-  precioPlanPro          Float    @default(15000)
-  precioPlanEnterprise   Float    @default(50000)
-  maxVehiculosFree       Int      @default(1)
-  maxVehiculosPro        Int      @default(5)
-  maxVehiculosEnterprise Int      @default(999)
-  activo                 Boolean  @default(true)
+  id                       String   @id @default(cuid())
+  creadoEn                 DateTime @default(now())
+  comisionPorcentaje       Float    @default(0)
+  precioPlanPro            Float    @default(15000)
+  precioPlanEnterprise     Float    @default(50000)
+  maxVehiculosFree         Int      @default(1)
+  maxVehiculosPro          Int      @default(5)
+  maxVehiculosEnterprise   Int      @default(999)
+  activo                   Boolean  @default(true)
+  // --- Precio dinámico (marketplace) ---
+  precioDinamicoHabilitado Boolean  @default(false)
+  reglasPrecioJson         String? // JSON: array de reglas (ver src/lib/precio-dinamico.ts)
+  // Depot de referencia de la plataforma (para cálculo de distancia Haversine)
+  depotLat                 Float?
+  depotLng                 Float?
+  depotNombre              String?
 }
 
 // Zona geográfica con precio definido por el superadmin — mismo modelo que Aljibe
@@ -390,25 +397,31 @@ model AkuoConfig {
 // El cliente cae en una zona si su lat/lng está dentro del polígono
 // o si está dentro del radioKm desde centroLat/centroLng
 model AkuoZona {
-  id             String        @id @default(cuid())
-  creadoEn       DateTime      @default(now())
-  actualizadoEn  DateTime      @updatedAt
-  nombre         String // Ej: "Las Condes", "Maipú Norte"
-  descripcion    String?
+  id                   String        @id @default(cuid())
+  creadoEn             DateTime      @default(now())
+  actualizadoEn        DateTime      @updatedAt
+  nombre               String // Ej: "Las Condes", "Maipú Norte"
+  descripcion          String?
   // Polígono en formato GeoJSON: {"type":"Polygon","coordinates":[[[lng,lat],[lng,lat],...]]}
-  zonaGeoJson    String
+  zonaGeoJson          String
   // Centro aproximado para mostrar en mapa y fallback de cobertura por radio
-  centroLat      Float?
-  centroLng      Float?
+  centroLat            Float?
+  centroLng            Float?
   // Precio por litro en esta zona
-  precioPorLitro Float
+  precioPorLitro       Float
+  // Precio mínimo por litro (floor) — si el motor calcula menos, se usa este
+  precioMinimoPorLitro Float?
+  // Precio mínimo total por viaje (floor absoluto) — ej: $50.000 mínimo
+  precioMinimoTotal    Float?
+  // Precio máximo por litro (cap opcional) — anti-surge abusivo
+  precioMaximoPorLitro Float?
   // Cantidad mínima de litros por pedido en esta zona (default 1000)
-  litrosMinimos  Int           @default(1000)
+  litrosMinimos        Int           @default(1000)
   // Radio de cobertura (km) si no hay polígono
-  radioKm        Float?
-  activa         Boolean       @default(true)
+  radioKm              Float?
+  activa               Boolean       @default(true)
   // Relación con clientes asignados a esta zona
-  usuarios       AkuoUsuario[]
+  usuarios             AkuoUsuario[]
 
   @@index([activa])
 }
@@ -472,6 +485,10 @@ model AkuoPedidoCliente {
   mpPreferenceId           String?
   mpPaymentId              String?
   estadoPago               String       @default("pendiente") // pendiente | pagado | rechazado
+  // --- Precio dinámico (snapshot al confirmar el pedido) ---
+  precioSnapshotJson       String? // JSON: {input, resultado, version, creadoEn}
+  precioDinamicoHabilitado Boolean      @default(false) // si este pedido se calculó con motor
+  precioPorLitroFinal      Float? // precio unitario final al momento del cálculo
 
   @@index([clienteId, estado])
   @@index([transportistaId, estado])

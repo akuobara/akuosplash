@@ -38,6 +38,10 @@ export async function POST(req: NextRequest) {
       litrosMinimos: body.litrosMinimos ? Number(body.litrosMinimos) : 1000,
       radioKm: body.radioKm ? Number(body.radioKm) : null,
       activa: body.activa !== false,
+      // Precio dinámico (opcional)
+      precioMinimoPorLitro: body.precioMinimoPorLitro != null ? Number(body.precioMinimoPorLitro) : null,
+      precioMinimoTotal: body.precioMinimoTotal != null ? Number(body.precioMinimoTotal) : null,
+      precioMaximoPorLitro: body.precioMaximoPorLitro != null ? Number(body.precioMaximoPorLitro) : null,
     },
   });
   return NextResponse.json({ zona }, { status: 201 });

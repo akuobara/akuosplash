@@ -26,7 +26,7 @@ function PedirAguaInner() {
   const [perfil, setPerfil] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [creando, setCreando] = useState(false);
-  const [config, setConfig] = useState<{ precioPorLitro: number | null; comisionPct: number; zona?: { nombre: string } | null; hayServicio?: boolean; litrosMinimos?: number | null }>({ precioPorLitro: null, comisionPct: 0 });
+  const [config, setConfig] = useState<{ precioPorLitro: number | null; comisionPct: number; zona?: { nombre: string } | null; hayServicio?: boolean; litrosMinimos?: number | null; precioDinamicoHabilitado?: boolean }>({ precioPorLitro: null, comisionPct: 0 });
 
   const [litros, setLitros] = useState("1000");
   const [direccion, setDireccion] = useState("");
@@ -71,10 +71,50 @@ function PedirAguaInner() {
   // Cargar precio según la zona del cliente
   useEffect(() => {
     if (!perfil) return;
-    akuoGet<{ precioPorLitro: number | null; comisionPct: number; zona: { nombre: string } | null; hayServicio: boolean; litrosMinimos: number | null }>(`/api/akuosplash/cliente/precio`)
+    akuoGet<{ precioPorLitro: number | null; comisionPct: number; zona: { nombre: string } | null; hayServicio: boolean; litrosMinimos: number | null; precioDinamicoHabilitado?: boolean }>(`/api/akuosplash/cliente/precio`)
       .then(setConfig)
       .catch(() => setConfig({ precioPorLitro: null, comisionPct: 0, hayServicio: false }));
   }, [perfil]);
+
+  // Estado para precio dinámico (total calculado por el motor)
+  const [precioDinamico, setPrecioDinamico] = useState<{ total: number; validoHasta: string } | null>(null);
+  const [precioDinamicoLoading, setPrecioDinamicoLoading] = useState(false);
+
+  // Recalcular precio dinámico cuando cambia el input del cliente
+  useEffect(() => {
+    if (!perfil || !config?.precioDinamicoHabilitado) {
+      setPrecioDinamico(null);
+      return;
+    }
+    const litrosNum = Number(litros);
+    if (!litrosNum || litrosNum < 100) {
+      setPrecioDinamico(null);
+      return;
+    }
+    let cancelled = false;
+    setPrecioDinamicoLoading(true);
+    // Debounce 500ms para no llamar al motor con cada tecla
+    const t = setTimeout(() => {
+      akuoPost<{ resultado: { total: number }; validoHasta: string }>("/api/akuosplash/precio/calcular", {
+        litros: litrosNum,
+        metodoPago: tipoTarjeta === "credito" ? "credito" : "tarjeta",
+        urgencia: "standard",
+        horario: fechaDeseada ? new Date(fechaDeseada).toISOString() : new Date().toISOString(),
+      })
+        .then((res) => {
+          if (cancelled) return;
+          setPrecioDinamico({ total: res.resultado.total, validoHasta: res.validoHasta });
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setPrecioDinamico(null);
+        })
+        .finally(() => {
+          if (!cancelled) setPrecioDinamicoLoading(false);
+        });
+    }, 500);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [perfil, config?.precioDinamicoHabilitado, litros, tipoTarjeta, fechaDeseada]);
 
   async function handlePedir(e: React.FormEvent) {
     e.preventDefault();
@@ -370,32 +410,62 @@ function PedirAguaInner() {
               <span className="text-gray-600">Cantidad</span>
               <span className="font-semibold tabular-nums">{litrosNum.toLocaleString("es-CL")} L</span>
             </div>
-            {config.hayServicio && config.precioPorLitro ? (
+            {config.hayServicio && (config.precioPorLitro || config.precioDinamicoHabilitado) ? (
               <>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Zona</span>
                   <span className="font-medium">{config.zona?.nombre || "—"}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Precio por litro</span>
-                  <span className="font-medium tabular-nums">{formatCLP(config.precioPorLitro)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium tabular-nums">{formatCLP(litrosNum * config.precioPorLitro)}</span>
-                </div>
-                {config.comisionPct > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Comisión app ({config.comisionPct}%)</span>
-                    <span className="font-medium tabular-nums">{formatCLP(Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100))}</span>
-                  </div>
+                {config.precioDinamicoHabilitado ? (
+                  // Modo dinámico: solo mostrar el total
+                  <>
+                    <div className="flex justify-between text-[11px] text-gray-500 mt-1">
+                      <span>Precio dinámico (calculado por motor)</span>
+                      {precioDinamicoLoading ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : null}
+                    </div>
+                    {precioDinamico ? (
+                      <>
+                        <div className="flex justify-between border-t border-blue-200 pt-1 mt-1">
+                          <span className="font-semibold text-gray-900">Total a pagar</span>
+                          <span className="font-bold tabular-nums text-blue-700 text-base">
+                            {formatCLP(precioDinamico.total)}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-gray-400">
+                          Válido hasta {new Date(precioDinamico.validoHasta).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      </>
+                    ) : !precioDinamicoLoading ? (
+                      <p className="text-[11px] text-gray-500">Calculando precio…</p>
+                    ) : null}
+                  </>
+                ) : (
+                  // Modo estático (legacy)
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Precio por litro</span>
+                      <span className="font-medium tabular-nums">{formatCLP(config.precioPorLitro)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Subtotal</span>
+                      <span className="font-medium tabular-nums">{formatCLP(litrosNum * config.precioPorLitro!)}</span>
+                    </div>
+                    {config.comisionPct > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Comisión app ({config.comisionPct}%)</span>
+                        <span className="font-medium tabular-nums">{formatCLP(Math.round(litrosNum * config.precioPorLitro! * config.comisionPct / 100))}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between border-t border-blue-200 pt-1 mt-1">
+                      <span className="font-semibold text-gray-900">Total a pagar</span>
+                      <span className="font-bold tabular-nums text-blue-700 text-base">
+                        {formatCLP(litrosNum * config.precioPorLitro! + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro! * config.comisionPct / 100) : 0))}
+                      </span>
+                    </div>
+                  </>
                 )}
-                <div className="flex justify-between border-t border-blue-200 pt-1 mt-1">
-                  <span className="font-semibold text-gray-900">Total a pagar</span>
-                  <span className="font-bold tabular-nums text-blue-700 text-base">
-                    {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))}
-                  </span>
-                </div>
                 {config.litrosMinimos && config.litrosMinimos > 0 && litrosNum < config.litrosMinimos && (
                   <p className="text-[11px] text-amber-600 mt-1">Mínimo para tu zona: {config.litrosMinimos} L</p>
                 )}
@@ -425,16 +495,18 @@ function PedirAguaInner() {
             type="submit"
             size="lg"
             className="w-full h-14 text-base font-semibold rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20"
-            disabled={creando || !direccion.trim() || !litros || !config.hayServicio || !config.precioPorLitro || !cardNumber || !cardExp || !cardCvv || !cardName}
+            disabled={creando || !direccion.trim() || !litros || !config.hayServicio || (!config.precioPorLitro && !config.precioDinamicoHabilitado) || !cardNumber || !cardExp || !cardCvv || !cardName}
           >
             {creando ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Procesando pago…</>
             ) : !config.hayServicio ? (
               <>Sin servicio en tu zona</>
-            ) : config.precioPorLitro == null ? (
+            ) : (config.precioPorLitro == null && !config.precioDinamicoHabilitado) ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Consultando precio…</>
+            ) : config.precioDinamicoHabilitado && !precioDinamico ? (
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Calculando precio…</>
             ) : (
-              <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(litrosNum * config.precioPorLitro + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro * config.comisionPct / 100) : 0))} y pedir</>
+              <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(config.precioDinamicoHabilitado && precioDinamico ? precioDinamico.total : (litrosNum * config.precioPorLitro! + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro! * config.comisionPct / 100) : 0)))} y pedir</>
             )}
           </Button>
 

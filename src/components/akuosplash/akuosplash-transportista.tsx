@@ -18,10 +18,23 @@ import {
 import { toast } from "sonner";
 
 interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; saldo?: number; }
+interface PrecioInfo {
+  total: number;          // neto sin IVA (lo que el repartidor referencia)
+  iva: number;
+  totalConIva: number;     // lo que paga el cliente
+  comision: number;
+  comisionPct: number;
+  gananciaRepartidor: number;
+  precioDinamico: boolean;
+  precioPorLitroFinal: number | null;
+  snapshot: any;
+}
 interface PedidoDisponible {
   id: string; creadoEn: string; litros: number; direccion: string; comuna?: string; estado: string;
   metodoPago: string; nota?: string; requierePresenciaCliente?: boolean;
   cliente: { id: string; nombre: string; telefono: string | null; email: string | null };
+  precioTotal?: number | null;
+  _precio?: PrecioInfo;
 }
 interface PedidoAsignado extends PedidoDisponible {
   transportistaId?: string | null;
@@ -236,6 +249,8 @@ function PedidoDisponibleRow({ p, onRefresh }: { p: PedidoDisponible; onRefresh:
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">Cliente: {p.cliente.nombre}</p>
           {p.nota && <p className="mt-1 text-xs italic text-muted-foreground">"{p.nota}"</p>}
+          {/* Desglose financiero — solo visible para el repartidor */}
+          {p._precio && <PrecioDesglose precio={p._precio} />}
         </div>
         <div className="text-right shrink-0">
           <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
@@ -246,6 +261,54 @@ function PedidoDisponibleRow({ p, onRefresh }: { p: PedidoDisponible; onRefresh:
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function PrecioDesglose({ precio }: { precio: PrecioInfo }) {
+  const [abierto, setAbierto] = useState(false);
+  return (
+    <div className="mt-2 rounded-md border border-emerald-200 bg-emerald-50/50 p-2 text-xs dark:border-emerald-900 dark:bg-emerald-950/30">
+      <button
+        type="button"
+        onClick={() => setAbierto(!abierto)}
+        className="flex w-full items-center justify-between font-medium text-emerald-800 dark:text-emerald-300"
+      >
+        <span className="flex items-center gap-1">
+          <Wallet className="h-3 w-3" /> Tu ganancia: {formatCLP(precio.gananciaRepartidor)}
+        </span>
+        <span className="text-[10px] text-muted-foreground">{abierto ? "Ocultar" : "Ver detalle"}</span>
+      </button>
+      {abierto && (
+        <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Precio bruto (paga cliente con IVA)</span>
+            <span className="tabular-nums font-medium text-foreground">{formatCLP(precio.totalConIva)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Subtotal neto (sin IVA)</span>
+            <span className="tabular-nums">{formatCLP(precio.total)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>IVA 19%</span>
+            <span className="tabular-nums">{formatCLP(precio.iva)}</span>
+          </div>
+          <div className="flex justify-between border-t border-emerald-200 dark:border-emerald-900 pt-0.5 mt-0.5">
+            <span>Comisión plataforma ({precio.comisionPct}%)</span>
+            <span className="tabular-nums text-red-600 dark:text-red-400">-{formatCLP(precio.comision)}</span>
+          </div>
+          <div className="flex justify-between font-medium text-emerald-700 dark:text-emerald-300">
+            <span>Tu ganancia</span>
+            <span className="tabular-nums">{formatCLP(precio.gananciaRepartidor)}</span>
+          </div>
+          {precio.precioPorLitroFinal != null && (
+            <p className="mt-1 text-[10px] text-muted-foreground/70">
+              Precio por litro: ${precio.precioPorLitroFinal.toFixed(0)}/L
+              {precio.precioDinamico && " (calculado dinámicamente)"}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

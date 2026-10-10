@@ -18,6 +18,10 @@ interface Zona {
   centroLat: number | null; centroLng: number | null;
   precioPorLitro: number; litrosMinimos: number; radioKm: number | null;
   zonaGeoJson: string; activa: boolean;
+  // Precio dinámico (floor y cap)
+  precioMinimoPorLitro?: number | null;
+  precioMinimoTotal?: number | null;
+  precioMaximoPorLitro?: number | null;
 }
 
 export default function SuperadminZonasPage() {
@@ -37,6 +41,9 @@ export default function SuperadminZonasPage() {
   const [centroLng, setCentroLng] = useState("");
   const [radioKm, setRadioKm] = useState("");
   const [litrosMinimos, setLitrosMinimos] = useState("1000");
+  const [precioMinimoPorLitro, setPrecioMinimoPorLitro] = useState("");
+  const [precioMinimoTotal, setPrecioMinimoTotal] = useState("");
+  const [precioMaximoPorLitro, setPrecioMaximoPorLitro] = useState("");
 
   // Importar KML
   const [showKmlModal, setShowKmlModal] = useState(false);
@@ -83,6 +90,7 @@ export default function SuperadminZonasPage() {
 
   function abrirCrear() {
     setNombre(""); setDescripcion(""); setPrecioPorLitro(""); setCentroLat(""); setCentroLng(""); setRadioKm(""); setLitrosMinimos("1000");
+    setPrecioMinimoPorLitro(""); setPrecioMinimoTotal(""); setPrecioMaximoPorLitro("");
     setEditando(null);
     setShowForm(true);
   }
@@ -93,6 +101,9 @@ export default function SuperadminZonasPage() {
     setCentroLng(z.centroLng ? String(z.centroLng) : "");
     setRadioKm(z.radioKm ? String(z.radioKm) : "");
     setLitrosMinimos(String(z.litrosMinimos));
+    setPrecioMinimoPorLitro(z.precioMinimoPorLitro != null ? String(z.precioMinimoPorLitro) : "");
+    setPrecioMinimoTotal(z.precioMinimoTotal != null ? String(z.precioMinimoTotal) : "");
+    setPrecioMaximoPorLitro(z.precioMaximoPorLitro != null ? String(z.precioMaximoPorLitro) : "");
     setEditando(z);
     setShowForm(true);
   }
@@ -121,6 +132,10 @@ export default function SuperadminZonasPage() {
       radioKm: radioKm ? Number(radioKm) : null,
       litrosMinimos: Number(litrosMinimos) || 1000,
       activa: true,
+      // Precio dinámico (opcional)
+      precioMinimoPorLitro: precioMinimoPorLitro ? Number(precioMinimoPorLitro) : null,
+      precioMinimoTotal: precioMinimoTotal ? Number(precioMinimoTotal) : null,
+      precioMaximoPorLitro: precioMaximoPorLitro ? Number(precioMaximoPorLitro) : null,
     };
     setSaving(true);
     try {
@@ -281,6 +296,15 @@ export default function SuperadminZonasPage() {
                 <div><Label className="text-xs">Descripción</Label><Input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} placeholder="Ej: Sector norte" /></div>
                 <div><Label className="text-xs">Precio por litro (CLP) *</Label><Input type="number" min="0" value={precioPorLitro} onChange={(e) => setPrecioPorLitro(e.target.value)} placeholder="Ej: 60" /></div>
                 <div><Label className="text-xs">Litros mínimos</Label><Input type="number" min="0" value={litrosMinimos} onChange={(e) => setLitrosMinimos(e.target.value)} placeholder="1000" /></div>
+                {/* Precio dinámico — floor y cap */}
+                <div className="rounded-md border border-blue-200 bg-blue-50/50 p-2 space-y-2">
+                  <p className="text-xs font-medium text-blue-900">Precio dinámico (opcional)</p>
+                  <p className="text-[10px] text-blue-700">Cuando el motor dinámico calcula un precio menor al mínimo, usa el mínimo. Cuando supera el máximo, lo frena.</p>
+                  <div><Label className="text-xs">Precio mínimo por litro ($/L)</Label><Input type="number" min="0" step="0.1" value={precioMinimoPorLitro} onChange={(e) => setPrecioMinimoPorLitro(e.target.value)} placeholder="Ej: 50" /></div>
+                  <div><Label className="text-xs">Precio mínimo total por viaje ($)</Label><Input type="number" min="0" value={precioMinimoTotal} onChange={(e) => setPrecioMinimoTotal(e.target.value)} placeholder="Ej: 50000" /></div>
+                  <div><Label className="text-xs">Precio máximo por litro ($/L) — cap anti-surge</Label><Input type="number" min="0" step="0.1" value={precioMaximoPorLitro} onChange={(e) => setPrecioMaximoPorLitro(e.target.value)} placeholder="Ej: 350" /></div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-2">
                   <div><Label className="text-xs">Latitud centro</Label><Input value={centroLat} onChange={(e) => setCentroLat(e.target.value)} placeholder="-33.45" /></div>
                   <div><Label className="text-xs">Longitud centro</Label><Input value={centroLng} onChange={(e) => setCentroLng(e.target.value)} placeholder="-70.66" /></div>

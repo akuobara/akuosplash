@@ -9,10 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Loader2, LogOut, Users, Truck, MapPin, ShoppingBag, DollarSign,
-  Settings, ChevronRight, Bell, Check, X, LayoutDashboard, Wallet,
+  Settings, ChevronRight, Bell, Check, X, LayoutDashboard, Wallet, Calculator,
 } from "lucide-react";
 import { akuoGet, akuoPost, akuoApi, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
+import { PrecioDinamicoTab } from "@/components/akuosplash/precio-dinamico-tab";
 
 interface Stats {
   clientesCount: number;
@@ -146,6 +147,7 @@ export default function SuperadminPage() {
             <TabsTrigger value="repartidores" className="flex-1"><Truck className="mr-1 h-4 w-4" /> Repartidores</TabsTrigger>
             <TabsTrigger value="clientes" className="flex-1"><Users className="mr-1 h-4 w-4" /> Clientes</TabsTrigger>
             <TabsTrigger value="pedidos" className="flex-1"><ShoppingBag className="mr-1 h-4 w-4" /> Pedidos</TabsTrigger>
+            <TabsTrigger value="precio" className="flex-1"><Calculator className="mr-1 h-4 w-4" /> Precio dinámico</TabsTrigger>
           </TabsList>
 
           {/* === PANEL === */}
@@ -329,6 +331,11 @@ export default function SuperadminPage() {
                 </CardContent>
               </Card>
             </Link>
+          </TabsContent>
+
+          {/* === PRECIO DINÁMICO === */}
+          <TabsContent value="precio" className="mt-4">
+            <PrecioDinamicoTab />
           </TabsContent>
         </Tabs>
 

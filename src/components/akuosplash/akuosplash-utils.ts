@@ -10,3 +10,5 @@ export async function akuoApi<T = any>(path: string, options: RequestInit = {}):
 }
 export const akuoGet = <T = any>(p: string) => akuoApi<T>(p, { method: "GET" });
 export const akuoPost = <T = any>(p: string, body?: any) => akuoApi<T>(p, { method: "POST", body: body !== undefined ? JSON.stringify(body) : undefined });
+export const akuoPut = <T = any>(p: string, body?: any) => akuoApi<T>(p, { method: "PUT", body: body !== undefined ? JSON.stringify(body) : undefined });
+export const akuoDelete = <T = any>(p: string) => akuoApi<T>(p, { method: "DELETE" });

@@ -20853,6 +20853,8 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
+    depotLat: number | null
+    depotLng: number | null
   }
 
   export type AkuoConfigSumAggregateOutputType = {
@@ -20862,6 +20864,8 @@ export namespace Prisma {
     maxVehiculosFree: number | null
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
+    depotLat: number | null
+    depotLng: number | null
   }
 
   export type AkuoConfigMinAggregateOutputType = {
@@ -20874,6 +20878,11 @@ export namespace Prisma {
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
     activo: boolean | null
+    precioDinamicoHabilitado: boolean | null
+    reglasPrecioJson: string | null
+    depotLat: number | null
+    depotLng: number | null
+    depotNombre: string | null
   }
 
   export type AkuoConfigMaxAggregateOutputType = {
@@ -20886,6 +20895,11 @@ export namespace Prisma {
     maxVehiculosPro: number | null
     maxVehiculosEnterprise: number | null
     activo: boolean | null
+    precioDinamicoHabilitado: boolean | null
+    reglasPrecioJson: string | null
+    depotLat: number | null
+    depotLng: number | null
+    depotNombre: string | null
   }
 
   export type AkuoConfigCountAggregateOutputType = {
@@ -20898,6 +20912,11 @@ export namespace Prisma {
     maxVehiculosPro: number
     maxVehiculosEnterprise: number
     activo: number
+    precioDinamicoHabilitado: number
+    reglasPrecioJson: number
+    depotLat: number
+    depotLng: number
+    depotNombre: number
     _all: number
   }
 
@@ -20909,6 +20928,8 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
+    depotLat?: true
+    depotLng?: true
   }
 
   export type AkuoConfigSumAggregateInputType = {
@@ -20918,6 +20939,8 @@ export namespace Prisma {
     maxVehiculosFree?: true
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
+    depotLat?: true
+    depotLng?: true
   }
 
   export type AkuoConfigMinAggregateInputType = {
@@ -20930,6 +20953,11 @@ export namespace Prisma {
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
     activo?: true
+    precioDinamicoHabilitado?: true
+    reglasPrecioJson?: true
+    depotLat?: true
+    depotLng?: true
+    depotNombre?: true
   }
 
   export type AkuoConfigMaxAggregateInputType = {
@@ -20942,6 +20970,11 @@ export namespace Prisma {
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
     activo?: true
+    precioDinamicoHabilitado?: true
+    reglasPrecioJson?: true
+    depotLat?: true
+    depotLng?: true
+    depotNombre?: true
   }
 
   export type AkuoConfigCountAggregateInputType = {
@@ -20954,6 +20987,11 @@ export namespace Prisma {
     maxVehiculosPro?: true
     maxVehiculosEnterprise?: true
     activo?: true
+    precioDinamicoHabilitado?: true
+    reglasPrecioJson?: true
+    depotLat?: true
+    depotLng?: true
+    depotNombre?: true
     _all?: true
   }
 
@@ -21053,6 +21091,11 @@ export namespace Prisma {
     maxVehiculosPro: number
     maxVehiculosEnterprise: number
     activo: boolean
+    precioDinamicoHabilitado: boolean
+    reglasPrecioJson: string | null
+    depotLat: number | null
+    depotLng: number | null
+    depotNombre: string | null
     _count: AkuoConfigCountAggregateOutputType | null
     _avg: AkuoConfigAvgAggregateOutputType | null
     _sum: AkuoConfigSumAggregateOutputType | null
@@ -21084,6 +21127,11 @@ export namespace Prisma {
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
     activo?: boolean
+    precioDinamicoHabilitado?: boolean
+    reglasPrecioJson?: boolean
+    depotLat?: boolean
+    depotLng?: boolean
+    depotNombre?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
   export type AkuoConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -21096,6 +21144,11 @@ export namespace Prisma {
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
     activo?: boolean
+    precioDinamicoHabilitado?: boolean
+    reglasPrecioJson?: boolean
+    depotLat?: boolean
+    depotLng?: boolean
+    depotNombre?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
   export type AkuoConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -21108,6 +21161,11 @@ export namespace Prisma {
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
     activo?: boolean
+    precioDinamicoHabilitado?: boolean
+    reglasPrecioJson?: boolean
+    depotLat?: boolean
+    depotLng?: boolean
+    depotNombre?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
   export type AkuoConfigSelectScalar = {
@@ -21120,9 +21178,14 @@ export namespace Prisma {
     maxVehiculosPro?: boolean
     maxVehiculosEnterprise?: boolean
     activo?: boolean
+    precioDinamicoHabilitado?: boolean
+    reglasPrecioJson?: boolean
+    depotLat?: boolean
+    depotLng?: boolean
+    depotNombre?: boolean
   }
 
-  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo", ExtArgs["result"]["akuoConfig"]>
+  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre", ExtArgs["result"]["akuoConfig"]>
 
   export type $AkuoConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoConfig"
@@ -21137,6 +21200,11 @@ export namespace Prisma {
       maxVehiculosPro: number
       maxVehiculosEnterprise: number
       activo: boolean
+      precioDinamicoHabilitado: boolean
+      reglasPrecioJson: string | null
+      depotLat: number | null
+      depotLng: number | null
+      depotNombre: string | null
     }, ExtArgs["result"]["akuoConfig"]>
     composites: {}
   }
@@ -21569,6 +21637,11 @@ export namespace Prisma {
     readonly maxVehiculosPro: FieldRef<"AkuoConfig", 'Int'>
     readonly maxVehiculosEnterprise: FieldRef<"AkuoConfig", 'Int'>
     readonly activo: FieldRef<"AkuoConfig", 'Boolean'>
+    readonly precioDinamicoHabilitado: FieldRef<"AkuoConfig", 'Boolean'>
+    readonly reglasPrecioJson: FieldRef<"AkuoConfig", 'String'>
+    readonly depotLat: FieldRef<"AkuoConfig", 'Float'>
+    readonly depotLng: FieldRef<"AkuoConfig", 'Float'>
+    readonly depotNombre: FieldRef<"AkuoConfig", 'String'>
   }
     
 
@@ -21949,6 +22022,9 @@ export namespace Prisma {
     centroLat: number | null
     centroLng: number | null
     precioPorLitro: number | null
+    precioMinimoPorLitro: number | null
+    precioMinimoTotal: number | null
+    precioMaximoPorLitro: number | null
     litrosMinimos: number | null
     radioKm: number | null
   }
@@ -21957,6 +22033,9 @@ export namespace Prisma {
     centroLat: number | null
     centroLng: number | null
     precioPorLitro: number | null
+    precioMinimoPorLitro: number | null
+    precioMinimoTotal: number | null
+    precioMaximoPorLitro: number | null
     litrosMinimos: number | null
     radioKm: number | null
   }
@@ -21971,6 +22050,9 @@ export namespace Prisma {
     centroLat: number | null
     centroLng: number | null
     precioPorLitro: number | null
+    precioMinimoPorLitro: number | null
+    precioMinimoTotal: number | null
+    precioMaximoPorLitro: number | null
     litrosMinimos: number | null
     radioKm: number | null
     activa: boolean | null
@@ -21986,6 +22068,9 @@ export namespace Prisma {
     centroLat: number | null
     centroLng: number | null
     precioPorLitro: number | null
+    precioMinimoPorLitro: number | null
+    precioMinimoTotal: number | null
+    precioMaximoPorLitro: number | null
     litrosMinimos: number | null
     radioKm: number | null
     activa: boolean | null
@@ -22001,6 +22086,9 @@ export namespace Prisma {
     centroLat: number
     centroLng: number
     precioPorLitro: number
+    precioMinimoPorLitro: number
+    precioMinimoTotal: number
+    precioMaximoPorLitro: number
     litrosMinimos: number
     radioKm: number
     activa: number
@@ -22012,6 +22100,9 @@ export namespace Prisma {
     centroLat?: true
     centroLng?: true
     precioPorLitro?: true
+    precioMinimoPorLitro?: true
+    precioMinimoTotal?: true
+    precioMaximoPorLitro?: true
     litrosMinimos?: true
     radioKm?: true
   }
@@ -22020,6 +22111,9 @@ export namespace Prisma {
     centroLat?: true
     centroLng?: true
     precioPorLitro?: true
+    precioMinimoPorLitro?: true
+    precioMinimoTotal?: true
+    precioMaximoPorLitro?: true
     litrosMinimos?: true
     radioKm?: true
   }
@@ -22034,6 +22128,9 @@ export namespace Prisma {
     centroLat?: true
     centroLng?: true
     precioPorLitro?: true
+    precioMinimoPorLitro?: true
+    precioMinimoTotal?: true
+    precioMaximoPorLitro?: true
     litrosMinimos?: true
     radioKm?: true
     activa?: true
@@ -22049,6 +22146,9 @@ export namespace Prisma {
     centroLat?: true
     centroLng?: true
     precioPorLitro?: true
+    precioMinimoPorLitro?: true
+    precioMinimoTotal?: true
+    precioMaximoPorLitro?: true
     litrosMinimos?: true
     radioKm?: true
     activa?: true
@@ -22064,6 +22164,9 @@ export namespace Prisma {
     centroLat?: true
     centroLng?: true
     precioPorLitro?: true
+    precioMinimoPorLitro?: true
+    precioMinimoTotal?: true
+    precioMaximoPorLitro?: true
     litrosMinimos?: true
     radioKm?: true
     activa?: true
@@ -22166,6 +22269,9 @@ export namespace Prisma {
     centroLat: number | null
     centroLng: number | null
     precioPorLitro: number
+    precioMinimoPorLitro: number | null
+    precioMinimoTotal: number | null
+    precioMaximoPorLitro: number | null
     litrosMinimos: number
     radioKm: number | null
     activa: boolean
@@ -22200,6 +22306,9 @@ export namespace Prisma {
     centroLat?: boolean
     centroLng?: boolean
     precioPorLitro?: boolean
+    precioMinimoPorLitro?: boolean
+    precioMinimoTotal?: boolean
+    precioMaximoPorLitro?: boolean
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
@@ -22217,6 +22326,9 @@ export namespace Prisma {
     centroLat?: boolean
     centroLng?: boolean
     precioPorLitro?: boolean
+    precioMinimoPorLitro?: boolean
+    precioMinimoTotal?: boolean
+    precioMaximoPorLitro?: boolean
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
@@ -22232,6 +22344,9 @@ export namespace Prisma {
     centroLat?: boolean
     centroLng?: boolean
     precioPorLitro?: boolean
+    precioMinimoPorLitro?: boolean
+    precioMinimoTotal?: boolean
+    precioMaximoPorLitro?: boolean
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
@@ -22247,12 +22362,15 @@ export namespace Prisma {
     centroLat?: boolean
     centroLng?: boolean
     precioPorLitro?: boolean
+    precioMinimoPorLitro?: boolean
+    precioMinimoTotal?: boolean
+    precioMaximoPorLitro?: boolean
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
   }
 
-  export type AkuoZonaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "actualizadoEn" | "nombre" | "descripcion" | "zonaGeoJson" | "centroLat" | "centroLng" | "precioPorLitro" | "litrosMinimos" | "radioKm" | "activa", ExtArgs["result"]["akuoZona"]>
+  export type AkuoZonaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "actualizadoEn" | "nombre" | "descripcion" | "zonaGeoJson" | "centroLat" | "centroLng" | "precioPorLitro" | "precioMinimoPorLitro" | "precioMinimoTotal" | "precioMaximoPorLitro" | "litrosMinimos" | "radioKm" | "activa", ExtArgs["result"]["akuoZona"]>
   export type AkuoZonaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     usuarios?: boolean | AkuoZona$usuariosArgs<ExtArgs>
     _count?: boolean | AkuoZonaCountOutputTypeDefaultArgs<ExtArgs>
@@ -22275,6 +22393,9 @@ export namespace Prisma {
       centroLat: number | null
       centroLng: number | null
       precioPorLitro: number
+      precioMinimoPorLitro: number | null
+      precioMinimoTotal: number | null
+      precioMaximoPorLitro: number | null
       litrosMinimos: number
       radioKm: number | null
       activa: boolean
@@ -22711,6 +22832,9 @@ export namespace Prisma {
     readonly centroLat: FieldRef<"AkuoZona", 'Float'>
     readonly centroLng: FieldRef<"AkuoZona", 'Float'>
     readonly precioPorLitro: FieldRef<"AkuoZona", 'Float'>
+    readonly precioMinimoPorLitro: FieldRef<"AkuoZona", 'Float'>
+    readonly precioMinimoTotal: FieldRef<"AkuoZona", 'Float'>
+    readonly precioMaximoPorLitro: FieldRef<"AkuoZona", 'Float'>
     readonly litrosMinimos: FieldRef<"AkuoZona", 'Int'>
     readonly radioKm: FieldRef<"AkuoZona", 'Float'>
     readonly activa: FieldRef<"AkuoZona", 'Boolean'>
@@ -25330,6 +25454,7 @@ export namespace Prisma {
     lat: number | null
     lng: number | null
     precioTotal: number | null
+    precioPorLitroFinal: number | null
   }
 
   export type AkuoPedidoClienteSumAggregateOutputType = {
@@ -25337,6 +25462,7 @@ export namespace Prisma {
     lat: number | null
     lng: number | null
     precioTotal: number | null
+    precioPorLitroFinal: number | null
   }
 
   export type AkuoPedidoClienteMinAggregateOutputType = {
@@ -25366,6 +25492,9 @@ export namespace Prisma {
     mpPreferenceId: string | null
     mpPaymentId: string | null
     estadoPago: string | null
+    precioSnapshotJson: string | null
+    precioDinamicoHabilitado: boolean | null
+    precioPorLitroFinal: number | null
   }
 
   export type AkuoPedidoClienteMaxAggregateOutputType = {
@@ -25395,6 +25524,9 @@ export namespace Prisma {
     mpPreferenceId: string | null
     mpPaymentId: string | null
     estadoPago: string | null
+    precioSnapshotJson: string | null
+    precioDinamicoHabilitado: boolean | null
+    precioPorLitroFinal: number | null
   }
 
   export type AkuoPedidoClienteCountAggregateOutputType = {
@@ -25424,6 +25556,9 @@ export namespace Prisma {
     mpPreferenceId: number
     mpPaymentId: number
     estadoPago: number
+    precioSnapshotJson: number
+    precioDinamicoHabilitado: number
+    precioPorLitroFinal: number
     _all: number
   }
 
@@ -25433,6 +25568,7 @@ export namespace Prisma {
     lat?: true
     lng?: true
     precioTotal?: true
+    precioPorLitroFinal?: true
   }
 
   export type AkuoPedidoClienteSumAggregateInputType = {
@@ -25440,6 +25576,7 @@ export namespace Prisma {
     lat?: true
     lng?: true
     precioTotal?: true
+    precioPorLitroFinal?: true
   }
 
   export type AkuoPedidoClienteMinAggregateInputType = {
@@ -25469,6 +25606,9 @@ export namespace Prisma {
     mpPreferenceId?: true
     mpPaymentId?: true
     estadoPago?: true
+    precioSnapshotJson?: true
+    precioDinamicoHabilitado?: true
+    precioPorLitroFinal?: true
   }
 
   export type AkuoPedidoClienteMaxAggregateInputType = {
@@ -25498,6 +25638,9 @@ export namespace Prisma {
     mpPreferenceId?: true
     mpPaymentId?: true
     estadoPago?: true
+    precioSnapshotJson?: true
+    precioDinamicoHabilitado?: true
+    precioPorLitroFinal?: true
   }
 
   export type AkuoPedidoClienteCountAggregateInputType = {
@@ -25527,6 +25670,9 @@ export namespace Prisma {
     mpPreferenceId?: true
     mpPaymentId?: true
     estadoPago?: true
+    precioSnapshotJson?: true
+    precioDinamicoHabilitado?: true
+    precioPorLitroFinal?: true
     _all?: true
   }
 
@@ -25643,6 +25789,9 @@ export namespace Prisma {
     mpPreferenceId: string | null
     mpPaymentId: string | null
     estadoPago: string
+    precioSnapshotJson: string | null
+    precioDinamicoHabilitado: boolean
+    precioPorLitroFinal: number | null
     _count: AkuoPedidoClienteCountAggregateOutputType | null
     _avg: AkuoPedidoClienteAvgAggregateOutputType | null
     _sum: AkuoPedidoClienteSumAggregateOutputType | null
@@ -25691,6 +25840,9 @@ export namespace Prisma {
     mpPreferenceId?: boolean
     mpPaymentId?: boolean
     estadoPago?: boolean
+    precioSnapshotJson?: boolean
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -25722,6 +25874,9 @@ export namespace Prisma {
     mpPreferenceId?: boolean
     mpPaymentId?: boolean
     estadoPago?: boolean
+    precioSnapshotJson?: boolean
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -25753,6 +25908,9 @@ export namespace Prisma {
     mpPreferenceId?: boolean
     mpPaymentId?: boolean
     estadoPago?: boolean
+    precioSnapshotJson?: boolean
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -25784,9 +25942,12 @@ export namespace Prisma {
     mpPreferenceId?: boolean
     mpPaymentId?: boolean
     estadoPago?: boolean
+    precioSnapshotJson?: boolean
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: boolean
   }
 
-  export type AkuoPedidoClienteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "clienteId" | "transportistaId" | "litros" | "direccion" | "comuna" | "lat" | "lng" | "fechaDeseada" | "franjaHoraria" | "metodoPago" | "estado" | "nota" | "precioTotal" | "entregaId" | "requierePresenciaCliente" | "codigoConfirmacion" | "codigoGeneradoEn" | "codigoVerificadoEn" | "codigoVerificadoPor" | "codigoEnviadoPorMensaje" | "codigoEnviadoEn" | "mpPreferenceId" | "mpPaymentId" | "estadoPago", ExtArgs["result"]["akuoPedidoCliente"]>
+  export type AkuoPedidoClienteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "clienteId" | "transportistaId" | "litros" | "direccion" | "comuna" | "lat" | "lng" | "fechaDeseada" | "franjaHoraria" | "metodoPago" | "estado" | "nota" | "precioTotal" | "entregaId" | "requierePresenciaCliente" | "codigoConfirmacion" | "codigoGeneradoEn" | "codigoVerificadoEn" | "codigoVerificadoPor" | "codigoEnviadoPorMensaje" | "codigoEnviadoEn" | "mpPreferenceId" | "mpPaymentId" | "estadoPago" | "precioSnapshotJson" | "precioDinamicoHabilitado" | "precioPorLitroFinal", ExtArgs["result"]["akuoPedidoCliente"]>
   export type AkuoPedidoClienteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
@@ -25833,6 +25994,9 @@ export namespace Prisma {
       mpPreferenceId: string | null
       mpPaymentId: string | null
       estadoPago: string
+      precioSnapshotJson: string | null
+      precioDinamicoHabilitado: boolean
+      precioPorLitroFinal: number | null
     }, ExtArgs["result"]["akuoPedidoCliente"]>
     composites: {}
   }
@@ -26284,6 +26448,9 @@ export namespace Prisma {
     readonly mpPreferenceId: FieldRef<"AkuoPedidoCliente", 'String'>
     readonly mpPaymentId: FieldRef<"AkuoPedidoCliente", 'String'>
     readonly estadoPago: FieldRef<"AkuoPedidoCliente", 'String'>
+    readonly precioSnapshotJson: FieldRef<"AkuoPedidoCliente", 'String'>
+    readonly precioDinamicoHabilitado: FieldRef<"AkuoPedidoCliente", 'Boolean'>
+    readonly precioPorLitroFinal: FieldRef<"AkuoPedidoCliente", 'Float'>
   }
     
 
@@ -27037,7 +27204,12 @@ export namespace Prisma {
     maxVehiculosFree: 'maxVehiculosFree',
     maxVehiculosPro: 'maxVehiculosPro',
     maxVehiculosEnterprise: 'maxVehiculosEnterprise',
-    activo: 'activo'
+    activo: 'activo',
+    precioDinamicoHabilitado: 'precioDinamicoHabilitado',
+    reglasPrecioJson: 'reglasPrecioJson',
+    depotLat: 'depotLat',
+    depotLng: 'depotLng',
+    depotNombre: 'depotNombre'
   };
 
   export type AkuoConfigScalarFieldEnum = (typeof AkuoConfigScalarFieldEnum)[keyof typeof AkuoConfigScalarFieldEnum]
@@ -27053,6 +27225,9 @@ export namespace Prisma {
     centroLat: 'centroLat',
     centroLng: 'centroLng',
     precioPorLitro: 'precioPorLitro',
+    precioMinimoPorLitro: 'precioMinimoPorLitro',
+    precioMinimoTotal: 'precioMinimoTotal',
+    precioMaximoPorLitro: 'precioMaximoPorLitro',
     litrosMinimos: 'litrosMinimos',
     radioKm: 'radioKm',
     activa: 'activa'
@@ -27110,7 +27285,10 @@ export namespace Prisma {
     codigoEnviadoEn: 'codigoEnviadoEn',
     mpPreferenceId: 'mpPreferenceId',
     mpPaymentId: 'mpPaymentId',
-    estadoPago: 'estadoPago'
+    estadoPago: 'estadoPago',
+    precioSnapshotJson: 'precioSnapshotJson',
+    precioDinamicoHabilitado: 'precioDinamicoHabilitado',
+    precioPorLitroFinal: 'precioPorLitroFinal'
   };
 
   export type AkuoPedidoClienteScalarFieldEnum = (typeof AkuoPedidoClienteScalarFieldEnum)[keyof typeof AkuoPedidoClienteScalarFieldEnum]
@@ -28808,6 +28986,11 @@ export namespace Prisma {
     maxVehiculosPro?: IntFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntFilter<"AkuoConfig"> | number
     activo?: BoolFilter<"AkuoConfig"> | boolean
+    precioDinamicoHabilitado?: BoolFilter<"AkuoConfig"> | boolean
+    reglasPrecioJson?: StringNullableFilter<"AkuoConfig"> | string | null
+    depotLat?: FloatNullableFilter<"AkuoConfig"> | number | null
+    depotLng?: FloatNullableFilter<"AkuoConfig"> | number | null
+    depotNombre?: StringNullableFilter<"AkuoConfig"> | string | null
   }
 
   export type AkuoConfigOrderByWithRelationInput = {
@@ -28820,6 +29003,11 @@ export namespace Prisma {
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
     activo?: SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    reglasPrecioJson?: SortOrderInput | SortOrder
+    depotLat?: SortOrderInput | SortOrder
+    depotLng?: SortOrderInput | SortOrder
+    depotNombre?: SortOrderInput | SortOrder
   }
 
   export type AkuoConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -28835,6 +29023,11 @@ export namespace Prisma {
     maxVehiculosPro?: IntFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntFilter<"AkuoConfig"> | number
     activo?: BoolFilter<"AkuoConfig"> | boolean
+    precioDinamicoHabilitado?: BoolFilter<"AkuoConfig"> | boolean
+    reglasPrecioJson?: StringNullableFilter<"AkuoConfig"> | string | null
+    depotLat?: FloatNullableFilter<"AkuoConfig"> | number | null
+    depotLng?: FloatNullableFilter<"AkuoConfig"> | number | null
+    depotNombre?: StringNullableFilter<"AkuoConfig"> | string | null
   }, "id">
 
   export type AkuoConfigOrderByWithAggregationInput = {
@@ -28847,6 +29040,11 @@ export namespace Prisma {
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
     activo?: SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    reglasPrecioJson?: SortOrderInput | SortOrder
+    depotLat?: SortOrderInput | SortOrder
+    depotLng?: SortOrderInput | SortOrder
+    depotNombre?: SortOrderInput | SortOrder
     _count?: AkuoConfigCountOrderByAggregateInput
     _avg?: AkuoConfigAvgOrderByAggregateInput
     _max?: AkuoConfigMaxOrderByAggregateInput
@@ -28867,6 +29065,11 @@ export namespace Prisma {
     maxVehiculosPro?: IntWithAggregatesFilter<"AkuoConfig"> | number
     maxVehiculosEnterprise?: IntWithAggregatesFilter<"AkuoConfig"> | number
     activo?: BoolWithAggregatesFilter<"AkuoConfig"> | boolean
+    precioDinamicoHabilitado?: BoolWithAggregatesFilter<"AkuoConfig"> | boolean
+    reglasPrecioJson?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    depotLat?: FloatNullableWithAggregatesFilter<"AkuoConfig"> | number | null
+    depotLng?: FloatNullableWithAggregatesFilter<"AkuoConfig"> | number | null
+    depotNombre?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
   }
 
   export type AkuoZonaWhereInput = {
@@ -28882,6 +29085,9 @@ export namespace Prisma {
     centroLat?: FloatNullableFilter<"AkuoZona"> | number | null
     centroLng?: FloatNullableFilter<"AkuoZona"> | number | null
     precioPorLitro?: FloatFilter<"AkuoZona"> | number
+    precioMinimoPorLitro?: FloatNullableFilter<"AkuoZona"> | number | null
+    precioMinimoTotal?: FloatNullableFilter<"AkuoZona"> | number | null
+    precioMaximoPorLitro?: FloatNullableFilter<"AkuoZona"> | number | null
     litrosMinimos?: IntFilter<"AkuoZona"> | number
     radioKm?: FloatNullableFilter<"AkuoZona"> | number | null
     activa?: BoolFilter<"AkuoZona"> | boolean
@@ -28898,6 +29104,9 @@ export namespace Prisma {
     centroLat?: SortOrderInput | SortOrder
     centroLng?: SortOrderInput | SortOrder
     precioPorLitro?: SortOrder
+    precioMinimoPorLitro?: SortOrderInput | SortOrder
+    precioMinimoTotal?: SortOrderInput | SortOrder
+    precioMaximoPorLitro?: SortOrderInput | SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrderInput | SortOrder
     activa?: SortOrder
@@ -28917,6 +29126,9 @@ export namespace Prisma {
     centroLat?: FloatNullableFilter<"AkuoZona"> | number | null
     centroLng?: FloatNullableFilter<"AkuoZona"> | number | null
     precioPorLitro?: FloatFilter<"AkuoZona"> | number
+    precioMinimoPorLitro?: FloatNullableFilter<"AkuoZona"> | number | null
+    precioMinimoTotal?: FloatNullableFilter<"AkuoZona"> | number | null
+    precioMaximoPorLitro?: FloatNullableFilter<"AkuoZona"> | number | null
     litrosMinimos?: IntFilter<"AkuoZona"> | number
     radioKm?: FloatNullableFilter<"AkuoZona"> | number | null
     activa?: BoolFilter<"AkuoZona"> | boolean
@@ -28933,6 +29145,9 @@ export namespace Prisma {
     centroLat?: SortOrderInput | SortOrder
     centroLng?: SortOrderInput | SortOrder
     precioPorLitro?: SortOrder
+    precioMinimoPorLitro?: SortOrderInput | SortOrder
+    precioMinimoTotal?: SortOrderInput | SortOrder
+    precioMaximoPorLitro?: SortOrderInput | SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrderInput | SortOrder
     activa?: SortOrder
@@ -28956,6 +29171,9 @@ export namespace Prisma {
     centroLat?: FloatNullableWithAggregatesFilter<"AkuoZona"> | number | null
     centroLng?: FloatNullableWithAggregatesFilter<"AkuoZona"> | number | null
     precioPorLitro?: FloatWithAggregatesFilter<"AkuoZona"> | number
+    precioMinimoPorLitro?: FloatNullableWithAggregatesFilter<"AkuoZona"> | number | null
+    precioMinimoTotal?: FloatNullableWithAggregatesFilter<"AkuoZona"> | number | null
+    precioMaximoPorLitro?: FloatNullableWithAggregatesFilter<"AkuoZona"> | number | null
     litrosMinimos?: IntWithAggregatesFilter<"AkuoZona"> | number
     radioKm?: FloatNullableWithAggregatesFilter<"AkuoZona"> | number | null
     activa?: BoolWithAggregatesFilter<"AkuoZona"> | boolean
@@ -29116,6 +29334,9 @@ export namespace Prisma {
     mpPreferenceId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     mpPaymentId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     estadoPago?: StringFilter<"AkuoPedidoCliente"> | string
+    precioSnapshotJson?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    precioDinamicoHabilitado?: BoolFilter<"AkuoPedidoCliente"> | boolean
+    precioPorLitroFinal?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
     cliente?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     transportista?: XOR<AkuoUsuarioNullableScalarRelationFilter, AkuoUsuarioWhereInput> | null
   }
@@ -29147,6 +29368,9 @@ export namespace Prisma {
     mpPreferenceId?: SortOrderInput | SortOrder
     mpPaymentId?: SortOrderInput | SortOrder
     estadoPago?: SortOrder
+    precioSnapshotJson?: SortOrderInput | SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    precioPorLitroFinal?: SortOrderInput | SortOrder
     cliente?: AkuoUsuarioOrderByWithRelationInput
     transportista?: AkuoUsuarioOrderByWithRelationInput
   }
@@ -29181,6 +29405,9 @@ export namespace Prisma {
     mpPreferenceId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     mpPaymentId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     estadoPago?: StringFilter<"AkuoPedidoCliente"> | string
+    precioSnapshotJson?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    precioDinamicoHabilitado?: BoolFilter<"AkuoPedidoCliente"> | boolean
+    precioPorLitroFinal?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
     cliente?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     transportista?: XOR<AkuoUsuarioNullableScalarRelationFilter, AkuoUsuarioWhereInput> | null
   }, "id">
@@ -29212,6 +29439,9 @@ export namespace Prisma {
     mpPreferenceId?: SortOrderInput | SortOrder
     mpPaymentId?: SortOrderInput | SortOrder
     estadoPago?: SortOrder
+    precioSnapshotJson?: SortOrderInput | SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    precioPorLitroFinal?: SortOrderInput | SortOrder
     _count?: AkuoPedidoClienteCountOrderByAggregateInput
     _avg?: AkuoPedidoClienteAvgOrderByAggregateInput
     _max?: AkuoPedidoClienteMaxOrderByAggregateInput
@@ -29249,6 +29479,9 @@ export namespace Prisma {
     mpPreferenceId?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
     mpPaymentId?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
     estadoPago?: StringWithAggregatesFilter<"AkuoPedidoCliente"> | string
+    precioSnapshotJson?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
+    precioDinamicoHabilitado?: BoolWithAggregatesFilter<"AkuoPedidoCliente"> | boolean
+    precioPorLitroFinal?: FloatNullableWithAggregatesFilter<"AkuoPedidoCliente"> | number | null
   }
 
   export type AkuoUsuarioCreateInput = {
@@ -31157,6 +31390,11 @@ export namespace Prisma {
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
     activo?: boolean
+    precioDinamicoHabilitado?: boolean
+    reglasPrecioJson?: string | null
+    depotLat?: number | null
+    depotLng?: number | null
+    depotNombre?: string | null
   }
 
   export type AkuoConfigUncheckedCreateInput = {
@@ -31169,6 +31407,11 @@ export namespace Prisma {
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
     activo?: boolean
+    precioDinamicoHabilitado?: boolean
+    reglasPrecioJson?: string | null
+    depotLat?: number | null
+    depotLng?: number | null
+    depotNombre?: string | null
   }
 
   export type AkuoConfigUpdateInput = {
@@ -31181,6 +31424,11 @@ export namespace Prisma {
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    reglasPrecioJson?: NullableStringFieldUpdateOperationsInput | string | null
+    depotLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    depotLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    depotNombre?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoConfigUncheckedUpdateInput = {
@@ -31193,6 +31441,11 @@ export namespace Prisma {
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    reglasPrecioJson?: NullableStringFieldUpdateOperationsInput | string | null
+    depotLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    depotLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    depotNombre?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoConfigCreateManyInput = {
@@ -31205,6 +31458,11 @@ export namespace Prisma {
     maxVehiculosPro?: number
     maxVehiculosEnterprise?: number
     activo?: boolean
+    precioDinamicoHabilitado?: boolean
+    reglasPrecioJson?: string | null
+    depotLat?: number | null
+    depotLng?: number | null
+    depotNombre?: string | null
   }
 
   export type AkuoConfigUpdateManyMutationInput = {
@@ -31217,6 +31475,11 @@ export namespace Prisma {
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    reglasPrecioJson?: NullableStringFieldUpdateOperationsInput | string | null
+    depotLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    depotLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    depotNombre?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoConfigUncheckedUpdateManyInput = {
@@ -31229,6 +31492,11 @@ export namespace Prisma {
     maxVehiculosPro?: IntFieldUpdateOperationsInput | number
     maxVehiculosEnterprise?: IntFieldUpdateOperationsInput | number
     activo?: BoolFieldUpdateOperationsInput | boolean
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    reglasPrecioJson?: NullableStringFieldUpdateOperationsInput | string | null
+    depotLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    depotLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    depotNombre?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoZonaCreateInput = {
@@ -31241,6 +31509,9 @@ export namespace Prisma {
     centroLat?: number | null
     centroLng?: number | null
     precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
@@ -31257,6 +31528,9 @@ export namespace Prisma {
     centroLat?: number | null
     centroLng?: number | null
     precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
@@ -31273,6 +31547,9 @@ export namespace Prisma {
     centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
     centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
@@ -31289,6 +31566,9 @@ export namespace Prisma {
     centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
     centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
@@ -31305,6 +31585,9 @@ export namespace Prisma {
     centroLat?: number | null
     centroLng?: number | null
     precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
@@ -31320,6 +31603,9 @@ export namespace Prisma {
     centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
     centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
@@ -31335,6 +31621,9 @@ export namespace Prisma {
     centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
     centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
@@ -31484,6 +31773,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
     cliente: AkuoUsuarioCreateNestedOneWithoutPedidosClienteAppInput
     transportista?: AkuoUsuarioCreateNestedOneWithoutPedidosTransportistaAppInput
   }
@@ -31515,6 +31807,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
   }
 
   export type AkuoPedidoClienteUpdateInput = {
@@ -31542,6 +31837,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
     cliente?: AkuoUsuarioUpdateOneRequiredWithoutPedidosClienteAppNestedInput
     transportista?: AkuoUsuarioUpdateOneWithoutPedidosTransportistaAppNestedInput
   }
@@ -31573,6 +31871,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteCreateManyInput = {
@@ -31602,6 +31903,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
   }
 
   export type AkuoPedidoClienteUpdateManyMutationInput = {
@@ -31629,6 +31933,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyInput = {
@@ -31658,6 +31965,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -33017,6 +33327,11 @@ export namespace Prisma {
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
     activo?: SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    reglasPrecioJson?: SortOrder
+    depotLat?: SortOrder
+    depotLng?: SortOrder
+    depotNombre?: SortOrder
   }
 
   export type AkuoConfigAvgOrderByAggregateInput = {
@@ -33026,6 +33341,8 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    depotLat?: SortOrder
+    depotLng?: SortOrder
   }
 
   export type AkuoConfigMaxOrderByAggregateInput = {
@@ -33038,6 +33355,11 @@ export namespace Prisma {
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
     activo?: SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    reglasPrecioJson?: SortOrder
+    depotLat?: SortOrder
+    depotLng?: SortOrder
+    depotNombre?: SortOrder
   }
 
   export type AkuoConfigMinOrderByAggregateInput = {
@@ -33050,6 +33372,11 @@ export namespace Prisma {
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
     activo?: SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    reglasPrecioJson?: SortOrder
+    depotLat?: SortOrder
+    depotLng?: SortOrder
+    depotNombre?: SortOrder
   }
 
   export type AkuoConfigSumOrderByAggregateInput = {
@@ -33059,6 +33386,8 @@ export namespace Prisma {
     maxVehiculosFree?: SortOrder
     maxVehiculosPro?: SortOrder
     maxVehiculosEnterprise?: SortOrder
+    depotLat?: SortOrder
+    depotLng?: SortOrder
   }
 
   export type AkuoUsuarioListRelationFilter = {
@@ -33081,6 +33410,9 @@ export namespace Prisma {
     centroLat?: SortOrder
     centroLng?: SortOrder
     precioPorLitro?: SortOrder
+    precioMinimoPorLitro?: SortOrder
+    precioMinimoTotal?: SortOrder
+    precioMaximoPorLitro?: SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
     activa?: SortOrder
@@ -33090,6 +33422,9 @@ export namespace Prisma {
     centroLat?: SortOrder
     centroLng?: SortOrder
     precioPorLitro?: SortOrder
+    precioMinimoPorLitro?: SortOrder
+    precioMinimoTotal?: SortOrder
+    precioMaximoPorLitro?: SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
   }
@@ -33104,6 +33439,9 @@ export namespace Prisma {
     centroLat?: SortOrder
     centroLng?: SortOrder
     precioPorLitro?: SortOrder
+    precioMinimoPorLitro?: SortOrder
+    precioMinimoTotal?: SortOrder
+    precioMaximoPorLitro?: SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
     activa?: SortOrder
@@ -33119,6 +33457,9 @@ export namespace Prisma {
     centroLat?: SortOrder
     centroLng?: SortOrder
     precioPorLitro?: SortOrder
+    precioMinimoPorLitro?: SortOrder
+    precioMinimoTotal?: SortOrder
+    precioMaximoPorLitro?: SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
     activa?: SortOrder
@@ -33128,6 +33469,9 @@ export namespace Prisma {
     centroLat?: SortOrder
     centroLng?: SortOrder
     precioPorLitro?: SortOrder
+    precioMinimoPorLitro?: SortOrder
+    precioMinimoTotal?: SortOrder
+    precioMaximoPorLitro?: SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
   }
@@ -33220,6 +33564,9 @@ export namespace Prisma {
     mpPreferenceId?: SortOrder
     mpPaymentId?: SortOrder
     estadoPago?: SortOrder
+    precioSnapshotJson?: SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    precioPorLitroFinal?: SortOrder
   }
 
   export type AkuoPedidoClienteAvgOrderByAggregateInput = {
@@ -33227,6 +33574,7 @@ export namespace Prisma {
     lat?: SortOrder
     lng?: SortOrder
     precioTotal?: SortOrder
+    precioPorLitroFinal?: SortOrder
   }
 
   export type AkuoPedidoClienteMaxOrderByAggregateInput = {
@@ -33256,6 +33604,9 @@ export namespace Prisma {
     mpPreferenceId?: SortOrder
     mpPaymentId?: SortOrder
     estadoPago?: SortOrder
+    precioSnapshotJson?: SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    precioPorLitroFinal?: SortOrder
   }
 
   export type AkuoPedidoClienteMinOrderByAggregateInput = {
@@ -33285,6 +33636,9 @@ export namespace Prisma {
     mpPreferenceId?: SortOrder
     mpPaymentId?: SortOrder
     estadoPago?: SortOrder
+    precioSnapshotJson?: SortOrder
+    precioDinamicoHabilitado?: SortOrder
+    precioPorLitroFinal?: SortOrder
   }
 
   export type AkuoPedidoClienteSumOrderByAggregateInput = {
@@ -33292,6 +33646,7 @@ export namespace Prisma {
     lat?: SortOrder
     lng?: SortOrder
     precioTotal?: SortOrder
+    precioPorLitroFinal?: SortOrder
   }
 
   export type AkuoZonaCreateNestedOneWithoutUsuariosInput = {
@@ -35072,6 +35427,9 @@ export namespace Prisma {
     centroLat?: number | null
     centroLng?: number | null
     precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
@@ -35087,6 +35445,9 @@ export namespace Prisma {
     centroLat?: number | null
     centroLng?: number | null
     precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
@@ -35595,6 +35956,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
     transportista?: AkuoUsuarioCreateNestedOneWithoutPedidosTransportistaAppInput
   }
 
@@ -35624,6 +35988,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
   }
 
   export type AkuoPedidoClienteCreateOrConnectWithoutClienteInput = {
@@ -35660,6 +36027,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
     cliente: AkuoUsuarioCreateNestedOneWithoutPedidosClienteAppInput
   }
 
@@ -35689,6 +36059,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
   }
 
   export type AkuoPedidoClienteCreateOrConnectWithoutTransportistaInput = {
@@ -35785,6 +36158,9 @@ export namespace Prisma {
     centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
     centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
@@ -35800,6 +36176,9 @@ export namespace Prisma {
     centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
     centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
     precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
@@ -36271,6 +36650,9 @@ export namespace Prisma {
     mpPreferenceId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     mpPaymentId?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     estadoPago?: StringFilter<"AkuoPedidoCliente"> | string
+    precioSnapshotJson?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    precioDinamicoHabilitado?: BoolFilter<"AkuoPedidoCliente"> | boolean
+    precioPorLitroFinal?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
   }
 
   export type AkuoPedidoClienteUpsertWithWhereUniqueWithoutTransportistaInput = {
@@ -44157,6 +44539,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
   }
 
   export type AkuoPedidoClienteCreateManyTransportistaInput = {
@@ -44185,6 +44570,9 @@ export namespace Prisma {
     mpPreferenceId?: string | null
     mpPaymentId?: string | null
     estadoPago?: string
+    precioSnapshotJson?: string | null
+    precioDinamicoHabilitado?: boolean
+    precioPorLitroFinal?: number | null
   }
 
   export type AkuoVueltaCreateManyTransportistaInput = {
@@ -44760,6 +45148,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
     transportista?: AkuoUsuarioUpdateOneWithoutPedidosTransportistaAppNestedInput
   }
 
@@ -44789,6 +45180,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyWithoutClienteInput = {
@@ -44817,6 +45211,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteUpdateWithoutTransportistaInput = {
@@ -44844,6 +45241,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
     cliente?: AkuoUsuarioUpdateOneRequiredWithoutPedidosClienteAppNestedInput
   }
 
@@ -44873,6 +45273,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaInput = {
@@ -44901,6 +45304,9 @@ export namespace Prisma {
     mpPreferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     mpPaymentId?: NullableStringFieldUpdateOperationsInput | string | null
     estadoPago?: StringFieldUpdateOperationsInput | string
+    precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
+    precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
+    precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoVueltaUpdateWithoutTransportistaInput = {
