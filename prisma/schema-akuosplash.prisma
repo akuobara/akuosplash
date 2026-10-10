@@ -75,6 +75,10 @@ model AkuoUsuario {
   suscripcionFin       DateTime?
   vehiculosPermitidos  Int     @default(1)
   choferesPermitidos   Int     @default(1)
+  // Verificación para participar en el marketplace de pedidos
+  verificado          Boolean  @default(false)
+  verificadoEn        DateTime?
+  verificadoPor       String? // superadminId
   // Precios por litro del transportista
   precioEfectivoPorLitro  Float?
   precioTransferenciaPorLitro Float?

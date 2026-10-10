@@ -2946,6 +2946,9 @@ export namespace Prisma {
     suscripcionFin: Date | null
     vehiculosPermitidos: number | null
     choferesPermitidos: number | null
+    verificado: boolean | null
+    verificadoEn: Date | null
+    verificadoPor: string | null
     precioEfectivoPorLitro: number | null
     precioTransferenciaPorLitro: number | null
     mpUserId: string | null
@@ -3012,6 +3015,9 @@ export namespace Prisma {
     suscripcionFin: Date | null
     vehiculosPermitidos: number | null
     choferesPermitidos: number | null
+    verificado: boolean | null
+    verificadoEn: Date | null
+    verificadoPor: string | null
     precioEfectivoPorLitro: number | null
     precioTransferenciaPorLitro: number | null
     mpUserId: string | null
@@ -3078,6 +3084,9 @@ export namespace Prisma {
     suscripcionFin: number
     vehiculosPermitidos: number
     choferesPermitidos: number
+    verificado: number
+    verificadoEn: number
+    verificadoPor: number
     precioEfectivoPorLitro: number
     precioTransferenciaPorLitro: number
     mpUserId: number
@@ -3168,6 +3177,9 @@ export namespace Prisma {
     suscripcionFin?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
+    verificado?: true
+    verificadoEn?: true
+    verificadoPor?: true
     precioEfectivoPorLitro?: true
     precioTransferenciaPorLitro?: true
     mpUserId?: true
@@ -3234,6 +3246,9 @@ export namespace Prisma {
     suscripcionFin?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
+    verificado?: true
+    verificadoEn?: true
+    verificadoPor?: true
     precioEfectivoPorLitro?: true
     precioTransferenciaPorLitro?: true
     mpUserId?: true
@@ -3300,6 +3315,9 @@ export namespace Prisma {
     suscripcionFin?: true
     vehiculosPermitidos?: true
     choferesPermitidos?: true
+    verificado?: true
+    verificadoEn?: true
+    verificadoPor?: true
     precioEfectivoPorLitro?: true
     precioTransferenciaPorLitro?: true
     mpUserId?: true
@@ -3453,6 +3471,9 @@ export namespace Prisma {
     suscripcionFin: Date | null
     vehiculosPermitidos: number
     choferesPermitidos: number
+    verificado: boolean
+    verificadoEn: Date | null
+    verificadoPor: string | null
     precioEfectivoPorLitro: number | null
     precioTransferenciaPorLitro: number | null
     mpUserId: string | null
@@ -3538,6 +3559,9 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    verificado?: boolean
+    verificadoEn?: boolean
+    verificadoPor?: boolean
     precioEfectivoPorLitro?: boolean
     precioTransferenciaPorLitro?: boolean
     mpUserId?: boolean
@@ -3623,6 +3647,9 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    verificado?: boolean
+    verificadoEn?: boolean
+    verificadoPor?: boolean
     precioEfectivoPorLitro?: boolean
     precioTransferenciaPorLitro?: boolean
     mpUserId?: boolean
@@ -3690,6 +3717,9 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    verificado?: boolean
+    verificadoEn?: boolean
+    verificadoPor?: boolean
     precioEfectivoPorLitro?: boolean
     precioTransferenciaPorLitro?: boolean
     mpUserId?: boolean
@@ -3757,6 +3787,9 @@ export namespace Prisma {
     suscripcionFin?: boolean
     vehiculosPermitidos?: boolean
     choferesPermitidos?: boolean
+    verificado?: boolean
+    verificadoEn?: boolean
+    verificadoPor?: boolean
     precioEfectivoPorLitro?: boolean
     precioTransferenciaPorLitro?: boolean
     mpUserId?: boolean
@@ -3766,7 +3799,7 @@ export namespace Prisma {
     mpConnectedAt?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -3874,6 +3907,9 @@ export namespace Prisma {
       suscripcionFin: Date | null
       vehiculosPermitidos: number
       choferesPermitidos: number
+      verificado: boolean
+      verificadoEn: Date | null
+      verificadoPor: string | null
       precioEfectivoPorLitro: number | null
       precioTransferenciaPorLitro: number | null
       mpUserId: string | null
@@ -4378,6 +4414,9 @@ export namespace Prisma {
     readonly suscripcionFin: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly vehiculosPermitidos: FieldRef<"AkuoUsuario", 'Int'>
     readonly choferesPermitidos: FieldRef<"AkuoUsuario", 'Int'>
+    readonly verificado: FieldRef<"AkuoUsuario", 'Boolean'>
+    readonly verificadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly verificadoPor: FieldRef<"AkuoUsuario", 'String'>
     readonly precioEfectivoPorLitro: FieldRef<"AkuoUsuario", 'Float'>
     readonly precioTransferenciaPorLitro: FieldRef<"AkuoUsuario", 'Float'>
     readonly mpUserId: FieldRef<"AkuoUsuario", 'String'>
@@ -26744,6 +26783,9 @@ export namespace Prisma {
     suscripcionFin: 'suscripcionFin',
     vehiculosPermitidos: 'vehiculosPermitidos',
     choferesPermitidos: 'choferesPermitidos',
+    verificado: 'verificado',
+    verificadoEn: 'verificadoEn',
+    verificadoPor: 'verificadoPor',
     precioEfectivoPorLitro: 'precioEfectivoPorLitro',
     precioTransferenciaPorLitro: 'precioTransferenciaPorLitro',
     mpUserId: 'mpUserId',
@@ -27193,6 +27235,9 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+    verificado?: BoolFilter<"AkuoUsuario"> | boolean
+    verificadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    verificadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
     precioEfectivoPorLitro?: FloatNullableFilter<"AkuoUsuario"> | number | null
     precioTransferenciaPorLitro?: FloatNullableFilter<"AkuoUsuario"> | number | null
     mpUserId?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -27277,6 +27322,9 @@ export namespace Prisma {
     suscripcionFin?: SortOrderInput | SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    verificado?: SortOrder
+    verificadoEn?: SortOrderInput | SortOrder
+    verificadoPor?: SortOrderInput | SortOrder
     precioEfectivoPorLitro?: SortOrderInput | SortOrder
     precioTransferenciaPorLitro?: SortOrderInput | SortOrder
     mpUserId?: SortOrderInput | SortOrder
@@ -27364,6 +27412,9 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+    verificado?: BoolFilter<"AkuoUsuario"> | boolean
+    verificadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    verificadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
     precioEfectivoPorLitro?: FloatNullableFilter<"AkuoUsuario"> | number | null
     precioTransferenciaPorLitro?: FloatNullableFilter<"AkuoUsuario"> | number | null
     mpUserId?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -27448,6 +27499,9 @@ export namespace Prisma {
     suscripcionFin?: SortOrderInput | SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    verificado?: SortOrder
+    verificadoEn?: SortOrderInput | SortOrder
+    verificadoPor?: SortOrderInput | SortOrder
     precioEfectivoPorLitro?: SortOrderInput | SortOrder
     precioTransferenciaPorLitro?: SortOrderInput | SortOrder
     mpUserId?: SortOrderInput | SortOrder
@@ -27522,6 +27576,9 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntWithAggregatesFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntWithAggregatesFilter<"AkuoUsuario"> | number
+    verificado?: BoolWithAggregatesFilter<"AkuoUsuario"> | boolean
+    verificadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    verificadoPor?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     precioEfectivoPorLitro?: FloatNullableWithAggregatesFilter<"AkuoUsuario"> | number | null
     precioTransferenciaPorLitro?: FloatNullableWithAggregatesFilter<"AkuoUsuario"> | number | null
     mpUserId?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
@@ -29250,6 +29307,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -29334,6 +29394,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -29416,6 +29479,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29500,6 +29566,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29583,6 +29652,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -29648,6 +29720,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29714,6 +29789,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31898,6 +31976,9 @@ export namespace Prisma {
     suscripcionFin?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    verificado?: SortOrder
+    verificadoEn?: SortOrder
+    verificadoPor?: SortOrder
     precioEfectivoPorLitro?: SortOrder
     precioTransferenciaPorLitro?: SortOrder
     mpUserId?: SortOrder
@@ -31975,6 +32056,9 @@ export namespace Prisma {
     suscripcionFin?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    verificado?: SortOrder
+    verificadoEn?: SortOrder
+    verificadoPor?: SortOrder
     precioEfectivoPorLitro?: SortOrder
     precioTransferenciaPorLitro?: SortOrder
     mpUserId?: SortOrder
@@ -32041,6 +32125,9 @@ export namespace Prisma {
     suscripcionFin?: SortOrder
     vehiculosPermitidos?: SortOrder
     choferesPermitidos?: SortOrder
+    verificado?: SortOrder
+    verificadoEn?: SortOrder
+    verificadoPor?: SortOrder
     precioEfectivoPorLitro?: SortOrder
     precioTransferenciaPorLitro?: SortOrder
     mpUserId?: SortOrder
@@ -36319,6 +36406,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -36402,6 +36492,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -36499,6 +36592,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36582,6 +36678,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36663,6 +36762,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -36746,6 +36848,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -36945,6 +37050,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37028,6 +37136,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37141,6 +37252,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -37224,6 +37338,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -37433,6 +37550,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37516,6 +37636,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37629,6 +37752,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -37712,6 +37838,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -37921,6 +38050,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38004,6 +38136,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38209,6 +38344,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -38292,6 +38430,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -38565,6 +38706,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38648,6 +38792,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38929,6 +39076,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -39012,6 +39162,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -39260,6 +39413,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39343,6 +39499,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39517,6 +39676,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -39600,6 +39762,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -39728,6 +39893,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39811,6 +39979,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39929,6 +40100,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -40012,6 +40186,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -40109,6 +40286,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40192,6 +40372,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40273,6 +40456,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -40356,6 +40542,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -40453,6 +40642,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40536,6 +40728,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40617,6 +40812,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -40700,6 +40898,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -40797,6 +40998,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40880,6 +41084,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40961,6 +41168,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -41044,6 +41254,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -41141,6 +41354,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41224,6 +41440,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41305,6 +41524,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -41388,6 +41610,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -41485,6 +41710,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41568,6 +41796,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41649,6 +41880,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -41731,6 +41965,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -41842,6 +42079,9 @@ export namespace Prisma {
     suscripcionFin?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     vehiculosPermitidos?: IntFilter<"AkuoUsuario"> | number
     choferesPermitidos?: IntFilter<"AkuoUsuario"> | number
+    verificado?: BoolFilter<"AkuoUsuario"> | boolean
+    verificadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    verificadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
     precioEfectivoPorLitro?: FloatNullableFilter<"AkuoUsuario"> | number | null
     precioTransferenciaPorLitro?: FloatNullableFilter<"AkuoUsuario"> | number | null
     mpUserId?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -41907,6 +42147,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -41990,6 +42233,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -42076,6 +42322,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -42159,6 +42408,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -42281,6 +42533,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42364,6 +42619,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42456,6 +42714,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42539,6 +42800,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42657,6 +42921,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -42740,6 +43007,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -42864,6 +43134,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42947,6 +43220,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43028,6 +43304,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -43111,6 +43390,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -43197,6 +43479,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -43280,6 +43565,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -43377,6 +43665,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43460,6 +43751,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43552,6 +43846,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43635,6 +43932,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45228,6 +45528,9 @@ export namespace Prisma {
     suscripcionFin?: Date | string | null
     vehiculosPermitidos?: number
     choferesPermitidos?: number
+    verificado?: boolean
+    verificadoEn?: Date | string | null
+    verificadoPor?: string | null
     precioEfectivoPorLitro?: number | null
     precioTransferenciaPorLitro?: number | null
     mpUserId?: string | null
@@ -45293,6 +45596,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45375,6 +45681,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45457,6 +45766,9 @@ export namespace Prisma {
     suscripcionFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     vehiculosPermitidos?: IntFieldUpdateOperationsInput | number
     choferesPermitidos?: IntFieldUpdateOperationsInput | number
+    verificado?: BoolFieldUpdateOperationsInput | boolean
+    verificadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     precioEfectivoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     precioTransferenciaPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null

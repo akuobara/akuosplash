@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Droplets, LayoutDashboard, ClipboardList, Truck, Receipt, Calculator,
-  Users, CalendarClock, UserCog, Settings, LogOut, Package, Repeat, History,
+  Users, CalendarClock, UserCog, Settings, LogOut, Package, Repeat, History, ShieldCheck,
 } from "lucide-react";
 import { EntregasTab } from "@/components/akuosplash/entregas-tab";
 import { GastosTab } from "@/components/akuosplash/gastos-tab";
@@ -62,6 +62,7 @@ export default function TransportistaPage() {
   const [camiones, setCamiones] = useState<Camion[]>([]);
   const [vueltaActual, setVueltaActual] = useState<VueltaActual | null>(null);
   const [cuentaOpen, setCuentaOpen] = useState(false);
+  const [verificacion, setVerificacion] = useState<any>(null);
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
   useEffect(() => {
@@ -81,11 +82,13 @@ export default function TransportistaPage() {
       apiGet<{ configuracion: any }>("/api/akuosplash/configuracion"),
       apiGet<{ vuelta: VueltaActual | null }>("/api/akuosplash/vueltas/activa"),
       apiGet<{ camiones: Camion[] }>("/api/akuosplash/vehiculos"),
+      apiGet<any>("/api/akuosplash/transportista/verificacion"),
     ]).then(results => {
       if (results[0].status === "fulfilled") setClientes((results[0] as any).value.clientes || []);
       if (results[1].status === "fulfilled" && (results[1] as any).value.configuracion) setConfig((results[1] as any).value.configuracion);
       if (results[2].status === "fulfilled") setVueltaActual((results[2] as any).value.vuelta);
       if (results[3].status === "fulfilled") setCamiones((results[3] as any).value.camiones || []);
+      if (results[4].status === "fulfilled") setVerificacion((results[4] as any).value);
     });
   }, [user, refreshKey]);
 
@@ -158,6 +161,44 @@ export default function TransportistaPage() {
             <option value="equipo">👤 Equipo</option>
             <option value="perfil">⚙️ Perfil y configuración</option>
           </select>
+
+          {/* Estado de verificación para marketplace */}
+          {verificacion && !verificacion.puedeParticiparMarketplace && (
+            <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <div className="flex items-start gap-3">
+                <div className="rounded-lg bg-amber-100 p-2 shrink-0">
+                  <ShieldCheck className="h-5 w-5 text-amber-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-amber-900">
+                    {verificacion.modoProductividad ? "Modo productividad" : "Pendiente de verificación"}
+                  </p>
+                  <p className="text-xs text-amber-700 mt-0.5">{verificacion.resumen}</p>
+                  <div className="mt-2 space-y-1">
+                    {verificacion.checks?.map((c: any, i: number) => (
+                      <div key={i} className="flex items-center gap-2 text-xs">
+                        <span className={c.ok ? "text-emerald-600" : "text-red-500"}>
+                          {c.ok ? "✓" : "✗"}
+                        </span>
+                        <span className="text-amber-800">{c.label}</span>
+                        {c.detail && <span className="text-amber-500">— {c.detail}</span>}
+                      </div>
+                    ))}
+                  </div>
+                  <Button size="sm" variant="outline" className="mt-2 border-amber-300 text-amber-700 hover:bg-amber-100" onClick={() => setTab("perfil")}>
+                    Completar requisitos
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {verificacion && verificacion.puedeParticiparMarketplace && (
+            <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+              <p className="text-sm text-emerald-700">Estás verificado — podés recibir pedidos del marketplace.</p>
+            </div>
+          )}
 
           <TabsContent value="dashboard" className="mt-4">
             <ErrorBoundary>
