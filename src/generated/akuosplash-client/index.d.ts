@@ -2876,6 +2876,7 @@ export namespace Prisma {
     choferesPermitidos: number | null
     precioEfectivoPorLitro: number | null
     precioTransferenciaPorLitro: number | null
+    transbankAmount: number | null
   }
 
   export type AkuoUsuarioSumAggregateOutputType = {
@@ -2887,6 +2888,7 @@ export namespace Prisma {
     choferesPermitidos: number | null
     precioEfectivoPorLitro: number | null
     precioTransferenciaPorLitro: number | null
+    transbankAmount: number | null
   }
 
   export type AkuoUsuarioMinAggregateOutputType = {
@@ -2956,6 +2958,17 @@ export namespace Prisma {
     mpRefreshToken: string | null
     mpTokenExpiresAt: Date | null
     mpConnectedAt: Date | null
+    planActivoDesde: Date | null
+    planActivoHasta: Date | null
+    transbankBuyOrder: string | null
+    transbankTokenWs: string | null
+    transbankStatus: string | null
+    transbankAmount: number | null
+    transbankPlanSolicitado: string | null
+    transbankCiclo: string | null
+    transbankIniciadoEn: Date | null
+    transbankAutorizadoEn: Date | null
+    transbankAuthorizationCode: string | null
   }
 
   export type AkuoUsuarioMaxAggregateOutputType = {
@@ -3025,6 +3038,17 @@ export namespace Prisma {
     mpRefreshToken: string | null
     mpTokenExpiresAt: Date | null
     mpConnectedAt: Date | null
+    planActivoDesde: Date | null
+    planActivoHasta: Date | null
+    transbankBuyOrder: string | null
+    transbankTokenWs: string | null
+    transbankStatus: string | null
+    transbankAmount: number | null
+    transbankPlanSolicitado: string | null
+    transbankCiclo: string | null
+    transbankIniciadoEn: Date | null
+    transbankAutorizadoEn: Date | null
+    transbankAuthorizationCode: string | null
   }
 
   export type AkuoUsuarioCountAggregateOutputType = {
@@ -3094,6 +3118,17 @@ export namespace Prisma {
     mpRefreshToken: number
     mpTokenExpiresAt: number
     mpConnectedAt: number
+    planActivoDesde: number
+    planActivoHasta: number
+    transbankBuyOrder: number
+    transbankTokenWs: number
+    transbankStatus: number
+    transbankAmount: number
+    transbankPlanSolicitado: number
+    transbankCiclo: number
+    transbankIniciadoEn: number
+    transbankAutorizadoEn: number
+    transbankAuthorizationCode: number
     _all: number
   }
 
@@ -3107,6 +3142,7 @@ export namespace Prisma {
     choferesPermitidos?: true
     precioEfectivoPorLitro?: true
     precioTransferenciaPorLitro?: true
+    transbankAmount?: true
   }
 
   export type AkuoUsuarioSumAggregateInputType = {
@@ -3118,6 +3154,7 @@ export namespace Prisma {
     choferesPermitidos?: true
     precioEfectivoPorLitro?: true
     precioTransferenciaPorLitro?: true
+    transbankAmount?: true
   }
 
   export type AkuoUsuarioMinAggregateInputType = {
@@ -3187,6 +3224,17 @@ export namespace Prisma {
     mpRefreshToken?: true
     mpTokenExpiresAt?: true
     mpConnectedAt?: true
+    planActivoDesde?: true
+    planActivoHasta?: true
+    transbankBuyOrder?: true
+    transbankTokenWs?: true
+    transbankStatus?: true
+    transbankAmount?: true
+    transbankPlanSolicitado?: true
+    transbankCiclo?: true
+    transbankIniciadoEn?: true
+    transbankAutorizadoEn?: true
+    transbankAuthorizationCode?: true
   }
 
   export type AkuoUsuarioMaxAggregateInputType = {
@@ -3256,6 +3304,17 @@ export namespace Prisma {
     mpRefreshToken?: true
     mpTokenExpiresAt?: true
     mpConnectedAt?: true
+    planActivoDesde?: true
+    planActivoHasta?: true
+    transbankBuyOrder?: true
+    transbankTokenWs?: true
+    transbankStatus?: true
+    transbankAmount?: true
+    transbankPlanSolicitado?: true
+    transbankCiclo?: true
+    transbankIniciadoEn?: true
+    transbankAutorizadoEn?: true
+    transbankAuthorizationCode?: true
   }
 
   export type AkuoUsuarioCountAggregateInputType = {
@@ -3325,6 +3384,17 @@ export namespace Prisma {
     mpRefreshToken?: true
     mpTokenExpiresAt?: true
     mpConnectedAt?: true
+    planActivoDesde?: true
+    planActivoHasta?: true
+    transbankBuyOrder?: true
+    transbankTokenWs?: true
+    transbankStatus?: true
+    transbankAmount?: true
+    transbankPlanSolicitado?: true
+    transbankCiclo?: true
+    transbankIniciadoEn?: true
+    transbankAutorizadoEn?: true
+    transbankAuthorizationCode?: true
     _all?: true
   }
 
@@ -3481,6 +3551,17 @@ export namespace Prisma {
     mpRefreshToken: string | null
     mpTokenExpiresAt: Date | null
     mpConnectedAt: Date | null
+    planActivoDesde: Date | null
+    planActivoHasta: Date | null
+    transbankBuyOrder: string | null
+    transbankTokenWs: string | null
+    transbankStatus: string | null
+    transbankAmount: number | null
+    transbankPlanSolicitado: string | null
+    transbankCiclo: string | null
+    transbankIniciadoEn: Date | null
+    transbankAutorizadoEn: Date | null
+    transbankAuthorizationCode: string | null
     _count: AkuoUsuarioCountAggregateOutputType | null
     _avg: AkuoUsuarioAvgAggregateOutputType | null
     _sum: AkuoUsuarioSumAggregateOutputType | null
@@ -3569,6 +3650,17 @@ export namespace Prisma {
     mpRefreshToken?: boolean
     mpTokenExpiresAt?: boolean
     mpConnectedAt?: boolean
+    planActivoDesde?: boolean
+    planActivoHasta?: boolean
+    transbankBuyOrder?: boolean
+    transbankTokenWs?: boolean
+    transbankStatus?: boolean
+    transbankAmount?: boolean
+    transbankPlanSolicitado?: boolean
+    transbankCiclo?: boolean
+    transbankIniciadoEn?: boolean
+    transbankAutorizadoEn?: boolean
+    transbankAuthorizationCode?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
     pedidosCliente?: boolean | AkuoUsuario$pedidosClienteArgs<ExtArgs>
@@ -3657,6 +3749,17 @@ export namespace Prisma {
     mpRefreshToken?: boolean
     mpTokenExpiresAt?: boolean
     mpConnectedAt?: boolean
+    planActivoDesde?: boolean
+    planActivoHasta?: boolean
+    transbankBuyOrder?: boolean
+    transbankTokenWs?: boolean
+    transbankStatus?: boolean
+    transbankAmount?: boolean
+    transbankPlanSolicitado?: boolean
+    transbankCiclo?: boolean
+    transbankIniciadoEn?: boolean
+    transbankAutorizadoEn?: boolean
+    transbankAuthorizationCode?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
@@ -3727,6 +3830,17 @@ export namespace Prisma {
     mpRefreshToken?: boolean
     mpTokenExpiresAt?: boolean
     mpConnectedAt?: boolean
+    planActivoDesde?: boolean
+    planActivoHasta?: boolean
+    transbankBuyOrder?: boolean
+    transbankTokenWs?: boolean
+    transbankStatus?: boolean
+    transbankAmount?: boolean
+    transbankPlanSolicitado?: boolean
+    transbankCiclo?: boolean
+    transbankIniciadoEn?: boolean
+    transbankAutorizadoEn?: boolean
+    transbankAuthorizationCode?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
@@ -3797,9 +3911,20 @@ export namespace Prisma {
     mpRefreshToken?: boolean
     mpTokenExpiresAt?: boolean
     mpConnectedAt?: boolean
+    planActivoDesde?: boolean
+    planActivoHasta?: boolean
+    transbankBuyOrder?: boolean
+    transbankTokenWs?: boolean
+    transbankStatus?: boolean
+    transbankAmount?: boolean
+    transbankPlanSolicitado?: boolean
+    transbankCiclo?: boolean
+    transbankIniciadoEn?: boolean
+    transbankAutorizadoEn?: boolean
+    transbankAuthorizationCode?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -3917,6 +4042,17 @@ export namespace Prisma {
       mpRefreshToken: string | null
       mpTokenExpiresAt: Date | null
       mpConnectedAt: Date | null
+      planActivoDesde: Date | null
+      planActivoHasta: Date | null
+      transbankBuyOrder: string | null
+      transbankTokenWs: string | null
+      transbankStatus: string | null
+      transbankAmount: number | null
+      transbankPlanSolicitado: string | null
+      transbankCiclo: string | null
+      transbankIniciadoEn: Date | null
+      transbankAutorizadoEn: Date | null
+      transbankAuthorizationCode: string | null
     }, ExtArgs["result"]["akuoUsuario"]>
     composites: {}
   }
@@ -4424,6 +4560,17 @@ export namespace Prisma {
     readonly mpRefreshToken: FieldRef<"AkuoUsuario", 'String'>
     readonly mpTokenExpiresAt: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly mpConnectedAt: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly planActivoDesde: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly planActivoHasta: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly transbankBuyOrder: FieldRef<"AkuoUsuario", 'String'>
+    readonly transbankTokenWs: FieldRef<"AkuoUsuario", 'String'>
+    readonly transbankStatus: FieldRef<"AkuoUsuario", 'String'>
+    readonly transbankAmount: FieldRef<"AkuoUsuario", 'Float'>
+    readonly transbankPlanSolicitado: FieldRef<"AkuoUsuario", 'String'>
+    readonly transbankCiclo: FieldRef<"AkuoUsuario", 'String'>
+    readonly transbankIniciadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly transbankAutorizadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly transbankAuthorizationCode: FieldRef<"AkuoUsuario", 'String'>
   }
     
 
@@ -20883,6 +21030,14 @@ export namespace Prisma {
     depotLat: number | null
     depotLng: number | null
     depotNombre: string | null
+    mpAccessToken: string | null
+    mpPublicKey: string | null
+    mpClientId: string | null
+    mpUserId: string | null
+    mpSandbox: boolean | null
+    transbankCommerceCode: string | null
+    transbankApiKey: string | null
+    transbankEnvironment: string | null
   }
 
   export type AkuoConfigMaxAggregateOutputType = {
@@ -20900,6 +21055,14 @@ export namespace Prisma {
     depotLat: number | null
     depotLng: number | null
     depotNombre: string | null
+    mpAccessToken: string | null
+    mpPublicKey: string | null
+    mpClientId: string | null
+    mpUserId: string | null
+    mpSandbox: boolean | null
+    transbankCommerceCode: string | null
+    transbankApiKey: string | null
+    transbankEnvironment: string | null
   }
 
   export type AkuoConfigCountAggregateOutputType = {
@@ -20917,6 +21080,14 @@ export namespace Prisma {
     depotLat: number
     depotLng: number
     depotNombre: number
+    mpAccessToken: number
+    mpPublicKey: number
+    mpClientId: number
+    mpUserId: number
+    mpSandbox: number
+    transbankCommerceCode: number
+    transbankApiKey: number
+    transbankEnvironment: number
     _all: number
   }
 
@@ -20958,6 +21129,14 @@ export namespace Prisma {
     depotLat?: true
     depotLng?: true
     depotNombre?: true
+    mpAccessToken?: true
+    mpPublicKey?: true
+    mpClientId?: true
+    mpUserId?: true
+    mpSandbox?: true
+    transbankCommerceCode?: true
+    transbankApiKey?: true
+    transbankEnvironment?: true
   }
 
   export type AkuoConfigMaxAggregateInputType = {
@@ -20975,6 +21154,14 @@ export namespace Prisma {
     depotLat?: true
     depotLng?: true
     depotNombre?: true
+    mpAccessToken?: true
+    mpPublicKey?: true
+    mpClientId?: true
+    mpUserId?: true
+    mpSandbox?: true
+    transbankCommerceCode?: true
+    transbankApiKey?: true
+    transbankEnvironment?: true
   }
 
   export type AkuoConfigCountAggregateInputType = {
@@ -20992,6 +21179,14 @@ export namespace Prisma {
     depotLat?: true
     depotLng?: true
     depotNombre?: true
+    mpAccessToken?: true
+    mpPublicKey?: true
+    mpClientId?: true
+    mpUserId?: true
+    mpSandbox?: true
+    transbankCommerceCode?: true
+    transbankApiKey?: true
+    transbankEnvironment?: true
     _all?: true
   }
 
@@ -21096,6 +21291,14 @@ export namespace Prisma {
     depotLat: number | null
     depotLng: number | null
     depotNombre: string | null
+    mpAccessToken: string | null
+    mpPublicKey: string | null
+    mpClientId: string | null
+    mpUserId: string | null
+    mpSandbox: boolean
+    transbankCommerceCode: string | null
+    transbankApiKey: string | null
+    transbankEnvironment: string | null
     _count: AkuoConfigCountAggregateOutputType | null
     _avg: AkuoConfigAvgAggregateOutputType | null
     _sum: AkuoConfigSumAggregateOutputType | null
@@ -21132,6 +21335,14 @@ export namespace Prisma {
     depotLat?: boolean
     depotLng?: boolean
     depotNombre?: boolean
+    mpAccessToken?: boolean
+    mpPublicKey?: boolean
+    mpClientId?: boolean
+    mpUserId?: boolean
+    mpSandbox?: boolean
+    transbankCommerceCode?: boolean
+    transbankApiKey?: boolean
+    transbankEnvironment?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
   export type AkuoConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -21149,6 +21360,14 @@ export namespace Prisma {
     depotLat?: boolean
     depotLng?: boolean
     depotNombre?: boolean
+    mpAccessToken?: boolean
+    mpPublicKey?: boolean
+    mpClientId?: boolean
+    mpUserId?: boolean
+    mpSandbox?: boolean
+    transbankCommerceCode?: boolean
+    transbankApiKey?: boolean
+    transbankEnvironment?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
   export type AkuoConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -21166,6 +21385,14 @@ export namespace Prisma {
     depotLat?: boolean
     depotLng?: boolean
     depotNombre?: boolean
+    mpAccessToken?: boolean
+    mpPublicKey?: boolean
+    mpClientId?: boolean
+    mpUserId?: boolean
+    mpSandbox?: boolean
+    transbankCommerceCode?: boolean
+    transbankApiKey?: boolean
+    transbankEnvironment?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
   export type AkuoConfigSelectScalar = {
@@ -21183,9 +21410,17 @@ export namespace Prisma {
     depotLat?: boolean
     depotLng?: boolean
     depotNombre?: boolean
+    mpAccessToken?: boolean
+    mpPublicKey?: boolean
+    mpClientId?: boolean
+    mpUserId?: boolean
+    mpSandbox?: boolean
+    transbankCommerceCode?: boolean
+    transbankApiKey?: boolean
+    transbankEnvironment?: boolean
   }
 
-  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre", ExtArgs["result"]["akuoConfig"]>
+  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre" | "mpAccessToken" | "mpPublicKey" | "mpClientId" | "mpUserId" | "mpSandbox" | "transbankCommerceCode" | "transbankApiKey" | "transbankEnvironment", ExtArgs["result"]["akuoConfig"]>
 
   export type $AkuoConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoConfig"
@@ -21205,6 +21440,14 @@ export namespace Prisma {
       depotLat: number | null
       depotLng: number | null
       depotNombre: string | null
+      mpAccessToken: string | null
+      mpPublicKey: string | null
+      mpClientId: string | null
+      mpUserId: string | null
+      mpSandbox: boolean
+      transbankCommerceCode: string | null
+      transbankApiKey: string | null
+      transbankEnvironment: string | null
     }, ExtArgs["result"]["akuoConfig"]>
     composites: {}
   }
@@ -21642,6 +21885,14 @@ export namespace Prisma {
     readonly depotLat: FieldRef<"AkuoConfig", 'Float'>
     readonly depotLng: FieldRef<"AkuoConfig", 'Float'>
     readonly depotNombre: FieldRef<"AkuoConfig", 'String'>
+    readonly mpAccessToken: FieldRef<"AkuoConfig", 'String'>
+    readonly mpPublicKey: FieldRef<"AkuoConfig", 'String'>
+    readonly mpClientId: FieldRef<"AkuoConfig", 'String'>
+    readonly mpUserId: FieldRef<"AkuoConfig", 'String'>
+    readonly mpSandbox: FieldRef<"AkuoConfig", 'Boolean'>
+    readonly transbankCommerceCode: FieldRef<"AkuoConfig", 'String'>
+    readonly transbankApiKey: FieldRef<"AkuoConfig", 'String'>
+    readonly transbankEnvironment: FieldRef<"AkuoConfig", 'String'>
   }
     
 
@@ -26959,7 +27210,18 @@ export namespace Prisma {
     mpAccessToken: 'mpAccessToken',
     mpRefreshToken: 'mpRefreshToken',
     mpTokenExpiresAt: 'mpTokenExpiresAt',
-    mpConnectedAt: 'mpConnectedAt'
+    mpConnectedAt: 'mpConnectedAt',
+    planActivoDesde: 'planActivoDesde',
+    planActivoHasta: 'planActivoHasta',
+    transbankBuyOrder: 'transbankBuyOrder',
+    transbankTokenWs: 'transbankTokenWs',
+    transbankStatus: 'transbankStatus',
+    transbankAmount: 'transbankAmount',
+    transbankPlanSolicitado: 'transbankPlanSolicitado',
+    transbankCiclo: 'transbankCiclo',
+    transbankIniciadoEn: 'transbankIniciadoEn',
+    transbankAutorizadoEn: 'transbankAutorizadoEn',
+    transbankAuthorizationCode: 'transbankAuthorizationCode'
   };
 
   export type AkuoUsuarioScalarFieldEnum = (typeof AkuoUsuarioScalarFieldEnum)[keyof typeof AkuoUsuarioScalarFieldEnum]
@@ -27209,7 +27471,15 @@ export namespace Prisma {
     reglasPrecioJson: 'reglasPrecioJson',
     depotLat: 'depotLat',
     depotLng: 'depotLng',
-    depotNombre: 'depotNombre'
+    depotNombre: 'depotNombre',
+    mpAccessToken: 'mpAccessToken',
+    mpPublicKey: 'mpPublicKey',
+    mpClientId: 'mpClientId',
+    mpUserId: 'mpUserId',
+    mpSandbox: 'mpSandbox',
+    transbankCommerceCode: 'transbankCommerceCode',
+    transbankApiKey: 'transbankApiKey',
+    transbankEnvironment: 'transbankEnvironment'
   };
 
   export type AkuoConfigScalarFieldEnum = (typeof AkuoConfigScalarFieldEnum)[keyof typeof AkuoConfigScalarFieldEnum]
@@ -27423,6 +27693,17 @@ export namespace Prisma {
     mpRefreshToken?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpTokenExpiresAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpConnectedAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    planActivoDesde?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    planActivoHasta?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankBuyOrder?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankTokenWs?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankStatus?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    transbankPlanSolicitado?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankCiclo?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankAuthorizationCode?: StringNullableFilter<"AkuoUsuario"> | string | null
     zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
     pedidosCliente?: AkuoPedidoListRelationFilter
@@ -27510,6 +27791,17 @@ export namespace Prisma {
     mpRefreshToken?: SortOrderInput | SortOrder
     mpTokenExpiresAt?: SortOrderInput | SortOrder
     mpConnectedAt?: SortOrderInput | SortOrder
+    planActivoDesde?: SortOrderInput | SortOrder
+    planActivoHasta?: SortOrderInput | SortOrder
+    transbankBuyOrder?: SortOrderInput | SortOrder
+    transbankTokenWs?: SortOrderInput | SortOrder
+    transbankStatus?: SortOrderInput | SortOrder
+    transbankAmount?: SortOrderInput | SortOrder
+    transbankPlanSolicitado?: SortOrderInput | SortOrder
+    transbankCiclo?: SortOrderInput | SortOrder
+    transbankIniciadoEn?: SortOrderInput | SortOrder
+    transbankAutorizadoEn?: SortOrderInput | SortOrder
+    transbankAuthorizationCode?: SortOrderInput | SortOrder
     zona?: AkuoZonaOrderByWithRelationInput
     sesiones?: AkuoSesionOrderByRelationAggregateInput
     pedidosCliente?: AkuoPedidoOrderByRelationAggregateInput
@@ -27600,6 +27892,17 @@ export namespace Prisma {
     mpRefreshToken?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpTokenExpiresAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpConnectedAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    planActivoDesde?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    planActivoHasta?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankBuyOrder?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankTokenWs?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankStatus?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    transbankPlanSolicitado?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankCiclo?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankAuthorizationCode?: StringNullableFilter<"AkuoUsuario"> | string | null
     zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
     pedidosCliente?: AkuoPedidoListRelationFilter
@@ -27687,6 +27990,17 @@ export namespace Prisma {
     mpRefreshToken?: SortOrderInput | SortOrder
     mpTokenExpiresAt?: SortOrderInput | SortOrder
     mpConnectedAt?: SortOrderInput | SortOrder
+    planActivoDesde?: SortOrderInput | SortOrder
+    planActivoHasta?: SortOrderInput | SortOrder
+    transbankBuyOrder?: SortOrderInput | SortOrder
+    transbankTokenWs?: SortOrderInput | SortOrder
+    transbankStatus?: SortOrderInput | SortOrder
+    transbankAmount?: SortOrderInput | SortOrder
+    transbankPlanSolicitado?: SortOrderInput | SortOrder
+    transbankCiclo?: SortOrderInput | SortOrder
+    transbankIniciadoEn?: SortOrderInput | SortOrder
+    transbankAutorizadoEn?: SortOrderInput | SortOrder
+    transbankAuthorizationCode?: SortOrderInput | SortOrder
     _count?: AkuoUsuarioCountOrderByAggregateInput
     _avg?: AkuoUsuarioAvgOrderByAggregateInput
     _max?: AkuoUsuarioMaxOrderByAggregateInput
@@ -27764,6 +28078,17 @@ export namespace Prisma {
     mpRefreshToken?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     mpTokenExpiresAt?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     mpConnectedAt?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    planActivoDesde?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    planActivoHasta?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    transbankBuyOrder?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    transbankTokenWs?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    transbankStatus?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    transbankAmount?: FloatNullableWithAggregatesFilter<"AkuoUsuario"> | number | null
+    transbankPlanSolicitado?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    transbankCiclo?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    transbankIniciadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    transbankAutorizadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    transbankAuthorizationCode?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
   }
 
   export type AkuoSesionWhereInput = {
@@ -28991,6 +29316,14 @@ export namespace Prisma {
     depotLat?: FloatNullableFilter<"AkuoConfig"> | number | null
     depotLng?: FloatNullableFilter<"AkuoConfig"> | number | null
     depotNombre?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpClientId?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpUserId?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSandbox?: BoolFilter<"AkuoConfig"> | boolean
+    transbankCommerceCode?: StringNullableFilter<"AkuoConfig"> | string | null
+    transbankApiKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    transbankEnvironment?: StringNullableFilter<"AkuoConfig"> | string | null
   }
 
   export type AkuoConfigOrderByWithRelationInput = {
@@ -29008,6 +29341,14 @@ export namespace Prisma {
     depotLat?: SortOrderInput | SortOrder
     depotLng?: SortOrderInput | SortOrder
     depotNombre?: SortOrderInput | SortOrder
+    mpAccessToken?: SortOrderInput | SortOrder
+    mpPublicKey?: SortOrderInput | SortOrder
+    mpClientId?: SortOrderInput | SortOrder
+    mpUserId?: SortOrderInput | SortOrder
+    mpSandbox?: SortOrder
+    transbankCommerceCode?: SortOrderInput | SortOrder
+    transbankApiKey?: SortOrderInput | SortOrder
+    transbankEnvironment?: SortOrderInput | SortOrder
   }
 
   export type AkuoConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -29028,6 +29369,14 @@ export namespace Prisma {
     depotLat?: FloatNullableFilter<"AkuoConfig"> | number | null
     depotLng?: FloatNullableFilter<"AkuoConfig"> | number | null
     depotNombre?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpClientId?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpUserId?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSandbox?: BoolFilter<"AkuoConfig"> | boolean
+    transbankCommerceCode?: StringNullableFilter<"AkuoConfig"> | string | null
+    transbankApiKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    transbankEnvironment?: StringNullableFilter<"AkuoConfig"> | string | null
   }, "id">
 
   export type AkuoConfigOrderByWithAggregationInput = {
@@ -29045,6 +29394,14 @@ export namespace Prisma {
     depotLat?: SortOrderInput | SortOrder
     depotLng?: SortOrderInput | SortOrder
     depotNombre?: SortOrderInput | SortOrder
+    mpAccessToken?: SortOrderInput | SortOrder
+    mpPublicKey?: SortOrderInput | SortOrder
+    mpClientId?: SortOrderInput | SortOrder
+    mpUserId?: SortOrderInput | SortOrder
+    mpSandbox?: SortOrder
+    transbankCommerceCode?: SortOrderInput | SortOrder
+    transbankApiKey?: SortOrderInput | SortOrder
+    transbankEnvironment?: SortOrderInput | SortOrder
     _count?: AkuoConfigCountOrderByAggregateInput
     _avg?: AkuoConfigAvgOrderByAggregateInput
     _max?: AkuoConfigMaxOrderByAggregateInput
@@ -29070,6 +29427,14 @@ export namespace Prisma {
     depotLat?: FloatNullableWithAggregatesFilter<"AkuoConfig"> | number | null
     depotLng?: FloatNullableWithAggregatesFilter<"AkuoConfig"> | number | null
     depotNombre?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpAccessToken?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpPublicKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpClientId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpUserId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpSandbox?: BoolWithAggregatesFilter<"AkuoConfig"> | boolean
+    transbankCommerceCode?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    transbankApiKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    transbankEnvironment?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
   }
 
   export type AkuoZonaWhereInput = {
@@ -29550,6 +29915,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -29637,6 +30013,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -29722,6 +30109,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -29809,6 +30207,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -29895,6 +30304,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
   }
 
   export type AkuoUsuarioUpdateManyMutationInput = {
@@ -29963,6 +30383,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoUsuarioUncheckedUpdateManyInput = {
@@ -30032,6 +30463,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoSesionCreateInput = {
@@ -31395,6 +31837,14 @@ export namespace Prisma {
     depotLat?: number | null
     depotLng?: number | null
     depotNombre?: string | null
+    mpAccessToken?: string | null
+    mpPublicKey?: string | null
+    mpClientId?: string | null
+    mpUserId?: string | null
+    mpSandbox?: boolean
+    transbankCommerceCode?: string | null
+    transbankApiKey?: string | null
+    transbankEnvironment?: string | null
   }
 
   export type AkuoConfigUncheckedCreateInput = {
@@ -31412,6 +31862,14 @@ export namespace Prisma {
     depotLat?: number | null
     depotLng?: number | null
     depotNombre?: string | null
+    mpAccessToken?: string | null
+    mpPublicKey?: string | null
+    mpClientId?: string | null
+    mpUserId?: string | null
+    mpSandbox?: boolean
+    transbankCommerceCode?: string | null
+    transbankApiKey?: string | null
+    transbankEnvironment?: string | null
   }
 
   export type AkuoConfigUpdateInput = {
@@ -31429,6 +31887,14 @@ export namespace Prisma {
     depotLat?: NullableFloatFieldUpdateOperationsInput | number | null
     depotLng?: NullableFloatFieldUpdateOperationsInput | number | null
     depotNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoConfigUncheckedUpdateInput = {
@@ -31446,6 +31912,14 @@ export namespace Prisma {
     depotLat?: NullableFloatFieldUpdateOperationsInput | number | null
     depotLng?: NullableFloatFieldUpdateOperationsInput | number | null
     depotNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoConfigCreateManyInput = {
@@ -31463,6 +31937,14 @@ export namespace Prisma {
     depotLat?: number | null
     depotLng?: number | null
     depotNombre?: string | null
+    mpAccessToken?: string | null
+    mpPublicKey?: string | null
+    mpClientId?: string | null
+    mpUserId?: string | null
+    mpSandbox?: boolean
+    transbankCommerceCode?: string | null
+    transbankApiKey?: string | null
+    transbankEnvironment?: string | null
   }
 
   export type AkuoConfigUpdateManyMutationInput = {
@@ -31480,6 +31962,14 @@ export namespace Prisma {
     depotLat?: NullableFloatFieldUpdateOperationsInput | number | null
     depotLng?: NullableFloatFieldUpdateOperationsInput | number | null
     depotNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoConfigUncheckedUpdateManyInput = {
@@ -31497,6 +31987,14 @@ export namespace Prisma {
     depotLat?: NullableFloatFieldUpdateOperationsInput | number | null
     depotLng?: NullableFloatFieldUpdateOperationsInput | number | null
     depotNombre?: NullableStringFieldUpdateOperationsInput | string | null
+    mpAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoZonaCreateInput = {
@@ -32296,6 +32794,17 @@ export namespace Prisma {
     mpRefreshToken?: SortOrder
     mpTokenExpiresAt?: SortOrder
     mpConnectedAt?: SortOrder
+    planActivoDesde?: SortOrder
+    planActivoHasta?: SortOrder
+    transbankBuyOrder?: SortOrder
+    transbankTokenWs?: SortOrder
+    transbankStatus?: SortOrder
+    transbankAmount?: SortOrder
+    transbankPlanSolicitado?: SortOrder
+    transbankCiclo?: SortOrder
+    transbankIniciadoEn?: SortOrder
+    transbankAutorizadoEn?: SortOrder
+    transbankAuthorizationCode?: SortOrder
   }
 
   export type AkuoUsuarioAvgOrderByAggregateInput = {
@@ -32307,6 +32816,7 @@ export namespace Prisma {
     choferesPermitidos?: SortOrder
     precioEfectivoPorLitro?: SortOrder
     precioTransferenciaPorLitro?: SortOrder
+    transbankAmount?: SortOrder
   }
 
   export type AkuoUsuarioMaxOrderByAggregateInput = {
@@ -32376,6 +32886,17 @@ export namespace Prisma {
     mpRefreshToken?: SortOrder
     mpTokenExpiresAt?: SortOrder
     mpConnectedAt?: SortOrder
+    planActivoDesde?: SortOrder
+    planActivoHasta?: SortOrder
+    transbankBuyOrder?: SortOrder
+    transbankTokenWs?: SortOrder
+    transbankStatus?: SortOrder
+    transbankAmount?: SortOrder
+    transbankPlanSolicitado?: SortOrder
+    transbankCiclo?: SortOrder
+    transbankIniciadoEn?: SortOrder
+    transbankAutorizadoEn?: SortOrder
+    transbankAuthorizationCode?: SortOrder
   }
 
   export type AkuoUsuarioMinOrderByAggregateInput = {
@@ -32445,6 +32966,17 @@ export namespace Prisma {
     mpRefreshToken?: SortOrder
     mpTokenExpiresAt?: SortOrder
     mpConnectedAt?: SortOrder
+    planActivoDesde?: SortOrder
+    planActivoHasta?: SortOrder
+    transbankBuyOrder?: SortOrder
+    transbankTokenWs?: SortOrder
+    transbankStatus?: SortOrder
+    transbankAmount?: SortOrder
+    transbankPlanSolicitado?: SortOrder
+    transbankCiclo?: SortOrder
+    transbankIniciadoEn?: SortOrder
+    transbankAutorizadoEn?: SortOrder
+    transbankAuthorizationCode?: SortOrder
   }
 
   export type AkuoUsuarioSumOrderByAggregateInput = {
@@ -32456,6 +32988,7 @@ export namespace Prisma {
     choferesPermitidos?: SortOrder
     precioEfectivoPorLitro?: SortOrder
     precioTransferenciaPorLitro?: SortOrder
+    transbankAmount?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -33332,6 +33865,14 @@ export namespace Prisma {
     depotLat?: SortOrder
     depotLng?: SortOrder
     depotNombre?: SortOrder
+    mpAccessToken?: SortOrder
+    mpPublicKey?: SortOrder
+    mpClientId?: SortOrder
+    mpUserId?: SortOrder
+    mpSandbox?: SortOrder
+    transbankCommerceCode?: SortOrder
+    transbankApiKey?: SortOrder
+    transbankEnvironment?: SortOrder
   }
 
   export type AkuoConfigAvgOrderByAggregateInput = {
@@ -33360,6 +33901,14 @@ export namespace Prisma {
     depotLat?: SortOrder
     depotLng?: SortOrder
     depotNombre?: SortOrder
+    mpAccessToken?: SortOrder
+    mpPublicKey?: SortOrder
+    mpClientId?: SortOrder
+    mpUserId?: SortOrder
+    mpSandbox?: SortOrder
+    transbankCommerceCode?: SortOrder
+    transbankApiKey?: SortOrder
+    transbankEnvironment?: SortOrder
   }
 
   export type AkuoConfigMinOrderByAggregateInput = {
@@ -33377,6 +33926,14 @@ export namespace Prisma {
     depotLat?: SortOrder
     depotLng?: SortOrder
     depotNombre?: SortOrder
+    mpAccessToken?: SortOrder
+    mpPublicKey?: SortOrder
+    mpClientId?: SortOrder
+    mpUserId?: SortOrder
+    mpSandbox?: SortOrder
+    transbankCommerceCode?: SortOrder
+    transbankApiKey?: SortOrder
+    transbankEnvironment?: SortOrder
   }
 
   export type AkuoConfigSumOrderByAggregateInput = {
@@ -36798,6 +37355,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -36884,6 +37452,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -36984,6 +37563,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -37070,6 +37660,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -37154,6 +37755,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -37240,6 +37852,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -37442,6 +38065,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -37528,6 +38162,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -37644,6 +38289,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -37730,6 +38386,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -37942,6 +38609,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -38028,6 +38706,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -38144,6 +38833,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -38230,6 +38930,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -38442,6 +39153,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -38528,6 +39250,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -38736,6 +39469,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -38822,6 +39566,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -39098,6 +39853,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -39184,6 +39950,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -39468,6 +40245,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -39554,6 +40342,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -39805,6 +40604,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -39891,6 +40701,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -40068,6 +40889,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -40154,6 +40986,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -40285,6 +41128,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -40371,6 +41225,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -40492,6 +41357,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -40578,6 +41454,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -40678,6 +41565,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -40764,6 +41662,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -40848,6 +41757,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -40934,6 +41854,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -41034,6 +41965,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -41120,6 +42062,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -41204,6 +42157,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -41290,6 +42254,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -41390,6 +42365,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -41476,6 +42462,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -41560,6 +42557,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -41646,6 +42654,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -41746,6 +42765,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -41832,6 +42862,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -41916,6 +42957,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -42002,6 +43054,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -42102,6 +43165,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -42188,6 +43262,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -42272,6 +43357,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -42357,6 +43453,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -42471,6 +43578,17 @@ export namespace Prisma {
     mpRefreshToken?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpTokenExpiresAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpConnectedAt?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    planActivoDesde?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    planActivoHasta?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankBuyOrder?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankTokenWs?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankStatus?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    transbankPlanSolicitado?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankCiclo?: StringNullableFilter<"AkuoUsuario"> | string | null
+    transbankIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    transbankAuthorizationCode?: StringNullableFilter<"AkuoUsuario"> | string | null
   }
 
   export type AkuoUsuarioCreateWithoutConversacionesClienteInput = {
@@ -42539,6 +43657,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -42625,6 +43754,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -42714,6 +43854,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -42800,6 +43951,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -42925,6 +44087,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -43011,6 +44184,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -43106,6 +44290,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -43192,6 +44387,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -43313,6 +44519,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -43399,6 +44616,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -43526,6 +44754,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -43612,6 +44851,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -43696,6 +44946,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -43782,6 +45043,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -43871,6 +45143,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -43957,6 +45240,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -44057,6 +45351,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -44143,6 +45448,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -44238,6 +45554,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -44324,6 +45651,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -45944,6 +47282,17 @@ export namespace Prisma {
     mpRefreshToken?: string | null
     mpTokenExpiresAt?: Date | string | null
     mpConnectedAt?: Date | string | null
+    planActivoDesde?: Date | string | null
+    planActivoHasta?: Date | string | null
+    transbankBuyOrder?: string | null
+    transbankTokenWs?: string | null
+    transbankStatus?: string | null
+    transbankAmount?: number | null
+    transbankPlanSolicitado?: string | null
+    transbankCiclo?: string | null
+    transbankIniciadoEn?: Date | string | null
+    transbankAutorizadoEn?: Date | string | null
+    transbankAuthorizationCode?: string | null
   }
 
   export type AkuoUsuarioUpdateWithoutZonaInput = {
@@ -46012,6 +47361,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -46097,6 +47457,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -46182,6 +47553,17 @@ export namespace Prisma {
     mpRefreshToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpConnectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoDesde?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    planActivoHasta?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankTokenWs?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    transbankPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankCiclo?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoMensajeCreateManyConversacionInput = {

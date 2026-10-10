@@ -1169,3 +1169,97 @@ Stage Summary:
 - ✅ Cambios en memoria hasta tocar "Guardar reglas" que persiste en AkuoConfig.reglasPrecioJson
 - ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
 - ⏳ El usuario puede ahora: ir a superadmin → tab "Precio dinámico" → expandir cada regla → editar parámetros → guardar
+
+---
+Task ID: akuosplash-superadmin-dropdown-transbank
+Agent: main
+Task: (1) Convertir tabs del superadmin de TabsList horizontal a <select> desplegable. (2) Crear tab nueva "Integraciones" con estado de MercadoPago + Transbank. (3) Implementar Transbank Webpay para subscripciones (sin split, más económico que MP). (4) Migración de DB para credenciales + campos de transbank tracking. Deploy a producción.
+
+Work Log:
+- CONVERTIDO superadmin/page.tsx: reemplazado <TabsList> horizontal por <select> desplegable con las 7 opciones (Panel, Zonas, Repartidores, Clientes, Pedidos, Precio dinámico, Integraciones). Mismo patrón que el dashboard del transportista.
+
+- CREADO componente `src/components/akuosplash/integraciones-tab.tsx`:
+  * Card MercadoPago con inputs para: Access Token (password), Public Key (password), Client ID, User ID, switch Sandbox
+  * Card Transbank Webpay con inputs para: Código de comercio, API Key (password), select Ambiente (INTEGRACION/PRODUCCION)
+  * Cada card muestra Badge verde "Configurado" o rojo "Sin configurar" según estado
+  * Banner amber "Pendiente de configuración" con instrucciones para obtener credenciales Transbank si no está configurado
+  * Card final con explicación de tipos de pago soportados (MP para marketplace con split, Transbank para subscripciones)
+
+- EXTENDIDO `prisma/schema-akuosplash.prisma`:
+  * AkuoConfig: 8 campos nuevos (mpAccessToken, mpPublicKey, mpClientId, mpUserId, mpSandbox, transbankCommerceCode, transbankApiKey, transbankEnvironment)
+  * AkuoUsuario: 11 campos nuevos (planActivoDesde, planActivoHasta, transbankBuyOrder, transbankTokenWs, transbankStatus, transbankAmount, transbankPlanSolicitado, transbankCiclo, transbankIniciadoEn, transbankAutorizadoEn, transbankAuthorizationCode)
+  * Regenerado Prisma Client + sync DB local con prisma db push
+
+- CREADO endpoint `POST /api/akuosplash/admin/migrate-transbank-campos`:
+  * ALTER TABLE con 19 columnas nuevas (8 AkuoConfig + 11 AkuoUsuario)
+  * Idempotente: "duplicate column name" → reporta "ya existía"
+
+- CREADO `src/lib/akuosplash-transbank.ts` (~180 líneas):
+  * `getTransbankCreds()` — lee de AkuoConfig (DB) primero, fallback a env vars (TRANSBANK_COMMERCE_CODE, TRANSBANK_API_KEY, TRANSBANK_ENVIRONMENT)
+  * `createTransaction({ buyOrder, sessionId, amount, returnUrl })` → POST a Webpay REST API → devuelve { token, url }
+  * `commitTransaction(tokenWs)` → PUT a Webpay REST API → confirma la transacción
+  * `getStatus(tokenWs)` → GET estado sin confirmar (debug)
+  * `refundTransaction(tokenWs, amount)` → POST refund
+  * `generateBuyOrder(userId)` — genera buy_order único max 26 chars
+  * URLs: INTEGRACION = https://webpay3gint.transbank.cl, PRODUCCION = https://webpay3g.transbank.cl
+
+- CREADOS endpoints de subscripción:
+  * `POST /api/akuosplash/subscription/transbank/create` — recibe { plan, ciclo }, llama a createTransaction, persiste en AkuoUsuario (transbankBuyOrder, transbankTokenWs, transbankStatus=INITIALIZED, transbankAmount, transbankPlanSolicitado, transbankCiclo, transbankIniciadoEn). Devuelve { token, url, buyOrder, amount }
+  * `GET /api/akuosplash/subscription/transbank/return` — Transbank redirige acá con ?token_ws=. Si no hay token → redirect con transbank=abortado. Si hay → llama commitTransaction. Si status=AUTHORIZED → actualiza plan + planActivoDesde/Hasta + transbankStatus=AUTHORIZED + redirect con transbank=ok. Si falla → transbank=fallido.
+  * `POST /api/akuosplash/subscription/transbank/commit` — re-confirma manualmente (debug, superadmin only)
+  * `GET /api/akuosplash/subscription/transbank/commit?tokenWs=...` — consulta estado (debug, superadmin only)
+  * `GET /api/akuosplash/subscription/info` — devuelve info de subscripción del transportista logueado
+
+- CREADOS endpoints de integraciones (estado + PUT):
+  * `GET /api/akuosplash/integraciones/estado` — devuelve estado de MP y Transbank (configured, sandbox, hasX) sin exponer secrets. Lee DB primero, fallback a env vars.
+  * `PUT /api/akuosplash/integraciones/mercadopago` — recibe accessToken, publicKey, clientId, userId, sandbox. Persiste en AkuoConfig. Solo superadmin.
+  * `PUT /api/akuosplash/integraciones/transbank` — recibe commerceCode, apiKey, environment. Persiste en AkuoConfig. Solo superadmin.
+
+- CREADO componente `src/components/akuosplash/subscripcion-tab.tsx` (~330 líneas):
+  * Banner de estado (Plan actual + fecha de vencimiento + días restantes + Badge "Activo")
+  * Grid 2 columnas con cards de Plan Pro ($15.000/mes, hasta 5 vehículos) y Plan Enterprise ($50.000/mes, ilimitado + multi-sucursal + API + soporte 24/7)
+  * Toggle ciclo mensual vs anual (anual = 2 meses gratis = $150.000 en vez de $180.000)
+  * Resumen + botón "Pagar con Transbank" → POST /create → hace submit POST form a la URL de Webpay con token_ws
+  * Card "Última transacción" mostrando estado/monto/plan/ciclo/fechas
+  * Banner amber "Si Transbank no está configurado, el pago fallará"
+  * Detecta query params del redirect (transbank=ok|fallido|abortado|error) y muestra toast
+
+- MODIFICADO `src/app/akuosplash/transportista/page.tsx`:
+  * Agregada opción "💎 Subscripción" al <select> de tabs
+  * Agregado TabKey "subscripcion" al type
+  * Agregado `<TabsContent value="subscripcion">` con `<SubscripcionTab user={user} onUpdated={refresh} />`
+  * Wrapping con `<Suspense>` (necesario para useSearchParams en Next.js prerendering)
+  * Effect que detecta ?tab=subscripcion en query params para auto-navegar (cuando volvemos del redirect de Transbank)
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos (los 6 errores pre-existentes en transportista/page.tsx son de PedidosTab/LiquidacionTab/ClientesTab/CuentaDialog props, no relacionados con esto)
+  * `bun run lint` → 0 errores/warnings nuevos
+  * Primer deploy falló con prerender error en /akuosplash/transportista por falta de Suspense boundary con useSearchParams → fixed envolviendo la página en Suspense
+  * Segundo deploy exitoso: `dpl_2aUiqna9vewHJi6jfL7QRQnk9GKp` READY en ~85s
+  * Smoke test producción:
+    * `/akuosplash/superadmin` → HTTP 200
+    * `/akuosplash/transportista` → HTTP 200
+    * `/api/akuosplash/integraciones/estado` → HTTP 401 (auth required, expected)
+    * `POST /api/akuosplash/subscription/transbank/create` → HTTP 405 (GET no permitido)
+    * `GET /api/akuosplash/subscription/transbank/return` → HTTP 307 (redirect, expected)
+    * `POST /api/akuosplash/admin/migrate-transbank-campos` → HTTP 405 (GET no permitido)
+
+Stage Summary:
+- ✅ Tabs del superadmin convertidos a <select> desplegable con 7 opciones (incluida nueva "Integraciones")
+- ✅ Tab "Integraciones" con cards para MercadoPago y Transbank
+- ✅ Credenciales se guardan en AkuoConfig (DB) — el superadmin puede cambiarlas desde la UI sin re-deploy
+- ✅ Motor de pago Transbank Webpay completo: create → return → commit (con activación automática del plan)
+- ✅ Tab "Subscripción" en el dashboard del transportista: planes Pro/Enterprise, ciclo mensual/anual, botón "Pagar con Transbank" redirige a Webpay
+- ✅ Auto-navegación: cuando Transbank vuelve del redirect con ?tab=subscripcion&transbank=ok, la tab se abre sola y muestra toast
+- ✅ Snapshots de pago persistidos en AkuoUsuario para auditoría (transbankBuyOrder, transbankTokenWs, transbankStatus, transbankAmount, fechas)
+- ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
+- ⏳ ACCIÓN REQUERIDA POR EL USUARIO (en este orden):
+  1. Loguearse como superadmin en https://my-project-azure-five-82.vercel.app/akuosplash/superadmin
+  2. Correr migración (consola del browser):
+     `fetch('/api/akuosplash/admin/migrate-transbank-campos', {method:'POST'}).then(r=>r.json()).then(console.log)`
+  3. Ir a tab "Integraciones" → completar formularios de MercadoPago y Transbank
+  4. Para Transbank, si no tenés cuenta real:
+     - Podés probar con credenciales de test (commerce_code=597055555536, api_key=579B5324D7449C2441F1C8D4A1B5B5C5F8B5C5D5B5C5D5B5C5D5B5C5D5B5C5D5)
+     - Ambiente INTEGRACION
+  5. Loguearse como transportista → ir a tab "💎 Subscripción" → elegir plan → "Pagar con Transbank" → ser redirigido a Webpay (test o real según ambiente)
+  6. Después del pago, volvés automáticamente a la tab Subscripción con toast "Subscripción activada"

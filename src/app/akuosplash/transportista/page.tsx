@@ -1,9 +1,9 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, Suspense } from "react";
 import dynamicImport from "next/dynamic";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import { CamionesManager } from "@/components/akuosplash/camiones-manager";
 import { CuentaDialog } from "@/components/akuosplash/cuenta-dialog";
 import { HistorialVueltasTab } from "@/components/akuosplash/historial-vueltas-tab";
 import { PerfilTransportista } from "@/components/akuosplash/akuosplash-transportista";
+import { SubscripcionTab } from "@/components/akuosplash/subscripcion-tab";
 import { apiGet, apiPost } from "@/components/akuosplash/akuosplash-api-client";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -49,10 +50,19 @@ const Dashboard = dynamicImport(() => import("@/components/akuosplash/dashboard"
 interface Cliente { id: string; nombre: string; rut: string | null; direccion: string | null; telefono: string | null; email: string | null; zona: string | null; precioEfectivoPorLitro: number; precioTransferenciaPorLitro: number; precioCamionCompleto: number; lat: number | null; lng: number | null; requiereIngresoPropiedad: boolean; entregaDesdeAfuera: boolean; conexionExterna: boolean; requiereClientePresente: boolean; indicacionesAcceso: string | null; usoAgua: string; deudaInicial?: number; usoAguaNota: string | null; estanquesJson: string | null; choferPreferidoId: string | null; }
 interface Camion { id: string; nombre: string; patente: string | null; capacidad: number; activo: boolean; }
 interface VueltaActual { id: string; numero: number; iniciadaEn: string; cantidadEntregas: number; litros: number; litrosRestantes?: number; capacidadCamion?: number; camion?: { id: string; nombre: string; patente: string | null; capacidad: number; } | null; }
-type TabKey = "dashboard" | "pedidos" | "entregas" | "camiones" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "equipo" | "perfil";
+type TabKey = "dashboard" | "pedidos" | "entregas" | "camiones" | "gastos" | "liquidacion" | "clientes" | "recurrentes" | "historial" | "equipo" | "subscripcion" | "perfil";
 
-export default function TransportistaPage() {
+export default function TransportistaPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background"><Droplets className="h-8 w-8 animate-spin text-blue-600" /></div>}>
+      <TransportistaPage />
+    </Suspense>
+  );
+}
+
+function TransportistaPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(undefined);
   const [authLoading, setAuthLoading] = useState(true);
   const [tab, setTab] = useState<TabKey>("dashboard");
@@ -74,6 +84,15 @@ export default function TransportistaPage() {
       finally { setAuthLoading(false); }
     })();
   }, []);
+
+  // Detectar query param para auto-navegar a la tab correcta
+  // (cuando volvemos del redirect de Transbank con ?tab=subscripcion&transbank=ok|fallido|abortado)
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "subscripcion") {
+      setTab("subscripcion");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!user) return;
@@ -159,6 +178,7 @@ export default function TransportistaPage() {
             <option value="recurrentes">🔁 Recurrentes</option>
             <option value="historial">📜 Historial</option>
             <option value="equipo">👤 Equipo</option>
+            <option value="subscripcion">💎 Subscripción</option>
             <option value="perfil">⚙️ Perfil y configuración</option>
           </select>
 
@@ -215,6 +235,7 @@ export default function TransportistaPage() {
           <TabsContent value="recurrentes" className="mt-4"><ErrorBoundary><PedidosRecurrentesTab clientes={clientes} choferes={[]} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
           <TabsContent value="historial" className="mt-4"><ErrorBoundary><HistorialVueltasTab refreshKey={refreshKey} /></ErrorBoundary></TabsContent>
           <TabsContent value="equipo" className="mt-4"><ErrorBoundary><EquipoTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
+          <TabsContent value="subscripcion" className="mt-4"><ErrorBoundary><SubscripcionTab user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
           <TabsContent value="perfil" className="mt-4"><ErrorBoundary><PerfilTransportista user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
         </Tabs>
       </div>

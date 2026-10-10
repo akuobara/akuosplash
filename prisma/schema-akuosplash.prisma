@@ -88,6 +88,19 @@ model AkuoUsuario {
   mpRefreshToken       String?
   mpTokenExpiresAt     DateTime?
   mpConnectedAt        DateTime?
+  // --- Subscripción Transbank (planes Pro / Enterprise) ---
+  // plan (campo existente arriba) pasa a ser "free" | "pro" | "enterprise"
+  planActivoDesde       DateTime?
+  planActivoHasta       DateTime?
+  transbankBuyOrder     String?
+  transbankTokenWs      String?
+  transbankStatus       String?  // INITIALIZED | AUTHORIZED | FAILED | REJECTED
+  transbankAmount       Float?
+  transbankPlanSolicitado String?  // pro | enterprise (lo que se solicitó pagar)
+  transbankCiclo        String?  // mensual | anual
+  transbankIniciadoEn   DateTime?
+  transbankAutorizadoEn DateTime?
+  transbankAuthorizationCode String?
   sesiones          AkuoSesion[]
   pedidosCliente    AkuoPedido[]
   entregasHechas    AkuoEntrega[]      @relation("EntregaTransportista")
@@ -378,6 +391,16 @@ model AkuoConfig {
   depotLat                 Float?
   depotLng                 Float?
   depotNombre              String?
+  // --- MercadoPago (credenciales — si están vacías, fallback a env vars) ---
+  mpAccessToken            String?
+  mpPublicKey              String?
+  mpClientId               String?
+  mpUserId                 String?
+  mpSandbox                Boolean @default(true)
+  // --- Transbank Webpay (para subscripciones) ---
+  transbankCommerceCode    String?
+  transbankApiKey          String?
+  transbankEnvironment     String?  // "INTEGRACION" | "PRODUCCION"
 }
 
 // Zona geográfica con precio definido por el superadmin — mismo modelo que Aljibe
