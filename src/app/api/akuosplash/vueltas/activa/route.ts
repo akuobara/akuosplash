@@ -29,17 +29,35 @@ export async function GET() {
   let ventas = 0;
   let efectivo = 0;
   let transferencia = 0;
-  let numEntregas = 0;
+  let entregasList: any[] = [];
   if (vuelta) {
-    const entregas = await akuosplashDb.akuoEntrega.findMany({
+    entregasList = await akuosplashDb.akuoEntrega.findMany({
       where: { vueltaId: vuelta.id },
-      select: { litros: true, total: true, montoEfectivo: true, montoTransferencia: true },
+      select: {
+        id: true,
+        creadoEn: true,
+        litros: true,
+        total: true,
+        montoEfectivo: true,
+        montoTransferencia: true,
+        montoRecibido: true,
+        clienteId: true,
+        clienteNombre: true,
+        clienteDireccion: true,
+        clienteZona: true,
+        clienteTelefono: true,
+        clienteLat: true,
+        clienteLng: true,
+        metodoPago: true,
+        estadoPago: true,
+        fotoMedidorUrl: true,
+      },
+      orderBy: { creadoEn: "asc" },
     });
-    numEntregas = entregas.length;
-    litros = entregas.reduce((s, e) => s + e.litros, 0);
-    ventas = entregas.reduce((s, e) => s + e.total, 0);
-    efectivo = entregas.reduce((s, e) => s + (e.montoEfectivo || 0), 0);
-    transferencia = entregas.reduce((s, e) => s + (e.montoTransferencia || 0), 0);
+    litros = entregasList.reduce((s, e) => s + e.litros, 0);
+    ventas = entregasList.reduce((s, e) => s + e.total, 0);
+    efectivo = entregasList.reduce((s, e) => s + (e.montoEfectivo || 0), 0);
+    transferencia = entregasList.reduce((s, e) => s + (e.montoTransferencia || 0), 0);
   }
 
   return NextResponse.json({
@@ -59,7 +77,8 @@ export async function GET() {
       ventas,
       efectivo,
       transferencia,
-      numEntregas,
+      cantidadEntregas: entregasList.length,
+      entregas: entregasList,
     } : null,
   });
 }

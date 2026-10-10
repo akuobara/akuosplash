@@ -55,12 +55,14 @@ import {
   ClipboardList,
   X,
   UserX,
+  Map as MapIcon,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api-client";
 import { formatCurrency, formatNumber, formatDate, formatTime, labelMetodoPago, labelEstadoPago, USOS_AGUA, TIPOS_ESTANQUE, labelUsoAgua, labelTipoEstanque } from "@/lib/helpers";
 import { MapPicker } from "./map-picker";
+import { ClientesMapa } from "./clientes-mapa";
 
 interface Cliente {
   id: string;
@@ -165,6 +167,7 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [estanques, setEstanques] = useState<{ tipo: string; capacidad: string; nombre: string; ubicacion: string; facturaSeparada: boolean }[]>([]);
   const [choferPreferidoId, setChoferPreferidoId] = useState<string>("");
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
+  const [clientesMapaOpen, setClientesMapaOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -475,11 +478,22 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
               : "Catálogo de clientes frecuentes con precios por método de pago y por zona."}
           </p>
         </div>
-        {!readOnly && (
-          <Button onClick={abrirNuevo} size="sm">
-            <Plus className="mr-1 h-4 w-4" /> Nuevo cliente
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setClientesMapaOpen(true)}
+            disabled={clientes.length === 0}
+            title="Ver todos los clientes en el mapa"
+          >
+            <MapIcon className="mr-1 h-4 w-4" /> Mapa
           </Button>
-        )}
+          {!readOnly && (
+            <Button onClick={abrirNuevo} size="sm">
+              <Plus className="mr-1 h-4 w-4" /> Nuevo cliente
+            </Button>
+          )}
+        </div>
       </div>
 
       <Input
@@ -1178,6 +1192,17 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
         }}
         initialLat={lat ? parseFloat(lat) : null}
         initialLng={lng ? parseFloat(lng) : null}
+      />
+
+      {/* Mapa de todos los clientes */}
+      <ClientesMapa
+        open={clientesMapaOpen}
+        onOpenChange={setClientesMapaOpen}
+        clientes={clientes}
+        onSelectCliente={(id) => {
+          const c = clientes.find((x) => x.id === id);
+          if (c) abrirEditar(c);
+        }}
       />
 
       {/* Diálogo registrar pago */}

@@ -84,9 +84,18 @@ export interface VueltaActual {
     montoEfectivo: number;
     montoTransferencia: number;
     montoRecibido: number;
+    clienteId?: string | null;
     clienteNombre: string;
+    clienteDireccion?: string | null;
+    clienteZona?: string | null;
+    clienteTelefono?: string | null;
+    cliente?: { lat: number | null; lng: number | null } | null;
+    clienteLat?: number | null;
+    clienteLng?: number | null;
     metodoPago: string;
-    fecha: string;
+    estadoPago?: string;
+    fecha?: string;
+    creadoEn?: string;
   }[];
 }
 

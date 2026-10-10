@@ -18,12 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Clock, Repeat } from "lucide-react";
+import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Clock, Repeat, Navigation as NavIcon } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost } from "@/components/akuosplash/akuosplash-api-client";
 import { formatNumber, formatTime, formatCurrency, esVueltaCompletada, UMBRAL_COMPLETACION_VUELTA, labelMetodoPago } from "@/components/akuosplash/akuosplash-helpers";
 import { Label } from "@/components/ui/label";
 import type { VueltaActual } from "./entrega-form";
+import { RutaEntregas, type RutaEntregaStop } from "./ruta-entregas";
 
 export interface CamionOption {
   id: string;
@@ -56,6 +57,7 @@ export function VueltaWidget({
   const [confirmarNueva, setConfirmarNueva] = useState(false);
   const [camionSeleccionado, setCamionSeleccionado] = useState<string>("");
   const [mostrarEntregas, setMostrarEntregas] = useState(false);
+  const [rutaOpen, setRutaOpen] = useState(false);
   const [pedidosReagendados, setPedidosReagendados] = useState<
     Array<{ cliente: string; litrosPendientes: number; litrosSolicitados: number; litrosEntregados: number; nuevoPedidoId: string }>
   >([]);
@@ -249,6 +251,17 @@ export function VueltaWidget({
             </div>
             <div className="flex items-center gap-2">
               {!isDueno && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRutaOpen(true)}
+                  disabled={!vueltaActual.entregas || vueltaActual.entregas.length < 2}
+                  title="Calcular ruta óptima de entregas"
+                >
+                  <NavIcon className="mr-1 h-4 w-4" /> Ruta óptima
+                </Button>
+              )}
+              {!isDueno && (
                 <Button onClick={onRegistrarEntrega} size="sm">
                   <Plus className="mr-1 h-4 w-4" /> Entrega
                 </Button>
@@ -357,7 +370,7 @@ export function VueltaWidget({
                             <span className="tabular-nums">{formatCurrency(e.total)}</span>
                             <span>·</span>
                             <span className="flex items-center gap-0.5">
-                              <Clock className="h-3 w-3" /> {formatTime(e.fecha)}
+                              <Clock className="h-3 w-3" /> {formatTime(e.fecha ?? e.creadoEn ?? "")}
                             </span>
                           </div>
                           {(e.montoEfectivo > 0 || e.montoTransferencia > 0) && (
@@ -540,6 +553,25 @@ export function VueltaWidget({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo: Ruta óptima de entregas */}
+      <RutaEntregas
+        open={rutaOpen}
+        onOpenChange={setRutaOpen}
+        paradas={(vueltaActual.entregas || []).map((e) => ({
+          id: e.id,
+          nombre: e.clienteNombre,
+          direccion: e.clienteDireccion ?? null,
+          lat: e.cliente?.lat ?? e.clienteLat ?? null,
+          lng: e.cliente?.lng ?? e.clienteLng ?? null,
+          litros: e.litros,
+          total: e.total,
+          metodoPago: e.metodoPago,
+          estadoPago: e.estadoPago,
+          clienteId: e.clienteId,
+        }))}
+        titulo={`Ruta óptima — Vuelta #${vueltaActual.numero}`}
+      />
     </>
   );
 }

@@ -594,3 +594,123 @@ Stage Summary:
 - ✅ TypeScript y lint limpios en todos los archivos tocados.
 - ✅ Deploy a Vercel exitoso y verificado (HTTP 200 en /, HTTP 401 en endpoints con auth).
 - ⚠️ `git push origin main` pendiente: el entorno no tiene `.git-credentials` ni `GH_TOKEN`. El commit local `a75a502` está listo para pushear cuando se consiga el token. El deploy a producción no depende de git push.
+
+---
+Task ID: google-maps-integration
+Agent: main
+Task: Integrar Google Maps API en Aljibe y AkuoSplash. Casos: (1) alta de cliente con selección de ubicación en mapa, (2) mapa con todos los clientes seleccionables, (3) ruta óptima de entregas con Directions API. Deploy a producción.
+
+Work Log:
+- LEÍDO el MapPicker existente (Leaflet+OSM+Nominatim) y mapeados todos los puntos de uso en Aljibe + AkuoSplash (clientes-tab.tsx en ambos).
+- DETECTADO que la API de Google Maps no estaba integrada en absoluto — solo se usaban deep-links `https://www.google.com/maps?q=lat,lng` (sin API key).
+- DETECTADO que `Entrega` en Aljibe no tiene columnas `clienteLat`/`clienteLng` en DB — pero la relación `cliente` SÍ las tiene. Para AkuoSplash `AkuoEntrega` SÍ las tiene.
+
+- CREADO `src/lib/google-maps.ts` (~280 líneas):
+  * `loadGoogleMaps()` → singleton loader del script `https://maps.googleapis.com/maps/api/js?key=...&libraries=places,geometry,marker&v=weekly&callback=...`
+  * `geocodeAddress(addr)` → Geocoder.geocode con componentRestrictions country=cl
+  * `reverseGeocode(lat,lng)` → Geocoder.geocode con location
+  * `getOptimizedRoute(origin, destination, waypoints[], optimize=true)` → DirectionsService.route con `optimizeWaypoints: true`, devuelve `{ order, legs, totalDistanceMeters, totalDurationSeconds, route }`
+  * `buildGoogleMapsDeepLink(origin, destination, waypoints)` → URL `https://www.google.com/maps/dir/?api=1&...` con límite de ~1900 chars para waypoints
+  * `formatDistance(meters)` y `formatDuration(seconds)` helpers
+
+- CREADO `scripts/set-google-maps-env.py`: script que setea `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` en Vercel (production + preview + development) y en `.env` local. Recibe la key como arg o la lee de `.env`.
+
+- REESCRITOS `src/components/app/map-picker.tsx` y `src/components/akuosplash/map-picker.tsx` (copia idéntica):
+  * Reemplazado Leaflet por Google Maps JS API
+  * `google.maps.Map` embebido en Dialog
+  * Places Autocomplete en el input de búsqueda (types: geocode, country: cl)
+  * Click en mapa → marker draggable
+  * Marker `dragend` → reverseGeocode para obtener dirección
+  * Botón "Mi ubicación" (geolocation API)
+  * Botón "Buscar" extra con `findPlaceFromQuery` (text-search)
+  * Lista de resultados para selección
+  * Loading state + error state + cleanup de listeners y markers
+  * Cleanup completo al cerrar/cambiar de dialog
+  * Mensaje amber si `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` no está configurada
+
+- CREADO `src/components/app/clientes-mapa.tsx` (y copia en akuosplash):
+  * Dialog full-screen con `google.maps.Map` + panel lateral filtrable
+  * Markers circulares de color verde (al día) o rojo (con deuda) — primer char del nombre como label
+  * Click marker → InfoWindow con nombre/dirección/zona/tel/deuda + link "Cómo llegar"
+  * Lista lateral con cada cliente + badges verde/rojo + botones "Cómo llegar" y "Ver ficha"
+  * Búsqueda por nombre/dirección/zona
+  * Fit bounds automático (1 marker zoom 15, N markers fitBounds con padding 60)
+  * Sección "Sin GPS" lista los clientes sin lat/lng (hasta 8 + "y X más...")
+  * Botón "Ruta Google Maps" con deep-link a la ruta completa de los visibles
+
+- CREADO `src/components/app/ruta-entregas.tsx` (y copia en akuosplash):
+  * Dialog con `google.maps.Map` + panel lateral con paradas ordenadas
+  * `getOptimizedRoute` con `optimizeWaypoints: true` → reordena los waypoints
+  * Render de la ruta con `DirectionsRenderer` (suppressMarkers: true) + markers numerados propios
+  * Markers circulares: azul (origen), púrpura (destino), celeste (waypoints)
+  * InfoWindow por marker con litros/total/metodoPago
+  * Lista lateral ordenada según `route.order` (el orden óptimo devuelto por Google)
+  * Distancia + tiempo total destacados
+  * Distancia/tiempo por leg debajo de cada parada
+  * Botón "Abrir en Google Maps" con deep-link al móvil (`dir_action=navigate`)
+  * Botón "Recalcular" para re-llamar a Directions API
+  * Soporta `origen` opcional (depósito) + N paradas + primer/última como destination
+
+- ACTUALIZADO `src/app/api/vueltas/activa/route.ts` (Aljibe):
+  * Agregado al `entregas.select`: `clienteId`, `clienteDireccion`, `clienteZona`, `clienteTelefono`, `estadoPago`
+  * Agregado `cliente: { select: { lat: true, lng: true } }` include
+  * No requiere migración de DB (ya existían estas columnas en `Cliente`)
+
+- ACTUALIZADO `src/app/api/akuosplash/vueltas/activa/route.ts` (AkuoSplash):
+  * Agregado `entregasList` con query completa (antes solo se usaban los totales): id, creadoEn, litros, total, montoEfectivo, montoTransferencia, montoRecibido, clienteId, clienteNombre, clienteDireccion, clienteZona, clienteTelefono, clienteLat, clienteLng, metodoPago, estadoPago, fotoMedidorUrl
+  * Cambiado `numEntregas` → `cantidadEntregas` + `entregas: entregasList` en la respuesta
+  * `AkuoEntrega` ya tenía las columnas `clienteLat`/`clienteLng` (no requiere migración)
+
+- ACTUALIZADA interface `VueltaActual` en `entrega-form.tsx` (ambos):
+  * `entregas[]` ahora incluye: `clienteId?`, `clienteDireccion?`, `clienteZona?`, `clienteTelefono?`, `cliente?: {lat,lng}|null`, `clienteLat?`, `clienteLng?`, `estadoPago?`
+  * `fecha` ahora es opcional y se agrega `creadoEn?` (AkuoSplash usa `creadoEn` en vez de `fecha`)
+  * `vuelta-widget.tsx` actualizado para usar `e.fecha ?? e.creadoEn`
+
+- ACTUALIZADO `clientes-tab.tsx` (Aljibe + AkuoSplash):
+  * Imports: `Map as MapIcon` (lucide) + `ClientesMapa` desde `./clientes-mapa`
+  * Estado `clientesMapaOpen` agregado
+  * Botón "Mapa" con icono en header junto a "Nuevo cliente"
+  * `<ClientesMapa>` con `clientes={clientes}` y `onSelectCliente` que abre `abrirEditar(c)` para el cliente elegido
+
+- ACTUALIZADO `vuelta-widget.tsx` (Aljibe + AkuoSplash):
+  * Imports: `Navigation as NavIcon` + `RutaEntregas` + `RutaEntregaStop` type
+  * Estado `rutaOpen` agregado
+  * Botón "Ruta óptima" en action area (junto a "Entrega" y "Cerrar"), disabled si `< 2` entregas
+  * `<RutaEntregas>` al final con paradas mapeadas desde `vueltaActual.entregas` (lat/lng desde `cliente.lat` o `clienteLat`)
+  * Título "Ruta óptima — Vuelta #N"
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos. Los ~20 errores restantes son pre-existentes en `akuosplash/transportista/page.tsx`, `bolson/bolson-cliente.tsx`, `auth-screen.tsx`, etc.
+  * `bun run lint` → 0 errores/warnings nuevos en mis archivos.
+  * Build Vercel exitoso: `dpl_59Xrc5uGydbe7bKqmWBtoZfygXaE` READY en ~70s
+  * Smoke test producción (my-project-azure-five-82.vercel.app):
+    * `/` → HTTP 200
+    * `/akuosplash` → HTTP 200
+    * `/api/vueltas/activa` → HTTP 401 (auth required)
+    * `/api/akuosplash/vueltas/activa` → HTTP 401 (auth required)
+
+Stage Summary:
+- ✅ Google Maps JS API integrado en ambos apps (Aljibe + AkuoSplash)
+- ✅ MapPicker reescrito: Places Autocomplete + click marker + drag + geolocation + reverse geocode
+- ✅ ClientesMapa nuevo: full-screen dialog con markers numerados, color por deuda, InfoWindow, lista filtrable, deep-link a ruta Google Maps
+- ✅ RutaEntregas nuevo: Directions API con optimizeWaypoints, markers numerados, distancia/tiempo por leg, botón "Abrir en Google Maps" deep-link al móvil
+- ✅ API /api/vueltas/activa (Aljibe) ahora devuelve clienteId/clienteDireccion/clienteZona/clienteTelefono/estadoPago + join a cliente.lat/lng
+- ✅ API /api/akuosplash/vueltas/activa ahora devuelve array completo de entregas con coordenadas (antes solo totales)
+- ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
+- ⏳ ACCIÓN REQUERIDA POR EL USUARIO: 
+  1. Conseguir API key de Google Cloud Console con APIs habilitadas: Maps JavaScript API, Places API, Geocoding API, Directions API
+  2. Correr: `python3 /home/z/my-project/scripts/set-google-maps-env.py "AIzaSy..."`
+     Esto setea la key en Vercel (production/preview/development) y en .env local
+  3. Hacer re-deploy (correr `python3 /home/z/my-project/scripts/deploy-vercel-direct.py`)
+  4. Probar los 3 flujos:
+     a. Alta de cliente: Clientes → Nuevo cliente → "Buscar en mapa" → click en el mapa → "Guardar ubicación"
+     b. Mapa de clientes: Clientes → "Mapa" (botón) → ver markers + click en uno → InfoWindow
+     c. Ruta óptima: Iniciar vuelta → 2+ entregas → "Ruta óptima" en el widget de vuelta
+  5. Sin API key: los componentes muestran warning amber "Verifica que NEXT_PUBLIC_GOOGLE_MAPS_API_KEY esté configurada"
+- Otros usos sugeridos al usuario para considerar:
+  * Autocomplete en inputs de dirección del cliente (sin abrir mapa)
+  * Geofencing: confirmar que el chofer llegó al cliente correcto
+  * Heatmap de clientes por zona
+  * Polígonos de zonas AkuoSplash dibujados en el mapa (en vez de KML externo)
+  * Distance Matrix para tarifa dinámica según distancia al depot
+  * Place Picker con fotos (Places Details)
