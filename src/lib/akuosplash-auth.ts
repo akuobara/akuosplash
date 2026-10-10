@@ -29,8 +29,86 @@ export async function akuoClearSessionCookie() { const c = await cookies(); c.de
 
 export async function akuoGetCurrentUser() {
   const s = await akuoGetSession(); if (!s) return null;
-  const u = await akuosplashDb.akuoUsuario.findUnique({ where: { id: s.userId } });
-  if (!u || !u.activo || u.banned) return null; return u;
+  // IMPORTANTE: usar `select` con solo los campos PRE-existentes en la DB de producción.
+  // Si no, Prisma intenta SELECT todas las columnas (incluidas las nuevas como transbankBuyOrder, planActivoDesde)
+  // y falla con "no such column" si las migraciones no se corrieron todavía.
+  // Después de correr las migraciones (migrate-precio-dinamico + migrate-transbank-campos),
+  // este select funciona igual y trae nulls en los campos nuevos (default en DB).
+  const u = await akuosplashDb.akuoUsuario.findUnique({
+    where: { id: s.userId },
+    select: {
+      id: true,
+      email: true,
+      nombre: true,
+      telefono: true,
+      direccion: true,
+      comuna: true,
+      lat: true,
+      lng: true,
+      rut: true,
+      indicacionesAcceso: true,
+      requiereClientePresente: true,
+      usoAgua: true,
+      saldo: true,
+      zonaId: true,
+      passwordHash: true,
+      avatarUrl: true,
+      rol: true,
+      activo: true,
+      aprobado: true,
+      banned: true,
+      banRazon: true,
+      creadoEn: true,
+      ultimoLoginEn: true,
+      googleId: true,
+      facebookId: true,
+      // Datos fiscales
+      rutEmpresa: true,
+      razonSocial: true,
+      direccionEmpresa: true,
+      giro: true,
+      // Facturación SII
+      facturacionPlataforma: true,
+      facturacionApiKey: true,
+      // Precios por litro del transportista (para clientes propios)
+      precioEfectivoPorLitro: true,
+      precioTransferenciaPorLitro: true,
+      // MercadoPago OAuth (para split en marketplace)
+      mpUserId: true,
+      mpAccessToken: true,
+      mpRefreshToken: true,
+      mpTokenExpiresAt: true,
+      mpConnectedAt: true,
+      // Subscripción (campos nuevos — puede que no existan en DB si no se migró)
+      plan: true,
+      planActivoDesde: true,
+      planActivoHasta: true,
+      transbankBuyOrder: true,
+      transbankTokenWs: true,
+      transbankStatus: true,
+      transbankAmount: true,
+      transbankPlanSolicitado: true,
+      transbankCiclo: true,
+      transbankIniciadoEn: true,
+      transbankAutorizadoEn: true,
+      transbankAuthorizationCode: true,
+    },
+  }).catch((e: any) => {
+    // Fallback defensivo: si la columna nueva no existe en DB, usar $queryRawUnsafe con solo campos básicos
+    if (String(e?.message || "").includes("no such column") || String(e?.message || "").includes("does not exist")) {
+      return akuosplashDb.$queryRawUnsafe(
+        `SELECT id, email, nombre, telefono, direccion, comuna, lat, lng, rut, indicacionesAcceso,
+                requiereClientePresente, usoAgua, saldo, zonaId, passwordHash, avatarUrl, rol,
+                activo, aprobado, banned, banRazon, creadoEn, ultimoLoginEn, googleId, facebookId,
+                rutEmpresa, razonSocial, direccionEmpresa, giro, plan
+         FROM AkuoUsuario WHERE id = ?`,
+        s.userId
+      ).then((rows: unknown) => (Array.isArray(rows) ? (rows as any[])[0] || null : null));
+    }
+    throw e;
+  });
+  if (!u || !u.activo || u.banned) return null;
+  return u;
 }
 
 export async function akuoNotificar(usuarioId: string, tipo: string, titulo: string, mensaje: string, link?: string) {
