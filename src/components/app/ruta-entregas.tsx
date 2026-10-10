@@ -9,16 +9,21 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, Navigation, ExternalLink, MapPin, AlertTriangle, RefreshCw } from "lucide-react";
+import { Loader2, Navigation, ExternalLink, MapPin, AlertTriangle, RefreshCw, Home, Smartphone, Copy, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import {
   loadGoogleMaps,
   getOptimizedRoute,
+  getDistancesFromOrigin,
   buildGoogleMapsDeepLink,
+  getDepot,
   formatDistance,
   formatDuration,
   type DirectionsStop,
+  type Depot as DepotType,
 } from "@/lib/google-maps";
+import { DepotPanel } from "./depot-panel";
+import { ShareRouteButton } from "./share-route-button";
 
 export interface RutaEntregaStop {
   id: string;
@@ -59,6 +64,11 @@ export function RutaEntregas({
   const [route, setRoute] = useState<Awaited<ReturnType<typeof getOptimizedRoute>> | null>(null);
   const [reordenadas, setReordenadas] = useState<RutaEntregaStop[]>([]);
   const [optimizando, setOptimizando] = useState(false);
+  const [depot, setDepotState] = useState<DepotType | null>(null);
+  const [depotDistances, setDepotDistances] = useState<{
+    toFirst: { distanceText: string | null; durationText: string | null; distanceMeters: number | null; durationSeconds: number | null } | null;
+    fromLast: { distanceText: string | null; durationText: string | null; distanceMeters: number | null; durationSeconds: number | null } | null;
+  }>({ toFirst: null, fromLast: null });
 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
@@ -66,6 +76,7 @@ export function RutaEntregas({
   const markersRef = useRef<any[]>([]);
   const listenersRef = useRef<any[]>([]);
   const infoWindowRef = useRef<any>(null);
+  const depotMarkerRef = useRef<any>(null);
 
   // Filtrar paradas con GPS
   const paradasValidas = useMemo(
@@ -193,6 +204,10 @@ export function RutaEntregas({
     if (infoWindowRef.current) {
       try { infoWindowRef.current.close(); } catch {}
       infoWindowRef.current = null;
+    }
+    if (depotMarkerRef.current) {
+      try { depotMarkerRef.current.setMap(null); } catch {}
+      depotMarkerRef.current = null;
     }
   }, []);
 
@@ -333,6 +348,81 @@ export function RutaEntregas({
     calcularRuta();
   }, [open, googleReady, calcularRuta]);
 
+  // Cargar depot
+  useEffect(() => {
+    if (!open) return;
+    const d = getDepot("aljibe");
+    setDepotState(d);
+  }, [open]);
+
+  // Calcular distancias round-trip desde el depot cuando hay ruta óptima
+  useEffect(() => {
+    if (!open || !googleReady || !depot || reordenadas.length === 0) {
+      setDepotDistances({ toFirst: null, fromLast: null });
+      return;
+    }
+    let cancelled = false;
+    const first = reordenadas[0];
+    const last = reordenadas[reordenadas.length - 1];
+    Promise.all([
+      getDistancesFromOrigin(
+        { lat: depot.lat, lng: depot.lng },
+        [{ lat: first.lat!, lng: first.lng! }]
+      ),
+      getDistancesFromOrigin(
+        { lat: depot.lat, lng: depot.lng },
+        [{ lat: last.lat!, lng: last.lng! }]
+      ),
+    ])
+      .then(([r1, r2]) => {
+        if (cancelled) return;
+        setDepotDistances({
+          toFirst: {
+            distanceText: r1[0]?.distanceText ?? null,
+            durationText: r1[0]?.durationText ?? null,
+            distanceMeters: r1[0]?.distanceMeters ?? null,
+            durationSeconds: r1[0]?.durationSeconds ?? null,
+          },
+          fromLast: {
+            distanceText: r2[0]?.distanceText ?? null,
+            durationText: r2[0]?.durationText ?? null,
+            distanceMeters: r2[0]?.distanceMeters ?? null,
+            durationSeconds: r2[0]?.durationSeconds ?? null,
+          },
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setDepotDistances({ toFirst: null, fromLast: null });
+      });
+    return () => { cancelled = true; };
+  }, [open, googleReady, depot, reordenadas]);
+
+  // Dibujar marker del depot en el mapa
+  useEffect(() => {
+    if (!open || !googleReady || !mapInstance.current) return;
+    const google = (window as any).google;
+    if (depotMarkerRef.current) {
+      try { depotMarkerRef.current.setMap(null); } catch {}
+      depotMarkerRef.current = null;
+    }
+    if (!depot) return;
+    depotMarkerRef.current = new google.maps.Marker({
+      position: { lat: depot.lat, lng: depot.lng },
+      map: mapInstance.current,
+      title: depot.nombre || "Depot",
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 18,
+        fillColor: "#1d4ed8",
+        fillOpacity: 1,
+        strokeColor: "white",
+        strokeWeight: 3,
+      },
+      label: { text: "D", color: "white", fontSize: "12px", fontWeight: "bold" },
+      zIndex: 9999,
+    });
+  }, [open, googleReady, depot]);
+
   // Cleanup al cerrar
   useEffect(() => {
     if (!open) {
@@ -404,26 +494,69 @@ export function RutaEntregas({
             ) : reordenadas.length > 0 ? (
               <>
                 {route && (
-                  <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-xs">
+                  <div className="rounded-lg bg-primary/5 border border-primary/20 p-2 text-xs space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Distancia total</span>
+                      <span className="text-muted-foreground">Distancia total (entre paradas)</span>
                       <strong className="text-primary">{formatDistance(totalDistancia)}</strong>
                     </div>
-                    <div className="flex justify-between mt-1">
+                    <div className="flex justify-between">
                       <span className="text-muted-foreground">Tiempo estimado</span>
                       <strong className="text-primary">{formatDuration(totalDuracion)}</strong>
                     </div>
+                    {(depotDistances.toFirst || depotDistances.fromLast) && (
+                      <div className="border-t border-primary/20 mt-1 pt-1 space-y-0.5 text-[10px]">
+                        {depotDistances.toFirst && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground flex items-center gap-0.5">
+                              <Home className="h-2.5 w-2.5" /> Depot → primera parada
+                            </span>
+                            <strong className="text-primary tabular-nums">
+                              {depotDistances.toFirst.distanceText} · {depotDistances.toFirst.durationText}
+                            </strong>
+                          </div>
+                        )}
+                        {depotDistances.fromLast && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground flex items-center gap-0.5">
+                              <Home className="h-2.5 w-2.5" /> Última parada → Depot
+                            </span>
+                            <strong className="text-primary tabular-nums">
+                              {depotDistances.fromLast.distanceText} · {depotDistances.fromLast.durationText}
+                            </strong>
+                          </div>
+                        )}
+                        {depotDistances.toFirst && depotDistances.fromLast &&
+                         depotDistances.toFirst.distanceMeters != null &&
+                         depotDistances.fromLast.distanceMeters != null &&
+                         totalDistancia > 0 && (
+                          <div className="flex justify-between border-t border-primary/20 mt-1 pt-1">
+                            <span className="font-medium text-muted-foreground">Recorrido total + depot</span>
+                            <strong className="text-primary tabular-nums">
+                              {formatDistance(
+                                totalDistancia +
+                                  depotDistances.toFirst.distanceMeters +
+                                  depotDistances.fromLast.distanceMeters
+                              )}
+                            </strong>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
+                <DepotPanel namespace="aljibe" compact buttonLabel="Configurar depot" />
                 {mobileDeepLink && (
-                  <a
-                    href={mobileDeepLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1 rounded-md bg-blue-600 hover:bg-blue-700 px-3 py-2 text-sm text-white font-medium transition"
-                  >
-                    <Navigation className="h-4 w-4" /> Abrir en Google Maps
-                  </a>
+                  <div className="flex gap-2">
+                    <a
+                      href={mobileDeepLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 inline-flex items-center justify-center gap-1 rounded-md bg-blue-600 hover:bg-blue-700 px-3 py-2 text-sm text-white font-medium transition"
+                    >
+                      <Navigation className="h-4 w-4" /> Abrir en Maps
+                    </a>
+                    <ShareRouteButton url={mobileDeepLink} label="Enviar al móvil" />
+                  </div>
                 )}
                 <Button
                   variant="outline"

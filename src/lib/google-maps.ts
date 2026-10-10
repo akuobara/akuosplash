@@ -281,8 +281,139 @@ export function formatDuration(seconds: number): string {
 }
 
 /* ──────────────────────────────────────────────────────────────────── */
-/* Geofencing — Haversine                                              */
+/* Distance Matrix                                                    */
 /* ──────────────────────────────────────────────────────────────────── */
+
+export interface DistanceMatrixElement {
+  status: string;
+  distanceMeters: number | null;
+  durationSeconds: number | null;
+  distanceText: string | null;
+  durationText: string | null;
+}
+
+export interface DistanceMatrixResult {
+  rows: DistanceMatrixElement[][]; // rows[i][j] = origin i → destination j
+  originAddresses: string[];
+  destinationAddresses: string[];
+}
+
+/**
+ * Llama a Google Distance Matrix API.
+ * Limit: 25 origins × 25 destinations per request (or 100 elements total).
+ *
+ * @param origins array de {lat,lng}
+ * @param destinations array de {lat,lng}
+ * @param mode "driving" (default) | "walking" | "bicycling"
+ */
+export async function getDistanceMatrix(
+  origins: DirectionsStop[],
+  destinations: DirectionsStop[],
+  mode: "driving" | "walking" | "bicycling" = "driving"
+): Promise<DistanceMatrixResult | null> {
+  const google = await loadGoogleMaps();
+  const service = new google.maps.DistanceMatrixService();
+  return new Promise<DistanceMatrixResult | null>((resolve, reject) => {
+    service.getDistanceMatrix(
+      {
+        origins: origins.map((o) => new google.maps.LatLng(o.lat, o.lng)),
+        destinations: destinations.map((d) => new google.maps.LatLng(d.lat, d.lng)),
+        travelMode: google.maps.TravelMode[mode.toUpperCase()],
+        unitSystem: google.maps.UnitSystem.METRIC,
+        avoidHighways: false,
+        avoidTolls: false,
+      },
+      (response: any, status: string) => {
+        if (status === "OK" && response) {
+          const rows: DistanceMatrixElement[][] = (response.rows || []).map((r: any) =>
+            (r.elements || []).map((e: any) => ({
+              status: e.status,
+              distanceMeters: e.distance?.value ?? null,
+              durationSeconds: e.duration?.value ?? null,
+              distanceText: e.distance?.text ?? null,
+              durationText: e.duration?.text ?? null,
+            }))
+          );
+          resolve({
+            rows,
+            originAddresses: response.originAddresses || [],
+            destinationAddresses: response.destinationAddresses || [],
+          });
+        } else if (status === "MAX_ELEMENTS_EXCEEDED" || status === "ZERO_RESULTS") {
+          resolve(null);
+        } else {
+          reject(new Error(`Distance Matrix failed: ${status}`));
+        }
+      }
+    );
+  });
+}
+
+/**
+ * Calcula distancia y tiempo de viaje desde un único origen a múltiples destinos.
+ * Atajo para el caso más común (depot → N clientes).
+ * Limit: hasta 25 destinos por request.
+ */
+export async function getDistancesFromOrigin(
+  origin: DirectionsStop,
+  destinations: DirectionsStop[],
+  mode: "driving" | "walking" | "bicycling" = "driving"
+): Promise<{ destinationIndex: number; distanceMeters: number | null; durationSeconds: number | null; distanceText: string | null; durationText: string | null }[]> {
+  if (destinations.length === 0) return [];
+  const chunked = destinations.slice(0, 25);
+  const result = await getDistanceMatrix([origin], chunked, mode);
+  if (!result || result.rows.length === 0) {
+    return chunked.map((_, i) => ({ destinationIndex: i, distanceMeters: null, durationSeconds: null, distanceText: null, durationText: null }));
+  }
+  return result.rows[0].map((e, i) => ({
+    destinationIndex: i,
+    distanceMeters: e.distanceMeters,
+    durationSeconds: e.durationSeconds,
+    distanceText: e.distanceText,
+    durationText: e.durationText,
+  }));
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/* Depot — guardado en localStorage (sin migración de DB)              */
+/* ──────────────────────────────────────────────────────────────────── */
+
+const DEPOT_KEY_PREFIX = "google_maps_depot_";
+
+export interface Depot {
+  lat: number;
+  lng: number;
+  nombre?: string;
+}
+
+export function getDepot(namespace = "default"): Depot | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(DEPOT_KEY_PREFIX + namespace);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed.lat === "number" && typeof parsed.lng === "number") {
+      return parsed as Depot;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function setDepot(namespace: string, depot: Depot | null): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (depot == null) {
+      localStorage.removeItem(DEPOT_KEY_PREFIX + namespace);
+    } else {
+      localStorage.setItem(DEPOT_KEY_PREFIX + namespace, JSON.stringify(depot));
+    }
+  } catch {
+    // localStorage could be full or disabled
+  }
+}
+
 
 /**
  * Distancia en metros entre dos puntos GPS (Haversine).

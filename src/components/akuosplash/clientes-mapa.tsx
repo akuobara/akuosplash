@@ -10,9 +10,19 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, MapPin, Search, Navigation, ExternalLink, AlertTriangle, Crosshair, Flame } from "lucide-react";
+import { Loader2, MapPin, Search, Navigation, ExternalLink, AlertTriangle, Crosshair, Flame, Home } from "lucide-react";
 import { toast } from "sonner";
-import { loadGoogleMaps, buildGoogleMapsDeepLink } from "@/lib/google-maps";
+import {
+  loadGoogleMaps,
+  buildGoogleMapsDeepLink,
+  getDistancesFromOrigin,
+  getDepot,
+  setDepot,
+  formatDistance,
+  formatDuration,
+  type Depot as DepotType,
+} from "@/lib/google-maps";
+import { DepotPanel } from "./depot-panel";
 
 export interface ClienteMapa {
   id: string;
@@ -43,6 +53,10 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
   const [error, setError] = useState<string | null>(null);
   const [googleReady, setGoogleReady] = useState(false);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("off");
+  const [depot, setDepotState] = useState<DepotType | null>(null);
+  const [depotKey, setDepotKey] = useState(0); // para forzar recarga
+  const [distances, setDistances] = useState<Record<string, { distanceMeters: number | null; durationSeconds: number | null; distanceText: string | null; durationText: string | null }>>({});
+  const [distancesLoading, setDistancesLoading] = useState(false);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
@@ -51,6 +65,9 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
   const boundsRef = useRef<any>(null);
   const listenersRef = useRef<any[]>([]);
   const heatmapRef = useRef<any>(null);
+  const depotMarkerRef = useRef<any>(null);
+
+  const DEPOT_NAMESPACE = "akuo"; // cada app podría tener su propio depot
 
   const clientesConGps = useMemo(
     () => clientes.filter((c) => c.lat != null && c.lng != null),
@@ -111,7 +128,94 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
       try { heatmapRef.current.setMap(null); } catch {}
       heatmapRef.current = null;
     }
+    if (depotMarkerRef.current) {
+      try { depotMarkerRef.current.setMap(null); } catch {}
+      depotMarkerRef.current = null;
+    }
   }, []);
+
+  // Cargar depot al abrir
+  useEffect(() => {
+    if (!open) return;
+    const d = getDepot(DEPOT_NAMESPACE);
+    setDepotState(d);
+  }, [open, depotKey]);
+
+  // Dibujar/quitar marker del depot cuando cambia
+  useEffect(() => {
+    if (!open || !googleReady || !mapInstance.current) return;
+    const google = (window as any).google;
+
+    // Quitar marker anterior
+    if (depotMarkerRef.current) {
+      try { depotMarkerRef.current.setMap(null); } catch {}
+      depotMarkerRef.current = null;
+    }
+
+    if (!depot) return;
+
+    // Agregar marker especial (home icon)
+    depotMarkerRef.current = new google.maps.Marker({
+      position: { lat: depot.lat, lng: depot.lng },
+      map: mapInstance.current,
+      title: depot.nombre || "Depot",
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 18,
+        fillColor: "#1d4ed8",
+        fillOpacity: 1,
+        strokeColor: "white",
+        strokeWeight: 3,
+      },
+      label: {
+        text: "D",
+        color: "white",
+        fontSize: "12px",
+        fontWeight: "bold",
+      },
+      zIndex: 9999,
+    });
+    if (boundsRef.current) {
+      boundsRef.current.extend({ lat: depot.lat, lng: depot.lng });
+    }
+  }, [open, googleReady, depot]);
+
+  // Calcular distancias cuando hay depot
+  useEffect(() => {
+    if (!open || !googleReady || !depot || filtrados.length === 0) {
+      setDistances({});
+      return;
+    }
+    let cancelled = false;
+    setDistancesLoading(true);
+    const destinations = filtrados.slice(0, 25).map((c) => ({ lat: c.lat!, lng: c.lng!, label: c.nombre }));
+    getDistancesFromOrigin({ lat: depot.lat, lng: depot.lng }, destinations)
+      .then((results) => {
+        if (cancelled) return;
+        const map: Record<string, { distanceMeters: number | null; durationSeconds: number | null; distanceText: string | null; durationText: string | null }> = {};
+        results.forEach((r, i) => {
+          const c = filtrados[i];
+          if (c) {
+            map[c.id] = {
+              distanceMeters: r.distanceMeters,
+              durationSeconds: r.durationSeconds,
+              distanceText: r.distanceText,
+              durationText: r.durationText,
+            };
+          }
+        });
+        setDistances(map);
+      })
+      .catch((e) => {
+        console.error("[depot distances]", e);
+        if (!cancelled) setDistances({});
+      })
+      .finally(() => {
+        if (!cancelled) setDistancesLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [open, googleReady, depot, filtrados]);
+
 
   // Renderizar/cambiar heatmap cuando cambia el modo
   useEffect(() => {
@@ -291,6 +395,8 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
       cleanup();
       setSelectedId(null);
       setBusqueda("");
+      setDistances({});
+      setHeatmapMode("off");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -375,6 +481,23 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
               </a>
             )}
 
+            {/* Depot — punto de origen del camión */}
+            <DepotPanel
+              namespace={DEPOT_NAMESPACE}
+              compact
+              buttonLabel="Configurar depot"
+            />
+            {depot && distancesLoading && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Loader2 className="h-3 w-3 animate-spin" /> Calculando distancias…
+              </p>
+            )}
+            {depot && !distancesLoading && Object.keys(distances).length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Mostrando distancia desde depot a cada cliente.
+              </p>
+            )}
+
             {/* Toggle heatmap */}
             <div className="rounded-md border border-border bg-muted/30 p-1.5">
               <p className="mb-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground flex items-center gap-1">
@@ -438,6 +561,13 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
                           )}
                           {c.zona && (
                             <p className="text-xs text-muted-foreground/80 truncate">📍 {c.zona}</p>
+                          )}
+                          {distances[c.id]?.distanceMeters != null && (
+                            <p className="text-[10px] text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                              <Home className="h-2.5 w-2.5" />
+                              {distances[c.id].distanceText || formatDistance(distances[c.id].distanceMeters!)}
+                              {distances[c.id].durationText ? ` · ${distances[c.id].durationText}` : ""}
+                            </p>
                           )}
                         </div>
                         <span

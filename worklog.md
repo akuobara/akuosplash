@@ -813,3 +813,100 @@ Stage Summary:
      b. Geofence: Iniciar vuelta → nueva entrega → elegir cliente → "Estoy aquí" → ver badge con distancia
      c. Heatmap: Clientes → "Mapa" → toggle "Cant./Deuda/Activ." → ver capa de calor sobre el mapa
      d. Place Picker: Clientes → Nuevo cliente → click botón Store al lado de Nombre → buscar "Restaurant X" → ver foto+tel+horarios → "Autocompletar datos"
+
+---
+Task ID: google-maps-distance-matrix-share-route
+Agent: main
+Task: Implementar items 5 y 7 que faltaron: (5) Distance Matrix para calcular distancia/tiempo desde depot a cada cliente + round-trip en ruta óptima; (7) ShareRouteButton con QR code para enviar ruta al móvil del chofer.
+
+Work Log:
+- EXTENDIDO `src/lib/google-maps.ts`:
+  * Tipos `DistanceMatrixElement`, `DistanceMatrixResult`
+  * `getDistanceMatrix(origins[], destinations[], mode)` → llama `google.maps.DistanceMatrixService.getDistanceMatrix` con unitSystem METRIC, sin evitar highways/tolls. Limit 100 elementos/request.
+  * `getDistancesFromOrigin(origin, destinations[], mode)` — shortcut para el caso más común (depot → N clientes), limit 25 destinos.
+  * `Depot` interface, `getDepot(namespace)`, `setDepot(namespace, depot)` — guardado en localStorage con namespace por app (Aljibe vs AkuoSplash), evita migración de DB.
+
+- ITEM 5 — Distance Matrix + Depot:
+  * CREADO `src/components/app/depot-panel.tsx` (+ copia en akuosplash):
+    - Componente `DepotPanel` con props `namespace`, `compact`, `buttonLabel`
+    - Input para lat/lng + nombre opcional + botón "Mi ubicación actual"
+    - Guarda en localStorage con `setDepot(namespace, ...)`
+    - Si hay depot configurado, el botón cambia a "Depot OK" (azul default)
+    - Modo compact: botón que abre el panel inline
+    - Modo full: tarjeta completa
+  * INTEGRADO en `clientes-mapa.tsx` (Aljibe + AkuoSplash):
+    - Estado `depot`, `depotKey`, `distances`, `distancesLoading`
+    - Ref `depotMarkerRef` para el marker "D" azul en el mapa
+    - Effect al abrir: `getDepot(namespace)` → `setDepotState(d)`
+    - Effect cuando cambia depot: dibuja marker "D" azul grande en el mapa (zIndex 9999)
+    - Effect cuando hay depot + filtrados: llama `getDistancesFromOrigin(depot, primeros 25 clientes)` → setea `distances` map por clienteId
+    - Cleanup extendido para destruir `depotMarkerRef`
+    - Reset al cerrar: depot distances + heatmap mode → vacíos
+    - UI: `<DepotPanel compact />` en panel lateral entre "Ruta Google Maps" y toggle de heatmap
+    - Cuando hay distancias, badge azul "🏠 5.2 km · 8 min" en cada cliente de la lista
+  * INTEGRADO en `ruta-entregas.tsx` (Aljibe + AkuoSplash):
+    - Estado `depot`, `depotDistances` con `{toFirst, fromLast}` cada uno con distanceText/durationText/distanceMeters/durationSeconds
+    - Effect al abrir: `getDepot(namespace)` → `setDepotState(d)`
+    - Effect cuando hay depot + reordenadas: Promise.all de 2 getDistancesFromOrigin (depot→primera, depot→última) → setea depotDistances
+    - Effect dibuja marker "D" azul en el mapa de la ruta
+    - UI: en el panel lateral se muestra:
+      * Distancia total entre paradas (lo que ya estaba)
+      * Línea con Depot → primera parada (distancia + tiempo)
+      * Línea con Última parada → Depot (distancia + tiempo)
+      * Línea destacada "Recorrido total + depot" = suma de los 3
+      * Botón `<DepotPanel compact>` para editar el depot sin salir del diálogo
+
+- ITEM 7 — ShareRouteButton con QR:
+  * CREADO `src/components/app/share-route-button.tsx` (+ copia en akuosplash):
+    - Componente `ShareRouteButton` con props `url`, `label`, `dialogTitle`, `variant`, `size`
+    - Botón que abre un Dialog con:
+      * QR code (300x300) generado vía `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=...` (servicio gratuito, sin auth, sin dependencia npm)
+      * Si la URL > 2500 chars, mostrar error (límite del QR) en vez del QR
+      * Botón "Abrir en este dispositivo" (link directo al deep-link)
+      * Botón "Copiar link" con fallback a `document.execCommand("copy")` para browsers sin Clipboard API
+      * Detalle expandible con la URL completa (debug)
+    - Estado `copied` con timeout 2s para mostrar "✓ Copiado"
+  * INTEGRADO en `ruta-entregas.tsx` (Aljibe + AkuoSplash):
+    - Junto al botón "Abrir en Google Maps" se agrega `<ShareRouteButton url={mobileDeepLink} label="Enviar al móvil" />`
+    - Layout flex gap-2 para que ambos botones estén lado a lado
+  * INTEGRADO en `vuelta-widget.tsx` (Aljibe + AkuoSplash):
+    - IIFE que genera el deep-link con `buildGoogleMapsDeepLink(origin, destination, waypoints)` usando las entregas de la vuelta activa
+    - Si hay >= 2 entregas con GPS, renderiza `<ShareRouteButton url={url} label="" variant="outline" size="sm" />` al lado del botón "Ruta óptima"
+    - El botón solo muestra el ícono `Smartphone` (sin label) para no ocupar mucho espacio
+    - Permite al chofer generar el QR directamente desde el widget sin abrir el diálogo de ruta óptima
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos. Los ~20 errores pre-existentes siguen sin tocar archivos míos.
+  * `bun run lint` → 0 errores en mis archivos.
+  * Build Vercel exitoso: `dpl_AL3BCkWcvLn55xRw5KU7XFhvSwKR` READY en ~75s
+  * Smoke test producción (my-project-azure-five-82.vercel.app):
+    * `/` → HTTP 200
+    * `/akuosplash` → HTTP 200
+    * `/api/vueltas/activa` → HTTP 401 (auth required)
+    * `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=...` → HTTP 200 (servicio QR operativo)
+
+Stage Summary:
+- ✅ Item 5: Distance Matrix completo en ambos apps
+  - `DepotPanel` reutilizable para setear el depot (localStorage, sin migración de DB)
+  - Marker "D" azul en el mapa tanto en ClientesMapa como en RutaEntregas
+  - Distancias calculadas para hasta 25 clientes por request (limite Google)
+  - Badge inline "🏠 X km · Y min" al lado de cada cliente en ClientesMapa
+  - Round-trip completo en RutaEntregas: depot→primera + total paradas + última→depot = total
+- ✅ Item 7: ShareRouteButton con QR code en ambos apps
+  - QR generado vía api.qrserver.com (sin dependencia npm, sin costos)
+  - Botón rápido en VueltaWidget (al lado de "Ruta óptima") — IIFE genera deep-link de las entregas
+  - Botón "Enviar al móvil" en RutaEntregas (junto a "Abrir en Maps")
+  - 3 opciones de compartir: QR + link directo + copiar URL
+- ✅ Deploy a Vercel producción READY (my-project-azure-five-82.vercel.app)
+- ⏳ Pendiente (igual que antes):
+  * Conseguir API key de Google Cloud + habilitar Maps Datasets API (Visualization layer) además de las ya necesarias
+  * `python3 /home/z/my-project/scripts/set-google-maps-env.py "AIzaSy..."`
+  * `python3 /home/z/my-project/scripts/deploy-vercel-direct.py` (re-deploy con la key)
+  * Probar los 6 flujos:
+    a. Autocomplete en formulario cliente
+    b. Geofence "Estoy aquí" en formulario entrega
+    c. Heatmap con 3 modos en ClientesMapa
+    d. Place Picker para buscar negocio
+    e. Distance Matrix: Clientes → Mapa → "Configurar depot" → ver distancias en cada cliente
+    f. Ruta óptima + distancia round-trip desde depot
+    g. "Enviar al móvil" (icono Smartphone en VueltaWidget o botón en RutaEntregas) → QR aparece → escanear con celular

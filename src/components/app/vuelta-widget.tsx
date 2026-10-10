@@ -18,13 +18,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Clock, Repeat, Navigation as NavIcon } from "lucide-react";
+import { Droplets, Play, Square, Plus, AlertCircle, Truck, AlertTriangle, ChevronDown, ChevronRight, Clock, Repeat, Navigation as NavIcon, Smartphone as PhoneIcon } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost } from "@/lib/api-client";
 import { formatNumber, formatTime, formatCurrency, esVueltaCompletada, UMBRAL_COMPLETACION_VUELTA, labelMetodoPago } from "@/lib/helpers";
 import { Label } from "@/components/ui/label";
 import type { VueltaActual } from "./entrega-form";
 import { RutaEntregas, type RutaEntregaStop } from "./ruta-entregas";
+import { ShareRouteButton } from "./share-route-button";
+import { buildGoogleMapsDeepLink } from "@/lib/google-maps";
 
 export interface CamionOption {
   id: string;
@@ -261,6 +263,30 @@ export function VueltaWidget({
                   <NavIcon className="mr-1 h-4 w-4" /> Ruta óptima
                 </Button>
               )}
+              {!isDueno && vueltaActual.entregas && vueltaActual.entregas.length >= 2 && (() => {
+                // Generar deep-link para compartir rápido con el móvil (sin optimizar)
+                const entregas = vueltaActual.entregas || [];
+                const validas = entregas
+                  .map((e) => ({
+                    id: e.id,
+                    nombre: e.clienteNombre,
+                    lat: e.cliente?.lat ?? e.clienteLat ?? null,
+                    lng: e.cliente?.lng ?? e.clienteLng ?? null,
+                  }))
+                  .filter((e) => e.lat != null && e.lng != null);
+                if (validas.length < 2) return null;
+                const first = validas[0];
+                const last = validas[validas.length - 1];
+                const waypoints = validas.slice(1, -1);
+                const url = buildGoogleMapsDeepLink(
+                  { lat: first.lat!, lng: first.lng!, label: first.nombre },
+                  { lat: last.lat!, lng: last.lng!, label: last.nombre },
+                  waypoints.map((w) => ({ lat: w.lat!, lng: w.lng!, label: w.nombre }))
+                );
+                return (
+                  <ShareRouteButton url={url} label="" variant="outline" size="sm" />
+                );
+              })()}
               {!isDueno && (
                 <Button onClick={onRegistrarEntrega} size="sm">
                   <Plus className="mr-1 h-4 w-4" /> Entrega
