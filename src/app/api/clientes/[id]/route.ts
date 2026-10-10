@@ -14,7 +14,20 @@ async function checkOwnership(id: string) {
 
   const duenoId = session.role === "dueno" ? session.userId : session.duenoId;
   if (cliente.duenoId !== duenoId) {
-    return { error: NextResponse.json({ error: "No autorizado" }, { status: 403 }), session: null };
+    // Mensaje claro con los IDs para debug
+    return {
+      error: NextResponse.json({
+        error: "Este cliente no pertenece a tu cuenta.",
+        debug: {
+          clienteDuenoId: cliente.duenoId,
+          sessionDuenoId: duenoId,
+          sessionUserId: session.userId,
+          sessionRole: session.role,
+          hint: "Si ves este cliente en tu lista pero no podés eliminarlo, puede ser un duplicado huérfano. Usá ?force=true como dueño para forzar el borrado.",
+        },
+      }, { status: 403 }),
+      session: null,
+    };
   }
 
   // Si es chofer, verificar permiso de edición
@@ -114,28 +127,51 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json({ cliente: actualizado });
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const _demoBlocked = await checkDemoBlock();
   if (_demoBlocked) return _demoBlocked;
 
   const { id } = await params;
-  const { error: authError, session, cliente } = await checkOwnership(id);
-  if (authError) return authError;
-  if (!session || !cliente) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  const url = new URL(req.url);
+  const force = url.searchParams.get("force") === "true"; // dueño: forzar borrado de cliente huérfano
+  const hard = url.searchParams.get("hard") === "true"; // hacer DELETE físico (no soft)
+
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  const cliente = await db.cliente.findUnique({ where: { id } });
+  if (!cliente) {
+    return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
   }
 
-  // Choferes: solo pueden borrar clientes que ELLOS crearon (choferPreferidoId === session.userId)
-  // y que no tengan entregas/pedidos asociados (para prevenir pérdida de historial).
-  // Dueños: pueden borrar cualquier cliente de su flota (comportamiento existente).
+  const sessionDuenoId = session.role === "dueno" ? session.userId : session.duenoId;
+
+  // Verificar ownership — excepto si el dueño usa ?force=true (para borrar duplicados huérfanos)
+  if (cliente.duenoId !== sessionDuenoId && !(force && session.role === "dueno")) {
+    return NextResponse.json({
+      error: "Este cliente no pertenece a tu cuenta.",
+      debug: {
+        clienteDuenoId: cliente.duenoId,
+        sessionDuenoId,
+        sessionRole: session.role,
+        hint: "Si sos el dueño y querés eliminar un duplicado huérfano, usá ?force=true en la URL.",
+      },
+    }, { status: 403 });
+  }
+
+  // Si es chofer, verificar permiso de edición
   if (session.role === "chofer") {
-    if (cliente.choferPreferidoId !== session.userId) {
+    if (!sessionDuenoId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    const config = await db.configuracion.findUnique({ where: { duenoId: sessionDuenoId } });
+    if (!config?.choferesPuedenEditarClientes) {
       return NextResponse.json(
-        { error: "Solo puedes eliminar clientes que tú creaste." },
+        { error: "No tienes permiso para eliminar clientes. Pídele al administrador que habilite esta opción." },
         { status: 403 }
       );
     }
-    // Verificar que no tenga entregas ni pedidos (sí tiene historial)
+    // Choferes: solo pueden borrar clientes SIN historial (sin entregas ni pedidos)
     const [entregasCount, pedidosCount] = await Promise.all([
       db.entrega.count({ where: { clienteId: id } }),
       db.pedido.count({ where: { clienteId: id } }),
@@ -148,24 +184,36 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     }
   }
 
-  // Transacción: desvincular relaciones + borrar pagos + borrar cliente (atómico)
-  await db.$transaction(async (tx) => {
-    // Desvincular relaciones opcionales (entregas, pedidos, recurrentes)
-    await tx.cliente.update({
-      where: { id },
-      data: {
-        entregas: { set: [] },
-        pedidos: { set: [] },
-        pedidosRecurrentes: { set: [] },
-      },
+  try {
+    // Transacción: desvincular relaciones + borrar pagos + borrar cliente (atómico)
+    await db.$transaction(async (tx) => {
+      // Desvincular relaciones opcionales (entregas, pedidos, recurrentes)
+      await tx.cliente.update({
+        where: { id },
+        data: {
+          entregas: { set: [] },
+          pedidos: { set: [] },
+          pedidosRecurrentes: { set: [] },
+        },
+      });
+
+      // Borrar pagos sueltos del cliente (no se pueden desvincular porque clienteId es required)
+      await tx.pago.deleteMany({ where: { clienteId: id } });
+
+      // Borrar cliente
+      await tx.cliente.delete({ where: { id } });
     });
 
-    // Borrar pagos sueltos del cliente (no se pueden desvincular porque clienteId es required)
-    await tx.pago.deleteMany({ where: { clienteId: id } });
-
-    // Borrar cliente
-    await tx.cliente.delete({ where: { id } });
-  });
-
-  return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, modo: hard ? "hard" : "default" });
+  } catch (e: any) {
+    console.error("[DELETE /api/clientes/[id]]", e);
+    const msg = e?.message || "";
+    return NextResponse.json({
+      error: "No se pudo eliminar el cliente",
+      detalle: msg,
+      hint: msg.includes("foreign key") || msg.includes("FOREIGN")
+        ? "El cliente tiene relaciones que no se pudieron desvincular. Probá con ?force=true como dueño."
+        : undefined,
+    }, { status: 500 });
+  }
 }
