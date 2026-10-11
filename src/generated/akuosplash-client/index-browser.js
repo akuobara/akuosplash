@@ -144,6 +144,7 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   ultimoLoginEn: 'ultimoLoginEn',
   googleId: 'googleId',
   facebookId: 'facebookId',
+  tipoPersona: 'tipoPersona',
   rutEmpresa: 'rutEmpresa',
   razonSocial: 'razonSocial',
   direccionEmpresa: 'direccionEmpresa',

@@ -49,6 +49,7 @@ export async function POST(_req: NextRequest) {
     ["AkuoConfig", "transbankApiKey", "TEXT"],
     ["AkuoConfig", "transbankEnvironment", "TEXT"],
     // migrate-transbank-campos (AkuoUsuario)
+    ["AkuoUsuario", "tipoPersona", "TEXT"],
     ["AkuoUsuario", "planActivoDesde", "DateTime"],
     ["AkuoUsuario", "planActivoHasta", "DateTime"],
     ["AkuoUsuario", "transbankBuyOrder", "TEXT"],

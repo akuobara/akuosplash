@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Loader2, Droplets, LogOut, RotateCw, MapPin, Clock, Truck, Bell,
-  KeyRound, ShieldCheck, User, MessageSquare, Wallet, History, Plus,
+  KeyRound, ShieldCheck, User, MessageSquare, Wallet, History, Plus, LayoutDashboard,
 } from "lucide-react";
 import { toast } from "sonner";
 
-interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; saldo?: number; }
+interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; }
 interface Pedido {
   id: string; creadoEn: string; litros: number; direccion: string; comuna?: string; estado: string;
   metodoPago: string; nota?: string; precioTotal?: number;
@@ -34,7 +34,7 @@ const ESTADO_LABELS: Record<string, { label: string; color: string; icon?: any }
 export function AkuosplashCliente() {
   const router = useRouter();
   const [user, setUser] = useState<AkuoUser | null | undefined>(undefined);
-  const [saldo, setSaldo] = useState(0);
+  const [saldo] = useState(0); // saldo deshabilitado — solo se acepta MercadoPago (pago instantáneo)
   const [loading, setLoading] = useState(true);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [historial, setHistorial] = useState<Pedido[]>([]);
@@ -65,7 +65,7 @@ export function AkuosplashCliente() {
         setPedidos(peds.pedidos);
         setHistorial(hist.historial);
         setConversaciones(convs.conversaciones);
-        if (prof.user) setSaldo(prof.user.saldo || 0);
+        // saldo deshabilitado — solo se acepta MercadoPago (pago instantáneo en totalidad)
       } catch (e) { console.error(e); }
       finally { if (!cancelled) setLoading(false); }
     })();

@@ -9,6 +9,9 @@ export async function GET(req: NextRequest) {
   const protocol = req.headers.get("x-forwarded-proto") || "https";
   const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000";
   const redirectUri = `${protocol}://${host}/api/akuosplash/auth/google/callback`;
-  const params = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: "code", scope: "openid email profile", state: "akuosplash-google", access_type: "offline", prompt: "select_account" });
+  // Pasar el rol deseado en el state para que el callback lo use al crear la cuenta
+  const rolDeseado = new URL(req.url).searchParams.get("rol") || "";
+  const state = rolDeseado ? `akuosplash-google-${rolDeseado}` : "akuosplash-google";
+  const params = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: "code", scope: "openid email profile", state, access_type: "offline", prompt: "select_account" });
   return NextResponse.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
 }

@@ -174,6 +174,21 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
   const [placePickerOpen, setPlacePickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Detectar resultado del mapa picker (cuando se vuelve de /mapa-picker)
+  useEffect(() => {
+    const result = sessionStorage.getItem("mapPickerResult");
+    if (result) {
+      sessionStorage.removeItem("mapPickerResult");
+      try {
+        const { lat: rLat, lng: rLng } = JSON.parse(result);
+        setLat(String(rLat));
+        setLng(String(rLng));
+        setFormOpen(true);
+        toast.success("Ubicación seleccionada en el mapa");
+      } catch {}
+    }
+  }, []);
+
   const cargar = useCallback(async () => {
     setLoading(true);
     try {
@@ -486,7 +501,12 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setClientesMapaOpen(true)}
+            onClick={() => {
+              const returnUrl = window.location.pathname + window.location.search;
+              const lat = document.querySelector<HTMLInputElement>("#latCliente")?.value || "";
+              const lng = document.querySelector<HTMLInputElement>("#lngCliente")?.value || "";
+              window.location.href = `/mapa-picker?return=${encodeURIComponent(returnUrl)}${lat ? `&lat=${lat}&lng=${lng}` : ""}`;
+            }}
             disabled={clientes.length === 0}
             title="Ver todos los clientes en el mapa"
           >
@@ -900,7 +920,12 @@ export function ClientesTab({ refreshKey, onRefresh, readOnly = false, choferes 
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setMapPickerOpen(true)}
+                    onClick={() => {
+                      const returnUrl = window.location.pathname + window.location.search;
+                      const latVal = document.querySelector<HTMLInputElement>("#latCliente")?.value || "";
+                      const lngVal = document.querySelector<HTMLInputElement>("#lngCliente")?.value || "";
+                      window.location.href = `/mapa-picker?return=${encodeURIComponent(returnUrl)}${latVal ? `&lat=${latVal}&lng=${lngVal}` : ""}`;
+                    }}
                   >
                     <Search className="mr-1 h-3 w-3" />
                     Buscar en mapa

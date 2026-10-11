@@ -37,17 +37,18 @@ let loaderPromise: Promise<any> | null = null;
 /**
  * Carga el script de Google Maps JS API (una sola vez).
  * Devuelve una promesa que resuelve con `window.google`.
+ *
+ * Usa un enfoque de polling + callback para máxima robustez.
  */
 export function loadGoogleMaps(): Promise<any> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("loadGoogleMaps called on server"));
   }
-  if (window.google?.maps) {
+  // Si ya está cargado, resolver inmediatamente
+  if (window.google?.maps?.Map) {
     return Promise.resolve(window.google);
   }
-  if (window.__googleMapsLoader) {
-    return window.__googleMapsLoader;
-  }
+  // Si ya hay un loader en curso, reutilizarlo
   if (loaderPromise) {
     return loaderPromise;
   }
@@ -57,31 +58,65 @@ export function loadGoogleMaps(): Promise<any> {
     return Promise.reject(new Error("NEXT_PUBLIC_GOOGLE_MAPS_API_KEY no configurada"));
   }
 
-  // Carga con callback para compatibilidad con `async` + `onload`.
   loaderPromise = new Promise<any>((resolve, reject) => {
+    let resolved = false;
+
+    // Función para chequear si Google Maps ya está disponible
+    const checkReady = () => {
+      if (resolved) return;
+      if (window.google?.maps?.Map) {
+        resolved = true;
+        resolve(window.google);
+        return true;
+      }
+      return false;
+    };
+
+    // Polling cada 100ms por si el callback no dispara
+    let pollCount = 0;
+    const pollInterval = setInterval(() => {
+      if (checkReady()) {
+        clearInterval(pollInterval);
+      } else if (++pollCount > 100) {
+        // 10 segundos timeout
+        clearInterval(pollInterval);
+        if (!resolved) {
+          resolved = true;
+          reject(new Error("Google Maps no cargó en 10 segundos"));
+        }
+      }
+    }, 100);
+
+    // También usar callback JSONP como before
     const callbackName = `__gmapsInit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     (window as any)[callbackName] = () => {
       try {
         delete (window as any)[callbackName];
-        resolve(window.google);
+        if (!resolved && checkReady()) return;
       } catch (e) {
-        reject(e);
+        if (!resolved) {
+          resolved = true;
+          reject(e);
+        }
       }
     };
 
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
       apiKey
-    )}&libraries=places,geometry,marker,visualization&v=weekly&callback=${callbackName}`;
+    )}&libraries=places,geometry,visualization&v=weekly&callback=${callbackName}`;
     script.async = true;
     script.defer = true;
     script.onerror = () => {
-      reject(new Error("No se pudo cargar el script de Google Maps"));
+      clearInterval(pollInterval);
+      if (!resolved) {
+        resolved = true;
+        reject(new Error("No se pudo cargar el script de Google Maps"));
+      }
     };
     document.head.appendChild(script);
   });
 
-  window.__googleMapsLoader = loaderPromise;
   return loaderPromise;
 }
 

@@ -19,8 +19,10 @@ export async function GET(req: NextRequest) {
   }
 
   // === GENERAR PEDIDOS RECURRENTES (vencidos + próximos 7 días) ===
-  // Generar no solo los vencidos sino también los de los próximos 7 días
-  // para que aparezcan en la pestaña Pedidos como "programados"
+  // IMPORTANTE: esta lógica también corre en el cron diario (/api/cron/generar-recurrentes).
+  // Para evitar doble avance de fechaProximaGeneracion, el dedup check busca CUALQUIER pedido
+  // con el mismo pedidoRecurrenteId + fechaSolicitada (sin importar estado).
+  // Si ya existe (incluso entregado/cancelado), se avanza sin crear duplicado.
   const ahora = new Date();
   const en7dias = new Date(ahora);
   en7dias.setDate(en7dias.getDate() + 7);
@@ -34,19 +36,18 @@ export async function GET(req: NextRequest) {
   });
 
   for (const rec of recurrentesVencidos) {
-    // Check por fechaSolicitada (no creadoEn) para evitar duplicados
-    // IMPORTANTE: solo contar pedidos pendientes/programados (no entregados/cancelados)
-    // Si el pedido para esa fecha ya fue entregado, hay que generar uno NUEVO
-    // para la próxima fecha, no saltárselo.
+    // Dedup: buscar CUALQUIER pedido existente para este recurrente con la misma fechaSolicitada.
+    // Sin importar el estado (incluso entregado/cancelado) — si ya fue creado para esa fecha,
+    // no crear otro. Solo avanzar fechaProximaGeneracion.
     const existente = await db.pedido.findFirst({
       where: {
         pedidoRecurrenteId: rec.id,
         fechaSolicitada: rec.fechaProximaGeneracion,
-        estado: { in: ["pendiente", "programado"] },
       },
     });
     if (existente) {
-      // Ya existe un pedido pendiente para esta fecha — avanzar fechaProximaGeneracion
+      // Ya existe un pedido para esta fecha (pendiente, programado, entregado o cancelado).
+      // Avanzar fechaProximaGeneracion a la próxima fecha.
       const proxima = calcularProximaFechaConDiaPreferido(
         rec.fechaProximaGeneracion,
         rec.frecuenciaDias,

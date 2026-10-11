@@ -9,7 +9,22 @@ export async function POST(req: NextRequest) {
     const email = body.email?.trim().toLowerCase();
     const password = body.password;
     if (!email || !password) return NextResponse.json({ error: "Email y contraseña son obligatorios" }, { status: 400 });
-    const usuario = await akuosplashDb.akuoUsuario.findUnique({ where: { email } });
+    const usuario = await akuosplashDb.akuoUsuario.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        nombre: true,
+        telefono: true,
+        rol: true,
+        activo: true,
+        aprobado: true,
+        banned: true,
+        banRazon: true,
+        passwordHash: true,
+        plan: true,
+      },
+    }).catch(() => null);
     if (!usuario || !usuario.passwordHash) return NextResponse.json({ error: "Email o contraseña incorrectos" }, { status: 401 });
     const valid = await bcrypt.compare(password, usuario.passwordHash);
     if (!valid) return NextResponse.json({ error: "Email o contraseña incorrectos" }, { status: 401 });

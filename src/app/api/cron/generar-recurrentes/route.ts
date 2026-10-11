@@ -29,15 +29,29 @@ export async function GET(req: NextRequest) {
     let generados = 0;
 
     for (const rec of recurrentes) {
-      // Verificar que no exista ya un pedido generado hoy para este recurrente
-      const inicioHoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+      // Dedup: buscar CUALQUIER pedido existente para este recurrente con la misma fechaSolicitada.
+      // Sin importar el estado (incluso entregado/cancelado) — si ya fue creado para esa fecha,
+      // no crear otro. Solo avanzar fechaProximaGeneracion.
+      // Esto evita el bug de doble avance cuando el cron y el inline en /api/pedidos corren el mismo día.
       const existente = await db.pedido.findFirst({
         where: {
           pedidoRecurrenteId: rec.id,
-          creadoEn: { gte: inicioHoy },
+          fechaSolicitada: rec.fechaProximaGeneracion,
         },
       });
-      if (existente) continue;
+      if (existente) {
+        // Avanzar fechaProximaGeneracion a la próxima fecha
+        const proxima = calcularProximaFechaConDiaPreferido(
+          rec.fechaProximaGeneracion,
+          rec.frecuenciaDias,
+          rec.diaSemanaPreferido
+        );
+        await db.pedidoRecurrente.update({
+          where: { id: rec.id },
+          data: { fechaProximaGeneracion: proxima },
+        });
+        continue;
+      }
 
       // Crear el pedido
       await db.pedido.create({

@@ -41,6 +41,8 @@ model AkuoUsuario {
   ultimoLoginEn DateTime?
   googleId      String?  @unique
   facebookId    String?  @unique
+  // Tipo de persona — solo para clientes del marketplace
+  tipoPersona   String?  // "natural" | "empresa" (null = natural por defecto)
   rutEmpresa           String?
   razonSocial          String?
   direccionEmpresa     String?

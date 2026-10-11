@@ -2917,6 +2917,7 @@ export namespace Prisma {
     ultimoLoginEn: Date | null
     googleId: string | null
     facebookId: string | null
+    tipoPersona: string | null
     rutEmpresa: string | null
     razonSocial: string | null
     direccionEmpresa: string | null
@@ -2997,6 +2998,7 @@ export namespace Prisma {
     ultimoLoginEn: Date | null
     googleId: string | null
     facebookId: string | null
+    tipoPersona: string | null
     rutEmpresa: string | null
     razonSocial: string | null
     direccionEmpresa: string | null
@@ -3077,6 +3079,7 @@ export namespace Prisma {
     ultimoLoginEn: number
     googleId: number
     facebookId: number
+    tipoPersona: number
     rutEmpresa: number
     razonSocial: number
     direccionEmpresa: number
@@ -3183,6 +3186,7 @@ export namespace Prisma {
     ultimoLoginEn?: true
     googleId?: true
     facebookId?: true
+    tipoPersona?: true
     rutEmpresa?: true
     razonSocial?: true
     direccionEmpresa?: true
@@ -3263,6 +3267,7 @@ export namespace Prisma {
     ultimoLoginEn?: true
     googleId?: true
     facebookId?: true
+    tipoPersona?: true
     rutEmpresa?: true
     razonSocial?: true
     direccionEmpresa?: true
@@ -3343,6 +3348,7 @@ export namespace Prisma {
     ultimoLoginEn?: true
     googleId?: true
     facebookId?: true
+    tipoPersona?: true
     rutEmpresa?: true
     razonSocial?: true
     direccionEmpresa?: true
@@ -3510,6 +3516,7 @@ export namespace Prisma {
     ultimoLoginEn: Date | null
     googleId: string | null
     facebookId: string | null
+    tipoPersona: string | null
     rutEmpresa: string | null
     razonSocial: string | null
     direccionEmpresa: string | null
@@ -3609,6 +3616,7 @@ export namespace Prisma {
     ultimoLoginEn?: boolean
     googleId?: boolean
     facebookId?: boolean
+    tipoPersona?: boolean
     rutEmpresa?: boolean
     razonSocial?: boolean
     direccionEmpresa?: boolean
@@ -3708,6 +3716,7 @@ export namespace Prisma {
     ultimoLoginEn?: boolean
     googleId?: boolean
     facebookId?: boolean
+    tipoPersona?: boolean
     rutEmpresa?: boolean
     razonSocial?: boolean
     direccionEmpresa?: boolean
@@ -3789,6 +3798,7 @@ export namespace Prisma {
     ultimoLoginEn?: boolean
     googleId?: boolean
     facebookId?: boolean
+    tipoPersona?: boolean
     rutEmpresa?: boolean
     razonSocial?: boolean
     direccionEmpresa?: boolean
@@ -3870,6 +3880,7 @@ export namespace Prisma {
     ultimoLoginEn?: boolean
     googleId?: boolean
     facebookId?: boolean
+    tipoPersona?: boolean
     rutEmpresa?: boolean
     razonSocial?: boolean
     direccionEmpresa?: boolean
@@ -3924,7 +3935,7 @@ export namespace Prisma {
     transbankAuthorizationCode?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -4001,6 +4012,7 @@ export namespace Prisma {
       ultimoLoginEn: Date | null
       googleId: string | null
       facebookId: string | null
+      tipoPersona: string | null
       rutEmpresa: string | null
       razonSocial: string | null
       direccionEmpresa: string | null
@@ -4519,6 +4531,7 @@ export namespace Prisma {
     readonly ultimoLoginEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly googleId: FieldRef<"AkuoUsuario", 'String'>
     readonly facebookId: FieldRef<"AkuoUsuario", 'String'>
+    readonly tipoPersona: FieldRef<"AkuoUsuario", 'String'>
     readonly rutEmpresa: FieldRef<"AkuoUsuario", 'String'>
     readonly razonSocial: FieldRef<"AkuoUsuario", 'String'>
     readonly direccionEmpresa: FieldRef<"AkuoUsuario", 'String'>
@@ -27170,6 +27183,7 @@ export namespace Prisma {
     ultimoLoginEn: 'ultimoLoginEn',
     googleId: 'googleId',
     facebookId: 'facebookId',
+    tipoPersona: 'tipoPersona',
     rutEmpresa: 'rutEmpresa',
     razonSocial: 'razonSocial',
     direccionEmpresa: 'direccionEmpresa',
@@ -27652,6 +27666,7 @@ export namespace Prisma {
     ultimoLoginEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     googleId?: StringNullableFilter<"AkuoUsuario"> | string | null
     facebookId?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tipoPersona?: StringNullableFilter<"AkuoUsuario"> | string | null
     rutEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
     razonSocial?: StringNullableFilter<"AkuoUsuario"> | string | null
     direccionEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -27750,6 +27765,7 @@ export namespace Prisma {
     ultimoLoginEn?: SortOrderInput | SortOrder
     googleId?: SortOrderInput | SortOrder
     facebookId?: SortOrderInput | SortOrder
+    tipoPersona?: SortOrderInput | SortOrder
     rutEmpresa?: SortOrderInput | SortOrder
     razonSocial?: SortOrderInput | SortOrder
     direccionEmpresa?: SortOrderInput | SortOrder
@@ -27851,6 +27867,7 @@ export namespace Prisma {
     banRazon?: StringNullableFilter<"AkuoUsuario"> | string | null
     creadoEn?: DateTimeFilter<"AkuoUsuario"> | Date | string
     ultimoLoginEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    tipoPersona?: StringNullableFilter<"AkuoUsuario"> | string | null
     rutEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
     razonSocial?: StringNullableFilter<"AkuoUsuario"> | string | null
     direccionEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -27949,6 +27966,7 @@ export namespace Prisma {
     ultimoLoginEn?: SortOrderInput | SortOrder
     googleId?: SortOrderInput | SortOrder
     facebookId?: SortOrderInput | SortOrder
+    tipoPersona?: SortOrderInput | SortOrder
     rutEmpresa?: SortOrderInput | SortOrder
     razonSocial?: SortOrderInput | SortOrder
     direccionEmpresa?: SortOrderInput | SortOrder
@@ -28037,6 +28055,7 @@ export namespace Prisma {
     ultimoLoginEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     googleId?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     facebookId?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tipoPersona?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     rutEmpresa?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     razonSocial?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     direccionEmpresa?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
@@ -29874,6 +29893,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -29972,6 +29992,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -30068,6 +30089,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30166,6 +30188,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30263,6 +30286,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -30342,6 +30366,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30422,6 +30447,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32753,6 +32779,7 @@ export namespace Prisma {
     ultimoLoginEn?: SortOrder
     googleId?: SortOrder
     facebookId?: SortOrder
+    tipoPersona?: SortOrder
     rutEmpresa?: SortOrder
     razonSocial?: SortOrder
     direccionEmpresa?: SortOrder
@@ -32845,6 +32872,7 @@ export namespace Prisma {
     ultimoLoginEn?: SortOrder
     googleId?: SortOrder
     facebookId?: SortOrder
+    tipoPersona?: SortOrder
     rutEmpresa?: SortOrder
     razonSocial?: SortOrder
     direccionEmpresa?: SortOrder
@@ -32925,6 +32953,7 @@ export namespace Prisma {
     ultimoLoginEn?: SortOrder
     googleId?: SortOrder
     facebookId?: SortOrder
+    tipoPersona?: SortOrder
     rutEmpresa?: SortOrder
     razonSocial?: SortOrder
     direccionEmpresa?: SortOrder
@@ -37314,6 +37343,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -37411,6 +37441,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -37522,6 +37553,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37619,6 +37651,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37714,6 +37747,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -37811,6 +37845,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -38024,6 +38059,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38121,6 +38157,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38248,6 +38285,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -38345,6 +38383,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -38568,6 +38607,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38665,6 +38705,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -38792,6 +38833,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -38889,6 +38931,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -39112,6 +39155,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39209,6 +39253,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39428,6 +39473,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -39525,6 +39571,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -39812,6 +39859,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39909,6 +39957,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40204,6 +40253,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -40301,6 +40351,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -40563,6 +40614,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40660,6 +40712,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40848,6 +40901,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -40945,6 +40999,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -41087,6 +41142,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41184,6 +41240,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41316,6 +41373,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -41413,6 +41471,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -41524,6 +41583,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41621,6 +41681,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -41716,6 +41777,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -41813,6 +41875,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -41924,6 +41987,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42021,6 +42085,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42116,6 +42181,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -42213,6 +42279,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -42324,6 +42391,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42421,6 +42489,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42516,6 +42585,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -42613,6 +42683,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -42724,6 +42795,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42821,6 +42893,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42916,6 +42989,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -43013,6 +43087,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -43124,6 +43199,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43221,6 +43297,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -43316,6 +43393,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -43412,6 +43490,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -43537,6 +43616,7 @@ export namespace Prisma {
     ultimoLoginEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     googleId?: StringNullableFilter<"AkuoUsuario"> | string | null
     facebookId?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tipoPersona?: StringNullableFilter<"AkuoUsuario"> | string | null
     rutEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
     razonSocial?: StringNullableFilter<"AkuoUsuario"> | string | null
     direccionEmpresa?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -43616,6 +43696,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -43713,6 +43794,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -43813,6 +43895,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -43910,6 +43993,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -44046,6 +44130,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44143,6 +44228,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44249,6 +44335,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44346,6 +44433,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44478,6 +44566,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -44575,6 +44664,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -44713,6 +44803,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44810,6 +44901,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44905,6 +44997,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -45002,6 +45095,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -45102,6 +45196,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -45199,6 +45294,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -45310,6 +45406,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45407,6 +45504,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45513,6 +45611,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45610,6 +45709,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47241,6 +47341,7 @@ export namespace Prisma {
     ultimoLoginEn?: Date | string | null
     googleId?: string | null
     facebookId?: string | null
+    tipoPersona?: string | null
     rutEmpresa?: string | null
     razonSocial?: string | null
     direccionEmpresa?: string | null
@@ -47320,6 +47421,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47416,6 +47518,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47512,6 +47615,7 @@ export namespace Prisma {
     ultimoLoginEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     googleId?: NullableStringFieldUpdateOperationsInput | string | null
     facebookId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoPersona?: NullableStringFieldUpdateOperationsInput | string | null
     rutEmpresa?: NullableStringFieldUpdateOperationsInput | string | null
     razonSocial?: NullableStringFieldUpdateOperationsInput | string | null
     direccionEmpresa?: NullableStringFieldUpdateOperationsInput | string | null

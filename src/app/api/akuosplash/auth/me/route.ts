@@ -44,6 +44,8 @@ export async function GET(req: Request) {
       id: user.id, userId: user.id, email: user.email, telefono: user.telefono,
       nombre: user.nombre, rol: user.rol, role: user.rol,
       aprobado: user.aprobado, plan: user.plan, avatarUrl: user.avatarUrl, activo: user.activo,
+      // Flag para saber si el perfil está incompleto
+      perfilIncompleto: user.rol === "cliente" && (!user.rut || !user.zonaId),
     },
     hasUsers: true,
   });

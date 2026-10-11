@@ -126,7 +126,6 @@ function TransportistaPage() {
         <div className="flex items-center justify-center gap-3 bg-violet-600 text-white text-xs py-2 px-4">
           <span>Modo monitoreo — viendo como repartidor</span>
           <Link href="/akuosplash/superadmin" className="underline font-semibold">← Panel admin</Link>
-          <Link href="/akuosplash/cliente" className="underline font-semibold">→ Cliente</Link>
         </div>
       )}
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Toaster as SonnerToaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "AkuoSplash — Reparto de agua a domicilio",
@@ -15,6 +16,7 @@ export default function AkuosplashLayout({
   return (
     <div className="akuosplash-app">
       {children}
+      <SonnerToaster richColors position="top-center" />
     </div>
   );
 }
