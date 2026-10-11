@@ -874,7 +874,15 @@ export function EntregaForm({
       return;
     }
 
-    // Si no hay vuelta activa, validar litros ANTES de abrir el diálogo
+    // Si es EDICIÓN de una entrega existente, NO requerir vuelta activa.
+    // La entrega ya tiene su propia vueltaId (de cuando se creó) y la edición
+    // viaja por PATCH /api/entregas/[id] que no necesita vuelta actual.
+    if (isEdit) {
+      await guardarEntrega();
+      return;
+    }
+
+    // Si no hay vuelta activa y ES registro nuevo, validar litros ANTES de abrir el diálogo
     if (!vueltaActual) {
       // Verificar si hay camiones disponibles
       // Fallback: si la lista camiones está vacía (transient error) pero el backend
@@ -903,8 +911,8 @@ export function EntregaForm({
       litrosAEntregar = estanquesEntrega.reduce((s, e) => s + (Number(e.litros) || 0), 0);
     }
 
-    // Avisar (no bloquear) si excede la capacidad del camión
-    if (vueltaActual.capacidadCamion && vueltaActual.capacidadCamion > 0) {
+    // Avisar (no bloquear) si excede la capacidad del camión (solo para nuevas entregas)
+    if (!isEdit && vueltaActual?.capacidadCamion && vueltaActual.capacidadCamion > 0) {
       const disponible = vueltaActual.capacidadCamion - vueltaActual.litros;
       const tolerancia = 300;
       if (litrosAEntregar > disponible + tolerancia) {
