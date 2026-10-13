@@ -14,8 +14,8 @@ datasource db {
 }
 
 model AkuoUsuario {
-  id                          String              @id @default(cuid())
-  email                       String              @unique
+  id                          String                 @id @default(cuid())
+  email                       String                 @unique
   nombre                      String
   telefono                    String?
   direccion                   String?
@@ -24,23 +24,23 @@ model AkuoUsuario {
   lng                         Float?
   rut                         String?
   indicacionesAcceso          String?
-  requiereClientePresente     Boolean             @default(true)
-  usoAgua                     String              @default("consumo")
-  saldo                       Float               @default(0)
+  requiereClientePresente     Boolean                @default(true)
+  usoAgua                     String                 @default("consumo")
+  saldo                       Float                  @default(0)
   // Zona asignada automáticamente al registrarse, según lat/lng
   zonaId                      String?
-  zona                        AkuoZona?           @relation(fields: [zonaId], references: [id])
+  zona                        AkuoZona?              @relation(fields: [zonaId], references: [id])
   passwordHash                String?
   avatarUrl                   String?
-  rol                         String              @default("cliente")
-  activo                      Boolean             @default(true)
-  aprobado                    Boolean             @default(false)
-  banned                      Boolean             @default(false)
+  rol                         String                 @default("cliente")
+  activo                      Boolean                @default(true)
+  aprobado                    Boolean                @default(false)
+  banned                      Boolean                @default(false)
   banRazon                    String?
-  creadoEn                    DateTime            @default(now())
+  creadoEn                    DateTime               @default(now())
   ultimoLoginEn               DateTime?
-  googleId                    String?             @unique
-  facebookId                  String?             @unique
+  googleId                    String?                @unique
+  facebookId                  String?                @unique
   // Tipo de persona — solo para clientes del marketplace
   tipoPersona                 String? // "natural" | "empresa" (null = natural por defecto)
   rutEmpresa                  String?
@@ -71,14 +71,14 @@ model AkuoUsuario {
   seguroUrl                   String?
   areasCobertura              String?
   descripcion                 String?
-  plan                        String              @default("free")
-  suscripcionActiva           Boolean             @default(false)
+  plan                        String                 @default("free")
+  suscripcionActiva           Boolean                @default(false)
   suscripcionInicio           DateTime?
   suscripcionFin              DateTime?
-  vehiculosPermitidos         Int                 @default(1)
-  choferesPermitidos          Int                 @default(1)
+  vehiculosPermitidos         Int                    @default(1)
+  choferesPermitidos          Int                    @default(1)
   // Verificación para participar en el marketplace de pedidos
-  verificado                  Boolean             @default(false)
+  verificado                  Boolean                @default(false)
   verificadoEn                DateTime?
   verificadoPor               String? // superadminId
   // Precios por litro del transportista
@@ -105,22 +105,23 @@ model AkuoUsuario {
   transbankAuthorizationCode  String?
   sesiones                    AkuoSesion[]
   pedidosCliente              AkuoPedido[]
-  entregasHechas              AkuoEntrega[]       @relation("EntregaTransportista")
+  entregasHechas              AkuoEntrega[]          @relation("EntregaTransportista")
   vehiculos                   AkuoVehiculo[]
   clientes                    AkuoCliente[]
+  pedidosRecurrentes          AkuoPedidoRecurrente[] @relation("RecurrenteTransportista")
   pagos                       AkuoPago[]
   valoracionesRecibidas       AkuoValoracion[]
   notificaciones              AkuoNotificacion[]
   auditLogs                   AkuoAuditLog[]
   suscripciones               AkuoSuscripcion[]
-  conversacionesCliente       AkuoConversacion[]  @relation("ConvCliente")
-  conversacionesTransportista AkuoConversacion[]  @relation("ConvTransportista")
-  mensajesEnviados            AkuoMensaje[]       @relation("MensajeRemitente")
-  pedidosClienteApp           AkuoPedidoCliente[] @relation("PedidoClienteApp")
-  pedidosTransportistaApp     AkuoPedidoCliente[] @relation("PedidoTransportistaApp")
+  conversacionesCliente       AkuoConversacion[]     @relation("ConvCliente")
+  conversacionesTransportista AkuoConversacion[]     @relation("ConvTransportista")
+  mensajesEnviados            AkuoMensaje[]          @relation("MensajeRemitente")
+  pedidosClienteApp           AkuoPedidoCliente[]    @relation("PedidoClienteApp")
+  pedidosTransportistaApp     AkuoPedidoCliente[]    @relation("PedidoTransportistaApp")
   // Vueltas, gastos (para admin/chofer dashboard)
-  vueltas                     AkuoVuelta[]        @relation("VueltaTransportista")
-  gastos                      AkuoGasto[]         @relation("GastoTransportista")
+  vueltas                     AkuoVuelta[]           @relation("VueltaTransportista")
+  gastos                      AkuoGasto[]            @relation("GastoTransportista")
 
   @@index([rol, activo])
   @@index([email])
@@ -185,26 +186,27 @@ model AkuoVehiculo {
 }
 
 model AkuoCliente {
-  id                          String        @id @default(cuid())
-  creadoEn                    DateTime      @default(now())
+  id                          String                 @id @default(cuid())
+  creadoEn                    DateTime               @default(now())
   transportistaId             String
-  transportista               AkuoUsuario   @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  transportista               AkuoUsuario            @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
   nombre                      String
   telefono                    String?
   direccion                   String?
   zona                        String?
   lat                         Float?
   lng                         Float?
-  precioEfectivoPorLitro      Float         @default(0)
-  precioTransferenciaPorLitro Float         @default(0)
+  precioEfectivoPorLitro      Float                  @default(0)
+  precioTransferenciaPorLitro Float                  @default(0)
   nota                        String?
   estanquesJson               String?
-  requiereIngresoPropiedad    Boolean       @default(false)
-  entregaDesdeAfuera          Boolean       @default(false)
-  conexionExterna             Boolean       @default(false)
+  requiereIngresoPropiedad    Boolean                @default(false)
+  entregaDesdeAfuera          Boolean                @default(false)
+  conexionExterna             Boolean                @default(false)
   indicacionesAcceso          String?
-  activo                      Boolean       @default(true)
+  activo                      Boolean                @default(true)
   pedidos                     AkuoPedido[]
+  pedidosRecurrentes          AkuoPedidoRecurrente[]
   entregas                    AkuoEntrega[]
 
   @@index([transportistaId, activo])
@@ -232,6 +234,28 @@ model AkuoPedido {
   entrega             AkuoEntrega? @relation(fields: [entregaId], references: [id])
 
   @@index([transportistaId, estado])
+  @@index([clienteId])
+}
+
+model AkuoPedidoRecurrente {
+  id                     String      @id @default(cuid())
+  creadoEn               DateTime    @default(now())
+  transportistaId        String
+  transportista          AkuoUsuario @relation("RecurrenteTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+  clienteId              String
+  cliente                AkuoCliente @relation(fields: [clienteId], references: [id])
+  litrosSolicitados      Float
+  metodoPagoPreferido    String      @default("credito")
+  nota                   String?
+  frecuenciaDias         Int
+  fechaInicio            DateTime
+  fechaProximaGeneracion DateTime
+  activo                 Boolean     @default(true)
+  diaSemanaPreferido     Int?
+  asignacionTipo         String      @default("manual")
+  choferAsignadoId       String?
+
+  @@index([transportistaId, activo])
   @@index([clienteId])
 }
 

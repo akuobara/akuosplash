@@ -282,6 +282,23 @@ exports.Prisma.AkuoPedidoScalarFieldEnum = {
   entregaId: 'entregaId'
 };
 
+exports.Prisma.AkuoPedidoRecurrenteScalarFieldEnum = {
+  id: 'id',
+  creadoEn: 'creadoEn',
+  transportistaId: 'transportistaId',
+  clienteId: 'clienteId',
+  litrosSolicitados: 'litrosSolicitados',
+  metodoPagoPreferido: 'metodoPagoPreferido',
+  nota: 'nota',
+  frecuenciaDias: 'frecuenciaDias',
+  fechaInicio: 'fechaInicio',
+  fechaProximaGeneracion: 'fechaProximaGeneracion',
+  activo: 'activo',
+  diaSemanaPreferido: 'diaSemanaPreferido',
+  asignacionTipo: 'asignacionTipo',
+  choferAsignadoId: 'choferAsignadoId'
+};
+
 exports.Prisma.AkuoEntregaScalarFieldEnum = {
   id: 'id',
   creadoEn: 'creadoEn',
@@ -500,6 +517,7 @@ exports.Prisma.ModelName = {
   AkuoVehiculo: 'AkuoVehiculo',
   AkuoCliente: 'AkuoCliente',
   AkuoPedido: 'AkuoPedido',
+  AkuoPedidoRecurrente: 'AkuoPedidoRecurrente',
   AkuoEntrega: 'AkuoEntrega',
   AkuoVuelta: 'AkuoVuelta',
   AkuoGasto: 'AkuoGasto',

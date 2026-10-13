@@ -108,6 +108,7 @@ model AkuoUsuario {
   entregasHechas    AkuoEntrega[]      @relation("EntregaTransportista")
   vehiculos         AkuoVehiculo[]
   clientes          AkuoCliente[]
+  pedidosRecurrentes AkuoPedidoRecurrente[] @relation("RecurrenteTransportista")
   pagos             AkuoPago[]
   valoracionesRecibidas AkuoValoracion[]
   notificaciones    AkuoNotificacion[]
@@ -201,6 +202,7 @@ model AkuoCliente {
   indicacionesAcceso String?
   activo          Boolean @default(true)
   pedidos         AkuoPedido[]
+  pedidosRecurrentes AkuoPedidoRecurrente[]
   entregas        AkuoEntrega[]
   @@index([transportistaId, activo])
 }
@@ -226,6 +228,27 @@ model AkuoPedido {
   entregaId       String?  @unique
   entrega         AkuoEntrega? @relation(fields: [entregaId], references: [id])
   @@index([transportistaId, estado])
+  @@index([clienteId])
+}
+
+model AkuoPedidoRecurrente {
+  id                String   @id @default(cuid())
+  creadoEn          DateTime @default(now())
+  transportistaId   String
+  transportista     AkuoUsuario @relation("RecurrenteTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+  clienteId         String
+  cliente           AkuoCliente @relation(fields: [clienteId], references: [id])
+  litrosSolicitados Float
+  metodoPagoPreferido String @default("credito")
+  nota              String?
+  frecuenciaDias    Int
+  fechaInicio       DateTime
+  fechaProximaGeneracion DateTime
+  activo            Boolean  @default(true)
+  diaSemanaPreferido Int?
+  asignacionTipo    String   @default("manual")
+  choferAsignadoId  String?
+  @@index([transportistaId, activo])
   @@index([clienteId])
 }
 

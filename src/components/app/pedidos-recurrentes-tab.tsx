@@ -105,7 +105,7 @@ interface PedidosRecurrentesTabProps {
 export function PedidosRecurrentesTab({ refreshKey, onRefresh, clientes, choferes, pedidos = [] }: PedidosRecurrentesTabProps) {
   const [recurrentes, setRecurrentes] = useState<Recurrente[]>([]);
   const [loading, setLoading] = useState(true);
-  const [vista, setVista] = useState<"lista" | "calendario">("calendario");
+  const [vista, setVista] = useState<"lista" | "calendario">("lista");
 
   const [formOpen, setFormOpen] = useState(false);
   const [editando, setEditando] = useState<Recurrente | null>(null);
