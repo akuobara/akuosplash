@@ -382,7 +382,7 @@ export function IntegracionesTab() {
           <ul className="space-y-1">
             <li>• <strong>Plan Gratis</strong> (default MP, sin split): el cliente paga a la plataforma. Comisión 20%. El transportista sube su factura y la plataforma le paga.</li>
             <li>• <strong>Plan Premium</strong> (MP 10 días, split): el cliente paga, MP retiene 10 días, luego libera al transportista. Comisión 15%. El transportista emite sus propios docs SII.</li>
-            <li>• <strong>Plan Pro</strong> (MP Instant, split + Wasabi): el cliente paga, MP libera inmediatamente al transportista. Comisión 10%. Wasabi emite la factura automáticamente (incluido en el plan).</li>
+            <li>• <strong>Plan Pro</strong> (MP Instant, split + Wasabil Growth): el cliente paga, MP libera inmediatamente al transportista. Comisión 10%. Wasabil (plan Growth de wasabil.cl) emite la factura automáticamente (incluido en el plan).</li>
           </ul>
         </CardContent>
       </Card>

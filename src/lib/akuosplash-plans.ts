@@ -5,8 +5,8 @@
 //               emitir y subir sus documentos tributarios para recibir pago.
 //   - premium:  casi toda la app. MP split con pago diferido 10 días.
 //               Comisión 15% ajustable. Transportista emite sus propios docs SII.
-//   - pro:      toda la app + MP split con pago inmediato + Wasabi (facturación
-//               automática SII) incluido en el precio del plan. Comisión 10%.
+//   - pro:      toda la app + MP split con pago inmediato + Wasabil (plan Growth
+//               de wasabil.cl, facturación automática SII) incluido en el precio. Comisión 10%.
 //
 // Toda la config es ajustable por el superadmin (persistida en AkuoConfig.planConfigsJson).
 // MP usa 2 cuentas: MP_INSTANT (pago inmediato) y MP_10DAY (pago 10 días).
@@ -33,7 +33,7 @@ export interface PlanFeatureFlags {
   recurrentes: boolean;    // pedidos recurrentes
   equipo: boolean;          // choferes / equipo
   mpPropio: boolean;       // MP para sus propios clientes (Plan Pro)
-  wasabil: boolean;        // integración Wasabi (facturación SII automática)
+  wasabil: boolean;        // integración Wasabil (plan Growth de wasabil.cl, facturación SII automática)
   subscripcion: boolean;   // tab de subscripción (ver/mejorar plan)
   docUpload: boolean;      // subir documentos tributarios manualmente (Plan Gratis)
 }
@@ -146,7 +146,7 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
   pro: {
     id: "pro",
     nombre: "Pro",
-    descripcion: "MP split con pago inmediato + Wasabi (facturación automática SII incluida). Comisión 10%.",
+    descripcion: "MP split con pago inmediato + plan Growth de Wasabil (facturación SII automática incluida). Comisión 10%.",
     precioMensual: 50000,
     precioAnual: 500000,
     comisionPct: 10,

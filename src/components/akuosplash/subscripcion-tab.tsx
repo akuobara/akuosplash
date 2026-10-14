@@ -169,7 +169,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       ["recurrentes", "Pedidos recurrentes"],
       ["equipo", "Equipo y choferes"],
       ["mpPropio", "MP para tus propios clientes"],
-      ["wasabil", "Facturación SII automática (Wasabi)"],
+      ["wasabil", "Plan Growth de Wasabil (facturación SII automática)"],
       ["docUpload", "Subir documentos tributarios"],
       ["perfil", "Perfil"],
     ];

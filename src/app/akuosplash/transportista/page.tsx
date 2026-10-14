@@ -165,26 +165,24 @@ function TransportistaPage() {
       {user.rol === "superadmin" && (
         <div className="flex items-center justify-between gap-3 bg-violet-600 text-white text-xs py-2 px-4 flex-wrap">
           <div className="flex items-center gap-2 flex-wrap">
-            <span>Modo monitoreo</span>
+            <span className="font-semibold">🔧 Modo monitoreo</span>
             {planInfo?.esPreview ? (
               <>
-                <span className="opacity-70">— preview plan:</span>
+                <span className="opacity-70">— probando plan:</span>
                 <select
                   value={previewPlanParam || ""}
                   onChange={(e) => {
                     const newPlan = e.target.value;
                     if (newPlan) {
                       router.replace(`/akuosplash/transportista?previewPlan=${newPlan}`);
-                    } else {
-                      router.replace(`/akuosplash/transportista`);
                     }
                   }}
                   className="bg-white text-black px-2 py-0.5 rounded text-xs font-semibold border-0 cursor-pointer"
                 >
-                  <option value="">↺ Mi plan real</option>
+                  {!previewPlanParam && <option value="">Elegí un plan…</option>}
                   <option value="gratis">🎁 Gratis (20% comisión, sin MP split)</option>
                   <option value="premium">⭐ Premium (15% comisión, MP 10d)</option>
-                  <option value="pro">👑 Pro (10% comisión, MP instant + Wasabi)</option>
+                  <option value="pro">👑 Pro (10% comisión, MP instant + Wasabil Growth)</option>
                 </select>
               </>
             ) : (
@@ -194,7 +192,7 @@ function TransportistaPage() {
                   onClick={() => router.replace(`/akuosplash/transportista?previewPlan=gratis`)}
                   className="bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded text-xs font-semibold"
                 >
-                  ▶ Iniciar preview
+                  ▶ Empezar a probar planes
                 </button>
               </>
             )}
@@ -202,10 +200,10 @@ function TransportistaPage() {
           <div className="flex items-center gap-3">
             {planInfo?.esPreview && (
               <button
-                onClick={() => router.replace(`/akuosplash/transportista`)}
+                onClick={() => router.replace(`/akuosplash/superadmin`)}
                 className="bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded text-xs font-semibold"
               >
-                ✕ Salir preview
+                ✕ Volver al panel admin
               </button>
             )}
             <Link href="/akuosplash/superadmin" className="underline font-semibold">← Panel admin</Link>

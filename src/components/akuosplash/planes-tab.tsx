@@ -31,7 +31,7 @@ const ALL_FEATURES: Array<{ key: keyof PlanConfig["features"]; label: string; de
   { key: "recurrentes", label: "Recurrentes", description: "Pedidos recurrentes" },
   { key: "equipo", label: "Equipo", description: "Choferes y equipo de trabajo" },
   { key: "mpPropio", label: "MP propios", description: "MP para sus propios clientes (Plan Pro)" },
-  { key: "wasabil", label: "Wasabi", description: "Facturación SII automática (incluido en plan Pro)" },
+  { key: "wasabil", label: "Wasabil", description: "Plan Growth de wasabil.cl — facturación SII automática (incluido en plan Pro)" },
   { key: "docUpload", label: "Doc tributario", description: "Subir factura manualmente para recibir pago (Plan Gratis)" },
   { key: "subscripcion", label: "Subscripción", description: "Tab para ver/mejorar plan" },
 ];
