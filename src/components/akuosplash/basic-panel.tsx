@@ -52,10 +52,11 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
   }, []);
 
   // Verificar que el transportista tiene los requisitos para marketplace
-  const tieneVehiculo = user?.patenteVehiculo || false;
-  const tieneRUT = user?.rut || user?.rutEmpresa || false;
-  const tieneRazonSocial = user?.razonSocial || false;
-  const perfilCompleto = tieneVehiculo && tieneRUT && tieneRazonSocial;
+  // El chofer debe ser persona natural (RUT + licencia), separado de la empresa
+  const tieneEmpresa = !!(user?.rutEmpresa && user?.razonSocial);
+  const tieneChofer = !!(user?.rut && user?.licenciaConducirUrl);
+  const tieneVehiculo = !!(user?.patenteVehiculo && user?.capacidadVehiculoKg);
+  const perfilCompleto = tieneEmpresa && tieneChofer && tieneVehiculo;
 
   return (
     <div className="space-y-4">
@@ -94,16 +95,18 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-xs text-muted-foreground mb-2">
-            Para participar en el marketplace necesitás tener registrados: tu empresa, un vehículo y un chofer.
+            Para participar en el marketplace necesitás tener registrados: tu empresa, un chofer (persona natural con su propio RUT + licencia) y un vehículo.
           </p>
-          <Row label="Empresa (RUT + razón social)" ok={!!(tieneRUT && tieneRazonSocial)} onClick={onGoToPerfil} />
-          <Row label="Vehículo" ok={!!tieneVehiculo} onClick={onGoToVehiculo} />
-          <Row label="Chofer (vos mismo)" ok={!!user?.nombre} onClick={onGoToPerfil} />
+          <Row label="Empresa (RUT + razón social)" ok={!!(user?.rutEmpresa && user?.razonSocial)} onClick={onGoToPerfil} />
+          <Row label="Chofer (persona natural — RUT + licencia)" ok={!!(user?.rut && user?.licenciaConducirUrl)} onClick={onGoToPerfil} />
+          <Row label="Vehículo (patente + capacidad)" ok={!!(user?.patenteVehiculo && user?.capacidadVehiculoKg)} onClick={onGoToVehiculo} />
           {!perfilCompleto && (
             <div className="rounded-md bg-amber-50 border border-amber-200 p-2 mt-2 flex items-start gap-2">
               <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-[11px] text-amber-900">
                 Te falta completar el registro para poder aceptar pedidos del marketplace.
+                <br />
+                <span className="font-medium">Importante:</span> el chofer debe ser una persona natural (no la empresa), aunque seas el representante legal.
               </p>
             </div>
           )}

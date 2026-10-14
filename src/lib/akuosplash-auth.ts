@@ -67,6 +67,14 @@ export async function akuoGetCurrentUser() {
       razonSocial: true,
       direccionEmpresa: true,
       giro: true,
+      // Datos del chofer (persona natural — separado de la empresa)
+      licenciaConducirUrl: true,
+      permisoCircUrl: true,
+      seguroUrl: true,
+      // Datos del vehículo (para marketplace)
+      capacidadVehiculoKg: true,
+      patenteVehiculo: true,
+      tipoVehiculo: true,
       // Facturación SII
       facturacionPlataforma: true,
       facturacionApiKey: true,
@@ -100,7 +108,10 @@ export async function akuoGetCurrentUser() {
         `SELECT id, email, nombre, telefono, direccion, comuna, lat, lng, rut, indicacionesAcceso,
                 requiereClientePresente, usoAgua, saldo, zonaId, passwordHash, avatarUrl, rol,
                 activo, aprobado, banned, banRazon, creadoEn, ultimoLoginEn, googleId, facebookId,
-                rutEmpresa, razonSocial, direccionEmpresa, giro, plan
+                rutEmpresa, razonSocial, direccionEmpresa, giro,
+                licenciaConducirUrl, permisoCircUrl, seguroUrl,
+                capacidadVehiculoKg, patenteVehiculo, tipoVehiculo,
+                facturacionPlataforma, facturacionApiKey, plan
          FROM AkuoUsuario WHERE id = ?`,
         s.userId
       ).then((rows: unknown) => (Array.isArray(rows) ? (rows as any[])[0] || null : null));
