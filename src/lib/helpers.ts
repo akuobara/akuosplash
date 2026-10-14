@@ -190,6 +190,39 @@ export function formatDateUTC(date: Date | string): string {
   return `${d}-${m}-${y}`;
 }
 
+// Versión "larga" de formatDateUTC — devuelve "miércoles, 14 de octubre"
+// sin conversión de zona horaria (toma el YYYY-MM-DD del ISO string literalmente).
+export function formatDateUTCLong(date: Date | string): string {
+  const isoStr = typeof date === "string" ? date : date.toISOString();
+  const yyyyMmDd = isoStr.split("T")[0];
+  if (!yyyyMmDd) return formatDate(date);
+  const [y, m, d] = yyyyMmDd.split("-").map(Number);
+  // Crear un Date a MEDIODÍA UTC para que cuando se formatee en cualquier zona horaria
+  // siga siendo el mismo día (evita el off-by-one al mostrar).
+  const middayUtc = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  return middayUtc.toLocaleDateString("es-CL", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  });
+}
+
+// Devuelve la diferencia en DÍAS enteros (positiva = futuro, negativa = pasado)
+// entre una fecha ISO y "hoy" en zona horaria local. Sin conversión de UTC a local
+// (usa el YYYY-MM-DD literal del ISO string).
+export function diffDiasDesdeHoy(fechaIso: string): number {
+  const yyyyMmDd = fechaIso.split("T")[0];
+  if (!yyyyMmDd) return 0;
+  const [y, m, d] = yyyyMmDd.split("-").map(Number);
+  // Midday UTC para evitar problemas de DST / zona horaria
+  const fecha = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const ahora = new Date();
+  const hoyLocal = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 12, 0, 0);
+  const diffMs = fecha.getTime() - hoyLocal.getTime();
+  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+}
+
 export function formatDateTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleString("es-CL", {

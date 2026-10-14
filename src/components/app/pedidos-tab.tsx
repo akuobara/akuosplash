@@ -67,6 +67,8 @@ import {
   formatDateTime,
   formatDate,
   formatDateUTC,
+  formatDateUTCLong,
+  diffDiasDesdeHoy,
   labelEstadoPedido,
   labelMetodoPago,
   labelFranjaHoraria,
@@ -2207,12 +2209,11 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                 <div className="text-xs text-muted-foreground mt-0.5">
                   {cancelandoRecurrente?.fechaSolicitada ? (
                     <>
-                      Cancela el pedido agendado para <strong>{new Date(cancelandoRecurrente.fechaSolicitada).toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" })}</strong>.
+                      Cancela el pedido agendado para <strong>{formatDateUTCLong(cancelandoRecurrente.fechaSolicitada)}</strong>.
                       {" "}
                       {(() => {
-                        const f = new Date(cancelandoRecurrente.fechaSolicitada);
-                        const hoy = new Date(); hoy.setHours(0,0,0,0);
-                        const diff = Math.round((f.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                        const diff = diffDiasDesdeHoy(cancelandoRecurrente.fechaSolicitada);
+                        if (diff < 0) return `(era hace ${Math.abs(diff)} día${Math.abs(diff) === 1 ? "" : "s"})`;
                         if (diff === 0) return "(es hoy)";
                         if (diff === 1) return "(es mañana)";
                         return `(dentro de ${diff} días)`;
