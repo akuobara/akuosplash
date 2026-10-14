@@ -1,36 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
+import { ensureAkuoConfigColumns } from "@/lib/akuosplash-plans";
 
 export async function GET() {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  const u = user as any;
+  await ensureAkuoConfigColumns();
+  // Recargar usuario con todos los campos (incluyendo licencia, permiso, seguro que antes no estaban)
+  const u = (await akuosplashDb.akuoUsuario.findUnique({
+    where: { id: user.id },
+    select: {
+      id: true, email: true, nombre: true, telefono: true,
+      direccion: true, comuna: true, lat: true, lng: true,
+      rut: true, indicacionesAcceso: true, saldo: true,
+      // Empresa
+      razonSocial: true, direccionEmpresa: true, rutEmpresa: true,
+      giro: true, inicioActividades: true,
+      comunaEmpresa: true, ciudadEmpresa: true,
+      telefonoEmpresa: true, emailEmpresa: true,
+      // Banco
+      bancoNombre: true, bancoTipoCuenta: true,
+      bancoNumeroCuenta: true, bancoTitular: true,
+      bancoRutTitular: true, bancoEmail: true,
+      // Facturación SII
+      facturacionPlataforma: true, facturacionApiKey: true,
+      // Chofer (persona natural) — documentos
+      licenciaConducirUrl: true, permisoCircUrl: true, seguroUrl: true,
+      // Vehículo
+      patenteVehiculo: true, tipoVehiculo: true, capacidadVehiculoKg: true,
+      // Cobertura
+      areasCobertura: true, descripcion: true,
+      // Precios
+      precioEfectivoPorLitro: true, precioTransferenciaPorLitro: true,
+      // MP
+      mpUserId: true, mpAccessToken: true, mpConnectedAt: true,
+      // General
+      avatarUrl: true, rol: true, plan: true, creadoEn: true,
+    },
+  }).catch(() => null)) || (user as any);
+
   return NextResponse.json({
     user: {
       id: u.id, email: u.email, nombre: u.nombre, telefono: u.telefono,
       direccion: u.direccion, comuna: u.comuna, lat: u.lat, lng: u.lng,
       rut: u.rut, indicacionesAcceso: u.indicacionesAcceso, saldo: u.saldo,
-      // Empresa
       razonSocial: u.razonSocial, direccionEmpresa: u.direccionEmpresa, rutEmpresa: u.rutEmpresa,
       giro: u.giro, inicioActividades: u.inicioActividades,
       comunaEmpresa: u.comunaEmpresa, ciudadEmpresa: u.ciudadEmpresa,
       telefonoEmpresa: u.telefonoEmpresa, emailEmpresa: u.emailEmpresa,
-      // Banco
       bancoNombre: u.bancoNombre, bancoTipoCuenta: u.bancoTipoCuenta,
       bancoNumeroCuenta: u.bancoNumeroCuenta, bancoTitular: u.bancoTitular,
       bancoRutTitular: u.bancoRutTitular, bancoEmail: u.bancoEmail,
-      // Facturación SII
       facturacionPlataforma: u.facturacionPlataforma, facturacionApiKey: u.facturacionApiKey,
-      // Vehículo
+      // Chofer documents
+      licenciaConducirUrl: u.licenciaConducirUrl,
+      permisoCircUrl: u.permisoCircUrl,
+      seguroUrl: u.seguroUrl,
       patenteVehiculo: u.patenteVehiculo, tipoVehiculo: u.tipoVehiculo, capacidadVehiculoKg: u.capacidadVehiculoKg,
-      // Cobertura
       areasCobertura: u.areasCobertura, descripcion: u.descripcion,
-      // Precios
       precioEfectivoPorLitro: u.precioEfectivoPorLitro, precioTransferenciaPorLitro: u.precioTransferenciaPorLitro,
-      // MP
       mpConnected: !!u.mpUserId && !!u.mpAccessToken, mpConnectedAt: u.mpConnectedAt,
-      // General
       avatarUrl: u.avatarUrl, rol: u.rol, plan: u.plan, creadoEn: u.creadoEn,
     },
   });
@@ -39,6 +69,7 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  await ensureAkuoConfigColumns();
   const body = await req.json();
   const data: any = {};
   // Datos personales
@@ -70,6 +101,10 @@ export async function PATCH(req: NextRequest) {
   // Facturación SII
   if (body.facturacionPlataforma !== undefined) data.facturacionPlataforma = body.facturacionPlataforma || null;
   if (body.facturacionApiKey !== undefined) data.facturacionApiKey = body.facturacionApiKey?.trim() || null;
+  // Chofer (persona natural) — documentos
+  if (body.licenciaConducirUrl !== undefined) data.licenciaConducirUrl = body.licenciaConducirUrl?.trim() || null;
+  if (body.permisoCircUrl !== undefined) data.permisoCircUrl = body.permisoCircUrl?.trim() || null;
+  if (body.seguroUrl !== undefined) data.seguroUrl = body.seguroUrl?.trim() || null;
   // Vehículo
   if (body.patenteVehiculo !== undefined) data.patenteVehiculo = body.patenteVehiculo?.trim() || null;
   if (body.tipoVehiculo !== undefined) data.tipoVehiculo = body.tipoVehiculo;
@@ -81,6 +116,25 @@ export async function PATCH(req: NextRequest) {
   if (body.precioEfectivoPorLitro !== undefined) data.precioEfectivoPorLitro = body.precioEfectivoPorLitro ? Number(body.precioEfectivoPorLitro) : null;
   if (body.precioTransferenciaPorLitro !== undefined) data.precioTransferenciaPorLitro = body.precioTransferenciaPorLitro ? Number(body.precioTransferenciaPorLitro) : null;
 
-  const actualizado = await akuosplashDb.akuoUsuario.update({ where: { id: user.id }, data });
-  return NextResponse.json({ ok: true, user: { id: actualizado.id, nombre: actualizado.nombre, telefono: actualizado.telefono, saldo: actualizado.saldo } });
+  // Usar raw SQL para evitar que el update retorne todas las columnas nuevas (mpSub* etc.)
+  try {
+    // Construir SET clause dinámicamente
+    const fields = Object.keys(data);
+    if (fields.length === 0) return NextResponse.json({ ok: true, note: "Sin cambios" });
+    const setClause = fields.map((f, i) => `${f} = ?`).join(", ");
+    const values = fields.map(f => {
+      const v = data[f];
+      if (v instanceof Date) return v.toISOString();
+      return v;
+    });
+    values.push(user.id);
+    await akuosplashDb.$executeRawUnsafe(
+      `UPDATE AkuoUsuario SET ${setClause} WHERE id = ?`,
+      ...values
+    );
+  } catch (e: any) {
+    console.error("[perfil PATCH] update failed:", e);
+    return NextResponse.json({ error: "No se pudo actualizar: " + (e?.message || "") }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true });
 }

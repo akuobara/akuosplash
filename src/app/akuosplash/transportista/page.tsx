@@ -26,6 +26,7 @@ import { CamionesManager } from "@/components/akuosplash/camiones-manager";
 import { CuentaDialog } from "@/components/akuosplash/cuenta-dialog";
 import { HistorialVueltasTab } from "@/components/akuosplash/historial-vueltas-tab";
 import { PerfilTransportista } from "@/components/akuosplash/akuosplash-transportista";
+import { PerfilGratis } from "@/components/akuosplash/perfil-gratis";
 import { SubscripcionTab } from "@/components/akuosplash/subscripcion-tab";
 import { BasicPanel } from "@/components/akuosplash/basic-panel";
 import { apiGet, apiPost } from "@/components/akuosplash/akuosplash-api-client";
@@ -352,7 +353,15 @@ function TransportistaPage() {
             <TabsContent value="subscripcion" className="mt-4"><ErrorBoundary><SubscripcionTab user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
           )}
           {allowedTabs.includes("perfil") && (
-            <TabsContent value="perfil" className="mt-4"><ErrorBoundary><PerfilTransportista user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
+            <TabsContent value="perfil" className="mt-4">
+              <ErrorBoundary>
+                {useBasicPanel ? (
+                  <PerfilGratis user={user} onUpdated={refresh} />
+                ) : (
+                  <PerfilTransportista user={user} onUpdated={refresh} />
+                )}
+              </ErrorBoundary>
+            </TabsContent>
           )}
         </Tabs>
       </div>

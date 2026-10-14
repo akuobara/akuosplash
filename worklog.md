@@ -1656,3 +1656,53 @@ Stage Summary:
 - ✅ Endpoint /transportista/pedidos ahora lee comisión del plan del transportista (no global)
 - ✅ Auto-migración ahora incluye también las columnas docTributario* en AkuoPedidoCliente
 - ✅ Deploy a Vercel producción READY
+
+---
+Task ID: akuosplash-perfil-gratis-sin-productividad
+Agent: main
+Task: Plan Gratis no debe ver el campo "precio que cobra a sus clientes" ni ninguna función de productividad. También agregar sección clara para registrar el chofer (persona natural separada de la empresa).
+
+Work Log:
+- CREADO `src/components/akuosplash/perfil-gratis.tsx` (~250 líneas):
+  * Perfil simplificado específico para Plan Gratis
+  * 3 secciones claras con badges de completitud:
+    1. **CHOFER (persona natural)**: nombre, RUT personal, teléfono, licencia de conducir (URL), permiso de circulación (URL), seguro (URL)
+       * Aclaración: "el chofer no puede ser la empresa — debe ser una persona natural, aunque seas el representante legal"
+    2. **EMPRESA**: razón social, RUT empresa, giro, dirección fiscal, comuna, ciudad, teléfono, email
+    3. **VEHÍCULO**: patente, tipo de vehículo (aljibe/camioneta/otro), capacidad en litros
+  * Validación obligatoria: RUT personal, razón social, RUT empresa, patente (si falta, error al guardar)
+  * Badge "✓ Completo" o "Falta" por sección (border color verde/amber)
+  * Banner amber arriba explicando limitaciones del plan
+  * Card al final: "Plan Gratis no incluye: precios por litro, datos bancarios, facturación SII automática, MP split, ni gestión de clientes/gastos/liquidación"
+  * NO incluye: precios por litro, datos bancarios, facturación SII, MP split, áreas de cobertura, descripción
+
+- MODIFICADO `src/app/akuosplash/transportista/page.tsx`:
+  * Importado PerfilGratis
+  * En TabsContent "perfil": si useBasicPanel → renderiza PerfilGratis, si no → PerfilTransportista (full con precios, banco, MP, etc.)
+
+- REESCRITO `src/app/api/akuosplash/cliente/perfil/route.ts`:
+  * GET: ahora recarga el usuario con `akuoUsuario.findUnique({ select: {...} })` incluyendo los campos del chofer que faltaban:
+    - licenciaConducirUrl, permisoCircUrl, seguroUrl (antes no estaban en la respuesta)
+  * GET: incluye `await ensureAkuoConfigColumns()` al inicio (defensivo)
+  * PATCH: agregados 3 nuevos campos aceptados: licenciaConducirUrl, permisoCircUrl, seguroUrl
+  * PATCH: incluye `await ensureAkuoConfigColumns()` al inicio
+  * PATCH: cambiado de `akuoUsuario.update()` (que retornaba todas las columnas y fallaba con mpSub*) a raw SQL dinámico:
+    - Construye SET clause con los campos que se van a actualizar
+    - `UPDATE AkuoUsuario SET campo1 = ?, campo2 = ?, ... WHERE id = ?`
+    - No retorna el objeto (no falla por columnas nuevas faltantes)
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos
+  * Deploy Vercel exitoso (READY en ~6min)
+  * Smoke test: `/akuosplash/transportista?previewPlan=gratis` → HTTP 200
+
+Stage Summary:
+- ✅ Plan Gratis tiene su propio Perfil simplificado (PerfilGratis) sin funciones de productividad
+- ✅ Sección clara "Chofer (persona natural)" con RUT + licencia + permiso + seguro separada de la empresa
+- ✅ Sección "Empresa" con datos legales (RUT, razón social, giro, dirección)
+- ✅ Sección "Vehículo" con patente + tipo + capacidad
+- ✅ NO hay campo "precio por litro a clientes propios" en Plan Gratis (era productividad)
+- ✅ NO hay datos bancarios, facturación SII, MP split en Plan Gratis
+- ✅ Badges de completitud por sección + alert explicando limitaciones
+- ✅ Endpoint PATCH actualizado para aceptar y persistir licenciaConducirUrl, permisoCircUrl, seguroUrl
+- ✅ Deploy a Vercel producción READY
