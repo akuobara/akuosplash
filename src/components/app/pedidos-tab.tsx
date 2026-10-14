@@ -2205,7 +2205,23 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
               <div className="flex-1 text-sm">
                 <div className="font-medium">Solo este pedido</div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  Cancela el pedido ya agendado. Los pedidos siguientes se siguen generando normalmente según la frecuencia.
+                  {cancelandoRecurrente?.fechaSolicitada ? (
+                    <>
+                      Cancela el pedido agendado para <strong>{new Date(cancelandoRecurrente.fechaSolicitada).toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" })}</strong>.
+                      {" "}
+                      {(() => {
+                        const f = new Date(cancelandoRecurrente.fechaSolicitada);
+                        const hoy = new Date(); hoy.setHours(0,0,0,0);
+                        const diff = Math.round((f.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+                        if (diff === 0) return "(es hoy)";
+                        if (diff === 1) return "(es mañana)";
+                        return `(dentro de ${diff} días)`;
+                      })()}
+                      {" "}— los pedidos siguientes se siguen generando.
+                    </>
+                  ) : (
+                    <>Cancela el pedido ya agendado. Los siguientes se siguen generando normalmente según la frecuencia.</>
+                  )}
                 </div>
               </div>
             </label>
@@ -2287,6 +2303,9 @@ export function PedidosTab({ refreshKey, onRefresh, canCreate, isDueno, currentU
                       modo: cancelarModo,
                       hastaFecha: cancelarModo === "periodo" ? cancelarHastaFecha : undefined,
                       razon: cancelarRazon.trim() || undefined,
+                      // Pasar el ID del pedido específico sobre el que el usuario hizo click.
+                      // Solo relevante para modo "proximo": el backend cancela ESE pedido, no el más temprano.
+                      pedidoId: cancelarModo === "proximo" ? cancelandoRecurrente.id : undefined,
                     }
                   );
                   toast.success(res.message || `${res.pedidosCancelados} pedido(s) cancelado(s)`);

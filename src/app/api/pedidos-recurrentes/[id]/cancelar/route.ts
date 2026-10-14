@@ -11,19 +11,24 @@ import { checkDemoBlock } from "@/lib/demo-guard";
 //   modo: "proximo" | "periodo" | "todos"
 //   hastaFecha?: string ISO date (solo para modo "periodo") — fecha hasta la cual pausar
 //   razon?: string — nota opcional con la razón de la cancelación
+//   pedidoId?: string — ID del pedido específico a cancelar (modo "proximo")
+//                       Si se pasa, se cancela ESE pedido (no el más temprano).
+//                       Es para soportar el caso donde el usuario hace click en "cancelar"
+//                       sobre un pedido específico (ej: el de mañana) y no el más próximo.
 //
 // 1. modo="proximo":
-//    - Cancela el próximo Pedido ya generado para la fechaProximaGeneracion
+//    - Si viene pedidoId: cancela ESE pedido específico
+//    - Si no: cancela el próximo Pedido (el de fecha más cercana)
 //    - Avanza fechaProximaGeneracion por frecuenciaDias (sigue generando normalmente)
 //    - Mantiene activo=true
 //
-// 2. modo="periodo":
+// 2. modo="periodo": (sin cambios)
 //    - Requiere hastaFecha (fecha límite, no inclusive, hasta la cual pausar)
 //    - Cancela todos los Pedidos ya generados con fechaSolicitada entre hoy y hastaFecha
 //    - Avanza fechaProximaGeneracion a (hastaFecha + 1 día) o al próximo ciclo
 //    - Mantiene activo=true (sigue generando después del periodo)
 //
-// 3. modo="todos":
+// 3. modo="todos": (sin cambios)
 //    - Cancela el próximo Pedido generado
 //    - Setea activo=false (no genera más pedidos en el futuro)
 //    - NO borra el recurrente (mantiene historial)
@@ -40,6 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const body = await req.json();
   const modo = body.modo as "proximo" | "periodo" | "todos";
   const razon = body.razon as string | undefined;
+  const pedidoIdEspecifico = body.pedidoId as string | undefined;
 
   if (!modo || !["proximo", "periodo", "todos"].includes(modo)) {
     return NextResponse.json(
@@ -105,7 +111,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   };
 
   // === MODO "proximo" ===
-  // Cancelar el próximo Pedido generado, avanzar fechaProximaGeneracion por frecuenciaDias
+  // Cancelar UN pedido: el específico (si se pasó pedidoId) o el más próximo (el más temprano)
   if (modo === "proximo") {
     // Buscar todos los Pedidos pendientes/programados que vienen de esta recurrencia
     // y que aún no fueron entregados ni cancelados
@@ -118,22 +124,50 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       select: { id: true, fechaSolicitada: true, clienteNombre: true },
     });
 
-    // Cancelar el primero (el próximo a entregar)
-    if (proximosPedidos.length > 0) {
-      const proximo = proximosPedidos[0];
+    // Determinar qué pedido cancelar:
+    // - Si se pasó pedidoId (click en pedido específico): buscar ESE pedido
+    // - Si no: el primero (más próximo a entregar)
+    let pedidoACancelar: { id: string; clienteNombre: string; fechaSolicitada: Date | null } | null = null;
+    if (pedidoIdEspecifico) {
+      pedidoACancelar = proximosPedidos.find(p => p.id === pedidoIdEspecifico) || null;
+      if (!pedidoACancelar) {
+        // El pedido específico no está en la lista — quizás ya fue entregado/cancelado
+        // Hacer una query directa para confirmar
+        const directo = await db.pedido.findUnique({
+          where: { id: pedidoIdEspecifico },
+          select: { id: true, fechaSolicitada: true, clienteNombre: true, estado: true, pedidoRecurrenteId: true },
+        });
+        if (directo && directo.pedidoRecurrenteId === id) {
+          if (directo.estado === "cancelado") {
+            return NextResponse.json({ error: "El pedido ya está cancelado" }, { status: 400 });
+          }
+          if (directo.estado === "entregado") {
+            return NextResponse.json({ error: "No se puede cancelar un pedido ya entregado" }, { status: 400 });
+          }
+          pedidoACancelar = { id: directo.id, fechaSolicitada: directo.fechaSolicitada, clienteNombre: directo.clienteNombre };
+        } else {
+          return NextResponse.json({ error: "Pedido específico no encontrado o no pertenece a esta recurrencia" }, { status: 404 });
+        }
+      }
+    } else {
+      pedidoACancelar = proximosPedidos[0] || null;
+    }
+
+    if (pedidoACancelar) {
       await db.pedido.update({
-        where: { id: proximo.id },
+        where: { id: pedidoACancelar.id },
         data: { estado: "cancelado", nota: `Cancelado por recurrencia (próximo pedido)${notasCancelacion}` },
       });
       resultado.pedidosCancelados = 1;
       resultado.detallePedidos.push({
-        id: proximo.id,
-        fecha: proximo.fechaSolicitada ? String(proximo.fechaSolicitada) : "sin fecha",
-        cliente: proximo.clienteNombre,
+        id: pedidoACancelar.id,
+        fecha: pedidoACancelar.fechaSolicitada ? String(pedidoACancelar.fechaSolicitada) : "sin fecha",
+        cliente: pedidoACancelar.clienteNombre,
       });
     }
 
     // Avanzar fechaProximaGeneracion por frecuenciaDias
+    // (esto es para que el cron genere el próximo pedido correctamente)
     const nuevaFecha = new Date(recurrente.fechaProximaGeneracion);
     nuevaFecha.setDate(nuevaFecha.getDate() + frecuencia);
     await db.pedidoRecurrente.update({
