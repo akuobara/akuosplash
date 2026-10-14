@@ -13,6 +13,7 @@ import {
 import {
   Droplets, LayoutDashboard, ClipboardList, Truck, Receipt, Calculator,
   Users, CalendarClock, UserCog, Settings, LogOut, Package, Repeat, History, ShieldCheck,
+  Crown, Sparkles,
 } from "lucide-react";
 import { EntregasTab } from "@/components/akuosplash/entregas-tab";
 import { GastosTab } from "@/components/akuosplash/gastos-tab";
@@ -78,7 +79,10 @@ function TransportistaPage() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await apiGet<{ user: any }>("/api/akuosplash/auth/me");
+        // Si hay previewPlan en la URL y el user es superadmin, pasar el query param al /me
+        const previewPlanParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("previewPlan") : null;
+        const url = previewPlanParam ? `/api/akuosplash/auth/me?previewPlan=${previewPlanParam}` : "/api/akuosplash/auth/me";
+        const data = await apiGet<{ user: any }>(url);
         setUser(data.user);
       } catch {}
       finally { setAuthLoading(false); }
@@ -86,7 +90,7 @@ function TransportistaPage() {
   }, []);
 
   // Detectar query param para auto-navegar a la tab correcta
-  // (cuando volvemos del redirect de Transbank con ?tab=subscripcion&transbank=ok|fallido|abortado)
+  // (cuando volvemos del redirect de MP con ?tab=subscripcion&mp=ok|fail|pending)
   useEffect(() => {
     const tabParam = searchParams.get("tab");
     if (tabParam === "subscripcion") {
@@ -120,12 +124,75 @@ function TransportistaPage() {
   }
   if (!user) { if (typeof window !== "undefined") window.location.href = "/akuosplash"; return null; }
 
+  // === Plan-based feature gating ===
+  // user.planInfo se completa desde /api/akuosplash/auth/me (o previewPlan si es superadmin)
+  const planInfo = user.planInfo;
+  const features = planInfo?.plan?.features;
+  const planId = planInfo?.planId || "gratis";
+
+  // Si la tab actual no está permitida por el plan, caer a "dashboard"
+  // (puede pasar si el plan venció y la tab guardada era de plan pago)
+  const allowedTabs: TabKey[] = (() => {
+    const base: TabKey[] = [];
+    if (!features) {
+      // Sin info de plan → mostrar todo (fallback, no debería pasar)
+      return ["dashboard", "pedidos", "entregas", "camiones", "gastos", "liquidacion", "clientes", "recurrentes", "historial", "equipo", "subscripcion", "perfil"];
+    }
+    if (features.dashboard) base.push("dashboard");
+    if (features.historial) base.push("historial");
+    if (features.vehiculo) base.push("camiones");
+    if (features.perfil) base.push("perfil");
+    // Tabs del marketplace — siempre disponibles (es el núcleo de la app)
+    base.push("pedidos");
+    if (features.entregas) base.push("entregas");
+    if (features.gastos) base.push("gastos");
+    if (features.liquidacion) base.push("liquidacion");
+    if (features.clientes) base.push("clientes");
+    if (features.recurrentes) base.push("recurrentes");
+    if (features.equipo) base.push("equipo");
+    if (features.subscripcion) base.push("subscripcion");
+    return base;
+  })();
+
+  // Si la tab actual no es permitida → cambiar a "dashboard"
+  const effectiveTab = allowedTabs.includes(tab) ? tab : "dashboard";
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {user.rol === "superadmin" && (
         <div className="flex items-center justify-center gap-3 bg-violet-600 text-white text-xs py-2 px-4">
-          <span>Modo monitoreo — viendo como repartidor</span>
+          <span>Modo monitoreo — viendo como repartidor {planInfo?.esPreview ? `(preview plan ${planId})` : ""}</span>
           <Link href="/akuosplash/superadmin" className="underline font-semibold">← Panel admin</Link>
+        </div>
+      )}
+
+      {/* Banner de plan para el transportista */}
+      {user.rol !== "superadmin" && (
+        <div className={`flex items-center justify-between gap-2 text-xs py-1.5 px-4 ${
+          planId === "pro" ? "bg-violet-100 text-violet-900" :
+          planId === "pago" ? "bg-blue-100 text-blue-900" :
+          "bg-amber-100 text-amber-900"
+        }`}>
+          <span className="flex items-center gap-1">
+            {planId === "pro" ? <Crown className="h-3.5 w-3.5" /> :
+             planId === "pago" ? <Sparkles className="h-3.5 w-3.5" /> :
+             <ShieldCheck className="h-3.5 w-3.5" />}
+            Plan <strong className="uppercase">{planId}</strong>
+            {planInfo?.planActivoHasta && planId !== "gratis" && (
+              <span className="opacity-70 ml-1">· vence {new Date(planInfo.planActivoHasta).toLocaleDateString("es-CL")}</span>
+            )}
+            {planInfo?.plan?.comisionPct !== undefined && (
+              <span className="opacity-70 ml-1">· {planInfo.plan.comisionPct}% comisión</span>
+            )}
+          </span>
+          {planId !== "pro" && (
+            <button
+              onClick={() => setTab("subscripcion")}
+              className="font-semibold underline hover:no-underline"
+            >
+              Subir de plan →
+            </button>
+          )}
         </div>
       )}
 
@@ -161,43 +228,70 @@ function TransportistaPage() {
       </header>
 
       <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-6">
-        <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+        <Tabs value={effectiveTab} onValueChange={(v) => { if (allowedTabs.includes(v as TabKey)) setTab(v as TabKey); }}>
           <select
-            value={tab}
-            onChange={(e) => setTab(e.target.value as TabKey)}
+            value={effectiveTab}
+            onChange={(e) => {
+              const v = e.target.value as TabKey;
+              if (allowedTabs.includes(v)) setTab(v);
+            }}
             className="w-full mb-4 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium"
           >
-            <option value="dashboard">📊 Panel</option>
-            <option value="pedidos">📋 Pedidos</option>
-            <option value="entregas">💧 Entregas</option>
-            <option value="camiones">🚛 Camiones</option>
-            <option value="gastos">💵 Gastos</option>
-            <option value="liquidacion">🧮 Liquidación</option>
-            <option value="clientes">👥 Clientes</option>
-            <option value="recurrentes">🔁 Recurrentes</option>
-            <option value="historial">📜 Historial</option>
-            <option value="equipo">👤 Equipo</option>
-            <option value="subscripcion">💎 Subscripción</option>
-            <option value="perfil">⚙️ Perfil y configuración</option>
+            {allowedTabs.includes("dashboard") && <option value="dashboard">📊 Panel</option>}
+            {allowedTabs.includes("pedidos") && <option value="pedidos">📋 Pedidos</option>}
+            {allowedTabs.includes("entregas") && <option value="entregas">💧 Entregas</option>}
+            {allowedTabs.includes("camiones") && <option value="camiones">🚛 Camiones</option>}
+            {allowedTabs.includes("gastos") && <option value="gastos">💵 Gastos</option>}
+            {allowedTabs.includes("liquidacion") && <option value="liquidacion">🧮 Liquidación</option>}
+            {allowedTabs.includes("clientes") && <option value="clientes">👥 Clientes</option>}
+            {allowedTabs.includes("recurrentes") && <option value="recurrentes">🔁 Recurrentes</option>}
+            {allowedTabs.includes("historial") && <option value="historial">📜 Historial</option>}
+            {allowedTabs.includes("equipo") && <option value="equipo">👤 Equipo</option>}
+            {allowedTabs.includes("subscripcion") && <option value="subscripcion">💎 Subscripción</option>}
+            {allowedTabs.includes("perfil") && <option value="perfil">⚙️ Perfil y configuración</option>}
           </select>
 
-          <TabsContent value="dashboard" className="mt-4">
-            <ErrorBoundary>
-              <Dashboard refreshKey={refreshKey} onRefresh={refresh} clientes={clientes} config={config} camiones={camiones}
-                onGoToEntregas={() => setTab("entregas")} onGoToGastos={() => setTab("gastos")} onGoToLiquidacion={() => setTab("liquidacion")} isDueno={true} />
-            </ErrorBoundary>
-          </TabsContent>
-          <TabsContent value="pedidos" className="mt-4"><ErrorBoundary><PedidosTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} camiones={camiones} vueltaActual={vueltaActual} /></ErrorBoundary></TabsContent>
-          <TabsContent value="entregas" className="mt-4"><ErrorBoundary><EntregasTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} camiones={camiones} vueltaActual={vueltaActual} /></ErrorBoundary></TabsContent>
-          <TabsContent value="camiones" className="mt-4"><ErrorBoundary><CamionesManager refreshKey={refreshKey} onRefresh={refresh} onCamionesChange={() => {}} isDueno={true} /></ErrorBoundary></TabsContent>
-          <TabsContent value="gastos" className="mt-4"><ErrorBoundary><GastosTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
-          <TabsContent value="liquidacion" className="mt-4"><ErrorBoundary><LiquidacionTab clientes={clientes} config={config} refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
-          <TabsContent value="clientes" className="mt-4"><ErrorBoundary><ClientesTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
-          <TabsContent value="recurrentes" className="mt-4"><ErrorBoundary><PedidosRecurrentesTab clientes={clientes} choferes={[]} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
-          <TabsContent value="historial" className="mt-4"><ErrorBoundary><HistorialVueltasTab refreshKey={refreshKey} /></ErrorBoundary></TabsContent>
-          <TabsContent value="equipo" className="mt-4"><ErrorBoundary><EquipoTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
-          <TabsContent value="subscripcion" className="mt-4"><ErrorBoundary><SubscripcionTab user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
-          <TabsContent value="perfil" className="mt-4"><ErrorBoundary><PerfilTransportista user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
+          {allowedTabs.includes("dashboard") && (
+            <TabsContent value="dashboard" className="mt-4">
+              <ErrorBoundary>
+                <Dashboard refreshKey={refreshKey} onRefresh={refresh} clientes={clientes} config={config} camiones={camiones}
+                  onGoToEntregas={() => features?.entregas && setTab("entregas")} onGoToGastos={() => features?.gastos && setTab("gastos")} onGoToLiquidacion={() => features?.liquidacion && setTab("liquidacion")} isDueno={true} />
+              </ErrorBoundary>
+            </TabsContent>
+          )}
+          {allowedTabs.includes("pedidos") && (
+            <TabsContent value="pedidos" className="mt-4"><ErrorBoundary><PedidosTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} camiones={camiones} vueltaActual={vueltaActual} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("entregas") && (
+            <TabsContent value="entregas" className="mt-4"><ErrorBoundary><EntregasTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} camiones={camiones} vueltaActual={vueltaActual} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("camiones") && (
+            <TabsContent value="camiones" className="mt-4"><ErrorBoundary><CamionesManager refreshKey={refreshKey} onRefresh={refresh} onCamionesChange={() => {}} isDueno={true} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("gastos") && (
+            <TabsContent value="gastos" className="mt-4"><ErrorBoundary><GastosTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("liquidacion") && (
+            <TabsContent value="liquidacion" className="mt-4"><ErrorBoundary><LiquidacionTab clientes={clientes} config={config} refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("clientes") && (
+            <TabsContent value="clientes" className="mt-4"><ErrorBoundary><ClientesTab clientes={clientes} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("recurrentes") && (
+            <TabsContent value="recurrentes" className="mt-4"><ErrorBoundary><PedidosRecurrentesTab clientes={clientes} choferes={[]} refreshKey={refreshKey} onRefresh={refresh} config={config} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("historial") && (
+            <TabsContent value="historial" className="mt-4"><ErrorBoundary><HistorialVueltasTab refreshKey={refreshKey} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("equipo") && (
+            <TabsContent value="equipo" className="mt-4"><ErrorBoundary><EquipoTab refreshKey={refreshKey} onRefresh={refresh} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("subscripcion") && (
+            <TabsContent value="subscripcion" className="mt-4"><ErrorBoundary><SubscripcionTab user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
+          )}
+          {allowedTabs.includes("perfil") && (
+            <TabsContent value="perfil" className="mt-4"><ErrorBoundary><PerfilTransportista user={user} onUpdated={refresh} /></ErrorBoundary></TabsContent>
+          )}
         </Tabs>
       </div>
 

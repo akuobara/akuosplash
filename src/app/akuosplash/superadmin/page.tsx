@@ -15,6 +15,7 @@ import { akuoGet, akuoPost, akuoApi, formatCLP } from "@/components/akuosplash/a
 import { toast } from "sonner";
 import { PrecioDinamicoTab } from "@/components/akuosplash/precio-dinamico-tab";
 import { IntegracionesTab } from "@/components/akuosplash/integraciones-tab";
+import { PlanesTab } from "@/components/akuosplash/planes-tab";
 
 interface Stats {
   clientesCount: number;
@@ -153,6 +154,7 @@ export default function SuperadminPage() {
             <option value="clientes">👥 Clientes</option>
             <option value="pedidos">🛒 Pedidos</option>
             <option value="precio">🧮 Precio dinámico</option>
+            <option value="planes">💎 Planes</option>
             <option value="integraciones">💳 Integraciones</option>
           </select>
 
@@ -342,6 +344,11 @@ export default function SuperadminPage() {
           {/* === PRECIO DINÁMICO === */}
           <TabsContent value="precio" className="mt-4">
             <PrecioDinamicoTab />
+          </TabsContent>
+
+          {/* === PLANES === */}
+          <TabsContent value="planes" className="mt-4">
+            <PlanesTab />
           </TabsContent>
 
           {/* === INTEGRACIONES === */}

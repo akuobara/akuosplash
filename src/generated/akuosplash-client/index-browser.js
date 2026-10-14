@@ -196,7 +196,14 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   transbankCiclo: 'transbankCiclo',
   transbankIniciadoEn: 'transbankIniciadoEn',
   transbankAutorizadoEn: 'transbankAutorizadoEn',
-  transbankAuthorizationCode: 'transbankAuthorizationCode'
+  transbankAuthorizationCode: 'transbankAuthorizationCode',
+  mpSubPreapprovalId: 'mpSubPreapprovalId',
+  mpSubPlanSolicitado: 'mpSubPlanSolicitado',
+  mpSubCiclo: 'mpSubCiclo',
+  mpSubStatus: 'mpSubStatus',
+  mpSubIniciadoEn: 'mpSubIniciadoEn',
+  mpSubAutorizadoEn: 'mpSubAutorizadoEn',
+  mpSubAmount: 'mpSubAmount'
 };
 
 exports.Prisma.AkuoSesionScalarFieldEnum = {
@@ -429,7 +436,8 @@ exports.Prisma.AkuoConfigScalarFieldEnum = {
   mpSandbox: 'mpSandbox',
   transbankCommerceCode: 'transbankCommerceCode',
   transbankApiKey: 'transbankApiKey',
-  transbankEnvironment: 'transbankEnvironment'
+  transbankEnvironment: 'transbankEnvironment',
+  planConfigsJson: 'planConfigsJson'
 };
 
 exports.Prisma.AkuoZonaScalarFieldEnum = {

@@ -103,6 +103,15 @@ model AkuoUsuario {
   transbankIniciadoEn         DateTime?
   transbankAutorizadoEn       DateTime?
   transbankAuthorizationCode  String?
+  // --- MercadoPago Subscriptions (preapproval) para planes de pago ---
+  // El transportista que sube de plan genera una preapproval en MP
+  mpSubPreapprovalId          String? // ID de la preapproval creada
+  mpSubPlanSolicitado         String? // "pago" | "pro" (cuál se solicitó)
+  mpSubCiclo                  String? // "mensual" | "anual"
+  mpSubStatus                 String? // "pending" | "authorized" | "paused" | "cancelled"
+  mpSubIniciadoEn             DateTime?
+  mpSubAutorizadoEn           DateTime?
+  mpSubAmount                 Float?
   sesiones                    AkuoSesion[]
   pedidosCliente              AkuoPedido[]
   entregasHechas              AkuoEntrega[]          @relation("EntregaTransportista")
@@ -439,6 +448,11 @@ model AkuoConfig {
   transbankCommerceCode    String?
   transbankApiKey          String?
   transbankEnvironment     String? // "INTEGRACION" | "PRODUCCION"
+  // --- Configuración de planes (gratis/pago/pro) ---
+  // JSON: { gratis: {...}, pago: {...}, pro: {...} }
+  // Cada plan: { precioMensual, precioAnual, comisionPct, pagoDiferadoDias,
+  //              maxVehiculos, maxChoferes, features: { dashboard, historial, vehiculo, perfil, entregas, gastos, liquidacion, clientes, recurrentes, equipo, mpPropio, wasabil } }
+  planConfigsJson          String?
 }
 
 // Zona geográfica con precio definido por el superadmin — mismo modelo que Aljibe

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
 import { akuosplashDb } from "@/lib/akuosplash-db";
+import { getPlanActivo } from "@/lib/akuosplash-plans";
 
 export async function GET(req: Request) {
   const user = await akuoGetCurrentUser();
@@ -8,6 +9,7 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const withPerfil = url.searchParams.get("perfil") === "true";
+  const previewPlan = url.searchParams.get("previewPlan"); // "gratis" | "pago" | "pro" (superadmin preview)
 
   if (withPerfil) {
     // Versión con datos completos del perfil (como Aljibe /api/auth/me?perfil=true)
@@ -35,17 +37,45 @@ export async function GET(req: Request) {
         patente: v.patente, capacidad: v.capacidadLitros, activo: v.activo,
       })),
       stats: { totalEntregas, totalLitros, totalVueltas, ventasMes },
-      dueno: null, // En AkuoSplash el transportista es el dueno
+      dueno: null,
     });
+  }
+
+  // Determinar plan activo + features
+  let planInfo;
+  if (previewPlan && user.rol === "superadmin") {
+    // Modo preview: el superadmin quiere ver cómo se ve el dashboard con un plan específico
+    const { getPlanConfigs, PLAN_ORDER } = await import("@/lib/akuosplash-plans");
+    const configs = await getPlanConfigs();
+    const planId = PLAN_ORDER.includes(previewPlan as any) ? (previewPlan as any) : "gratis";
+    planInfo = {
+      planId,
+      plan: configs[planId],
+      planActivoDesde: null,
+      planActivoHasta: null,
+      estaActivo: true,
+      esPreview: true,
+    };
+  } else {
+    planInfo = await getPlanActivo(user.id);
   }
 
   return NextResponse.json({
     user: {
       id: user.id, userId: user.id, email: user.email, telefono: user.telefono,
       nombre: user.nombre, rol: user.rol, role: user.rol,
-      aprobado: user.aprobado, plan: user.plan, avatarUrl: user.avatarUrl, activo: user.activo,
+      aprobado: user.aprobado, plan: planInfo.planId, planActivoHasta: planInfo.planActivoHasta, avatarUrl: user.avatarUrl, activo: user.activo,
       // Flag para saber si el perfil está incompleto
       perfilIncompleto: user.rol === "cliente" && (!user.rut || !user.zonaId),
+      // Plan info (features + commission + deferral)
+      planInfo: {
+        planId: planInfo.planId,
+        plan: planInfo.plan,
+        planActivoDesde: planInfo.planActivoDesde,
+        planActivoHasta: planInfo.planActivoHasta,
+        estaActivo: planInfo.estaActivo,
+        esPreview: planInfo.esPreview || false,
+      },
     },
     hasUsers: true,
   });

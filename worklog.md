@@ -1263,3 +1263,130 @@ Stage Summary:
      - Ambiente INTEGRACION
   5. Loguearse como transportista → ir a tab "💎 Subscripción" → elegir plan → "Pagar con Transbank" → ser redirigido a Webpay (test o real según ambiente)
   6. Después del pago, volvés automáticamente a la tab Subscripción con toast "Subscripción activada"
+
+---
+Task ID: akuosplash-planes-transportista-ui
+Agent: main
+Task: Crear interfaces diferenciadas del transportista según el plan elegido (gratis/pago/pro) con comisiones, pago diferido y features ajustables por superadmin + preview de la vista como transportista. Subscriptions migradas de Transbank a MercadoPago (preapproval).
+
+Work Log:
+- EXTENDIDO prisma/schema-akuosplash.prisma:
+  * AkuoUsuario: 7 campos nuevos (mpSubPreapprovalId, mpSubPlanSolicitado, mpSubCiclo, mpSubStatus, mpSubIniciadoEn, mpSubAutorizadoEn, mpSubAmount)
+  * AkuoConfig: 1 campo nuevo (planConfigsJson) para persistir las configs de los 3 planes
+  * Regenerado Prisma Client
+
+- CREADO `src/lib/akuosplash-plans.ts` (~150 líneas):
+  * 3 PlanId: "gratis" | "pago" | "pro"
+  * Interface PlanConfig: id, nombre, descripcion, precioMensual, precioAnual, comisionPct, pagoDiferadoDias, maxVehiculos, maxChoferes, features (PlanFeatureFlags), highlightColor
+  * Interface PlanFeatureFlags: dashboard, historial, vehiculo, perfil, entregas, gastos, liquidacion, clientes, recurrentes, equipo, mpPropio, wasabil, subscripcion
+  * DEFAULT_PLAN_CONFIGS:
+    - gratis: comisión 15%, pago diferido 10 días, max 1 vehículo/1 chofer, features solo dashboard/historial/vehiculo/perfil/subscripcion
+    - pago: comisión 8%, pago diferido 3 días, max 5 vehículos/3 choferes, features todas excepto mpPropio/wasabil
+    - pro: comisión 4%, pago diferido 1 día, ilimitado, todas las features incluido mpPropio y wasabil
+  * Helpers: getPlanConfigs (lee DB con merge sobre defaults), savePlanConfigs, getPlanActivo(userId) que calcula si plan está activo o si venció (degrada a gratis)
+
+- CREADO endpoint `POST /api/akuosplash/admin/migrate-plan-configs`:
+  * ALTER TABLE AkuoConfig ADD COLUMN planConfigsJson TEXT
+  * 7 ALTER TABLE AkuoUsuario ADD COLUMN mpSub* (idempotente)
+
+- CREADOS endpoints `/api/akuosplash/admin/planes`:
+  * GET: devuelve las 3 plan configs + orden
+  * PUT: recibe { planes: {...} } y persiste en AkuoConfig.planConfigsJson (merge con defaults)
+
+- MODIFICADO `GET /api/akuosplash/auth/me`:
+  * Agregado query param `previewPlan` (solo superadmin) → retorna planInfo con la config del plan seleccionado + flag `esPreview: true`
+  * Sin previewPlan → usa getPlanActivo(userId) que determina el plan real y si está activo
+  * Respuesta ahora incluye `user.planInfo: { planId, plan, planActivoDesde, planActivoHasta, estaActivo, esPreview }`
+
+- MODIFICADO `GET /api/akuosplash/subscription/info`:
+  * Devuelve subscripción + campos mpSub* (state tracking de MP preapproval)
+  * Devuelve `planes` (las 3 configs) para que el transportista pueda ver y elegir
+  * Devuelve `orden` ([gratis, pago, pro])
+
+- CREADO `POST /api/akuosplash/subscription/mercadopago/create`:
+  * Recibe { plan, ciclo } → crea preapproval en MP (POST /preapproval)
+  * Auto-recurring: frequency 12 (anual) o 1 (mensual), frequency_type "months"
+  * External reference: "akuo_sub:<userId>:<planId>:<ciclo>" (para el webhook)
+  * Persiste mpSubPreapprovalId, mpSubPlanSolicitado, mpSubCiclo, mpSubStatus=pending, mpSubIniciadoEn, mpSubAmount
+  * Devuelve initPoint (URL de MP Checkout para subscripciones)
+
+- CREADO `POST /api/akuosplash/subscription/mercadopago/webhook`:
+  * Recibe notification_url de MP sobre cambios de preapproval
+  * Consulta el estado real a MP (GET /preapproval/<id>)
+  * Si status=authorized → activa plan: update plan, planActivoDesde=ahora, planActivoHasta=ahora+1 mes/año, mpSubAutorizadoEn
+  * Si status=cancelled/paused → suscripcionActiva=false (plan sigue hasta vencimiento)
+  * Devuelve ok
+
+- CREADO `GET /api/akuosplash/subscription/mercadopago/sync`:
+  * Para que el transportista sincronice manualmente tras volver del redirect de MP
+  * Consulta el estado actual a MP y actualiza la DB
+
+- CREADO `src/components/akuosplash/planes-tab.tsx` (~280 líneas) para superadmin:
+  * Lista los 3 planes (gratis, pago, pro) como cards expandibles
+  * Cada plan: inputs para precioMensual, precioAnual, comisionPct, pagoDiferadoDias, maxVehiculos, maxChoferes
+  * Cada plan: lista de 13 features con switch enable/disable
+  * Botón "Vista previa" por plan → /akuosplash/transportista?previewPlan=<planId>
+  * Botón "Guardar" → PUT /api/akuosplash/admin/planes
+
+- MODIFICADO `src/app/akuosplash/superadmin/page.tsx`:
+  * Agregada opción "💎 Planes" al <select>
+  * Agregado <TabsContent value="planes"> con <PlanesTab />
+
+- MODIFICADO `src/app/akuosplash/transportista/page.tsx`:
+  * Lee previewPlan de la URL y lo pasa a /api/akuosplash/auth/me?previewPlan=X
+  * Calcula allowedTabs basado en plan.features (si la tab no está habilitada, no aparece en el <select>)
+  * effectiveTab = allowedTabs.includes(tab) ? tab : "dashboard"
+  * <select> y <TabsContent> solo renderizan las tabs permitidas
+  * Banner de plan (color-coded: amber=gratis, blue=pago, violet=pro) con comisión visible y CTA "Subir de plan"
+  * Banner de superadmin ahora indica si es preview (plan X)
+
+- REESCRITO `src/components/akuosplash/subscripcion-tab.tsx` (~440 líneas):
+  * Carga planes + subscripción desde /api/akuosplash/subscription/info
+  * Renderiza 3 cards (Grid sm:grid-cols-3): Gratis / Pago / Pro
+  * Cada card muestra: ícono, nombre, precio (mensual/anual), lista de features activos (✓) y inactivos (✗ line-through), comisión %, pago diferido días, límites vehículos/choferes
+  * Botón "Subir a [plan]" si es upgrade, "Bajar a [plan]" si es downgrade, "Tu plan" si es el actual
+  * Selector de ciclo (mensual/anual) con cálculo de ahorro
+  * Botón "Pagar con MercadoPago" → POST /api/akuosplash/subscription/mercadopago/create → redirect al initPoint de MP
+  * Card "Última subscripción (MercadoPago)" mostrando estado/monto/plan/ciclo/fechas
+  * Botón "Sincronizar" para refrescar estado manualmente
+  * Detecta query params del redirect (?mp=ok|fail|pending) y muestra toasts
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos (los pre-existentes en PedidosTab/LiquidacionTab/ClientesTab props no relacionados)
+  * `bun run lint` → 0 errores/warnings nuevos
+  * Build Vercel exitoso: `dpl_...` READY en ~10min
+  * Smoke test producción:
+    * `/akuosplash/superadmin` → HTTP 200
+    * `/akuosplash/transportista` → HTTP 200
+    * `/api/akuosplash/admin/planes` → HTTP 401 (auth required, expected)
+    * `/api/akuosplash/admin/migrate-plan-configs` → HTTP 405 (GET no permitido)
+    * `/api/akuosplash/subscription/info` → HTTP 401 (auth required)
+    * `/api/akuosplash/subscription/mercadopago/webhook` → HTTP 200 (GET returns ok)
+
+Stage Summary:
+- ✅ 3 planes definidos (gratis/pago/pro) con defaults editables por superadmin
+- ✅ Comisión % ajustable por plan (default: 15% / 8% / 4%)
+- ✅ Pago diferido MP ajustable por plan (default: 10 / 3 / 1 días)
+- ✅ Features ajustables por plan (13 flags: dashboard, historial, vehiculo, entregas, gastos, liquidacion, clientes, recurrentes, equipo, mpPropio, wasabil, perfil, subscripcion)
+- ✅ Dashboard del transportista solo muestra las tabs habilitadas por su plan
+- ✅ Plan Gratis solo ve: panel, historial, vehículo, perfil, subscripción + marketplace (pedidos siempre visible)
+- ✅ Plan Pago ve casi todo (excepto mpPropio y wasabil)
+- ✅ Plan Pro ve todo + MP para propios clientes + Wasabi (facturación SII)
+- ✅ Superadmin: tab "💎 Planes" con editor expandible por plan (precios, comisión, deferral, límites, features)
+- ✅ Superadmin: botón "Vista previa" por plan → abre /akuosplash/transportista?previewPlan=X que renderiza el dashboard tal como lo vería un transportista con ese plan
+- ✅ Subscription payments migrados de Transbank a MercadoPago (preapproval API)
+- ✅ MP webhook recibe notificaciones y activa el plan automáticamente cuando MP confirma
+- ✅ MP sync endpoint para que el transportista refresque el estado tras volver del redirect
+- ✅ Subscripción tab rediseñada con 3 cards de planes + comparativa de features + selección de ciclo + pago MP
+- ✅ Deploy a Vercel producción READY
+- ⏳ ACCIÓN REQUERIDA POR EL USUARIO (en este orden):
+  1. Loguearse como superadmin en https://akuosplash.cl/akuosplash/superadmin
+  2. Correr migración (consola del browser):
+     `fetch('/api/akuosplash/admin/migrate-plan-configs', {method:'POST'}).then(r=>r.json()).then(console.log)`
+  3. Ir a tab "💎 Planes" → expandir cada plan → ajustar comisiones, pago diferido, features a tu gusto → "Guardar"
+  4. Botón "Vista previa" en cada plan te muestra cómo se ve el dashboard del transportista con ese plan
+  5. Para que MP subscriptions funcione en producción:
+     - Las credenciales AKUO_MP_ACCESS_TOKEN ya están configuradas en Vercel
+     - En el panel de MP, configurar la URL de webhook: https://akuosplash.cl/api/akuosplash/subscription/mercadopago/webhook
+     - El transportista va a "💎 Subscripción" → elige plan (pago o pro) → "Pagar con MercadoPago" → MP authorize → vuelve al dashboard
+  6. La tab "Integraciones" sigue disponible por si querés ver/ajustar las creds de MP o Transbank
