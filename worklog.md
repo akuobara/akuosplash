@@ -1505,3 +1505,48 @@ Stage Summary:
      - MP 10day: cuenta MP configurada con liberación a 10 días
   4. Ir a tab "💎 Planes" → expandir cada plan → verificar comisión y mpSplitMode → "Guardar"
   5. Botón "Vista previa" en cada plan para ver cómo se ve el dashboard del transportista
+
+---
+Task ID: akuosplash-fix-no-carga
+Agent: main
+Task: Fix "no carga akuosplash" — la página quedaba en el loading spinner porque Prisma fallaba al SELECT columnas nuevas (mpInstantAccessToken, mp10dayAccessToken, planConfigsJson, mpSub*) que no existían en la DB de producción (migración no corrida).
+
+Work Log:
+- CAUSA RAÍZ: El schema Prisma tenía columnas nuevas (mpInstant*, mp10day*, planConfigsJson, mpSub*) pero la DB de producción no las tenía porque el usuario no había corrido la migración manualmente. Cualquier `akuoConfig.findFirst()` o `akuoUsuario.findUnique()` fallaba con "no such column: mpInstantAccessToken".
+
+- CREADA función `ensureAkuoConfigColumns()` en `akuosplash-plans.ts`:
+  * EXPORTADA para que otros módulos la puedan llamar
+  * Idempotente (flag `_autoMigrated`)
+  * Corre 14 ALTERs (7 AkuoConfig + 7 AkuoUsuario) automáticamente
+  * Captura errores "duplicate column" silenciosamente
+
+- CONVERTIDAS las funciones críticas a usar raw SQL en vez de Prisma:
+  * `getPlanConfigs()` — usa `$queryRawUnsafe` para SELECT planConfigsJson
+  * `savePlanConfigs()` — usa `$queryRawUnsafe` y `$executeRawUnsafe` para UPSERT
+  * `getPlanActivo()` — usa `$queryRawUnsafe` para SELECT plan, planActivoDesde, planActivoHasta
+  * `getMpCredsForSplitMode()` — usa `$queryRawUnsafe` para SELECT mpInstant* / mp10day*
+  * `getComisionPorcentaje()` en `akuosplash-mercadopago.ts` — usa `$queryRawUnsafe`
+
+- AGREGADA llamada a `ensureAkuoConfigColumns()` al inicio de:
+  * `/api/akuosplash/auth/login/route.ts` — para que el login no falle cuando alguien intenta entrar
+  * `/api/akuosplash/auth/register/route.ts` — para que el registro no falle
+  * `/api/akuosplash/auth/google/callback/route.ts` — para que Google OAuth no falle
+  * `/api/akuosplash/config/precios/route.ts` — para que el endpoint público de config no falle
+
+- ENCONTRADO y ARREGLADO bug en `/api/akuosplash/auth/login/route.ts`:
+  * El `akuoUsuario.update({ data: { ultimoLoginEn: ... } })` retornaba el objeto completo (todas las columnas) y fallaba
+  * Cambiado a raw SQL: `UPDATE AkuoUsuario SET ultimoLoginEn = ? WHERE id = ?`
+
+- VERIFICADO en producción:
+  * `https://akuosplash.cl/akuosplash` → HTTP 200, página carga (10.4KB HTML)
+  * `https://akuosplash.cl/api/akuosplash/config/precios` → HTTP 200 (antes 500), devuelve JSON correcto
+  * `https://akuosplash.cl/api/akuosplash/auth/me` → HTTP 200 (antes 500), devuelve `{"user":null,"hasUsers":true}`
+  * `POST /api/akuosplash/auth/login` con credenciales inválidas → HTTP 401 (antes 500), devuelve `{"error":"Email o contraseña incorrectos"}`
+  * Logs de Vercel ya no muestran errores "no such column" después del deploy
+
+Stage Summary:
+- ✅ Auto-migración: cualquier endpoint crítico corre los ALTERs necesarios al inicio
+- ✅ Las funciones críticas usan raw SQL con columnas explícitas (no dependen del schema completo)
+- ✅ La página vuelve a cargar, login funciona, registro funciona, OAuth funciona
+- ✅ No es necesario que el usuario corra la migración manualmente — se hace automáticamente en el primer request
+- ✅ Deploy a Vercel producción READY

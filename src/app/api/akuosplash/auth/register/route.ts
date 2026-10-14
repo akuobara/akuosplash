@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoSignToken, akuoSetSessionCookie, akuoNotificar } from "@/lib/akuosplash-auth";
 import { detectarZona } from "@/lib/akuosplash-mercadopago";
+import { ensureAkuoConfigColumns } from "@/lib/akuosplash-plans";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   try {
+    // Asegurar que las columnas nuevas existan antes de cualquier query
+    await ensureAkuoConfigColumns();
     const body = await req.json();
     const email = body.email?.trim().toLowerCase();
     const password = body.password;

@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoSignToken, akuoSetSessionCookie, akuoNotificar } from "@/lib/akuosplash-auth";
+import { ensureAkuoConfigColumns } from "@/lib/akuosplash-plans";
 export async function GET(req: NextRequest) {
+  // Asegurar que las columnas nuevas existan antes de cualquier query
+  await ensureAkuoConfigColumns();
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");

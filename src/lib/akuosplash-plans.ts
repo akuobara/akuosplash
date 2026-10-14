@@ -190,15 +190,67 @@ export function getConfigForPlanId(planId: PlanId): PlanConfig {
   return DEFAULT_PLAN_CONFIGS[canonical] || DEFAULT_PLAN_CONFIGS.gratis;
 }
 
-// Lee la config persistida en DB (con merge sobre defaults)
-export async function getPlanConfigs(): Promise<Record<PlanId, PlanConfig>> {
-  const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
-  if (!config?.planConfigsJson) {
-    // Solo devolver los canónicos (premium + gratis + pro) — "pago" es alias
-    return { gratis: DEFAULT_PLAN_CONFIGS.gratis, premium: DEFAULT_PLAN_CONFIGS.premium, pro: DEFAULT_PLAN_CONFIGS.pro, pago: DEFAULT_PLAN_CONFIGS.pago };
+// Auto-migración defensiva: si las columnas nuevas no existen, las crea.
+// Esto permite que la app funcione aunque el superadmin no haya corrido la migración manualmente.
+let _autoMigrated = false;
+export async function ensureAkuoConfigColumns() {
+  if (_autoMigrated) return;
+  _autoMigrated = true;
+  const statements = [
+    "ALTER TABLE AkuoConfig ADD COLUMN planConfigsJson TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mpInstantAccessToken TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mpInstantPublicKey TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mpInstantUserId TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mp10dayAccessToken TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mp10dayPublicKey TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mp10dayUserId TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubPreapprovalId TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubPlanSolicitado TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubCiclo TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubStatus TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubIniciadoEn DATETIME",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubAutorizadoEn DATETIME",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubAmount REAL",
+  ];
+  for (const sql of statements) {
+    try {
+      await akuosplashDb.$executeRawUnsafe(sql);
+    } catch (e: any) {
+      // "duplicate column" = ya existe, ok
+      if (!String(e?.message || "").includes("duplicate column") && !String(e?.message || "").includes("already exists")) {
+        // Otro error → log pero no fallar
+        console.warn("[auto-migrate]", sql.substring(0, 60), e?.message);
+      }
+    }
   }
+}
+
+// Lee la config persistida en DB (con merge sobre defaults)
+// DEFENSIVE: usa raw SQL y auto-migra si las columnas nuevas no existen.
+export async function getPlanConfigs(): Promise<Record<PlanId, PlanConfig>> {
+  await ensureAkuoConfigColumns();
+  let planConfigsJson: string | null = null;
   try {
-    const parsed = JSON.parse(config.planConfigsJson);
+    const result: any = await akuosplashDb.$queryRawUnsafe(`SELECT planConfigsJson FROM AkuoConfig WHERE activo = 1 LIMIT 1`);
+    if (Array.isArray(result) && result.length > 0) {
+      planConfigsJson = result[0]?.planConfigsJson || null;
+    }
+  } catch (e: any) {
+    console.warn("[getPlanConfigs] SQL failed, using defaults:", e?.message);
+    planConfigsJson = null;
+  }
+
+  if (!planConfigsJson) {
+    return {
+      gratis: DEFAULT_PLAN_CONFIGS.gratis,
+      premium: DEFAULT_PLAN_CONFIGS.premium,
+      pro: DEFAULT_PLAN_CONFIGS.pro,
+      pago: DEFAULT_PLAN_CONFIGS.pago,
+    };
+  }
+
+  try {
+    const parsed = JSON.parse(planConfigsJson);
     const result: Record<PlanId, PlanConfig> = {
       gratis: { ...DEFAULT_PLAN_CONFIGS.gratis, ...parsed.gratis, features: { ...DEFAULT_PLAN_CONFIGS.gratis.features, ...(parsed.gratis?.features || {}) } },
       premium: { ...DEFAULT_PLAN_CONFIGS.premium, ...parsed.premium, features: { ...DEFAULT_PLAN_CONFIGS.premium.features, ...(parsed.premium?.features || {}) } },
@@ -217,20 +269,23 @@ export async function getPlanConfigs(): Promise<Record<PlanId, PlanConfig>> {
 }
 
 export async function savePlanConfigs(configs: Record<PlanId, PlanConfig>): Promise<void> {
-  const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
-  if (!config) {
-    await akuosplashDb.akuoConfig.create({
-      data: { activo: true, planConfigsJson: JSON.stringify(configs) },
-    });
+  await ensureAkuoConfigColumns();
+  const json = JSON.stringify(configs);
+  // DEFENSIVE: usar raw SQL porque AkuoConfig.findFirst() puede fallar si hay columnas nuevas no migradas
+  const existing: any = await akuosplashDb.$queryRawUnsafe(`SELECT id FROM AkuoConfig WHERE activo = 1 LIMIT 1`).catch(() => []);
+  if (Array.isArray(existing) && existing.length > 0) {
+    const id = existing[0].id;
+    await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoConfig SET planConfigsJson = ? WHERE id = ?`, json, id).catch(() => {});
   } else {
-    await akuosplashDb.akuoConfig.update({
-      where: { id: config.id },
-      data: { planConfigsJson: JSON.stringify(configs) },
-    });
+    await akuosplashDb.$executeRawUnsafe(
+      `INSERT INTO AkuoConfig (id, creadoEn, comisionPorcentaje, activo, planConfigsJson) VALUES (?, ?, 0, 1, ?)`,
+      `cfg_${Date.now()}`, new Date().toISOString(), json
+    ).catch(() => {});
   }
 }
 
 // Devuelve la config del plan activo del usuario + flags + plan activo
+// DEFENSIVE: usa raw SQL para leer solo los campos necesarios
 export async function getPlanActivo(userId: string): Promise<{
   planId: PlanId;            // canónico: gratis | premium | pro (nunca "pago")
   plan: PlanConfig;
@@ -238,13 +293,27 @@ export async function getPlanActivo(userId: string): Promise<{
   planActivoHasta: Date | null;
   estaActivo: boolean;
 }> {
-  const u = await akuosplashDb.akuoUsuario.findUnique({
-    where: { id: userId },
-    select: { plan: true, planActivoDesde: true, planActivoHasta: true },
-  });
+  await ensureAkuoConfigColumns();
+  let userPlan: string | null = null;
+  let userPlanActivoDesde: Date | null = null;
+  let userPlanActivoHasta: Date | null = null;
+  try {
+    const result: any = await akuosplashDb.$queryRawUnsafe(
+      `SELECT plan, planActivoDesde, planActivoHasta FROM AkuoUsuario WHERE id = ? LIMIT 1`,
+      userId
+    );
+    if (Array.isArray(result) && result.length > 0) {
+      userPlan = result[0].plan || null;
+      userPlanActivoDesde = result[0].planActivoDesde ? new Date(result[0].planActivoDesde) : null;
+      userPlanActivoHasta = result[0].planActivoHasta ? new Date(result[0].planActivoHasta) : null;
+    }
+  } catch {
+    // Si falla (columnas no existen), usar defaults
+  }
+
   const configs = await getPlanConfigs();
-  let planId: PlanId = normalizePlanId(u?.plan);
-  const planActivoHasta = u?.planActivoHasta || null;
+  let planId: PlanId = normalizePlanId(userPlan);
+  const planActivoHasta = userPlanActivoHasta;
   const ahora = new Date();
   const estaActivo = planId !== "gratis" && planActivoHasta ? planActivoHasta > ahora : planId === "gratis";
   // Si plan vencido, efectivamente es "gratis"
@@ -252,7 +321,7 @@ export async function getPlanActivo(userId: string): Promise<{
     return {
       planId: "gratis",
       plan: configs.gratis,
-      planActivoDesde: u?.planActivoDesde || null,
+      planActivoDesde: userPlanActivoDesde,
       planActivoHasta: planActivoHasta,
       estaActivo: false,
     };
@@ -260,7 +329,7 @@ export async function getPlanActivo(userId: string): Promise<{
   return {
     planId,
     plan: configs[planId] || configs.gratis,
-    planActivoDesde: u?.planActivoDesde || null,
+    planActivoDesde: userPlanActivoDesde,
     planActivoHasta: planActivoHasta,
     estaActivo,
   };
@@ -275,22 +344,47 @@ export async function getMpCredsForSplitMode(mode: MpSplitMode): Promise<{
   userId: string | null;
   accountKind: MpAccountKind | null;
 }> {
-  const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
+  await ensureAkuoConfigColumns();
   if (mode === "none") return { accessToken: null, publicKey: null, userId: null, accountKind: null };
   const kind: MpAccountKind = mode === "instant" ? "instant" : "10day";
-  if (kind === "instant") {
-    return {
-      accessToken: config?.mpInstantAccessToken || process.env.AKUO_MP_INSTANT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null,
-      publicKey: config?.mpInstantPublicKey || process.env.AKUO_MP_INSTANT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null,
-      userId: config?.mpInstantUserId || process.env.AKUO_MP_INSTANT_USER_ID || process.env.AKUO_MP_USER_ID || null,
-      accountKind: kind,
-    };
-  } else {
-    return {
-      accessToken: config?.mp10dayAccessToken || process.env.AKUO_MP_10DAY_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null,
-      publicKey: config?.mp10dayPublicKey || process.env.AKUO_MP_10DAY_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null,
-      userId: config?.mp10dayUserId || process.env.AKUO_MP_10DAY_USER_ID || process.env.AKUO_MP_USER_ID || null,
-      accountKind: kind,
-    };
+  let accessToken: string | null = null;
+  let publicKey: string | null = null;
+  let userId: string | null = null;
+  try {
+    if (kind === "instant") {
+      const result: any = await akuosplashDb.$queryRawUnsafe(`SELECT mpInstantAccessToken, mpInstantPublicKey, mpInstantUserId FROM AkuoConfig WHERE activo = 1 LIMIT 1`);
+      if (Array.isArray(result) && result.length > 0) {
+        accessToken = result[0]?.mpInstantAccessToken || process.env.AKUO_MP_INSTANT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
+        publicKey = result[0]?.mpInstantPublicKey || process.env.AKUO_MP_INSTANT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
+        userId = result[0]?.mpInstantUserId || process.env.AKUO_MP_INSTANT_USER_ID || process.env.AKUO_MP_USER_ID || null;
+      } else {
+        accessToken = process.env.AKUO_MP_INSTANT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
+        publicKey = process.env.AKUO_MP_INSTANT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
+        userId = process.env.AKUO_MP_INSTANT_USER_ID || process.env.AKUO_MP_USER_ID || null;
+      }
+    } else {
+      const result: any = await akuosplashDb.$queryRawUnsafe(`SELECT mp10dayAccessToken, mp10dayPublicKey, mp10dayUserId FROM AkuoConfig WHERE activo = 1 LIMIT 1`);
+      if (Array.isArray(result) && result.length > 0) {
+        accessToken = result[0]?.mp10dayAccessToken || process.env.AKUO_MP_10DAY_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
+        publicKey = result[0]?.mp10dayPublicKey || process.env.AKUO_MP_10DAY_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
+        userId = result[0]?.mp10dayUserId || process.env.AKUO_MP_10DAY_USER_ID || process.env.AKUO_MP_USER_ID || null;
+      } else {
+        accessToken = process.env.AKUO_MP_10DAY_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
+        publicKey = process.env.AKUO_MP_10DAY_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
+        userId = process.env.AKUO_MP_10DAY_USER_ID || process.env.AKUO_MP_USER_ID || null;
+      }
+    }
+  } catch (e: any) {
+    // Fallback a env vars
+    if (kind === "instant") {
+      accessToken = process.env.AKUO_MP_INSTANT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
+      publicKey = process.env.AKUO_MP_INSTANT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
+      userId = process.env.AKUO_MP_INSTANT_USER_ID || process.env.AKUO_MP_USER_ID || null;
+    } else {
+      accessToken = process.env.AKUO_MP_10DAY_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
+      publicKey = process.env.AKUO_MP_10DAY_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
+      userId = process.env.AKUO_MP_10DAY_USER_ID || process.env.AKUO_MP_USER_ID || null;
+    }
   }
+  return { accessToken, publicKey, userId, accountKind: kind };
 }

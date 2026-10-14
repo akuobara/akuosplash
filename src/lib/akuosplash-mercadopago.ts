@@ -60,8 +60,16 @@ export async function detectarZona(lat?: number, lng?: number): Promise<any | nu
 }
 
 export async function getComisionPorcentaje(): Promise<number> {
-  const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
-  return config?.comisionPorcentaje ?? 0;
+  // DEFENSIVE: usar raw SQL porque AkuoConfig.findFirst() puede fallar si hay columnas nuevas no migradas
+  try {
+    const result: any = await akuosplashDb.$queryRawUnsafe(`SELECT comisionPorcentaje FROM AkuoConfig WHERE activo = 1 LIMIT 1`);
+    if (Array.isArray(result) && result.length > 0) {
+      return result[0]?.comisionPorcentaje ?? 0;
+    }
+    return 0;
+  } catch {
+    return 0;
+  }
 }
 
 // Calcula el monto total que paga el cliente según su zona asignada

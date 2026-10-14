@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoSignToken, akuoSetSessionCookie } from "@/lib/akuosplash-auth";
+import { ensureAkuoConfigColumns } from "@/lib/akuosplash-plans";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   try {
+    // Asegurar que las columnas nuevas existan antes de cualquier query
+    await ensureAkuoConfigColumns();
     const body = await req.json();
     const email = body.email?.trim().toLowerCase();
     const password = body.password;
@@ -30,7 +33,13 @@ export async function POST(req: NextRequest) {
     if (!valid) return NextResponse.json({ error: "Email o contraseña incorrectos" }, { status: 401 });
     if (!usuario.activo) return NextResponse.json({ error: "Tu cuenta está desactivada" }, { status: 403 });
     if (usuario.banned) return NextResponse.json({ error: `Tu cuenta está bloqueada: ${usuario.banRazon || "no especificado"}` }, { status: 403 });
-    await akuosplashDb.akuoUsuario.update({ where: { id: usuario.id }, data: { ultimoLoginEn: new Date() } });
+    // Usar raw SQL para evitar que Prisma intente SELECT todas las columnas nuevas
+    try {
+      await akuosplashDb.$executeRawUnsafe(
+        `UPDATE AkuoUsuario SET ultimoLoginEn = ? WHERE id = ?`,
+        new Date().toISOString(), usuario.id
+      );
+    } catch {}
     const token = await akuoSignToken({ userId: usuario.id, rol: usuario.rol, nombre: usuario.nombre });
     await akuoSetSessionCookie(token);
     return NextResponse.json({ ok: true, user: { id: usuario.id, email: usuario.email, telefono: usuario.telefono, nombre: usuario.nombre, rol: usuario.rol, aprobado: usuario.aprobado } });
