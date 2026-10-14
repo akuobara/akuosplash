@@ -170,14 +170,14 @@ function TransportistaPage() {
       {user.rol !== "superadmin" && (
         <div className={`flex items-center justify-between gap-2 text-xs py-1.5 px-4 ${
           planId === "pro" ? "bg-violet-100 text-violet-900" :
-          planId === "pago" ? "bg-blue-100 text-blue-900" :
+          planId === "premium" || planId === "pago" ? "bg-blue-100 text-blue-900" :
           "bg-amber-100 text-amber-900"
         }`}>
           <span className="flex items-center gap-1">
             {planId === "pro" ? <Crown className="h-3.5 w-3.5" /> :
-             planId === "pago" ? <Sparkles className="h-3.5 w-3.5" /> :
+             planId === "premium" || planId === "pago" ? <Sparkles className="h-3.5 w-3.5" /> :
              <ShieldCheck className="h-3.5 w-3.5" />}
-            Plan <strong className="uppercase">{planId}</strong>
+            Plan <strong className="uppercase">{planId === "pago" ? "premium" : planId}</strong>
             {planInfo?.planActivoHasta && planId !== "gratis" && (
               <span className="opacity-70 ml-1">· vence {new Date(planInfo.planActivoHasta).toLocaleDateString("es-CL")}</span>
             )}

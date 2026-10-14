@@ -22531,6 +22531,12 @@ export namespace Prisma {
     mpClientId: string | null
     mpUserId: string | null
     mpSandbox: boolean | null
+    mpInstantAccessToken: string | null
+    mpInstantPublicKey: string | null
+    mpInstantUserId: string | null
+    mp10dayAccessToken: string | null
+    mp10dayPublicKey: string | null
+    mp10dayUserId: string | null
     transbankCommerceCode: string | null
     transbankApiKey: string | null
     transbankEnvironment: string | null
@@ -22557,6 +22563,12 @@ export namespace Prisma {
     mpClientId: string | null
     mpUserId: string | null
     mpSandbox: boolean | null
+    mpInstantAccessToken: string | null
+    mpInstantPublicKey: string | null
+    mpInstantUserId: string | null
+    mp10dayAccessToken: string | null
+    mp10dayPublicKey: string | null
+    mp10dayUserId: string | null
     transbankCommerceCode: string | null
     transbankApiKey: string | null
     transbankEnvironment: string | null
@@ -22583,6 +22595,12 @@ export namespace Prisma {
     mpClientId: number
     mpUserId: number
     mpSandbox: number
+    mpInstantAccessToken: number
+    mpInstantPublicKey: number
+    mpInstantUserId: number
+    mp10dayAccessToken: number
+    mp10dayPublicKey: number
+    mp10dayUserId: number
     transbankCommerceCode: number
     transbankApiKey: number
     transbankEnvironment: number
@@ -22633,6 +22651,12 @@ export namespace Prisma {
     mpClientId?: true
     mpUserId?: true
     mpSandbox?: true
+    mpInstantAccessToken?: true
+    mpInstantPublicKey?: true
+    mpInstantUserId?: true
+    mp10dayAccessToken?: true
+    mp10dayPublicKey?: true
+    mp10dayUserId?: true
     transbankCommerceCode?: true
     transbankApiKey?: true
     transbankEnvironment?: true
@@ -22659,6 +22683,12 @@ export namespace Prisma {
     mpClientId?: true
     mpUserId?: true
     mpSandbox?: true
+    mpInstantAccessToken?: true
+    mpInstantPublicKey?: true
+    mpInstantUserId?: true
+    mp10dayAccessToken?: true
+    mp10dayPublicKey?: true
+    mp10dayUserId?: true
     transbankCommerceCode?: true
     transbankApiKey?: true
     transbankEnvironment?: true
@@ -22685,6 +22715,12 @@ export namespace Prisma {
     mpClientId?: true
     mpUserId?: true
     mpSandbox?: true
+    mpInstantAccessToken?: true
+    mpInstantPublicKey?: true
+    mpInstantUserId?: true
+    mp10dayAccessToken?: true
+    mp10dayPublicKey?: true
+    mp10dayUserId?: true
     transbankCommerceCode?: true
     transbankApiKey?: true
     transbankEnvironment?: true
@@ -22798,6 +22834,12 @@ export namespace Prisma {
     mpClientId: string | null
     mpUserId: string | null
     mpSandbox: boolean
+    mpInstantAccessToken: string | null
+    mpInstantPublicKey: string | null
+    mpInstantUserId: string | null
+    mp10dayAccessToken: string | null
+    mp10dayPublicKey: string | null
+    mp10dayUserId: string | null
     transbankCommerceCode: string | null
     transbankApiKey: string | null
     transbankEnvironment: string | null
@@ -22843,6 +22885,12 @@ export namespace Prisma {
     mpClientId?: boolean
     mpUserId?: boolean
     mpSandbox?: boolean
+    mpInstantAccessToken?: boolean
+    mpInstantPublicKey?: boolean
+    mpInstantUserId?: boolean
+    mp10dayAccessToken?: boolean
+    mp10dayPublicKey?: boolean
+    mp10dayUserId?: boolean
     transbankCommerceCode?: boolean
     transbankApiKey?: boolean
     transbankEnvironment?: boolean
@@ -22869,6 +22917,12 @@ export namespace Prisma {
     mpClientId?: boolean
     mpUserId?: boolean
     mpSandbox?: boolean
+    mpInstantAccessToken?: boolean
+    mpInstantPublicKey?: boolean
+    mpInstantUserId?: boolean
+    mp10dayAccessToken?: boolean
+    mp10dayPublicKey?: boolean
+    mp10dayUserId?: boolean
     transbankCommerceCode?: boolean
     transbankApiKey?: boolean
     transbankEnvironment?: boolean
@@ -22895,6 +22949,12 @@ export namespace Prisma {
     mpClientId?: boolean
     mpUserId?: boolean
     mpSandbox?: boolean
+    mpInstantAccessToken?: boolean
+    mpInstantPublicKey?: boolean
+    mpInstantUserId?: boolean
+    mp10dayAccessToken?: boolean
+    mp10dayPublicKey?: boolean
+    mp10dayUserId?: boolean
     transbankCommerceCode?: boolean
     transbankApiKey?: boolean
     transbankEnvironment?: boolean
@@ -22921,13 +22981,19 @@ export namespace Prisma {
     mpClientId?: boolean
     mpUserId?: boolean
     mpSandbox?: boolean
+    mpInstantAccessToken?: boolean
+    mpInstantPublicKey?: boolean
+    mpInstantUserId?: boolean
+    mp10dayAccessToken?: boolean
+    mp10dayPublicKey?: boolean
+    mp10dayUserId?: boolean
     transbankCommerceCode?: boolean
     transbankApiKey?: boolean
     transbankEnvironment?: boolean
     planConfigsJson?: boolean
   }
 
-  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre" | "mpAccessToken" | "mpPublicKey" | "mpClientId" | "mpUserId" | "mpSandbox" | "transbankCommerceCode" | "transbankApiKey" | "transbankEnvironment" | "planConfigsJson", ExtArgs["result"]["akuoConfig"]>
+  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre" | "mpAccessToken" | "mpPublicKey" | "mpClientId" | "mpUserId" | "mpSandbox" | "mpInstantAccessToken" | "mpInstantPublicKey" | "mpInstantUserId" | "mp10dayAccessToken" | "mp10dayPublicKey" | "mp10dayUserId" | "transbankCommerceCode" | "transbankApiKey" | "transbankEnvironment" | "planConfigsJson", ExtArgs["result"]["akuoConfig"]>
 
   export type $AkuoConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoConfig"
@@ -22952,6 +23018,12 @@ export namespace Prisma {
       mpClientId: string | null
       mpUserId: string | null
       mpSandbox: boolean
+      mpInstantAccessToken: string | null
+      mpInstantPublicKey: string | null
+      mpInstantUserId: string | null
+      mp10dayAccessToken: string | null
+      mp10dayPublicKey: string | null
+      mp10dayUserId: string | null
       transbankCommerceCode: string | null
       transbankApiKey: string | null
       transbankEnvironment: string | null
@@ -23398,6 +23470,12 @@ export namespace Prisma {
     readonly mpClientId: FieldRef<"AkuoConfig", 'String'>
     readonly mpUserId: FieldRef<"AkuoConfig", 'String'>
     readonly mpSandbox: FieldRef<"AkuoConfig", 'Boolean'>
+    readonly mpInstantAccessToken: FieldRef<"AkuoConfig", 'String'>
+    readonly mpInstantPublicKey: FieldRef<"AkuoConfig", 'String'>
+    readonly mpInstantUserId: FieldRef<"AkuoConfig", 'String'>
+    readonly mp10dayAccessToken: FieldRef<"AkuoConfig", 'String'>
+    readonly mp10dayPublicKey: FieldRef<"AkuoConfig", 'String'>
+    readonly mp10dayUserId: FieldRef<"AkuoConfig", 'String'>
     readonly transbankCommerceCode: FieldRef<"AkuoConfig", 'String'>
     readonly transbankApiKey: FieldRef<"AkuoConfig", 'String'>
     readonly transbankEnvironment: FieldRef<"AkuoConfig", 'String'>
@@ -27215,6 +27293,7 @@ export namespace Prisma {
     lng: number | null
     precioTotal: number | null
     precioPorLitroFinal: number | null
+    docTributarioMonto: number | null
   }
 
   export type AkuoPedidoClienteSumAggregateOutputType = {
@@ -27223,6 +27302,7 @@ export namespace Prisma {
     lng: number | null
     precioTotal: number | null
     precioPorLitroFinal: number | null
+    docTributarioMonto: number | null
   }
 
   export type AkuoPedidoClienteMinAggregateOutputType = {
@@ -27255,6 +27335,11 @@ export namespace Prisma {
     precioSnapshotJson: string | null
     precioDinamicoHabilitado: boolean | null
     precioPorLitroFinal: number | null
+    docTributarioUrl: string | null
+    docTributarioFolio: string | null
+    docTributarioSubidoEn: Date | null
+    docTributarioSubidoPor: string | null
+    docTributarioMonto: number | null
   }
 
   export type AkuoPedidoClienteMaxAggregateOutputType = {
@@ -27287,6 +27372,11 @@ export namespace Prisma {
     precioSnapshotJson: string | null
     precioDinamicoHabilitado: boolean | null
     precioPorLitroFinal: number | null
+    docTributarioUrl: string | null
+    docTributarioFolio: string | null
+    docTributarioSubidoEn: Date | null
+    docTributarioSubidoPor: string | null
+    docTributarioMonto: number | null
   }
 
   export type AkuoPedidoClienteCountAggregateOutputType = {
@@ -27319,6 +27409,11 @@ export namespace Prisma {
     precioSnapshotJson: number
     precioDinamicoHabilitado: number
     precioPorLitroFinal: number
+    docTributarioUrl: number
+    docTributarioFolio: number
+    docTributarioSubidoEn: number
+    docTributarioSubidoPor: number
+    docTributarioMonto: number
     _all: number
   }
 
@@ -27329,6 +27424,7 @@ export namespace Prisma {
     lng?: true
     precioTotal?: true
     precioPorLitroFinal?: true
+    docTributarioMonto?: true
   }
 
   export type AkuoPedidoClienteSumAggregateInputType = {
@@ -27337,6 +27433,7 @@ export namespace Prisma {
     lng?: true
     precioTotal?: true
     precioPorLitroFinal?: true
+    docTributarioMonto?: true
   }
 
   export type AkuoPedidoClienteMinAggregateInputType = {
@@ -27369,6 +27466,11 @@ export namespace Prisma {
     precioSnapshotJson?: true
     precioDinamicoHabilitado?: true
     precioPorLitroFinal?: true
+    docTributarioUrl?: true
+    docTributarioFolio?: true
+    docTributarioSubidoEn?: true
+    docTributarioSubidoPor?: true
+    docTributarioMonto?: true
   }
 
   export type AkuoPedidoClienteMaxAggregateInputType = {
@@ -27401,6 +27503,11 @@ export namespace Prisma {
     precioSnapshotJson?: true
     precioDinamicoHabilitado?: true
     precioPorLitroFinal?: true
+    docTributarioUrl?: true
+    docTributarioFolio?: true
+    docTributarioSubidoEn?: true
+    docTributarioSubidoPor?: true
+    docTributarioMonto?: true
   }
 
   export type AkuoPedidoClienteCountAggregateInputType = {
@@ -27433,6 +27540,11 @@ export namespace Prisma {
     precioSnapshotJson?: true
     precioDinamicoHabilitado?: true
     precioPorLitroFinal?: true
+    docTributarioUrl?: true
+    docTributarioFolio?: true
+    docTributarioSubidoEn?: true
+    docTributarioSubidoPor?: true
+    docTributarioMonto?: true
     _all?: true
   }
 
@@ -27552,6 +27664,11 @@ export namespace Prisma {
     precioSnapshotJson: string | null
     precioDinamicoHabilitado: boolean
     precioPorLitroFinal: number | null
+    docTributarioUrl: string | null
+    docTributarioFolio: string | null
+    docTributarioSubidoEn: Date | null
+    docTributarioSubidoPor: string | null
+    docTributarioMonto: number | null
     _count: AkuoPedidoClienteCountAggregateOutputType | null
     _avg: AkuoPedidoClienteAvgAggregateOutputType | null
     _sum: AkuoPedidoClienteSumAggregateOutputType | null
@@ -27603,6 +27720,11 @@ export namespace Prisma {
     precioSnapshotJson?: boolean
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: boolean
+    docTributarioUrl?: boolean
+    docTributarioFolio?: boolean
+    docTributarioSubidoEn?: boolean
+    docTributarioSubidoPor?: boolean
+    docTributarioMonto?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -27637,6 +27759,11 @@ export namespace Prisma {
     precioSnapshotJson?: boolean
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: boolean
+    docTributarioUrl?: boolean
+    docTributarioFolio?: boolean
+    docTributarioSubidoEn?: boolean
+    docTributarioSubidoPor?: boolean
+    docTributarioMonto?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -27671,6 +27798,11 @@ export namespace Prisma {
     precioSnapshotJson?: boolean
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: boolean
+    docTributarioUrl?: boolean
+    docTributarioFolio?: boolean
+    docTributarioSubidoEn?: boolean
+    docTributarioSubidoPor?: boolean
+    docTributarioMonto?: boolean
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoPedidoCliente"]>
@@ -27705,9 +27837,14 @@ export namespace Prisma {
     precioSnapshotJson?: boolean
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: boolean
+    docTributarioUrl?: boolean
+    docTributarioFolio?: boolean
+    docTributarioSubidoEn?: boolean
+    docTributarioSubidoPor?: boolean
+    docTributarioMonto?: boolean
   }
 
-  export type AkuoPedidoClienteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "clienteId" | "transportistaId" | "litros" | "direccion" | "comuna" | "lat" | "lng" | "fechaDeseada" | "franjaHoraria" | "metodoPago" | "estado" | "nota" | "precioTotal" | "entregaId" | "requierePresenciaCliente" | "codigoConfirmacion" | "codigoGeneradoEn" | "codigoVerificadoEn" | "codigoVerificadoPor" | "codigoEnviadoPorMensaje" | "codigoEnviadoEn" | "mpPreferenceId" | "mpPaymentId" | "estadoPago" | "precioSnapshotJson" | "precioDinamicoHabilitado" | "precioPorLitroFinal", ExtArgs["result"]["akuoPedidoCliente"]>
+  export type AkuoPedidoClienteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "clienteId" | "transportistaId" | "litros" | "direccion" | "comuna" | "lat" | "lng" | "fechaDeseada" | "franjaHoraria" | "metodoPago" | "estado" | "nota" | "precioTotal" | "entregaId" | "requierePresenciaCliente" | "codigoConfirmacion" | "codigoGeneradoEn" | "codigoVerificadoEn" | "codigoVerificadoPor" | "codigoEnviadoPorMensaje" | "codigoEnviadoEn" | "mpPreferenceId" | "mpPaymentId" | "estadoPago" | "precioSnapshotJson" | "precioDinamicoHabilitado" | "precioPorLitroFinal" | "docTributarioUrl" | "docTributarioFolio" | "docTributarioSubidoEn" | "docTributarioSubidoPor" | "docTributarioMonto", ExtArgs["result"]["akuoPedidoCliente"]>
   export type AkuoPedidoClienteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     cliente?: boolean | AkuoUsuarioDefaultArgs<ExtArgs>
     transportista?: boolean | AkuoPedidoCliente$transportistaArgs<ExtArgs>
@@ -27757,6 +27894,11 @@ export namespace Prisma {
       precioSnapshotJson: string | null
       precioDinamicoHabilitado: boolean
       precioPorLitroFinal: number | null
+      docTributarioUrl: string | null
+      docTributarioFolio: string | null
+      docTributarioSubidoEn: Date | null
+      docTributarioSubidoPor: string | null
+      docTributarioMonto: number | null
     }, ExtArgs["result"]["akuoPedidoCliente"]>
     composites: {}
   }
@@ -28211,6 +28353,11 @@ export namespace Prisma {
     readonly precioSnapshotJson: FieldRef<"AkuoPedidoCliente", 'String'>
     readonly precioDinamicoHabilitado: FieldRef<"AkuoPedidoCliente", 'Boolean'>
     readonly precioPorLitroFinal: FieldRef<"AkuoPedidoCliente", 'Float'>
+    readonly docTributarioUrl: FieldRef<"AkuoPedidoCliente", 'String'>
+    readonly docTributarioFolio: FieldRef<"AkuoPedidoCliente", 'String'>
+    readonly docTributarioSubidoEn: FieldRef<"AkuoPedidoCliente", 'DateTime'>
+    readonly docTributarioSubidoPor: FieldRef<"AkuoPedidoCliente", 'String'>
+    readonly docTributarioMonto: FieldRef<"AkuoPedidoCliente", 'Float'>
   }
     
 
@@ -29014,6 +29161,12 @@ export namespace Prisma {
     mpClientId: 'mpClientId',
     mpUserId: 'mpUserId',
     mpSandbox: 'mpSandbox',
+    mpInstantAccessToken: 'mpInstantAccessToken',
+    mpInstantPublicKey: 'mpInstantPublicKey',
+    mpInstantUserId: 'mpInstantUserId',
+    mp10dayAccessToken: 'mp10dayAccessToken',
+    mp10dayPublicKey: 'mp10dayPublicKey',
+    mp10dayUserId: 'mp10dayUserId',
     transbankCommerceCode: 'transbankCommerceCode',
     transbankApiKey: 'transbankApiKey',
     transbankEnvironment: 'transbankEnvironment',
@@ -29096,7 +29249,12 @@ export namespace Prisma {
     estadoPago: 'estadoPago',
     precioSnapshotJson: 'precioSnapshotJson',
     precioDinamicoHabilitado: 'precioDinamicoHabilitado',
-    precioPorLitroFinal: 'precioPorLitroFinal'
+    precioPorLitroFinal: 'precioPorLitroFinal',
+    docTributarioUrl: 'docTributarioUrl',
+    docTributarioFolio: 'docTributarioFolio',
+    docTributarioSubidoEn: 'docTributarioSubidoEn',
+    docTributarioSubidoPor: 'docTributarioSubidoPor',
+    docTributarioMonto: 'docTributarioMonto'
   };
 
   export type AkuoPedidoClienteScalarFieldEnum = (typeof AkuoPedidoClienteScalarFieldEnum)[keyof typeof AkuoPedidoClienteScalarFieldEnum]
@@ -31010,6 +31168,12 @@ export namespace Prisma {
     mpClientId?: StringNullableFilter<"AkuoConfig"> | string | null
     mpUserId?: StringNullableFilter<"AkuoConfig"> | string | null
     mpSandbox?: BoolFilter<"AkuoConfig"> | boolean
+    mpInstantAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpInstantPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpInstantUserId?: StringNullableFilter<"AkuoConfig"> | string | null
+    mp10dayAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mp10dayPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    mp10dayUserId?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankCommerceCode?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankApiKey?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankEnvironment?: StringNullableFilter<"AkuoConfig"> | string | null
@@ -31036,6 +31200,12 @@ export namespace Prisma {
     mpClientId?: SortOrderInput | SortOrder
     mpUserId?: SortOrderInput | SortOrder
     mpSandbox?: SortOrder
+    mpInstantAccessToken?: SortOrderInput | SortOrder
+    mpInstantPublicKey?: SortOrderInput | SortOrder
+    mpInstantUserId?: SortOrderInput | SortOrder
+    mp10dayAccessToken?: SortOrderInput | SortOrder
+    mp10dayPublicKey?: SortOrderInput | SortOrder
+    mp10dayUserId?: SortOrderInput | SortOrder
     transbankCommerceCode?: SortOrderInput | SortOrder
     transbankApiKey?: SortOrderInput | SortOrder
     transbankEnvironment?: SortOrderInput | SortOrder
@@ -31065,6 +31235,12 @@ export namespace Prisma {
     mpClientId?: StringNullableFilter<"AkuoConfig"> | string | null
     mpUserId?: StringNullableFilter<"AkuoConfig"> | string | null
     mpSandbox?: BoolFilter<"AkuoConfig"> | boolean
+    mpInstantAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpInstantPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpInstantUserId?: StringNullableFilter<"AkuoConfig"> | string | null
+    mp10dayAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mp10dayPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    mp10dayUserId?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankCommerceCode?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankApiKey?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankEnvironment?: StringNullableFilter<"AkuoConfig"> | string | null
@@ -31091,6 +31267,12 @@ export namespace Prisma {
     mpClientId?: SortOrderInput | SortOrder
     mpUserId?: SortOrderInput | SortOrder
     mpSandbox?: SortOrder
+    mpInstantAccessToken?: SortOrderInput | SortOrder
+    mpInstantPublicKey?: SortOrderInput | SortOrder
+    mpInstantUserId?: SortOrderInput | SortOrder
+    mp10dayAccessToken?: SortOrderInput | SortOrder
+    mp10dayPublicKey?: SortOrderInput | SortOrder
+    mp10dayUserId?: SortOrderInput | SortOrder
     transbankCommerceCode?: SortOrderInput | SortOrder
     transbankApiKey?: SortOrderInput | SortOrder
     transbankEnvironment?: SortOrderInput | SortOrder
@@ -31125,6 +31307,12 @@ export namespace Prisma {
     mpClientId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     mpUserId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     mpSandbox?: BoolWithAggregatesFilter<"AkuoConfig"> | boolean
+    mpInstantAccessToken?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpInstantPublicKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpInstantUserId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mp10dayAccessToken?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mp10dayPublicKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mp10dayUserId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     transbankCommerceCode?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     transbankApiKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     transbankEnvironment?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
@@ -31396,6 +31584,11 @@ export namespace Prisma {
     precioSnapshotJson?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     precioDinamicoHabilitado?: BoolFilter<"AkuoPedidoCliente"> | boolean
     precioPorLitroFinal?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
+    docTributarioUrl?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioFolio?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioSubidoEn?: DateTimeNullableFilter<"AkuoPedidoCliente"> | Date | string | null
+    docTributarioSubidoPor?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioMonto?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
     cliente?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     transportista?: XOR<AkuoUsuarioNullableScalarRelationFilter, AkuoUsuarioWhereInput> | null
   }
@@ -31430,6 +31623,11 @@ export namespace Prisma {
     precioSnapshotJson?: SortOrderInput | SortOrder
     precioDinamicoHabilitado?: SortOrder
     precioPorLitroFinal?: SortOrderInput | SortOrder
+    docTributarioUrl?: SortOrderInput | SortOrder
+    docTributarioFolio?: SortOrderInput | SortOrder
+    docTributarioSubidoEn?: SortOrderInput | SortOrder
+    docTributarioSubidoPor?: SortOrderInput | SortOrder
+    docTributarioMonto?: SortOrderInput | SortOrder
     cliente?: AkuoUsuarioOrderByWithRelationInput
     transportista?: AkuoUsuarioOrderByWithRelationInput
   }
@@ -31467,6 +31665,11 @@ export namespace Prisma {
     precioSnapshotJson?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     precioDinamicoHabilitado?: BoolFilter<"AkuoPedidoCliente"> | boolean
     precioPorLitroFinal?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
+    docTributarioUrl?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioFolio?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioSubidoEn?: DateTimeNullableFilter<"AkuoPedidoCliente"> | Date | string | null
+    docTributarioSubidoPor?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioMonto?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
     cliente?: XOR<AkuoUsuarioScalarRelationFilter, AkuoUsuarioWhereInput>
     transportista?: XOR<AkuoUsuarioNullableScalarRelationFilter, AkuoUsuarioWhereInput> | null
   }, "id">
@@ -31501,6 +31704,11 @@ export namespace Prisma {
     precioSnapshotJson?: SortOrderInput | SortOrder
     precioDinamicoHabilitado?: SortOrder
     precioPorLitroFinal?: SortOrderInput | SortOrder
+    docTributarioUrl?: SortOrderInput | SortOrder
+    docTributarioFolio?: SortOrderInput | SortOrder
+    docTributarioSubidoEn?: SortOrderInput | SortOrder
+    docTributarioSubidoPor?: SortOrderInput | SortOrder
+    docTributarioMonto?: SortOrderInput | SortOrder
     _count?: AkuoPedidoClienteCountOrderByAggregateInput
     _avg?: AkuoPedidoClienteAvgOrderByAggregateInput
     _max?: AkuoPedidoClienteMaxOrderByAggregateInput
@@ -31541,6 +31749,11 @@ export namespace Prisma {
     precioSnapshotJson?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
     precioDinamicoHabilitado?: BoolWithAggregatesFilter<"AkuoPedidoCliente"> | boolean
     precioPorLitroFinal?: FloatNullableWithAggregatesFilter<"AkuoPedidoCliente"> | number | null
+    docTributarioUrl?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioFolio?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioSubidoEn?: DateTimeNullableWithAggregatesFilter<"AkuoPedidoCliente"> | Date | string | null
+    docTributarioSubidoPor?: StringNullableWithAggregatesFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioMonto?: FloatNullableWithAggregatesFilter<"AkuoPedidoCliente"> | number | null
   }
 
   export type AkuoUsuarioCreateInput = {
@@ -33717,6 +33930,12 @@ export namespace Prisma {
     mpClientId?: string | null
     mpUserId?: string | null
     mpSandbox?: boolean
+    mpInstantAccessToken?: string | null
+    mpInstantPublicKey?: string | null
+    mpInstantUserId?: string | null
+    mp10dayAccessToken?: string | null
+    mp10dayPublicKey?: string | null
+    mp10dayUserId?: string | null
     transbankCommerceCode?: string | null
     transbankApiKey?: string | null
     transbankEnvironment?: string | null
@@ -33743,6 +33962,12 @@ export namespace Prisma {
     mpClientId?: string | null
     mpUserId?: string | null
     mpSandbox?: boolean
+    mpInstantAccessToken?: string | null
+    mpInstantPublicKey?: string | null
+    mpInstantUserId?: string | null
+    mp10dayAccessToken?: string | null
+    mp10dayPublicKey?: string | null
+    mp10dayUserId?: string | null
     transbankCommerceCode?: string | null
     transbankApiKey?: string | null
     transbankEnvironment?: string | null
@@ -33769,6 +33994,12 @@ export namespace Prisma {
     mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    mpInstantAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpInstantPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpInstantUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayUserId?: NullableStringFieldUpdateOperationsInput | string | null
     transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
     transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33795,6 +34026,12 @@ export namespace Prisma {
     mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    mpInstantAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpInstantPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpInstantUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayUserId?: NullableStringFieldUpdateOperationsInput | string | null
     transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
     transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33821,6 +34058,12 @@ export namespace Prisma {
     mpClientId?: string | null
     mpUserId?: string | null
     mpSandbox?: boolean
+    mpInstantAccessToken?: string | null
+    mpInstantPublicKey?: string | null
+    mpInstantUserId?: string | null
+    mp10dayAccessToken?: string | null
+    mp10dayPublicKey?: string | null
+    mp10dayUserId?: string | null
     transbankCommerceCode?: string | null
     transbankApiKey?: string | null
     transbankEnvironment?: string | null
@@ -33847,6 +34090,12 @@ export namespace Prisma {
     mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    mpInstantAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpInstantPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpInstantUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayUserId?: NullableStringFieldUpdateOperationsInput | string | null
     transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
     transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33873,6 +34122,12 @@ export namespace Prisma {
     mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    mpInstantAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpInstantPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpInstantUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mp10dayUserId?: NullableStringFieldUpdateOperationsInput | string | null
     transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
     transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34156,6 +34411,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
     cliente: AkuoUsuarioCreateNestedOneWithoutPedidosClienteAppInput
     transportista?: AkuoUsuarioCreateNestedOneWithoutPedidosTransportistaAppInput
   }
@@ -34190,6 +34450,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
   }
 
   export type AkuoPedidoClienteUpdateInput = {
@@ -34220,6 +34485,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
     cliente?: AkuoUsuarioUpdateOneRequiredWithoutPedidosClienteAppNestedInput
     transportista?: AkuoUsuarioUpdateOneWithoutPedidosTransportistaAppNestedInput
   }
@@ -34254,6 +34524,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteCreateManyInput = {
@@ -34286,6 +34561,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
   }
 
   export type AkuoPedidoClienteUpdateManyMutationInput = {
@@ -34316,6 +34596,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyInput = {
@@ -34348,6 +34633,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -35856,6 +36146,12 @@ export namespace Prisma {
     mpClientId?: SortOrder
     mpUserId?: SortOrder
     mpSandbox?: SortOrder
+    mpInstantAccessToken?: SortOrder
+    mpInstantPublicKey?: SortOrder
+    mpInstantUserId?: SortOrder
+    mp10dayAccessToken?: SortOrder
+    mp10dayPublicKey?: SortOrder
+    mp10dayUserId?: SortOrder
     transbankCommerceCode?: SortOrder
     transbankApiKey?: SortOrder
     transbankEnvironment?: SortOrder
@@ -35893,6 +36189,12 @@ export namespace Prisma {
     mpClientId?: SortOrder
     mpUserId?: SortOrder
     mpSandbox?: SortOrder
+    mpInstantAccessToken?: SortOrder
+    mpInstantPublicKey?: SortOrder
+    mpInstantUserId?: SortOrder
+    mp10dayAccessToken?: SortOrder
+    mp10dayPublicKey?: SortOrder
+    mp10dayUserId?: SortOrder
     transbankCommerceCode?: SortOrder
     transbankApiKey?: SortOrder
     transbankEnvironment?: SortOrder
@@ -35919,6 +36221,12 @@ export namespace Prisma {
     mpClientId?: SortOrder
     mpUserId?: SortOrder
     mpSandbox?: SortOrder
+    mpInstantAccessToken?: SortOrder
+    mpInstantPublicKey?: SortOrder
+    mpInstantUserId?: SortOrder
+    mp10dayAccessToken?: SortOrder
+    mp10dayPublicKey?: SortOrder
+    mp10dayUserId?: SortOrder
     transbankCommerceCode?: SortOrder
     transbankApiKey?: SortOrder
     transbankEnvironment?: SortOrder
@@ -36113,6 +36421,11 @@ export namespace Prisma {
     precioSnapshotJson?: SortOrder
     precioDinamicoHabilitado?: SortOrder
     precioPorLitroFinal?: SortOrder
+    docTributarioUrl?: SortOrder
+    docTributarioFolio?: SortOrder
+    docTributarioSubidoEn?: SortOrder
+    docTributarioSubidoPor?: SortOrder
+    docTributarioMonto?: SortOrder
   }
 
   export type AkuoPedidoClienteAvgOrderByAggregateInput = {
@@ -36121,6 +36434,7 @@ export namespace Prisma {
     lng?: SortOrder
     precioTotal?: SortOrder
     precioPorLitroFinal?: SortOrder
+    docTributarioMonto?: SortOrder
   }
 
   export type AkuoPedidoClienteMaxOrderByAggregateInput = {
@@ -36153,6 +36467,11 @@ export namespace Prisma {
     precioSnapshotJson?: SortOrder
     precioDinamicoHabilitado?: SortOrder
     precioPorLitroFinal?: SortOrder
+    docTributarioUrl?: SortOrder
+    docTributarioFolio?: SortOrder
+    docTributarioSubidoEn?: SortOrder
+    docTributarioSubidoPor?: SortOrder
+    docTributarioMonto?: SortOrder
   }
 
   export type AkuoPedidoClienteMinOrderByAggregateInput = {
@@ -36185,6 +36504,11 @@ export namespace Prisma {
     precioSnapshotJson?: SortOrder
     precioDinamicoHabilitado?: SortOrder
     precioPorLitroFinal?: SortOrder
+    docTributarioUrl?: SortOrder
+    docTributarioFolio?: SortOrder
+    docTributarioSubidoEn?: SortOrder
+    docTributarioSubidoPor?: SortOrder
+    docTributarioMonto?: SortOrder
   }
 
   export type AkuoPedidoClienteSumOrderByAggregateInput = {
@@ -36193,6 +36517,7 @@ export namespace Prisma {
     lng?: SortOrder
     precioTotal?: SortOrder
     precioPorLitroFinal?: SortOrder
+    docTributarioMonto?: SortOrder
   }
 
   export type AkuoZonaCreateNestedOneWithoutUsuariosInput = {
@@ -38660,6 +38985,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
     transportista?: AkuoUsuarioCreateNestedOneWithoutPedidosTransportistaAppInput
   }
 
@@ -38692,6 +39022,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
   }
 
   export type AkuoPedidoClienteCreateOrConnectWithoutClienteInput = {
@@ -38731,6 +39066,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
     cliente: AkuoUsuarioCreateNestedOneWithoutPedidosClienteAppInput
   }
 
@@ -38763,6 +39103,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
   }
 
   export type AkuoPedidoClienteCreateOrConnectWithoutTransportistaInput = {
@@ -39390,6 +39735,11 @@ export namespace Prisma {
     precioSnapshotJson?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
     precioDinamicoHabilitado?: BoolFilter<"AkuoPedidoCliente"> | boolean
     precioPorLitroFinal?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
+    docTributarioUrl?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioFolio?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioSubidoEn?: DateTimeNullableFilter<"AkuoPedidoCliente"> | Date | string | null
+    docTributarioSubidoPor?: StringNullableFilter<"AkuoPedidoCliente"> | string | null
+    docTributarioMonto?: FloatNullableFilter<"AkuoPedidoCliente"> | number | null
   }
 
   export type AkuoPedidoClienteUpsertWithWhereUniqueWithoutTransportistaInput = {
@@ -49323,6 +49673,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
   }
 
   export type AkuoPedidoClienteCreateManyTransportistaInput = {
@@ -49354,6 +49709,11 @@ export namespace Prisma {
     precioSnapshotJson?: string | null
     precioDinamicoHabilitado?: boolean
     precioPorLitroFinal?: number | null
+    docTributarioUrl?: string | null
+    docTributarioFolio?: string | null
+    docTributarioSubidoEn?: Date | string | null
+    docTributarioSubidoPor?: string | null
+    docTributarioMonto?: number | null
   }
 
   export type AkuoVueltaCreateManyTransportistaInput = {
@@ -49982,6 +50342,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
     transportista?: AkuoUsuarioUpdateOneWithoutPedidosTransportistaAppNestedInput
   }
 
@@ -50014,6 +50379,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyWithoutClienteInput = {
@@ -50045,6 +50415,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteUpdateWithoutTransportistaInput = {
@@ -50075,6 +50450,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
     cliente?: AkuoUsuarioUpdateOneRequiredWithoutPedidosClienteAppNestedInput
   }
 
@@ -50107,6 +50487,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoPedidoClienteUncheckedUpdateManyWithoutTransportistaInput = {
@@ -50138,6 +50523,11 @@ export namespace Prisma {
     precioSnapshotJson?: NullableStringFieldUpdateOperationsInput | string | null
     precioDinamicoHabilitado?: BoolFieldUpdateOperationsInput | boolean
     precioPorLitroFinal?: NullableFloatFieldUpdateOperationsInput | number | null
+    docTributarioUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioFolio?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioSubidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    docTributarioSubidoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoVueltaUpdateWithoutTransportistaInput = {

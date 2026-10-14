@@ -434,6 +434,12 @@ exports.Prisma.AkuoConfigScalarFieldEnum = {
   mpClientId: 'mpClientId',
   mpUserId: 'mpUserId',
   mpSandbox: 'mpSandbox',
+  mpInstantAccessToken: 'mpInstantAccessToken',
+  mpInstantPublicKey: 'mpInstantPublicKey',
+  mpInstantUserId: 'mpInstantUserId',
+  mp10dayAccessToken: 'mp10dayAccessToken',
+  mp10dayPublicKey: 'mp10dayPublicKey',
+  mp10dayUserId: 'mp10dayUserId',
   transbankCommerceCode: 'transbankCommerceCode',
   transbankApiKey: 'transbankApiKey',
   transbankEnvironment: 'transbankEnvironment',
@@ -504,7 +510,12 @@ exports.Prisma.AkuoPedidoClienteScalarFieldEnum = {
   estadoPago: 'estadoPago',
   precioSnapshotJson: 'precioSnapshotJson',
   precioDinamicoHabilitado: 'precioDinamicoHabilitado',
-  precioPorLitroFinal: 'precioPorLitroFinal'
+  precioPorLitroFinal: 'precioPorLitroFinal',
+  docTributarioUrl: 'docTributarioUrl',
+  docTributarioFolio: 'docTributarioFolio',
+  docTributarioSubidoEn: 'docTributarioSubidoEn',
+  docTributarioSubidoPor: 'docTributarioSubidoPor',
+  docTributarioMonto: 'docTributarioMonto'
 };
 
 exports.Prisma.SortOrder = {

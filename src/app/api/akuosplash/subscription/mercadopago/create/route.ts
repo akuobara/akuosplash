@@ -15,7 +15,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const planId: PlanId = body.plan === "pro" ? "pro" : "pago";
+  // Aceptar "pago" (legacy) o "premium" o "pro"
+  const planRaw: string = body.plan;
+  const planId: PlanId = planRaw === "pro" ? "pro" : (planRaw === "pago" || planRaw === "premium" ? "premium" : "premium");
   const ciclo: "mensual" | "anual" = body.ciclo === "anual" ? "anual" : "mensual";
 
   // Cargar config de plan + MP creds

@@ -40,10 +40,10 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   const searchParams = useSearchParams();
   const [info, setInfo] = useState<SubscripcionInfo | null>(null);
   const [planes, setPlanes] = useState<Record<PlanId, PlanConfig> | null>(null);
-  const [orden, setOrden] = useState<PlanId[]>(["gratis", "pago", "pro"]);
+  const [orden, setOrden] = useState<PlanId[]>(["gratis", "premium", "pro"]);
   const [loading, setLoading] = useState(true);
   const [creando, setCreando] = useState(false);
-  const [planSeleccionado, setPlanSeleccionado] = useState<PlanId>("pago");
+  const [planSeleccionado, setPlanSeleccionado] = useState<PlanId>("premium");
   const [ciclo, setCiclo] = useState<"mensual" | "anual">("mensual");
   const [syncing, setSyncing] = useState(false);
 
@@ -58,8 +58,8 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
         setPlanes(d.planes);
         // Default al plan siguiente al actual
         const planActual = d.subscripcion?.plan || "gratis";
-        if (planActual === "gratis" && d.orden.includes("pago")) setPlanSeleccionado("pago");
-        else if (planActual === "pago" && d.orden.includes("pro")) setPlanSeleccionado("pro");
+        if (planActual === "gratis" && d.orden.includes("premium")) setPlanSeleccionado("premium");
+        else if (planActual === "premium" && d.orden.includes("pro")) setPlanSeleccionado("pro");
       }
       if (d.orden) setOrden(d.orden);
     } catch (e: any) {
@@ -169,11 +169,17 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       ["recurrentes", "Pedidos recurrentes"],
       ["equipo", "Equipo y choferes"],
       ["mpPropio", "MP para tus propios clientes"],
-      ["wasabil", "Facturación SII (Wasabi)"],
+      ["wasabil", "Facturación SII automática (Wasabi)"],
+      ["docUpload", "Subir documentos tributarios"],
       ["perfil", "Perfil"],
     ];
     const activeFeatures = featureLabels.filter(([k]) => plan.features[k]);
     const inactiveFeatures = featureLabels.filter(([k]) => !plan.features[k]);
+
+    // MP split mode label
+    const mpModeLabel = plan.mpSplitMode === "instant" ? "MP split inmediato"
+      : plan.mpSplitMode === "10day" ? "MP split a 10 días"
+      : "Sin MP split (subís factura)";
 
     return (
       <Card className={`relative ${isSelected ? "border-blue-500 ring-2 ring-blue-200" : ""}`}>
@@ -181,7 +187,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
           <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-1.5">
               {planId === "gratis" ? <Gift className="h-4 w-4 text-amber-600" />
-                : planId === "pago" ? <Sparkles className="h-4 w-4 text-blue-600" />
+                : planId === "premium" || planId === "pago" ? <Sparkles className="h-4 w-4 text-blue-600" />
                 : <Crown className="h-4 w-4 text-violet-600" />}
               {plan.nombre}
               {isCurrent && estaActivo && (
@@ -210,6 +216,10 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
             )}
           </div>
 
+          <div className="text-[11px] font-medium text-foreground/80 border-l-2 pl-2" style={{ borderColor: plan.highlightColor }}>
+            💳 {mpModeLabel}
+          </div>
+
           <ul className="text-xs space-y-1 text-emerald-700 dark:text-emerald-300">
             {activeFeatures.map(([k, label]) => (
               <li key={k} className="flex items-center gap-1">
@@ -228,7 +238,6 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
           )}
 
           <div className="text-[10px] text-muted-foreground space-y-0.5">
-            <p>💰 Pago diferido: <strong>{plan.pagoDiferadoDias} días</strong> (MercadoPago)</p>
             <p>🚛 Vehículos: {plan.maxVehiculos === 0 ? "ilimitados" : plan.maxVehiculos} · 👥 Choferes: {plan.maxChoferes === 0 ? "ilimitados" : plan.maxChoferes}</p>
           </div>
 

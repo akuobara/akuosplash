@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
 import { akuosplashDb } from "@/lib/akuosplash-db";
-import { getPlanActivo } from "@/lib/akuosplash-plans";
+import { getPlanActivo, getPlanConfigs, PLAN_ORDER, normalizePlanId } from "@/lib/akuosplash-plans";
 
 export async function GET(req: Request) {
   const user = await akuoGetCurrentUser();
@@ -44,13 +44,11 @@ export async function GET(req: Request) {
   // Determinar plan activo + features
   let planInfo;
   if (previewPlan && user.rol === "superadmin") {
-    // Modo preview: el superadmin quiere ver cómo se ve el dashboard con un plan específico
-    const { getPlanConfigs, PLAN_ORDER } = await import("@/lib/akuosplash-plans");
     const configs = await getPlanConfigs();
-    const planId = PLAN_ORDER.includes(previewPlan as any) ? (previewPlan as any) : "gratis";
+    const planId = normalizePlanId(previewPlan);
     planInfo = {
       planId,
-      plan: configs[planId],
+      plan: configs[planId] || configs.gratis,
       planActivoDesde: null,
       planActivoHasta: null,
       estaActivo: true,

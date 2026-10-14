@@ -1,5 +1,6 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { akuosplashDb } from "./akuosplash-db";
+import { getMpCredsForSplitMode, MpSplitMode } from "./akuosplash-plans";
 
 // Configuración de MercadoPago para AkuoSplash
 // Usa Checkout Pro via Preferences (NO deprecado — solo /v1/payments directo lo está)
@@ -95,11 +96,33 @@ export async function crearPreferenciaAkuo(params: {
   comisionApp: number;
   repartidorMpAccessToken?: string | null;
   repartidorMpUserId?: string | null;
+  // Nuevo: el modo de split según el plan del transportista
+  // - "instant": MP split con pago inmediato (Plan Pro)
+  // - "10day": MP split con pago 10 días (Plan Premium)
+  // - "none": sin split → la plataforma cobra y paga al transportista via factura (Plan Gratis)
+  mpSplitMode?: MpSplitMode;
 }): Promise<PreferenciaResult> {
-  // Si el repartidor tiene MP conectado, usar su access_token (split payment automático)
-  const accessToken = params.repartidorMpAccessToken || process.env.AKUO_MP_ACCESS_TOKEN;
-  if (!accessToken) {
-    throw new Error("AKUO_MP_ACCESS_TOKEN no configurado");
+  const mpSplitMode = params.mpSplitMode || "none";
+
+  // 1. Si es modo "none" (Plan Gratis): el pago va completo a la plataforma.
+  //    El transportista sube su factura después y la plataforma le paga.
+  // 2. Si es modo "10day" o "instant": usar la cuenta MP correspondiente.
+  let accessToken: string | null;
+  let userIdPlataforma: string | null;
+
+  if (mpSplitMode === "none") {
+    // Sin split → se usa la cuenta legacy/default de la plataforma
+    accessToken = params.repartidorMpAccessToken || process.env.AKUO_MP_ACCESS_TOKEN || null;
+    userIdPlataforma = process.env.AKUO_MP_USER_ID || null;
+    if (!accessToken) throw new Error("AKUO_MP_ACCESS_TOKEN no configurado (necesario para plan Gratis)");
+  } else {
+    // Split con MP según el modo del plan
+    const creds = await getMpCredsForSplitMode(mpSplitMode);
+    if (!creds.accessToken) {
+      throw new Error(`MP ${mpSplitMode} no configurado — pedile al superadmin que lo configure en Integraciones`);
+    }
+    accessToken = creds.accessToken;
+    userIdPlataforma = creds.userId;
   }
 
   const client = new MercadoPagoConfig({ accessToken });
@@ -131,11 +154,14 @@ export async function crearPreferenciaAkuo(params: {
     notification_url: `${APP_URL}/api/akuosplash/webhooks/mercadopago`,
   };
 
-  // Split payment solo si hay repartidor OAuth-connected
-  if (params.repartidorMpAccessToken && params.repartidorMpUserId) {
+  // Split payment: solo si el repartidor tiene MP conectado (OAuth)
+  // Y solo si el plan del repartidor NO es gratis (mpSplitMode !== "none")
+  if (mpSplitMode !== "none" && params.repartidorMpAccessToken && params.repartidorMpUserId && userIdPlataforma) {
     body.marketplace_fee = params.comisionApp;
     splitPayment = true;
   }
+  // Si mpSplitMode === "none": no agregamos marketplace_fee.
+  // El pago va completo a la plataforma; luego el transportista factura.
 
   const result = await preference.create({ body });
 
@@ -184,6 +210,7 @@ export async function crearOrdenDirectaAkuo(params: {
   // Split payment (opcional): si el repartidor tiene MP conectado
   repartidorMpAccessToken?: string | null;
   repartidorMpUserId?: string | null;
+  mpSplitMode?: MpSplitMode;
 }): Promise<{
   orderId: string;
   status: string; // "approved" | "in_process" | "rejected"
@@ -191,8 +218,19 @@ export async function crearOrdenDirectaAkuo(params: {
   splitPayment: boolean;
   detail?: string;
 }> {
-  const accessToken = process.env.AKUO_MP_ACCESS_TOKEN;
-  if (!accessToken) throw new Error("AKUO_MP_ACCESS_TOKEN no configurado");
+  const mpSplitMode = params.mpSplitMode || "none";
+  // Seleccionar la cuenta MP según el modo del plan del transportista
+  let accessToken: string | null;
+  let userIdPlataforma: string | null;
+  if (mpSplitMode === "none") {
+    accessToken = process.env.AKUO_MP_ACCESS_TOKEN || null;
+    userIdPlataforma = process.env.AKUO_MP_USER_ID || null;
+  } else {
+    const creds = await getMpCredsForSplitMode(mpSplitMode);
+    accessToken = creds.accessToken;
+    userIdPlataforma = creds.userId;
+  }
+  if (!accessToken) throw new Error(`MP ${mpSplitMode} no configurado — pedile al superadmin que lo configure en Integraciones`);
 
   const idempotencyKey = `akuo-${params.pedidoId}-${Date.now()}`;
   const externalRef = `akuo-pedido-${params.pedidoId}`;
@@ -231,13 +269,9 @@ export async function crearOrdenDirectaAkuo(params: {
     },
   };
 
-  // Split payment: si el repartidor tiene MP conectado
+  // Split payment: solo si el repartidor tiene MP conectado Y el plan no es gratis
   let splitPayment = false;
-  if (params.repartidorMpAccessToken && params.repartidorMpUserId) {
-    const plataformaUserId = process.env.AKUO_MP_USER_ID;
-    if (!plataformaUserId) {
-      throw new Error("AKUO_MP_USER_ID no configurado — necesario para el split");
-    }
+  if (mpSplitMode !== "none" && params.repartidorMpAccessToken && params.repartidorMpUserId && userIdPlataforma) {
     body.splitter = {
       items: [{
         item_id: "1",
@@ -247,7 +281,7 @@ export async function crearOrdenDirectaAkuo(params: {
             amount: String(params.monto - params.comisionApp),
           },
           {
-            collector: { id: Number(plataformaUserId) },
+            collector: { id: Number(userIdPlataforma) },
             amount: String(params.comisionApp),
           },
         ],

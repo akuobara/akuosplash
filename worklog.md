@@ -1390,3 +1390,118 @@ Stage Summary:
      - En el panel de MP, configurar la URL de webhook: https://akuosplash.cl/api/akuosplash/subscription/mercadopago/webhook
      - El transportista va a "💎 Subscripción" → elige plan (pago o pro) → "Pagar con MercadoPago" → MP authorize → vuelve al dashboard
   6. La tab "Integraciones" sigue disponible por si querés ver/ajustar las creds de MP o Transbank
+
+---
+Task ID: akuosplash-planes-mp-split-por-plan
+Agent: main
+Task: Configurar MP (MercadoPago) por plan ya que MP solo permite configurar pago instantáneo o 10 días a nivel de cuenta. Plan Gratis: sin MP split, transportista sube documentos tributarios, comisión 20%. Plan Premium: MP split 10 días, comisión 15%, transportista emite sus propios docs SII. Plan Pro: MP split instantáneo + Wasabi (facturación automática) incluido en el precio, comisión 10%.
+
+Work Log:
+- ACTUALIZADO `src/lib/akuosplash-plans.ts`:
+  * 3 planes canónicos: gratis | premium | pro (+ alias legacy "pago" → "premium")
+  * Agregado campo `mpSplitMode: "none" | "10day" | "instant"` a PlanConfig
+  * Agregada feature flag `docUpload: boolean` (para que Plan Gratis suba facturas)
+  * Defaults actualizados:
+    - gratis: comisión 20%, mpSplitMode=none, pagoDiferadoDias=0, docUpload=true
+    - premium: comisión 15%, mpSplitMode=10day, pagoDiferadoDias=10
+    - pro: comisión 10%, mpSplitMode=instant, pagoDiferadoDias=0, wasabil=true
+  * Helper `normalizePlanId()` para resolver alias "pago" → "premium"
+  * Helper `getMpCredsForSplitMode(mode)` que retorna las creds correctas según el modo:
+    - "instant": lee mpInstantAccessToken + mpInstantPublicKey + mpInstantUserId de AkuoConfig (fallback a env vars AKUO_MP_INSTANT_*)
+    - "10day": lee mp10dayAccessToken + mp10dayPublicKey + mp10dayUserId (fallback a AKUO_MP_10DAY_*)
+    - "none": null (sin split)
+  * PLAN_ORDER ahora es ["gratis", "premium", "pro"]
+
+- EXTENDIDO `prisma/schema-akuosplash.prisma`:
+  * AkuoConfig: 6 campos nuevos para 2 cuentas MP
+    - mpInstantAccessToken, mpInstantPublicKey, mpInstantUserId (Plan Pro)
+    - mp10dayAccessToken, mp10dayPublicKey, mp10dayUserId (Plan Premium)
+  * AkuoPedidoCliente: 5 campos nuevos para documentos tributarios subidos por transportistas Plan Gratis
+    - docTributarioUrl, docTributarioFolio, docTributarioSubidoEn, docTributarioSubidoPor, docTributarioMonto
+  * Regenerado Prisma Client
+
+- ACTUALIZADO `src/app/api/akuosplash/admin/migrate-plan-configs`:
+  * 8 statements nuevos: 6 ALTERs para mpInstant*/mp10day* en AkuoConfig + 5 ALTERs para docTributario* en AkuoPedidoCliente
+
+- MODIFICADO `src/lib/akuosplash-mercadopago.ts`:
+  * `crearPreferenciaAkuo()` ahora recibe `mpSplitMode` y elige la cuenta MP correcta:
+    - "none": usa AKUO_MP_ACCESS_TOKEN (legacy/default) — sin split, pago va a la plataforma
+    - "10day": usa creds de mp10day* (Plan Premium)
+    - "instant": usa creds de mpInstant* (Plan Pro)
+  * `crearOrdenDirectaAkuo()` idem — elige creds según mpSplitMode
+  * Solo agrega `marketplace_fee` (split) si mpSplitMode !== "none" Y el repartidor tiene MP conectado
+
+- ACTUALIZADO `src/app/api/akuosplash/integraciones/estado` (GET):
+  * Devuelve estado de MP Default + MP Instant + MP 10day + Transbank (legacy)
+  * Cada uno con flags `configured` + `hasAccessToken` + `hasPublicKey` + `hasUserId`
+
+- CREADOS endpoints PUT:
+  * `PUT /api/akuosplash/integraciones/mercadopago-instant` — persiste mpInstantAccessToken, mpInstantPublicKey, mpInstantUserId en AkuoConfig
+  * `PUT /api/akuosplash/integraciones/mercadopago-10day` — persiste mp10dayAccessToken, mp10dayPublicKey, mp10dayUserId en AkuoConfig
+
+- REESCRITO `src/components/akuosplash/integraciones-tab.tsx`:
+  * Card MP Default (legacy — Plan Gratis, sin split): amber icon, inputs para accessToken/publicKey/clientId/userId
+  * Card MP Instant (Plan Pro): violet icon, inputs para accessToken/publicKey/userId
+  * Card MP 10day (Plan Premium): blue icon, inputs para accessToken/publicKey/userId
+  * Card Transbank (legacy): ahora marcado como fallback
+  * Cada card con Badge "Configurado" / "Sin configurar"
+  * Banner con explicación del flujo de pago según plan
+
+- REESCRITO `src/components/akuosplash/planes-tab.tsx`:
+  * Selector visual de mpSplitMode: 3 botones (Sin split / Split 10 días / Split instantáneo) con íconos y colores
+  * Lista de planes ahora itera sobre PLAN_ORDER (gratis/premium/pro)
+  * Features actualizadas: agregada "Doc tributario" (docUpload)
+  * Badge en cada card: muestra comisión + mpSplitMode
+
+- ACTUALIZADO `src/components/akuosplash/subscripcion-tab.tsx`:
+  * Renombrado "pago" → "premium" en todos los labels y defaults
+  * Banner de cada plan ahora muestra el mpSplitMode con ícono y color
+  * Features actualizadas: agregada "Subir documentos tributarios"
+  * Quitado el campo "pagoDiferadoDias" redundante (la info va en el banner de mpSplitMode)
+
+- ACTUALIZADO `src/app/akuosplash/transportista/page.tsx`:
+  * Banner del plan ahora maneja "premium" (además del alias "pago")
+  * Mostrar el nombre canónico del plan (resuelve alias)
+
+- MODIFICADO `src/app/api/akuosplash/auth/me`:
+  * Usa `normalizePlanId` para resolver el alias "pago" → "premium"
+  * previewPlan ahora también normaliza (acepta "pago" o "premium" como input)
+
+- MODIFICADO `src/app/api/akuosplash/subscription/mercadopago/create`:
+  * Acepta plan: "pago" | "premium" | "pro" (normaliza a "premium" si es "pago")
+
+- MODIFICADO `src/app/api/akuosplash/admin/planes` (GET/PUT):
+  * Sincroniza el alias "pago" con "premium" (mismos datos) para compat con DB existente
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos
+  * Deploy Vercel exitoso (READY en ~10min)
+  * Smoke test producción:
+    * `/akuosplash/superadmin` → 200
+    * `/akuosplash/transportista?previewPlan=premium` → 200
+    * `/api/akuosplash/admin/planes` → 401 (auth required)
+    * `/api/akuosplash/admin/migrate-plan-configs` → 405 (POST only)
+    * `/api/akuosplash/integraciones/estado` → 401 (auth required)
+    * `/api/akuosplash/integraciones/mercadopago-instant` → 405 (PUT only)
+    * `/api/akuosplash/integraciones/mercadopago-10day` → 405 (PUT only)
+    * `/api/akuosplash/subscription/mercadopago/create` → 405 (POST only)
+
+Stage Summary:
+- ✅ 3 cuentas MP separadas: Default (sin split, Plan Gratis), Instant (Plan Pro), 10day (Plan Premium)
+- ✅ Modo de split por plan ajustable por superadmin en tab "💎 Planes" (selector visual)
+- ✅ Comisión defaults actualizados: 20% / 15% / 10% (ajustable por plan)
+- ✅ Plan Gratis: el cliente paga a la plataforma, el transportista sube su factura después (feature docUpload=true)
+- ✅ Plan Premium: MP split con pago 10 días, el transportista emite sus propios docs SII
+- ✅ Plan Pro: MP split instantáneo + Wasabi (facturación automática) incluido en el precio
+- ✅ Integraciones tab ahora tiene 4 cards: MP Default / MP Instant / MP 10day / Transbank (legacy)
+- ✅ Vista previa del dashboard por plan funciona con alias "pago" también
+- ✅ Deploy a Vercel producción READY
+- ⏳ ACCIÓN REQUERIDA POR EL USUARIO (en este orden):
+  1. Loguearse como superadmin en https://akuosplash.cl/akuosplash/superadmin
+  2. Correr migración (consola del browser):
+     `fetch('/api/akuosplash/admin/migrate-plan-configs', {method:'POST'}).then(r=>r.json()).then(console.log)`
+  3. Ir a tab "💳 Integraciones" → configurar las 2 cuentas MP nuevas (Instant + 10day)
+     - MP Instant: cuenta MP configurada con liberación inmediata (settings → money release → immediate)
+     - MP 10day: cuenta MP configurada con liberación a 10 días
+  4. Ir a tab "💎 Planes" → expandir cada plan → verificar comisión y mpSplitMode → "Guardar"
+  5. Botón "Vista previa" en cada plan para ver cómo se ve el dashboard del transportista

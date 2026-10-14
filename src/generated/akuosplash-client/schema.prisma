@@ -439,19 +439,28 @@ model AkuoConfig {
   depotLng                 Float?
   depotNombre              String?
   // --- MercadoPago (credenciales — si están vacías, fallback a env vars) ---
+  // Cuenta legacy (mantenida para backward compat — se usa si las nuevas no están configuradas)
   mpAccessToken            String?
   mpPublicKey              String?
   mpClientId               String?
   mpUserId                 String?
   mpSandbox                Boolean  @default(true)
+  // --- MP Split Instantáneo (para Plan Pro — pago inmediato al transportista) ---
+  mpInstantAccessToken     String?
+  mpInstantPublicKey       String?
+  mpInstantUserId          String?
+  // --- MP Split 10 Días (para Plan Premium — pago diferido 10 días) ---
+  mp10dayAccessToken       String?
+  mp10dayPublicKey         String?
+  mp10dayUserId            String?
   // --- Transbank Webpay (para subscripciones) ---
   transbankCommerceCode    String?
   transbankApiKey          String?
   transbankEnvironment     String? // "INTEGRACION" | "PRODUCCION"
-  // --- Configuración de planes (gratis/pago/pro) ---
-  // JSON: { gratis: {...}, pago: {...}, pro: {...} }
-  // Cada plan: { precioMensual, precioAnual, comisionPct, pagoDiferadoDias,
-  //              maxVehiculos, maxChoferes, features: { dashboard, historial, vehiculo, perfil, entregas, gastos, liquidacion, clientes, recurrentes, equipo, mpPropio, wasabil } }
+  // --- Configuración de planes (gratis/premium/pro) ---
+  // JSON: { gratis: {...}, premium: {...}, pro: {...} }
+  // Cada plan: { precioMensual, precioAnual, comisionPct, mpSplitMode, pagoDiferadoDias,
+  //              maxVehiculos, maxChoferes, features: {...} }
   planConfigsJson          String?
 }
 
@@ -552,6 +561,12 @@ model AkuoPedidoCliente {
   precioSnapshotJson       String? // JSON: {input, resultado, version, creadoEn}
   precioDinamicoHabilitado Boolean      @default(false) // si este pedido se calculó con motor
   precioPorLitroFinal      Float? // precio unitario final al momento del cálculo
+  // --- Documento tributario subido por transportista (Plan Gratis) ---
+  docTributarioUrl         String? // URL del PDF de factura emitida por el transportista
+  docTributarioFolio       String? // folio de la factura
+  docTributarioSubidoEn    DateTime?
+  docTributarioSubidoPor   String? // transportistaId
+  docTributarioMonto       Float? // monto total declarado en la factura
 
   @@index([clienteId, estado])
   @@index([transportistaId, estado])
