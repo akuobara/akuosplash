@@ -76,18 +76,21 @@ function TransportistaPage() {
   const [verificacion, setVerificacion] = useState<any>(null);
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
 
+  // Extraer previewPlan de los searchParams (cambia cuando el superadmin cambia de plan)
+  const previewPlanParam = searchParams.get("previewPlan");
+
   useEffect(() => {
+    setAuthLoading(true);
     (async () => {
       try {
         // Si hay previewPlan en la URL y el user es superadmin, pasar el query param al /me
-        const previewPlanParam = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("previewPlan") : null;
         const url = previewPlanParam ? `/api/akuosplash/auth/me?previewPlan=${previewPlanParam}` : "/api/akuosplash/auth/me";
         const data = await apiGet<{ user: any }>(url);
         setUser(data.user);
       } catch {}
       finally { setAuthLoading(false); }
     })();
-  }, []);
+  }, [previewPlanParam]);
 
   // Detectar query param para auto-navegar a la tab correcta
   // (cuando volvemos del redirect de MP con ?tab=subscripcion&mp=ok|fail|pending)
@@ -160,9 +163,53 @@ function TransportistaPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {user.rol === "superadmin" && (
-        <div className="flex items-center justify-center gap-3 bg-violet-600 text-white text-xs py-2 px-4">
-          <span>Modo monitoreo — viendo como repartidor {planInfo?.esPreview ? `(preview plan ${planId})` : ""}</span>
-          <Link href="/akuosplash/superadmin" className="underline font-semibold">← Panel admin</Link>
+        <div className="flex items-center justify-between gap-3 bg-violet-600 text-white text-xs py-2 px-4 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span>Modo monitoreo</span>
+            {planInfo?.esPreview ? (
+              <>
+                <span className="opacity-70">— preview plan:</span>
+                <select
+                  value={previewPlanParam || ""}
+                  onChange={(e) => {
+                    const newPlan = e.target.value;
+                    if (newPlan) {
+                      router.replace(`/akuosplash/transportista?previewPlan=${newPlan}`);
+                    } else {
+                      router.replace(`/akuosplash/transportista`);
+                    }
+                  }}
+                  className="bg-white text-black px-2 py-0.5 rounded text-xs font-semibold border-0 cursor-pointer"
+                >
+                  <option value="">↺ Mi plan real</option>
+                  <option value="gratis">🎁 Gratis (20% comisión, sin MP split)</option>
+                  <option value="premium">⭐ Premium (15% comisión, MP 10d)</option>
+                  <option value="pro">👑 Pro (10% comisión, MP instant + Wasabi)</option>
+                </select>
+              </>
+            ) : (
+              <>
+                <span className="opacity-70">— sin preview</span>
+                <button
+                  onClick={() => router.replace(`/akuosplash/transportista?previewPlan=gratis`)}
+                  className="bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded text-xs font-semibold"
+                >
+                  ▶ Iniciar preview
+                </button>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {planInfo?.esPreview && (
+              <button
+                onClick={() => router.replace(`/akuosplash/transportista`)}
+                className="bg-white/20 hover:bg-white/30 px-2 py-0.5 rounded text-xs font-semibold"
+              >
+                ✕ Salir preview
+              </button>
+            )}
+            <Link href="/akuosplash/superadmin" className="underline font-semibold">← Panel admin</Link>
+          </div>
         </div>
       )}
 

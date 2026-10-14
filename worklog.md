@@ -1550,3 +1550,54 @@ Stage Summary:
 - ✅ La página vuelve a cargar, login funciona, registro funciona, OAuth funciona
 - ✅ No es necesario que el usuario corra la migración manualmente — se hace automáticamente en el primer request
 - ✅ Deploy a Vercel producción READY
+
+---
+Task ID: akuosplash-plan-switcher-superadmin
+Agent: main
+Task: Permitir al superadmin saltar entre planes directamente desde el dashboard del transportista, sin tener que volver al panel admin cada vez.
+
+Work Log:
+- MODIFICADO `src/app/akuosplash/transportista/page.tsx`:
+
+  * Antes: el useEffect que fetch /me tenía `[]` como dependencia (corría una sola vez al montar el componente). El `previewPlan` se leía del `window.location.search` con `new URLSearchParams()` — eso no reaccionaba a cambios en la URL.
+
+  * Ahora: extraigo `previewPlanParam = searchParams.get("previewPlan")` (React reactive). El useEffect tiene `[previewPlanParam]` como dependencia — cuando cambia el query param, el efecto se re-ejecuta y re-fetch /me con el nuevo plan. Seteo `setAuthLoading(true)` al inicio del efecto para que muestre el spinner de carga mientras se fetch el nuevo plan.
+
+  * Barra de monitoreo del superadmin reescrita:
+    - Si está en preview mode (`planInfo.esPreview === true`): muestra un `<select>` inline con las 3 opciones de plan, cada una con ícono + comisión + descripción corta:
+      - "↺ Mi plan real" (vacía el query param)
+      - "🎁 Gratis (20% comisión, sin MP split)"
+      - "⭐ Premium (15% comisión, MP 10d)"
+      - "👑 Pro (10% comisión, MP instant + Wasabi)"
+    - El select cambia la URL con `router.replace('/akuosplash/transportista?previewPlan=X')` (sin recargar la página) — el useEffect reacciona y re-fetch /me.
+    - Botón "✕ Salir preview" que limpia el query param.
+    - Si NO está en preview mode (URL sin previewPlan): muestra "Modo monitoreo — sin preview" + botón "▶ Iniciar preview" que salta al plan gratis.
+
+  * El flujo completo de plan-switching:
+    1. Superadmin entra a /akuosplash/transportista?previewPlan=premium
+    2. useEffect fetch /me?previewPlan=premium → user.planInfo.plan = premium config
+    3. allowedTabs = [dashboard, historial, camiones, perfil, pedidos, entregas, gastos, liquidacion, clientes, recurrentes, equipo, subscripcion]
+    4. Superadmin cambia el select a "Pro"
+    5. router.replace actualiza URL a ?previewPlan=pro
+    6. previewPlanParam cambia → useEffect se re-ejecuta → setAuthLoading(true) → fetch /me?previewPlan=pro
+    7. user.planInfo.plan = pro config (ahora con mpPropio y wasabil features activas)
+    8. allowedTabs se recalcula (igual en este caso, pero con features.mpPropio=true)
+    9. Si la tab actual no está permitida en el nuevo plan (ej: estaba en "clientes" en premium, pasa a gratis), `effectiveTab` cae a "dashboard" automáticamente.
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mi archivo
+  * Deploy Vercel exitoso (READY en ~5min)
+  * Smoke test:
+    * `/akuosplash/transportista?previewPlan=gratis` → HTTP 200
+    * `/akuosplash/transportista?previewPlan=premium` → HTTP 200
+    * `/akuosplash/transportista?previewPlan=pro` → HTTP 200
+    * `/akuosplash/transportista` (sin preview) → HTTP 200
+
+Stage Summary:
+- ✅ Superadmin puede saltar entre planes sin salir del dashboard del transportista
+- ✅ Cambio de plan es reactivo: select onChange → router.replace → useEffect re-fetch /me → re-render con nuevo planInfo
+- ✅ Si la tab actual no está permitida en el nuevo plan, cae a "dashboard" automáticamente
+- ✅ Botón "Salir preview" para volver al plan real del superadmin
+- ✅ Botón "Iniciar preview" si entró sin query param
+- ✅ Cada opción del select muestra comisión + descripción para saber qué se está testeando
+- ✅ Deploy a Vercel producción READY
