@@ -1601,3 +1601,58 @@ Stage Summary:
 - ✅ Botón "Iniciar preview" si entró sin query param
 - ✅ Cada opción del select muestra comisión + descripción para saber qué se está testeando
 - ✅ Deploy a Vercel producción READY
+
+---
+Task ID: akuosplash-plan-gratis-sin-productividad
+Agent: main
+Task: Plan Gratis no debe tener historial ni vueltas, y el panel debe ser básico (sin funciones de productividad).
+
+Work Log:
+- MODIFICADO `src/lib/akuosplash-plans.ts`:
+  * Plan Gratis features.historial: true → false (no access a historial de vueltas)
+  * Plan Gratis features.entregas ya era false (no vueltas)
+  * Features finales del plan gratis: dashboard, vehiculo, perfil, subscripcion, docUpload (todo lo demás false)
+
+- CREADO `src/components/akuosplash/basic-panel.tsx` (~150 líneas):
+  * Componente de Panel Básico específico para plan gratis
+  * NO muestra funciones de productividad (no vueltas actuales, no stats de entregas, no accesos rápidos a gastos/liquidación)
+  * Contenido:
+    - Banner de bienvenida con plan + comisión + mpSplitMode + límites
+    - Card "Estado del registro" con 3 rows: Empresa (RUT + razón social), Vehículo, Chofer (vos mismo)
+      * Cada row click lleva a la tab correspondiente (perfil/vehículo)
+      * Badge "✓ Completo" o "Falta →" por row
+      * Alert amber si falta completar el registro
+    - Card "Pedidos del marketplace" con stats (Pendientes, Aceptados, Entregados) — fetch desde /api/akuosplash/transportista/pedidos
+    - Card CTA "Subí a Premium o Pro" con comparativa de planes y botón "Ver planes"
+
+- MODIFICADO `src/app/akuosplash/transportista/page.tsx`:
+  * Importado BasicPanel
+  * Calculado `useBasicPanel = planId === "gratis" || (features && !features.entregas && !features.gastos && !features.liquidacion)`
+  * En el TabsContent de "dashboard": si useBasicPanel → renderiza BasicPanel, si no → Dashboard (productividad)
+  * BasicPanel recibe callbacks: onGoToSubscripcion, onGoToPedidos, onGoToVehiculo, onGoToPerfil
+
+- ACTUALIZADO `src/app/api/akuosplash/transportista/pedidos/route.ts`:
+  * Agregado `await ensureAkuoConfigColumns()` al inicio (defensivo — corre migraciones nuevas si no existen)
+  * Cambiado de `akuoConfig.findFirst()` (que falla con columnas nuevas) a `getPlanActivo(user.id)` que lee comisión del plan del transportista
+  * Esto significa que cada transportista ve su propia comisión según su plan, no la comisión global de AkuoConfig
+
+- ACTUALIZADO `src/lib/akuosplash-plans.ts` `ensureAkuoConfigColumns()`:
+  * Agregados 5 ALTERs más para AkuoPedidoCliente.docTributario* (faltaban)
+  * Total: 19 ALTERs idempotentes
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos
+  * Deploy Vercel exitoso (READY en ~7min)
+  * Smoke test:
+    * `/akuosplash/transportista?previewPlan=gratis` → HTTP 200
+    * `/akuosplash/transportista?previewPlan=premium` → HTTP 200
+
+Stage Summary:
+- ✅ Plan Gratis NO tiene historial (feature flag false → no aparece en select de tabs)
+- ✅ Plan Gratis NO tiene vueltas (feature entregas=false → no aparece tab entregas)
+- ✅ Plan Gratis tiene Panel Básico (BasicPanel) en vez del Dashboard completo de productividad
+- ✅ BasicPanel muestra: info de plan, estado de registro, pedidos del marketplace, CTA upgrade
+- ✅ Plan Premium/Pro siguen usando el Dashboard completo con todas las funciones de productividad
+- ✅ Endpoint /transportista/pedidos ahora lee comisión del plan del transportista (no global)
+- ✅ Auto-migración ahora incluye también las columnas docTributario* en AkuoPedidoCliente
+- ✅ Deploy a Vercel producción READY

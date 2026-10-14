@@ -1,0 +1,198 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Gift, Sparkles, Crown, Truck, FileText, ChevronRight, Loader2, AlertCircle, CheckCircle2,
+} from "lucide-react";
+import { akuoGet, formatCLP } from "@/components/akuosplash/akuosplash-utils";
+import type { PlanConfig, PlanId } from "@/lib/akuosplash-plans";
+
+interface BasicPanelProps {
+  user: any;
+  plan: PlanConfig;
+  planId: PlanId;
+  onGoToSubscripcion: () => void;
+  onGoToPedidos: () => void;
+  onGoToVehiculo: () => void;
+  onGoToPerfil: () => void;
+}
+
+interface MarketplaceStats {
+  pedidosPendientes: number;
+  pedidosAceptados: number;
+  pedidosEnRuta: number;
+  totalEntregas: number;
+}
+
+export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedidos, onGoToVehiculo, onGoToPerfil }: BasicPanelProps) {
+  const [stats, setStats] = useState<MarketplaceStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        // Cargar stats básicas del marketplace (cuántos pedidos pendientes tengo)
+        const data = await akuoGet<{ pedidos?: any[]; stats?: any }>("/api/akuosplash/transportista/pedidos");
+        const pedidos = data.pedidos || [];
+        setStats({
+          pedidosPendientes: pedidos.filter((p: any) => p.estado === "pendiente").length,
+          pedidosAceptados: pedidos.filter((p: any) => p.estado === "aceptado").length,
+          pedidosEnRuta: pedidos.filter((p: any) => p.estado === "en_ruta").length,
+          totalEntregas: pedidos.filter((p: any) => p.estado === "entregado").length,
+        });
+      } catch {
+        setStats(null);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  // Verificar que el transportista tiene los requisitos para marketplace
+  const tieneVehiculo = user?.patenteVehiculo || false;
+  const tieneRUT = user?.rut || user?.rutEmpresa || false;
+  const tieneRazonSocial = user?.razonSocial || false;
+  const perfilCompleto = tieneVehiculo && tieneRUT && tieneRazonSocial;
+
+  return (
+    <div className="space-y-4">
+      {/* Banner de bienvenida */}
+      <Card className="border-amber-200 bg-amber-50/50">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <Gift className="h-8 w-8 text-amber-600 shrink-0 mt-1" />
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-base">
+                Estás en Plan <span className="uppercase text-amber-700">Gratis</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Solo marketplace. Comisión {plan.comisionPct}%. Sin MP split — subís tus documentos tributarios para recibir pago.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-2 text-[11px]">
+                <Badge variant="outline" className="bg-white">💵 {plan.comisionPct}% comisión</Badge>
+                <Badge variant="outline" className="bg-white">💳 Sin MP split</Badge>
+                <Badge variant="outline" className="bg-white">🚛 1 vehículo</Badge>
+                <Badge variant="outline" className="bg-white">👥 1 chofer</Badge>
+              </div>
+            </div>
+            <Button size="sm" onClick={onGoToSubscripcion} className="bg-amber-600 hover:bg-amber-700 text-white shrink-0">
+              <Sparkles className="h-4 w-4 mr-1" /> Subir de plan
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Estado del perfil */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-1.5">
+            <FileText className="h-4 w-4 text-blue-600" /> Estado del registro
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-xs text-muted-foreground mb-2">
+            Para participar en el marketplace necesitás tener registrados: tu empresa, un vehículo y un chofer.
+          </p>
+          <Row label="Empresa (RUT + razón social)" ok={!!(tieneRUT && tieneRazonSocial)} onClick={onGoToPerfil} />
+          <Row label="Vehículo" ok={!!tieneVehiculo} onClick={onGoToVehiculo} />
+          <Row label="Chofer (vos mismo)" ok={!!user?.nombre} onClick={onGoToPerfil} />
+          {!perfilCompleto && (
+            <div className="rounded-md bg-amber-50 border border-amber-200 p-2 mt-2 flex items-start gap-2">
+              <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-amber-900">
+                Te falta completar el registro para poder aceptar pedidos del marketplace.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Pedidos del marketplace */}
+      <Card>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm">📦 Pedidos del marketplace</CardTitle>
+            <Button variant="ghost" size="sm" onClick={onGoToPedidos} className="text-xs">
+              Ver todos <ChevronRight className="h-3 w-3" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center py-4"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+          ) : stats ? (
+            <div className="grid grid-cols-3 gap-2">
+              <Stat label="Pendientes" value={stats.pedidosPendientes} color="amber" />
+              <Stat label="Aceptados" value={stats.pedidosAceptados} color="blue" />
+              <Stat label="Entregados" value={stats.totalEntregas} color="emerald" />
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">No se pudo cargar</p>
+          )}
+          <Button variant="outline" size="sm" className="w-full mt-3" onClick={onGoToPedidos}>
+            Ver pedidos disponibles
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* CTA upgrade */}
+      <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-violet-50">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <Crown className="h-8 w-8 text-violet-600 shrink-0 mt-1" />
+            <div className="flex-1">
+              <p className="font-semibold">Subí a Premium o Pro</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Accedé a vueltas, entregas, gastos, liquidación, clientes propios, pedidos recurrentes y mucho más. Comisión reducida y pago más rápido.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <div className="rounded-md border border-blue-200 bg-white p-2 text-xs">
+                  <p className="font-medium text-blue-700">⭐ Premium</p>
+                  <p className="text-[10px] text-muted-foreground">15% comisión · MP 10d</p>
+                  <p className="font-bold tabular-nums mt-0.5">{formatCLP(15000)}/mes</p>
+                </div>
+                <div className="rounded-md border border-violet-200 bg-white p-2 text-xs">
+                  <p className="font-medium text-violet-700">👑 Pro</p>
+                  <p className="text-[10px] text-muted-foreground">10% comisión · MP instant</p>
+                  <p className="font-bold tabular-nums mt-0.5">{formatCLP(50000)}/mes</p>
+                </div>
+              </div>
+              <Button size="sm" className="w-full mt-3" onClick={onGoToSubscripcion}>
+                Ver planes
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function Row({ label, ok, onClick }: { label: string; ok: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center justify-between rounded-md border border-border p-2 hover:bg-gray-50 transition text-left"
+    >
+      <span className="text-xs flex items-center gap-1.5">
+        {ok ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> : <AlertCircle className="h-3.5 w-3.5 text-amber-600" />}
+        {label}
+      </span>
+      <span className={`text-[10px] font-semibold ${ok ? "text-emerald-700" : "text-amber-700"}`}>
+        {ok ? "✓ Completo" : "Falta →"}
+      </span>
+    </button>
+  );
+}
+
+function Stat({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div className={`rounded-md border border-${color}-200 bg-${color}-50 p-2 text-center`}>
+      <p className={`text-2xl font-bold tabular-nums text-${color}-700`}>{value}</p>
+      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
+    </div>
+  );
+}

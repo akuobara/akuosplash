@@ -27,6 +27,7 @@ import { CuentaDialog } from "@/components/akuosplash/cuenta-dialog";
 import { HistorialVueltasTab } from "@/components/akuosplash/historial-vueltas-tab";
 import { PerfilTransportista } from "@/components/akuosplash/akuosplash-transportista";
 import { SubscripcionTab } from "@/components/akuosplash/subscripcion-tab";
+import { BasicPanel } from "@/components/akuosplash/basic-panel";
 import { apiGet, apiPost } from "@/components/akuosplash/akuosplash-api-client";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -159,6 +160,10 @@ function TransportistaPage() {
 
   // Si la tab actual no es permitida → cambiar a "dashboard"
   const effectiveTab = allowedTabs.includes(tab) ? tab : "dashboard";
+
+  // Plan Gratis usa BasicPanel (sin funciones de productividad)
+  // Plan Premium/Pro usa Dashboard completo
+  const useBasicPanel = planId === "gratis" || (features && !features.entregas && !features.gastos && !features.liquidacion);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -299,8 +304,20 @@ function TransportistaPage() {
           {allowedTabs.includes("dashboard") && (
             <TabsContent value="dashboard" className="mt-4">
               <ErrorBoundary>
-                <Dashboard refreshKey={refreshKey} onRefresh={refresh} clientes={clientes} config={config} camiones={camiones}
-                  onGoToEntregas={() => features?.entregas && setTab("entregas")} onGoToGastos={() => features?.gastos && setTab("gastos")} onGoToLiquidacion={() => features?.liquidacion && setTab("liquidacion")} isDueno={true} />
+                {useBasicPanel ? (
+                  <BasicPanel
+                    user={user}
+                    plan={planInfo?.plan}
+                    planId={planId}
+                    onGoToSubscripcion={() => features?.subscripcion && setTab("subscripcion")}
+                    onGoToPedidos={() => setTab("pedidos")}
+                    onGoToVehiculo={() => features?.vehiculo && setTab("camiones")}
+                    onGoToPerfil={() => features?.perfil && setTab("perfil")}
+                  />
+                ) : (
+                  <Dashboard refreshKey={refreshKey} onRefresh={refresh} clientes={clientes} config={config} camiones={camiones}
+                    onGoToEntregas={() => features?.entregas && setTab("entregas")} onGoToGastos={() => features?.gastos && setTab("gastos")} onGoToLiquidacion={() => features?.liquidacion && setTab("liquidacion")} isDueno={true} />
+                )}
               </ErrorBoundary>
             </TabsContent>
           )}

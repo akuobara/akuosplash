@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
+import { ensureAkuoConfigColumns, getPlanActivo } from "@/lib/akuosplash-plans";
 
 // GET /api/akuosplash/transportista/pedidos
 // Lista pedidos disponibles (pendientes) y los pedidos asignados al transportista.
@@ -13,9 +14,18 @@ export async function GET() {
     return NextResponse.json({ error: "Solo transportistas" }, { status: 403 });
   }
 
-  // Config para comisión
-  const config = await akuosplashDb.akuoConfig.findFirst();
-  const comisionPct = config?.comisionPorcentaje ?? 0;
+  // Asegurar columnas migradas antes de cualquier query
+  await ensureAkuoConfigColumns();
+
+  // Comisión: si el usuario es superadmin en preview, usar la del plan que está probando;
+  // si no, usar la del plan activo del transportista.
+  let comisionPct = 0;
+  try {
+    // Si es superadmin con previewPlan en URL, el /me ya seteó planInfo. Pero acá no tenemos
+    // acceso directo a eso — usamos getPlanActivo (devuelve plan real o defaults).
+    const planInfo = await getPlanActivo(user.id);
+    comisionPct = planInfo.plan.comisionPct ?? 0;
+  } catch {}
 
   // Pedidos disponibles: pendientes y sin transportista asignado
   const disponiblesRaw = await akuosplashDb.akuoPedidoCliente.findMany({

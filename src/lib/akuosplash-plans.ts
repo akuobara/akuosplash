@@ -67,7 +67,7 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
     maxChoferes: 1,
     features: {
       dashboard: true,
-      historial: true,
+      historial: false,
       vehiculo: true,
       perfil: true,
       entregas: false,
@@ -211,6 +211,11 @@ export async function ensureAkuoConfigColumns() {
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubIniciadoEn DATETIME",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubAutorizadoEn DATETIME",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubAmount REAL",
+    "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioUrl TEXT",
+    "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioFolio TEXT",
+    "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoEn DATETIME",
+    "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoPor TEXT",
+    "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioMonto REAL",
   ];
   for (const sql of statements) {
     try {
