@@ -111,16 +111,24 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         },
         data: snapData,
       });
-      // Entregas: solo las que aún no están en una vuelta cerrada (todas las activas recientes).
-      // Para no romper históricos viejos, solo propagamos a entregas de los últimos 30 días.
-      const hace30dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      await db.entrega.updateMany({
-        where: {
-          clienteId: id,
-          fecha: { gte: hace30dias },
-        },
-        data: snapData,
-      });
+      // Entregas: solo los campos que existen en el modelo Entrega.
+      // Entrega NO tiene clienteLat/clienteLng/indicacionesAcceso (solo Pedido los tiene).
+      const entregaSnapData: any = {};
+      if (snapData.clienteNombre !== undefined) entregaSnapData.clienteNombre = snapData.clienteNombre;
+      if (snapData.clienteDireccion !== undefined) entregaSnapData.clienteDireccion = snapData.clienteDireccion;
+      if (snapData.clienteTelefono !== undefined) entregaSnapData.clienteTelefono = snapData.clienteTelefono;
+      if (snapData.clienteZona !== undefined) entregaSnapData.clienteZona = snapData.clienteZona;
+      // Para entregas de los últimos 30 días (no romper históricos viejos)
+      if (Object.keys(entregaSnapData).length > 0) {
+        const hace30dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        await db.entrega.updateMany({
+          where: {
+            clienteId: id,
+            fecha: { gte: hace30dias },
+          },
+          data: entregaSnapData,
+        });
+      }
     }
   }
 
