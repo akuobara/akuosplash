@@ -204,6 +204,11 @@ export async function ensureAkuoConfigColumns() {
     "ALTER TABLE AkuoConfig ADD COLUMN mp10dayAccessToken TEXT",
     "ALTER TABLE AkuoConfig ADD COLUMN mp10dayPublicKey TEXT",
     "ALTER TABLE AkuoConfig ADD COLUMN mp10dayUserId TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mpSplitAccessToken TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mpSplitPublicKey TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mpSplitUserId TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mpSubAccessToken TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN mpSubPublicKey TEXT",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubPreapprovalId TEXT",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubPlanSolicitado TEXT",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubCiclo TEXT",
@@ -340,7 +345,70 @@ export async function getPlanActivo(userId: string): Promise<{
   };
 }
 
-// Devuelve la config de MP según el mpSplitMode del plan
+// Devuelve la config de MP para el SPLIT (cuando el cliente paga por agua en el marketplace).
+// Una sola cuenta para todos los planes — la comisión la calcula el backend de AkuoSplash.
+// Si mpSplitMode === "none" (Plan Gratis), no se usa MP split → devolver null.
+export async function getMpSplitCreds(): Promise<{
+  accessToken: string | null;
+  publicKey: string | null;
+  userId: string | null;
+}> {
+  await ensureAkuoConfigColumns();
+  // 1. Intentar leer de AkuoConfig los campos mpSplit* (los nuevos)
+  try {
+    const result: any = await akuosplashDb.$queryRawUnsafe(
+      `SELECT mpSplitAccessToken, mpSplitPublicKey, mpSplitUserId FROM AkuoConfig WHERE activo = 1 LIMIT 1`
+    );
+    if (Array.isArray(result) && result.length > 0) {
+      const row = result[0];
+      return {
+        accessToken: row.mpSplitAccessToken || process.env.AKUO_MP_SPLIT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null,
+        publicKey: row.mpSplitPublicKey || process.env.AKUO_MP_SPLIT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null,
+        userId: row.mpSplitUserId || process.env.AKUO_MP_SPLIT_USER_ID || process.env.AKUO_MP_USER_ID || null,
+      };
+    }
+  } catch (e: any) {
+    console.warn("[getMpSplitCreds] SQL failed, using env vars:", e?.message);
+  }
+  // 2. Fallback a env vars
+  return {
+    accessToken: process.env.AKUO_MP_SPLIT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null,
+    publicKey: process.env.AKUO_MP_SPLIT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null,
+    userId: process.env.AKUO_MP_SPLIT_USER_ID || process.env.AKUO_MP_USER_ID || null,
+  };
+}
+
+// Devuelve la config de MP para SUBSCRIPTIONS (cuando el transportista paga por su plan).
+// Cuenta separada de la de split. Para testing, pueden ser la misma cuenta.
+export async function getMpSubCreds(): Promise<{
+  accessToken: string | null;
+  publicKey: string | null;
+}> {
+  await ensureAkuoConfigColumns();
+  // 1. Intentar leer de AkuoConfig los campos mpSub* (los nuevos)
+  try {
+    const result: any = await akuosplashDb.$queryRawUnsafe(
+      `SELECT mpSubAccessToken, mpSubPublicKey FROM AkuoConfig WHERE activo = 1 LIMIT 1`
+    );
+    if (Array.isArray(result) && result.length > 0) {
+      const row = result[0];
+      return {
+        accessToken: row.mpSubAccessToken || process.env.AKUO_MP_SUB_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null,
+        publicKey: row.mpSubPublicKey || process.env.AKUO_MP_SUB_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null,
+      };
+    }
+  } catch (e: any) {
+    console.warn("[getMpSubCreds] SQL failed, using env vars:", e?.message);
+  }
+  // 2. Fallback a env vars
+  return {
+    accessToken: process.env.AKUO_MP_SUB_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null,
+    publicKey: process.env.AKUO_MP_SUB_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null,
+  };
+}
+
+// Legacy: getMpCredsForSplitMode — mantener por compat, pero redirige a getMpSplitCreds.
+// El parámetro `mode` ya no afecta qué cuenta se usa (todos los modos no-"none" usan la misma cuenta split).
 export type MpAccountKind = "instant" | "10day";
 
 export async function getMpCredsForSplitMode(mode: MpSplitMode): Promise<{
@@ -349,47 +417,7 @@ export async function getMpCredsForSplitMode(mode: MpSplitMode): Promise<{
   userId: string | null;
   accountKind: MpAccountKind | null;
 }> {
-  await ensureAkuoConfigColumns();
   if (mode === "none") return { accessToken: null, publicKey: null, userId: null, accountKind: null };
-  const kind: MpAccountKind = mode === "instant" ? "instant" : "10day";
-  let accessToken: string | null = null;
-  let publicKey: string | null = null;
-  let userId: string | null = null;
-  try {
-    if (kind === "instant") {
-      const result: any = await akuosplashDb.$queryRawUnsafe(`SELECT mpInstantAccessToken, mpInstantPublicKey, mpInstantUserId FROM AkuoConfig WHERE activo = 1 LIMIT 1`);
-      if (Array.isArray(result) && result.length > 0) {
-        accessToken = result[0]?.mpInstantAccessToken || process.env.AKUO_MP_INSTANT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
-        publicKey = result[0]?.mpInstantPublicKey || process.env.AKUO_MP_INSTANT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
-        userId = result[0]?.mpInstantUserId || process.env.AKUO_MP_INSTANT_USER_ID || process.env.AKUO_MP_USER_ID || null;
-      } else {
-        accessToken = process.env.AKUO_MP_INSTANT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
-        publicKey = process.env.AKUO_MP_INSTANT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
-        userId = process.env.AKUO_MP_INSTANT_USER_ID || process.env.AKUO_MP_USER_ID || null;
-      }
-    } else {
-      const result: any = await akuosplashDb.$queryRawUnsafe(`SELECT mp10dayAccessToken, mp10dayPublicKey, mp10dayUserId FROM AkuoConfig WHERE activo = 1 LIMIT 1`);
-      if (Array.isArray(result) && result.length > 0) {
-        accessToken = result[0]?.mp10dayAccessToken || process.env.AKUO_MP_10DAY_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
-        publicKey = result[0]?.mp10dayPublicKey || process.env.AKUO_MP_10DAY_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
-        userId = result[0]?.mp10dayUserId || process.env.AKUO_MP_10DAY_USER_ID || process.env.AKUO_MP_USER_ID || null;
-      } else {
-        accessToken = process.env.AKUO_MP_10DAY_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
-        publicKey = process.env.AKUO_MP_10DAY_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
-        userId = process.env.AKUO_MP_10DAY_USER_ID || process.env.AKUO_MP_USER_ID || null;
-      }
-    }
-  } catch (e: any) {
-    // Fallback a env vars
-    if (kind === "instant") {
-      accessToken = process.env.AKUO_MP_INSTANT_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
-      publicKey = process.env.AKUO_MP_INSTANT_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
-      userId = process.env.AKUO_MP_INSTANT_USER_ID || process.env.AKUO_MP_USER_ID || null;
-    } else {
-      accessToken = process.env.AKUO_MP_10DAY_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
-      publicKey = process.env.AKUO_MP_10DAY_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null;
-      userId = process.env.AKUO_MP_10DAY_USER_ID || process.env.AKUO_MP_USER_ID || null;
-    }
-  }
-  return { accessToken, publicKey, userId, accountKind: kind };
+  const creds = await getMpSplitCreds();
+  return { ...creds, accountKind: "instant" }; // el accountKind ya no es relevante
 }

@@ -1,6 +1,6 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { akuosplashDb } from "./akuosplash-db";
-import { getMpCredsForSplitMode, MpSplitMode } from "./akuosplash-plans";
+import { getMpSplitCreds, MpSplitMode } from "./akuosplash-plans";
 
 // Configuración de MercadoPago para AkuoSplash
 // Usa Checkout Pro via Preferences (NO deprecado — solo /v1/payments directo lo está)
@@ -114,7 +114,9 @@ export async function crearPreferenciaAkuo(params: {
 
   // 1. Si es modo "none" (Plan Gratis): el pago va completo a la plataforma.
   //    El transportista sube su factura después y la plataforma le paga.
-  // 2. Si es modo "10day" o "instant": usar la cuenta MP correspondiente.
+  // 2. Si es modo "10day" o "instant": usar la ÚNICA cuenta MP de split.
+  //    La comisión la calcula el backend de AkuoSplash (no MP).
+  //    MP solo hace el split: envía al transportista (monto - comisión) y retiene la comisión.
   let accessToken: string | null;
   let userIdPlataforma: string | null;
 
@@ -124,10 +126,10 @@ export async function crearPreferenciaAkuo(params: {
     userIdPlataforma = process.env.AKUO_MP_USER_ID || null;
     if (!accessToken) throw new Error("AKUO_MP_ACCESS_TOKEN no configurado (necesario para plan Gratis)");
   } else {
-    // Split con MP según el modo del plan
-    const creds = await getMpCredsForSplitMode(mpSplitMode);
+    // Split con MP — usar la cuenta única de split
+    const creds = await getMpSplitCreds();
     if (!creds.accessToken) {
-      throw new Error(`MP ${mpSplitMode} no configurado — pedile al superadmin que lo configure en Integraciones`);
+      throw new Error("MP Split no configurado — pedile al superadmin que lo configure en Integraciones");
     }
     accessToken = creds.accessToken;
     userIdPlataforma = creds.userId;

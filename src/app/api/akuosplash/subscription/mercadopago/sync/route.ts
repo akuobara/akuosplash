@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
+import { getMpSubCreds } from "@/lib/akuosplash-plans";
 
 // GET /api/akuosplash/subscription/mercadopago/sync
 // Recarga el estado de la preapproval desde MP y actualiza la DB.
@@ -23,13 +24,12 @@ export async function GET() {
     return NextResponse.json({ ok: false, reason: "no_preapproval" });
   }
 
-  const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
-  const accessToken = config?.mpAccessToken || process.env.AKUO_MP_ACCESS_TOKEN;
-  if (!accessToken) return NextResponse.json({ ok: false, error: "MP no configurado" }, { status: 500 });
+  const subCreds = await getMpSubCreds();
+  if (!subCreds.accessToken) return NextResponse.json({ ok: false, error: "MP Sub no configurado" }, { status: 500 });
 
   const apiBase = "https://api.mercadopago.com";
   const r = await fetch(`${apiBase}/preapproval/${u.mpSubPreapprovalId}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: { Authorization: `Bearer ${subCreds.accessToken}` },
   });
   if (!r.ok) return NextResponse.json({ ok: false, error: `MP ${r.status}` }, { status: 502 });
   const data = await r.json();

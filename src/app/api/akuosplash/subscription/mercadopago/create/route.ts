@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
-import { getPlanConfigs, PlanId, PLAN_ORDER } from "@/lib/akuosplash-plans";
+import { getPlanConfigs, getMpSubCreds, PlanId } from "@/lib/akuosplash-plans";
 
 // POST /api/akuosplash/subscription/mercadopago/create
 // Crea una preapproval (subscripción recurrente) en MercadoPago para el plan seleccionado.
-// Body: { plan: "pago" | "pro", ciclo: "mensual" | "anual" }
+// Usa la cuenta MP de SUBSCRIPTIONS (separada de la de split del marketplace).
+// Body: { plan: "premium" | "pro", ciclo: "mensual" | "anual" }
 // Devuelve: { initPoint, preapprovalId }
 export async function POST(req: NextRequest) {
   const user = await akuoGetCurrentUser();
@@ -20,19 +21,20 @@ export async function POST(req: NextRequest) {
   const planId: PlanId = planRaw === "pro" ? "pro" : (planRaw === "pago" || planRaw === "premium" ? "premium" : "premium");
   const ciclo: "mensual" | "anual" = body.ciclo === "anual" ? "anual" : "mensual";
 
-  // Cargar config de plan + MP creds
+  // Cargar config de plan + MP creds (cuenta de subscriptions)
   const configs = await getPlanConfigs();
   const planCfg = configs[planId];
-  const mpConfig = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
-  const accessToken = mpConfig?.mpAccessToken || process.env.AKUO_MP_ACCESS_TOKEN;
-  if (!accessToken) {
-    return NextResponse.json({ error: "MercadoPago no configurado. Pedile al superadmin que lo configure." }, { status: 500 });
+  const subCreds = await getMpSubCreds();
+  if (!subCreds.accessToken) {
+    return NextResponse.json({
+      error: "MercadoPago Subscriptions no configurado. Pedile al superadmin que lo configure en Integraciones.",
+    }, { status: 500 });
   }
 
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://my-project-azure-five-82.vercel.app";
   const amount = ciclo === "anual" ? planCfg.precioAnual : planCfg.precioMensual;
   const frequency = ciclo === "anual" ? 12 : 1;
-  const frequencyType = ciclo === "anual" ? "months" : "months";
+  const frequencyType = "months";
 
   // Crear preapproval en MP
   // https://www.mercadopago.cl/developers/en/docs/subscriptions/api/preapprovals
@@ -51,14 +53,15 @@ export async function POST(req: NextRequest) {
     notification_url: `${APP_URL}/api/akuosplash/subscription/mercadopago/webhook`,
   };
 
-  const sandbox = mpConfig?.mpSandbox ?? true;
-  const apiBase = sandbox ? "https://api.mercadopago.com" : "https://api.mercadopago.com";
+  // Sandbox siempre es true para preapprovals (MP no tiene sandbox_init_point separado para subscriptions)
+  // El access token ya es de la cuenta correcta (sandbox o producción según esté configurado).
+  const apiBase = "https://api.mercadopago.com";
 
   try {
     const res = await fetch(`${apiBase}/preapproval`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${accessToken}`,
+        "Authorization": `Bearer ${subCreds.accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(mpBody),
@@ -71,7 +74,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: msg }, { status: 500 });
     }
 
-    const initPoint = data.init_point || (sandbox ? data.sandbox_init_point : data.init_point);
+    // MP subscriptions: init_point para producción, sandbox_init_point para sandbox
+    // Si el access token es de test (empieza con TEST-), usar sandbox_init_point
+    const isSandbox = subCreds.accessToken.startsWith("TEST-") || subCreds.accessToken.includes("sandbox");
+    const initPoint = isSandbox
+      ? (data.sandbox_init_point || data.init_point)
+      : (data.init_point || data.sandbox_init_point);
     if (!initPoint) {
       return NextResponse.json({ error: "MP no devolvió init_point", data }, { status: 500 });
     }

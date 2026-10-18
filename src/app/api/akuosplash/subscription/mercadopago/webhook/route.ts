@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
+import { getMpSubCreds } from "@/lib/akuosplash-plans";
 
 // POST /api/akuosplash/subscription/mercadopago/webhook
 // Recibe notificaciones de MercadoPago sobre cambios de estado de preapprovals.
@@ -18,15 +19,13 @@ export async function POST(req: NextRequest) {
 
     if (!dataId) return NextResponse.json({ ok: true, ignored: true, noId: true });
 
-    const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
-    const accessToken = config?.mpAccessToken || process.env.AKUO_MP_ACCESS_TOKEN;
-    if (!accessToken) return NextResponse.json({ ok: false, error: "MP no configurado" }, { status: 500 });
+    // Usar la cuenta MP de subscriptions (no la de split)
+    const subCreds = await getMpSubCreds();
+    if (!subCreds.accessToken) return NextResponse.json({ ok: false, error: "MP Sub no configurado" }, { status: 500 });
 
-    // Consultar el estado real de la preapproval a MP
-    const sandbox = config?.mpSandbox ?? true;
     const apiBase = "https://api.mercadopago.com";
     const r = await fetch(`${apiBase}/preapproval/${dataId}`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${subCreds.accessToken}` },
     });
     if (!r.ok) {
       console.error("[mp sub webhook] fetch failed", r.status);
