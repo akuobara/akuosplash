@@ -2068,3 +2068,80 @@ Stage Summary:
 - ✅ Registro de uso: cada cupón usado se registra en AkuoUsuarioCupon con montoAhorrado
 - ✅ Contador de usos en AkuoCupon se incrementa
 - ✅ Deploy a Vercel producción READY
+
+---
+Task ID: akuosplash-regiones-comunas-selector
+Agent: main
+Task: Crear un selector más eficiente de zonas basado en la división político-administrativa de Chile (regiones → comunas) con vista lista y vista mapa, editable para activar/desactivar/ajustar precios.
+
+Work Log:
+- FUENTE DE DATOS: caracena/chile-geojson (GitHub) — archivos 1.geojson a 16.geojson (uno por región) con polígonos de las 345 comunas de Chile. Properties incluyen cod_comuna, codregion, Comuna, Provincia, Region.
+
+- SCRIPT `scripts/build-chile-comunas-metadata.py`:
+  * Descarga los 16 archivos de caracena/chile-geojson
+  * Extrae metadata compacta (cod_comuna, nombre, codRegion, region, provincia, centroidLat, centroidLng, poligonoUrl)
+  * Centroid calculado como bounding box center del polígono (más estable que promedio de vértices)
+  * Guarda en `src/data/chile-comunas-metadata.json` (88KB — solo metadata, sin polígonos)
+  * 345 comunas extraídas en 16 regiones
+  * Los polígonos completos (~5MB total) se cargan lazy desde GitHub raw cuando se necesitan para el mapa
+
+- SCHEMA: AkuoZona extendedido con 2 campos nuevos:
+  * comunaCode (String?) — código único de la comuna (4 dígitos)
+  * codRegion (Int?) — código de la región (1-16)
+  * Indexes en comunaCode y codRegion para queries rápidas
+  * Auto-migración en ensureAkuoConfigColumns
+
+- ENDPOINT `GET /api/akuosplash/admin/regiones-comunas`:
+  * Devuelve el árbol completo: 16 regiones + 345 comunas con su estado actual de zona
+  * Para cada comuna: si tiene zona configurada (busca por comunaCode o por nombre), devuelve info de la zona
+  * Stats: totalComunas, totalConfiguradas, totalActivas
+  * Filtro opcional ?region=N para cargar solo una región
+  * Usa raw SQL para leer AkuoZona (defensivo — evita errores de Prisma con columnas nuevas)
+
+- ENDPOINT `PATCH /api/akuosplash/admin/regiones-comunas/[comunaCode]`:
+  * Body: { activa, precioPorLitro, precioMinimoPorLitro, precioMinimoTotal, precioMaximoPorLitro, litrosMinimos }
+  * Si la comuna no tiene zona: crea una nueva AkuoZona con el centroid + radioKm=15km + polígono vacío (se carga lazy)
+  * Si ya tiene zona: actualiza los campos enviados
+  * Auto-migra las columnas comunaCode y codRegion si no existen
+
+- ENDPOINT `DELETE /api/akuosplash/admin/regiones-comunas/[comunaCode]`:
+  * Soft delete — marca activa=false en AkuoZona (no borra para mantener histórico)
+
+- COMPONENTE `src/components/akuosplash/regiones-comunas-tab.tsx` (~330 líneas):
+  * 2 vistas: Lista y Mapa (toggle)
+  * **Vista Lista**: árbol expandible de regiones → comunas
+    - Cada región muestra: nombre + count de comunas + count de activas
+    - Cada comuna muestra: icon (✓ activa / ○ configurada inactiva / ○ no configurada) + nombre + provincia + precio/L si activa
+    - Botones por comuna: "Editar" o "Activar" + "Desactivar" si ya existe
+  * **Vista Mapa**: usa react-leaflet con markers por comuna centroid
+    - Lazy-load react-leaflet (solo se importa cuando se activa la vista mapa)
+    - Markers hasta 200 comunas (limit para performance)
+    - Click en marker → abre modal de edición
+  * **Búsqueda**: input para filtrar por nombre de comuna o región
+  * **Modal de edición**:
+    - Toggle "Zona activa"
+    - Inputs: precio por litro, litros mínimos, precio mín/máx por litro, precio mín total
+    - Botones Guardar/Cancelar
+
+- SUPERADMIN PAGE actualizado:
+  * Agregada opción "🗺️ Regiones y Comunas" al <select> dropdown
+  * <TabsContent value="regiones"> con <RegionesComunasTab />
+  * Renombrado el tab "Zonas" → "Zonas (Google Earth)" para distinguir
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores en mis archivos
+  * Instalado react-leaflet + leaflet + @types/leaflet
+  * Deploy Vercel exitoso (READY en ~6min)
+  * Smoke test: superadmin page HTTP 200, regiones-comunas endpoint HTTP 401 (auth required, expected)
+
+Stage Summary:
+- ✅ Selector eficiente de zonas basado en división político-administrativa de Chile
+- ✅ 16 regiones + 345 comunas con metadata (88KB) + polígonos lazy-load desde GitHub raw
+- ✅ Vista Lista: árbol expandible de regiones → comunas con estado + precios
+- ✅ Vista Mapa: react-leaflet con markers por comuna centroid (lazy-loaded)
+- ✅ Búsqueda por nombre de comuna o región
+- ✅ Modal de edición: activar toggle, precio por litro, precios mín/máx, litros mínimos
+- ✅ Auto-migración de columnas comunaCode + codRegion en AkuoZona
+- ✅ Soft delete (no borra zonas, marca como inactivas)
+- ✅ Coexistencia con zonas creadas via Google Earth (tab "Zonas (Google Earth)")
+- ✅ Deploy a Vercel producción READY

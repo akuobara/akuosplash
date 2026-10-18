@@ -18,6 +18,7 @@ import { IntegracionesTab } from "@/components/akuosplash/integraciones-tab";
 import { PlanesTab } from "@/components/akuosplash/planes-tab";
 import { SubscriptionsTab } from "@/components/akuosplash/subscriptions-tab";
 import { CuponesTab } from "@/components/akuosplash/cupones-tab";
+import { RegionesComunasTab } from "@/components/akuosplash/regiones-comunas-tab";
 
 interface Stats {
   clientesCount: number;
@@ -151,7 +152,8 @@ export default function SuperadminPage() {
             className="w-full mb-4 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium"
           >
             <option value="panel">📊 Panel</option>
-            <option value="zonas">📍 Zonas</option>
+            <option value="zonas">📍 Zonas (Google Earth)</option>
+            <option value="regiones">🗺️ Regiones y Comunas</option>
             <option value="repartidores">🚛 Repartidores</option>
             <option value="clientes">👥 Clientes</option>
             <option value="pedidos">🛒 Pedidos</option>
@@ -281,20 +283,25 @@ export default function SuperadminPage() {
             )}
           </TabsContent>
 
-          {/* === ZONAS === */}
+          {/* === ZONAS (Google Earth) === */}
           <TabsContent value="zonas" className="mt-4">
             <Link href="/akuosplash/superadmin/zonas">
               <Card className="border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition cursor-pointer">
                 <CardContent className="p-3 flex items-center gap-3">
                   <div className="rounded-lg bg-blue-500/10 p-2"><MapPin className="h-5 w-5 text-blue-600" /></div>
                   <div className="flex-1">
-                    <p className="font-medium text-sm">Gestionar zonas</p>
+                    <p className="font-medium text-sm">Gestionar zonas (Google Earth / GeoJSON)</p>
                     <p className="text-xs text-gray-500">{stats?.zonasCount ?? 0} zonas activas</p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-gray-400" />
                 </CardContent>
               </Card>
             </Link>
+          </TabsContent>
+
+          {/* === REGIONES Y COMUNAS === */}
+          <TabsContent value="regiones" className="mt-4">
+            <RegionesComunasTab />
           </TabsContent>
 
           {/* === REPARTIDORES === */}

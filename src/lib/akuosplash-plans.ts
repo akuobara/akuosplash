@@ -221,6 +221,8 @@ export async function ensureAkuoConfigColumns() {
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubSuspendedEn DATETIME",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubSuspendedPor TEXT",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubSuspendedRazon TEXT",
+    "ALTER TABLE AkuoZona ADD COLUMN comunaCode TEXT",
+    "ALTER TABLE AkuoZona ADD COLUMN codRegion INTEGER",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioUrl TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioFolio TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoEn DATETIME",

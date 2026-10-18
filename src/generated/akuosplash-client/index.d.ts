@@ -24208,6 +24208,7 @@ export namespace Prisma {
     precioMaximoPorLitro: number | null
     litrosMinimos: number | null
     radioKm: number | null
+    codRegion: number | null
   }
 
   export type AkuoZonaSumAggregateOutputType = {
@@ -24219,6 +24220,7 @@ export namespace Prisma {
     precioMaximoPorLitro: number | null
     litrosMinimos: number | null
     radioKm: number | null
+    codRegion: number | null
   }
 
   export type AkuoZonaMinAggregateOutputType = {
@@ -24237,6 +24239,8 @@ export namespace Prisma {
     litrosMinimos: number | null
     radioKm: number | null
     activa: boolean | null
+    comunaCode: string | null
+    codRegion: number | null
   }
 
   export type AkuoZonaMaxAggregateOutputType = {
@@ -24255,6 +24259,8 @@ export namespace Prisma {
     litrosMinimos: number | null
     radioKm: number | null
     activa: boolean | null
+    comunaCode: string | null
+    codRegion: number | null
   }
 
   export type AkuoZonaCountAggregateOutputType = {
@@ -24273,6 +24279,8 @@ export namespace Prisma {
     litrosMinimos: number
     radioKm: number
     activa: number
+    comunaCode: number
+    codRegion: number
     _all: number
   }
 
@@ -24286,6 +24294,7 @@ export namespace Prisma {
     precioMaximoPorLitro?: true
     litrosMinimos?: true
     radioKm?: true
+    codRegion?: true
   }
 
   export type AkuoZonaSumAggregateInputType = {
@@ -24297,6 +24306,7 @@ export namespace Prisma {
     precioMaximoPorLitro?: true
     litrosMinimos?: true
     radioKm?: true
+    codRegion?: true
   }
 
   export type AkuoZonaMinAggregateInputType = {
@@ -24315,6 +24325,8 @@ export namespace Prisma {
     litrosMinimos?: true
     radioKm?: true
     activa?: true
+    comunaCode?: true
+    codRegion?: true
   }
 
   export type AkuoZonaMaxAggregateInputType = {
@@ -24333,6 +24345,8 @@ export namespace Prisma {
     litrosMinimos?: true
     radioKm?: true
     activa?: true
+    comunaCode?: true
+    codRegion?: true
   }
 
   export type AkuoZonaCountAggregateInputType = {
@@ -24351,6 +24365,8 @@ export namespace Prisma {
     litrosMinimos?: true
     radioKm?: true
     activa?: true
+    comunaCode?: true
+    codRegion?: true
     _all?: true
   }
 
@@ -24456,6 +24472,8 @@ export namespace Prisma {
     litrosMinimos: number
     radioKm: number | null
     activa: boolean
+    comunaCode: string | null
+    codRegion: number | null
     _count: AkuoZonaCountAggregateOutputType | null
     _avg: AkuoZonaAvgAggregateOutputType | null
     _sum: AkuoZonaSumAggregateOutputType | null
@@ -24493,6 +24511,8 @@ export namespace Prisma {
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
+    comunaCode?: boolean
+    codRegion?: boolean
     usuarios?: boolean | AkuoZona$usuariosArgs<ExtArgs>
     _count?: boolean | AkuoZonaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["akuoZona"]>
@@ -24513,6 +24533,8 @@ export namespace Prisma {
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
+    comunaCode?: boolean
+    codRegion?: boolean
   }, ExtArgs["result"]["akuoZona"]>
 
   export type AkuoZonaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -24531,6 +24553,8 @@ export namespace Prisma {
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
+    comunaCode?: boolean
+    codRegion?: boolean
   }, ExtArgs["result"]["akuoZona"]>
 
   export type AkuoZonaSelectScalar = {
@@ -24549,9 +24573,11 @@ export namespace Prisma {
     litrosMinimos?: boolean
     radioKm?: boolean
     activa?: boolean
+    comunaCode?: boolean
+    codRegion?: boolean
   }
 
-  export type AkuoZonaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "actualizadoEn" | "nombre" | "descripcion" | "zonaGeoJson" | "centroLat" | "centroLng" | "precioPorLitro" | "precioMinimoPorLitro" | "precioMinimoTotal" | "precioMaximoPorLitro" | "litrosMinimos" | "radioKm" | "activa", ExtArgs["result"]["akuoZona"]>
+  export type AkuoZonaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "actualizadoEn" | "nombre" | "descripcion" | "zonaGeoJson" | "centroLat" | "centroLng" | "precioPorLitro" | "precioMinimoPorLitro" | "precioMinimoTotal" | "precioMaximoPorLitro" | "litrosMinimos" | "radioKm" | "activa" | "comunaCode" | "codRegion", ExtArgs["result"]["akuoZona"]>
   export type AkuoZonaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     usuarios?: boolean | AkuoZona$usuariosArgs<ExtArgs>
     _count?: boolean | AkuoZonaCountOutputTypeDefaultArgs<ExtArgs>
@@ -24580,6 +24606,8 @@ export namespace Prisma {
       litrosMinimos: number
       radioKm: number | null
       activa: boolean
+      comunaCode: string | null
+      codRegion: number | null
     }, ExtArgs["result"]["akuoZona"]>
     composites: {}
   }
@@ -25019,6 +25047,8 @@ export namespace Prisma {
     readonly litrosMinimos: FieldRef<"AkuoZona", 'Int'>
     readonly radioKm: FieldRef<"AkuoZona", 'Float'>
     readonly activa: FieldRef<"AkuoZona", 'Boolean'>
+    readonly comunaCode: FieldRef<"AkuoZona", 'String'>
+    readonly codRegion: FieldRef<"AkuoZona", 'Int'>
   }
     
 
@@ -31930,7 +31960,9 @@ export namespace Prisma {
     precioMaximoPorLitro: 'precioMaximoPorLitro',
     litrosMinimos: 'litrosMinimos',
     radioKm: 'radioKm',
-    activa: 'activa'
+    activa: 'activa',
+    comunaCode: 'comunaCode',
+    codRegion: 'codRegion'
   };
 
   export type AkuoZonaScalarFieldEnum = (typeof AkuoZonaScalarFieldEnum)[keyof typeof AkuoZonaScalarFieldEnum]
@@ -34163,6 +34195,8 @@ export namespace Prisma {
     litrosMinimos?: IntFilter<"AkuoZona"> | number
     radioKm?: FloatNullableFilter<"AkuoZona"> | number | null
     activa?: BoolFilter<"AkuoZona"> | boolean
+    comunaCode?: StringNullableFilter<"AkuoZona"> | string | null
+    codRegion?: IntNullableFilter<"AkuoZona"> | number | null
     usuarios?: AkuoUsuarioListRelationFilter
   }
 
@@ -34182,6 +34216,8 @@ export namespace Prisma {
     litrosMinimos?: SortOrder
     radioKm?: SortOrderInput | SortOrder
     activa?: SortOrder
+    comunaCode?: SortOrderInput | SortOrder
+    codRegion?: SortOrderInput | SortOrder
     usuarios?: AkuoUsuarioOrderByRelationAggregateInput
   }
 
@@ -34204,6 +34240,8 @@ export namespace Prisma {
     litrosMinimos?: IntFilter<"AkuoZona"> | number
     radioKm?: FloatNullableFilter<"AkuoZona"> | number | null
     activa?: BoolFilter<"AkuoZona"> | boolean
+    comunaCode?: StringNullableFilter<"AkuoZona"> | string | null
+    codRegion?: IntNullableFilter<"AkuoZona"> | number | null
     usuarios?: AkuoUsuarioListRelationFilter
   }, "id">
 
@@ -34223,6 +34261,8 @@ export namespace Prisma {
     litrosMinimos?: SortOrder
     radioKm?: SortOrderInput | SortOrder
     activa?: SortOrder
+    comunaCode?: SortOrderInput | SortOrder
+    codRegion?: SortOrderInput | SortOrder
     _count?: AkuoZonaCountOrderByAggregateInput
     _avg?: AkuoZonaAvgOrderByAggregateInput
     _max?: AkuoZonaMaxOrderByAggregateInput
@@ -34249,6 +34289,8 @@ export namespace Prisma {
     litrosMinimos?: IntWithAggregatesFilter<"AkuoZona"> | number
     radioKm?: FloatNullableWithAggregatesFilter<"AkuoZona"> | number | null
     activa?: BoolWithAggregatesFilter<"AkuoZona"> | boolean
+    comunaCode?: StringNullableWithAggregatesFilter<"AkuoZona"> | string | null
+    codRegion?: IntNullableWithAggregatesFilter<"AkuoZona"> | number | null
   }
 
   export type AkuoConversacionWhereInput = {
@@ -37229,6 +37271,8 @@ export namespace Prisma {
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
     usuarios?: AkuoUsuarioCreateNestedManyWithoutZonaInput
   }
 
@@ -37248,6 +37292,8 @@ export namespace Prisma {
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
     usuarios?: AkuoUsuarioUncheckedCreateNestedManyWithoutZonaInput
   }
 
@@ -37267,6 +37313,8 @@ export namespace Prisma {
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
     usuarios?: AkuoUsuarioUpdateManyWithoutZonaNestedInput
   }
 
@@ -37286,6 +37334,8 @@ export namespace Prisma {
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
     usuarios?: AkuoUsuarioUncheckedUpdateManyWithoutZonaNestedInput
   }
 
@@ -37305,6 +37355,8 @@ export namespace Prisma {
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
   }
 
   export type AkuoZonaUpdateManyMutationInput = {
@@ -37323,6 +37375,8 @@ export namespace Prisma {
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoZonaUncheckedUpdateManyInput = {
@@ -37341,6 +37395,8 @@ export namespace Prisma {
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoConversacionCreateInput = {
@@ -39592,6 +39648,8 @@ export namespace Prisma {
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
     activa?: SortOrder
+    comunaCode?: SortOrder
+    codRegion?: SortOrder
   }
 
   export type AkuoZonaAvgOrderByAggregateInput = {
@@ -39603,6 +39661,7 @@ export namespace Prisma {
     precioMaximoPorLitro?: SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
+    codRegion?: SortOrder
   }
 
   export type AkuoZonaMaxOrderByAggregateInput = {
@@ -39621,6 +39680,8 @@ export namespace Prisma {
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
     activa?: SortOrder
+    comunaCode?: SortOrder
+    codRegion?: SortOrder
   }
 
   export type AkuoZonaMinOrderByAggregateInput = {
@@ -39639,6 +39700,8 @@ export namespace Prisma {
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
     activa?: SortOrder
+    comunaCode?: SortOrder
+    codRegion?: SortOrder
   }
 
   export type AkuoZonaSumOrderByAggregateInput = {
@@ -39650,6 +39713,7 @@ export namespace Prisma {
     precioMaximoPorLitro?: SortOrder
     litrosMinimos?: SortOrder
     radioKm?: SortOrder
+    codRegion?: SortOrder
   }
 
   export type AkuoConversacionClienteIdTransportistaIdCompoundUniqueInput = {
@@ -41921,6 +41985,8 @@ export namespace Prisma {
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
   }
 
   export type AkuoZonaUncheckedCreateWithoutUsuariosInput = {
@@ -41939,6 +42005,8 @@ export namespace Prisma {
     litrosMinimos?: number
     radioKm?: number | null
     activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
   }
 
   export type AkuoZonaCreateOrConnectWithoutUsuariosInput = {
@@ -42715,6 +42783,8 @@ export namespace Prisma {
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoZonaUncheckedUpdateWithoutUsuariosInput = {
@@ -42733,6 +42803,8 @@ export namespace Prisma {
     litrosMinimos?: IntFieldUpdateOperationsInput | number
     radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
     activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type AkuoSesionUpsertWithWhereUniqueWithoutUsuarioInput = {

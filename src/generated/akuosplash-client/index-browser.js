@@ -471,7 +471,9 @@ exports.Prisma.AkuoZonaScalarFieldEnum = {
   precioMaximoPorLitro: 'precioMaximoPorLitro',
   litrosMinimos: 'litrosMinimos',
   radioKm: 'radioKm',
-  activa: 'activa'
+  activa: 'activa',
+  comunaCode: 'comunaCode',
+  codRegion: 'codRegion'
 };
 
 exports.Prisma.AkuoConversacionScalarFieldEnum = {

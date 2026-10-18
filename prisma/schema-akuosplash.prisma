@@ -497,9 +497,14 @@ model AkuoZona {
   // Radio de cobertura (km) si no hay polígono
   radioKm         Float?
   activa          Boolean  @default(true)
+  // --- Para zonas creadas desde el selector de comunas ---
+  comunaCode      String?  // código único de la comuna (4 dígitos)
+  codRegion       Int?     // código de la región (1-16)
   // Relación con clientes asignados a esta zona
   usuarios        AkuoUsuario[]
   @@index([activa])
+  @@index([comunaCode])
+  @@index([codRegion])
 }
 
 model AkuoConversacion {
