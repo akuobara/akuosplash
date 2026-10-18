@@ -257,14 +257,9 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
             </Badge>
           )}
           {planId === "gratis" && planActual !== "gratis" && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full text-red-600 border-red-300 hover:bg-red-50"
-              onClick={() => toast.info("Para cancelar, hacelo desde tu cuenta MercadoPago o escribínos a soporte.")}
-            >
-              Cancelar subscripción
-            </Button>
+            <Badge variant="outline" className="w-full justify-center py-1 text-[10px] bg-red-50 text-red-700 border-red-200">
+              Subscripción cancelada
+            </Badge>
           )}
         </CardContent>
       </Card>
@@ -305,6 +300,24 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                   Tenés una subscripción en proceso en MercadoPago. Si ya pagaste, tocá "Sincronizar".
                 </p>
               )}
+              {info?.mpSubStatus === "paused" && (
+                <p className="text-xs text-amber-700 mt-1 flex items-start gap-1">
+                  <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
+                  Pago pausado — MP no pudo cobrar. Tu plan sigue activo hasta el vencimiento. Reintentá el pago o actualizá tu método de pago en MP.
+                </p>
+              )}
+              {info?.mpSubStatus === "payment_failed" && (
+                <p className="text-xs text-red-700 mt-1 flex items-start gap-1">
+                  <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
+                  Último pago fallido. MP va a reintentar automáticamente. Tu plan sigue activo hasta el vencimiento.
+                </p>
+              )}
+              {info?.mpSubStatus === "cancelled" && (
+                <p className="text-xs text-red-700 mt-1 flex items-start gap-1">
+                  <XCircle className="h-3 w-3 mt-0.5 shrink-0" />
+                  Subscripción cancelada. Tu plan sigue activo hasta el vencimiento, después pasarás a Gratis.
+                </p>
+              )}
             </div>
             {info?.mpSubPreapprovalId && (
               <Button size="sm" variant="outline" onClick={syncManual} disabled={syncing}>
@@ -315,6 +328,55 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Acciones de subscripción (cancelar / reintentar) */}
+      {info?.mpSubPreapprovalId && info?.mpSubStatus && info?.mpSubStatus !== "cancelled" && (
+        <Card className="border-amber-200 bg-amber-50/30">
+          <CardContent className="p-3 space-y-2">
+            <p className="text-sm font-medium">⚙️ Acciones de subscripción</p>
+            <div className="flex flex-wrap gap-2">
+              {(info?.mpSubStatus === "paused" || info?.mpSubStatus === "payment_failed") && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="bg-blue-600 hover:bg-blue-700 text-white border-blue-700"
+                  onClick={async () => {
+                    try {
+                      const r = await akuoPost("/api/akuosplash/subscription/retry", {
+                        plan: info?.mpSubPlanSolicitado || planActual,
+                        ciclo: info?.mpSubCiclo || "mensual",
+                      });
+                      if (r.initPoint) window.location.href = r.initPoint;
+                    } catch (e: any) {
+                      toast.error(e?.message || "No se pudo crear nueva preapproval");
+                    }
+                  }}
+                >
+                  Reintentar pago
+                </Button>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-red-700 border-red-300 hover:bg-red-50"
+                onClick={async () => {
+                  if (!confirm("¿Cancelar tu subscripción? Tu plan sigue activo hasta el vencimiento.")) return;
+                  try {
+                    await akuoPost("/api/akuosplash/subscription/cancel", {});
+                    toast.success("Subscripción cancelada. Tu plan sigue activo hasta el vencimiento.");
+                    cargar();
+                    onUpdated();
+                  } catch (e: any) {
+                    toast.error(e?.message || "No se pudo cancelar");
+                  }
+                }}
+              >
+                Cancelar subscripción
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Planes */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

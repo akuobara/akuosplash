@@ -1812,3 +1812,77 @@ Stage Summary:
 - ✅ Endpoints temporales borrados
 - ⚠️ transtest1 no puede subscribirse con el token actual porque es mismo user que collector
 - ⚠️ Para que transtest1 también pueda subscribirse con MP real, se necesita OTRO access token de OTRO test user (ej: akuosplashmarket con user_id 3738975019) como plataforma
+
+---
+Task ID: akuosplash-subscription-failure-handling
+Agent: main
+Task: Asegurar que existan soluciones para cuando (1) se deja de pagar la subscripción, (2) un pago falla recurrente, (3) el plan vence.
+
+Work Log:
+- REESCRITO `src/app/api/akuosplash/subscription/mercadopago/webhook/route.ts` (~230 líneas):
+  * ANTES: solo procesaba webhooks de tipo `subscription_preapproval` (cambios de estado de la preapproval)
+  * AHORA: procesa 2 tipos de webhook:
+    1. `subscription_preapproval` → cambios de estado de la preapproval (authorized, paused, cancelled, pending)
+    2. `payment` → pagos recurrentes individuales (approved, rejected, pending)
+
+  * Caso 1 (preapproval authorized): plan activado, planActivoHasta = hoy + 1 mes/año, suscripcionActiva=true, notificación al transportista
+  * Caso 2 (preapproval paused): suscripcionActiva=false (NO desactiva el plan — periodo de gracia), notifica "Pago pausado — MP no pudo cobrar"
+  * Caso 3 (preapproval cancelled): suscripcionActiva=false, notifica "Subscripción cancelada — tu plan sigue activo hasta el vencimiento"
+  * Caso 4 (payment approved): planActivoHasta EXTENDIDO al próximo periodo (acumula si aún no venció), mpSubStatus=authorized, notifica "Pago recibido"
+  * Caso 5 (payment rejected): mpSubStatus=payment_failed, suscripcionActiva=false, notifica "Pago fallido" con motivo traducido (tarjeta deshabilitada, fondos insuficientes, etc.)
+  * Caso 6 (payment pending): solo log, no actúa
+  * Helper `traducirRechazo()`: traduce los motivos de rechazo de MP al español (cc_rejected_card_disabled → "tarjeta deshabilitada", etc.)
+  * Helper `getPlanVencimiento()`: lee la fecha de vencimiento del plan del usuario para mostrar en notificaciones
+
+- CREADO `src/app/api/akuosplash/cron/expirar-planes/route.ts` (~80 líneas):
+  * Endpoint GET/POST para correr diariamente (via cron externo o Vercel cron)
+  * Busca usuarios con plan != "gratis" cuyo planActivoHasta ya pasó
+  * Los baja a plan="gratis" (suscripcionActiva=false)
+  * Mantiene planActivoHasta histórico (para que se vea cuándo venció)
+  * Marca `planExpiradoNotificado=1` para no notificar 2 veces (auto-migra la columna si no existe)
+  * Notifica al transportista: "⏰ Tu plan venció. Ahora estás en plan Gratis."
+  * Auth: header `Authorization: Bearer <CRON_SECRET>` si está configurado (defensivo)
+
+- CREADO `src/app/api/akuosplash/subscription/cancel/route.ts` (~75 líneas):
+  * Permite al transportista cancelar su subscripción activa
+  * Llama a MP API: PUT /preapproval/<id> con `{status: "cancelled"}`
+  * Marca en DB: mpSubStatus=cancelled, suscripcionActiva=false
+  * NO desactiva el plan inmediatamente — sigue activo hasta planActivoHasta (periodo de gracia)
+  * Notifica al transportista: "🛑 Subscripción cancelada — tu plan sigue activo hasta el vencimiento"
+
+- CREADO `src/app/api/akuosplash/subscription/retry/route.ts` (~95 líneas):
+  * Permite al transportista reintentar el pago después de un fallo
+  * Crea una NUEVA preapproval en MP (la anterior puede estar paused/cancelled)
+  * Setea mpSubStatus=pending en la DB
+  * Redirige al transportista al init_point de MP para autorizar la nueva preapproval
+  * Útil cuando la tarjeta venció o cambió y el transportista necesita actualizar el método de pago
+
+- ACTUALIZADO `src/components/akuosplash/subscripcion-tab.tsx`:
+  * Agregados mensajes de estado específicos para:
+    - mpSubStatus="paused" → amber, "Pago pausado — MP no pudo cobrar"
+    - mpSubStatus="payment_failed" → red, "Último pago fallido. MP va a reintentar."
+    - mpSubStatus="cancelled" → red, "Subscripción cancelada"
+  * Nueva card "⚙️ Acciones de subscripción" que aparece cuando hay preapprovalId + estado != cancelled:
+    - Botón "Reintentar pago" (visible solo si estado=paused o payment_failed) → llama a /subscription/retry
+    - Botón "Cancelar subscripción" → llama a /subscription/cancel con confirm()
+  * Cambiado el botón "Cancelar subscripción" del plan Card (gratis con planActual != gratis) → ahora muestra un Badge "Subscripción cancelada" en lugar del botón (que solo tiraba un toast informativo)
+
+- VERIFICADO en producción:
+  * GET /api/akuosplash/subscription/mercadopago/webhook → 200 (MP verification)
+  * POST /api/akuosplash/cron/expirar-planes → 200, devuelve `{ok:true, vencidos:0, message:"No hay planes vencidos"}`
+  * POST /api/akuosplash/subscription/cancel → 401 (auth required)
+  * POST /api/akuosplash/subscription/retry → 401 (auth required)
+  * Deploy Vercel exitoso (READY en ~6min)
+
+Stage Summary:
+- ✅ Webhook procesa 2 tipos: preapproval (authorized/paused/cancelled) + payment (approved/rejected/pending)
+- ✅ Pago recurrente aprobado → extiende planActivoHasta al próximo periodo (acumula si no venció)
+- ✅ Pago recurrente rechazado → marca mpSubStatus=payment_failed, notifica con motivo traducido
+- ✅ Subscripción pausada → notifica al transportista (NO desactiva el plan — periodo de gracia)
+- ✅ Subscripción cancelada → notifica al transportista (NO desactiva el plan — periodo de gracia)
+- ✅ Cron diario: detecta planes vencidos, baja a plan gratis, notifica al transportista
+- ✅ Endpoint /subscription/cancel: transportista puede cancelar su subscripción
+- ✅ Endpoint /subscription/retry: transportista puede reintentar pago después de fallo
+- ✅ UI actualizada: mensajes de estado + botones de cancelar/reintentar
+- ✅ Deploy a Vercel producción READY
+- ⏳ Para activar el cron: agregar en vercel.json o usar un cron externo (ej: cron-job.org) que pegue a /api/akuosplash/cron/expirar-planes diariamente
