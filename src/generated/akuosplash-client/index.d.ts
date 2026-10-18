@@ -22531,6 +22531,11 @@ export namespace Prisma {
     mpClientId: string | null
     mpUserId: string | null
     mpSandbox: boolean | null
+    mpSplitAccessToken: string | null
+    mpSplitPublicKey: string | null
+    mpSplitUserId: string | null
+    mpSubAccessToken: string | null
+    mpSubPublicKey: string | null
     mpInstantAccessToken: string | null
     mpInstantPublicKey: string | null
     mpInstantUserId: string | null
@@ -22563,6 +22568,11 @@ export namespace Prisma {
     mpClientId: string | null
     mpUserId: string | null
     mpSandbox: boolean | null
+    mpSplitAccessToken: string | null
+    mpSplitPublicKey: string | null
+    mpSplitUserId: string | null
+    mpSubAccessToken: string | null
+    mpSubPublicKey: string | null
     mpInstantAccessToken: string | null
     mpInstantPublicKey: string | null
     mpInstantUserId: string | null
@@ -22595,6 +22605,11 @@ export namespace Prisma {
     mpClientId: number
     mpUserId: number
     mpSandbox: number
+    mpSplitAccessToken: number
+    mpSplitPublicKey: number
+    mpSplitUserId: number
+    mpSubAccessToken: number
+    mpSubPublicKey: number
     mpInstantAccessToken: number
     mpInstantPublicKey: number
     mpInstantUserId: number
@@ -22651,6 +22666,11 @@ export namespace Prisma {
     mpClientId?: true
     mpUserId?: true
     mpSandbox?: true
+    mpSplitAccessToken?: true
+    mpSplitPublicKey?: true
+    mpSplitUserId?: true
+    mpSubAccessToken?: true
+    mpSubPublicKey?: true
     mpInstantAccessToken?: true
     mpInstantPublicKey?: true
     mpInstantUserId?: true
@@ -22683,6 +22703,11 @@ export namespace Prisma {
     mpClientId?: true
     mpUserId?: true
     mpSandbox?: true
+    mpSplitAccessToken?: true
+    mpSplitPublicKey?: true
+    mpSplitUserId?: true
+    mpSubAccessToken?: true
+    mpSubPublicKey?: true
     mpInstantAccessToken?: true
     mpInstantPublicKey?: true
     mpInstantUserId?: true
@@ -22715,6 +22740,11 @@ export namespace Prisma {
     mpClientId?: true
     mpUserId?: true
     mpSandbox?: true
+    mpSplitAccessToken?: true
+    mpSplitPublicKey?: true
+    mpSplitUserId?: true
+    mpSubAccessToken?: true
+    mpSubPublicKey?: true
     mpInstantAccessToken?: true
     mpInstantPublicKey?: true
     mpInstantUserId?: true
@@ -22834,6 +22864,11 @@ export namespace Prisma {
     mpClientId: string | null
     mpUserId: string | null
     mpSandbox: boolean
+    mpSplitAccessToken: string | null
+    mpSplitPublicKey: string | null
+    mpSplitUserId: string | null
+    mpSubAccessToken: string | null
+    mpSubPublicKey: string | null
     mpInstantAccessToken: string | null
     mpInstantPublicKey: string | null
     mpInstantUserId: string | null
@@ -22885,6 +22920,11 @@ export namespace Prisma {
     mpClientId?: boolean
     mpUserId?: boolean
     mpSandbox?: boolean
+    mpSplitAccessToken?: boolean
+    mpSplitPublicKey?: boolean
+    mpSplitUserId?: boolean
+    mpSubAccessToken?: boolean
+    mpSubPublicKey?: boolean
     mpInstantAccessToken?: boolean
     mpInstantPublicKey?: boolean
     mpInstantUserId?: boolean
@@ -22917,6 +22957,11 @@ export namespace Prisma {
     mpClientId?: boolean
     mpUserId?: boolean
     mpSandbox?: boolean
+    mpSplitAccessToken?: boolean
+    mpSplitPublicKey?: boolean
+    mpSplitUserId?: boolean
+    mpSubAccessToken?: boolean
+    mpSubPublicKey?: boolean
     mpInstantAccessToken?: boolean
     mpInstantPublicKey?: boolean
     mpInstantUserId?: boolean
@@ -22949,6 +22994,11 @@ export namespace Prisma {
     mpClientId?: boolean
     mpUserId?: boolean
     mpSandbox?: boolean
+    mpSplitAccessToken?: boolean
+    mpSplitPublicKey?: boolean
+    mpSplitUserId?: boolean
+    mpSubAccessToken?: boolean
+    mpSubPublicKey?: boolean
     mpInstantAccessToken?: boolean
     mpInstantPublicKey?: boolean
     mpInstantUserId?: boolean
@@ -22981,6 +23031,11 @@ export namespace Prisma {
     mpClientId?: boolean
     mpUserId?: boolean
     mpSandbox?: boolean
+    mpSplitAccessToken?: boolean
+    mpSplitPublicKey?: boolean
+    mpSplitUserId?: boolean
+    mpSubAccessToken?: boolean
+    mpSubPublicKey?: boolean
     mpInstantAccessToken?: boolean
     mpInstantPublicKey?: boolean
     mpInstantUserId?: boolean
@@ -22993,7 +23048,7 @@ export namespace Prisma {
     planConfigsJson?: boolean
   }
 
-  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre" | "mpAccessToken" | "mpPublicKey" | "mpClientId" | "mpUserId" | "mpSandbox" | "mpInstantAccessToken" | "mpInstantPublicKey" | "mpInstantUserId" | "mp10dayAccessToken" | "mp10dayPublicKey" | "mp10dayUserId" | "transbankCommerceCode" | "transbankApiKey" | "transbankEnvironment" | "planConfigsJson", ExtArgs["result"]["akuoConfig"]>
+  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre" | "mpAccessToken" | "mpPublicKey" | "mpClientId" | "mpUserId" | "mpSandbox" | "mpSplitAccessToken" | "mpSplitPublicKey" | "mpSplitUserId" | "mpSubAccessToken" | "mpSubPublicKey" | "mpInstantAccessToken" | "mpInstantPublicKey" | "mpInstantUserId" | "mp10dayAccessToken" | "mp10dayPublicKey" | "mp10dayUserId" | "transbankCommerceCode" | "transbankApiKey" | "transbankEnvironment" | "planConfigsJson", ExtArgs["result"]["akuoConfig"]>
 
   export type $AkuoConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoConfig"
@@ -23018,6 +23073,11 @@ export namespace Prisma {
       mpClientId: string | null
       mpUserId: string | null
       mpSandbox: boolean
+      mpSplitAccessToken: string | null
+      mpSplitPublicKey: string | null
+      mpSplitUserId: string | null
+      mpSubAccessToken: string | null
+      mpSubPublicKey: string | null
       mpInstantAccessToken: string | null
       mpInstantPublicKey: string | null
       mpInstantUserId: string | null
@@ -23470,6 +23530,11 @@ export namespace Prisma {
     readonly mpClientId: FieldRef<"AkuoConfig", 'String'>
     readonly mpUserId: FieldRef<"AkuoConfig", 'String'>
     readonly mpSandbox: FieldRef<"AkuoConfig", 'Boolean'>
+    readonly mpSplitAccessToken: FieldRef<"AkuoConfig", 'String'>
+    readonly mpSplitPublicKey: FieldRef<"AkuoConfig", 'String'>
+    readonly mpSplitUserId: FieldRef<"AkuoConfig", 'String'>
+    readonly mpSubAccessToken: FieldRef<"AkuoConfig", 'String'>
+    readonly mpSubPublicKey: FieldRef<"AkuoConfig", 'String'>
     readonly mpInstantAccessToken: FieldRef<"AkuoConfig", 'String'>
     readonly mpInstantPublicKey: FieldRef<"AkuoConfig", 'String'>
     readonly mpInstantUserId: FieldRef<"AkuoConfig", 'String'>
@@ -29161,6 +29226,11 @@ export namespace Prisma {
     mpClientId: 'mpClientId',
     mpUserId: 'mpUserId',
     mpSandbox: 'mpSandbox',
+    mpSplitAccessToken: 'mpSplitAccessToken',
+    mpSplitPublicKey: 'mpSplitPublicKey',
+    mpSplitUserId: 'mpSplitUserId',
+    mpSubAccessToken: 'mpSubAccessToken',
+    mpSubPublicKey: 'mpSubPublicKey',
     mpInstantAccessToken: 'mpInstantAccessToken',
     mpInstantPublicKey: 'mpInstantPublicKey',
     mpInstantUserId: 'mpInstantUserId',
@@ -31168,6 +31238,11 @@ export namespace Prisma {
     mpClientId?: StringNullableFilter<"AkuoConfig"> | string | null
     mpUserId?: StringNullableFilter<"AkuoConfig"> | string | null
     mpSandbox?: BoolFilter<"AkuoConfig"> | boolean
+    mpSplitAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSplitPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSplitUserId?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSubAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSubPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
     mpInstantAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
     mpInstantPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
     mpInstantUserId?: StringNullableFilter<"AkuoConfig"> | string | null
@@ -31200,6 +31275,11 @@ export namespace Prisma {
     mpClientId?: SortOrderInput | SortOrder
     mpUserId?: SortOrderInput | SortOrder
     mpSandbox?: SortOrder
+    mpSplitAccessToken?: SortOrderInput | SortOrder
+    mpSplitPublicKey?: SortOrderInput | SortOrder
+    mpSplitUserId?: SortOrderInput | SortOrder
+    mpSubAccessToken?: SortOrderInput | SortOrder
+    mpSubPublicKey?: SortOrderInput | SortOrder
     mpInstantAccessToken?: SortOrderInput | SortOrder
     mpInstantPublicKey?: SortOrderInput | SortOrder
     mpInstantUserId?: SortOrderInput | SortOrder
@@ -31235,6 +31315,11 @@ export namespace Prisma {
     mpClientId?: StringNullableFilter<"AkuoConfig"> | string | null
     mpUserId?: StringNullableFilter<"AkuoConfig"> | string | null
     mpSandbox?: BoolFilter<"AkuoConfig"> | boolean
+    mpSplitAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSplitPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSplitUserId?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSubAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
+    mpSubPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
     mpInstantAccessToken?: StringNullableFilter<"AkuoConfig"> | string | null
     mpInstantPublicKey?: StringNullableFilter<"AkuoConfig"> | string | null
     mpInstantUserId?: StringNullableFilter<"AkuoConfig"> | string | null
@@ -31267,6 +31352,11 @@ export namespace Prisma {
     mpClientId?: SortOrderInput | SortOrder
     mpUserId?: SortOrderInput | SortOrder
     mpSandbox?: SortOrder
+    mpSplitAccessToken?: SortOrderInput | SortOrder
+    mpSplitPublicKey?: SortOrderInput | SortOrder
+    mpSplitUserId?: SortOrderInput | SortOrder
+    mpSubAccessToken?: SortOrderInput | SortOrder
+    mpSubPublicKey?: SortOrderInput | SortOrder
     mpInstantAccessToken?: SortOrderInput | SortOrder
     mpInstantPublicKey?: SortOrderInput | SortOrder
     mpInstantUserId?: SortOrderInput | SortOrder
@@ -31307,6 +31397,11 @@ export namespace Prisma {
     mpClientId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     mpUserId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     mpSandbox?: BoolWithAggregatesFilter<"AkuoConfig"> | boolean
+    mpSplitAccessToken?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpSplitPublicKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpSplitUserId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpSubAccessToken?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    mpSubPublicKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     mpInstantAccessToken?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     mpInstantPublicKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     mpInstantUserId?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
@@ -33930,6 +34025,11 @@ export namespace Prisma {
     mpClientId?: string | null
     mpUserId?: string | null
     mpSandbox?: boolean
+    mpSplitAccessToken?: string | null
+    mpSplitPublicKey?: string | null
+    mpSplitUserId?: string | null
+    mpSubAccessToken?: string | null
+    mpSubPublicKey?: string | null
     mpInstantAccessToken?: string | null
     mpInstantPublicKey?: string | null
     mpInstantUserId?: string | null
@@ -33962,6 +34062,11 @@ export namespace Prisma {
     mpClientId?: string | null
     mpUserId?: string | null
     mpSandbox?: boolean
+    mpSplitAccessToken?: string | null
+    mpSplitPublicKey?: string | null
+    mpSplitUserId?: string | null
+    mpSubAccessToken?: string | null
+    mpSubPublicKey?: string | null
     mpInstantAccessToken?: string | null
     mpInstantPublicKey?: string | null
     mpInstantUserId?: string | null
@@ -33994,6 +34099,11 @@ export namespace Prisma {
     mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    mpSplitAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSplitPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSplitUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34026,6 +34136,11 @@ export namespace Prisma {
     mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    mpSplitAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSplitPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSplitUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34058,6 +34173,11 @@ export namespace Prisma {
     mpClientId?: string | null
     mpUserId?: string | null
     mpSandbox?: boolean
+    mpSplitAccessToken?: string | null
+    mpSplitPublicKey?: string | null
+    mpSplitUserId?: string | null
+    mpSubAccessToken?: string | null
+    mpSubPublicKey?: string | null
     mpInstantAccessToken?: string | null
     mpInstantPublicKey?: string | null
     mpInstantUserId?: string | null
@@ -34090,6 +34210,11 @@ export namespace Prisma {
     mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    mpSplitAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSplitPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSplitUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34122,6 +34247,11 @@ export namespace Prisma {
     mpClientId?: NullableStringFieldUpdateOperationsInput | string | null
     mpUserId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSandbox?: BoolFieldUpdateOperationsInput | boolean
+    mpSplitAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSplitPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSplitUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantAccessToken?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantPublicKey?: NullableStringFieldUpdateOperationsInput | string | null
     mpInstantUserId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36146,6 +36276,11 @@ export namespace Prisma {
     mpClientId?: SortOrder
     mpUserId?: SortOrder
     mpSandbox?: SortOrder
+    mpSplitAccessToken?: SortOrder
+    mpSplitPublicKey?: SortOrder
+    mpSplitUserId?: SortOrder
+    mpSubAccessToken?: SortOrder
+    mpSubPublicKey?: SortOrder
     mpInstantAccessToken?: SortOrder
     mpInstantPublicKey?: SortOrder
     mpInstantUserId?: SortOrder
@@ -36189,6 +36324,11 @@ export namespace Prisma {
     mpClientId?: SortOrder
     mpUserId?: SortOrder
     mpSandbox?: SortOrder
+    mpSplitAccessToken?: SortOrder
+    mpSplitPublicKey?: SortOrder
+    mpSplitUserId?: SortOrder
+    mpSubAccessToken?: SortOrder
+    mpSubPublicKey?: SortOrder
     mpInstantAccessToken?: SortOrder
     mpInstantPublicKey?: SortOrder
     mpInstantUserId?: SortOrder
@@ -36221,6 +36361,11 @@ export namespace Prisma {
     mpClientId?: SortOrder
     mpUserId?: SortOrder
     mpSandbox?: SortOrder
+    mpSplitAccessToken?: SortOrder
+    mpSplitPublicKey?: SortOrder
+    mpSplitUserId?: SortOrder
+    mpSubAccessToken?: SortOrder
+    mpSubPublicKey?: SortOrder
     mpInstantAccessToken?: SortOrder
     mpInstantPublicKey?: SortOrder
     mpInstantUserId?: SortOrder

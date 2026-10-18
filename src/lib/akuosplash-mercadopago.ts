@@ -236,7 +236,7 @@ export async function crearOrdenDirectaAkuo(params: {
     accessToken = process.env.AKUO_MP_ACCESS_TOKEN || null;
     userIdPlataforma = process.env.AKUO_MP_USER_ID || null;
   } else {
-    const creds = await getMpCredsForSplitMode(mpSplitMode);
+    const creds = await getMpSplitCreds();
     accessToken = creds.accessToken;
     userIdPlataforma = creds.userId;
   }

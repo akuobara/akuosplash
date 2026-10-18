@@ -445,11 +445,20 @@ model AkuoConfig {
   mpClientId               String?
   mpUserId                 String?
   mpSandbox                Boolean  @default(true)
-  // --- MP Split Instantáneo (para Plan Pro — pago inmediato al transportista) ---
+  // --- MP Split (para pagos del marketplace — cliente paga por agua) ---
+  // La comisión la calcula el backend de AkuoSplash según el plan del transportista.
+  // MP solo hace el split: envía al transportista (monto - comisión) y retiene la comisión a la plataforma.
+  mpSplitAccessToken       String?
+  mpSplitPublicKey         String?
+  mpSplitUserId            String?
+  // --- MP Subscriptions (para subscripciones de planes — transportista paga por su plan) ---
+  // Cuenta separada para preapproval API (subscripciones recurrentes).
+  mpSubAccessToken         String?
+  mpSubPublicKey           String?
+  // --- MP Instant / 10day (LEGACY — ya no se usan, pero se mantienen para compat) ---
   mpInstantAccessToken     String?
   mpInstantPublicKey       String?
   mpInstantUserId          String?
-  // --- MP Split 10 Días (para Plan Premium — pago diferido 10 días) ---
   mp10dayAccessToken       String?
   mp10dayPublicKey         String?
   mp10dayUserId            String?
