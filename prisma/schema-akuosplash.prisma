@@ -108,10 +108,15 @@ model AkuoUsuario {
   mpSubPreapprovalId       String?  // ID de la preapproval creada
   mpSubPlanSolicitado      String?  // "pago" | "pro" (cuál se solicitó)
   mpSubCiclo               String?  // "mensual" | "anual"
-  mpSubStatus              String?  // "pending" | "authorized" | "paused" | "cancelled"
+  mpSubStatus              String?  // "pending" | "authorized" | "paused" | "cancelled" | "suspended" | "payment_failed"
   mpSubIniciadoEn          DateTime?
   mpSubAutorizadoEn        DateTime?
   mpSubAmount              Float?
+  // Flag de suspención manual por superadmin (diferente de MP paused/cancelled)
+  mpSubSuspended           Boolean @default(false)
+  mpSubSuspendedEn         DateTime?
+  mpSubSuspendedPor        String? // superadminId
+  mpSubSuspendedRazon      String?
   // --- MP test user email (para sandbox testing) ---
   // Email del test user de MP (formato test_user_<numeric>@testuser.com) que se usa como payer
   // en la creación de preapprovals. Solo relevante en sandbox.
@@ -567,4 +572,54 @@ model AkuoPedidoCliente {
   @@index([clienteId, estado])
   @@index([transportistaId, estado])
   @@index([codigoConfirmacion])
+}
+
+// Cupones de descuento — para ventas (marketplace) o subscripciones de planes
+// Tipos: "venta" (descuento en pedido de agua) | "subscripcion" (descuento en plan mensual/anual)
+// Descuento: porcentaje | monto_fijo | meses_gratis
+model AkuoCupon {
+  id                String   @id @default(cuid())
+  creadoEn          DateTime @default(now())
+  actualizadoEn     DateTime @updatedAt
+  // Código público que el usuario ingresa (uppercase, sin espacios)
+  codigo            String   @unique
+  // Tipo de cupón
+  tipo              String   // "venta" | "subscripcion"
+  // Configuración del descuento
+  descuentoTipo     String   // "porcentaje" | "monto_fijo" | "meses_gratis"
+  descuentoValor    Float    // % (0-100) | monto en CLP | cantidad de meses
+  // Restricciones
+  minMonto          Float?   // monto mínimo del pedido/plan para aplicar (null = sin mínimo)
+  planIdAplicable   String?  // para cupones de subscripción: a qué plan aplican (null = todos)
+  maxUsos           Int      @default(0)  // 0 = ilimitado
+  usos              Int      @default(0)  // contador de usos
+  // Vigencia
+  fechaInicio       DateTime
+  fechaFin          DateTime?
+  activo            Boolean  @default(true)
+  // Metadata
+  creadoPor         String?  // superadminId
+  nota              String?  // nota interna del superadmin (no visible al usuario)
+  descripcionPublica String? // descripción visible al usuario (ej: "50% off por lanzamiento")
+  // Relación
+  usosCupones       AkuoUsuarioCupon[]
+  @@index([tipo, activo])
+  @@index([fechaInicio, fechaFin])
+}
+
+// Registro de uso de cupones por usuario (auditoría + control de uso único)
+model AkuoUsuarioCupon {
+  id            String   @id @default(cuid())
+  usadoEn       DateTime @default(now())
+  cuponId       String
+  cupon         AkuoCupon @relation(fields: [cuponId], references: [id], onDelete: Cascade)
+  usuarioId     String
+  // Para cupones de venta: el pedido donde se aplicó
+  pedidoClienteId String?
+  // Para cupones de subscripción: el plan que se activó
+  planActivado   String?
+  // Cuánto se ahorró (en CLP)
+  montoAhorrado  Float
+  @@index([cuponId, usuarioId])
+  @@index([usuarioId])
 }

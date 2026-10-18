@@ -113,6 +113,16 @@ export type AkuoMensaje = $Result.DefaultSelection<Prisma.$AkuoMensajePayload>
  * 
  */
 export type AkuoPedidoCliente = $Result.DefaultSelection<Prisma.$AkuoPedidoClientePayload>
+/**
+ * Model AkuoCupon
+ * 
+ */
+export type AkuoCupon = $Result.DefaultSelection<Prisma.$AkuoCuponPayload>
+/**
+ * Model AkuoUsuarioCupon
+ * 
+ */
+export type AkuoUsuarioCupon = $Result.DefaultSelection<Prisma.$AkuoUsuarioCuponPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -431,6 +441,26 @@ export class PrismaClient<
     * ```
     */
   get akuoPedidoCliente(): Prisma.AkuoPedidoClienteDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.akuoCupon`: Exposes CRUD operations for the **AkuoCupon** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AkuoCupons
+    * const akuoCupons = await prisma.akuoCupon.findMany()
+    * ```
+    */
+  get akuoCupon(): Prisma.AkuoCuponDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.akuoUsuarioCupon`: Exposes CRUD operations for the **AkuoUsuarioCupon** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AkuoUsuarioCupons
+    * const akuoUsuarioCupons = await prisma.akuoUsuarioCupon.findMany()
+    * ```
+    */
+  get akuoUsuarioCupon(): Prisma.AkuoUsuarioCuponDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -891,7 +921,9 @@ export namespace Prisma {
     AkuoZona: 'AkuoZona',
     AkuoConversacion: 'AkuoConversacion',
     AkuoMensaje: 'AkuoMensaje',
-    AkuoPedidoCliente: 'AkuoPedidoCliente'
+    AkuoPedidoCliente: 'AkuoPedidoCliente',
+    AkuoCupon: 'AkuoCupon',
+    AkuoUsuarioCupon: 'AkuoUsuarioCupon'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -910,7 +942,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "akuoUsuario" | "akuoSesion" | "akuoCodigoLogin" | "akuoVehiculo" | "akuoCliente" | "akuoPedido" | "akuoPedidoRecurrente" | "akuoEntrega" | "akuoVuelta" | "akuoGasto" | "akuoPago" | "akuoSuscripcion" | "akuoValoracion" | "akuoNotificacion" | "akuoAuditLog" | "akuoConfig" | "akuoZona" | "akuoConversacion" | "akuoMensaje" | "akuoPedidoCliente"
+      modelProps: "akuoUsuario" | "akuoSesion" | "akuoCodigoLogin" | "akuoVehiculo" | "akuoCliente" | "akuoPedido" | "akuoPedidoRecurrente" | "akuoEntrega" | "akuoVuelta" | "akuoGasto" | "akuoPago" | "akuoSuscripcion" | "akuoValoracion" | "akuoNotificacion" | "akuoAuditLog" | "akuoConfig" | "akuoZona" | "akuoConversacion" | "akuoMensaje" | "akuoPedidoCliente" | "akuoCupon" | "akuoUsuarioCupon"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2394,6 +2426,154 @@ export namespace Prisma {
           }
         }
       }
+      AkuoCupon: {
+        payload: Prisma.$AkuoCuponPayload<ExtArgs>
+        fields: Prisma.AkuoCuponFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AkuoCuponFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AkuoCuponFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>
+          }
+          findFirst: {
+            args: Prisma.AkuoCuponFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AkuoCuponFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>
+          }
+          findMany: {
+            args: Prisma.AkuoCuponFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>[]
+          }
+          create: {
+            args: Prisma.AkuoCuponCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>
+          }
+          createMany: {
+            args: Prisma.AkuoCuponCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AkuoCuponCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>[]
+          }
+          delete: {
+            args: Prisma.AkuoCuponDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>
+          }
+          update: {
+            args: Prisma.AkuoCuponUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>
+          }
+          deleteMany: {
+            args: Prisma.AkuoCuponDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AkuoCuponUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AkuoCuponUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>[]
+          }
+          upsert: {
+            args: Prisma.AkuoCuponUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoCuponPayload>
+          }
+          aggregate: {
+            args: Prisma.AkuoCuponAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAkuoCupon>
+          }
+          groupBy: {
+            args: Prisma.AkuoCuponGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AkuoCuponGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AkuoCuponCountArgs<ExtArgs>
+            result: $Utils.Optional<AkuoCuponCountAggregateOutputType> | number
+          }
+        }
+      }
+      AkuoUsuarioCupon: {
+        payload: Prisma.$AkuoUsuarioCuponPayload<ExtArgs>
+        fields: Prisma.AkuoUsuarioCuponFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AkuoUsuarioCuponFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AkuoUsuarioCuponFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>
+          }
+          findFirst: {
+            args: Prisma.AkuoUsuarioCuponFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AkuoUsuarioCuponFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>
+          }
+          findMany: {
+            args: Prisma.AkuoUsuarioCuponFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>[]
+          }
+          create: {
+            args: Prisma.AkuoUsuarioCuponCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>
+          }
+          createMany: {
+            args: Prisma.AkuoUsuarioCuponCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AkuoUsuarioCuponCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>[]
+          }
+          delete: {
+            args: Prisma.AkuoUsuarioCuponDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>
+          }
+          update: {
+            args: Prisma.AkuoUsuarioCuponUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>
+          }
+          deleteMany: {
+            args: Prisma.AkuoUsuarioCuponDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AkuoUsuarioCuponUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AkuoUsuarioCuponUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>[]
+          }
+          upsert: {
+            args: Prisma.AkuoUsuarioCuponUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AkuoUsuarioCuponPayload>
+          }
+          aggregate: {
+            args: Prisma.AkuoUsuarioCuponAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAkuoUsuarioCupon>
+          }
+          groupBy: {
+            args: Prisma.AkuoUsuarioCuponGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AkuoUsuarioCuponGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AkuoUsuarioCuponCountArgs<ExtArgs>
+            result: $Utils.Optional<AkuoUsuarioCuponCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2510,6 +2690,8 @@ export namespace Prisma {
     akuoConversacion?: AkuoConversacionOmit
     akuoMensaje?: AkuoMensajeOmit
     akuoPedidoCliente?: AkuoPedidoClienteOmit
+    akuoCupon?: AkuoCuponOmit
+    akuoUsuarioCupon?: AkuoUsuarioCuponOmit
   }
 
   /* Types for Logging */
@@ -2961,6 +3143,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type AkuoCuponCountOutputType
+   */
+
+  export type AkuoCuponCountOutputType = {
+    usosCupones: number
+  }
+
+  export type AkuoCuponCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    usosCupones?: boolean | AkuoCuponCountOutputTypeCountUsosCuponesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AkuoCuponCountOutputType without action
+   */
+  export type AkuoCuponCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCuponCountOutputType
+     */
+    select?: AkuoCuponCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AkuoCuponCountOutputType without action
+   */
+  export type AkuoCuponCountOutputTypeCountUsosCuponesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoUsuarioCuponWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -3088,6 +3301,10 @@ export namespace Prisma {
     mpSubIniciadoEn: Date | null
     mpSubAutorizadoEn: Date | null
     mpSubAmount: number | null
+    mpSubSuspended: boolean | null
+    mpSubSuspendedEn: Date | null
+    mpSubSuspendedPor: string | null
+    mpSubSuspendedRazon: string | null
     mpTestUserEmail: string | null
   }
 
@@ -3177,6 +3394,10 @@ export namespace Prisma {
     mpSubIniciadoEn: Date | null
     mpSubAutorizadoEn: Date | null
     mpSubAmount: number | null
+    mpSubSuspended: boolean | null
+    mpSubSuspendedEn: Date | null
+    mpSubSuspendedPor: string | null
+    mpSubSuspendedRazon: string | null
     mpTestUserEmail: string | null
   }
 
@@ -3266,6 +3487,10 @@ export namespace Prisma {
     mpSubIniciadoEn: number
     mpSubAutorizadoEn: number
     mpSubAmount: number
+    mpSubSuspended: number
+    mpSubSuspendedEn: number
+    mpSubSuspendedPor: number
+    mpSubSuspendedRazon: number
     mpTestUserEmail: number
     _all: number
   }
@@ -3383,6 +3608,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: true
     mpSubAutorizadoEn?: true
     mpSubAmount?: true
+    mpSubSuspended?: true
+    mpSubSuspendedEn?: true
+    mpSubSuspendedPor?: true
+    mpSubSuspendedRazon?: true
     mpTestUserEmail?: true
   }
 
@@ -3472,6 +3701,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: true
     mpSubAutorizadoEn?: true
     mpSubAmount?: true
+    mpSubSuspended?: true
+    mpSubSuspendedEn?: true
+    mpSubSuspendedPor?: true
+    mpSubSuspendedRazon?: true
     mpTestUserEmail?: true
   }
 
@@ -3561,6 +3794,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: true
     mpSubAutorizadoEn?: true
     mpSubAmount?: true
+    mpSubSuspended?: true
+    mpSubSuspendedEn?: true
+    mpSubSuspendedPor?: true
+    mpSubSuspendedRazon?: true
     mpTestUserEmail?: true
     _all?: true
   }
@@ -3737,6 +3974,10 @@ export namespace Prisma {
     mpSubIniciadoEn: Date | null
     mpSubAutorizadoEn: Date | null
     mpSubAmount: number | null
+    mpSubSuspended: boolean
+    mpSubSuspendedEn: Date | null
+    mpSubSuspendedPor: string | null
+    mpSubSuspendedRazon: string | null
     mpTestUserEmail: string | null
     _count: AkuoUsuarioCountAggregateOutputType | null
     _avg: AkuoUsuarioAvgAggregateOutputType | null
@@ -3845,6 +4086,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: boolean
     mpSubAutorizadoEn?: boolean
     mpSubAmount?: boolean
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: boolean
+    mpSubSuspendedPor?: boolean
+    mpSubSuspendedRazon?: boolean
     mpTestUserEmail?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -3954,6 +4199,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: boolean
     mpSubAutorizadoEn?: boolean
     mpSubAmount?: boolean
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: boolean
+    mpSubSuspendedPor?: boolean
+    mpSubSuspendedRazon?: boolean
     mpTestUserEmail?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
@@ -4044,6 +4293,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: boolean
     mpSubAutorizadoEn?: boolean
     mpSubAmount?: boolean
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: boolean
+    mpSubSuspendedPor?: boolean
+    mpSubSuspendedRazon?: boolean
     mpTestUserEmail?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
@@ -4134,10 +4387,14 @@ export namespace Prisma {
     mpSubIniciadoEn?: boolean
     mpSubAutorizadoEn?: boolean
     mpSubAmount?: boolean
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: boolean
+    mpSubSuspendedPor?: boolean
+    mpSubSuspendedRazon?: boolean
     mpTestUserEmail?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -4276,6 +4533,10 @@ export namespace Prisma {
       mpSubIniciadoEn: Date | null
       mpSubAutorizadoEn: Date | null
       mpSubAmount: number | null
+      mpSubSuspended: boolean
+      mpSubSuspendedEn: Date | null
+      mpSubSuspendedPor: string | null
+      mpSubSuspendedRazon: string | null
       mpTestUserEmail: string | null
     }, ExtArgs["result"]["akuoUsuario"]>
     composites: {}
@@ -4804,6 +5065,10 @@ export namespace Prisma {
     readonly mpSubIniciadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly mpSubAutorizadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly mpSubAmount: FieldRef<"AkuoUsuario", 'Float'>
+    readonly mpSubSuspended: FieldRef<"AkuoUsuario", 'Boolean'>
+    readonly mpSubSuspendedEn: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly mpSubSuspendedPor: FieldRef<"AkuoUsuario", 'String'>
+    readonly mpSubSuspendedRazon: FieldRef<"AkuoUsuario", 'String'>
     readonly mpTestUserEmail: FieldRef<"AkuoUsuario", 'String'>
   }
     
@@ -28868,6 +29133,2392 @@ export namespace Prisma {
 
 
   /**
+   * Model AkuoCupon
+   */
+
+  export type AggregateAkuoCupon = {
+    _count: AkuoCuponCountAggregateOutputType | null
+    _avg: AkuoCuponAvgAggregateOutputType | null
+    _sum: AkuoCuponSumAggregateOutputType | null
+    _min: AkuoCuponMinAggregateOutputType | null
+    _max: AkuoCuponMaxAggregateOutputType | null
+  }
+
+  export type AkuoCuponAvgAggregateOutputType = {
+    descuentoValor: number | null
+    minMonto: number | null
+    maxUsos: number | null
+    usos: number | null
+  }
+
+  export type AkuoCuponSumAggregateOutputType = {
+    descuentoValor: number | null
+    minMonto: number | null
+    maxUsos: number | null
+    usos: number | null
+  }
+
+  export type AkuoCuponMinAggregateOutputType = {
+    id: string | null
+    creadoEn: Date | null
+    actualizadoEn: Date | null
+    codigo: string | null
+    tipo: string | null
+    descuentoTipo: string | null
+    descuentoValor: number | null
+    minMonto: number | null
+    planIdAplicable: string | null
+    maxUsos: number | null
+    usos: number | null
+    fechaInicio: Date | null
+    fechaFin: Date | null
+    activo: boolean | null
+    creadoPor: string | null
+    nota: string | null
+    descripcionPublica: string | null
+  }
+
+  export type AkuoCuponMaxAggregateOutputType = {
+    id: string | null
+    creadoEn: Date | null
+    actualizadoEn: Date | null
+    codigo: string | null
+    tipo: string | null
+    descuentoTipo: string | null
+    descuentoValor: number | null
+    minMonto: number | null
+    planIdAplicable: string | null
+    maxUsos: number | null
+    usos: number | null
+    fechaInicio: Date | null
+    fechaFin: Date | null
+    activo: boolean | null
+    creadoPor: string | null
+    nota: string | null
+    descripcionPublica: string | null
+  }
+
+  export type AkuoCuponCountAggregateOutputType = {
+    id: number
+    creadoEn: number
+    actualizadoEn: number
+    codigo: number
+    tipo: number
+    descuentoTipo: number
+    descuentoValor: number
+    minMonto: number
+    planIdAplicable: number
+    maxUsos: number
+    usos: number
+    fechaInicio: number
+    fechaFin: number
+    activo: number
+    creadoPor: number
+    nota: number
+    descripcionPublica: number
+    _all: number
+  }
+
+
+  export type AkuoCuponAvgAggregateInputType = {
+    descuentoValor?: true
+    minMonto?: true
+    maxUsos?: true
+    usos?: true
+  }
+
+  export type AkuoCuponSumAggregateInputType = {
+    descuentoValor?: true
+    minMonto?: true
+    maxUsos?: true
+    usos?: true
+  }
+
+  export type AkuoCuponMinAggregateInputType = {
+    id?: true
+    creadoEn?: true
+    actualizadoEn?: true
+    codigo?: true
+    tipo?: true
+    descuentoTipo?: true
+    descuentoValor?: true
+    minMonto?: true
+    planIdAplicable?: true
+    maxUsos?: true
+    usos?: true
+    fechaInicio?: true
+    fechaFin?: true
+    activo?: true
+    creadoPor?: true
+    nota?: true
+    descripcionPublica?: true
+  }
+
+  export type AkuoCuponMaxAggregateInputType = {
+    id?: true
+    creadoEn?: true
+    actualizadoEn?: true
+    codigo?: true
+    tipo?: true
+    descuentoTipo?: true
+    descuentoValor?: true
+    minMonto?: true
+    planIdAplicable?: true
+    maxUsos?: true
+    usos?: true
+    fechaInicio?: true
+    fechaFin?: true
+    activo?: true
+    creadoPor?: true
+    nota?: true
+    descripcionPublica?: true
+  }
+
+  export type AkuoCuponCountAggregateInputType = {
+    id?: true
+    creadoEn?: true
+    actualizadoEn?: true
+    codigo?: true
+    tipo?: true
+    descuentoTipo?: true
+    descuentoValor?: true
+    minMonto?: true
+    planIdAplicable?: true
+    maxUsos?: true
+    usos?: true
+    fechaInicio?: true
+    fechaFin?: true
+    activo?: true
+    creadoPor?: true
+    nota?: true
+    descripcionPublica?: true
+    _all?: true
+  }
+
+  export type AkuoCuponAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoCupon to aggregate.
+     */
+    where?: AkuoCuponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoCupons to fetch.
+     */
+    orderBy?: AkuoCuponOrderByWithRelationInput | AkuoCuponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AkuoCuponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoCupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoCupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AkuoCupons
+    **/
+    _count?: true | AkuoCuponCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AkuoCuponAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AkuoCuponSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AkuoCuponMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AkuoCuponMaxAggregateInputType
+  }
+
+  export type GetAkuoCuponAggregateType<T extends AkuoCuponAggregateArgs> = {
+        [P in keyof T & keyof AggregateAkuoCupon]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAkuoCupon[P]>
+      : GetScalarType<T[P], AggregateAkuoCupon[P]>
+  }
+
+
+
+
+  export type AkuoCuponGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoCuponWhereInput
+    orderBy?: AkuoCuponOrderByWithAggregationInput | AkuoCuponOrderByWithAggregationInput[]
+    by: AkuoCuponScalarFieldEnum[] | AkuoCuponScalarFieldEnum
+    having?: AkuoCuponScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AkuoCuponCountAggregateInputType | true
+    _avg?: AkuoCuponAvgAggregateInputType
+    _sum?: AkuoCuponSumAggregateInputType
+    _min?: AkuoCuponMinAggregateInputType
+    _max?: AkuoCuponMaxAggregateInputType
+  }
+
+  export type AkuoCuponGroupByOutputType = {
+    id: string
+    creadoEn: Date
+    actualizadoEn: Date
+    codigo: string
+    tipo: string
+    descuentoTipo: string
+    descuentoValor: number
+    minMonto: number | null
+    planIdAplicable: string | null
+    maxUsos: number
+    usos: number
+    fechaInicio: Date
+    fechaFin: Date | null
+    activo: boolean
+    creadoPor: string | null
+    nota: string | null
+    descripcionPublica: string | null
+    _count: AkuoCuponCountAggregateOutputType | null
+    _avg: AkuoCuponAvgAggregateOutputType | null
+    _sum: AkuoCuponSumAggregateOutputType | null
+    _min: AkuoCuponMinAggregateOutputType | null
+    _max: AkuoCuponMaxAggregateOutputType | null
+  }
+
+  type GetAkuoCuponGroupByPayload<T extends AkuoCuponGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AkuoCuponGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AkuoCuponGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AkuoCuponGroupByOutputType[P]>
+            : GetScalarType<T[P], AkuoCuponGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AkuoCuponSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    creadoEn?: boolean
+    actualizadoEn?: boolean
+    codigo?: boolean
+    tipo?: boolean
+    descuentoTipo?: boolean
+    descuentoValor?: boolean
+    minMonto?: boolean
+    planIdAplicable?: boolean
+    maxUsos?: boolean
+    usos?: boolean
+    fechaInicio?: boolean
+    fechaFin?: boolean
+    activo?: boolean
+    creadoPor?: boolean
+    nota?: boolean
+    descripcionPublica?: boolean
+    usosCupones?: boolean | AkuoCupon$usosCuponesArgs<ExtArgs>
+    _count?: boolean | AkuoCuponCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoCupon"]>
+
+  export type AkuoCuponSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    creadoEn?: boolean
+    actualizadoEn?: boolean
+    codigo?: boolean
+    tipo?: boolean
+    descuentoTipo?: boolean
+    descuentoValor?: boolean
+    minMonto?: boolean
+    planIdAplicable?: boolean
+    maxUsos?: boolean
+    usos?: boolean
+    fechaInicio?: boolean
+    fechaFin?: boolean
+    activo?: boolean
+    creadoPor?: boolean
+    nota?: boolean
+    descripcionPublica?: boolean
+  }, ExtArgs["result"]["akuoCupon"]>
+
+  export type AkuoCuponSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    creadoEn?: boolean
+    actualizadoEn?: boolean
+    codigo?: boolean
+    tipo?: boolean
+    descuentoTipo?: boolean
+    descuentoValor?: boolean
+    minMonto?: boolean
+    planIdAplicable?: boolean
+    maxUsos?: boolean
+    usos?: boolean
+    fechaInicio?: boolean
+    fechaFin?: boolean
+    activo?: boolean
+    creadoPor?: boolean
+    nota?: boolean
+    descripcionPublica?: boolean
+  }, ExtArgs["result"]["akuoCupon"]>
+
+  export type AkuoCuponSelectScalar = {
+    id?: boolean
+    creadoEn?: boolean
+    actualizadoEn?: boolean
+    codigo?: boolean
+    tipo?: boolean
+    descuentoTipo?: boolean
+    descuentoValor?: boolean
+    minMonto?: boolean
+    planIdAplicable?: boolean
+    maxUsos?: boolean
+    usos?: boolean
+    fechaInicio?: boolean
+    fechaFin?: boolean
+    activo?: boolean
+    creadoPor?: boolean
+    nota?: boolean
+    descripcionPublica?: boolean
+  }
+
+  export type AkuoCuponOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "actualizadoEn" | "codigo" | "tipo" | "descuentoTipo" | "descuentoValor" | "minMonto" | "planIdAplicable" | "maxUsos" | "usos" | "fechaInicio" | "fechaFin" | "activo" | "creadoPor" | "nota" | "descripcionPublica", ExtArgs["result"]["akuoCupon"]>
+  export type AkuoCuponInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    usosCupones?: boolean | AkuoCupon$usosCuponesArgs<ExtArgs>
+    _count?: boolean | AkuoCuponCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AkuoCuponIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AkuoCuponIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $AkuoCuponPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AkuoCupon"
+    objects: {
+      usosCupones: Prisma.$AkuoUsuarioCuponPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      creadoEn: Date
+      actualizadoEn: Date
+      codigo: string
+      tipo: string
+      descuentoTipo: string
+      descuentoValor: number
+      minMonto: number | null
+      planIdAplicable: string | null
+      maxUsos: number
+      usos: number
+      fechaInicio: Date
+      fechaFin: Date | null
+      activo: boolean
+      creadoPor: string | null
+      nota: string | null
+      descripcionPublica: string | null
+    }, ExtArgs["result"]["akuoCupon"]>
+    composites: {}
+  }
+
+  type AkuoCuponGetPayload<S extends boolean | null | undefined | AkuoCuponDefaultArgs> = $Result.GetResult<Prisma.$AkuoCuponPayload, S>
+
+  type AkuoCuponCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AkuoCuponFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AkuoCuponCountAggregateInputType | true
+    }
+
+  export interface AkuoCuponDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AkuoCupon'], meta: { name: 'AkuoCupon' } }
+    /**
+     * Find zero or one AkuoCupon that matches the filter.
+     * @param {AkuoCuponFindUniqueArgs} args - Arguments to find a AkuoCupon
+     * @example
+     * // Get one AkuoCupon
+     * const akuoCupon = await prisma.akuoCupon.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AkuoCuponFindUniqueArgs>(args: SelectSubset<T, AkuoCuponFindUniqueArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AkuoCupon that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AkuoCuponFindUniqueOrThrowArgs} args - Arguments to find a AkuoCupon
+     * @example
+     * // Get one AkuoCupon
+     * const akuoCupon = await prisma.akuoCupon.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AkuoCuponFindUniqueOrThrowArgs>(args: SelectSubset<T, AkuoCuponFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoCupon that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoCuponFindFirstArgs} args - Arguments to find a AkuoCupon
+     * @example
+     * // Get one AkuoCupon
+     * const akuoCupon = await prisma.akuoCupon.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AkuoCuponFindFirstArgs>(args?: SelectSubset<T, AkuoCuponFindFirstArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoCupon that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoCuponFindFirstOrThrowArgs} args - Arguments to find a AkuoCupon
+     * @example
+     * // Get one AkuoCupon
+     * const akuoCupon = await prisma.akuoCupon.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AkuoCuponFindFirstOrThrowArgs>(args?: SelectSubset<T, AkuoCuponFindFirstOrThrowArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AkuoCupons that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoCuponFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AkuoCupons
+     * const akuoCupons = await prisma.akuoCupon.findMany()
+     * 
+     * // Get first 10 AkuoCupons
+     * const akuoCupons = await prisma.akuoCupon.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const akuoCuponWithIdOnly = await prisma.akuoCupon.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AkuoCuponFindManyArgs>(args?: SelectSubset<T, AkuoCuponFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AkuoCupon.
+     * @param {AkuoCuponCreateArgs} args - Arguments to create a AkuoCupon.
+     * @example
+     * // Create one AkuoCupon
+     * const AkuoCupon = await prisma.akuoCupon.create({
+     *   data: {
+     *     // ... data to create a AkuoCupon
+     *   }
+     * })
+     * 
+     */
+    create<T extends AkuoCuponCreateArgs>(args: SelectSubset<T, AkuoCuponCreateArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AkuoCupons.
+     * @param {AkuoCuponCreateManyArgs} args - Arguments to create many AkuoCupons.
+     * @example
+     * // Create many AkuoCupons
+     * const akuoCupon = await prisma.akuoCupon.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AkuoCuponCreateManyArgs>(args?: SelectSubset<T, AkuoCuponCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AkuoCupons and returns the data saved in the database.
+     * @param {AkuoCuponCreateManyAndReturnArgs} args - Arguments to create many AkuoCupons.
+     * @example
+     * // Create many AkuoCupons
+     * const akuoCupon = await prisma.akuoCupon.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AkuoCupons and only return the `id`
+     * const akuoCuponWithIdOnly = await prisma.akuoCupon.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AkuoCuponCreateManyAndReturnArgs>(args?: SelectSubset<T, AkuoCuponCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AkuoCupon.
+     * @param {AkuoCuponDeleteArgs} args - Arguments to delete one AkuoCupon.
+     * @example
+     * // Delete one AkuoCupon
+     * const AkuoCupon = await prisma.akuoCupon.delete({
+     *   where: {
+     *     // ... filter to delete one AkuoCupon
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AkuoCuponDeleteArgs>(args: SelectSubset<T, AkuoCuponDeleteArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AkuoCupon.
+     * @param {AkuoCuponUpdateArgs} args - Arguments to update one AkuoCupon.
+     * @example
+     * // Update one AkuoCupon
+     * const akuoCupon = await prisma.akuoCupon.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AkuoCuponUpdateArgs>(args: SelectSubset<T, AkuoCuponUpdateArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AkuoCupons.
+     * @param {AkuoCuponDeleteManyArgs} args - Arguments to filter AkuoCupons to delete.
+     * @example
+     * // Delete a few AkuoCupons
+     * const { count } = await prisma.akuoCupon.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AkuoCuponDeleteManyArgs>(args?: SelectSubset<T, AkuoCuponDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoCupons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoCuponUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AkuoCupons
+     * const akuoCupon = await prisma.akuoCupon.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AkuoCuponUpdateManyArgs>(args: SelectSubset<T, AkuoCuponUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoCupons and returns the data updated in the database.
+     * @param {AkuoCuponUpdateManyAndReturnArgs} args - Arguments to update many AkuoCupons.
+     * @example
+     * // Update many AkuoCupons
+     * const akuoCupon = await prisma.akuoCupon.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AkuoCupons and only return the `id`
+     * const akuoCuponWithIdOnly = await prisma.akuoCupon.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AkuoCuponUpdateManyAndReturnArgs>(args: SelectSubset<T, AkuoCuponUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AkuoCupon.
+     * @param {AkuoCuponUpsertArgs} args - Arguments to update or create a AkuoCupon.
+     * @example
+     * // Update or create a AkuoCupon
+     * const akuoCupon = await prisma.akuoCupon.upsert({
+     *   create: {
+     *     // ... data to create a AkuoCupon
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AkuoCupon we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AkuoCuponUpsertArgs>(args: SelectSubset<T, AkuoCuponUpsertArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AkuoCupons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoCuponCountArgs} args - Arguments to filter AkuoCupons to count.
+     * @example
+     * // Count the number of AkuoCupons
+     * const count = await prisma.akuoCupon.count({
+     *   where: {
+     *     // ... the filter for the AkuoCupons we want to count
+     *   }
+     * })
+    **/
+    count<T extends AkuoCuponCountArgs>(
+      args?: Subset<T, AkuoCuponCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AkuoCuponCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AkuoCupon.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoCuponAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AkuoCuponAggregateArgs>(args: Subset<T, AkuoCuponAggregateArgs>): Prisma.PrismaPromise<GetAkuoCuponAggregateType<T>>
+
+    /**
+     * Group by AkuoCupon.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoCuponGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AkuoCuponGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AkuoCuponGroupByArgs['orderBy'] }
+        : { orderBy?: AkuoCuponGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AkuoCuponGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAkuoCuponGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AkuoCupon model
+   */
+  readonly fields: AkuoCuponFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AkuoCupon.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AkuoCuponClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    usosCupones<T extends AkuoCupon$usosCuponesArgs<ExtArgs> = {}>(args?: Subset<T, AkuoCupon$usosCuponesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AkuoCupon model
+   */
+  interface AkuoCuponFieldRefs {
+    readonly id: FieldRef<"AkuoCupon", 'String'>
+    readonly creadoEn: FieldRef<"AkuoCupon", 'DateTime'>
+    readonly actualizadoEn: FieldRef<"AkuoCupon", 'DateTime'>
+    readonly codigo: FieldRef<"AkuoCupon", 'String'>
+    readonly tipo: FieldRef<"AkuoCupon", 'String'>
+    readonly descuentoTipo: FieldRef<"AkuoCupon", 'String'>
+    readonly descuentoValor: FieldRef<"AkuoCupon", 'Float'>
+    readonly minMonto: FieldRef<"AkuoCupon", 'Float'>
+    readonly planIdAplicable: FieldRef<"AkuoCupon", 'String'>
+    readonly maxUsos: FieldRef<"AkuoCupon", 'Int'>
+    readonly usos: FieldRef<"AkuoCupon", 'Int'>
+    readonly fechaInicio: FieldRef<"AkuoCupon", 'DateTime'>
+    readonly fechaFin: FieldRef<"AkuoCupon", 'DateTime'>
+    readonly activo: FieldRef<"AkuoCupon", 'Boolean'>
+    readonly creadoPor: FieldRef<"AkuoCupon", 'String'>
+    readonly nota: FieldRef<"AkuoCupon", 'String'>
+    readonly descripcionPublica: FieldRef<"AkuoCupon", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AkuoCupon findUnique
+   */
+  export type AkuoCuponFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoCupon to fetch.
+     */
+    where: AkuoCuponWhereUniqueInput
+  }
+
+  /**
+   * AkuoCupon findUniqueOrThrow
+   */
+  export type AkuoCuponFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoCupon to fetch.
+     */
+    where: AkuoCuponWhereUniqueInput
+  }
+
+  /**
+   * AkuoCupon findFirst
+   */
+  export type AkuoCuponFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoCupon to fetch.
+     */
+    where?: AkuoCuponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoCupons to fetch.
+     */
+    orderBy?: AkuoCuponOrderByWithRelationInput | AkuoCuponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoCupons.
+     */
+    cursor?: AkuoCuponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoCupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoCupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoCupons.
+     */
+    distinct?: AkuoCuponScalarFieldEnum | AkuoCuponScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoCupon findFirstOrThrow
+   */
+  export type AkuoCuponFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoCupon to fetch.
+     */
+    where?: AkuoCuponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoCupons to fetch.
+     */
+    orderBy?: AkuoCuponOrderByWithRelationInput | AkuoCuponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoCupons.
+     */
+    cursor?: AkuoCuponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoCupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoCupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoCupons.
+     */
+    distinct?: AkuoCuponScalarFieldEnum | AkuoCuponScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoCupon findMany
+   */
+  export type AkuoCuponFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoCupons to fetch.
+     */
+    where?: AkuoCuponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoCupons to fetch.
+     */
+    orderBy?: AkuoCuponOrderByWithRelationInput | AkuoCuponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AkuoCupons.
+     */
+    cursor?: AkuoCuponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoCupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoCupons.
+     */
+    skip?: number
+    distinct?: AkuoCuponScalarFieldEnum | AkuoCuponScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoCupon create
+   */
+  export type AkuoCuponCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AkuoCupon.
+     */
+    data: XOR<AkuoCuponCreateInput, AkuoCuponUncheckedCreateInput>
+  }
+
+  /**
+   * AkuoCupon createMany
+   */
+  export type AkuoCuponCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AkuoCupons.
+     */
+    data: AkuoCuponCreateManyInput | AkuoCuponCreateManyInput[]
+  }
+
+  /**
+   * AkuoCupon createManyAndReturn
+   */
+  export type AkuoCuponCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * The data used to create many AkuoCupons.
+     */
+    data: AkuoCuponCreateManyInput | AkuoCuponCreateManyInput[]
+  }
+
+  /**
+   * AkuoCupon update
+   */
+  export type AkuoCuponUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AkuoCupon.
+     */
+    data: XOR<AkuoCuponUpdateInput, AkuoCuponUncheckedUpdateInput>
+    /**
+     * Choose, which AkuoCupon to update.
+     */
+    where: AkuoCuponWhereUniqueInput
+  }
+
+  /**
+   * AkuoCupon updateMany
+   */
+  export type AkuoCuponUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AkuoCupons.
+     */
+    data: XOR<AkuoCuponUpdateManyMutationInput, AkuoCuponUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoCupons to update
+     */
+    where?: AkuoCuponWhereInput
+    /**
+     * Limit how many AkuoCupons to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoCupon updateManyAndReturn
+   */
+  export type AkuoCuponUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * The data used to update AkuoCupons.
+     */
+    data: XOR<AkuoCuponUpdateManyMutationInput, AkuoCuponUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoCupons to update
+     */
+    where?: AkuoCuponWhereInput
+    /**
+     * Limit how many AkuoCupons to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoCupon upsert
+   */
+  export type AkuoCuponUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AkuoCupon to update in case it exists.
+     */
+    where: AkuoCuponWhereUniqueInput
+    /**
+     * In case the AkuoCupon found by the `where` argument doesn't exist, create a new AkuoCupon with this data.
+     */
+    create: XOR<AkuoCuponCreateInput, AkuoCuponUncheckedCreateInput>
+    /**
+     * In case the AkuoCupon was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AkuoCuponUpdateInput, AkuoCuponUncheckedUpdateInput>
+  }
+
+  /**
+   * AkuoCupon delete
+   */
+  export type AkuoCuponDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+    /**
+     * Filter which AkuoCupon to delete.
+     */
+    where: AkuoCuponWhereUniqueInput
+  }
+
+  /**
+   * AkuoCupon deleteMany
+   */
+  export type AkuoCuponDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoCupons to delete
+     */
+    where?: AkuoCuponWhereInput
+    /**
+     * Limit how many AkuoCupons to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoCupon.usosCupones
+   */
+  export type AkuoCupon$usosCuponesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    where?: AkuoUsuarioCuponWhereInput
+    orderBy?: AkuoUsuarioCuponOrderByWithRelationInput | AkuoUsuarioCuponOrderByWithRelationInput[]
+    cursor?: AkuoUsuarioCuponWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AkuoUsuarioCuponScalarFieldEnum | AkuoUsuarioCuponScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoCupon without action
+   */
+  export type AkuoCuponDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoCupon
+     */
+    select?: AkuoCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoCupon
+     */
+    omit?: AkuoCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoCuponInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AkuoUsuarioCupon
+   */
+
+  export type AggregateAkuoUsuarioCupon = {
+    _count: AkuoUsuarioCuponCountAggregateOutputType | null
+    _avg: AkuoUsuarioCuponAvgAggregateOutputType | null
+    _sum: AkuoUsuarioCuponSumAggregateOutputType | null
+    _min: AkuoUsuarioCuponMinAggregateOutputType | null
+    _max: AkuoUsuarioCuponMaxAggregateOutputType | null
+  }
+
+  export type AkuoUsuarioCuponAvgAggregateOutputType = {
+    montoAhorrado: number | null
+  }
+
+  export type AkuoUsuarioCuponSumAggregateOutputType = {
+    montoAhorrado: number | null
+  }
+
+  export type AkuoUsuarioCuponMinAggregateOutputType = {
+    id: string | null
+    usadoEn: Date | null
+    cuponId: string | null
+    usuarioId: string | null
+    pedidoClienteId: string | null
+    planActivado: string | null
+    montoAhorrado: number | null
+  }
+
+  export type AkuoUsuarioCuponMaxAggregateOutputType = {
+    id: string | null
+    usadoEn: Date | null
+    cuponId: string | null
+    usuarioId: string | null
+    pedidoClienteId: string | null
+    planActivado: string | null
+    montoAhorrado: number | null
+  }
+
+  export type AkuoUsuarioCuponCountAggregateOutputType = {
+    id: number
+    usadoEn: number
+    cuponId: number
+    usuarioId: number
+    pedidoClienteId: number
+    planActivado: number
+    montoAhorrado: number
+    _all: number
+  }
+
+
+  export type AkuoUsuarioCuponAvgAggregateInputType = {
+    montoAhorrado?: true
+  }
+
+  export type AkuoUsuarioCuponSumAggregateInputType = {
+    montoAhorrado?: true
+  }
+
+  export type AkuoUsuarioCuponMinAggregateInputType = {
+    id?: true
+    usadoEn?: true
+    cuponId?: true
+    usuarioId?: true
+    pedidoClienteId?: true
+    planActivado?: true
+    montoAhorrado?: true
+  }
+
+  export type AkuoUsuarioCuponMaxAggregateInputType = {
+    id?: true
+    usadoEn?: true
+    cuponId?: true
+    usuarioId?: true
+    pedidoClienteId?: true
+    planActivado?: true
+    montoAhorrado?: true
+  }
+
+  export type AkuoUsuarioCuponCountAggregateInputType = {
+    id?: true
+    usadoEn?: true
+    cuponId?: true
+    usuarioId?: true
+    pedidoClienteId?: true
+    planActivado?: true
+    montoAhorrado?: true
+    _all?: true
+  }
+
+  export type AkuoUsuarioCuponAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoUsuarioCupon to aggregate.
+     */
+    where?: AkuoUsuarioCuponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoUsuarioCupons to fetch.
+     */
+    orderBy?: AkuoUsuarioCuponOrderByWithRelationInput | AkuoUsuarioCuponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AkuoUsuarioCuponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoUsuarioCupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoUsuarioCupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AkuoUsuarioCupons
+    **/
+    _count?: true | AkuoUsuarioCuponCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AkuoUsuarioCuponAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AkuoUsuarioCuponSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AkuoUsuarioCuponMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AkuoUsuarioCuponMaxAggregateInputType
+  }
+
+  export type GetAkuoUsuarioCuponAggregateType<T extends AkuoUsuarioCuponAggregateArgs> = {
+        [P in keyof T & keyof AggregateAkuoUsuarioCupon]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAkuoUsuarioCupon[P]>
+      : GetScalarType<T[P], AggregateAkuoUsuarioCupon[P]>
+  }
+
+
+
+
+  export type AkuoUsuarioCuponGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoUsuarioCuponWhereInput
+    orderBy?: AkuoUsuarioCuponOrderByWithAggregationInput | AkuoUsuarioCuponOrderByWithAggregationInput[]
+    by: AkuoUsuarioCuponScalarFieldEnum[] | AkuoUsuarioCuponScalarFieldEnum
+    having?: AkuoUsuarioCuponScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AkuoUsuarioCuponCountAggregateInputType | true
+    _avg?: AkuoUsuarioCuponAvgAggregateInputType
+    _sum?: AkuoUsuarioCuponSumAggregateInputType
+    _min?: AkuoUsuarioCuponMinAggregateInputType
+    _max?: AkuoUsuarioCuponMaxAggregateInputType
+  }
+
+  export type AkuoUsuarioCuponGroupByOutputType = {
+    id: string
+    usadoEn: Date
+    cuponId: string
+    usuarioId: string
+    pedidoClienteId: string | null
+    planActivado: string | null
+    montoAhorrado: number
+    _count: AkuoUsuarioCuponCountAggregateOutputType | null
+    _avg: AkuoUsuarioCuponAvgAggregateOutputType | null
+    _sum: AkuoUsuarioCuponSumAggregateOutputType | null
+    _min: AkuoUsuarioCuponMinAggregateOutputType | null
+    _max: AkuoUsuarioCuponMaxAggregateOutputType | null
+  }
+
+  type GetAkuoUsuarioCuponGroupByPayload<T extends AkuoUsuarioCuponGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AkuoUsuarioCuponGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AkuoUsuarioCuponGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AkuoUsuarioCuponGroupByOutputType[P]>
+            : GetScalarType<T[P], AkuoUsuarioCuponGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AkuoUsuarioCuponSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    usadoEn?: boolean
+    cuponId?: boolean
+    usuarioId?: boolean
+    pedidoClienteId?: boolean
+    planActivado?: boolean
+    montoAhorrado?: boolean
+    cupon?: boolean | AkuoCuponDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoUsuarioCupon"]>
+
+  export type AkuoUsuarioCuponSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    usadoEn?: boolean
+    cuponId?: boolean
+    usuarioId?: boolean
+    pedidoClienteId?: boolean
+    planActivado?: boolean
+    montoAhorrado?: boolean
+    cupon?: boolean | AkuoCuponDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoUsuarioCupon"]>
+
+  export type AkuoUsuarioCuponSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    usadoEn?: boolean
+    cuponId?: boolean
+    usuarioId?: boolean
+    pedidoClienteId?: boolean
+    planActivado?: boolean
+    montoAhorrado?: boolean
+    cupon?: boolean | AkuoCuponDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["akuoUsuarioCupon"]>
+
+  export type AkuoUsuarioCuponSelectScalar = {
+    id?: boolean
+    usadoEn?: boolean
+    cuponId?: boolean
+    usuarioId?: boolean
+    pedidoClienteId?: boolean
+    planActivado?: boolean
+    montoAhorrado?: boolean
+  }
+
+  export type AkuoUsuarioCuponOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "usadoEn" | "cuponId" | "usuarioId" | "pedidoClienteId" | "planActivado" | "montoAhorrado", ExtArgs["result"]["akuoUsuarioCupon"]>
+  export type AkuoUsuarioCuponInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cupon?: boolean | AkuoCuponDefaultArgs<ExtArgs>
+  }
+  export type AkuoUsuarioCuponIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cupon?: boolean | AkuoCuponDefaultArgs<ExtArgs>
+  }
+  export type AkuoUsuarioCuponIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    cupon?: boolean | AkuoCuponDefaultArgs<ExtArgs>
+  }
+
+  export type $AkuoUsuarioCuponPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AkuoUsuarioCupon"
+    objects: {
+      cupon: Prisma.$AkuoCuponPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      usadoEn: Date
+      cuponId: string
+      usuarioId: string
+      pedidoClienteId: string | null
+      planActivado: string | null
+      montoAhorrado: number
+    }, ExtArgs["result"]["akuoUsuarioCupon"]>
+    composites: {}
+  }
+
+  type AkuoUsuarioCuponGetPayload<S extends boolean | null | undefined | AkuoUsuarioCuponDefaultArgs> = $Result.GetResult<Prisma.$AkuoUsuarioCuponPayload, S>
+
+  type AkuoUsuarioCuponCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AkuoUsuarioCuponFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AkuoUsuarioCuponCountAggregateInputType | true
+    }
+
+  export interface AkuoUsuarioCuponDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AkuoUsuarioCupon'], meta: { name: 'AkuoUsuarioCupon' } }
+    /**
+     * Find zero or one AkuoUsuarioCupon that matches the filter.
+     * @param {AkuoUsuarioCuponFindUniqueArgs} args - Arguments to find a AkuoUsuarioCupon
+     * @example
+     * // Get one AkuoUsuarioCupon
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AkuoUsuarioCuponFindUniqueArgs>(args: SelectSubset<T, AkuoUsuarioCuponFindUniqueArgs<ExtArgs>>): Prisma__AkuoUsuarioCuponClient<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AkuoUsuarioCupon that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AkuoUsuarioCuponFindUniqueOrThrowArgs} args - Arguments to find a AkuoUsuarioCupon
+     * @example
+     * // Get one AkuoUsuarioCupon
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AkuoUsuarioCuponFindUniqueOrThrowArgs>(args: SelectSubset<T, AkuoUsuarioCuponFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AkuoUsuarioCuponClient<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoUsuarioCupon that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoUsuarioCuponFindFirstArgs} args - Arguments to find a AkuoUsuarioCupon
+     * @example
+     * // Get one AkuoUsuarioCupon
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AkuoUsuarioCuponFindFirstArgs>(args?: SelectSubset<T, AkuoUsuarioCuponFindFirstArgs<ExtArgs>>): Prisma__AkuoUsuarioCuponClient<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AkuoUsuarioCupon that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoUsuarioCuponFindFirstOrThrowArgs} args - Arguments to find a AkuoUsuarioCupon
+     * @example
+     * // Get one AkuoUsuarioCupon
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AkuoUsuarioCuponFindFirstOrThrowArgs>(args?: SelectSubset<T, AkuoUsuarioCuponFindFirstOrThrowArgs<ExtArgs>>): Prisma__AkuoUsuarioCuponClient<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AkuoUsuarioCupons that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoUsuarioCuponFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AkuoUsuarioCupons
+     * const akuoUsuarioCupons = await prisma.akuoUsuarioCupon.findMany()
+     * 
+     * // Get first 10 AkuoUsuarioCupons
+     * const akuoUsuarioCupons = await prisma.akuoUsuarioCupon.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const akuoUsuarioCuponWithIdOnly = await prisma.akuoUsuarioCupon.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AkuoUsuarioCuponFindManyArgs>(args?: SelectSubset<T, AkuoUsuarioCuponFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AkuoUsuarioCupon.
+     * @param {AkuoUsuarioCuponCreateArgs} args - Arguments to create a AkuoUsuarioCupon.
+     * @example
+     * // Create one AkuoUsuarioCupon
+     * const AkuoUsuarioCupon = await prisma.akuoUsuarioCupon.create({
+     *   data: {
+     *     // ... data to create a AkuoUsuarioCupon
+     *   }
+     * })
+     * 
+     */
+    create<T extends AkuoUsuarioCuponCreateArgs>(args: SelectSubset<T, AkuoUsuarioCuponCreateArgs<ExtArgs>>): Prisma__AkuoUsuarioCuponClient<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AkuoUsuarioCupons.
+     * @param {AkuoUsuarioCuponCreateManyArgs} args - Arguments to create many AkuoUsuarioCupons.
+     * @example
+     * // Create many AkuoUsuarioCupons
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AkuoUsuarioCuponCreateManyArgs>(args?: SelectSubset<T, AkuoUsuarioCuponCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AkuoUsuarioCupons and returns the data saved in the database.
+     * @param {AkuoUsuarioCuponCreateManyAndReturnArgs} args - Arguments to create many AkuoUsuarioCupons.
+     * @example
+     * // Create many AkuoUsuarioCupons
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AkuoUsuarioCupons and only return the `id`
+     * const akuoUsuarioCuponWithIdOnly = await prisma.akuoUsuarioCupon.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AkuoUsuarioCuponCreateManyAndReturnArgs>(args?: SelectSubset<T, AkuoUsuarioCuponCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AkuoUsuarioCupon.
+     * @param {AkuoUsuarioCuponDeleteArgs} args - Arguments to delete one AkuoUsuarioCupon.
+     * @example
+     * // Delete one AkuoUsuarioCupon
+     * const AkuoUsuarioCupon = await prisma.akuoUsuarioCupon.delete({
+     *   where: {
+     *     // ... filter to delete one AkuoUsuarioCupon
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AkuoUsuarioCuponDeleteArgs>(args: SelectSubset<T, AkuoUsuarioCuponDeleteArgs<ExtArgs>>): Prisma__AkuoUsuarioCuponClient<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AkuoUsuarioCupon.
+     * @param {AkuoUsuarioCuponUpdateArgs} args - Arguments to update one AkuoUsuarioCupon.
+     * @example
+     * // Update one AkuoUsuarioCupon
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AkuoUsuarioCuponUpdateArgs>(args: SelectSubset<T, AkuoUsuarioCuponUpdateArgs<ExtArgs>>): Prisma__AkuoUsuarioCuponClient<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AkuoUsuarioCupons.
+     * @param {AkuoUsuarioCuponDeleteManyArgs} args - Arguments to filter AkuoUsuarioCupons to delete.
+     * @example
+     * // Delete a few AkuoUsuarioCupons
+     * const { count } = await prisma.akuoUsuarioCupon.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AkuoUsuarioCuponDeleteManyArgs>(args?: SelectSubset<T, AkuoUsuarioCuponDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoUsuarioCupons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoUsuarioCuponUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AkuoUsuarioCupons
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AkuoUsuarioCuponUpdateManyArgs>(args: SelectSubset<T, AkuoUsuarioCuponUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AkuoUsuarioCupons and returns the data updated in the database.
+     * @param {AkuoUsuarioCuponUpdateManyAndReturnArgs} args - Arguments to update many AkuoUsuarioCupons.
+     * @example
+     * // Update many AkuoUsuarioCupons
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AkuoUsuarioCupons and only return the `id`
+     * const akuoUsuarioCuponWithIdOnly = await prisma.akuoUsuarioCupon.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AkuoUsuarioCuponUpdateManyAndReturnArgs>(args: SelectSubset<T, AkuoUsuarioCuponUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AkuoUsuarioCupon.
+     * @param {AkuoUsuarioCuponUpsertArgs} args - Arguments to update or create a AkuoUsuarioCupon.
+     * @example
+     * // Update or create a AkuoUsuarioCupon
+     * const akuoUsuarioCupon = await prisma.akuoUsuarioCupon.upsert({
+     *   create: {
+     *     // ... data to create a AkuoUsuarioCupon
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AkuoUsuarioCupon we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AkuoUsuarioCuponUpsertArgs>(args: SelectSubset<T, AkuoUsuarioCuponUpsertArgs<ExtArgs>>): Prisma__AkuoUsuarioCuponClient<$Result.GetResult<Prisma.$AkuoUsuarioCuponPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AkuoUsuarioCupons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoUsuarioCuponCountArgs} args - Arguments to filter AkuoUsuarioCupons to count.
+     * @example
+     * // Count the number of AkuoUsuarioCupons
+     * const count = await prisma.akuoUsuarioCupon.count({
+     *   where: {
+     *     // ... the filter for the AkuoUsuarioCupons we want to count
+     *   }
+     * })
+    **/
+    count<T extends AkuoUsuarioCuponCountArgs>(
+      args?: Subset<T, AkuoUsuarioCuponCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AkuoUsuarioCuponCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AkuoUsuarioCupon.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoUsuarioCuponAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AkuoUsuarioCuponAggregateArgs>(args: Subset<T, AkuoUsuarioCuponAggregateArgs>): Prisma.PrismaPromise<GetAkuoUsuarioCuponAggregateType<T>>
+
+    /**
+     * Group by AkuoUsuarioCupon.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AkuoUsuarioCuponGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AkuoUsuarioCuponGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AkuoUsuarioCuponGroupByArgs['orderBy'] }
+        : { orderBy?: AkuoUsuarioCuponGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AkuoUsuarioCuponGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAkuoUsuarioCuponGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AkuoUsuarioCupon model
+   */
+  readonly fields: AkuoUsuarioCuponFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AkuoUsuarioCupon.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AkuoUsuarioCuponClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    cupon<T extends AkuoCuponDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AkuoCuponDefaultArgs<ExtArgs>>): Prisma__AkuoCuponClient<$Result.GetResult<Prisma.$AkuoCuponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AkuoUsuarioCupon model
+   */
+  interface AkuoUsuarioCuponFieldRefs {
+    readonly id: FieldRef<"AkuoUsuarioCupon", 'String'>
+    readonly usadoEn: FieldRef<"AkuoUsuarioCupon", 'DateTime'>
+    readonly cuponId: FieldRef<"AkuoUsuarioCupon", 'String'>
+    readonly usuarioId: FieldRef<"AkuoUsuarioCupon", 'String'>
+    readonly pedidoClienteId: FieldRef<"AkuoUsuarioCupon", 'String'>
+    readonly planActivado: FieldRef<"AkuoUsuarioCupon", 'String'>
+    readonly montoAhorrado: FieldRef<"AkuoUsuarioCupon", 'Float'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AkuoUsuarioCupon findUnique
+   */
+  export type AkuoUsuarioCuponFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoUsuarioCupon to fetch.
+     */
+    where: AkuoUsuarioCuponWhereUniqueInput
+  }
+
+  /**
+   * AkuoUsuarioCupon findUniqueOrThrow
+   */
+  export type AkuoUsuarioCuponFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoUsuarioCupon to fetch.
+     */
+    where: AkuoUsuarioCuponWhereUniqueInput
+  }
+
+  /**
+   * AkuoUsuarioCupon findFirst
+   */
+  export type AkuoUsuarioCuponFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoUsuarioCupon to fetch.
+     */
+    where?: AkuoUsuarioCuponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoUsuarioCupons to fetch.
+     */
+    orderBy?: AkuoUsuarioCuponOrderByWithRelationInput | AkuoUsuarioCuponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoUsuarioCupons.
+     */
+    cursor?: AkuoUsuarioCuponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoUsuarioCupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoUsuarioCupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoUsuarioCupons.
+     */
+    distinct?: AkuoUsuarioCuponScalarFieldEnum | AkuoUsuarioCuponScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoUsuarioCupon findFirstOrThrow
+   */
+  export type AkuoUsuarioCuponFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoUsuarioCupon to fetch.
+     */
+    where?: AkuoUsuarioCuponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoUsuarioCupons to fetch.
+     */
+    orderBy?: AkuoUsuarioCuponOrderByWithRelationInput | AkuoUsuarioCuponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AkuoUsuarioCupons.
+     */
+    cursor?: AkuoUsuarioCuponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoUsuarioCupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoUsuarioCupons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AkuoUsuarioCupons.
+     */
+    distinct?: AkuoUsuarioCuponScalarFieldEnum | AkuoUsuarioCuponScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoUsuarioCupon findMany
+   */
+  export type AkuoUsuarioCuponFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * Filter, which AkuoUsuarioCupons to fetch.
+     */
+    where?: AkuoUsuarioCuponWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AkuoUsuarioCupons to fetch.
+     */
+    orderBy?: AkuoUsuarioCuponOrderByWithRelationInput | AkuoUsuarioCuponOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AkuoUsuarioCupons.
+     */
+    cursor?: AkuoUsuarioCuponWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AkuoUsuarioCupons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AkuoUsuarioCupons.
+     */
+    skip?: number
+    distinct?: AkuoUsuarioCuponScalarFieldEnum | AkuoUsuarioCuponScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoUsuarioCupon create
+   */
+  export type AkuoUsuarioCuponCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AkuoUsuarioCupon.
+     */
+    data: XOR<AkuoUsuarioCuponCreateInput, AkuoUsuarioCuponUncheckedCreateInput>
+  }
+
+  /**
+   * AkuoUsuarioCupon createMany
+   */
+  export type AkuoUsuarioCuponCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AkuoUsuarioCupons.
+     */
+    data: AkuoUsuarioCuponCreateManyInput | AkuoUsuarioCuponCreateManyInput[]
+  }
+
+  /**
+   * AkuoUsuarioCupon createManyAndReturn
+   */
+  export type AkuoUsuarioCuponCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * The data used to create many AkuoUsuarioCupons.
+     */
+    data: AkuoUsuarioCuponCreateManyInput | AkuoUsuarioCuponCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AkuoUsuarioCupon update
+   */
+  export type AkuoUsuarioCuponUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AkuoUsuarioCupon.
+     */
+    data: XOR<AkuoUsuarioCuponUpdateInput, AkuoUsuarioCuponUncheckedUpdateInput>
+    /**
+     * Choose, which AkuoUsuarioCupon to update.
+     */
+    where: AkuoUsuarioCuponWhereUniqueInput
+  }
+
+  /**
+   * AkuoUsuarioCupon updateMany
+   */
+  export type AkuoUsuarioCuponUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AkuoUsuarioCupons.
+     */
+    data: XOR<AkuoUsuarioCuponUpdateManyMutationInput, AkuoUsuarioCuponUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoUsuarioCupons to update
+     */
+    where?: AkuoUsuarioCuponWhereInput
+    /**
+     * Limit how many AkuoUsuarioCupons to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoUsuarioCupon updateManyAndReturn
+   */
+  export type AkuoUsuarioCuponUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * The data used to update AkuoUsuarioCupons.
+     */
+    data: XOR<AkuoUsuarioCuponUpdateManyMutationInput, AkuoUsuarioCuponUncheckedUpdateManyInput>
+    /**
+     * Filter which AkuoUsuarioCupons to update
+     */
+    where?: AkuoUsuarioCuponWhereInput
+    /**
+     * Limit how many AkuoUsuarioCupons to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AkuoUsuarioCupon upsert
+   */
+  export type AkuoUsuarioCuponUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AkuoUsuarioCupon to update in case it exists.
+     */
+    where: AkuoUsuarioCuponWhereUniqueInput
+    /**
+     * In case the AkuoUsuarioCupon found by the `where` argument doesn't exist, create a new AkuoUsuarioCupon with this data.
+     */
+    create: XOR<AkuoUsuarioCuponCreateInput, AkuoUsuarioCuponUncheckedCreateInput>
+    /**
+     * In case the AkuoUsuarioCupon was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AkuoUsuarioCuponUpdateInput, AkuoUsuarioCuponUncheckedUpdateInput>
+  }
+
+  /**
+   * AkuoUsuarioCupon delete
+   */
+  export type AkuoUsuarioCuponDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+    /**
+     * Filter which AkuoUsuarioCupon to delete.
+     */
+    where: AkuoUsuarioCuponWhereUniqueInput
+  }
+
+  /**
+   * AkuoUsuarioCupon deleteMany
+   */
+  export type AkuoUsuarioCuponDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AkuoUsuarioCupons to delete
+     */
+    where?: AkuoUsuarioCuponWhereInput
+    /**
+     * Limit how many AkuoUsuarioCupons to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AkuoUsuarioCupon without action
+   */
+  export type AkuoUsuarioCuponDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoUsuarioCupon
+     */
+    select?: AkuoUsuarioCuponSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoUsuarioCupon
+     */
+    omit?: AkuoUsuarioCuponOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoUsuarioCuponInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -28964,6 +31615,10 @@ export namespace Prisma {
     mpSubIniciadoEn: 'mpSubIniciadoEn',
     mpSubAutorizadoEn: 'mpSubAutorizadoEn',
     mpSubAmount: 'mpSubAmount',
+    mpSubSuspended: 'mpSubSuspended',
+    mpSubSuspendedEn: 'mpSubSuspendedEn',
+    mpSubSuspendedPor: 'mpSubSuspendedPor',
+    mpSubSuspendedRazon: 'mpSubSuspendedRazon',
     mpTestUserEmail: 'mpTestUserEmail'
   };
 
@@ -29344,6 +31999,42 @@ export namespace Prisma {
   export type AkuoPedidoClienteScalarFieldEnum = (typeof AkuoPedidoClienteScalarFieldEnum)[keyof typeof AkuoPedidoClienteScalarFieldEnum]
 
 
+  export const AkuoCuponScalarFieldEnum: {
+    id: 'id',
+    creadoEn: 'creadoEn',
+    actualizadoEn: 'actualizadoEn',
+    codigo: 'codigo',
+    tipo: 'tipo',
+    descuentoTipo: 'descuentoTipo',
+    descuentoValor: 'descuentoValor',
+    minMonto: 'minMonto',
+    planIdAplicable: 'planIdAplicable',
+    maxUsos: 'maxUsos',
+    usos: 'usos',
+    fechaInicio: 'fechaInicio',
+    fechaFin: 'fechaFin',
+    activo: 'activo',
+    creadoPor: 'creadoPor',
+    nota: 'nota',
+    descripcionPublica: 'descripcionPublica'
+  };
+
+  export type AkuoCuponScalarFieldEnum = (typeof AkuoCuponScalarFieldEnum)[keyof typeof AkuoCuponScalarFieldEnum]
+
+
+  export const AkuoUsuarioCuponScalarFieldEnum: {
+    id: 'id',
+    usadoEn: 'usadoEn',
+    cuponId: 'cuponId',
+    usuarioId: 'usuarioId',
+    pedidoClienteId: 'pedidoClienteId',
+    planActivado: 'planActivado',
+    montoAhorrado: 'montoAhorrado'
+  };
+
+  export type AkuoUsuarioCuponScalarFieldEnum = (typeof AkuoUsuarioCuponScalarFieldEnum)[keyof typeof AkuoUsuarioCuponScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -29492,6 +32183,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    mpSubSuspended?: BoolFilter<"AkuoUsuario"> | boolean
+    mpSubSuspendedEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    mpSubSuspendedPor?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpSubSuspendedRazon?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpTestUserEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
     zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
@@ -29600,6 +32295,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrderInput | SortOrder
     mpSubAutorizadoEn?: SortOrderInput | SortOrder
     mpSubAmount?: SortOrderInput | SortOrder
+    mpSubSuspended?: SortOrder
+    mpSubSuspendedEn?: SortOrderInput | SortOrder
+    mpSubSuspendedPor?: SortOrderInput | SortOrder
+    mpSubSuspendedRazon?: SortOrderInput | SortOrder
     mpTestUserEmail?: SortOrderInput | SortOrder
     zona?: AkuoZonaOrderByWithRelationInput
     sesiones?: AkuoSesionOrderByRelationAggregateInput
@@ -29711,6 +32410,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    mpSubSuspended?: BoolFilter<"AkuoUsuario"> | boolean
+    mpSubSuspendedEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    mpSubSuspendedPor?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpSubSuspendedRazon?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpTestUserEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
     zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
@@ -29819,6 +32522,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrderInput | SortOrder
     mpSubAutorizadoEn?: SortOrderInput | SortOrder
     mpSubAmount?: SortOrderInput | SortOrder
+    mpSubSuspended?: SortOrder
+    mpSubSuspendedEn?: SortOrderInput | SortOrder
+    mpSubSuspendedPor?: SortOrderInput | SortOrder
+    mpSubSuspendedRazon?: SortOrderInput | SortOrder
     mpTestUserEmail?: SortOrderInput | SortOrder
     _count?: AkuoUsuarioCountOrderByAggregateInput
     _avg?: AkuoUsuarioAvgOrderByAggregateInput
@@ -29916,6 +32623,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     mpSubAutorizadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     mpSubAmount?: FloatNullableWithAggregatesFilter<"AkuoUsuario"> | number | null
+    mpSubSuspended?: BoolWithAggregatesFilter<"AkuoUsuario"> | boolean
+    mpSubSuspendedEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    mpSubSuspendedPor?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    mpSubSuspendedRazon?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     mpTestUserEmail?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
   }
 
@@ -31870,6 +34581,190 @@ export namespace Prisma {
     docTributarioMonto?: FloatNullableWithAggregatesFilter<"AkuoPedidoCliente"> | number | null
   }
 
+  export type AkuoCuponWhereInput = {
+    AND?: AkuoCuponWhereInput | AkuoCuponWhereInput[]
+    OR?: AkuoCuponWhereInput[]
+    NOT?: AkuoCuponWhereInput | AkuoCuponWhereInput[]
+    id?: StringFilter<"AkuoCupon"> | string
+    creadoEn?: DateTimeFilter<"AkuoCupon"> | Date | string
+    actualizadoEn?: DateTimeFilter<"AkuoCupon"> | Date | string
+    codigo?: StringFilter<"AkuoCupon"> | string
+    tipo?: StringFilter<"AkuoCupon"> | string
+    descuentoTipo?: StringFilter<"AkuoCupon"> | string
+    descuentoValor?: FloatFilter<"AkuoCupon"> | number
+    minMonto?: FloatNullableFilter<"AkuoCupon"> | number | null
+    planIdAplicable?: StringNullableFilter<"AkuoCupon"> | string | null
+    maxUsos?: IntFilter<"AkuoCupon"> | number
+    usos?: IntFilter<"AkuoCupon"> | number
+    fechaInicio?: DateTimeFilter<"AkuoCupon"> | Date | string
+    fechaFin?: DateTimeNullableFilter<"AkuoCupon"> | Date | string | null
+    activo?: BoolFilter<"AkuoCupon"> | boolean
+    creadoPor?: StringNullableFilter<"AkuoCupon"> | string | null
+    nota?: StringNullableFilter<"AkuoCupon"> | string | null
+    descripcionPublica?: StringNullableFilter<"AkuoCupon"> | string | null
+    usosCupones?: AkuoUsuarioCuponListRelationFilter
+  }
+
+  export type AkuoCuponOrderByWithRelationInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    actualizadoEn?: SortOrder
+    codigo?: SortOrder
+    tipo?: SortOrder
+    descuentoTipo?: SortOrder
+    descuentoValor?: SortOrder
+    minMonto?: SortOrderInput | SortOrder
+    planIdAplicable?: SortOrderInput | SortOrder
+    maxUsos?: SortOrder
+    usos?: SortOrder
+    fechaInicio?: SortOrder
+    fechaFin?: SortOrderInput | SortOrder
+    activo?: SortOrder
+    creadoPor?: SortOrderInput | SortOrder
+    nota?: SortOrderInput | SortOrder
+    descripcionPublica?: SortOrderInput | SortOrder
+    usosCupones?: AkuoUsuarioCuponOrderByRelationAggregateInput
+  }
+
+  export type AkuoCuponWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    codigo?: string
+    AND?: AkuoCuponWhereInput | AkuoCuponWhereInput[]
+    OR?: AkuoCuponWhereInput[]
+    NOT?: AkuoCuponWhereInput | AkuoCuponWhereInput[]
+    creadoEn?: DateTimeFilter<"AkuoCupon"> | Date | string
+    actualizadoEn?: DateTimeFilter<"AkuoCupon"> | Date | string
+    tipo?: StringFilter<"AkuoCupon"> | string
+    descuentoTipo?: StringFilter<"AkuoCupon"> | string
+    descuentoValor?: FloatFilter<"AkuoCupon"> | number
+    minMonto?: FloatNullableFilter<"AkuoCupon"> | number | null
+    planIdAplicable?: StringNullableFilter<"AkuoCupon"> | string | null
+    maxUsos?: IntFilter<"AkuoCupon"> | number
+    usos?: IntFilter<"AkuoCupon"> | number
+    fechaInicio?: DateTimeFilter<"AkuoCupon"> | Date | string
+    fechaFin?: DateTimeNullableFilter<"AkuoCupon"> | Date | string | null
+    activo?: BoolFilter<"AkuoCupon"> | boolean
+    creadoPor?: StringNullableFilter<"AkuoCupon"> | string | null
+    nota?: StringNullableFilter<"AkuoCupon"> | string | null
+    descripcionPublica?: StringNullableFilter<"AkuoCupon"> | string | null
+    usosCupones?: AkuoUsuarioCuponListRelationFilter
+  }, "id" | "codigo">
+
+  export type AkuoCuponOrderByWithAggregationInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    actualizadoEn?: SortOrder
+    codigo?: SortOrder
+    tipo?: SortOrder
+    descuentoTipo?: SortOrder
+    descuentoValor?: SortOrder
+    minMonto?: SortOrderInput | SortOrder
+    planIdAplicable?: SortOrderInput | SortOrder
+    maxUsos?: SortOrder
+    usos?: SortOrder
+    fechaInicio?: SortOrder
+    fechaFin?: SortOrderInput | SortOrder
+    activo?: SortOrder
+    creadoPor?: SortOrderInput | SortOrder
+    nota?: SortOrderInput | SortOrder
+    descripcionPublica?: SortOrderInput | SortOrder
+    _count?: AkuoCuponCountOrderByAggregateInput
+    _avg?: AkuoCuponAvgOrderByAggregateInput
+    _max?: AkuoCuponMaxOrderByAggregateInput
+    _min?: AkuoCuponMinOrderByAggregateInput
+    _sum?: AkuoCuponSumOrderByAggregateInput
+  }
+
+  export type AkuoCuponScalarWhereWithAggregatesInput = {
+    AND?: AkuoCuponScalarWhereWithAggregatesInput | AkuoCuponScalarWhereWithAggregatesInput[]
+    OR?: AkuoCuponScalarWhereWithAggregatesInput[]
+    NOT?: AkuoCuponScalarWhereWithAggregatesInput | AkuoCuponScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AkuoCupon"> | string
+    creadoEn?: DateTimeWithAggregatesFilter<"AkuoCupon"> | Date | string
+    actualizadoEn?: DateTimeWithAggregatesFilter<"AkuoCupon"> | Date | string
+    codigo?: StringWithAggregatesFilter<"AkuoCupon"> | string
+    tipo?: StringWithAggregatesFilter<"AkuoCupon"> | string
+    descuentoTipo?: StringWithAggregatesFilter<"AkuoCupon"> | string
+    descuentoValor?: FloatWithAggregatesFilter<"AkuoCupon"> | number
+    minMonto?: FloatNullableWithAggregatesFilter<"AkuoCupon"> | number | null
+    planIdAplicable?: StringNullableWithAggregatesFilter<"AkuoCupon"> | string | null
+    maxUsos?: IntWithAggregatesFilter<"AkuoCupon"> | number
+    usos?: IntWithAggregatesFilter<"AkuoCupon"> | number
+    fechaInicio?: DateTimeWithAggregatesFilter<"AkuoCupon"> | Date | string
+    fechaFin?: DateTimeNullableWithAggregatesFilter<"AkuoCupon"> | Date | string | null
+    activo?: BoolWithAggregatesFilter<"AkuoCupon"> | boolean
+    creadoPor?: StringNullableWithAggregatesFilter<"AkuoCupon"> | string | null
+    nota?: StringNullableWithAggregatesFilter<"AkuoCupon"> | string | null
+    descripcionPublica?: StringNullableWithAggregatesFilter<"AkuoCupon"> | string | null
+  }
+
+  export type AkuoUsuarioCuponWhereInput = {
+    AND?: AkuoUsuarioCuponWhereInput | AkuoUsuarioCuponWhereInput[]
+    OR?: AkuoUsuarioCuponWhereInput[]
+    NOT?: AkuoUsuarioCuponWhereInput | AkuoUsuarioCuponWhereInput[]
+    id?: StringFilter<"AkuoUsuarioCupon"> | string
+    usadoEn?: DateTimeFilter<"AkuoUsuarioCupon"> | Date | string
+    cuponId?: StringFilter<"AkuoUsuarioCupon"> | string
+    usuarioId?: StringFilter<"AkuoUsuarioCupon"> | string
+    pedidoClienteId?: StringNullableFilter<"AkuoUsuarioCupon"> | string | null
+    planActivado?: StringNullableFilter<"AkuoUsuarioCupon"> | string | null
+    montoAhorrado?: FloatFilter<"AkuoUsuarioCupon"> | number
+    cupon?: XOR<AkuoCuponScalarRelationFilter, AkuoCuponWhereInput>
+  }
+
+  export type AkuoUsuarioCuponOrderByWithRelationInput = {
+    id?: SortOrder
+    usadoEn?: SortOrder
+    cuponId?: SortOrder
+    usuarioId?: SortOrder
+    pedidoClienteId?: SortOrderInput | SortOrder
+    planActivado?: SortOrderInput | SortOrder
+    montoAhorrado?: SortOrder
+    cupon?: AkuoCuponOrderByWithRelationInput
+  }
+
+  export type AkuoUsuarioCuponWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AkuoUsuarioCuponWhereInput | AkuoUsuarioCuponWhereInput[]
+    OR?: AkuoUsuarioCuponWhereInput[]
+    NOT?: AkuoUsuarioCuponWhereInput | AkuoUsuarioCuponWhereInput[]
+    usadoEn?: DateTimeFilter<"AkuoUsuarioCupon"> | Date | string
+    cuponId?: StringFilter<"AkuoUsuarioCupon"> | string
+    usuarioId?: StringFilter<"AkuoUsuarioCupon"> | string
+    pedidoClienteId?: StringNullableFilter<"AkuoUsuarioCupon"> | string | null
+    planActivado?: StringNullableFilter<"AkuoUsuarioCupon"> | string | null
+    montoAhorrado?: FloatFilter<"AkuoUsuarioCupon"> | number
+    cupon?: XOR<AkuoCuponScalarRelationFilter, AkuoCuponWhereInput>
+  }, "id">
+
+  export type AkuoUsuarioCuponOrderByWithAggregationInput = {
+    id?: SortOrder
+    usadoEn?: SortOrder
+    cuponId?: SortOrder
+    usuarioId?: SortOrder
+    pedidoClienteId?: SortOrderInput | SortOrder
+    planActivado?: SortOrderInput | SortOrder
+    montoAhorrado?: SortOrder
+    _count?: AkuoUsuarioCuponCountOrderByAggregateInput
+    _avg?: AkuoUsuarioCuponAvgOrderByAggregateInput
+    _max?: AkuoUsuarioCuponMaxOrderByAggregateInput
+    _min?: AkuoUsuarioCuponMinOrderByAggregateInput
+    _sum?: AkuoUsuarioCuponSumOrderByAggregateInput
+  }
+
+  export type AkuoUsuarioCuponScalarWhereWithAggregatesInput = {
+    AND?: AkuoUsuarioCuponScalarWhereWithAggregatesInput | AkuoUsuarioCuponScalarWhereWithAggregatesInput[]
+    OR?: AkuoUsuarioCuponScalarWhereWithAggregatesInput[]
+    NOT?: AkuoUsuarioCuponScalarWhereWithAggregatesInput | AkuoUsuarioCuponScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AkuoUsuarioCupon"> | string
+    usadoEn?: DateTimeWithAggregatesFilter<"AkuoUsuarioCupon"> | Date | string
+    cuponId?: StringWithAggregatesFilter<"AkuoUsuarioCupon"> | string
+    usuarioId?: StringWithAggregatesFilter<"AkuoUsuarioCupon"> | string
+    pedidoClienteId?: StringNullableWithAggregatesFilter<"AkuoUsuarioCupon"> | string | null
+    planActivado?: StringNullableWithAggregatesFilter<"AkuoUsuarioCupon"> | string | null
+    montoAhorrado?: FloatWithAggregatesFilter<"AkuoUsuarioCupon"> | number
+  }
+
   export type AkuoUsuarioCreateInput = {
     id?: string
     email: string
@@ -31955,6 +34850,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -32063,6 +34962,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -32169,6 +35072,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -32277,6 +35184,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -32384,6 +35295,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
   }
 
@@ -32472,6 +35387,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -32561,6 +35480,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -34796,6 +37719,219 @@ export namespace Prisma {
     docTributarioMonto?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
+  export type AkuoCuponCreateInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    codigo: string
+    tipo: string
+    descuentoTipo: string
+    descuentoValor: number
+    minMonto?: number | null
+    planIdAplicable?: string | null
+    maxUsos?: number
+    usos?: number
+    fechaInicio: Date | string
+    fechaFin?: Date | string | null
+    activo?: boolean
+    creadoPor?: string | null
+    nota?: string | null
+    descripcionPublica?: string | null
+    usosCupones?: AkuoUsuarioCuponCreateNestedManyWithoutCuponInput
+  }
+
+  export type AkuoCuponUncheckedCreateInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    codigo: string
+    tipo: string
+    descuentoTipo: string
+    descuentoValor: number
+    minMonto?: number | null
+    planIdAplicable?: string | null
+    maxUsos?: number
+    usos?: number
+    fechaInicio: Date | string
+    fechaFin?: Date | string | null
+    activo?: boolean
+    creadoPor?: string | null
+    nota?: string | null
+    descripcionPublica?: string | null
+    usosCupones?: AkuoUsuarioCuponUncheckedCreateNestedManyWithoutCuponInput
+  }
+
+  export type AkuoCuponUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    descuentoTipo?: StringFieldUpdateOperationsInput | string
+    descuentoValor?: FloatFieldUpdateOperationsInput | number
+    minMonto?: NullableFloatFieldUpdateOperationsInput | number | null
+    planIdAplicable?: NullableStringFieldUpdateOperationsInput | string | null
+    maxUsos?: IntFieldUpdateOperationsInput | number
+    usos?: IntFieldUpdateOperationsInput | number
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    creadoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcionPublica?: NullableStringFieldUpdateOperationsInput | string | null
+    usosCupones?: AkuoUsuarioCuponUpdateManyWithoutCuponNestedInput
+  }
+
+  export type AkuoCuponUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    descuentoTipo?: StringFieldUpdateOperationsInput | string
+    descuentoValor?: FloatFieldUpdateOperationsInput | number
+    minMonto?: NullableFloatFieldUpdateOperationsInput | number | null
+    planIdAplicable?: NullableStringFieldUpdateOperationsInput | string | null
+    maxUsos?: IntFieldUpdateOperationsInput | number
+    usos?: IntFieldUpdateOperationsInput | number
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    creadoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcionPublica?: NullableStringFieldUpdateOperationsInput | string | null
+    usosCupones?: AkuoUsuarioCuponUncheckedUpdateManyWithoutCuponNestedInput
+  }
+
+  export type AkuoCuponCreateManyInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    codigo: string
+    tipo: string
+    descuentoTipo: string
+    descuentoValor: number
+    minMonto?: number | null
+    planIdAplicable?: string | null
+    maxUsos?: number
+    usos?: number
+    fechaInicio: Date | string
+    fechaFin?: Date | string | null
+    activo?: boolean
+    creadoPor?: string | null
+    nota?: string | null
+    descripcionPublica?: string | null
+  }
+
+  export type AkuoCuponUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    descuentoTipo?: StringFieldUpdateOperationsInput | string
+    descuentoValor?: FloatFieldUpdateOperationsInput | number
+    minMonto?: NullableFloatFieldUpdateOperationsInput | number | null
+    planIdAplicable?: NullableStringFieldUpdateOperationsInput | string | null
+    maxUsos?: IntFieldUpdateOperationsInput | number
+    usos?: IntFieldUpdateOperationsInput | number
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    creadoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcionPublica?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoCuponUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    descuentoTipo?: StringFieldUpdateOperationsInput | string
+    descuentoValor?: FloatFieldUpdateOperationsInput | number
+    minMonto?: NullableFloatFieldUpdateOperationsInput | number | null
+    planIdAplicable?: NullableStringFieldUpdateOperationsInput | string | null
+    maxUsos?: IntFieldUpdateOperationsInput | number
+    usos?: IntFieldUpdateOperationsInput | number
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    creadoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcionPublica?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoUsuarioCuponCreateInput = {
+    id?: string
+    usadoEn?: Date | string
+    usuarioId: string
+    pedidoClienteId?: string | null
+    planActivado?: string | null
+    montoAhorrado: number
+    cupon: AkuoCuponCreateNestedOneWithoutUsosCuponesInput
+  }
+
+  export type AkuoUsuarioCuponUncheckedCreateInput = {
+    id?: string
+    usadoEn?: Date | string
+    cuponId: string
+    usuarioId: string
+    pedidoClienteId?: string | null
+    planActivado?: string | null
+    montoAhorrado: number
+  }
+
+  export type AkuoUsuarioCuponUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    usuarioId?: StringFieldUpdateOperationsInput | string
+    pedidoClienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    planActivado?: NullableStringFieldUpdateOperationsInput | string | null
+    montoAhorrado?: FloatFieldUpdateOperationsInput | number
+    cupon?: AkuoCuponUpdateOneRequiredWithoutUsosCuponesNestedInput
+  }
+
+  export type AkuoUsuarioCuponUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cuponId?: StringFieldUpdateOperationsInput | string
+    usuarioId?: StringFieldUpdateOperationsInput | string
+    pedidoClienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    planActivado?: NullableStringFieldUpdateOperationsInput | string | null
+    montoAhorrado?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type AkuoUsuarioCuponCreateManyInput = {
+    id?: string
+    usadoEn?: Date | string
+    cuponId: string
+    usuarioId: string
+    pedidoClienteId?: string | null
+    planActivado?: string | null
+    montoAhorrado: number
+  }
+
+  export type AkuoUsuarioCuponUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    usuarioId?: StringFieldUpdateOperationsInput | string
+    pedidoClienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    planActivado?: NullableStringFieldUpdateOperationsInput | string | null
+    montoAhorrado?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type AkuoUsuarioCuponUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    cuponId?: StringFieldUpdateOperationsInput | string
+    usuarioId?: StringFieldUpdateOperationsInput | string
+    pedidoClienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    planActivado?: NullableStringFieldUpdateOperationsInput | string | null
+    montoAhorrado?: FloatFieldUpdateOperationsInput | number
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -35151,6 +38287,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrder
     mpSubAutorizadoEn?: SortOrder
     mpSubAmount?: SortOrder
+    mpSubSuspended?: SortOrder
+    mpSubSuspendedEn?: SortOrder
+    mpSubSuspendedPor?: SortOrder
+    mpSubSuspendedRazon?: SortOrder
     mpTestUserEmail?: SortOrder
   }
 
@@ -35253,6 +38393,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrder
     mpSubAutorizadoEn?: SortOrder
     mpSubAmount?: SortOrder
+    mpSubSuspended?: SortOrder
+    mpSubSuspendedEn?: SortOrder
+    mpSubSuspendedPor?: SortOrder
+    mpSubSuspendedRazon?: SortOrder
     mpTestUserEmail?: SortOrder
   }
 
@@ -35342,6 +38486,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrder
     mpSubAutorizadoEn?: SortOrder
     mpSubAmount?: SortOrder
+    mpSubSuspended?: SortOrder
+    mpSubSuspendedEn?: SortOrder
+    mpSubSuspendedPor?: SortOrder
+    mpSubSuspendedRazon?: SortOrder
     mpTestUserEmail?: SortOrder
   }
 
@@ -36692,6 +39840,133 @@ export namespace Prisma {
     precioTotal?: SortOrder
     precioPorLitroFinal?: SortOrder
     docTributarioMonto?: SortOrder
+  }
+
+  export type AkuoUsuarioCuponListRelationFilter = {
+    every?: AkuoUsuarioCuponWhereInput
+    some?: AkuoUsuarioCuponWhereInput
+    none?: AkuoUsuarioCuponWhereInput
+  }
+
+  export type AkuoUsuarioCuponOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AkuoCuponCountOrderByAggregateInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    actualizadoEn?: SortOrder
+    codigo?: SortOrder
+    tipo?: SortOrder
+    descuentoTipo?: SortOrder
+    descuentoValor?: SortOrder
+    minMonto?: SortOrder
+    planIdAplicable?: SortOrder
+    maxUsos?: SortOrder
+    usos?: SortOrder
+    fechaInicio?: SortOrder
+    fechaFin?: SortOrder
+    activo?: SortOrder
+    creadoPor?: SortOrder
+    nota?: SortOrder
+    descripcionPublica?: SortOrder
+  }
+
+  export type AkuoCuponAvgOrderByAggregateInput = {
+    descuentoValor?: SortOrder
+    minMonto?: SortOrder
+    maxUsos?: SortOrder
+    usos?: SortOrder
+  }
+
+  export type AkuoCuponMaxOrderByAggregateInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    actualizadoEn?: SortOrder
+    codigo?: SortOrder
+    tipo?: SortOrder
+    descuentoTipo?: SortOrder
+    descuentoValor?: SortOrder
+    minMonto?: SortOrder
+    planIdAplicable?: SortOrder
+    maxUsos?: SortOrder
+    usos?: SortOrder
+    fechaInicio?: SortOrder
+    fechaFin?: SortOrder
+    activo?: SortOrder
+    creadoPor?: SortOrder
+    nota?: SortOrder
+    descripcionPublica?: SortOrder
+  }
+
+  export type AkuoCuponMinOrderByAggregateInput = {
+    id?: SortOrder
+    creadoEn?: SortOrder
+    actualizadoEn?: SortOrder
+    codigo?: SortOrder
+    tipo?: SortOrder
+    descuentoTipo?: SortOrder
+    descuentoValor?: SortOrder
+    minMonto?: SortOrder
+    planIdAplicable?: SortOrder
+    maxUsos?: SortOrder
+    usos?: SortOrder
+    fechaInicio?: SortOrder
+    fechaFin?: SortOrder
+    activo?: SortOrder
+    creadoPor?: SortOrder
+    nota?: SortOrder
+    descripcionPublica?: SortOrder
+  }
+
+  export type AkuoCuponSumOrderByAggregateInput = {
+    descuentoValor?: SortOrder
+    minMonto?: SortOrder
+    maxUsos?: SortOrder
+    usos?: SortOrder
+  }
+
+  export type AkuoCuponScalarRelationFilter = {
+    is?: AkuoCuponWhereInput
+    isNot?: AkuoCuponWhereInput
+  }
+
+  export type AkuoUsuarioCuponCountOrderByAggregateInput = {
+    id?: SortOrder
+    usadoEn?: SortOrder
+    cuponId?: SortOrder
+    usuarioId?: SortOrder
+    pedidoClienteId?: SortOrder
+    planActivado?: SortOrder
+    montoAhorrado?: SortOrder
+  }
+
+  export type AkuoUsuarioCuponAvgOrderByAggregateInput = {
+    montoAhorrado?: SortOrder
+  }
+
+  export type AkuoUsuarioCuponMaxOrderByAggregateInput = {
+    id?: SortOrder
+    usadoEn?: SortOrder
+    cuponId?: SortOrder
+    usuarioId?: SortOrder
+    pedidoClienteId?: SortOrder
+    planActivado?: SortOrder
+    montoAhorrado?: SortOrder
+  }
+
+  export type AkuoUsuarioCuponMinOrderByAggregateInput = {
+    id?: SortOrder
+    usadoEn?: SortOrder
+    cuponId?: SortOrder
+    usuarioId?: SortOrder
+    pedidoClienteId?: SortOrder
+    planActivado?: SortOrder
+    montoAhorrado?: SortOrder
+  }
+
+  export type AkuoUsuarioCuponSumOrderByAggregateInput = {
+    montoAhorrado?: SortOrder
   }
 
   export type AkuoZonaCreateNestedOneWithoutUsuariosInput = {
@@ -38326,6 +41601,62 @@ export namespace Prisma {
     delete?: AkuoUsuarioWhereInput | boolean
     connect?: AkuoUsuarioWhereUniqueInput
     update?: XOR<XOR<AkuoUsuarioUpdateToOneWithWhereWithoutPedidosTransportistaAppInput, AkuoUsuarioUpdateWithoutPedidosTransportistaAppInput>, AkuoUsuarioUncheckedUpdateWithoutPedidosTransportistaAppInput>
+  }
+
+  export type AkuoUsuarioCuponCreateNestedManyWithoutCuponInput = {
+    create?: XOR<AkuoUsuarioCuponCreateWithoutCuponInput, AkuoUsuarioCuponUncheckedCreateWithoutCuponInput> | AkuoUsuarioCuponCreateWithoutCuponInput[] | AkuoUsuarioCuponUncheckedCreateWithoutCuponInput[]
+    connectOrCreate?: AkuoUsuarioCuponCreateOrConnectWithoutCuponInput | AkuoUsuarioCuponCreateOrConnectWithoutCuponInput[]
+    createMany?: AkuoUsuarioCuponCreateManyCuponInputEnvelope
+    connect?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+  }
+
+  export type AkuoUsuarioCuponUncheckedCreateNestedManyWithoutCuponInput = {
+    create?: XOR<AkuoUsuarioCuponCreateWithoutCuponInput, AkuoUsuarioCuponUncheckedCreateWithoutCuponInput> | AkuoUsuarioCuponCreateWithoutCuponInput[] | AkuoUsuarioCuponUncheckedCreateWithoutCuponInput[]
+    connectOrCreate?: AkuoUsuarioCuponCreateOrConnectWithoutCuponInput | AkuoUsuarioCuponCreateOrConnectWithoutCuponInput[]
+    createMany?: AkuoUsuarioCuponCreateManyCuponInputEnvelope
+    connect?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+  }
+
+  export type AkuoUsuarioCuponUpdateManyWithoutCuponNestedInput = {
+    create?: XOR<AkuoUsuarioCuponCreateWithoutCuponInput, AkuoUsuarioCuponUncheckedCreateWithoutCuponInput> | AkuoUsuarioCuponCreateWithoutCuponInput[] | AkuoUsuarioCuponUncheckedCreateWithoutCuponInput[]
+    connectOrCreate?: AkuoUsuarioCuponCreateOrConnectWithoutCuponInput | AkuoUsuarioCuponCreateOrConnectWithoutCuponInput[]
+    upsert?: AkuoUsuarioCuponUpsertWithWhereUniqueWithoutCuponInput | AkuoUsuarioCuponUpsertWithWhereUniqueWithoutCuponInput[]
+    createMany?: AkuoUsuarioCuponCreateManyCuponInputEnvelope
+    set?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+    disconnect?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+    delete?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+    connect?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+    update?: AkuoUsuarioCuponUpdateWithWhereUniqueWithoutCuponInput | AkuoUsuarioCuponUpdateWithWhereUniqueWithoutCuponInput[]
+    updateMany?: AkuoUsuarioCuponUpdateManyWithWhereWithoutCuponInput | AkuoUsuarioCuponUpdateManyWithWhereWithoutCuponInput[]
+    deleteMany?: AkuoUsuarioCuponScalarWhereInput | AkuoUsuarioCuponScalarWhereInput[]
+  }
+
+  export type AkuoUsuarioCuponUncheckedUpdateManyWithoutCuponNestedInput = {
+    create?: XOR<AkuoUsuarioCuponCreateWithoutCuponInput, AkuoUsuarioCuponUncheckedCreateWithoutCuponInput> | AkuoUsuarioCuponCreateWithoutCuponInput[] | AkuoUsuarioCuponUncheckedCreateWithoutCuponInput[]
+    connectOrCreate?: AkuoUsuarioCuponCreateOrConnectWithoutCuponInput | AkuoUsuarioCuponCreateOrConnectWithoutCuponInput[]
+    upsert?: AkuoUsuarioCuponUpsertWithWhereUniqueWithoutCuponInput | AkuoUsuarioCuponUpsertWithWhereUniqueWithoutCuponInput[]
+    createMany?: AkuoUsuarioCuponCreateManyCuponInputEnvelope
+    set?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+    disconnect?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+    delete?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+    connect?: AkuoUsuarioCuponWhereUniqueInput | AkuoUsuarioCuponWhereUniqueInput[]
+    update?: AkuoUsuarioCuponUpdateWithWhereUniqueWithoutCuponInput | AkuoUsuarioCuponUpdateWithWhereUniqueWithoutCuponInput[]
+    updateMany?: AkuoUsuarioCuponUpdateManyWithWhereWithoutCuponInput | AkuoUsuarioCuponUpdateManyWithWhereWithoutCuponInput[]
+    deleteMany?: AkuoUsuarioCuponScalarWhereInput | AkuoUsuarioCuponScalarWhereInput[]
+  }
+
+  export type AkuoCuponCreateNestedOneWithoutUsosCuponesInput = {
+    create?: XOR<AkuoCuponCreateWithoutUsosCuponesInput, AkuoCuponUncheckedCreateWithoutUsosCuponesInput>
+    connectOrCreate?: AkuoCuponCreateOrConnectWithoutUsosCuponesInput
+    connect?: AkuoCuponWhereUniqueInput
+  }
+
+  export type AkuoCuponUpdateOneRequiredWithoutUsosCuponesNestedInput = {
+    create?: XOR<AkuoCuponCreateWithoutUsosCuponesInput, AkuoCuponUncheckedCreateWithoutUsosCuponesInput>
+    connectOrCreate?: AkuoCuponCreateOrConnectWithoutUsosCuponesInput
+    upsert?: AkuoCuponUpsertWithoutUsosCuponesInput
+    connect?: AkuoCuponWhereUniqueInput
+    update?: XOR<XOR<AkuoCuponUpdateToOneWithWhereWithoutUsosCuponesInput, AkuoCuponUpdateWithoutUsosCuponesInput>, AkuoCuponUncheckedUpdateWithoutUsosCuponesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -40078,6 +43409,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -40185,6 +43520,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -40306,6 +43645,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -40413,6 +43756,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -40518,6 +43865,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -40625,6 +43976,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -40848,6 +44203,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -40955,6 +44314,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -41092,6 +44455,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -41199,6 +44566,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -41473,6 +44844,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -41580,6 +44955,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -41733,6 +45112,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -41840,6 +45223,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -42075,6 +45462,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -42182,6 +45573,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -42413,6 +45808,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -42520,6 +45919,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -42692,6 +46095,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -42799,6 +46206,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -42961,6 +46372,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -43068,6 +46483,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -43367,6 +46786,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -43474,6 +46897,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -43781,6 +47208,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -43888,6 +47319,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -44160,6 +47595,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -44267,6 +47706,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -44465,6 +47908,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -44572,6 +48019,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -44724,6 +48175,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -44831,6 +48286,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -44973,6 +48432,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -45080,6 +48543,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -45201,6 +48668,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -45308,6 +48779,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -45413,6 +48888,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -45520,6 +48999,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -45641,6 +49124,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -45748,6 +49235,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -45853,6 +49344,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -45960,6 +49455,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -46081,6 +49580,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -46188,6 +49691,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -46293,6 +49800,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -46400,6 +49911,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -46521,6 +50036,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -46628,6 +50147,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -46733,6 +50256,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -46840,6 +50367,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -46961,6 +50492,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -47068,6 +50603,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -47173,6 +50712,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -47279,6 +50822,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -47414,6 +50961,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    mpSubSuspended?: BoolFilter<"AkuoUsuario"> | boolean
+    mpSubSuspendedEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    mpSubSuspendedPor?: StringNullableFilter<"AkuoUsuario"> | string | null
+    mpSubSuspendedRazon?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpTestUserEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
   }
 
@@ -47502,6 +51053,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -47609,6 +51164,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -47719,6 +51278,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -47826,6 +51389,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -47972,6 +51539,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -48079,6 +51650,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -48195,6 +51770,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -48302,6 +51881,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -48444,6 +52027,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -48551,6 +52138,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -48699,6 +52290,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -48806,6 +52401,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -48911,6 +52510,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -49018,6 +52621,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -49128,6 +52735,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
@@ -49235,6 +52846,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -49356,6 +52971,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -49463,6 +53082,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -49579,6 +53202,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
@@ -49686,6 +53313,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -49704,6 +53335,158 @@ export namespace Prisma {
     pedidosClienteApp?: AkuoPedidoClienteUncheckedUpdateManyWithoutClienteNestedInput
     vueltas?: AkuoVueltaUncheckedUpdateManyWithoutTransportistaNestedInput
     gastos?: AkuoGastoUncheckedUpdateManyWithoutTransportistaNestedInput
+  }
+
+  export type AkuoUsuarioCuponCreateWithoutCuponInput = {
+    id?: string
+    usadoEn?: Date | string
+    usuarioId: string
+    pedidoClienteId?: string | null
+    planActivado?: string | null
+    montoAhorrado: number
+  }
+
+  export type AkuoUsuarioCuponUncheckedCreateWithoutCuponInput = {
+    id?: string
+    usadoEn?: Date | string
+    usuarioId: string
+    pedidoClienteId?: string | null
+    planActivado?: string | null
+    montoAhorrado: number
+  }
+
+  export type AkuoUsuarioCuponCreateOrConnectWithoutCuponInput = {
+    where: AkuoUsuarioCuponWhereUniqueInput
+    create: XOR<AkuoUsuarioCuponCreateWithoutCuponInput, AkuoUsuarioCuponUncheckedCreateWithoutCuponInput>
+  }
+
+  export type AkuoUsuarioCuponCreateManyCuponInputEnvelope = {
+    data: AkuoUsuarioCuponCreateManyCuponInput | AkuoUsuarioCuponCreateManyCuponInput[]
+  }
+
+  export type AkuoUsuarioCuponUpsertWithWhereUniqueWithoutCuponInput = {
+    where: AkuoUsuarioCuponWhereUniqueInput
+    update: XOR<AkuoUsuarioCuponUpdateWithoutCuponInput, AkuoUsuarioCuponUncheckedUpdateWithoutCuponInput>
+    create: XOR<AkuoUsuarioCuponCreateWithoutCuponInput, AkuoUsuarioCuponUncheckedCreateWithoutCuponInput>
+  }
+
+  export type AkuoUsuarioCuponUpdateWithWhereUniqueWithoutCuponInput = {
+    where: AkuoUsuarioCuponWhereUniqueInput
+    data: XOR<AkuoUsuarioCuponUpdateWithoutCuponInput, AkuoUsuarioCuponUncheckedUpdateWithoutCuponInput>
+  }
+
+  export type AkuoUsuarioCuponUpdateManyWithWhereWithoutCuponInput = {
+    where: AkuoUsuarioCuponScalarWhereInput
+    data: XOR<AkuoUsuarioCuponUpdateManyMutationInput, AkuoUsuarioCuponUncheckedUpdateManyWithoutCuponInput>
+  }
+
+  export type AkuoUsuarioCuponScalarWhereInput = {
+    AND?: AkuoUsuarioCuponScalarWhereInput | AkuoUsuarioCuponScalarWhereInput[]
+    OR?: AkuoUsuarioCuponScalarWhereInput[]
+    NOT?: AkuoUsuarioCuponScalarWhereInput | AkuoUsuarioCuponScalarWhereInput[]
+    id?: StringFilter<"AkuoUsuarioCupon"> | string
+    usadoEn?: DateTimeFilter<"AkuoUsuarioCupon"> | Date | string
+    cuponId?: StringFilter<"AkuoUsuarioCupon"> | string
+    usuarioId?: StringFilter<"AkuoUsuarioCupon"> | string
+    pedidoClienteId?: StringNullableFilter<"AkuoUsuarioCupon"> | string | null
+    planActivado?: StringNullableFilter<"AkuoUsuarioCupon"> | string | null
+    montoAhorrado?: FloatFilter<"AkuoUsuarioCupon"> | number
+  }
+
+  export type AkuoCuponCreateWithoutUsosCuponesInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    codigo: string
+    tipo: string
+    descuentoTipo: string
+    descuentoValor: number
+    minMonto?: number | null
+    planIdAplicable?: string | null
+    maxUsos?: number
+    usos?: number
+    fechaInicio: Date | string
+    fechaFin?: Date | string | null
+    activo?: boolean
+    creadoPor?: string | null
+    nota?: string | null
+    descripcionPublica?: string | null
+  }
+
+  export type AkuoCuponUncheckedCreateWithoutUsosCuponesInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    codigo: string
+    tipo: string
+    descuentoTipo: string
+    descuentoValor: number
+    minMonto?: number | null
+    planIdAplicable?: string | null
+    maxUsos?: number
+    usos?: number
+    fechaInicio: Date | string
+    fechaFin?: Date | string | null
+    activo?: boolean
+    creadoPor?: string | null
+    nota?: string | null
+    descripcionPublica?: string | null
+  }
+
+  export type AkuoCuponCreateOrConnectWithoutUsosCuponesInput = {
+    where: AkuoCuponWhereUniqueInput
+    create: XOR<AkuoCuponCreateWithoutUsosCuponesInput, AkuoCuponUncheckedCreateWithoutUsosCuponesInput>
+  }
+
+  export type AkuoCuponUpsertWithoutUsosCuponesInput = {
+    update: XOR<AkuoCuponUpdateWithoutUsosCuponesInput, AkuoCuponUncheckedUpdateWithoutUsosCuponesInput>
+    create: XOR<AkuoCuponCreateWithoutUsosCuponesInput, AkuoCuponUncheckedCreateWithoutUsosCuponesInput>
+    where?: AkuoCuponWhereInput
+  }
+
+  export type AkuoCuponUpdateToOneWithWhereWithoutUsosCuponesInput = {
+    where?: AkuoCuponWhereInput
+    data: XOR<AkuoCuponUpdateWithoutUsosCuponesInput, AkuoCuponUncheckedUpdateWithoutUsosCuponesInput>
+  }
+
+  export type AkuoCuponUpdateWithoutUsosCuponesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    descuentoTipo?: StringFieldUpdateOperationsInput | string
+    descuentoValor?: FloatFieldUpdateOperationsInput | number
+    minMonto?: NullableFloatFieldUpdateOperationsInput | number | null
+    planIdAplicable?: NullableStringFieldUpdateOperationsInput | string | null
+    maxUsos?: IntFieldUpdateOperationsInput | number
+    usos?: IntFieldUpdateOperationsInput | number
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    creadoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcionPublica?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoCuponUncheckedUpdateWithoutUsosCuponesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    tipo?: StringFieldUpdateOperationsInput | string
+    descuentoTipo?: StringFieldUpdateOperationsInput | string
+    descuentoValor?: FloatFieldUpdateOperationsInput | number
+    minMonto?: NullableFloatFieldUpdateOperationsInput | number | null
+    planIdAplicable?: NullableStringFieldUpdateOperationsInput | string | null
+    maxUsos?: IntFieldUpdateOperationsInput | number
+    usos?: IntFieldUpdateOperationsInput | number
+    fechaInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechaFin?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    activo?: BoolFieldUpdateOperationsInput | boolean
+    creadoPor?: NullableStringFieldUpdateOperationsInput | string | null
+    nota?: NullableStringFieldUpdateOperationsInput | string | null
+    descripcionPublica?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoSesionCreateManyUsuarioInput = {
@@ -51497,6 +55280,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpSubSuspended?: boolean
+    mpSubSuspendedEn?: Date | string | null
+    mpSubSuspendedPor?: string | null
+    mpSubSuspendedRazon?: string | null
     mpTestUserEmail?: string | null
   }
 
@@ -51585,6 +55372,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -51691,6 +55482,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -51797,6 +55592,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpSubSuspended?: BoolFieldUpdateOperationsInput | boolean
+    mpSubSuspendedEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
+    mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -51830,6 +55629,42 @@ export namespace Prisma {
     leidoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     remitenteId?: StringFieldUpdateOperationsInput | string
     contenido?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type AkuoUsuarioCuponCreateManyCuponInput = {
+    id?: string
+    usadoEn?: Date | string
+    usuarioId: string
+    pedidoClienteId?: string | null
+    planActivado?: string | null
+    montoAhorrado: number
+  }
+
+  export type AkuoUsuarioCuponUpdateWithoutCuponInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    usuarioId?: StringFieldUpdateOperationsInput | string
+    pedidoClienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    planActivado?: NullableStringFieldUpdateOperationsInput | string | null
+    montoAhorrado?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type AkuoUsuarioCuponUncheckedUpdateWithoutCuponInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    usuarioId?: StringFieldUpdateOperationsInput | string
+    pedidoClienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    planActivado?: NullableStringFieldUpdateOperationsInput | string | null
+    montoAhorrado?: FloatFieldUpdateOperationsInput | number
+  }
+
+  export type AkuoUsuarioCuponUncheckedUpdateManyWithoutCuponInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    usadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    usuarioId?: StringFieldUpdateOperationsInput | string
+    pedidoClienteId?: NullableStringFieldUpdateOperationsInput | string | null
+    planActivado?: NullableStringFieldUpdateOperationsInput | string | null
+    montoAhorrado?: FloatFieldUpdateOperationsInput | number
   }
 
 

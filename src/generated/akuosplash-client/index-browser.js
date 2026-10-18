@@ -204,6 +204,10 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   mpSubIniciadoEn: 'mpSubIniciadoEn',
   mpSubAutorizadoEn: 'mpSubAutorizadoEn',
   mpSubAmount: 'mpSubAmount',
+  mpSubSuspended: 'mpSubSuspended',
+  mpSubSuspendedEn: 'mpSubSuspendedEn',
+  mpSubSuspendedPor: 'mpSubSuspendedPor',
+  mpSubSuspendedRazon: 'mpSubSuspendedRazon',
   mpTestUserEmail: 'mpTestUserEmail'
 };
 
@@ -524,6 +528,36 @@ exports.Prisma.AkuoPedidoClienteScalarFieldEnum = {
   docTributarioMonto: 'docTributarioMonto'
 };
 
+exports.Prisma.AkuoCuponScalarFieldEnum = {
+  id: 'id',
+  creadoEn: 'creadoEn',
+  actualizadoEn: 'actualizadoEn',
+  codigo: 'codigo',
+  tipo: 'tipo',
+  descuentoTipo: 'descuentoTipo',
+  descuentoValor: 'descuentoValor',
+  minMonto: 'minMonto',
+  planIdAplicable: 'planIdAplicable',
+  maxUsos: 'maxUsos',
+  usos: 'usos',
+  fechaInicio: 'fechaInicio',
+  fechaFin: 'fechaFin',
+  activo: 'activo',
+  creadoPor: 'creadoPor',
+  nota: 'nota',
+  descripcionPublica: 'descripcionPublica'
+};
+
+exports.Prisma.AkuoUsuarioCuponScalarFieldEnum = {
+  id: 'id',
+  usadoEn: 'usadoEn',
+  cuponId: 'cuponId',
+  usuarioId: 'usuarioId',
+  pedidoClienteId: 'pedidoClienteId',
+  planActivado: 'planActivado',
+  montoAhorrado: 'montoAhorrado'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -555,7 +589,9 @@ exports.Prisma.ModelName = {
   AkuoZona: 'AkuoZona',
   AkuoConversacion: 'AkuoConversacion',
   AkuoMensaje: 'AkuoMensaje',
-  AkuoPedidoCliente: 'AkuoPedidoCliente'
+  AkuoPedidoCliente: 'AkuoPedidoCliente',
+  AkuoCupon: 'AkuoCupon',
+  AkuoUsuarioCupon: 'AkuoUsuarioCupon'
 };
 
 /**

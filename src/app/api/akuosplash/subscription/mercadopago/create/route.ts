@@ -32,9 +32,70 @@ export async function POST(req: NextRequest) {
   }
 
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://my-project-azure-five-82.vercel.app";
-  const amount = ciclo === "anual" ? planCfg.precioAnual : planCfg.precioMensual;
+  let amount = ciclo === "anual" ? planCfg.precioAnual : planCfg.precioMensual;
   const frequency = ciclo === "anual" ? 12 : 1;
   const frequencyType = "months";
+
+  // === CUPÓN DE SUBSCRIPCIÓN (opcional) ===
+  // Si viene couponCode en el body, validar y aplicar descuento
+  let cuponAplicado: any = null;
+  let mesesGratis = 0;
+  let montoAhorrado = 0;
+  if (body.couponCode) {
+    const codigoCupon = String(body.couponCode).trim().toUpperCase();
+    let cupon: any = null;
+    try {
+      const r: any = await akuosplashDb.$queryRawUnsafe(
+        `SELECT * FROM AkuoCupon WHERE codigo = ? AND tipo = 'subscripcion' AND activo = 1 LIMIT 1`,
+        codigoCupon
+      );
+      if (Array.isArray(r) && r.length > 0) cupon = r[0];
+    } catch {}
+
+    if (!cupon) {
+      return NextResponse.json({ error: `Cupón '${codigoCupon}' no válido o inactivo` }, { status: 400 });
+    }
+
+    // Verificar vigencia
+    const ahora = new Date();
+    if (new Date(cupon.fechaInicio) > ahora) {
+      return NextResponse.json({ error: "Cupón aún no está vigente" }, { status: 400 });
+    }
+    if (cupon.fechaFin && new Date(cupon.fechaFin) < ahora) {
+      return NextResponse.json({ error: "Cupón vencido" }, { status: 400 });
+    }
+    if (cupon.maxUsos > 0 && cupon.usos >= cupon.maxUsos) {
+      return NextResponse.json({ error: "Cupón agotado" }, { status: 400 });
+    }
+    if (cupon.planIdAplicable && cupon.planIdAplicable !== planId) {
+      return NextResponse.json({ error: `Este cupón solo aplica al plan ${cupon.planIdAplicable}` }, { status: 400 });
+    }
+    // Verificar uso único por usuario
+    const yaUso: any = await akuosplashDb.$queryRawUnsafe(
+      `SELECT id FROM AkuoUsuarioCupon WHERE cuponId = ? AND usuarioId = ? LIMIT 1`,
+      cupon.id, user.id
+    ).catch(() => []);
+    if (Array.isArray(yaUso) && yaUso.length > 0) {
+      return NextResponse.json({ error: "Ya usaste este cupón antes" }, { status: 400 });
+    }
+
+    // Aplicar descuento
+    if (cupon.descuentoTipo === "porcentaje") {
+      const descuento = Math.round((amount * cupon.descuentoValor) / 100);
+      montoAhorrado = descuento;
+      amount = Math.max(0, amount - descuento);
+    } else if (cupon.descuentoTipo === "monto_fijo") {
+      montoAhorrado = cupon.descuentoValor;
+      amount = Math.max(0, amount - cupon.descuentoValor);
+    } else if (cupon.descuentoTipo === "meses_gratis") {
+      // Para meses_gratis: la preapproval se crea con monto 0 para los primeros N meses
+      // MP permite free_trial en auto_recurring — configurarlo
+      mesesGratis = Math.floor(cupon.descuentoValor);
+      montoAhorrado = amount * mesesGratis;
+      // NO se cambia el amount — el descuento se aplica con free_trial en MP
+    }
+    cuponAplicado = cupon;
+  }
 
   // Si el transportista tiene un MP test user email configurado, usar ese (no su email de AkuoSplash)
   // MP sandbox requiere payer_email en formato test_user_<numeric>@testuser.com
@@ -66,6 +127,13 @@ export async function POST(req: NextRequest) {
     external_reference: `akuo_sub:${user.id}:${planId}:${ciclo}`,
     notification_url: `${APP_URL}/api/akuosplash/subscription/mercadopago/webhook`,
   };
+  // Si hay meses gratis (cupón meses_gratis), agregar free_trial
+  if (mesesGratis > 0) {
+    mpBody.auto_recurring.free_trial = {
+      frequency: mesesGratis,
+      frequency_type: "months",
+    };
+  }
 
   // Sandbox siempre es true para preapprovals (MP no tiene sandbox_init_point separado para subscriptions)
   // El access token ya es de la cuenta correcta (sandbox o producción según esté configurado).
@@ -98,18 +166,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "MP no devolvió init_point", data }, { status: 500 });
     }
 
-    // Guardar la preapproval pendiente en la DB
-    await akuosplashDb.akuoUsuario.update({
-      where: { id: user.id },
-      data: {
-        mpSubPreapprovalId: data.id,
-        mpSubPlanSolicitado: planId,
-        mpSubCiclo: ciclo,
-        mpSubStatus: "pending",
-        mpSubIniciadoEn: new Date(),
-        mpSubAmount: amount,
-      },
-    });
+    // Guardar la preapproval pendiente en la DB (via raw SQL para evitar Prisma errors)
+    await akuosplashDb.$executeRawUnsafe(
+      `UPDATE AkuoUsuario SET
+        mpSubPreapprovalId = ?, mpSubPlanSolicitado = ?, mpSubCiclo = ?,
+        mpSubStatus = 'pending', mpSubIniciadoEn = ?, mpSubAmount = ?
+       WHERE id = ?`,
+      data.id, planId, ciclo, new Date().toISOString(), amount, user.id
+    ).catch(() => {});
+
+    // Registrar el uso del cupón
+    if (cuponAplicado) {
+      try {
+        const usoId = `cupon_uso_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        await akuosplashDb.$executeRawUnsafe(
+          `INSERT INTO AkuoUsuarioCupon (id, usadoEn, cuponId, usuarioId, planActivado, montoAhorrado)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          usoId, new Date().toISOString(), cuponAplicado.id, user.id, planId, montoAhorrado
+        );
+        // Incrementar contador de usos
+        await akuosplashDb.$executeRawUnsafe(
+          `UPDATE AkuoCupon SET usos = usos + 1 WHERE id = ?`,
+          cuponAplicado.id
+        );
+      } catch (e: any) {
+        console.warn("[mp sub create] no se pudo registrar uso de cupón:", e?.message);
+      }
+    }
 
     return NextResponse.json({
       initPoint,
@@ -117,6 +200,12 @@ export async function POST(req: NextRequest) {
       amount,
       planId,
       ciclo,
+      cuponAplicado: cuponAplicado ? {
+        codigo: cuponAplicado.codigo,
+        descuentoTipo: cuponAplicado.descuentoTipo,
+        montoAhorrado,
+        mesesGratis,
+      } : null,
     });
   } catch (e: any) {
     console.error("[mp sub create exception]", e);

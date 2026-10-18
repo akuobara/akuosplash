@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import { PrecioDinamicoTab } from "@/components/akuosplash/precio-dinamico-tab";
 import { IntegracionesTab } from "@/components/akuosplash/integraciones-tab";
 import { PlanesTab } from "@/components/akuosplash/planes-tab";
+import { SubscriptionsTab } from "@/components/akuosplash/subscriptions-tab";
+import { CuponesTab } from "@/components/akuosplash/cupones-tab";
 
 interface Stats {
   clientesCount: number;
@@ -155,7 +157,9 @@ export default function SuperadminPage() {
             <option value="pedidos">🛒 Pedidos</option>
             <option value="precio">🧮 Precio dinámico</option>
             <option value="planes">💎 Planes</option>
-            <option value="integraciones">💳 Integraciones</option>
+            <option value="subs">💳 Subscripciones</option>
+            <option value="cupones">🎟️ Cupones</option>
+            <option value="integraciones">🔌 Integraciones</option>
           </select>
 
           {/* === PANEL === */}
@@ -349,6 +353,16 @@ export default function SuperadminPage() {
           {/* === PLANES === */}
           <TabsContent value="planes" className="mt-4">
             <PlanesTab />
+          </TabsContent>
+
+          {/* === SUBSCRIPCIONES === */}
+          <TabsContent value="subs" className="mt-4">
+            <SubscriptionsTab />
+          </TabsContent>
+
+          {/* === CUPONES === */}
+          <TabsContent value="cupones" className="mt-4">
+            <CuponesTab />
           </TabsContent>
 
           {/* === INTEGRACIONES === */}

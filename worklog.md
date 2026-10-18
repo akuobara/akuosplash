@@ -1886,3 +1886,123 @@ Stage Summary:
 - ✅ UI actualizada: mensajes de estado + botones de cancelar/reintentar
 - ✅ Deploy a Vercel producción READY
 - ⏳ Para activar el cron: agregar en vercel.json o usar un cron externo (ej: cron-job.org) que pegue a /api/akuosplash/cron/expirar-planes diariamente
+
+---
+Task ID: akuosplash-admin-subscriptions-and-cupones
+Agent: main
+Task: Visibilidad de superadmin sobre subscripciones (vendidas, activas, pausadas, suspendidas, canceladas, vencidas) + acciones de gestión + sistema de cupones para ventas y subscripciones.
+
+Work Log:
+- EXTENDIDO schema:
+  * AkuoUsuario: 4 campos nuevos (mpSubSuspended, mpSubSuspendedEn, mpSubSuspendedPor, mpSubSuspendedRazon)
+  * mpSubStatus ahora incluye "suspended" y "payment_failed" además de pending/authorized/paused/cancelled
+  * NUEVO modelo AkuoCupon (cupones de descuento para venta o subscripción):
+    - codigo (unique, uppercase), tipo (venta/subscripcion)
+    - descuentoTipo (porcentaje/monto_fijo/meses_gratis), descuentoValor
+    - minMonto, planIdAplicable, maxUsos, usos
+    - fechaInicio, fechaFin, activo, creadoPor, nota, descripcionPublica
+  * NUEVO modelo AkuoUsuarioCupon (registro de uso, control de uso único):
+    - cuponId, usuarioId, pedidoClienteId, planActivado, montoAhorrado
+
+- ACTUALIZADO ensureAkuoConfigColumns():
+  * Agregados 4 ALTERs para AkuoUsuario.mpSubSuspended*
+  * Agregados 2 CREATE TABLE IF NOT EXISTS para AkuoCupon y AkuoUsuarioCupon
+  * Agregados 4 CREATE INDEX IF NOT EXISTS para performance
+
+- CREADO `GET /api/akuosplash/admin/subscriptions`:
+  * Lista todas las subscripciones de transportistas con filtros (estado, plan) + paginación
+  * Devuelve stats globales:
+    - premiumCount, proCount, gratisCount
+    - authorizedCount, pendingCount, pausedCount, cancelledCount, paymentFailedCount, suspendedCount
+    - expiredCount, activePlansCount, totalMRR (Monthly Recurring Revenue)
+  * Usa raw SQL (defensivo)
+
+- CREADO `PATCH /api/akuosplash/admin/subscriptions/[id]`:
+  * Body: { action: "activate" | "pause" | "suspend" | "cancel" | "reactivate", razon?, extenderDias? }
+  * activate: marca como authorized, activa el plan + opcionalmente extiende N días
+  * pause: llama a MP API PUT /preapproval/<id> con status=paused
+  * suspend: SUSPENSIÓN LOCAL del superadmin (mpSubSuspended=true) — no toca MP
+  * reactivate: quita la suspensión local
+  * cancel: llama a MP API PUT /preapproval/<id> con status=cancelled
+  * Todas las acciones notifican al transportista via akuoNotificar()
+
+- CREADO CRUD completo de cupones:
+  * `GET /api/akuosplash/admin/cupones` — lista con filtros (tipo, activo) + paginación
+  * `POST /api/akuosplash/admin/cupones` — crea cupón (validaciones: código único, tipo válido, descuentoTipo válido, etc.)
+  * `PATCH /api/akuosplash/admin/cupones/[id]` — actualiza campos individuales
+  * `DELETE /api/akuosplash/admin/cupones/[id]?hard=true` — soft delete por default, hard delete con ?hard=true (borra usos via CASCADE)
+
+- CREADO `POST /api/akuosplash/cupones/validar` (público, requiere sesión):
+  * Body: { codigo, tipo: "venta" | "subscripcion", monto?, planId? }
+  * Valida: existe, activo, vigente (fechas), no agotado (maxUsos), monto mínimo, plan aplicable, uso único por usuario
+  * Devuelve: { valido, cupon, descuento, montoFinal, mesesGratis, razon? }
+
+- MODIFICADO `POST /api/akuosplash/subscription/mercadopago/create`:
+  * Acepta parámetro opcional `couponCode` en el body
+  * Si viene couponCode: valida el cupón de tipo "subscripcion", aplica descuento:
+    - "porcentaje": reduce el amount (transaction_amount) por el %
+    - "monto_fijo": reduce el amount por el monto fijo (min 0)
+    - "meses_gratis": agrega `free_trial` al auto_recurring de MP (MP no cobra los primeros N meses)
+  * Registra el uso en AkuoUsuarioCupon + incrementa contador usos en AkuoCupon
+  * Devuelve en la respuesta info del cupón aplicado
+
+- CREADO `src/components/akuosplash/subscriptions-tab.tsx` (~280 líneas):
+  * Stats grid (8 cards): Activas, Suspendidas, Con pagos fallidos, Vencidas, Premium, Pro, Gratis, MRR total
+  * Filtros: estado (all/active/authorized/pending/paused/payment_failed/cancelled/suspended) + plan + búsqueda
+  * Lista de subscripciones con:
+    - Badge de estado (color-coded: AUTH/PEND/PAUSED/CANCELLED/FAILED/SUSPENDIDO)
+    - Email, nombre, plan, ciclo, monto
+    - Fecha de vencimiento + días restantes (o "vencido" en rojo)
+    - Razón de suspensión si aplica
+  * Botones de acción por subscripción:
+    - Activar (si no activa) → abre dialog con razón + extender días
+    - Suspender (si no suspendida y plan != gratis) → abre dialog con razón
+    - Reactivar (si suspendida) → ejecuta directo
+    - Pausar MP (si mpSubPreapprovalId y status=authorized) → llama a MP API
+    - Cancelar MP (si mpSubPreapprovalId y status!=cancelled) → llama a MP API con confirm
+  * Modal de acción con inputs para razón + extender días
+
+- CREADO `src/components/akuosplash/cupones-tab.tsx` (~250 líneas):
+  * Lista de cupones con:
+    - Código (font-mono, uppercase), badge tipo (venta/subscripción)
+    - Badge de estado (ACTIVO/VENCIDO/INACTIVO)
+    - Descripción del descuento (50% off / $5.000 off / 2 meses gratis)
+    - Restricciones (minMonto, planIdAplicable, maxUsos)
+    - Vigencia (fechaInicio → fechaFin)
+    - Contador usos (5/100 o 5/∞)
+    - Descripción pública + nota interna
+  * Botones: editar, activar/desactivar, eliminar (soft delete)
+  * Form de crear/editar con todos los campos:
+    - código, tipo, descuentoTipo, descuentoValor, minMonto, planIdAplicable, maxUsos
+    - fechaInicio, fechaFin, descripcionPublica, nota
+  * Filtro por tipo (all/subscripcion/venta)
+
+- MODIFICADO `src/app/akuosplash/superadmin/page.tsx`:
+  * Agregadas 2 nuevas opciones al <select>:
+    - "💳 Subscripciones" → <SubscriptionsTab />
+    - "🎟️ Cupones" → <CuponesTab />
+  * Cambiado el icono del tab "Integraciones" de 💳 a 🔌 (para no confundir con Subscripciones)
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores nuevos en mis archivos
+  * Deploy Vercel exitoso (READY en ~6min)
+  * Smoke test producción:
+    - GET /api/akuosplash/admin/subscriptions → 401 (auth required, expected)
+    - GET /api/akuosplash/admin/cupones → 401
+    - POST /api/akuosplash/cupones/validar → 401
+    - GET /akuosplash/superadmin → 200 (page loads)
+
+Stage Summary:
+- ✅ Superadmin puede ver todas las subscripciones con stats (MRR total, planes activos, suspendidos, vencidos, etc.)
+- ✅ Acciones de gestión: activate, pause (via MP API), suspend (local), reactivate, cancel (via MP API)
+- ✅ Suspender vs Pausar: Suspender es LOCAL (no toca MP), Pausar llama a MP API para pausar la preapproval
+- ✅ Todas las acciones notifican al transportista
+- ✅ Sistema de cupones completo (CRUD + validación + aplicación automática)
+- ✅ 3 tipos de descuento: porcentaje, monto fijo, meses gratis (con free_trial en MP)
+- ✅ Restricciones: monto mínimo, plan aplicable, máximo de usos, uso único por usuario
+- ✅ Cupones de subscripción integrados con /subscription/mercadopago/create (couponCode en body)
+- ✅ Tab "💳 Subscripciones" en superadmin con stats + lista + acciones + filtros
+- ✅ Tab "🎟️ Cupones" en superadmin con CRUD + filtros
+- ⏳ PENDIENTE: integrar cupones de VENTA en el flujo de pedido del cliente (cuando pide agua) — endpoint /cupones/validar está listo pero no se invoca desde el frontend todavía
+- ⏳ PENDIENTE: agregar input de "¿Tenés un cupón?" en el SubscripcionTab del transportista
+- ✅ Deploy a Vercel producción READY

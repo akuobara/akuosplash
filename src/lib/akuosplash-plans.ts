@@ -217,11 +217,51 @@ export async function ensureAkuoConfigColumns() {
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubAutorizadoEn DATETIME",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubAmount REAL",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpTestUserEmail TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubSuspended INTEGER DEFAULT 0",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubSuspendedEn DATETIME",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubSuspendedPor TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpSubSuspendedRazon TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioUrl TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioFolio TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoEn DATETIME",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoPor TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioMonto REAL",
+  ];
+  // Las tablas nuevas (AkuoCupon, AkuoUsuarioCupon) se crean con CREATE TABLE IF NOT EXISTS
+  const createStatements = [
+    `CREATE TABLE IF NOT EXISTS AkuoCupon (
+      id TEXT PRIMARY KEY,
+      creadoEn TEXT NOT NULL,
+      actualizadoEn TEXT NOT NULL,
+      codigo TEXT NOT NULL UNIQUE,
+      tipo TEXT NOT NULL,
+      descuentoTipo TEXT NOT NULL,
+      descuentoValor REAL NOT NULL,
+      minMonto REAL,
+      planIdAplicable TEXT,
+      maxUsos INTEGER NOT NULL DEFAULT 0,
+      usos INTEGER NOT NULL DEFAULT 0,
+      fechaInicio TEXT NOT NULL,
+      fechaFin TEXT,
+      activo INTEGER NOT NULL DEFAULT 1,
+      creadoPor TEXT,
+      nota TEXT,
+      descripcionPublica TEXT
+    )`,
+    `CREATE TABLE IF NOT EXISTS AkuoUsuarioCupon (
+      id TEXT PRIMARY KEY,
+      usadoEn TEXT NOT NULL,
+      cuponId TEXT NOT NULL,
+      usuarioId TEXT NOT NULL,
+      pedidoClienteId TEXT,
+      planActivado TEXT,
+      montoAhorrado REAL NOT NULL,
+      FOREIGN KEY (cuponId) REFERENCES AkuoCupon(id) ON DELETE CASCADE
+    )`,
+    `CREATE INDEX IF NOT EXISTS idx_AkuoCupon_tipo_activo ON AkuoCupon(tipo, activo)`,
+    `CREATE INDEX IF NOT EXISTS idx_AkuoCupon_fechas ON AkuoCupon(fechaInicio, fechaFin)`,
+    `CREATE INDEX IF NOT EXISTS idx_AkuoUsuarioCupon_cupon_usuario ON AkuoUsuarioCupon(cuponId, usuarioId)`,
+    `CREATE INDEX IF NOT EXISTS idx_AkuoUsuarioCupon_usuario ON AkuoUsuarioCupon(usuarioId)`,
   ];
   for (const sql of statements) {
     try {
@@ -232,6 +272,14 @@ export async function ensureAkuoConfigColumns() {
         // Otro error → log pero no fallar
         console.warn("[auto-migrate]", sql.substring(0, 60), e?.message);
       }
+    }
+  }
+  // Crear tablas nuevas (idempotente via IF NOT EXISTS)
+  for (const sql of createStatements) {
+    try {
+      await akuosplashDb.$executeRawUnsafe(sql);
+    } catch (e: any) {
+      console.warn("[auto-migrate create]", sql.substring(0, 60), e?.message);
     }
   }
 }
