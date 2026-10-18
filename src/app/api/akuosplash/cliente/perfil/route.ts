@@ -37,6 +37,7 @@ export async function GET() {
       mpUserId: true, mpAccessToken: true, mpConnectedAt: true,
       // General
       avatarUrl: true, rol: true, plan: true, creadoEn: true,
+      mpTestUserEmail: true,
     },
   }).catch(() => null)) || (user as any);
 
@@ -62,6 +63,7 @@ export async function GET() {
       precioEfectivoPorLitro: u.precioEfectivoPorLitro, precioTransferenciaPorLitro: u.precioTransferenciaPorLitro,
       mpConnected: !!u.mpUserId && !!u.mpAccessToken, mpConnectedAt: u.mpConnectedAt,
       avatarUrl: u.avatarUrl, rol: u.rol, plan: u.plan, creadoEn: u.creadoEn,
+      mpTestUserEmail: u.mpTestUserEmail,
     },
   });
 }
@@ -115,6 +117,8 @@ export async function PATCH(req: NextRequest) {
   // Precios
   if (body.precioEfectivoPorLitro !== undefined) data.precioEfectivoPorLitro = body.precioEfectivoPorLitro ? Number(body.precioEfectivoPorLitro) : null;
   if (body.precioTransferenciaPorLitro !== undefined) data.precioTransferenciaPorLitro = body.precioTransferenciaPorLitro ? Number(body.precioTransferenciaPorLitro) : null;
+  // MP test user email (para sandbox — formato test_user_<numeric>@testuser.com)
+  if (body.mpTestUserEmail !== undefined) data.mpTestUserEmail = body.mpTestUserEmail?.trim() || null;
 
   // Usar raw SQL para evitar que el update retorne todas las columnas nuevas (mpSub* etc.)
   try {

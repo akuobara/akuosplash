@@ -36,6 +36,20 @@ export async function POST(req: NextRequest) {
   const frequency = ciclo === "anual" ? 12 : 1;
   const frequencyType = "months";
 
+  // Si el transportista tiene un MP test user email configurado, usar ese (no su email de AkuoSplash)
+  // MP sandbox requiere payer_email en formato test_user_<numeric>@testuser.com
+  // Lo leemos del campo `mpTestUserEmail` si existe, sino caemos a user.email
+  let mpPayerEmail = user.email || "";
+  try {
+    const result: any = await akuosplashDb.$queryRawUnsafe(
+      `SELECT mpTestUserEmail FROM AkuoUsuario WHERE id = ? LIMIT 1`,
+      user.id
+    ).catch(() => []);
+    if (Array.isArray(result) && result.length > 0 && result[0]?.mpTestUserEmail) {
+      mpPayerEmail = result[0].mpTestUserEmail;
+    }
+  } catch {}
+
   // Crear preapproval en MP
   // https://www.mercadopago.cl/developers/en/docs/subscriptions/api/preapprovals
   const mpBody: any = {
@@ -46,7 +60,7 @@ export async function POST(req: NextRequest) {
       transaction_amount: amount,
       currency_id: "CLP",
     },
-    payer_email: user.email,
+    payer_email: mpPayerEmail,
     back_url: `${APP_URL}/akuosplash/transportista?tab=subscripcion`,
     status: "pending",
     external_reference: `akuo_sub:${user.id}:${planId}:${ciclo}`,

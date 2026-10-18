@@ -203,7 +203,8 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   mpSubStatus: 'mpSubStatus',
   mpSubIniciadoEn: 'mpSubIniciadoEn',
   mpSubAutorizadoEn: 'mpSubAutorizadoEn',
-  mpSubAmount: 'mpSubAmount'
+  mpSubAmount: 'mpSubAmount',
+  mpTestUserEmail: 'mpTestUserEmail'
 };
 
 exports.Prisma.AkuoSesionScalarFieldEnum = {

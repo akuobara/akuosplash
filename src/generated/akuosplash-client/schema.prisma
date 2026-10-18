@@ -112,6 +112,10 @@ model AkuoUsuario {
   mpSubIniciadoEn             DateTime?
   mpSubAutorizadoEn           DateTime?
   mpSubAmount                 Float?
+  // --- MP test user email (para sandbox testing) ---
+  // Email del test user de MP (formato test_user_<numeric>@testuser.com) que se usa como payer
+  // en la creación de preapprovals. Solo relevante en sandbox.
+  mpTestUserEmail             String?
   sesiones                    AkuoSesion[]
   pedidosCliente              AkuoPedido[]
   entregasHechas              AkuoEntrega[]          @relation("EntregaTransportista")

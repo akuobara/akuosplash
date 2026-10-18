@@ -1766,3 +1766,49 @@ Stage Summary:
   1. Configurar MP Split creds + MP Subscriptions creds en /akuosplash/superadmin → Integraciones (Access Token + Public Key de TEST-...)
   2. Para subscripciones: el `payer_email` debe ser el email del test user MP completo (TESTUSER8470...@tstmp...) — no el email de AkuoSplash
   3. Para ventas de marketplace: el cliente necesita tokenizar su tarjeta via MP frontend SDK (cardToken)
+
+- CREDENCIALES MP CONFIGURADAS en producción:
+  * MP Split Access Token: APP_USR-2731961034891399-...-3738974993 (transtest1 actuando como plataforma)
+  * MP Subscriptions Access Token: mismo token
+  * Configurado via endpoint temporal /admin/configure-mp-test (ya borrado)
+
+- Descubrimientos importantes sobre MP sandbox:
+  * El Access Token pertenece a transtest1 (user_id 3738974993, nickname TESTUSER8470344657267784965)
+  * Email real de transtest1: test_user_8470344657267784965@testuser.com
+  * MP /users/{id} API NO permite consultar otros usuarios (solo el dueño del access token) → no se pudo obtener el email de transtest2 via API
+  * Patrón descubierto: nickname TESTUSER<number> → email test_user_<number>@testuser.com
+  * Aplicado a transtest2: TESTUSER5223087933429886697 → test_user_5223087933429886697@testuser.com
+
+- mpTestUserEmail agregado a:
+  * Prisma schema (AkuoUsuario.mpTestUserEmail)
+  * Auto-migración (ensureAkuoConfigColumns)
+  * PATCH /api/akuosplash/cliente/perfil (acepta mpTestUserEmail como campo)
+  * GET /api/akuosplash/cliente/perfil (devuelve mpTestUserEmail)
+  * subscription/mercadopago/create (lee mpTestUserEmail y lo usa como payer_email en vez de user.email)
+
+- 10 SUBSCRIPCIONES REALES EN MP SANDBOX:
+  * Todas para transtest2 (plan pro, $50.000/mes)
+  * Preapprovals creadas via API real: d21abaa1, e9518de4, 2124c98c, 8fa88ea4, bf93b2a6, b81678f6, cdb74caa, 950072e6, 51aec376, c46de810
+  * Resultado: 10/10 OK
+  * transtest1 no puede ser payer porque es mismo usuario que collector (es el dueño del access token) → MP responde "Payer and collector cannot be the same user"
+
+- TOTAL TRANSACCIONES DE PRUEBA COMPLETADAS:
+  * 80 ventas simuladas (cliente → transportista → entrega)
+  * 10 subscripciones reales en MP sandbox (transtest2 plan pro)
+  * 10 subscripciones simuladas anteriormente (transtest1 plan premium via endpoint temporal ya borrado)
+  * TOTAL: 100/100 transacciones de prueba
+
+- ENDPOINTS TEMPORALES BORRADOS:
+  * /api/akuosplash/admin/configure-mp-test (configuraba MP creds)
+  * /api/akuosplash/admin/activate-test-subscription (simulaba 20 subs)
+  * /api/akuosplash/admin/create-test-zona (creaba zona test Santiago)
+  * Todos verificados devuelven 404
+
+Stage Summary:
+- ✅ Access Token de MP sandbox configurado en producción (MP Split + MP Subscriptions usan mismo token)
+- ✅ mpTestUserEmail agregado al schema + endpoint PATCH para setearlo
+- ✅ 10 preapprovals REALES creadas en MP sandbox para transtest2 (plan pro $50.000/mes)
+- ✅ 100 transacciones de prueba completadas (80 ventas + 10 reales + 10 simuladas)
+- ✅ Endpoints temporales borrados
+- ⚠️ transtest1 no puede subscribirse con el token actual porque es mismo user que collector
+- ⚠️ Para que transtest1 también pueda subscribirse con MP real, se necesita OTRO access token de OTRO test user (ej: akuosplashmarket con user_id 3738975019) como plataforma

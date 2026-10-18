@@ -3088,6 +3088,7 @@ export namespace Prisma {
     mpSubIniciadoEn: Date | null
     mpSubAutorizadoEn: Date | null
     mpSubAmount: number | null
+    mpTestUserEmail: string | null
   }
 
   export type AkuoUsuarioMaxAggregateOutputType = {
@@ -3176,6 +3177,7 @@ export namespace Prisma {
     mpSubIniciadoEn: Date | null
     mpSubAutorizadoEn: Date | null
     mpSubAmount: number | null
+    mpTestUserEmail: string | null
   }
 
   export type AkuoUsuarioCountAggregateOutputType = {
@@ -3264,6 +3266,7 @@ export namespace Prisma {
     mpSubIniciadoEn: number
     mpSubAutorizadoEn: number
     mpSubAmount: number
+    mpTestUserEmail: number
     _all: number
   }
 
@@ -3380,6 +3383,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: true
     mpSubAutorizadoEn?: true
     mpSubAmount?: true
+    mpTestUserEmail?: true
   }
 
   export type AkuoUsuarioMaxAggregateInputType = {
@@ -3468,6 +3472,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: true
     mpSubAutorizadoEn?: true
     mpSubAmount?: true
+    mpTestUserEmail?: true
   }
 
   export type AkuoUsuarioCountAggregateInputType = {
@@ -3556,6 +3561,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: true
     mpSubAutorizadoEn?: true
     mpSubAmount?: true
+    mpTestUserEmail?: true
     _all?: true
   }
 
@@ -3731,6 +3737,7 @@ export namespace Prisma {
     mpSubIniciadoEn: Date | null
     mpSubAutorizadoEn: Date | null
     mpSubAmount: number | null
+    mpTestUserEmail: string | null
     _count: AkuoUsuarioCountAggregateOutputType | null
     _avg: AkuoUsuarioAvgAggregateOutputType | null
     _sum: AkuoUsuarioSumAggregateOutputType | null
@@ -3838,6 +3845,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: boolean
     mpSubAutorizadoEn?: boolean
     mpSubAmount?: boolean
+    mpTestUserEmail?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
     pedidosCliente?: boolean | AkuoUsuario$pedidosClienteArgs<ExtArgs>
@@ -3946,6 +3954,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: boolean
     mpSubAutorizadoEn?: boolean
     mpSubAmount?: boolean
+    mpTestUserEmail?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
@@ -4035,6 +4044,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: boolean
     mpSubAutorizadoEn?: boolean
     mpSubAmount?: boolean
+    mpTestUserEmail?: boolean
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
   }, ExtArgs["result"]["akuoUsuario"]>
 
@@ -4124,9 +4134,10 @@ export namespace Prisma {
     mpSubIniciadoEn?: boolean
     mpSubAutorizadoEn?: boolean
     mpSubAmount?: boolean
+    mpTestUserEmail?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -4265,6 +4276,7 @@ export namespace Prisma {
       mpSubIniciadoEn: Date | null
       mpSubAutorizadoEn: Date | null
       mpSubAmount: number | null
+      mpTestUserEmail: string | null
     }, ExtArgs["result"]["akuoUsuario"]>
     composites: {}
   }
@@ -4792,6 +4804,7 @@ export namespace Prisma {
     readonly mpSubIniciadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly mpSubAutorizadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly mpSubAmount: FieldRef<"AkuoUsuario", 'Float'>
+    readonly mpTestUserEmail: FieldRef<"AkuoUsuario", 'String'>
   }
     
 
@@ -28950,7 +28963,8 @@ export namespace Prisma {
     mpSubStatus: 'mpSubStatus',
     mpSubIniciadoEn: 'mpSubIniciadoEn',
     mpSubAutorizadoEn: 'mpSubAutorizadoEn',
-    mpSubAmount: 'mpSubAmount'
+    mpSubAmount: 'mpSubAmount',
+    mpTestUserEmail: 'mpTestUserEmail'
   };
 
   export type AkuoUsuarioScalarFieldEnum = (typeof AkuoUsuarioScalarFieldEnum)[keyof typeof AkuoUsuarioScalarFieldEnum]
@@ -29478,6 +29492,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    mpTestUserEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
     zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
     pedidosCliente?: AkuoPedidoListRelationFilter
@@ -29585,6 +29600,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrderInput | SortOrder
     mpSubAutorizadoEn?: SortOrderInput | SortOrder
     mpSubAmount?: SortOrderInput | SortOrder
+    mpTestUserEmail?: SortOrderInput | SortOrder
     zona?: AkuoZonaOrderByWithRelationInput
     sesiones?: AkuoSesionOrderByRelationAggregateInput
     pedidosCliente?: AkuoPedidoOrderByRelationAggregateInput
@@ -29695,6 +29711,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    mpTestUserEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
     zona?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
     sesiones?: AkuoSesionListRelationFilter
     pedidosCliente?: AkuoPedidoListRelationFilter
@@ -29802,6 +29819,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrderInput | SortOrder
     mpSubAutorizadoEn?: SortOrderInput | SortOrder
     mpSubAmount?: SortOrderInput | SortOrder
+    mpTestUserEmail?: SortOrderInput | SortOrder
     _count?: AkuoUsuarioCountOrderByAggregateInput
     _avg?: AkuoUsuarioAvgOrderByAggregateInput
     _max?: AkuoUsuarioMaxOrderByAggregateInput
@@ -29898,6 +29916,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     mpSubAutorizadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     mpSubAmount?: FloatNullableWithAggregatesFilter<"AkuoUsuario"> | number | null
+    mpTestUserEmail?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
   }
 
   export type AkuoSesionWhereInput = {
@@ -31936,6 +31955,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -32043,6 +32063,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -32148,6 +32169,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -32255,6 +32277,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -32361,6 +32384,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
   }
 
   export type AkuoUsuarioUpdateManyMutationInput = {
@@ -32448,6 +32472,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoUsuarioUncheckedUpdateManyInput = {
@@ -32536,6 +32561,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoSesionCreateInput = {
@@ -35125,6 +35151,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrder
     mpSubAutorizadoEn?: SortOrder
     mpSubAmount?: SortOrder
+    mpTestUserEmail?: SortOrder
   }
 
   export type AkuoUsuarioAvgOrderByAggregateInput = {
@@ -35226,6 +35253,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrder
     mpSubAutorizadoEn?: SortOrder
     mpSubAmount?: SortOrder
+    mpTestUserEmail?: SortOrder
   }
 
   export type AkuoUsuarioMinOrderByAggregateInput = {
@@ -35314,6 +35342,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: SortOrder
     mpSubAutorizadoEn?: SortOrder
     mpSubAmount?: SortOrder
+    mpTestUserEmail?: SortOrder
   }
 
   export type AkuoUsuarioSumOrderByAggregateInput = {
@@ -40049,6 +40078,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -40155,6 +40185,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -40275,6 +40306,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -40381,6 +40413,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -40485,6 +40518,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -40591,6 +40625,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -40813,6 +40848,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -40919,6 +40955,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -41055,6 +41092,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -41161,6 +41199,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -41434,6 +41473,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -41540,6 +41580,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -41692,6 +41733,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -41798,6 +41840,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -42032,6 +42075,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -42138,6 +42182,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -42368,6 +42413,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -42474,6 +42520,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -42645,6 +42692,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -42751,6 +42799,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -42912,6 +42961,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -43018,6 +43068,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     vehiculos?: AkuoVehiculoUncheckedCreateNestedManyWithoutTransportistaInput
@@ -43316,6 +43367,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -43422,6 +43474,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     vehiculos?: AkuoVehiculoUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -43728,6 +43781,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -43834,6 +43888,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -44105,6 +44160,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -44211,6 +44267,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -44408,6 +44465,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -44514,6 +44572,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -44665,6 +44724,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -44771,6 +44831,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -44912,6 +44973,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -45018,6 +45080,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -45138,6 +45201,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -45244,6 +45308,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -45348,6 +45413,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -45454,6 +45520,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -45574,6 +45641,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -45680,6 +45748,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -45784,6 +45853,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -45890,6 +45960,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -46010,6 +46081,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -46116,6 +46188,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -46220,6 +46293,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -46326,6 +46400,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -46446,6 +46521,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -46552,6 +46628,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -46656,6 +46733,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -46762,6 +46840,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -46882,6 +46961,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -46988,6 +47068,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -47092,6 +47173,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaCreateNestedManyWithoutTransportistaInput
@@ -47197,6 +47279,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -47331,6 +47414,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     mpSubAmount?: FloatNullableFilter<"AkuoUsuario"> | number | null
+    mpTestUserEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
   }
 
   export type AkuoUsuarioCreateWithoutConversacionesClienteInput = {
@@ -47418,6 +47502,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -47524,6 +47609,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -47633,6 +47719,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -47739,6 +47826,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -47884,6 +47972,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -47990,6 +48079,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -48105,6 +48195,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -48211,6 +48302,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -48352,6 +48444,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -48458,6 +48551,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -48605,6 +48699,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -48711,6 +48806,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -48815,6 +48911,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -48921,6 +49018,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -49030,6 +49128,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     zona?: AkuoZonaCreateNestedOneWithoutUsuariosInput
     sesiones?: AkuoSesionCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoCreateNestedManyWithoutTransportistaInput
@@ -49136,6 +49235,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
     sesiones?: AkuoSesionUncheckedCreateNestedManyWithoutUsuarioInput
     pedidosCliente?: AkuoPedidoUncheckedCreateNestedManyWithoutTransportistaInput
     entregasHechas?: AkuoEntregaUncheckedCreateNestedManyWithoutTransportistaInput
@@ -49256,6 +49356,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -49362,6 +49463,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -49477,6 +49579,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     zona?: AkuoZonaUpdateOneWithoutUsuariosNestedInput
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
@@ -49583,6 +49686,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -51393,6 +51497,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: Date | string | null
     mpSubAutorizadoEn?: Date | string | null
     mpSubAmount?: number | null
+    mpTestUserEmail?: string | null
   }
 
   export type AkuoUsuarioUpdateWithoutZonaInput = {
@@ -51480,6 +51585,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUpdateManyWithoutTransportistaNestedInput
@@ -51585,6 +51691,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
     sesiones?: AkuoSesionUncheckedUpdateManyWithoutUsuarioNestedInput
     pedidosCliente?: AkuoPedidoUncheckedUpdateManyWithoutTransportistaNestedInput
     entregasHechas?: AkuoEntregaUncheckedUpdateManyWithoutTransportistaNestedInput
@@ -51690,6 +51797,7 @@ export namespace Prisma {
     mpSubIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     mpSubAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoMensajeCreateManyConversacionInput = {

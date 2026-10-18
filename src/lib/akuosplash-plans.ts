@@ -216,6 +216,7 @@ export async function ensureAkuoConfigColumns() {
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubIniciadoEn DATETIME",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubAutorizadoEn DATETIME",
     "ALTER TABLE AkuoUsuario ADD COLUMN mpSubAmount REAL",
+    "ALTER TABLE AkuoUsuario ADD COLUMN mpTestUserEmail TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioUrl TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioFolio TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoEn DATETIME",
