@@ -23,6 +23,7 @@ export function AkuosplashLanding() {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [saving, setSaving] = useState(false);
+  const [acceptedTC, setAcceptedTC] = useState(false);
   // Campos de cliente (persona natural vs empresa)
   const [tipoPersona, setTipoPersona] = useState<"natural" | "empresa">("natural");
   const [rut, setRut] = useState("");
@@ -102,6 +103,7 @@ export function AkuosplashLanding() {
   async function handleRegister(rol: "cliente" | "transportista") {
     if (!email.trim() || !password.trim() || !nombre.trim()) { toast.error("Email, contraseña y nombre son obligatorios"); return; }
     if (password.length < 6) { toast.error("La contraseña debe tener al menos 6 caracteres"); return; }
+    if (!acceptedTC) { toast.error("Debés aceptar los Términos y Condiciones para registrarte"); return; }
     // Para clientes: RUT y ubicación obligatorios
     if (rol === "cliente") {
       if (!rut.trim()) { toast.error("El RUT es obligatorio"); return; }
@@ -110,7 +112,7 @@ export function AkuosplashLanding() {
     }
     setSaving(true);
     try {
-      const body: any = { email: email.trim(), password, nombre: nombre.trim(), telefono: telefono.trim() || undefined, rol };
+      const body: any = { email: email.trim(), password, nombre: nombre.trim(), telefono: telefono.trim() || undefined, rol, acceptedTC: true, tcVersion: "1.0", tcFechaAceptacion: new Date().toISOString() };
       if (rol === "cliente") {
         body.rut = rut.trim();
         body.direccion = direccion.trim();
@@ -251,14 +253,32 @@ export function AkuosplashLanding() {
                     <p className="text-xs text-muted-foreground">Necesitamos tu ubicación para asignarte una zona de servicio.</p>
                   )}
                 </div>
-                <Button onClick={() => handleRegister("cliente")} disabled={saving} className="w-full bg-blue-600 text-white hover:bg-blue-700">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear cuenta"}</Button>
+                {/* Aceptación de T&C */}
+                <label className="flex items-start gap-2 text-xs cursor-pointer">
+                  <input type="checkbox" checked={acceptedTC} onChange={(e) => setAcceptedTC(e.target.checked)} className="mt-0.5" />
+                  <span className="text-muted-foreground">
+                    Acepto los{" "}
+                    <a href="/akuosplash/terminos" target="_blank" className="text-blue-600 hover:underline font-medium">Términos y Condiciones</a>{" "}
+                    de AkuoSplash (operado por Akuologistic SpA)
+                  </span>
+                </label>
+                <Button onClick={() => handleRegister("cliente")} disabled={saving || !acceptedTC} className="w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear cuenta"}</Button>
                 <OAuthButtons view={view} />
               </>
             )}
             {view === "register-transportista" && (
               <>
                 <RegFields email={email} setEmail={setEmail} nombre={nombre} setNombre={setNombre} telefono={telefono} setTelefono={setTelefono} password={password} setPassword={setPassword} />
-                <Button onClick={() => handleRegister("transportista")} disabled={saving} className="w-full bg-blue-600 text-white hover:bg-blue-700">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear cuenta de transportista"}</Button>
+                {/* Aceptación de T&C */}
+                <label className="flex items-start gap-2 text-xs cursor-pointer">
+                  <input type="checkbox" checked={acceptedTC} onChange={(e) => setAcceptedTC(e.target.checked)} className="mt-0.5" />
+                  <span className="text-muted-foreground">
+                    Acepto los{" "}
+                    <a href="/akuosplash/terminos" target="_blank" className="text-blue-600 hover:underline font-medium">Términos y Condiciones</a>{" "}
+                    de AkuoSplash (operado por Akuologistic SpA)
+                  </span>
+                </label>
+                <Button onClick={() => handleRegister("transportista")} disabled={saving || !acceptedTC} className="w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear cuenta de transportista"}</Button>
                 <OAuthButtons view={view} />
               </>
             )}
