@@ -4,9 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Loader2, CreditCard, CheckCircle2, XCircle, AlertTriangle, Crown, Sparkles, Gem, Gift,
+  Loader2, CreditCard, CheckCircle2, XCircle, AlertTriangle, Crown, Sparkles, Gem, Gift, Ticket,
 } from "lucide-react";
 import { toast } from "sonner";
 import { akuoGet, akuoPost, formatCLP } from "@/components/akuosplash/akuosplash-utils";
@@ -45,6 +46,11 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   const [creando, setCreando] = useState(false);
   const [planSeleccionado, setPlanSeleccionado] = useState<PlanId>("premium");
   const [ciclo, setCiclo] = useState<"mensual" | "anual">("mensual");
+  // Cupón
+  const [couponCode, setCouponCode] = useState("");
+  const [couponAplicado, setCouponAplicado] = useState<any>(null);
+  const [couponValidating, setCouponValidating] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -70,6 +76,12 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);
+
+  // Resetear cupón cuando cambia el plan o el ciclo (necesita re-validar)
+  useEffect(() => {
+    setCouponAplicado(null);
+    setCouponError(null);
+  }, [planSeleccionado, ciclo]);
 
   // Detectar resultado del redirect de MP (init_point redirige a MP, vuelve a ?tab=subscripcion&mp=ok|fail)
   useEffect(() => {
@@ -122,10 +134,13 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     }
     setCreando(true);
     try {
-      const res = await akuoPost<{ initPoint: string; preapprovalId: string; amount: number }>(
+      const res = await akuoPost<{ initPoint: string; preapprovalId: string; amount: number; cuponAplicado?: any }>(
         "/api/akuosplash/subscription/mercadopago/create",
-        { plan: planSeleccionado, ciclo }
+        { plan: planSeleccionado, ciclo, couponCode: couponAplicado ? couponAplicado.codigo : undefined }
       );
+      if (res.cuponAplicado) {
+        toast.success(`Cupón "${res.cuponAplicado.codigo}" aplicado: ${res.cuponAplicado.montoAhorrado > 0 ? formatCLP(res.cuponAplicado.montoAhorrado) + " de descuento" : res.cuponAplicado.mesesGratis + " mes(es) gratis"}`);
+      }
       // Redirigir al init_point de MP (Checkout de subscripción)
       window.location.href = res.initPoint;
     } catch (e: any) {
@@ -133,6 +148,44 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     } finally {
       setCreando(false);
     }
+  }
+
+  // === Cupones ===
+  async function validarCupon() {
+    if (!couponCode.trim()) return;
+    if (planSeleccionado === "gratis") {
+      toast.info("Elegí un plan de pago antes de validar el cupón");
+      return;
+    }
+    setCouponValidating(true);
+    setCouponError(null);
+    setCouponAplicado(null);
+    try {
+      const planCfg = planes?.[planSeleccionado];
+      const monto = ciclo === "anual" ? (planCfg?.precioAnual || 0) : (planCfg?.precioMensual || 0);
+      const res = await akuoPost<{ valido: boolean; cupon?: any; descuento: number; montoFinal: number; mesesGratis: number; razon?: string }>(
+        "/api/akuosplash/cupones/validar",
+        { codigo: couponCode, tipo: "subscripcion", monto, planId: planSeleccionado }
+      );
+      if (res.valido && res.cupon) {
+        setCouponAplicado({ ...res.cupon, descuento: res.descuento, montoFinal: res.montoFinal, mesesGratis: res.mesesGratis });
+        toast.success(`Cupón aplicado: ${res.descuento > 0 ? formatCLP(res.descuento) + " off" : res.mesesGratis + " mes(es) gratis"}`);
+      } else {
+        setCouponError(res.razon || "Cupón no válido");
+        toast.error(res.razon || "Cupón no válido");
+      }
+    } catch (e: any) {
+      setCouponError(e?.message || "No se pudo validar");
+      toast.error(e?.message || "No se pudo validar el cupón");
+    } finally {
+      setCouponValidating(false);
+    }
+  }
+
+  function quitarCupon() {
+    setCouponCode("");
+    setCouponAplicado(null);
+    setCouponError(null);
   }
 
   if (loading) {
@@ -424,6 +477,52 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       {planSeleccionado !== "gratis" && planes?.[planSeleccionado] && planes[planSeleccionado].precioMensual > 0 && (
         <Card className="border-2 border-blue-200 bg-blue-50/30">
           <CardContent className="p-4 space-y-3">
+            {/* === Cupón === */}
+            <div className="space-y-2 border-b pb-3 mb-1">
+              <p className="text-sm font-medium flex items-center gap-1">
+                <Ticket className="h-4 w-4 text-primary" /> ¿Tenés un cupón?
+              </p>
+              {couponAplicado ? (
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-emerald-100 text-emerald-800 uppercase font-mono">
+                    {couponAplicado.codigo} ✓
+                  </Badge>
+                  <p className="text-xs text-emerald-700 flex-1">
+                    {couponAplicado.descuento > 0
+                      ? `${formatCLP(couponAplicado.descuento)} off`
+                      : `${couponAplicado.mesesGratis} mes(es) gratis`}
+                  </p>
+                  <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={quitarCupon}>Quitar</Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={couponCode}
+                    onChange={(e) => {
+                      setCouponCode(e.target.value.toUpperCase());
+                      setCouponError(null);
+                    }}
+                    placeholder="Ej: BIENVENIDA50"
+                    className="h-9 font-mono uppercase"
+                    onKeyDown={(e) => { if (e.key === "Enter" && !couponValidating) validarCupon(); }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={validarCupon}
+                    disabled={couponValidating || !couponCode.trim()}
+                  >
+                    {couponValidating ? <Loader2 className="h-3 w-3 animate-spin" /> : "Validar"}
+                  </Button>
+                </div>
+              )}
+              {couponError && (
+                <p className="text-xs text-red-700 flex items-center gap-1">
+                  <XCircle className="h-3 w-3" /> {couponError}
+                </p>
+              )}
+            </div>
+
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Plan</span>
@@ -434,9 +533,31 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                 <span className="font-medium capitalize">{ciclo}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Monto</span>
-                <span className="font-medium tabular-nums">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="tabular-nums">
                   {formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : planes[planSeleccionado].precioMensual)}
+                </span>
+              </div>
+              {couponAplicado && couponAplicado.descuento > 0 && (
+                <div className="flex justify-between text-emerald-700">
+                  <span>Descuento ({couponAplicado.codigo})</span>
+                  <span className="tabular-nums">-{formatCLP(couponAplicado.descuento)}</span>
+                </div>
+              )}
+              {couponAplicado && couponAplicado.mesesGratis > 0 && (
+                <div className="flex justify-between text-emerald-700">
+                  <span>Meses gratis</span>
+                  <span>{couponAplicado.mesesGratis} mes(es)</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t pt-1 mt-1 font-bold">
+                <span>Total</span>
+                <span className="tabular-nums">
+                  {couponAplicado
+                    ? (couponAplicado.mesesGratis > 0
+                      ? "Gratis los primeros " + couponAplicado.mesesGratis + " mes(es)"
+                      : formatCLP(couponAplicado.montoFinal))
+                    : formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : planes[planSeleccionado].precioMensual)}
                 </span>
               </div>
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -444,8 +565,8 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                 <span>{planes[planSeleccionado].comisionPct}%</span>
               </div>
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Pago diferido MP</span>
-                <span>{planes[planSeleccionado].pagoDiferadoDias} días</span>
+                <span>MP split mode</span>
+                <span className="capitalize">{planes[planSeleccionado].mpSplitMode}</span>
               </div>
               {ciclo === "anual" && (
                 <p className="text-[10px] text-emerald-700 text-right">

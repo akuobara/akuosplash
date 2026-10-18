@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Droplets, ArrowLeft, LogOut, MapPin, Loader2, CreditCard, Calendar, CheckCircle2 } from "lucide-react";
+import { Droplets, ArrowLeft, LogOut, MapPin, Loader2, CreditCard, Calendar, CheckCircle2, Ticket, XCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { akuoGet, akuoPost, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
 
@@ -79,6 +80,64 @@ function PedirAguaInner() {
   // Estado para precio dinámico (total calculado por el motor)
   const [precioDinamico, setPrecioDinamico] = useState<{ total: number; validoHasta: string } | null>(null);
   const [precioDinamicoLoading, setPrecioDinamicoLoading] = useState(false);
+
+  // Estado para cupón de descuento (aplicable a la venta del marketplace)
+  const [couponCode, setCouponCode] = useState("");
+  const [couponAplicado, setCouponAplicado] = useState<any>(null);
+  const [couponValidating, setCouponValidating] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  // Precio base (con precio dinámico si está habilitado, sino precio lineal)
+  const precioBase = precioDinamico?.total ?? 0;
+
+  // Total final con cupón aplicado
+  const totalFinal = couponAplicado
+    ? (couponAplicado.descuento > 0 ? Math.max(0, precioBase - couponAplicado.descuento) : precioBase)
+    : precioBase;
+
+  // Validar cupón
+  async function validarCupon() {
+    if (!couponCode.trim()) return;
+    if (precioBase <= 0) {
+      toast.info("Elegí los litros primero");
+      return;
+    }
+    setCouponValidating(true);
+    setCouponError(null);
+    setCouponAplicado(null);
+    try {
+      const res = await akuoPost<{ valido: boolean; cupon?: any; descuento: number; montoFinal: number; razon?: string }>(
+        "/api/akuosplash/cupones/validar",
+        { codigo: couponCode, tipo: "venta", monto: precioBase }
+      );
+      if (res.valido && res.cupon) {
+        setCouponAplicado({ ...res.cupon, descuento: res.descuento, montoFinal: res.montoFinal });
+        toast.success(`Cupón aplicado: ${formatCLP(res.descuento)} off`);
+      } else {
+        setCouponError(res.razon || "Cupón no válido");
+        toast.error(res.razon || "Cupón no válido");
+      }
+    } catch (e: any) {
+      setCouponError(e?.message || "No se pudo validar");
+      toast.error(e?.message || "No se pudo validar el cupón");
+    } finally {
+      setCouponValidating(false);
+    }
+  }
+
+  function quitarCupon() {
+    setCouponCode("");
+    setCouponAplicado(null);
+    setCouponError(null);
+  }
+
+  // Reset cupón cuando cambia el precio base
+  useEffect(() => {
+    if (couponAplicado) {
+      setCouponAplicado(null);
+      setCouponError(null);
+    }
+  }, [precioBase]);
 
   // Recalcular precio dinámico cuando cambia el input del cliente
   useEffect(() => {
@@ -177,6 +236,8 @@ function PedirAguaInner() {
         cardToken,
         installments: tipoTarjeta === "credito" ? cardInstallments : 1,
         cardFirstSix: cardNumber.replace(/\D/g, "").slice(0, 6),
+        // Cupón de descuento (si está aplicado)
+        couponCode: couponAplicado ? couponAplicado.codigo : undefined,
       });
       if (res.ok) {
         // Si MP requiere 3DS, redirigir
@@ -469,6 +530,68 @@ function PedirAguaInner() {
                 {config.litrosMinimos && config.litrosMinimos > 0 && litrosNum < config.litrosMinimos && (
                   <p className="text-[11px] text-amber-600 mt-1">Mínimo para tu zona: {config.litrosMinimos} L</p>
                 )}
+
+                {/* === Cupón de descuento === */}
+                {precioBase > 0 && (
+                  <div className="border-t border-blue-200 pt-2 mt-2 space-y-1.5">
+                    <p className="text-xs font-medium text-gray-700 flex items-center gap-1">
+                      <Ticket className="h-3 w-3" /> ¿Tenés un cupón de descuento?
+                    </p>
+                    {couponAplicado ? (
+                      <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-md p-2">
+                        <Badge className="bg-emerald-100 text-emerald-800 uppercase font-mono">
+                          {couponAplicado.codigo} ✓
+                        </Badge>
+                        <p className="text-xs text-emerald-700 flex-1">
+                          {formatCLP(couponAplicado.descuento)} off
+                        </p>
+                        <Button size="sm" variant="ghost" className="h-6 text-[10px]" onClick={quitarCupon}>Quitar</Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-1.5">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => {
+                            setCouponCode(e.target.value.toUpperCase());
+                            setCouponError(null);
+                          }}
+                          placeholder="EJ: AGUA10"
+                          className="flex-1 h-8 rounded-md border border-gray-300 px-2 text-xs font-mono uppercase"
+                          onKeyDown={(e) => { if (e.key === "Enter" && !couponValidating) validarCupon(); }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-xs"
+                          onClick={validarCupon}
+                          disabled={couponValidating || !couponCode.trim()}
+                        >
+                          {couponValidating ? <Loader2 className="h-3 w-3 animate-spin" /> : "Validar"}
+                        </Button>
+                      </div>
+                    )}
+                    {couponError && (
+                      <p className="text-[11px] text-red-700 flex items-center gap-1">
+                        <XCircle className="h-3 w-3" /> {couponError}
+                      </p>
+                    )}
+                    {couponAplicado && (
+                      <div className="flex justify-between text-emerald-700 text-xs">
+                        <span>Descuento aplicado</span>
+                        <span className="tabular-nums">-{formatCLP(couponAplicado.descuento)}</span>
+                      </div>
+                    )}
+                    {couponAplicado && (
+                      <div className="flex justify-between border-t border-emerald-200 pt-1">
+                        <span className="font-semibold text-gray-900">Total con descuento</span>
+                        <span className="font-bold tabular-nums text-emerald-700 text-base">
+                          {formatCLP(totalFinal)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             ) : config.hayServicio === false ? (
               <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-center">
@@ -506,7 +629,7 @@ function PedirAguaInner() {
             ) : config.precioDinamicoHabilitado && !precioDinamico ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Calculando precio…</>
             ) : (
-              <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(config.precioDinamicoHabilitado && precioDinamico ? precioDinamico.total : (litrosNum * config.precioPorLitro! + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro! * config.comisionPct / 100) : 0)))} y pedir</>
+              <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(totalFinal > 0 ? totalFinal : (config.precioDinamicoHabilitado && precioDinamico ? precioDinamico.total : (litrosNum * config.precioPorLitro! + (config.comisionPct > 0 ? Math.round(litrosNum * config.precioPorLitro! * config.comisionPct / 100) : 0))))} y pedir</>
             )}
           </Button>
 

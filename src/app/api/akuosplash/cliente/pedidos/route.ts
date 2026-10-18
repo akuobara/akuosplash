@@ -183,6 +183,58 @@ export async function POST(req: NextRequest) {
       comision = precioCalc.comision;
     }
 
+    // === APLICAR CUPÓN DE VENTA (si viene couponCode) ===
+    let cuponAplicado: any = null;
+    let montoAhorradoVenta = 0;
+    if (body.couponCode) {
+      const codigoCupon = String(body.couponCode).trim().toUpperCase();
+      let cupon: any = null;
+      try {
+        const r: any = await akuosplashDb.$queryRawUnsafe(
+          `SELECT * FROM AkuoCupon WHERE codigo = ? AND tipo = 'venta' AND activo = 1 LIMIT 1`,
+          codigoCupon
+        );
+        if (Array.isArray(r) && r.length > 0) cupon = r[0];
+      } catch {}
+
+      if (!cupon) {
+        return NextResponse.json({ error: `Cupón '${codigoCupon}' no válido` }, { status: 400 });
+      }
+      // Verificar vigencia
+      const ahora = new Date();
+      if (new Date(cupon.fechaInicio) > ahora) {
+        return NextResponse.json({ error: "Cupón aún no está vigente" }, { status: 400 });
+      }
+      if (cupon.fechaFin && new Date(cupon.fechaFin) < ahora) {
+        return NextResponse.json({ error: "Cupón vencido" }, { status: 400 });
+      }
+      if (cupon.maxUsos > 0 && cupon.usos >= cupon.maxUsos) {
+        return NextResponse.json({ error: "Cupón agotado" }, { status: 400 });
+      }
+      if (cupon.minMonto && total < cupon.minMonto) {
+        return NextResponse.json({ error: `Monto mínimo para este cupón: $${cupon.minMonto}` }, { status: 400 });
+      }
+      // Verificar uso único por usuario
+      const yaUso: any = await akuosplashDb.$queryRawUnsafe(
+        `SELECT id FROM AkuoUsuarioCupon WHERE cuponId = ? AND usuarioId = ? LIMIT 1`,
+        cupon.id, user.id
+      ).catch(() => []);
+      if (Array.isArray(yaUso) && yaUso.length > 0) {
+        return NextResponse.json({ error: "Ya usaste este cupón antes" }, { status: 400 });
+      }
+      // Aplicar descuento (solo porcentaje y monto_fijo — no meses_gratis para ventas)
+      if (cupon.descuentoTipo === "porcentaje") {
+        montoAhorradoVenta = Math.round((total * cupon.descuentoValor) / 100);
+        total = Math.max(0, total - montoAhorradoVenta);
+      } else if (cupon.descuentoTipo === "monto_fijo") {
+        montoAhorradoVenta = cupon.descuentoValor;
+        total = Math.max(0, total - cupon.descuentoValor);
+      } else {
+        return NextResponse.json({ error: "Este tipo de descuento no aplica a ventas" }, { status: 400 });
+      }
+      cuponAplicado = cupon;
+    }
+
     const pedido = await akuosplashDb.akuoPedidoCliente.create({
       data: {
         clienteId: user.id,
@@ -266,6 +318,10 @@ export async function POST(req: NextRequest) {
           redirectUrl: orden.redirectUrl, // solo si requiere 3DS
           splitPayment: orden.splitPayment,
           detail: orden.detail,
+          cuponAplicado: cuponAplicado ? {
+            codigo: cuponAplicado.codigo,
+            descuento: montoAhorradoVenta,
+          } : null,
         }, { status: 201 });
       } catch (e: any) {
         await akuosplashDb.akuoPedidoCliente.delete({ where: { id: pedido.id } }).catch(() => {});
@@ -277,7 +333,32 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ ok: true, pedido }, { status: 201 });
+    // Registrar el uso del cupón de venta
+    if (cuponAplicado) {
+      try {
+        const usoId = `cupon_uso_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        await akuosplashDb.$executeRawUnsafe(
+          `INSERT INTO AkuoUsuarioCupon (id, usadoEn, cuponId, usuarioId, pedidoClienteId, montoAhorrado)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          usoId, new Date().toISOString(), cuponAplicado.id, user.id, pedido.id, montoAhorradoVenta
+        );
+        await akuosplashDb.$executeRawUnsafe(
+          `UPDATE AkuoCupon SET usos = usos + 1 WHERE id = ?`,
+          cuponAplicado.id
+        );
+      } catch (e: any) {
+        console.warn("[pedidos] no se pudo registrar uso de cupón:", e?.message);
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      pedido,
+      cuponAplicado: cuponAplicado ? {
+        codigo: cuponAplicado.codigo,
+        descuento: montoAhorradoVenta,
+      } : null,
+    }, { status: 201 });
   } catch (e: any) {
     console.error("POST pedidos outer error:", e.message, e.stack);
     return NextResponse.json({

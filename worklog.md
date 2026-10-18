@@ -2006,3 +2006,65 @@ Stage Summary:
 - ⏳ PENDIENTE: integrar cupones de VENTA en el flujo de pedido del cliente (cuando pide agua) — endpoint /cupones/validar está listo pero no se invoca desde el frontend todavía
 - ⏳ PENDIENTE: agregar input de "¿Tenés un cupón?" en el SubscripcionTab del transportista
 - ✅ Deploy a Vercel producción READY
+
+---
+Task ID: akuosplash-cupones-frontend-transportista-cliente
+Agent: main
+Task: Implementar cupones en el frontend del transportista (SubscripcionTab) y del cliente (pedir agua).
+
+Work Log:
+- TRANSPORTISTA — SubscripcionTab actualizado:
+  * Estado nuevo: couponCode, couponAplicado, couponValidating, couponError
+  * Funciones: validarCupon() (POST /api/akuosplash/cupones/validar con tipo=subscripcion), quitarCupon()
+  * Resetear cupón aplicado cuando cambia el plan o el ciclo (useEffect en [planSeleccionado, ciclo])
+  * iniciarPago() ahora pasa `couponCode` al body del POST /subscription/mercadopago/create
+  * UI agregada en la card "Resumen + Pagar":
+    - Sección "¿Tenés un cupón?" con input font-mono + botón "Validar"
+    - Badge verde con código + descuento aplicado + botón "Quitar"
+    - Display de descuento en el resumen (Subtotal, Descuento, Total)
+    - Muestra "Gratis los primeros N mes(es)" para meses_gratis
+    - Maneja Enter key para validar
+    - Mensaje de error en rojo
+  * Importado icon Ticket de lucide-react + Input de ui/input
+
+- CLIENTE — pedir/page.tsx actualizado:
+  * Estado nuevo: couponCode, couponAplicado, couponValidating, couponError
+  * precioBase = precioDinamico?.total ?? 0
+  * totalFinal = precioBase - couponAplicado.descuento (si hay cupón)
+  * Funciones: validarCupon() (POST /api/akuosplash/cupones/validar con tipo=venta), quitarCupon()
+  * Resetear cupón cuando cambia el precio base (useEffect en [precioBase])
+  * Al crear el pedido: pasa `couponCode: couponAplicado?.codigo` en el body del POST /api/akuosplash/cliente/pedidos
+  * Botón "Pagar" muestra el total con descuento si hay cupón aplicado
+  * UI agregada antes del botón Pagar:
+    - Sección "¿Tenés un cupón de descuento?" con input + botón "Validar"
+    - Badge verde cuando se aplica con monto off
+    - Línea "Descuento aplicado" con monto en verde
+    - Línea "Total con descuento" en verde/énfasis
+    - Mensajes de error en rojo
+  * Imports nuevos: Ticket, XCircle (lucide-react) + Badge (ui/badge)
+
+- BACKEND — POST /api/akuosplash/cliente/pedidos actualizado:
+  * Lee `body.couponCode` y valida el cupón de tipo "venta"
+  * Aplica descuento (porcentaje o monto_fijo) al total del pedido ANTES de crearlo
+  * Crea el pedido con el precioTotal ya descontado
+  * Registra el uso en AkuoUsuarioCupon + incrementa contador en AkuoCupon
+  * Devuelve `cuponAplicado: { codigo, descuento }` en la respuesta
+  * No permite meses_gratis para cupones de venta (solo porcentaje/monto_fijo)
+
+- VERIFICADO:
+  * `npx tsc --noEmit --skipLibCheck` → 0 errores en mis archivos
+  * Deploy Vercel exitoso (READY en ~6min)
+  * Smoke test:
+    - GET /akuosplash/cliente/pedir → HTTP 200
+    - GET /akuosplash/transportista → HTTP 200
+
+Stage Summary:
+- ✅ Transportista: puede ingresar cupón al subscribirse a un plan (input en SubscripcionTab)
+- ✅ Cliente: puede ingresar cupón al pedir agua (input en pedir/page.tsx)
+- ✅ Cupones de subscripción: aplican descuento al monto de la preapproval de MP
+- ✅ Cupones de venta: aplican descuento al total del pedido ANTES de crearlo y procesar el pago
+- ✅ 3 tipos de descuento: porcentaje, monto_fijo, meses_gratis (solo para subscripción)
+- ✅ El cupón se re-valida al cambiar plan/ciclo (transportista) o al cambiar litros (cliente)
+- ✅ Registro de uso: cada cupón usado se registra en AkuoUsuarioCupon con montoAhorrado
+- ✅ Contador de usos en AkuoCupon se incrementa
+- ✅ Deploy a Vercel producción READY
