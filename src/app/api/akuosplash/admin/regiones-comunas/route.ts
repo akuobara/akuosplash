@@ -14,34 +14,37 @@ export async function GET(req: NextRequest) {
   if (user.rol !== "superadmin") return NextResponse.json({ error: "Solo superadmin" }, { status: 403 });
 
   await ensureAkuoConfigColumns();
+  // Asegurar columnas de sub-zonas explícitamente
+  await akuosplashDb.$executeRawUnsafe(`ALTER TABLE AkuoZona ADD COLUMN parentZonaId TEXT`).catch(() => {});
+  await akuosplashDb.$executeRawUnsafe(`ALTER TABLE AkuoZona ADD COLUMN sector TEXT`).catch(() => {});
+  await akuosplashDb.$executeRawUnsafe(`ALTER TABLE AkuoZona ADD COLUMN tipoSector TEXT`).catch(() => {});
+  await akuosplashDb.$executeRawUnsafe(`ALTER TABLE AkuoZona ADD COLUMN comunaCode TEXT`).catch(() => {});
+  await akuosplashDb.$executeRawUnsafe(`ALTER TABLE AkuoZona ADD COLUMN codRegion INTEGER`).catch(() => {});
 
   const url = new URL(req.url);
   const regionFiltro = url.searchParams.get("region");
 
-  // Cargar todas las zonas existentes (para marcar comunas ya configuradas)
-  // Usar raw SQL porque AkuoZona puede tener columnas nuevas
+  // Cargar todas las zonas (con sub-zonas incluidas)
   let zonas: any[] = [];
   try {
     const r: any = await akuosplashDb.$queryRawUnsafe(
-      `SELECT id, nombre, zonaGeoJson, centroLat, centroLng, precioPorLitro,
-              precioMinimoPorLitro, precioMinimoTotal, precioMaximoPorLitro,
+      `SELECT id, nombre, centroLat, centroLng, precioPorLitro,
               litrosMinimos, radioKm, activa, comunaCode, codRegion,
               parentZonaId, sector, tipoSector
        FROM AkuoZona WHERE 1=1`
     );
     zonas = Array.isArray(r) ? r : [];
   } catch (e: any) {
-    // Si las columnas nuevas no existen, intentar sin ellas
+    console.error("[regiones-comunas] query failed:", e?.message);
     try {
       const r: any = await akuosplashDb.$queryRawUnsafe(
-        `SELECT id, nombre, zonaGeoJson, centroLat, centroLng, precioPorLitro,
-                precioMinimoPorLitro, precioMinimoTotal, precioMaximoPorLitro,
+        `SELECT id, nombre, centroLat, centroLng, precioPorLitro,
                 litrosMinimos, radioKm, activa
          FROM AkuoZona WHERE 1=1`
       );
       zonas = Array.isArray(r) ? r : [];
     } catch (e2: any) {
-      console.error("[regiones-comunas] no se pudo cargar AkuoZona:", e2?.message);
+      console.error("[regiones-comunas] fallback failed:", e2?.message);
     }
   }
 

@@ -293,8 +293,9 @@ export function RegionesComunasTab() {
                       <div className="mt-2 space-y-1 pl-6">
                         {cs.map(c => (
                           <div key={c.codComuna} className="rounded-md hover:bg-muted/50 px-2 py-1.5">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                            {/* Fila principal de la comuna */}
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <div className="flex items-center gap-2 flex-1 min-w-[120px]">
                                 {c.zona?.activa ? (
                                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                                 ) : c.zona ? (
@@ -304,10 +305,15 @@ export function RegionesComunasTab() {
                                 )}
                                 <span className="text-sm">{c.nombre}</span>
                                 <span className="text-[10px] text-muted-foreground truncate">{c.provincia}</span>
+                                {c.subZonas && c.subZonas.length > 0 && (
+                                  <Badge variant="outline" className="text-[9px] bg-blue-50 text-blue-700">
+                                    {c.subZonas.length} sub-zonas
+                                  </Badge>
+                                )}
                               </div>
-                              <div className="flex items-center gap-2 shrink-0">
+                              <div className="flex items-center gap-1 shrink-0 flex-wrap">
                                 {c.zona?.precioPorLitro != null && (
-                                  <span className="text-xs tabular-nums text-muted-foreground">${c.zona.precioPorLitro}/L</span>
+                                  <span className="text-xs tabular-nums text-muted-foreground mr-1">${c.zona.precioPorLitro}/L</span>
                                 )}
                                 <Button
                                   size="sm"
@@ -324,9 +330,9 @@ export function RegionesComunasTab() {
                                       variant="ghost"
                                       className="h-7 text-xs"
                                       onClick={() => cargarLocalidades(c)}
-                                      title="Cargar automáticamente todas las localidades (urbanas + rurales) de GeoNames"
+                                      title="Cargar localidades predefinidas de GeoNames"
                                     >
-                                      <MapPin className="h-3 w-3 mr-0.5" /> Cargar localidades
+                                      📍 Cargar
                                     </Button>
                                     <Button
                                       size="sm"
@@ -334,7 +340,7 @@ export function RegionesComunasTab() {
                                       className="h-7 text-xs"
                                       onClick={() => abrirCrearSubZona(c)}
                                     >
-                                      <Plus className="h-3 w-3 mr-0.5" /> Sub-zona manual
+                                      <Plus className="h-3 w-3" /> Manual
                                     </Button>
                                     <Button
                                       size="sm"
@@ -348,15 +354,15 @@ export function RegionesComunasTab() {
                                 )}
                               </div>
                             </div>
-                            {/* Sub-zonas de esta comuna */}
+                            {/* Sub-zonas de esta comuna (lista expandible) */}
                             {c.subZonas && c.subZonas.length > 0 && (
-                              <div className="mt-1 ml-5 space-y-0.5 border-l border-gray-200 pl-3">
+                              <div className="mt-2 ml-4 border-l-2 border-gray-200 pl-3 space-y-1">
                                 {c.subZonas.map(sz => (
-                                  <div key={sz.id} className="flex items-center gap-2 text-xs py-0.5">
-                                    <span className={`inline-block w-1.5 h-1.5 rounded-full ${sz.activa ? "bg-emerald-500" : "bg-gray-300"}`} />
-                                    <span>{sz.sector || sz.nombre}</span>
-                                    <Badge variant="outline" className={`text-[9px] ${sz.tipoSector === "urbano" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
-                                      {sz.tipoSector}
+                                  <div key={sz.id} className="flex items-center gap-2 text-xs py-1 px-1 rounded hover:bg-gray-50">
+                                    <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${sz.activa ? "bg-emerald-500" : "bg-gray-300"}`} />
+                                    <span className="font-medium">{sz.sector || sz.nombre}</span>
+                                    <Badge variant="outline" className={`text-[9px] shrink-0 ${sz.tipoSector === "urbano" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
+                                      {sz.tipoSector === "urbano" ? "🏙️" : "🌾"} {sz.tipoSector}
                                     </Badge>
                                     {sz.precioPorLitro != null && (
                                       <span className="text-[10px] text-muted-foreground">${sz.precioPorLitro}/L</span>
