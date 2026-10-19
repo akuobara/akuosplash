@@ -206,6 +206,20 @@ export function RegionesComunasTab() {
     }
   }
 
+  // Auto-cargar localidades predefinidas de GeoNames
+  async function cargarLocalidades(c: Comuna, soloTipo?: "urbano" | "rural") {
+    try {
+      const res = await akuoApi(`/api/akuosplash/admin/regiones-comunas/${c.codComuna}/auto-popular`, {
+        method: "POST",
+        body: JSON.stringify({ soloTipo }),
+      });
+      toast.success(res.message || `${res.creadas} localidades cargadas`);
+      cargar();
+    } catch (e: any) {
+      toast.error(e?.message || "No se pudieron cargar las localidades");
+    }
+  }
+
   // Filtrar comunas por búsqueda
   const comunasFiltradas = search
     ? comunas.filter(c => c.nombre.toLowerCase().includes(search.toLowerCase()) || c.region.toLowerCase().includes(search.toLowerCase()))
@@ -309,9 +323,18 @@ export function RegionesComunasTab() {
                                       size="sm"
                                       variant="ghost"
                                       className="h-7 text-xs"
+                                      onClick={() => cargarLocalidades(c)}
+                                      title="Cargar automáticamente todas las localidades (urbanas + rurales) de GeoNames"
+                                    >
+                                      <MapPin className="h-3 w-3 mr-0.5" /> Cargar localidades
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 text-xs"
                                       onClick={() => abrirCrearSubZona(c)}
                                     >
-                                      <Plus className="h-3 w-3 mr-0.5" /> Sub-zona
+                                      <Plus className="h-3 w-3 mr-0.5" /> Sub-zona manual
                                     </Button>
                                     <Button
                                       size="sm"
