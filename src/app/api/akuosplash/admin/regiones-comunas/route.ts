@@ -25,12 +25,13 @@ export async function GET(req: NextRequest) {
     const r: any = await akuosplashDb.$queryRawUnsafe(
       `SELECT id, nombre, zonaGeoJson, centroLat, centroLng, precioPorLitro,
               precioMinimoPorLitro, precioMinimoTotal, precioMaximoPorLitro,
-              litrosMinimos, radioKm, activa, comunaCode, codRegion
+              litrosMinimos, radioKm, activa, comunaCode, codRegion,
+              parentZonaId, sector, tipoSector
        FROM AkuoZona WHERE 1=1`
     );
     zonas = Array.isArray(r) ? r : [];
   } catch (e: any) {
-    // Si las columnas comunaCode o codRegion no existen, intentar sin ellas
+    // Si las columnas nuevas no existen, intentar sin ellas
     try {
       const r: any = await akuosplashDb.$queryRawUnsafe(
         `SELECT id, nombre, zonaGeoJson, centroLat, centroLng, precioPorLitro,
@@ -45,12 +46,17 @@ export async function GET(req: NextRequest) {
   }
 
   // Indexar zonas por nombre (que coincide con el nombre de la comuna)
-  // También por comunaCode si existe
   const zonaByNombre: Record<string, any> = {};
   const zonaByCode: Record<string, any> = {};
+  // Indexar sub-zonas por parentZonaId
+  const subZonasByParent: Record<string, any[]> = {};
   for (const z of zonas) {
     zonaByNombre[(z.nombre || "").toLowerCase()] = z;
     if (z.comunaCode) zonaByCode[z.comunaCode] = z;
+    if (z.parentZonaId) {
+      if (!subZonasByParent[z.parentZonaId]) subZonasByParent[z.parentZonaId] = [];
+      subZonasByParent[z.parentZonaId].push(z);
+    }
   }
 
   // Filtrar comunas por región si se especifica
@@ -60,9 +66,10 @@ export async function GET(req: NextRequest) {
     comunas = comunas.filter(c => c.codRegion === codRegion);
   }
 
-  // Para cada comuna, agregar su estado de zona si existe
+  // Para cada comuna, agregar su estado de zona si existe + sub-zonas
   const comunasConEstado = comunas.map(c => {
     const zona = zonaByCode[c.codComuna] || zonaByNombre[c.nombre.toLowerCase()];
+    const subZonas = zona ? (subZonasByParent[zona.id] || []) : [];
     return {
       ...c,
       zona: zona ? {
@@ -75,6 +82,18 @@ export async function GET(req: NextRequest) {
         litrosMinimos: zona.litrosMinimos,
         radioKm: zona.radioKm,
       } : null,
+      subZonas: subZonas.map(sz => ({
+        id: sz.id,
+        nombre: sz.nombre,
+        sector: sz.sector,
+        tipoSector: sz.tipoSector,
+        activa: !!sz.activa,
+        centroLat: sz.centroLat,
+        centroLng: sz.centroLng,
+        radioKm: sz.radioKm,
+        precioPorLitro: sz.precioPorLitro,
+        litrosMinimos: sz.litrosMinimos,
+      })),
     };
   });
 

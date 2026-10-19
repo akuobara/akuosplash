@@ -3086,10 +3086,12 @@ export namespace Prisma {
 
   export type AkuoZonaCountOutputType = {
     usuarios: number
+    subZonas: number
   }
 
   export type AkuoZonaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     usuarios?: boolean | AkuoZonaCountOutputTypeCountUsuariosArgs
+    subZonas?: boolean | AkuoZonaCountOutputTypeCountSubZonasArgs
   }
 
   // Custom InputTypes
@@ -3108,6 +3110,13 @@ export namespace Prisma {
    */
   export type AkuoZonaCountOutputTypeCountUsuariosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AkuoUsuarioWhereInput
+  }
+
+  /**
+   * AkuoZonaCountOutputType without action
+   */
+  export type AkuoZonaCountOutputTypeCountSubZonasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AkuoZonaWhereInput
   }
 
 
@@ -24241,6 +24250,9 @@ export namespace Prisma {
     activa: boolean | null
     comunaCode: string | null
     codRegion: number | null
+    parentZonaId: string | null
+    sector: string | null
+    tipoSector: string | null
   }
 
   export type AkuoZonaMaxAggregateOutputType = {
@@ -24261,6 +24273,9 @@ export namespace Prisma {
     activa: boolean | null
     comunaCode: string | null
     codRegion: number | null
+    parentZonaId: string | null
+    sector: string | null
+    tipoSector: string | null
   }
 
   export type AkuoZonaCountAggregateOutputType = {
@@ -24281,6 +24296,9 @@ export namespace Prisma {
     activa: number
     comunaCode: number
     codRegion: number
+    parentZonaId: number
+    sector: number
+    tipoSector: number
     _all: number
   }
 
@@ -24327,6 +24345,9 @@ export namespace Prisma {
     activa?: true
     comunaCode?: true
     codRegion?: true
+    parentZonaId?: true
+    sector?: true
+    tipoSector?: true
   }
 
   export type AkuoZonaMaxAggregateInputType = {
@@ -24347,6 +24368,9 @@ export namespace Prisma {
     activa?: true
     comunaCode?: true
     codRegion?: true
+    parentZonaId?: true
+    sector?: true
+    tipoSector?: true
   }
 
   export type AkuoZonaCountAggregateInputType = {
@@ -24367,6 +24391,9 @@ export namespace Prisma {
     activa?: true
     comunaCode?: true
     codRegion?: true
+    parentZonaId?: true
+    sector?: true
+    tipoSector?: true
     _all?: true
   }
 
@@ -24474,6 +24501,9 @@ export namespace Prisma {
     activa: boolean
     comunaCode: string | null
     codRegion: number | null
+    parentZonaId: string | null
+    sector: string | null
+    tipoSector: string | null
     _count: AkuoZonaCountAggregateOutputType | null
     _avg: AkuoZonaAvgAggregateOutputType | null
     _sum: AkuoZonaSumAggregateOutputType | null
@@ -24513,7 +24543,12 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: boolean
     codRegion?: boolean
+    parentZonaId?: boolean
+    sector?: boolean
+    tipoSector?: boolean
     usuarios?: boolean | AkuoZona$usuariosArgs<ExtArgs>
+    subZonas?: boolean | AkuoZona$subZonasArgs<ExtArgs>
+    zonaPadre?: boolean | AkuoZona$zonaPadreArgs<ExtArgs>
     _count?: boolean | AkuoZonaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["akuoZona"]>
 
@@ -24535,6 +24570,10 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: boolean
     codRegion?: boolean
+    parentZonaId?: boolean
+    sector?: boolean
+    tipoSector?: boolean
+    zonaPadre?: boolean | AkuoZona$zonaPadreArgs<ExtArgs>
   }, ExtArgs["result"]["akuoZona"]>
 
   export type AkuoZonaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -24555,6 +24594,10 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: boolean
     codRegion?: boolean
+    parentZonaId?: boolean
+    sector?: boolean
+    tipoSector?: boolean
+    zonaPadre?: boolean | AkuoZona$zonaPadreArgs<ExtArgs>
   }, ExtArgs["result"]["akuoZona"]>
 
   export type AkuoZonaSelectScalar = {
@@ -24575,20 +24618,31 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: boolean
     codRegion?: boolean
+    parentZonaId?: boolean
+    sector?: boolean
+    tipoSector?: boolean
   }
 
-  export type AkuoZonaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "actualizadoEn" | "nombre" | "descripcion" | "zonaGeoJson" | "centroLat" | "centroLng" | "precioPorLitro" | "precioMinimoPorLitro" | "precioMinimoTotal" | "precioMaximoPorLitro" | "litrosMinimos" | "radioKm" | "activa" | "comunaCode" | "codRegion", ExtArgs["result"]["akuoZona"]>
+  export type AkuoZonaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "actualizadoEn" | "nombre" | "descripcion" | "zonaGeoJson" | "centroLat" | "centroLng" | "precioPorLitro" | "precioMinimoPorLitro" | "precioMinimoTotal" | "precioMaximoPorLitro" | "litrosMinimos" | "radioKm" | "activa" | "comunaCode" | "codRegion" | "parentZonaId" | "sector" | "tipoSector", ExtArgs["result"]["akuoZona"]>
   export type AkuoZonaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     usuarios?: boolean | AkuoZona$usuariosArgs<ExtArgs>
+    subZonas?: boolean | AkuoZona$subZonasArgs<ExtArgs>
+    zonaPadre?: boolean | AkuoZona$zonaPadreArgs<ExtArgs>
     _count?: boolean | AkuoZonaCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type AkuoZonaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type AkuoZonaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type AkuoZonaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    zonaPadre?: boolean | AkuoZona$zonaPadreArgs<ExtArgs>
+  }
+  export type AkuoZonaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    zonaPadre?: boolean | AkuoZona$zonaPadreArgs<ExtArgs>
+  }
 
   export type $AkuoZonaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoZona"
     objects: {
       usuarios: Prisma.$AkuoUsuarioPayload<ExtArgs>[]
+      subZonas: Prisma.$AkuoZonaPayload<ExtArgs>[]
+      zonaPadre: Prisma.$AkuoZonaPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -24608,6 +24662,9 @@ export namespace Prisma {
       activa: boolean
       comunaCode: string | null
       codRegion: number | null
+      parentZonaId: string | null
+      sector: string | null
+      tipoSector: string | null
     }, ExtArgs["result"]["akuoZona"]>
     composites: {}
   }
@@ -25003,6 +25060,8 @@ export namespace Prisma {
   export interface Prisma__AkuoZonaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     usuarios<T extends AkuoZona$usuariosArgs<ExtArgs> = {}>(args?: Subset<T, AkuoZona$usuariosArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoUsuarioPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    subZonas<T extends AkuoZona$subZonasArgs<ExtArgs> = {}>(args?: Subset<T, AkuoZona$subZonasArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AkuoZonaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    zonaPadre<T extends AkuoZona$zonaPadreArgs<ExtArgs> = {}>(args?: Subset<T, AkuoZona$zonaPadreArgs<ExtArgs>>): Prisma__AkuoZonaClient<$Result.GetResult<Prisma.$AkuoZonaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -25049,6 +25108,9 @@ export namespace Prisma {
     readonly activa: FieldRef<"AkuoZona", 'Boolean'>
     readonly comunaCode: FieldRef<"AkuoZona", 'String'>
     readonly codRegion: FieldRef<"AkuoZona", 'Int'>
+    readonly parentZonaId: FieldRef<"AkuoZona", 'String'>
+    readonly sector: FieldRef<"AkuoZona", 'String'>
+    readonly tipoSector: FieldRef<"AkuoZona", 'String'>
   }
     
 
@@ -25296,6 +25358,10 @@ export namespace Prisma {
      * The data used to create many AkuoZonas.
      */
     data: AkuoZonaCreateManyInput | AkuoZonaCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -25366,6 +25432,10 @@ export namespace Prisma {
      * Limit how many AkuoZonas to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -25456,6 +25526,49 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AkuoUsuarioScalarFieldEnum | AkuoUsuarioScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoZona.subZonas
+   */
+  export type AkuoZona$subZonasArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZona
+     */
+    select?: AkuoZonaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZona
+     */
+    omit?: AkuoZonaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    where?: AkuoZonaWhereInput
+    orderBy?: AkuoZonaOrderByWithRelationInput | AkuoZonaOrderByWithRelationInput[]
+    cursor?: AkuoZonaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AkuoZonaScalarFieldEnum | AkuoZonaScalarFieldEnum[]
+  }
+
+  /**
+   * AkuoZona.zonaPadre
+   */
+  export type AkuoZona$zonaPadreArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AkuoZona
+     */
+    select?: AkuoZonaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AkuoZona
+     */
+    omit?: AkuoZonaOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AkuoZonaInclude<ExtArgs> | null
+    where?: AkuoZonaWhereInput
   }
 
   /**
@@ -31962,7 +32075,10 @@ export namespace Prisma {
     radioKm: 'radioKm',
     activa: 'activa',
     comunaCode: 'comunaCode',
-    codRegion: 'codRegion'
+    codRegion: 'codRegion',
+    parentZonaId: 'parentZonaId',
+    sector: 'sector',
+    tipoSector: 'tipoSector'
   };
 
   export type AkuoZonaScalarFieldEnum = (typeof AkuoZonaScalarFieldEnum)[keyof typeof AkuoZonaScalarFieldEnum]
@@ -34197,7 +34313,12 @@ export namespace Prisma {
     activa?: BoolFilter<"AkuoZona"> | boolean
     comunaCode?: StringNullableFilter<"AkuoZona"> | string | null
     codRegion?: IntNullableFilter<"AkuoZona"> | number | null
+    parentZonaId?: StringNullableFilter<"AkuoZona"> | string | null
+    sector?: StringNullableFilter<"AkuoZona"> | string | null
+    tipoSector?: StringNullableFilter<"AkuoZona"> | string | null
     usuarios?: AkuoUsuarioListRelationFilter
+    subZonas?: AkuoZonaListRelationFilter
+    zonaPadre?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
   }
 
   export type AkuoZonaOrderByWithRelationInput = {
@@ -34218,7 +34339,12 @@ export namespace Prisma {
     activa?: SortOrder
     comunaCode?: SortOrderInput | SortOrder
     codRegion?: SortOrderInput | SortOrder
+    parentZonaId?: SortOrderInput | SortOrder
+    sector?: SortOrderInput | SortOrder
+    tipoSector?: SortOrderInput | SortOrder
     usuarios?: AkuoUsuarioOrderByRelationAggregateInput
+    subZonas?: AkuoZonaOrderByRelationAggregateInput
+    zonaPadre?: AkuoZonaOrderByWithRelationInput
   }
 
   export type AkuoZonaWhereUniqueInput = Prisma.AtLeast<{
@@ -34242,7 +34368,12 @@ export namespace Prisma {
     activa?: BoolFilter<"AkuoZona"> | boolean
     comunaCode?: StringNullableFilter<"AkuoZona"> | string | null
     codRegion?: IntNullableFilter<"AkuoZona"> | number | null
+    parentZonaId?: StringNullableFilter<"AkuoZona"> | string | null
+    sector?: StringNullableFilter<"AkuoZona"> | string | null
+    tipoSector?: StringNullableFilter<"AkuoZona"> | string | null
     usuarios?: AkuoUsuarioListRelationFilter
+    subZonas?: AkuoZonaListRelationFilter
+    zonaPadre?: XOR<AkuoZonaNullableScalarRelationFilter, AkuoZonaWhereInput> | null
   }, "id">
 
   export type AkuoZonaOrderByWithAggregationInput = {
@@ -34263,6 +34394,9 @@ export namespace Prisma {
     activa?: SortOrder
     comunaCode?: SortOrderInput | SortOrder
     codRegion?: SortOrderInput | SortOrder
+    parentZonaId?: SortOrderInput | SortOrder
+    sector?: SortOrderInput | SortOrder
+    tipoSector?: SortOrderInput | SortOrder
     _count?: AkuoZonaCountOrderByAggregateInput
     _avg?: AkuoZonaAvgOrderByAggregateInput
     _max?: AkuoZonaMaxOrderByAggregateInput
@@ -34291,6 +34425,9 @@ export namespace Prisma {
     activa?: BoolWithAggregatesFilter<"AkuoZona"> | boolean
     comunaCode?: StringNullableWithAggregatesFilter<"AkuoZona"> | string | null
     codRegion?: IntNullableWithAggregatesFilter<"AkuoZona"> | number | null
+    parentZonaId?: StringNullableWithAggregatesFilter<"AkuoZona"> | string | null
+    sector?: StringNullableWithAggregatesFilter<"AkuoZona"> | string | null
+    tipoSector?: StringNullableWithAggregatesFilter<"AkuoZona"> | string | null
   }
 
   export type AkuoConversacionWhereInput = {
@@ -37273,7 +37410,11 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: string | null
     codRegion?: number | null
+    sector?: string | null
+    tipoSector?: string | null
     usuarios?: AkuoUsuarioCreateNestedManyWithoutZonaInput
+    subZonas?: AkuoZonaCreateNestedManyWithoutZonaPadreInput
+    zonaPadre?: AkuoZonaCreateNestedOneWithoutSubZonasInput
   }
 
   export type AkuoZonaUncheckedCreateInput = {
@@ -37294,7 +37435,11 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: string | null
     codRegion?: number | null
+    parentZonaId?: string | null
+    sector?: string | null
+    tipoSector?: string | null
     usuarios?: AkuoUsuarioUncheckedCreateNestedManyWithoutZonaInput
+    subZonas?: AkuoZonaUncheckedCreateNestedManyWithoutZonaPadreInput
   }
 
   export type AkuoZonaUpdateInput = {
@@ -37315,7 +37460,11 @@ export namespace Prisma {
     activa?: BoolFieldUpdateOperationsInput | boolean
     comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
     codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
     usuarios?: AkuoUsuarioUpdateManyWithoutZonaNestedInput
+    subZonas?: AkuoZonaUpdateManyWithoutZonaPadreNestedInput
+    zonaPadre?: AkuoZonaUpdateOneWithoutSubZonasNestedInput
   }
 
   export type AkuoZonaUncheckedUpdateInput = {
@@ -37336,7 +37485,11 @@ export namespace Prisma {
     activa?: BoolFieldUpdateOperationsInput | boolean
     comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
     codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    parentZonaId?: NullableStringFieldUpdateOperationsInput | string | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
     usuarios?: AkuoUsuarioUncheckedUpdateManyWithoutZonaNestedInput
+    subZonas?: AkuoZonaUncheckedUpdateManyWithoutZonaPadreNestedInput
   }
 
   export type AkuoZonaCreateManyInput = {
@@ -37357,6 +37510,9 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: string | null
     codRegion?: number | null
+    parentZonaId?: string | null
+    sector?: string | null
+    tipoSector?: string | null
   }
 
   export type AkuoZonaUpdateManyMutationInput = {
@@ -37377,6 +37533,8 @@ export namespace Prisma {
     activa?: BoolFieldUpdateOperationsInput | boolean
     comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
     codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoZonaUncheckedUpdateManyInput = {
@@ -37397,6 +37555,9 @@ export namespace Prisma {
     activa?: BoolFieldUpdateOperationsInput | boolean
     comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
     codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    parentZonaId?: NullableStringFieldUpdateOperationsInput | string | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoConversacionCreateInput = {
@@ -39628,7 +39789,17 @@ export namespace Prisma {
     none?: AkuoUsuarioWhereInput
   }
 
+  export type AkuoZonaListRelationFilter = {
+    every?: AkuoZonaWhereInput
+    some?: AkuoZonaWhereInput
+    none?: AkuoZonaWhereInput
+  }
+
   export type AkuoUsuarioOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AkuoZonaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -39650,6 +39821,9 @@ export namespace Prisma {
     activa?: SortOrder
     comunaCode?: SortOrder
     codRegion?: SortOrder
+    parentZonaId?: SortOrder
+    sector?: SortOrder
+    tipoSector?: SortOrder
   }
 
   export type AkuoZonaAvgOrderByAggregateInput = {
@@ -39682,6 +39856,9 @@ export namespace Prisma {
     activa?: SortOrder
     comunaCode?: SortOrder
     codRegion?: SortOrder
+    parentZonaId?: SortOrder
+    sector?: SortOrder
+    tipoSector?: SortOrder
   }
 
   export type AkuoZonaMinOrderByAggregateInput = {
@@ -39702,6 +39879,9 @@ export namespace Prisma {
     activa?: SortOrder
     comunaCode?: SortOrder
     codRegion?: SortOrder
+    parentZonaId?: SortOrder
+    sector?: SortOrder
+    tipoSector?: SortOrder
   }
 
   export type AkuoZonaSumOrderByAggregateInput = {
@@ -41504,11 +41684,31 @@ export namespace Prisma {
     connect?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
   }
 
+  export type AkuoZonaCreateNestedManyWithoutZonaPadreInput = {
+    create?: XOR<AkuoZonaCreateWithoutZonaPadreInput, AkuoZonaUncheckedCreateWithoutZonaPadreInput> | AkuoZonaCreateWithoutZonaPadreInput[] | AkuoZonaUncheckedCreateWithoutZonaPadreInput[]
+    connectOrCreate?: AkuoZonaCreateOrConnectWithoutZonaPadreInput | AkuoZonaCreateOrConnectWithoutZonaPadreInput[]
+    createMany?: AkuoZonaCreateManyZonaPadreInputEnvelope
+    connect?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+  }
+
+  export type AkuoZonaCreateNestedOneWithoutSubZonasInput = {
+    create?: XOR<AkuoZonaCreateWithoutSubZonasInput, AkuoZonaUncheckedCreateWithoutSubZonasInput>
+    connectOrCreate?: AkuoZonaCreateOrConnectWithoutSubZonasInput
+    connect?: AkuoZonaWhereUniqueInput
+  }
+
   export type AkuoUsuarioUncheckedCreateNestedManyWithoutZonaInput = {
     create?: XOR<AkuoUsuarioCreateWithoutZonaInput, AkuoUsuarioUncheckedCreateWithoutZonaInput> | AkuoUsuarioCreateWithoutZonaInput[] | AkuoUsuarioUncheckedCreateWithoutZonaInput[]
     connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutZonaInput | AkuoUsuarioCreateOrConnectWithoutZonaInput[]
     createMany?: AkuoUsuarioCreateManyZonaInputEnvelope
     connect?: AkuoUsuarioWhereUniqueInput | AkuoUsuarioWhereUniqueInput[]
+  }
+
+  export type AkuoZonaUncheckedCreateNestedManyWithoutZonaPadreInput = {
+    create?: XOR<AkuoZonaCreateWithoutZonaPadreInput, AkuoZonaUncheckedCreateWithoutZonaPadreInput> | AkuoZonaCreateWithoutZonaPadreInput[] | AkuoZonaUncheckedCreateWithoutZonaPadreInput[]
+    connectOrCreate?: AkuoZonaCreateOrConnectWithoutZonaPadreInput | AkuoZonaCreateOrConnectWithoutZonaPadreInput[]
+    createMany?: AkuoZonaCreateManyZonaPadreInputEnvelope
+    connect?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
   }
 
   export type AkuoUsuarioUpdateManyWithoutZonaNestedInput = {
@@ -41525,6 +41725,30 @@ export namespace Prisma {
     deleteMany?: AkuoUsuarioScalarWhereInput | AkuoUsuarioScalarWhereInput[]
   }
 
+  export type AkuoZonaUpdateManyWithoutZonaPadreNestedInput = {
+    create?: XOR<AkuoZonaCreateWithoutZonaPadreInput, AkuoZonaUncheckedCreateWithoutZonaPadreInput> | AkuoZonaCreateWithoutZonaPadreInput[] | AkuoZonaUncheckedCreateWithoutZonaPadreInput[]
+    connectOrCreate?: AkuoZonaCreateOrConnectWithoutZonaPadreInput | AkuoZonaCreateOrConnectWithoutZonaPadreInput[]
+    upsert?: AkuoZonaUpsertWithWhereUniqueWithoutZonaPadreInput | AkuoZonaUpsertWithWhereUniqueWithoutZonaPadreInput[]
+    createMany?: AkuoZonaCreateManyZonaPadreInputEnvelope
+    set?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+    disconnect?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+    delete?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+    connect?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+    update?: AkuoZonaUpdateWithWhereUniqueWithoutZonaPadreInput | AkuoZonaUpdateWithWhereUniqueWithoutZonaPadreInput[]
+    updateMany?: AkuoZonaUpdateManyWithWhereWithoutZonaPadreInput | AkuoZonaUpdateManyWithWhereWithoutZonaPadreInput[]
+    deleteMany?: AkuoZonaScalarWhereInput | AkuoZonaScalarWhereInput[]
+  }
+
+  export type AkuoZonaUpdateOneWithoutSubZonasNestedInput = {
+    create?: XOR<AkuoZonaCreateWithoutSubZonasInput, AkuoZonaUncheckedCreateWithoutSubZonasInput>
+    connectOrCreate?: AkuoZonaCreateOrConnectWithoutSubZonasInput
+    upsert?: AkuoZonaUpsertWithoutSubZonasInput
+    disconnect?: AkuoZonaWhereInput | boolean
+    delete?: AkuoZonaWhereInput | boolean
+    connect?: AkuoZonaWhereUniqueInput
+    update?: XOR<XOR<AkuoZonaUpdateToOneWithWhereWithoutSubZonasInput, AkuoZonaUpdateWithoutSubZonasInput>, AkuoZonaUncheckedUpdateWithoutSubZonasInput>
+  }
+
   export type AkuoUsuarioUncheckedUpdateManyWithoutZonaNestedInput = {
     create?: XOR<AkuoUsuarioCreateWithoutZonaInput, AkuoUsuarioUncheckedCreateWithoutZonaInput> | AkuoUsuarioCreateWithoutZonaInput[] | AkuoUsuarioUncheckedCreateWithoutZonaInput[]
     connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutZonaInput | AkuoUsuarioCreateOrConnectWithoutZonaInput[]
@@ -41537,6 +41761,20 @@ export namespace Prisma {
     update?: AkuoUsuarioUpdateWithWhereUniqueWithoutZonaInput | AkuoUsuarioUpdateWithWhereUniqueWithoutZonaInput[]
     updateMany?: AkuoUsuarioUpdateManyWithWhereWithoutZonaInput | AkuoUsuarioUpdateManyWithWhereWithoutZonaInput[]
     deleteMany?: AkuoUsuarioScalarWhereInput | AkuoUsuarioScalarWhereInput[]
+  }
+
+  export type AkuoZonaUncheckedUpdateManyWithoutZonaPadreNestedInput = {
+    create?: XOR<AkuoZonaCreateWithoutZonaPadreInput, AkuoZonaUncheckedCreateWithoutZonaPadreInput> | AkuoZonaCreateWithoutZonaPadreInput[] | AkuoZonaUncheckedCreateWithoutZonaPadreInput[]
+    connectOrCreate?: AkuoZonaCreateOrConnectWithoutZonaPadreInput | AkuoZonaCreateOrConnectWithoutZonaPadreInput[]
+    upsert?: AkuoZonaUpsertWithWhereUniqueWithoutZonaPadreInput | AkuoZonaUpsertWithWhereUniqueWithoutZonaPadreInput[]
+    createMany?: AkuoZonaCreateManyZonaPadreInputEnvelope
+    set?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+    disconnect?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+    delete?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+    connect?: AkuoZonaWhereUniqueInput | AkuoZonaWhereUniqueInput[]
+    update?: AkuoZonaUpdateWithWhereUniqueWithoutZonaPadreInput | AkuoZonaUpdateWithWhereUniqueWithoutZonaPadreInput[]
+    updateMany?: AkuoZonaUpdateManyWithWhereWithoutZonaPadreInput | AkuoZonaUpdateManyWithWhereWithoutZonaPadreInput[]
+    deleteMany?: AkuoZonaScalarWhereInput | AkuoZonaScalarWhereInput[]
   }
 
   export type AkuoUsuarioCreateNestedOneWithoutConversacionesClienteInput = {
@@ -41987,6 +42225,10 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: string | null
     codRegion?: number | null
+    sector?: string | null
+    tipoSector?: string | null
+    subZonas?: AkuoZonaCreateNestedManyWithoutZonaPadreInput
+    zonaPadre?: AkuoZonaCreateNestedOneWithoutSubZonasInput
   }
 
   export type AkuoZonaUncheckedCreateWithoutUsuariosInput = {
@@ -42007,6 +42249,10 @@ export namespace Prisma {
     activa?: boolean
     comunaCode?: string | null
     codRegion?: number | null
+    parentZonaId?: string | null
+    sector?: string | null
+    tipoSector?: string | null
+    subZonas?: AkuoZonaUncheckedCreateNestedManyWithoutZonaPadreInput
   }
 
   export type AkuoZonaCreateOrConnectWithoutUsuariosInput = {
@@ -42785,6 +43031,10 @@ export namespace Prisma {
     activa?: BoolFieldUpdateOperationsInput | boolean
     comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
     codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
+    subZonas?: AkuoZonaUpdateManyWithoutZonaPadreNestedInput
+    zonaPadre?: AkuoZonaUpdateOneWithoutSubZonasNestedInput
   }
 
   export type AkuoZonaUncheckedUpdateWithoutUsuariosInput = {
@@ -42805,6 +43055,10 @@ export namespace Prisma {
     activa?: BoolFieldUpdateOperationsInput | boolean
     comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
     codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    parentZonaId?: NullableStringFieldUpdateOperationsInput | string | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
+    subZonas?: AkuoZonaUncheckedUpdateManyWithoutZonaPadreNestedInput
   }
 
   export type AkuoSesionUpsertWithWhereUniqueWithoutUsuarioInput = {
@@ -50928,6 +51182,116 @@ export namespace Prisma {
     data: AkuoUsuarioCreateManyZonaInput | AkuoUsuarioCreateManyZonaInput[]
   }
 
+  export type AkuoZonaCreateWithoutZonaPadreInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    nombre: string
+    descripcion?: string | null
+    zonaGeoJson: string
+    centroLat?: number | null
+    centroLng?: number | null
+    precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
+    litrosMinimos?: number
+    radioKm?: number | null
+    activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
+    sector?: string | null
+    tipoSector?: string | null
+    usuarios?: AkuoUsuarioCreateNestedManyWithoutZonaInput
+    subZonas?: AkuoZonaCreateNestedManyWithoutZonaPadreInput
+  }
+
+  export type AkuoZonaUncheckedCreateWithoutZonaPadreInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    nombre: string
+    descripcion?: string | null
+    zonaGeoJson: string
+    centroLat?: number | null
+    centroLng?: number | null
+    precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
+    litrosMinimos?: number
+    radioKm?: number | null
+    activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
+    sector?: string | null
+    tipoSector?: string | null
+    usuarios?: AkuoUsuarioUncheckedCreateNestedManyWithoutZonaInput
+    subZonas?: AkuoZonaUncheckedCreateNestedManyWithoutZonaPadreInput
+  }
+
+  export type AkuoZonaCreateOrConnectWithoutZonaPadreInput = {
+    where: AkuoZonaWhereUniqueInput
+    create: XOR<AkuoZonaCreateWithoutZonaPadreInput, AkuoZonaUncheckedCreateWithoutZonaPadreInput>
+  }
+
+  export type AkuoZonaCreateManyZonaPadreInputEnvelope = {
+    data: AkuoZonaCreateManyZonaPadreInput | AkuoZonaCreateManyZonaPadreInput[]
+  }
+
+  export type AkuoZonaCreateWithoutSubZonasInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    nombre: string
+    descripcion?: string | null
+    zonaGeoJson: string
+    centroLat?: number | null
+    centroLng?: number | null
+    precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
+    litrosMinimos?: number
+    radioKm?: number | null
+    activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
+    sector?: string | null
+    tipoSector?: string | null
+    usuarios?: AkuoUsuarioCreateNestedManyWithoutZonaInput
+    zonaPadre?: AkuoZonaCreateNestedOneWithoutSubZonasInput
+  }
+
+  export type AkuoZonaUncheckedCreateWithoutSubZonasInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    nombre: string
+    descripcion?: string | null
+    zonaGeoJson: string
+    centroLat?: number | null
+    centroLng?: number | null
+    precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
+    litrosMinimos?: number
+    radioKm?: number | null
+    activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
+    parentZonaId?: string | null
+    sector?: string | null
+    tipoSector?: string | null
+    usuarios?: AkuoUsuarioUncheckedCreateNestedManyWithoutZonaInput
+  }
+
+  export type AkuoZonaCreateOrConnectWithoutSubZonasInput = {
+    where: AkuoZonaWhereUniqueInput
+    create: XOR<AkuoZonaCreateWithoutSubZonasInput, AkuoZonaUncheckedCreateWithoutSubZonasInput>
+  }
+
   export type AkuoUsuarioUpsertWithWhereUniqueWithoutZonaInput = {
     where: AkuoUsuarioWhereUniqueInput
     update: XOR<AkuoUsuarioUpdateWithoutZonaInput, AkuoUsuarioUncheckedUpdateWithoutZonaInput>
@@ -51038,6 +51402,107 @@ export namespace Prisma {
     mpSubSuspendedPor?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubSuspendedRazon?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpTestUserEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
+  }
+
+  export type AkuoZonaUpsertWithWhereUniqueWithoutZonaPadreInput = {
+    where: AkuoZonaWhereUniqueInput
+    update: XOR<AkuoZonaUpdateWithoutZonaPadreInput, AkuoZonaUncheckedUpdateWithoutZonaPadreInput>
+    create: XOR<AkuoZonaCreateWithoutZonaPadreInput, AkuoZonaUncheckedCreateWithoutZonaPadreInput>
+  }
+
+  export type AkuoZonaUpdateWithWhereUniqueWithoutZonaPadreInput = {
+    where: AkuoZonaWhereUniqueInput
+    data: XOR<AkuoZonaUpdateWithoutZonaPadreInput, AkuoZonaUncheckedUpdateWithoutZonaPadreInput>
+  }
+
+  export type AkuoZonaUpdateManyWithWhereWithoutZonaPadreInput = {
+    where: AkuoZonaScalarWhereInput
+    data: XOR<AkuoZonaUpdateManyMutationInput, AkuoZonaUncheckedUpdateManyWithoutZonaPadreInput>
+  }
+
+  export type AkuoZonaScalarWhereInput = {
+    AND?: AkuoZonaScalarWhereInput | AkuoZonaScalarWhereInput[]
+    OR?: AkuoZonaScalarWhereInput[]
+    NOT?: AkuoZonaScalarWhereInput | AkuoZonaScalarWhereInput[]
+    id?: StringFilter<"AkuoZona"> | string
+    creadoEn?: DateTimeFilter<"AkuoZona"> | Date | string
+    actualizadoEn?: DateTimeFilter<"AkuoZona"> | Date | string
+    nombre?: StringFilter<"AkuoZona"> | string
+    descripcion?: StringNullableFilter<"AkuoZona"> | string | null
+    zonaGeoJson?: StringFilter<"AkuoZona"> | string
+    centroLat?: FloatNullableFilter<"AkuoZona"> | number | null
+    centroLng?: FloatNullableFilter<"AkuoZona"> | number | null
+    precioPorLitro?: FloatFilter<"AkuoZona"> | number
+    precioMinimoPorLitro?: FloatNullableFilter<"AkuoZona"> | number | null
+    precioMinimoTotal?: FloatNullableFilter<"AkuoZona"> | number | null
+    precioMaximoPorLitro?: FloatNullableFilter<"AkuoZona"> | number | null
+    litrosMinimos?: IntFilter<"AkuoZona"> | number
+    radioKm?: FloatNullableFilter<"AkuoZona"> | number | null
+    activa?: BoolFilter<"AkuoZona"> | boolean
+    comunaCode?: StringNullableFilter<"AkuoZona"> | string | null
+    codRegion?: IntNullableFilter<"AkuoZona"> | number | null
+    parentZonaId?: StringNullableFilter<"AkuoZona"> | string | null
+    sector?: StringNullableFilter<"AkuoZona"> | string | null
+    tipoSector?: StringNullableFilter<"AkuoZona"> | string | null
+  }
+
+  export type AkuoZonaUpsertWithoutSubZonasInput = {
+    update: XOR<AkuoZonaUpdateWithoutSubZonasInput, AkuoZonaUncheckedUpdateWithoutSubZonasInput>
+    create: XOR<AkuoZonaCreateWithoutSubZonasInput, AkuoZonaUncheckedCreateWithoutSubZonasInput>
+    where?: AkuoZonaWhereInput
+  }
+
+  export type AkuoZonaUpdateToOneWithWhereWithoutSubZonasInput = {
+    where?: AkuoZonaWhereInput
+    data: XOR<AkuoZonaUpdateWithoutSubZonasInput, AkuoZonaUncheckedUpdateWithoutSubZonasInput>
+  }
+
+  export type AkuoZonaUpdateWithoutSubZonasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    zonaGeoJson?: StringFieldUpdateOperationsInput | string
+    centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    litrosMinimos?: IntFieldUpdateOperationsInput | number
+    radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
+    usuarios?: AkuoUsuarioUpdateManyWithoutZonaNestedInput
+    zonaPadre?: AkuoZonaUpdateOneWithoutSubZonasNestedInput
+  }
+
+  export type AkuoZonaUncheckedUpdateWithoutSubZonasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    zonaGeoJson?: StringFieldUpdateOperationsInput | string
+    centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    litrosMinimos?: IntFieldUpdateOperationsInput | number
+    radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    parentZonaId?: NullableStringFieldUpdateOperationsInput | string | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
+    usuarios?: AkuoUsuarioUncheckedUpdateManyWithoutZonaNestedInput
   }
 
   export type AkuoUsuarioCreateWithoutConversacionesClienteInput = {
@@ -55359,6 +55824,28 @@ export namespace Prisma {
     mpTestUserEmail?: string | null
   }
 
+  export type AkuoZonaCreateManyZonaPadreInput = {
+    id?: string
+    creadoEn?: Date | string
+    actualizadoEn?: Date | string
+    nombre: string
+    descripcion?: string | null
+    zonaGeoJson: string
+    centroLat?: number | null
+    centroLng?: number | null
+    precioPorLitro: number
+    precioMinimoPorLitro?: number | null
+    precioMinimoTotal?: number | null
+    precioMaximoPorLitro?: number | null
+    litrosMinimos?: number
+    radioKm?: number | null
+    activa?: boolean
+    comunaCode?: string | null
+    codRegion?: number | null
+    sector?: string | null
+    tipoSector?: string | null
+  }
+
   export type AkuoUsuarioUpdateWithoutZonaInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -55669,6 +56156,76 @@ export namespace Prisma {
     mpSubSuspendedPor?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubSuspendedRazon?: NullableStringFieldUpdateOperationsInput | string | null
     mpTestUserEmail?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AkuoZonaUpdateWithoutZonaPadreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    zonaGeoJson?: StringFieldUpdateOperationsInput | string
+    centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    litrosMinimos?: IntFieldUpdateOperationsInput | number
+    radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
+    usuarios?: AkuoUsuarioUpdateManyWithoutZonaNestedInput
+    subZonas?: AkuoZonaUpdateManyWithoutZonaPadreNestedInput
+  }
+
+  export type AkuoZonaUncheckedUpdateWithoutZonaPadreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    zonaGeoJson?: StringFieldUpdateOperationsInput | string
+    centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    litrosMinimos?: IntFieldUpdateOperationsInput | number
+    radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
+    usuarios?: AkuoUsuarioUncheckedUpdateManyWithoutZonaNestedInput
+    subZonas?: AkuoZonaUncheckedUpdateManyWithoutZonaPadreNestedInput
+  }
+
+  export type AkuoZonaUncheckedUpdateManyWithoutZonaPadreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    creadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    actualizadoEn?: DateTimeFieldUpdateOperationsInput | Date | string
+    nombre?: StringFieldUpdateOperationsInput | string
+    descripcion?: NullableStringFieldUpdateOperationsInput | string | null
+    zonaGeoJson?: StringFieldUpdateOperationsInput | string
+    centroLat?: NullableFloatFieldUpdateOperationsInput | number | null
+    centroLng?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioPorLitro?: FloatFieldUpdateOperationsInput | number
+    precioMinimoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMinimoTotal?: NullableFloatFieldUpdateOperationsInput | number | null
+    precioMaximoPorLitro?: NullableFloatFieldUpdateOperationsInput | number | null
+    litrosMinimos?: IntFieldUpdateOperationsInput | number
+    radioKm?: NullableFloatFieldUpdateOperationsInput | number | null
+    activa?: BoolFieldUpdateOperationsInput | boolean
+    comunaCode?: NullableStringFieldUpdateOperationsInput | string | null
+    codRegion?: NullableIntFieldUpdateOperationsInput | number | null
+    sector?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoSector?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AkuoMensajeCreateManyConversacionInput = {

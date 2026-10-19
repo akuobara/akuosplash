@@ -473,7 +473,10 @@ exports.Prisma.AkuoZonaScalarFieldEnum = {
   radioKm: 'radioKm',
   activa: 'activa',
   comunaCode: 'comunaCode',
-  codRegion: 'codRegion'
+  codRegion: 'codRegion',
+  parentZonaId: 'parentZonaId',
+  sector: 'sector',
+  tipoSector: 'tipoSector'
 };
 
 exports.Prisma.AkuoConversacionScalarFieldEnum = {

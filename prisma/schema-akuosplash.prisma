@@ -500,11 +500,18 @@ model AkuoZona {
   // --- Para zonas creadas desde el selector de comunas ---
   comunaCode      String?  // código único de la comuna (4 dígitos)
   codRegion       Int?     // código de la región (1-16)
+  // --- Sub-zonas dentro de una comuna (sectores urbanos/rurales) ---
+  parentZonaId   String?  // ID de la zona padre (la comuna). Null = zona top-level
+  sector          String?  // nombre del sector/localidad (ej: "Pan de Azúcar", "Cruz de Caña")
+  tipoSector      String?  // "urbano" | "rural" — tipo de zona
   // Relación con clientes asignados a esta zona
   usuarios        AkuoUsuario[]
+  subZonas        AkuoZona[] @relation("SubZonasDe")
+  zonaPadre       AkuoZona?  @relation("SubZonasDe", fields: [parentZonaId], references: [id])
   @@index([activa])
   @@index([comunaCode])
   @@index([codRegion])
+  @@index([parentZonaId])
 }
 
 model AkuoConversacion {

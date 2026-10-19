@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, ChevronRight, Map as MapIcon, List, CheckCircle2, Circle, MapPin } from "lucide-react";
+import { Loader2, Search, ChevronRight, Map as MapIcon, List, CheckCircle2, Circle, MapPin, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { akuoGet, akuoApi, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 
@@ -21,6 +21,19 @@ interface ZonaInfo {
   radioKm: number | null;
 }
 
+interface SubZona {
+  id: string;
+  nombre: string;
+  sector: string;
+  tipoSector: string;
+  activa: boolean;
+  centroLat: number | null;
+  centroLng: number | null;
+  radioKm: number | null;
+  precioPorLitro: number;
+  litrosMinimos: number;
+}
+
 interface Comuna {
   codComuna: string;
   nombre: string;
@@ -31,6 +44,7 @@ interface Comuna {
   centroidLng: number;
   poligonoUrl: string;
   zona: ZonaInfo | null;
+  subZonas: SubZona[];
 }
 
 interface Region {
@@ -65,6 +79,18 @@ export function RegionesComunasTab() {
     litrosMinimos: 1000,
   });
   const [saving, setSaving] = useState(false);
+  // Sub-zona creation
+  const [creatingSubZona, setCreatingSubZona] = useState<Comuna | null>(null);
+  const [subForm, setSubForm] = useState({
+    sector: "",
+    tipoSector: "urbano" as "urbano" | "rural",
+    centroLat: "" as number | "",
+    centroLng: "" as number | "",
+    radioKm: 5 as number | "",
+    precioPorLitro: "" as number | "",
+    litrosMinimos: "" as number | "",
+  });
+  const [savingSub, setSavingSub] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -136,6 +162,47 @@ export function RegionesComunasTab() {
       cargar();
     } catch (e: any) {
       toast.error(e?.message || "No se pudo desactivar");
+    }
+  }
+
+  function abrirCrearSubZona(c: Comuna) {
+    setCreatingSubZona(c);
+    setSubForm({
+      sector: "",
+      tipoSector: "urbano",
+      centroLat: c.centroidLat,
+      centroLng: c.centroidLng,
+      radioKm: 5,
+      precioPorLitro: c.zona?.precioPorLitro ?? "",
+      litrosMinimos: c.zona?.litrosMinimos ?? "",
+    });
+  }
+
+  async function crearSubZona() {
+    if (!creatingSubZona) return;
+    if (!subForm.sector.trim()) { toast.error("Nombre del sector obligatorio"); return; }
+    if (subForm.centroLat === "" || subForm.centroLng === "") { toast.error("Centroide obligatorio"); return; }
+    setSavingSub(true);
+    try {
+      await akuoApi(`/api/akuosplash/admin/regiones-comunas/${creatingSubZona.codComuna}/sub-zonas`, {
+        method: "POST",
+        body: JSON.stringify({
+          sector: subForm.sector.trim(),
+          tipoSector: subForm.tipoSector,
+          centroLat: Number(subForm.centroLat),
+          centroLng: Number(subForm.centroLng),
+          radioKm: Number(subForm.radioKm) || 5,
+          precioPorLitro: subForm.precioPorLitro === "" ? undefined : Number(subForm.precioPorLitro),
+          litrosMinimos: subForm.litrosMinimos === "" ? undefined : Number(subForm.litrosMinimos),
+        }),
+      });
+      toast.success(`Sub-zona "${subForm.sector}" creada en ${creatingSubZona.nombre}`);
+      setCreatingSubZona(null);
+      cargar();
+    } catch (e: any) {
+      toast.error(e?.message || "No se pudo crear");
+    } finally {
+      setSavingSub(false);
     }
   }
 
@@ -211,41 +278,73 @@ export function RegionesComunasTab() {
                     {isExpanded && (
                       <div className="mt-2 space-y-1 pl-6">
                         {cs.map(c => (
-                          <div key={c.codComuna} className="flex items-center justify-between gap-2 rounded-md hover:bg-muted/50 px-2 py-1.5">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              {c.zona?.activa ? (
-                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                              ) : c.zona ? (
-                                <Circle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
-                              ) : (
-                                <Circle className="h-3.5 w-3.5 text-gray-300 shrink-0" />
-                              )}
-                              <span className="text-sm">{c.nombre}</span>
-                              <span className="text-[10px] text-muted-foreground truncate">{c.provincia}</span>
-                            </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              {c.zona?.precioPorLitro != null && (
-                                <span className="text-xs tabular-nums text-muted-foreground">${c.zona.precioPorLitro}/L</span>
-                              )}
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 text-xs"
-                                onClick={() => abrirEditar(c)}
-                              >
-                                {c.zona ? "Editar" : "Activar"}
-                              </Button>
-                              {c.zona && (
+                          <div key={c.codComuna} className="rounded-md hover:bg-muted/50 px-2 py-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                {c.zona?.activa ? (
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                                ) : c.zona ? (
+                                  <Circle className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                                ) : (
+                                  <Circle className="h-3.5 w-3.5 text-gray-300 shrink-0" />
+                                )}
+                                <span className="text-sm">{c.nombre}</span>
+                                <span className="text-[10px] text-muted-foreground truncate">{c.provincia}</span>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {c.zona?.precioPorLitro != null && (
+                                  <span className="text-xs tabular-nums text-muted-foreground">${c.zona.precioPorLitro}/L</span>
+                                )}
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="h-7 text-xs text-red-600"
-                                  onClick={() => desactivar(c)}
+                                  className="h-7 text-xs"
+                                  onClick={() => abrirEditar(c)}
                                 >
-                                  Desactivar
+                                  {c.zona ? "Editar" : "Activar"}
                                 </Button>
-                              )}
+                                {c.zona && (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 text-xs"
+                                      onClick={() => abrirCrearSubZona(c)}
+                                    >
+                                      <Plus className="h-3 w-3 mr-0.5" /> Sub-zona
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 text-xs text-red-600"
+                                      onClick={() => desactivar(c)}
+                                    >
+                                      Desactivar
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
                             </div>
+                            {/* Sub-zonas de esta comuna */}
+                            {c.subZonas && c.subZonas.length > 0 && (
+                              <div className="mt-1 ml-5 space-y-0.5 border-l border-gray-200 pl-3">
+                                {c.subZonas.map(sz => (
+                                  <div key={sz.id} className="flex items-center gap-2 text-xs py-0.5">
+                                    <span className={`inline-block w-1.5 h-1.5 rounded-full ${sz.activa ? "bg-emerald-500" : "bg-gray-300"}`} />
+                                    <span>{sz.sector || sz.nombre}</span>
+                                    <Badge variant="outline" className={`text-[9px] ${sz.tipoSector === "urbano" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
+                                      {sz.tipoSector}
+                                    </Badge>
+                                    {sz.precioPorLitro != null && (
+                                      <span className="text-[10px] text-muted-foreground">${sz.precioPorLitro}/L</span>
+                                    )}
+                                    {sz.radioKm && (
+                                      <span className="text-[10px] text-muted-foreground">{sz.radioKm}km</span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -323,6 +422,72 @@ export function RegionesComunasTab() {
                 <Button size="sm" onClick={guardar} disabled={saving}>
                   {saving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
                   {editing.zona ? "Guardar cambios" : "Crear zona"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Modal crear sub-zona */}
+      {creatingSubZona && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setCreatingSubZona(null)}>
+          <Card className="max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <CardContent className="p-4 space-y-3">
+              <div>
+                <h3 className="font-bold text-base">Nueva sub-zona en {creatingSubZona.nombre}</h3>
+                <p className="text-xs text-muted-foreground">{creatingSubZona.region} · {creatingSubZona.provincia}</p>
+              </div>
+              <p className="text-xs text-muted-foreground bg-blue-50 border border-blue-200 rounded p-2">
+                Las sub-zonas son sectores dentro de una comuna (urbanos o rurales) con su propio precio y cobertura. Ejemplos: "Pan de Azúcar" (urbano), "Cruz de Caña" (rural).
+              </p>
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-xs">Nombre del sector *</Label>
+                  <Input value={subForm.sector} onChange={(e) => setSubForm({ ...subForm, sector: e.target.value })} placeholder="Ej: Pan de Azúcar" className="h-8" />
+                </div>
+                <div>
+                  <Label className="text-xs">Tipo de sector</Label>
+                  <select
+                    value={subForm.tipoSector}
+                    onChange={(e) => setSubForm({ ...subForm, tipoSector: e.target.value as any })}
+                    className="w-full h-8 rounded-md border bg-background px-2 text-sm"
+                  >
+                    <option value="urbano">🏙️ Urbano (zona de vivienda/pueblo)</option>
+                    <option value="rural">🌾 Rural (campo, sectores alejados)</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Latitud</Label>
+                    <Input type="number" step="any" value={subForm.centroLat} onChange={(e) => setSubForm({ ...subForm, centroLat: e.target.value === "" ? "" : Number(e.target.value) })} className="h-8" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Longitud</Label>
+                    <Input type="number" step="any" value={subForm.centroLng} onChange={(e) => setSubForm({ ...subForm, centroLng: e.target.value === "" ? "" : Number(e.target.value) })} className="h-8" />
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground">Centroide pre-llenado con el de la comuna. Ajustalo al centro del sector.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <Label className="text-xs">Radio (km)</Label>
+                    <Input type="number" step="any" value={subForm.radioKm} onChange={(e) => setSubForm({ ...subForm, radioKm: e.target.value === "" ? "" : Number(e.target.value) })} className="h-8" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Precio/L (override)</Label>
+                    <Input type="number" value={subForm.precioPorLitro} onChange={(e) => setSubForm({ ...subForm, precioPorLitro: e.target.value === "" ? "" : Number(e.target.value) })} placeholder="Hereda" className="h-8" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Litros mín.</Label>
+                    <Input type="number" value={subForm.litrosMinimos} onChange={(e) => setSubForm({ ...subForm, litrosMinimos: e.target.value === "" ? "" : Number(e.target.value) })} placeholder="Hereda" className="h-8" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setCreatingSubZona(null)}>Cancelar</Button>
+                <Button size="sm" onClick={crearSubZona} disabled={savingSub}>
+                  {savingSub ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
+                  Crear sub-zona
                 </Button>
               </div>
             </CardContent>
