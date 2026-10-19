@@ -335,41 +335,92 @@ export function RegionesComunasTab() {
 
 // === MapView — lazy-load Leaflet ===
 function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) => void }) {
-  const [Map, setMap] = useState<any>(null);
+  const [MapLib, setMapLib] = useState<any>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+    // Cargar CSS de Leaflet primero
+    if (!document.querySelector('link[href*="leaflet.css"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(link);
+    }
+    // Importar react-leaflet dinámicamente
     import("react-leaflet").then(mod => {
-      setMap(() => mod);
+      if (cancelled) return;
+      // Fix Leaflet default icon paths (issue #4968 — bundlers no resuelven los paths relativos)
+      import("leaflet").then((L: any) => {
+        if (cancelled) return;
+        delete (L.Icon.Default.prototype as any)._getIconUrl;
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+          iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+          shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        });
+        setMapLib(mod);
+        setReady(true);
+      });
+    }).catch(e => {
+      console.error("[MapView] error loading react-leaflet:", e);
     });
+    return () => { cancelled = true; };
   }, []);
 
-  if (!Map) {
+  if (!ready || !MapLib) {
     return <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
+  const { MapContainer, TileLayer, Marker, Popup, CircleMarker } = MapLib;
+
   // Chile centroid aproximado
   const chileCenter: [number, number] = [-33.45, -70.66];
-  const zoom = 5;
+
+  // Filtrar comunas con coordenadas válidas (evita "Cannot read properties of null")
+  const comunasValidas = comunas.filter(c =>
+    c.centroidLat != null && c.centroidLng != null &&
+    !isNaN(c.centroidLat) && !isNaN(c.centroidLng)
+  );
 
   return (
-    <Map.MapContainer center={chileCenter} zoom={zoom} style={{ height: "100%", width: "100%" }}>
-      <Map.TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      {comunas.slice(0, 200).map(c => (
-        <Map.Marker
-          key={c.codComuna}
-          position={[c.centroidLat, c.centroidLng]}
-          eventHandlers={{ click: () => onEdit(c) }}
-        >
-          <Map.Popup>
-            <div>
-              <p className="font-medium">{c.nombre}</p>
-              <p className="text-xs">{c.region}</p>
-              {c.zona?.activa && <p className="text-xs text-emerald-600">✓ Activa · ${c.zona.precioPorLitro}/L</p>}
-              {!c.zona && <p className="text-xs text-gray-500">No configurada — click para activar</p>}
-            </div>
-          </Map.Popup>
-        </Map.Marker>
-      ))}
-    </Map.MapContainer>
+    <MapContainer center={chileCenter} zoom={5} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; OpenStreetMap'
+      />
+      {comunasValidas.slice(0, 200).map(c => {
+        // Usar CircleMarker (no necesita icono externo — más confiable que Marker)
+        const center: [number, number] = [c.centroidLat, c.centroidLng];
+        const isActive = c.zona?.activa;
+        return (
+          <CircleMarker
+            key={c.codComuna}
+            center={center}
+            radius={isActive ? 8 : 5}
+            pathOptions={{
+              color: isActive ? "#059669" : "#9ca3af",
+              fillColor: isActive ? "#10b981" : "#d1d5db",
+              fillOpacity: isActive ? 0.8 : 0.4,
+            }}
+            eventHandlers={{ click: () => onEdit(c) }}
+          >
+            <Popup>
+              <div style={{ minWidth: 150 }}>
+                <p style={{ fontWeight: 600, margin: 0 }}>{c.nombre}</p>
+                <p style={{ fontSize: 11, color: "#666", margin: "2px 0" }}>{c.region}</p>
+                {c.zona?.activa ? (
+                  <p style={{ fontSize: 11, color: "#059669", margin: "4px 0 0" }}>✓ Activa · ${c.zona.precioPorLitro}/L</p>
+                ) : c.zona ? (
+                  <p style={{ fontSize: 11, color: "#d97706", margin: "4px 0 0" }}>○ Inactiva</p>
+                ) : (
+                  <p style={{ fontSize: 11, color: "#999", margin: "4px 0 0" }}>No configurada — click para activar</p>
+                )}
+              </div>
+            </Popup>
+          </CircleMarker>
+        );
+      })}
+    </MapContainer>
   );
 }
