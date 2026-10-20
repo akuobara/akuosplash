@@ -622,18 +622,13 @@ function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) =
         {/* Polígonos de comunas (con delimitación visible) */}
         {Object.entries(geoData).map(([regionNumStr, geoJson]) => {
           const regionNum = parseInt(regionNumStr);
-          // Filtrar features del GeoJSON por las comunas que tenemos
           const features = (geoJson as any).features || [];
           const filteredFeatures = features.filter((f: any) => {
             const codComuna = String(f.properties?.cod_comuna || "");
             return comunasByCode[codComuna];
           });
-
           if (filteredFeatures.length === 0) return null;
-
-          // Crear un FeatureCollection filtrado
           const filteredGeo = { type: "FeatureCollection", features: filteredFeatures };
-
           return (
             <GeoJSON
               key={`region-${regionNum}`}
@@ -644,10 +639,10 @@ function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) =
                 const isActive = comuna?.zona?.activa;
                 const isConfigured = !!comuna?.zona;
                 return {
-                  color: isActive ? "#059669" : isConfigured ? "#f59e0b" : "#9ca3af",
-                  weight: isActive ? 2 : 1,
-                  fillColor: isActive ? "#10b981" : isConfigured ? "#fbbf24" : "#e5e7eb",
-                  fillOpacity: isActive ? 0.3 : isConfigured ? 0.2 : 0.1,
+                  color: isActive ? "#059669" : isConfigured ? "#f59e0b" : "#6b7280",
+                  weight: isActive ? 3 : 2,
+                  fillColor: isActive ? "#10b981" : isConfigured ? "#fbbf24" : "#d1d5db",
+                  fillOpacity: isActive ? 0.4 : isConfigured ? 0.3 : 0.15,
                 };
               }}
               eventHandlers={{
@@ -689,32 +684,35 @@ function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) =
           );
         })}
 
-        {/* Círculos de sub-zonas (cobertura visible) */}
+        {/* Círculos de sub-zonas (cobertura visible con radio real) */}
         {comunasValidas.flatMap(c =>
           (c.subZonas || []).filter(sz =>
             sz.centroLat != null && sz.centroLng != null &&
             !isNaN(sz.centroLat) && !isNaN(sz.centroLng)
           ).map(sz => {
             const center: [number, number] = [sz.centroLat!, sz.centroLng!];
-            const radiusM = (sz.radioKm || 5) * 1000; // km → metros
+            const radiusM = (sz.radioKm || 5) * 1000;
             const isActive = sz.activa;
+            const isUrbano = sz.tipoSector === "urbano";
             return (
               <Circle
                 key={sz.id}
                 center={center}
                 radius={radiusM}
                 pathOptions={{
-                  color: isActive ? "#2563eb" : "#cbd5e1",
-                  weight: 1,
-                  fillColor: isActive ? "#3b82f6" : "#e2e8f0",
-                  fillOpacity: isActive ? 0.2 : 0.1,
-                  dashArray: "3 3",
+                  color: isActive ? (isUrbano ? "#2563eb" : "#d97706") : "#94a3b8",
+                  weight: isActive ? 2 : 1,
+                  fillColor: isActive ? (isUrbano ? "#3b82f6" : "#f59e0b") : "#cbd5e1",
+                  fillOpacity: isActive ? 0.35 : 0.12,
+                  dashArray: isActive ? undefined : "4 4",
                 }}
               >
-                <Tooltip>
+                <Tooltip sticky>
                   <span style={{ fontSize: 11 }}>
-                    {sz.sector || sz.nombre} ({sz.tipoSector})
+                    {sz.sector || sz.nombre} ({isUrbano ? "🏙️ urbano" : "🌾 rural"})
+                    {sz.activa ? " ✓" : ""}
                     {sz.precioPorLitro != null && ` · $${sz.precioPorLitro}/L`}
+                    {sz.radioKm && ` · ${sz.radioKm}km`}
                   </span>
                 </Tooltip>
               </Circle>
@@ -722,20 +720,21 @@ function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) =
           })
         )}
 
-        {/* Markers de comunas (centroides para click rápido) */}
-        {comunasValidas.slice(0, 200).map(c => {
+        {/* Círculos de cobertura de comunas (fallback cuando no hay polígonos) */}
+        {comunasValidas.filter(c => !geoData[c.codRegion]).map(c => {
           const center: [number, number] = [c.centroidLat, c.centroidLng];
+          const radiusM = (c.zona?.radioKm || 15) * 1000;
           const isActive = c.zona?.activa;
-          const { CircleMarker } = MapLib;
           return (
-            <CircleMarker
-              key={`marker-${c.codComuna}`}
+            <Circle
+              key={`comuna-circle-${c.codComuna}`}
               center={center}
-              radius={isActive ? 5 : 3}
+              radius={radiusM}
               pathOptions={{
                 color: isActive ? "#059669" : "#9ca3af",
-                fillColor: isActive ? "#10b981" : "#d1d5db",
-                fillOpacity: 0.9,
+                weight: isActive ? 2 : 1,
+                fillColor: isActive ? "#10b981" : "#e5e7eb",
+                fillOpacity: isActive ? 0.2 : 0.08,
               }}
               eventHandlers={{ click: () => onEdit(c) }}
             />
