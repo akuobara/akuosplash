@@ -49,16 +49,22 @@ export async function GET(req: NextRequest) {
   }
 
   // Indexar zonas por nombre (que coincide con el nombre de la comuna)
+  // IMPORTANTE: solo indexar ZONAS PADRE (sin parentZonaId) en zonaByCode/zonaByNombre.
+  // Las sub-zonas comparten el mismo comunaCode que su padre, y si las indexamos también,
+  // sobrescriben al padre y luego no se encuentran las sub-zonas.
   const zonaByNombre: Record<string, any> = {};
   const zonaByCode: Record<string, any> = {};
   // Indexar sub-zonas por parentZonaId
   const subZonasByParent: Record<string, any[]> = {};
   for (const z of zonas) {
-    zonaByNombre[(z.nombre || "").toLowerCase()] = z;
-    if (z.comunaCode) zonaByCode[z.comunaCode] = z;
     if (z.parentZonaId) {
+      // Es una sub-zona — solo indexar en subZonasByParent
       if (!subZonasByParent[z.parentZonaId]) subZonasByParent[z.parentZonaId] = [];
       subZonasByParent[z.parentZonaId].push(z);
+    } else {
+      // Es una zona padre — indexar en zonaByCode y zonaByNombre
+      zonaByNombre[(z.nombre || "").toLowerCase()] = z;
+      if (z.comunaCode) zonaByCode[z.comunaCode] = z;
     }
   }
 
