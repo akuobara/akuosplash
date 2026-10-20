@@ -527,24 +527,23 @@ export function RegionesComunasTab() {
   );
 }
 
-// === MapView — lazy-load Leaflet ===
+// === MapView — lazy-load Leaflet con polígonos de comunas + sub-zonas ===
 function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) => void }) {
   const [MapLib, setMapLib] = useState<any>(null);
   const [ready, setReady] = useState(false);
+  const [geoData, setGeoData] = useState<Record<number, any>>({}); // regionNum → GeoJSON
+  const [loadingGeo, setLoadingGeo] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    // Cargar CSS de Leaflet primero
     if (!document.querySelector('link[href*="leaflet.css"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
       document.head.appendChild(link);
     }
-    // Importar react-leaflet dinámicamente
     import("react-leaflet").then(mod => {
       if (cancelled) return;
-      // Fix Leaflet default icon paths (issue #4968 — bundlers no resuelven los paths relativos)
       import("leaflet").then((L: any) => {
         if (cancelled) return;
         delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -556,65 +555,219 @@ function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) =
         setMapLib(mod);
         setReady(true);
       });
-    }).catch(e => {
-      console.error("[MapView] error loading react-leaflet:", e);
-    });
+    }).catch(e => console.error("[MapView] error:", e));
     return () => { cancelled = true; };
   }, []);
+
+  // Cargar GeoJSON de regiones que tienen comunas activas o visibles
+  useEffect(() => {
+    if (!ready) return;
+    const regionsNeeded = new Set<number>();
+    for (const c of comunas) {
+      if (c.centroidLat != null) regionsNeeded.add(c.codRegion);
+    }
+    // Solo cargar regiones que no están ya cargadas
+    const toLoad = [...regionsNeeded].filter(r => !geoData[r]);
+    if (toLoad.length === 0) return;
+    setLoadingGeo(true);
+    Promise.all(toLoad.map(async (regionNum) => {
+      try {
+        const res = await fetch(`https://raw.githubusercontent.com/caracena/chile-geojson/master/${regionNum}.geojson`);
+        if (res.ok) {
+          const data = await res.json();
+          return { regionNum, data };
+        }
+      } catch (e) { console.error("[MapView] error loading region", regionNum, e); }
+      return null;
+    })).then(results => {
+      setGeoData(prev => {
+        const next = { ...prev };
+        for (const r of results) {
+          if (r) next[r.regionNum] = r.data;
+        }
+        return next;
+      });
+      setLoadingGeo(false);
+    });
+  }, [ready, comunas, geoData]);
 
   if (!ready || !MapLib) {
     return <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
-  const { MapContainer, TileLayer, Marker, Popup, CircleMarker } = MapLib;
+  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip } = MapLib;
 
-  // Chile centroid aproximado
   const chileCenter: [number, number] = [-33.45, -70.66];
 
-  // Filtrar comunas con coordenadas válidas (evita "Cannot read properties of null")
+  // Indexar comunas por código para buscar rápido al renderizar polígonos
+  const comunasByCode: Record<string, Comuna> = {};
+  for (const c of comunas) {
+    comunasByCode[String(c.codComuna)] = c;
+  }
+
+  // Filtrar comunas con coordenadas válidas
   const comunasValidas = comunas.filter(c =>
     c.centroidLat != null && c.centroidLng != null &&
     !isNaN(c.centroidLat) && !isNaN(c.centroidLng)
   );
 
   return (
-    <MapContainer center={chileCenter} zoom={5} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; OpenStreetMap'
-      />
-      {comunasValidas.slice(0, 200).map(c => {
-        // Usar CircleMarker (no necesita icono externo — más confiable que Marker)
-        const center: [number, number] = [c.centroidLat, c.centroidLng];
-        const isActive = c.zona?.activa;
-        return (
-          <CircleMarker
-            key={c.codComuna}
-            center={center}
-            radius={isActive ? 8 : 5}
-            pathOptions={{
-              color: isActive ? "#059669" : "#9ca3af",
-              fillColor: isActive ? "#10b981" : "#d1d5db",
-              fillOpacity: isActive ? 0.8 : 0.4,
-            }}
-            eventHandlers={{ click: () => onEdit(c) }}
-          >
-            <Popup>
-              <div style={{ minWidth: 150 }}>
-                <p style={{ fontWeight: 600, margin: 0 }}>{c.nombre}</p>
-                <p style={{ fontSize: 11, color: "#666", margin: "2px 0" }}>{c.region}</p>
-                {c.zona?.activa ? (
-                  <p style={{ fontSize: 11, color: "#059669", margin: "4px 0 0" }}>✓ Activa · ${c.zona.precioPorLitro}/L</p>
-                ) : c.zona ? (
-                  <p style={{ fontSize: 11, color: "#d97706", margin: "4px 0 0" }}>○ Inactiva</p>
-                ) : (
-                  <p style={{ fontSize: 11, color: "#999", margin: "4px 0 0" }}>No configurada — click para activar</p>
-                )}
-              </div>
-            </Popup>
-          </CircleMarker>
-        );
-      })}
-    </MapContainer>
+    <>
+      <MapContainer center={chileCenter} zoom={5} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; OpenStreetMap'
+        />
+
+        {/* Polígonos de comunas (con delimitación visible) */}
+        {Object.entries(geoData).map(([regionNumStr, geoJson]) => {
+          const regionNum = parseInt(regionNumStr);
+          // Filtrar features del GeoJSON por las comunas que tenemos
+          const features = (geoJson as any).features || [];
+          const filteredFeatures = features.filter((f: any) => {
+            const codComuna = String(f.properties?.cod_comuna || "");
+            return comunasByCode[codComuna];
+          });
+
+          if (filteredFeatures.length === 0) return null;
+
+          // Crear un FeatureCollection filtrado
+          const filteredGeo = { type: "FeatureCollection", features: filteredFeatures };
+
+          return (
+            <GeoJSON
+              key={`region-${regionNum}`}
+              data={filteredGeo}
+              style={(feature: any) => {
+                const codComuna = String(feature?.properties?.cod_comuna || "");
+                const comuna = comunasByCode[codComuna];
+                const isActive = comuna?.zona?.activa;
+                const isConfigured = !!comuna?.zona;
+                return {
+                  color: isActive ? "#059669" : isConfigured ? "#f59e0b" : "#9ca3af",
+                  weight: isActive ? 2 : 1,
+                  fillColor: isActive ? "#10b981" : isConfigured ? "#fbbf24" : "#e5e7eb",
+                  fillOpacity: isActive ? 0.3 : isConfigured ? 0.2 : 0.1,
+                };
+              }}
+              eventHandlers={{
+                click: (e: any) => {
+                  const layer = e.layer || e.target;
+                  const feature = layer?.feature;
+                  if (feature) {
+                    const codComuna = String(feature.properties?.cod_comuna || "");
+                    const comuna = comunasByCode[codComuna];
+                    if (comuna) onEdit(comuna);
+                  }
+                }
+              }}
+            >
+              {filteredFeatures.map((f: any) => {
+                const codComuna = String(f.properties?.cod_comuna || "");
+                const comuna = comunasByCode[codComuna];
+                if (!comuna) return null;
+                return (
+                  <Popup key={codComuna}>
+                    <div style={{ minWidth: 160 }}>
+                      <p style={{ fontWeight: 700, margin: 0, fontSize: 13 }}>{comuna.nombre}</p>
+                      <p style={{ fontSize: 10, color: "#666", margin: "2px 0" }}>{comuna.region}</p>
+                      {comuna.zona?.activa ? (
+                        <p style={{ fontSize: 11, color: "#059669", margin: "4px 0 0" }}>✓ Activa · ${comuna.zona.precioPorLitro}/L</p>
+                      ) : comuna.zona ? (
+                        <p style={{ fontSize: 11, color: "#d97706", margin: "4px 0 0" }}>○ Configurada (inactiva)</p>
+                      ) : (
+                        <p style={{ fontSize: 11, color: "#999", margin: "4px 0 0" }}>No configurada — click para activar</p>
+                      )}
+                      {comuna.subZonas && comuna.subZonas.length > 0 && (
+                        <p style={{ fontSize: 10, color: "#3b82f6", margin: "2px 0 0" }}>📍 {comuna.subZonas.length} sub-zonas</p>
+                      )}
+                    </div>
+                  </Popup>
+                );
+              })}
+            </GeoJSON>
+          );
+        })}
+
+        {/* Círculos de sub-zonas (cobertura visible) */}
+        {comunasValidas.flatMap(c =>
+          (c.subZonas || []).filter(sz =>
+            sz.centroLat != null && sz.centroLng != null &&
+            !isNaN(sz.centroLat) && !isNaN(sz.centroLng)
+          ).map(sz => {
+            const center: [number, number] = [sz.centroLat!, sz.centroLng!];
+            const radiusM = (sz.radioKm || 5) * 1000; // km → metros
+            const isActive = sz.activa;
+            return (
+              <Circle
+                key={sz.id}
+                center={center}
+                radius={radiusM}
+                pathOptions={{
+                  color: isActive ? "#2563eb" : "#cbd5e1",
+                  weight: 1,
+                  fillColor: isActive ? "#3b82f6" : "#e2e8f0",
+                  fillOpacity: isActive ? 0.2 : 0.1,
+                  dashArray: "3 3",
+                }}
+              >
+                <Tooltip>
+                  <span style={{ fontSize: 11 }}>
+                    {sz.sector || sz.nombre} ({sz.tipoSector})
+                    {sz.precioPorLitro != null && ` · $${sz.precioPorLitro}/L`}
+                  </span>
+                </Tooltip>
+              </Circle>
+            );
+          })
+        )}
+
+        {/* Markers de comunas (centroides para click rápido) */}
+        {comunasValidas.slice(0, 200).map(c => {
+          const center: [number, number] = [c.centroidLat, c.centroidLng];
+          const isActive = c.zona?.activa;
+          const { CircleMarker } = MapLib;
+          return (
+            <CircleMarker
+              key={`marker-${c.codComuna}`}
+              center={center}
+              radius={isActive ? 5 : 3}
+              pathOptions={{
+                color: isActive ? "#059669" : "#9ca3af",
+                fillColor: isActive ? "#10b981" : "#d1d5db",
+                fillOpacity: 0.9,
+              }}
+              eventHandlers={{ click: () => onEdit(c) }}
+            />
+          );
+        })}
+      </MapContainer>
+
+      {/* Leyenda (fuera del mapa) */}
+      <div className="absolute bottom-2 right-2 bg-white rounded-md shadow-md border p-2 text-[10px] z-[1000]">
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="inline-block w-3 h-3 rounded bg-emerald-500 border border-emerald-700" />
+          <span>Activa</span>
+        </div>
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="inline-block w-3 h-3 rounded bg-amber-400 border border-amber-600" />
+          <span>Configurada (inactiva)</span>
+        </div>
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="inline-block w-3 h-3 rounded bg-gray-300 border border-gray-500" />
+          <span>No configurada</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-3 rounded-full border border-blue-500 border-dashed" style={{ background: "rgba(59,130,246,0.2)" }} />
+          <span>Sub-zona activa</span>
+        </div>
+      </div>
+
+      {loadingGeo && (
+        <div className="absolute top-2 right-2 bg-white rounded-md shadow-md border p-1.5 text-[10px] z-[1000] flex items-center gap-1">
+          <Loader2 className="h-3 w-3 animate-spin" /> Cargando polígonos...
+        </div>
+      )}
+    </>
   );
 }
