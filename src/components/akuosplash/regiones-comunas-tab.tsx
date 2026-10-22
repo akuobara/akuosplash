@@ -591,8 +591,9 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
 }) {
   const [MapLib, setMapLib] = useState<any>(null);
   const [ready, setReady] = useState(false);
-  const [geoData, setGeoData] = useState<Record<number, any>>({}); // regionNum → GeoJSON
+  const [geoData, setGeoData] = useState<Record<number, any>>({});
   const [loadingGeo, setLoadingGeo] = useState(false);
+  const [mapInstance, setMapInstance] = useState<any>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -651,16 +652,8 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
     });
   }, [ready, comunas, geoData]);
 
-  if (!ready || !MapLib) {
-    return <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin" /></div>;
-  }
-
-  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip } = MapLib;
-
-  // Guardar la instancia del mapa para registrar click handlers
-  const [mapInstance, setMapInstance] = useState<any>(null);
-
   // Registrar click handler cuando cambia mapCreateMode
+  // Debe estar ANTES del early return (Rules of Hooks)
   useEffect(() => {
     if (!mapInstance) return;
     const handler = (e: any) => {
@@ -669,12 +662,17 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
       }
     };
     mapInstance.on("click", handler);
-    // Cambiar cursor
     mapInstance.getContainer().style.cursor = mapCreateMode ? "crosshair" : "";
     return () => {
       mapInstance.off("click", handler);
     };
   }, [mapInstance, mapCreateMode, onMapClick]);
+
+  if (!ready || !MapLib) {
+    return <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  }
+
+  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip } = MapLib;
 
   const chileCenter: [number, number] = [-33.45, -70.66];
 
