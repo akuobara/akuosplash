@@ -91,6 +91,8 @@ export function RegionesComunasTab() {
     litrosMinimos: "" as number | "",
   });
   const [savingSub, setSavingSub] = useState(false);
+  // Map click mode — user clicks on map to set sub-zona centroid
+  const [mapCreateMode, setMapCreateMode] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -176,6 +178,14 @@ export function RegionesComunasTab() {
       precioPorLitro: c.zona?.precioPorLitro ?? "",
       litrosMinimos: c.zona?.litrosMinimos ?? "",
     });
+    setMapCreateMode(false);
+  }
+
+  // Cuando el usuario hace click en el mapa en modo "crear", setear lat/lng del form
+  function handleMapClick(lat: number, lng: number) {
+    setSubForm(prev => ({ ...prev, centroLat: lat, centroLng: lng }));
+    setMapCreateMode(false);
+    toast.success(`Ubicación seleccionada: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
   }
 
   async function crearSubZona() {
@@ -390,11 +400,26 @@ export function RegionesComunasTab() {
       {vista === "mapa" && (
         <Card>
           <CardContent className="p-3">
+            {/* Banner de modo crear */}
+            {mapCreateMode && (
+              <div className="mb-2 rounded-md bg-blue-50 border border-blue-300 p-2 text-xs text-blue-900 flex items-center justify-between">
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 animate-pulse" />
+                  Hacé click en el mapa donde querés crear la sub-zona "{subForm.sector || "(sin nombre)"}"
+                </span>
+                <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setMapCreateMode(false)}>Cancelar</Button>
+              </div>
+            )}
             <div className="h-[600px] rounded-lg overflow-hidden border">
-              <MapView comunas={comunasFiltradas} onEdit={abrirEditar} />
+              <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Click en una comuna para editarla. Las comunas verdes están activas, las grises no están configuradas.
+              Click en una comuna (polígono) para editarla. Las comunas verdes están activas, las grises no están configuradas.
+              {creatingSubZona && !mapCreateMode && (
+                <button onClick={() => setMapCreateMode(true)} className="ml-2 text-blue-600 hover:underline font-medium">
+                  📍 Seleccionar ubicación en el mapa
+                </button>
+              )}
             </p>
           </CardContent>
         </Card>
@@ -496,7 +521,14 @@ export function RegionesComunasTab() {
                     <Input type="number" step="any" value={subForm.centroLng} onChange={(e) => setSubForm({ ...subForm, centroLng: e.target.value === "" ? "" : Number(e.target.value) })} className="h-8" />
                   </div>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Centroide pre-llenado con el de la comuna. Ajustalo al centro del sector.</p>
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs flex-1" onClick={() => { setVista("mapa"); setMapCreateMode(true); }}>
+                    <MapPin className="h-3 w-3 mr-1" /> Seleccionar en mapa
+                  </Button>
+                </div>
+                {subForm.centroLat !== "" && subForm.centroLng !== "" && (
+                  <p className="text-[10px] text-emerald-600">✓ Ubicación: {Number(subForm.centroLat).toFixed(4)}, {Number(subForm.centroLng).toFixed(4)}</p>
+                )}
                 <div className="grid grid-cols-3 gap-2">
                   <div>
                     <Label className="text-xs">Radio (km)</Label>
@@ -528,7 +560,12 @@ export function RegionesComunasTab() {
 }
 
 // === MapView — lazy-load Leaflet con polígonos de comunas + sub-zonas ===
-function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) => void }) {
+function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
+  comunas: Comuna[];
+  onEdit: (c: Comuna) => void;
+  mapCreateMode?: boolean;
+  onMapClick?: (lat: number, lng: number) => void;
+}) {
   const [MapLib, setMapLib] = useState<any>(null);
   const [ready, setReady] = useState(false);
   const [geoData, setGeoData] = useState<Record<number, any>>({}); // regionNum → GeoJSON
@@ -595,7 +632,25 @@ function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) =
     return <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
-  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip } = MapLib;
+  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip, useMapEvents } = MapLib;
+
+  // Componente que escucha clicks del mapa (debe estar dentro de MapContainer)
+  const MapClickHandler = () => {
+    const map = useMapEvents({
+      click: (e: any) => {
+        if (mapCreateMode && onMapClick) {
+          onMapClick(e.latlng.lat, e.latlng.lng);
+        }
+      },
+    });
+    // Cambiar cursor según modo
+    if (map && mapCreateMode) {
+      map.getContainer().style.cursor = "crosshair";
+    } else if (map) {
+      map.getContainer().style.cursor = "";
+    }
+    return null;
+  };
 
   const chileCenter: [number, number] = [-33.45, -70.66];
 
@@ -614,6 +669,7 @@ function MapView({ comunas, onEdit }: { comunas: Comuna[]; onEdit: (c: Comuna) =
   return (
     <>
       <MapContainer center={chileCenter} zoom={5} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true}>
+        <MapClickHandler />
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; OpenStreetMap'
