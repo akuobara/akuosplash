@@ -450,7 +450,7 @@ export function RegionesComunasTab() {
 
       {/* Modal de edición */}
       {editing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setEditing(null)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setEditing(null)}>
           <Card className="max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <CardContent className="p-4 space-y-3">
               <div>
@@ -508,7 +508,7 @@ export function RegionesComunasTab() {
 
       {/* Modal crear sub-zona */}
       {creatingSubZona && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setCreatingSubZona(null)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setCreatingSubZona(null)}>
           <Card className="max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <CardContent className="p-4 space-y-3">
               <div>
