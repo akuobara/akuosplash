@@ -655,29 +655,26 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
     return <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
-  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip, useMap } = MapLib;
+  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip } = MapLib;
 
-  // Componente que escucha clicks del mapa (debe estar dentro de MapContainer como hijo)
-  // Usa useMap + useEffect para reaccionar a cambios de mapCreateMode
-  const MapClickHandler = () => {
-    const map = useMap();
-    useEffect(() => {
-      if (!map) return;
-      const handler = (e: any) => {
-        if (mapCreateMode && onMapClick) {
-          onMapClick(e.latlng.lat, e.latlng.lng);
-        }
-      };
-      map.on("click", handler);
-      if (mapCreateMode) {
-        map.getContainer().style.cursor = "crosshair";
-      } else {
-        map.getContainer().style.cursor = "";
+  // Guardar la instancia del mapa para registrar click handlers
+  const [mapInstance, setMapInstance] = useState<any>(null);
+
+  // Registrar click handler cuando cambia mapCreateMode
+  useEffect(() => {
+    if (!mapInstance) return;
+    const handler = (e: any) => {
+      if (mapCreateMode && onMapClick) {
+        onMapClick(e.latlng.lat, e.latlng.lng);
       }
-      return () => { map.off("click", handler); };
-    }, [map, mapCreateMode, onMapClick]);
-    return null;
-  };
+    };
+    mapInstance.on("click", handler);
+    // Cambiar cursor
+    mapInstance.getContainer().style.cursor = mapCreateMode ? "crosshair" : "";
+    return () => {
+      mapInstance.off("click", handler);
+    };
+  }, [mapInstance, mapCreateMode, onMapClick]);
 
   const chileCenter: [number, number] = [-33.45, -70.66];
 
@@ -695,8 +692,7 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
 
   return (
     <>
-      <MapContainer center={chileCenter} zoom={5} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true}>
-        <MapClickHandler />
+      <MapContainer ref={setMapInstance} center={chileCenter} zoom={5} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; OpenStreetMap'
