@@ -655,23 +655,27 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
     return <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
-  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip, useMapEvents } = MapLib;
+  const { MapContainer, TileLayer, GeoJSON, Circle, Popup, Tooltip, useMap } = MapLib;
 
-  // Componente que escucha clicks del mapa (debe estar dentro de MapContainer)
+  // Componente que escucha clicks del mapa (debe estar dentro de MapContainer como hijo)
+  // Usa useMap + useEffect para reaccionar a cambios de mapCreateMode
   const MapClickHandler = () => {
-    const map = useMapEvents({
-      click: (e: any) => {
+    const map = useMap();
+    useEffect(() => {
+      if (!map) return;
+      const handler = (e: any) => {
         if (mapCreateMode && onMapClick) {
           onMapClick(e.latlng.lat, e.latlng.lng);
         }
-      },
-    });
-    // Cambiar cursor según modo
-    if (map && mapCreateMode) {
-      map.getContainer().style.cursor = "crosshair";
-    } else if (map) {
-      map.getContainer().style.cursor = "";
-    }
+      };
+      map.on("click", handler);
+      if (mapCreateMode) {
+        map.getContainer().style.cursor = "crosshair";
+      } else {
+        map.getContainer().style.cursor = "";
+      }
+      return () => { map.off("click", handler); };
+    }, [map, mapCreateMode, onMapClick]);
     return null;
   };
 
