@@ -93,6 +93,8 @@ export function RegionesComunasTab() {
   const [savingSub, setSavingSub] = useState(false);
   // Map click mode — user clicks on map to set sub-zona centroid
   const [mapCreateMode, setMapCreateMode] = useState(false);
+  // Recordar la comuna cuando el usuario cierra el modal para seleccionar en el mapa
+  const [pendingSubZonaComuna, setPendingSubZonaComuna] = useState<Comuna | null>(null);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -185,6 +187,11 @@ export function RegionesComunasTab() {
   function handleMapClick(lat: number, lng: number) {
     setSubForm(prev => ({ ...prev, centroLat: lat, centroLng: lng }));
     setMapCreateMode(false);
+    // Reabrir el modal si había una creación pendiente
+    if (pendingSubZonaComuna) {
+      setCreatingSubZona(pendingSubZonaComuna);
+      setPendingSubZonaComuna(null);
+    }
     toast.success(`Ubicación seleccionada: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
   }
 
@@ -545,7 +552,13 @@ export function RegionesComunasTab() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs flex-1" onClick={() => { setVista("mapa"); setMapCreateMode(true); }}>
+                  <Button type="button" size="sm" variant="outline" className="h-7 text-xs flex-1" onClick={() => {
+                    // Cerrar el modal temporalmente, cambiar a vista mapa, activar modo click
+                    setPendingSubZonaComuna(creatingSubZona);
+                    setCreatingSubZona(null);
+                    setVista("mapa");
+                    setMapCreateMode(true);
+                  }}>
                     <MapPin className="h-3 w-3 mr-1" /> Seleccionar en mapa
                   </Button>
                 </div>
