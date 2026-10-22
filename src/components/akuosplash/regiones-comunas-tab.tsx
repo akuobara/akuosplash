@@ -400,26 +400,49 @@ export function RegionesComunasTab() {
       {vista === "mapa" && (
         <Card>
           <CardContent className="p-3">
-            {/* Banner de modo crear */}
-            {mapCreateMode && (
-              <div className="mb-2 rounded-md bg-blue-50 border border-blue-300 p-2 text-xs text-blue-900 flex items-center justify-between">
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 animate-pulse" />
-                  Hacé click en el mapa donde querés crear la sub-zona "{subForm.sector || "(sin nombre)"}"
-                </span>
-                <Button size="sm" variant="ghost" className="h-6 text-xs" onClick={() => setMapCreateMode(false)}>Cancelar</Button>
+            {/* Barra de acciones del mapa */}
+            <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+              <div className="flex gap-2 items-center">
+                {mapCreateMode ? (
+                  <span className="text-xs text-blue-700 flex items-center gap-1 bg-blue-50 border border-blue-300 rounded px-2 py-1">
+                    <MapPin className="h-3.5 w-3.5 animate-pulse" />
+                    Hacé click en el mapa para ubicar: "{subForm.sector || "(sin nombre)"}"
+                    <button onClick={() => setMapCreateMode(false)} className="ml-1 text-red-600 font-bold">✕</button>
+                  </span>
+                ) : (
+                  <Button size="sm" variant="outline" onClick={() => {
+                    // Buscar comunas activas para crear sub-zona
+                    const activas = comunasFiltradas.filter(c => c.zona?.activa);
+                    if (activas.length === 0) {
+                      toast.info("Primero activá una comuna. Cambiá a vista Lista y click en 'Activar' en la comuna que quieras.");
+                      return;
+                    }
+                    if (activas.length === 1) {
+                      abrirCrearSubZona(activas[0]);
+                    } else {
+                      // Si hay varias activas, abrir un selector rápido
+                      const nombres = activas.map(c => `${c.nombre} (${c.codComuna})`).join("\n");
+                      // Usar la primera como default
+                      abrirCrearSubZona(activas[0]);
+                      toast.info(`Hay ${activas.length} comunas activas. Se abrió el form para ${activas[0].nombre}. Cambiá de comuna en la vista Lista si querés otra.`);
+                    }
+                  }}>
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Crear sub-zona
+                  </Button>
+                )}
               </div>
-            )}
+              {creatingSubZona && !mapCreateMode && (
+                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setMapCreateMode(true)}>
+                  <MapPin className="h-3 w-3 mr-1" /> 📍 Seleccionar ubicación en mapa
+                </Button>
+              )}
+            </div>
             <div className="h-[600px] rounded-lg overflow-hidden border">
               <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Click en una comuna (polígono) para editarla. Las comunas verdes están activas, las grises no están configuradas.
-              {creatingSubZona && !mapCreateMode && (
-                <button onClick={() => setMapCreateMode(true)} className="ml-2 text-blue-600 hover:underline font-medium">
-                  📍 Seleccionar ubicación en el mapa
-                </button>
-              )}
+              Click en una comuna (polígono) para editarla. Verde = activa, gris = no configurada.
+              Para crear una sub-zona: click en "Crear sub-zona" → completar nombre → click en "📍 Seleccionar ubicación" → click en el mapa.
             </p>
           </CardContent>
         </Card>
