@@ -646,7 +646,7 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
     setLoadingGeo(true);
     Promise.all(toLoad.map(async (regionNum) => {
       try {
-        const res = await fetch(`https://raw.githubusercontent.com/caracena/chile-geojson/master/${regionNum}.geojson`);
+        const res = await fetch(`/chile-geojson/${regionNum}.geojson`);
         if (res.ok) {
           const data = await res.json();
           return { regionNum, data };
