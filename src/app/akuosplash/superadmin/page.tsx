@@ -19,6 +19,7 @@ import { PlanesTab } from "@/components/akuosplash/planes-tab";
 import { SubscriptionsTab } from "@/components/akuosplash/subscriptions-tab";
 import { CuponesTab } from "@/components/akuosplash/cupones-tab";
 import { RegionesComunasTab } from "@/components/akuosplash/regiones-comunas-tab";
+import { LegalTab } from "@/components/akuosplash/legal-tab";
 
 interface Stats {
   clientesCount: number;
@@ -162,6 +163,7 @@ export default function SuperadminPage() {
             <option value="subs">💳 Subscripciones</option>
             <option value="cupones">🎟️ Cupones</option>
             <option value="integraciones">🔌 Integraciones</option>
+            <option value="legal">📄 Páginas Legales</option>
           </select>
 
           {/* === PANEL === */}
@@ -375,6 +377,11 @@ export default function SuperadminPage() {
           {/* === INTEGRACIONES === */}
           <TabsContent value="integraciones" className="mt-4">
             <IntegracionesTab />
+          </TabsContent>
+
+          {/* === PÁGINAS LEGALES === */}
+          <TabsContent value="legal" className="mt-4">
+            <LegalTab />
           </TabsContent>
         </Tabs>
 

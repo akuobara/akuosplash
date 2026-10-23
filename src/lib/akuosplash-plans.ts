@@ -226,6 +226,7 @@ export async function ensureAkuoConfigColumns() {
     "ALTER TABLE AkuoZona ADD COLUMN parentZonaId TEXT",
     "ALTER TABLE AkuoZona ADD COLUMN sector TEXT",
     "ALTER TABLE AkuoZona ADD COLUMN tipoSector TEXT",
+    "ALTER TABLE AkuoConfig ADD COLUMN legalPagesJson TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioUrl TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioFolio TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoEn DATETIME",
