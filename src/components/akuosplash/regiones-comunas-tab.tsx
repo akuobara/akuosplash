@@ -95,6 +95,12 @@ export function RegionesComunasTab() {
   const [mapCreateMode, setMapCreateMode] = useState(false);
   // Recordar la comuna cuando el usuario cierra el modal para seleccionar en el mapa
   const [pendingSubZonaComuna, setPendingSubZonaComuna] = useState<Comuna | null>(null);
+  // Búsqueda OSM de localidades
+  const [osmSearch, setOsmSearch] = useState("");
+  const [osmResults, setOsmResults] = useState<any[]>([]);
+  const [osmSearching, setOsmSearching] = useState(false);
+  // Edición de sub-zona existente
+  const [editingSubZona, setEditingSubZona] = useState<any>(null);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -193,6 +199,81 @@ export function RegionesComunasTab() {
       setPendingSubZonaComuna(null);
     }
     toast.success(`Ubicación seleccionada: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+  }
+
+  // Buscar localidades en OpenStreetMap (Nominatim)
+  async function buscarOSM() {
+    if (!osmSearch.trim() || !creatingSubZona) return;
+    setOsmSearching(true);
+    setOsmResults([]);
+    try {
+      const q = encodeURIComponent(`${osmSearch}, ${creatingSubZona.nombre}, Chile`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=5&countrycodes=cl`);
+      const data = await res.json();
+      setOsmResults(data || []);
+      if (data.length === 0) {
+        toast.info("No se encontraron resultados. Probá con otro nombre.");
+      }
+    } catch (e: any) {
+      toast.error("Error buscando: " + (e?.message || ""));
+    } finally {
+      setOsmSearching(false);
+    }
+  }
+
+  // Seleccionar un resultado de OSM
+  function seleccionarOSM(resultado: any) {
+    setSubForm(prev => ({
+      ...prev,
+      sector: resultado.name || osmSearch,
+      centroLat: parseFloat(resultado.lat),
+      centroLng: parseFloat(resultado.lon),
+    }));
+    setOsmResults([]);
+    setOsmSearch("");
+    toast.success(`Ubicación seleccionada: ${resultado.name}`);
+  }
+
+  // Abrir edición de sub-zona existente
+  function abrirEditarSubZona(sz: any, comuna: Comuna) {
+    setEditingSubZona({ ...sz, comunaNombre: comuna.nombre, comunaCode: comuna.codComuna });
+    setSubForm({
+      sector: sz.sector || sz.nombre,
+      tipoSector: sz.tipoSector || "urbano",
+      centroLat: sz.centroLat ?? "",
+      centroLng: sz.centroLng ?? "",
+      radioKm: sz.radioKm ?? 5,
+      precioPorLitro: sz.precioPorLitro ?? "",
+      litrosMinimos: sz.litrosMinimos ?? "",
+    });
+  }
+
+  // Guardar edición de sub-zona existente
+  async function guardarEdicionSubZona() {
+    if (!editingSubZona) return;
+    setSavingSub(true);
+    try {
+      // Usar el endpoint PATCH de la comuna para actualizar
+      await akuoApi(`/api/akuosplash/admin/regiones-comunas/${editingSubZona.comunaCode}/sub-zonas`, {
+        method: "POST",
+        body: JSON.stringify({
+          sector: subForm.sector.trim(),
+          tipoSector: subForm.tipoSector,
+          centroLat: Number(subForm.centroLat),
+          centroLng: Number(subForm.centroLng),
+          radioKm: Number(subForm.radioKm) || 5,
+          precioPorLitro: subForm.precioPorLitro === "" ? undefined : Number(subForm.precioPorLitro),
+          litrosMinimos: subForm.litrosMinimos === "" ? undefined : Number(subForm.litrosMinimos),
+        }),
+      });
+      toast.success(`Sub-zona "${subForm.sector}" actualizada`);
+      setEditingSubZona(null);
+      cargar();
+    } catch (e: any) {
+      toast.error(e?.message || "No se pudo actualizar");
+    } finally {
+      setSavingSub(false);
+    }
   }
 
   async function crearSubZona() {
@@ -445,7 +526,7 @@ export function RegionesComunasTab() {
               )}
             </div>
             <div className="h-[600px] rounded-lg overflow-hidden border">
-              <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} />
+              <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} onEditSubZona={abrirEditarSubZona} />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               Click en una comuna (polígono) para editarla. Verde = activa, gris = no configurada.
@@ -525,6 +606,37 @@ export function RegionesComunasTab() {
               <p className="text-xs text-muted-foreground bg-blue-50 border border-blue-200 rounded p-2">
                 Las sub-zonas son sectores dentro de una comuna (urbanos o rurales) con su propio precio y cobertura. Ejemplos: "Pan de Azúcar" (urbano), "Cruz de Caña" (rural).
               </p>
+
+              {/* Búsqueda OSM */}
+              <div className="space-y-1">
+                <Label className="text-xs">🔎 Buscar localidad por nombre (OpenStreetMap)</Label>
+                <div className="flex gap-1.5">
+                  <Input
+                    value={osmSearch}
+                    onChange={(e) => setOsmSearch(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && osmSearch.trim()) buscarOSM(); }}
+                    placeholder="Ej: Pan de Azúcar"
+                    className="h-8 text-sm"
+                  />
+                  <Button size="sm" variant="outline" className="h-8" onClick={buscarOSM} disabled={osmSearching || !osmSearch.trim()}>
+                    {osmSearching ? <Loader2 className="h-3 w-3 animate-spin" /> : "Buscar"}
+                  </Button>
+                </div>
+                {osmResults.length > 0 && (
+                  <div className="space-y-0.5 mt-1 border rounded p-1.5 bg-gray-50">
+                    {osmResults.map((r, i) => (
+                      <button
+                        key={i}
+                        onClick={() => seleccionarOSM(r)}
+                        className="w-full text-left text-xs hover:bg-blue-50 rounded px-2 py-1"
+                      >
+                        📍 {r.name || r.display_name?.split(",")[0]} ({r.lat?.slice(0,7)}, {r.lon?.slice(0,7)})
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <div>
                   <Label className="text-xs">Nombre del sector *</Label>
@@ -596,11 +708,12 @@ export function RegionesComunasTab() {
 }
 
 // === MapView — lazy-load Leaflet con polígonos de comunas + sub-zonas ===
-function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
+function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: {
   comunas: Comuna[];
   onEdit: (c: Comuna) => void;
   mapCreateMode?: boolean;
   onMapClick?: (lat: number, lng: number) => void;
+  onEditSubZona?: (sz: any, comuna: Comuna) => void;
 }) {
   const [MapLib, setMapLib] = useState<any>(null);
   const [ready, setReady] = useState(false);
@@ -774,7 +887,7 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
           );
         })}
 
-        {/* Círculos de sub-zonas (cobertura visible con radio real) */}
+        {/* Círculos de sub-zonas (cobertura visible + click para editar) */}
         {comunasValidas.flatMap(c =>
           (c.subZonas || []).filter(sz =>
             sz.centroLat != null && sz.centroLng != null &&
@@ -796,13 +909,18 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick }: {
                   fillOpacity: isActive ? 0.35 : 0.12,
                   dashArray: isActive ? undefined : "4 4",
                 }}
+                eventHandlers={{
+                  click: () => onEditSubZona?.(sz, c),
+                }}
               >
                 <Tooltip sticky>
-                  <span style={{ fontSize: 11 }}>
-                    {sz.sector || sz.nombre} ({isUrbano ? "🏙️ urbano" : "🌾 rural"})
+                  <span style={{ fontSize: 11, cursor: "pointer" }}>
+                    📍 {sz.sector || sz.nombre} ({isUrbano ? "🏙️ urbano" : "🌾 rural"})
                     {sz.activa ? " ✓" : ""}
                     {sz.precioPorLitro != null && ` · $${sz.precioPorLitro}/L`}
                     {sz.radioKm && ` · ${sz.radioKm}km`}
+                    <br />
+                    <em style={{ color: "#3b82f6" }}>Click para editar</em>
                   </span>
                 </Tooltip>
               </Circle>
