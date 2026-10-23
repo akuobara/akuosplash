@@ -29,6 +29,7 @@ import { PerfilTransportista } from "@/components/akuosplash/akuosplash-transpor
 import { PerfilGratis } from "@/components/akuosplash/perfil-gratis";
 import { SubscripcionTab } from "@/components/akuosplash/subscripcion-tab";
 import { BasicPanel } from "@/components/akuosplash/basic-panel";
+import { LegalFooter } from "@/components/akuosplash/legal-footer";
 import { apiGet, apiPost } from "@/components/akuosplash/akuosplash-api-client";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -367,6 +368,7 @@ function TransportistaPage() {
       </div>
 
       {cuentaOpen && <CuentaDialog open={cuentaOpen} onOpenChange={setCuentaOpen} />}
+      <LegalFooter />
       <SonnerToaster richColors position="top-center" />
     </div>
   );

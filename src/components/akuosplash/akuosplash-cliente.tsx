@@ -12,6 +12,7 @@ import {
   KeyRound, ShieldCheck, User, MessageSquare, Wallet, History, Plus, LayoutDashboard,
 } from "lucide-react";
 import { toast } from "sonner";
+import { LegalFooter } from "./legal-footer";
 
 interface AkuoUser { id: string; email: string | null; nombre: string; telefono: string | null; rol: string; plan: string; }
 interface Pedido {
@@ -248,6 +249,7 @@ export function AkuosplashCliente() {
           )}
         </div>
       </main>
+      <LegalFooter />
     </div>
   );
 }
