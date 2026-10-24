@@ -2211,3 +2211,54 @@ Stage Summary:
 - ⏳ PENDIENTE: usuario debe copiar secrets reales de MP/Transbank/Google/Facebook desde Vercel de AljibeApp al .env del nuevo proyecto (o a Vercel del nuevo project)
 - ⏳ OPCIONAL: en el futuro, si el usuario quiere, puede BORRAR los archivos akuosplash de /home/z/my-project/ (AljibeApp) ya que están duplicados. Por ahora NO se tocan para no romper el build de AljibeApp.
 
+
+---
+Task ID: separar-akuosplash-de-aljibe-parte-2
+Agent: main
+Task: Hacer automáticamente todo lo que se pueda del deploy del nuevo proyecto AkuoSplash (env vars, git init, smoke test).
+
+Work Log:
+- Detectado que /home/z/my-project/.vercel.env.production tiene 14 secrets reales (no todos — DATABASE_URL y TRANSBANK_* están marcados como [SENSITIVE] por Vercel CLI).
+- Detectado que /home/z/my-project/db/custom.db NO contiene tablas Akuo* — solo tablas Aljibe/Bolson. El proyecto AkuoSplash usaba Turso (DATABASE_URL marcado [SENSITIVE]).
+- Generado .env del nuevo proyecto con:
+  * 17 vars con valores reales (JWT, MP access_token/public_key/client_id/user_id, Google OAuth client_id/secret, Facebook app_id/secret, Google Maps API key)
+  * 10 vars vacías o en fallback (DATABASE_AUTH_TOKEN, AKUO_MP_CLIENT_SECRET, AKUO_MP_SPLIT_*, AKUO_MP_SUB_*, TRANSBANK_*) — marcadas [SENSITIVE] en Vercel o nunca configuradas
+  * SQLite local configurado en /home/z/my-project-akuosplash/db/akuosplash.db
+  * AKUO_CRON_SECRET generado nuevo con openssl rand -base64 32
+- Ejecutado `npx prisma db push` → 22 tablas Akuo* creadas en SQLite local:
+  AkuoAuditLog, AkuoCliente, AkuoCodigoLogin, AkuoConfig, AkuoConversacion, AkuoCupon,
+  AkuoEntrega, AkuoGasto, AkuoMensaje, AkuoNotificacion, AkuoPago, AkuoPedido,
+  AkuoPedidoCliente, AkuoPedidoRecurrente, AkuoSesion, AkuoSuscripcion, AkuoUsuario,
+  AkuoUsuarioCupon, AkuoValoracion, AkuoVehiculo, AkuoVuelta, AkuoZona
+- npm install OK (934 packages, usando package-lock.json de AljibeApp)
+- Smoke test dev server (puerto 3001) OK:
+  * GET / → 307 redirect a /akuosplash ✓
+  * GET /akuosplash → 200 ✓
+  * GET /akuosplash/superadmin → 200 ✓
+  * GET /api/akuosplash/superadmin/metricas → 401 (auth required, expected) ✓
+  * GET /api/akuosplash/auth/me → 200 ✓
+- git init + commit (sha 76a578f) en /home/z/my-project-akuosplash/
+- git remote configured: origin → https://github.com/akuobara/akuosplash.git (NO se pudo push — sin credenciales en este entorno)
+
+Stage Summary:
+- ✅ Proyecto AkuoSplash completo en /home/z/my-project-akuosplash/ con:
+  - .env con 17 secrets reales ya cargados
+  - SQLite local funcional con 22 tablas creadas
+  - node_modules instalado
+  - git repo inicializado con commit primero
+  - remote origin apuntando al repo destino en GitHub
+  - dev server verificado funcionando en puerto 3001
+- ✅ AljibeApp (/home/z/my-project/) intacta
+- ⚠️ NO se pudo hacer automáticamente (requieren autenticación externa que no tengo en este entorno):
+  - git push a GitHub (sin credenciales / SSH keys / PAT)
+  - vercel deploy (sin VERCEL_TOKEN)
+  - Configurar OAuth redirects en Google Cloud Console
+  - Configurar OAuth redirects en Facebook Developers
+  - Configurar webhooks en MercadoPago developers
+  - Configurar Vercel Cron Jobs
+- ⚠️ Secret pendientes (10 vars) en .env del nuevo proyecto — el usuario debe copiarlos desde Vercel del AljibeApp project (porque Vercel marca estos como [SENSITIVE] y no los exporta):
+  - DATABASE_AUTH_TOKEN (no necesario con SQLite local)
+  - AKUO_MP_CLIENT_SECRET
+  - AKUO_MP_SPLIT_ACCESS_TOKEN, AKUO_MP_SPLIT_PUBLIC_KEY, AKUO_MP_SPLIT_USER_ID
+  - AKUO_MP_SUB_ACCESS_TOKEN, AKUO_MP_SUB_PUBLIC_KEY
+  - TRANSBANK_ENVIRONMENT, TRANSBANK_COMMERCE_CODE, TRANSBANK_API_KEY
