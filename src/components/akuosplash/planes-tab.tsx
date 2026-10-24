@@ -69,9 +69,12 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
     if (!planes) return;
     setSaving(true);
     try {
-      await akuoPut("/api/akuosplash/admin/planes", { planes });
+      const res = await akuoPut<{ ok: boolean; planes: Record<PlanId, PlanConfig> }>("/api/akuosplash/admin/planes", { planes });
+      // Usar la respuesta verificada del servidor en vez de recargar
+      if (res.planes) {
+        setPlanes(res.planes);
+      }
       toast.success("Configuración de planes guardada");
-      cargar();
     } catch (e: any) {
       toast.error("No se pudo guardar: " + (e?.message || ""));
     } finally {
