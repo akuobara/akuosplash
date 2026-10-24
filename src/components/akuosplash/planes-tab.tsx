@@ -69,13 +69,24 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
     if (!planes) return;
     setSaving(true);
     try {
-      const res = await akuoPut<{ ok: boolean; planes: Record<PlanId, PlanConfig> }>("/api/akuosplash/admin/planes", { planes });
-      // Usar la respuesta verificada del servidor en vez de recargar
-      if (res.planes) {
-        setPlanes(res.planes);
+      // Usar fetch directo para evitar cualquier issue con akuoPut
+      const res = await fetch("/api/akuosplash/admin/planes", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ planes }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+      // Usar la respuesta verificada del servidor
+      if (data.planes) {
+        setPlanes(data.planes);
       }
       toast.success("Configuración de planes guardada");
     } catch (e: any) {
+      console.error("[planes guardar]", e);
       toast.error("No se pudo guardar: " + (e?.message || ""));
     } finally {
       setSaving(false);

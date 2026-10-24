@@ -24,7 +24,10 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Se requiere { planes: {...} }" }, { status: 400 });
   }
 
-  // Merge con defaults para no perder campos (incluyendo `activa`)
+  console.log("[admin/planes PUT] incoming keys:", Object.keys(incoming));
+  console.log("[admin/planes PUT] premium before merge:", { activa: incoming.premium?.activa, comisionPct: incoming.premium?.comisionPct, precioMensual: incoming.premium?.precioMensual });
+
+  // Merge con defaults
   const merged: Record<PlanId, PlanConfig> = { ...DEFAULT_PLAN_CONFIGS };
   for (const k of ["gratis", "premium", "pro", "pago"] as PlanId[]) {
     const inc = incoming[k];
@@ -32,25 +35,28 @@ export async function PUT(req: Request) {
     const canonical = k === "pago" ? "premium" : k;
     merged[canonical] = {
       ...DEFAULT_PLAN_CONFIGS[canonical],
-      ...inc, // los cambios del usuario sobrescriben los defaults
+      ...inc,
       id: canonical,
-      features: {
-        ...DEFAULT_PLAN_CONFIGS[canonical].features,
-        ...(inc.features || {}),
-      },
+      features: { ...DEFAULT_PLAN_CONFIGS[canonical].features, ...(inc.features || {}) },
     };
   }
   merged.pago = { ...merged.premium, id: "pago" };
 
-  // Guardar con error real (no tragar errores)
+  console.log("[admin/planes PUT] merged premium:", { activa: merged.premium?.activa, comisionPct: merged.premium?.comisionPct, precioMensual: merged.premium?.precioMensual });
+  console.log("[admin/planes PUT] merged pro:", { activa: merged.pro?.activa });
+
   try {
     await savePlanConfigs(merged);
+    console.log("[admin/planes PUT] savePlanConfigs OK");
   } catch (e: any) {
-    console.error("[admin/planes PUT] savePlanConfigs error:", e?.message);
-    return NextResponse.json({ error: "No se pudo guardar: " + (e?.message || "error desconocido") }, { status: 500 });
+    console.error("[admin/planes PUT] savePlanConfigs ERROR:", e?.message);
+    return NextResponse.json({ error: "No se pudo guardar: " + (e?.message || "") }, { status: 500 });
   }
 
-  // Verificar que se guardó releyendo de la DB
+  // Verificar releyendo
   const verify = await getPlanConfigs();
+  console.log("[admin/planes PUT] verify premium:", { activa: verify.premium?.activa, comisionPct: verify.premium?.comisionPct, precioMensual: verify.premium?.precioMensual });
+  console.log("[admin/planes PUT] verify pro:", { activa: verify.pro?.activa });
+
   return NextResponse.json({ ok: true, planes: verify });
 }
