@@ -433,9 +433,13 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
 
       {/* Planes */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {orden.map(pid => planes?.[pid] && (
-          <PlanCard key={pid} planId={pid} plan={planes[pid]} />
-        ))}
+        {orden.map(pid => {
+          const plan = planes?.[pid];
+          if (!plan) return null;
+          // No mostrar planes inactivos (excepto el plan actual del usuario)
+          if (!plan.activa && pid !== planActual) return null;
+          return <PlanCard key={pid} planId={pid} plan={plan} />;
+        })}
       </div>
 
       {/* Ciclo de facturación (solo relevante para planes pagos) */}

@@ -98,6 +98,20 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
     });
   }
 
+  function toggleActiva(planId: PlanId) {
+    if (!planes) return;
+    const plan = planes[planId];
+    // No se puede desactivar el plan gratis
+    if (planId === "gratis") {
+      toast.info("El plan Gratis no se puede desactivar");
+      return;
+    }
+    setPlanes({
+      ...planes,
+      [planId]: { ...plan, activa: !plan.activa },
+    });
+  }
+
   function preview(planId: PlanId) {
     router.push(`/akuosplash/transportista?previewPlan=${planId}`);
   }
@@ -187,9 +201,21 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
                     {isExpanded ? "▼" : "▶"}
                   </span>
                 </CardTitle>
-                <Button variant="outline" size="sm" onClick={() => preview(planId)} className="text-xs">
-                  <Eye className="h-3 w-3 mr-1" /> Vista previa
-                </Button>
+                <div className="flex items-center gap-3">
+                  {planId !== "gratis" && (
+                    <div className="flex items-center gap-2">
+                      <Label className="text-[10px] text-muted-foreground">Disponible</Label>
+                      <Switch
+                        checked={plan.activa}
+                        onCheckedChange={() => toggleActiva(planId)}
+                        disabled={!!previewOnly}
+                      />
+                    </div>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => preview(planId)} className="text-xs">
+                    <Eye className="h-3 w-3 mr-1" /> Vista previa
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             {isExpanded && (

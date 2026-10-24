@@ -49,6 +49,7 @@ export interface PlanConfig {
   pagoDiferadoDias: number;  // solo informativo (10 = MP 10day, 0 = instant, N/A si none)
   maxVehiculos: number;     // 0 = ilimitado
   maxChoferes: number;      // 0 = ilimitado
+  activa: boolean;          // si el plan está disponible para nuevos subscripciones
   features: PlanFeatureFlags;
   highlightColor: string;   // tailwind color name for badges/cards
 }
@@ -81,6 +82,7 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
       subscripcion: true,
       docUpload: true,
     },
+    activa: true,
     highlightColor: "amber",
   },
   pago: {
@@ -111,6 +113,7 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
       subscripcion: true,
       docUpload: false,
     },
+    activa: true,
     highlightColor: "blue",
   },
   premium: {
@@ -141,6 +144,7 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
       subscripcion: true,
       docUpload: false,
     },
+    activa: true,
     highlightColor: "blue",
   },
   pro: {
@@ -170,6 +174,7 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
       subscripcion: true,
       docUpload: false,
     },
+    activa: false,
     highlightColor: "violet",
   },
 };
