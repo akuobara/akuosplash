@@ -29,10 +29,14 @@ export async function PUT(req: Request) {
 
   // Merge con defaults
   const merged: Record<PlanId, PlanConfig> = { ...DEFAULT_PLAN_CONFIGS };
-  for (const k of ["gratis", "premium", "pro", "pago"] as PlanId[]) {
+  // Procesar primero "pago" (alias legacy) y DESPUÉS "premium" (canónico)
+  // para que "premium" sobrescriba a "pago" y no al revés
+  for (const k of ["gratis", "pago", "premium", "pro"] as PlanId[]) {
     const inc = incoming[k];
     if (!inc) continue;
     const canonical = k === "pago" ? "premium" : k;
+    // Si ya procesamos "premium" y estamos procesando "pago", skip (no sobrescribir)
+    if (k === "pago" && incoming.premium) continue;
     merged[canonical] = {
       ...DEFAULT_PLAN_CONFIGS[canonical],
       ...inc,
@@ -40,6 +44,7 @@ export async function PUT(req: Request) {
       features: { ...DEFAULT_PLAN_CONFIGS[canonical].features, ...(inc.features || {}) },
     };
   }
+  // Sincronizar alias "pago" con "premium" (mismos datos)
   merged.pago = { ...merged.premium, id: "pago" };
 
   console.log("[admin/planes PUT] merged premium:", { activa: merged.premium?.activa, comisionPct: merged.premium?.comisionPct, precioMensual: merged.premium?.precioMensual });
