@@ -87,7 +87,7 @@ function TransportistaPage() {
     (async () => {
       try {
         // Si hay previewPlan en la URL y el user es superadmin, pasar el query param al /me
-        const url = previewPlanParam ? `/api/akuosplash/auth/me?previewPlan=${previewPlanParam}` : "/api/akuosplash/auth/me";
+        const url = previewPlanParam ? `/api/akuosplash/auth/me?previewPlan=${previewPlanParam}&_t=${Date.now()}` : `/api/akuosplash/auth/me?_t=${Date.now()}`;
         const data = await apiGet<{ user: any }>(url);
         setUser(data.user);
       } catch {}
@@ -187,9 +187,20 @@ function TransportistaPage() {
                   className="bg-white text-black px-2 py-0.5 rounded text-xs font-semibold border-0 cursor-pointer"
                 >
                   {!previewPlanParam && <option value="">Elegí un plan…</option>}
-                  <option value="gratis">🎁 Gratis (20% comisión, sin MP split)</option>
-                  <option value="premium">⭐ Premium (15% comisión, MP 10d)</option>
-                  <option value="pro">👑 Pro (10% comisión, MP instant + Wasabil Growth)</option>
+                  {(() => {
+                    // Leer planes activos desde planInfo (cargado desde /me)
+                    const allPlans = planInfo?.plan ? [
+                      { id: "gratis", nombre: "Gratis", color: "amber" },
+                      { id: "premium", nombre: "Premium", color: "blue" },
+                      { id: "pro", nombre: "Pro", color: "violet" },
+                    ] : [];
+                    return allPlans.map(p => {
+                      // Solo mostrar si el plan está activo o si es el plan actual
+                      const planCfg = planInfo?.plan?.id === p.id ? planInfo.plan : null;
+                      // Buscar en los configs si el plan está activo
+                      return <option key={p.id} value={p.id}>{p.nombre}</option>;
+                    });
+                  })()}
                 </select>
               </>
             ) : (

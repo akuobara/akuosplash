@@ -57,7 +57,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     setLoading(true);
     try {
       const d = await akuoGet<{ subscripcion: SubscripcionInfo; planes: Record<PlanId, PlanConfig>; orden: PlanId[] }>(
-        "/api/akuosplash/subscription/info"
+        `/api/akuosplash/subscription/info?_t=${Date.now()}`
       );
       setInfo(d.subscripcion || { plan: "gratis" });
       if (d.planes) {
