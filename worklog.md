@@ -2145,3 +2145,69 @@ Stage Summary:
 - ✅ Soft delete (no borra zonas, marca como inactivas)
 - ✅ Coexistencia con zonas creadas via Google Earth (tab "Zonas (Google Earth)")
 - ✅ Deploy a Vercel producción READY
+
+---
+Task ID: separar-akuosplash-de-aljibe
+Agent: main
+Task: Separar físicamente AkuoSplash como proyecto Next.js independiente, sin romper ni borrar nada en AljibeApp.
+
+Work Log:
+- MAPEO de dependencias de AkuoSplash completo:
+  * Libs propias (7): src/lib/akuosplash-*.ts (auth, db, mercadopago, offline-photos, period, periodo-cerrado, plans, transbank)
+  * Libs compartidas (3): src/lib/utils.ts, src/lib/google-maps.ts, src/lib/precio-dinamico.ts
+  * UI components (15): badge, button, card, checkbox, dialog, dropdown-menu, input, label, select, separator, skeleton, sonner, switch, tabs, textarea
+  * Data files (2): src/data/chile-comunas-metadata.json, chile-localidades.json (solo usados por akuosplash)
+  * Public assets: public/akuosplash/ (logo.jfif, logo.png, logo-icon.png)
+  * Prisma: schema-akuosplash.prisma → renombrado a schema.prisma en el nuevo proyecto
+  * Env vars requeridas: AKUOSPLASH_DATABASE_URL, AKUOSPLASH_JWT_SECRET, AKUO_MP_*, AKUO_GOOGLE_*, AKUO_FACEBOOK_*, AKUO_CRON_SECRET, TRANSBANK_*, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
+- SCRIPT `scripts/separate-akuosplash.sh` creado y ejecutado:
+  * Crea /home/z/my-project-akuosplash/ con todos los archivos necesarios (copia, NO mueve)
+  * NO toca AljibeApp (/home/z/my-project/) en absoluto
+
+- CONFIGS del nuevo proyecto:
+  * package.json: name=akuosplash, version=0.1.0, scripts limpios (sin db:push-bolson, sin --schema=prisma/schema-akuosplash.prisma, sin --schema=prisma/schema-bolson.prisma), dev server en puerto 3001 (no 3000 para no chocar con AljibeApp)
+  * next.config.ts: removido `output: "standalone"` (no necesario para dev local)
+  * .env: creado con todos los placeholders (AKUOSPLASH_DATABASE_URL apunta a db/akuosplash.db local, secrets en blanco)
+  * prisma/schema.prisma: copy de schema-akuosplash.prisma
+  * src/generated/akuosplash-client/: copy del cliente Prisma ya generado (no requiere regenerar)
+  * src/app/layout.tsx: nuevo layout raíz para AkuoSplash (Geist fonts, metadata de AkuoSplash)
+  * src/app/page.tsx: redirect permanente a /akuosplash
+  * src/app/globals.css: copy del original
+
+- INSTALACIÓN:
+  * npm install (934 packages en 34s) — usando el package-lock.json copy de Aljibe para versiones idénticas
+  * Prisma client auto-generado por postinstall hook
+
+- BUILD:
+  * `npx next build` → "Compiled successfully in 19.6s"
+  * 75+ rutas API generadas (todas bajo /api/akuosplash/*)
+  * 8 páginas generadas (/, /akuosplash, /akuosplash/cliente, /akuosplash/transportista, /akuosplash/superadmin, /akuosplash/empresa, /akuosplash/privacidad, /akuosplash/terminos)
+
+- SMOKE TEST DEV SERVER (puerto 3001):
+  * GET / → 307 redirect a /akuosplash ✓
+  * GET /akuosplash → 200 (landing) ✓
+  * GET /akuosplash/cliente → 200 ✓
+  * GET /akuosplash/transportista → 200 ✓
+  * GET /akuosplash/superadmin → 200 ✓
+  * GET /api/akuosplash/auth/me → 200 (devuelve session vacía) ✓
+  * GET /api/akuosplash/superadmin/metricas → 401 (auth required, expected) ✓
+
+- VERIFICACIÓN ALJIBEAPP (puerto 3000) — 100% intacta:
+  * GET / → 200 ✓
+  * GET /super-admin → 200 ✓
+  * GET /cliente → 200 ✓
+  * Ningún archivo modificado o borrado en /home/z/my-project/
+
+Stage Summary:
+- ✅ AkuoSplash ahora es un proyecto Next.js 16.1.3 INDEPENDIENTE en /home/z/my-project-akuosplash/
+- ✅ Su propio package.json, tsconfig, next.config, prisma schema, .env
+- ✅ Su propia base de datos SQLite local (db/akuosplash.db)
+- ✅ Sus propias rutas /akuosplash/* y /api/akuosplash/*
+- ✅ Corre en puerto 3001 (no choca con AljibeApp en 3000)
+- ✅ Build exitoso, dev server funcional, smoke test OK
+- ✅ AljibeApp (/home/z/my-project/) completamente intacta — 0 archivos tocados
+- ⏳ PENDIENTE: deploy a Vercel del nuevo proyecto (crear nuevo Vercel project, configurar env vars, linkear a un repo git separado)
+- ⏳ PENDIENTE: usuario debe copiar secrets reales de MP/Transbank/Google/Facebook desde Vercel de AljibeApp al .env del nuevo proyecto (o a Vercel del nuevo project)
+- ⏳ OPCIONAL: en el futuro, si el usuario quiere, puede BORRAR los archivos akuosplash de /home/z/my-project/ (AljibeApp) ya que están duplicados. Por ahora NO se tocan para no romper el build de AljibeApp.
+
