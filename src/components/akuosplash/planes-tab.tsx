@@ -231,7 +231,7 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
                         className="h-8 text-sm" disabled={!!previewOnly} />
                     </div>
                     <div>
-                      <Label className="text-xs">Precio anual (2 meses gratis)</Label>
+                      <Label className="text-xs">Precio anual (0 = sin opción anual)</Label>
                       <Input type="number" value={plan.precioAnual}
                         onChange={(e) => updatePlan(planId, { precioAnual: parseFloat(e.target.value) || 0 })}
                         className="h-8 text-sm" disabled={!!previewOnly} />

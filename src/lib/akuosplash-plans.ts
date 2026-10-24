@@ -345,12 +345,15 @@ export async function savePlanConfigs(configs: Record<PlanId, PlanConfig>): Prom
   const existing: any = await akuosplashDb.$queryRawUnsafe(`SELECT id FROM AkuoConfig WHERE activo = 1 LIMIT 1`).catch(() => []);
   if (Array.isArray(existing) && existing.length > 0) {
     const id = existing[0].id;
-    await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoConfig SET planConfigsJson = ? WHERE id = ?`, json, id).catch(() => {});
+    const result = await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoConfig SET planConfigsJson = ? WHERE id = ?`, json, id);
+    if (result === 0) {
+      throw new Error("UPDATE no afectó ninguna fila — verificar que el row existe");
+    }
   } else {
     await akuosplashDb.$executeRawUnsafe(
       `INSERT INTO AkuoConfig (id, creadoEn, comisionPorcentaje, activo, planConfigsJson) VALUES (?, ?, 0, 1, ?)`,
       `cfg_${Date.now()}`, new Date().toISOString(), json
-    ).catch(() => {});
+    );
   }
 }
 

@@ -442,8 +442,8 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
         })}
       </div>
 
-      {/* Ciclo de facturación (solo relevante para planes pagos) */}
-      {planSeleccionado !== "gratis" && planes?.[planSeleccionado] && planes[planSeleccionado].precioMensual > 0 && (
+      {/* Ciclo de facturación (solo si el plan tiene opción anual) */}
+      {planSeleccionado !== "gratis" && planes?.[planSeleccionado] && planes[planSeleccionado].precioMensual > 0 && planes[planSeleccionado].precioAnual > 0 && (
         <Card>
           <CardContent className="p-3 space-y-2">
             <p className="text-sm font-medium">Ciclo de facturación</p>
