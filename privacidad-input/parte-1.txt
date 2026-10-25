@@ -1,0 +1,284 @@
+Política de Privacidad de AkuoSplash
+
+Versión: 1.0
+Fecha de publicación: 23 de octubre de 2026
+Última actualización: 23 de octubre de 2026
+Sitio web: https://akuosplash.cl
+
+1. Introducción
+
+La presente Política de Privacidad regula la forma en que Akuologistic SpA, sociedad por acciones constituida conforme a las leyes de la República de Chile, recopila, utiliza, almacena, comunica, protege y, cuando corresponde, elimina los datos personales de las personas que utilizan AkuoSplash.
+
+AkuoSplash es una marca y producto de Akuologistic SpA que comprende dos funcionalidades principales:
+
+a) Un marketplace digital que permite conectar a personas y empresas que solicitan reparto de agua potable a domicilio con transportistas que ofrecen dicho servicio.
+
+b) Una herramienta de gestión y productividad que permite a los transportistas administrar su actividad comercial, incluyendo clientes, entregas, vueltas, vehículos, choferes, gastos, liquidaciones, pedidos recurrentes y funcionalidades de facturación electrónica.
+
+Para prestar estos servicios, AkuoSplash trata datos personales de clientes, transportistas, conductores, representantes de empresas, personas de contacto y usuarios autorizados de administración.
+
+Akuologistic reconoce la importancia de la privacidad y se compromete a tratar los datos personales de forma lícita, transparente, segura y limitada a las finalidades informadas en esta Política y permitidas por la legislación aplicable.
+
+El tratamiento se regirá principalmente por la Ley N.º 19.628 sobre Protección de la Vida Privada, en su versión vigente en cada momento; por la Ley N.º 21.719, que modifica dicho régimen y establece nuevas obligaciones de protección de datos personales a contar de su entrada en vigor; y por las demás disposiciones aplicables, incluyendo la Ley N.º 19.496 sobre Protección de los Derechos de los Consumidores y la normativa tributaria del Servicio de Impuestos Internos (SII), según corresponda.
+
+Esta Política debe leerse conjuntamente con los Términos y Condiciones de AkuoSplash y con los avisos específicos que se presenten al utilizar determinadas funcionalidades.
+
+2. Identificación del responsable del tratamiento
+
+El responsable del tratamiento de los datos personales realizados para operar AkuoSplash es:
+
+- Razón social: Akuologistic SpA.
+- Nombre comercial del producto: AkuoSplash.
+- RUT: 78522661-5
+- Domicilio comercial: Morande 835, of 1107, Santiago, Chile 
+- Correo electrónico de privacidad: privacidad@akuosplash.cl.
+- Sitio web: https://akuosplash.cl.
+
+En adelante, Akuologistic SpA podrá denominarse indistintamente «Akuologistic», «la Empresa» o «nosotros».
+
+El responsable determina las finalidades y los medios esenciales del tratamiento de datos personales efectuado para la administración y operación de la plataforma, sin perjuicio de las responsabilidades que puedan corresponder a terceros proveedores o a los propios transportistas respecto de tratamientos que realicen por cuenta propia.
+
+Los transportistas que utilizan las herramientas de gestión para administrar clientes propios pueden actuar como responsables independientes respecto de los datos que incorporan y utilizan para sus actividades comerciales, según las circunstancias de cada tratamiento. Akuologistic podrá actuar como proveedor tecnológico o encargado del tratamiento en la medida en que procese esos datos siguiendo instrucciones del transportista.
+
+La calificación concreta de cada parte dependerá de sus funciones efectivas y de la legislación aplicable. La presente Política no elimina ni sustituye las obligaciones legales que correspondan a cada responsable.
+
+3. Ámbito de aplicación
+
+Esta Política se aplica a los datos personales tratados mediante:
+
+- El sitio web de AkuoSplash.
+- Las aplicaciones e interfaces digitales asociadas al servicio.
+- Los formularios de registro, inicio de sesión y configuración de cuentas.
+- Las funcionalidades de solicitud, asignación, pago, entrega y seguimiento de pedidos.
+- Las herramientas de gestión comercial para transportistas.
+- Los módulos de facturación, liquidaciones, gastos, vehículos y suscripciones.
+- Los sistemas de mensajería y notificaciones.
+- Los mecanismos de atención al usuario, soporte y resolución de disputas.
+- Las funciones administrativas, de auditoría, seguridad y prevención del fraude.
+
+Esta Política comprende tanto los datos recopilados directamente de los usuarios como aquellos generados durante la utilización del servicio o recibidos de proveedores tecnológicos y de pago, cuando su tratamiento sea legítimo.
+
+No regula íntegramente las políticas de privacidad de proveedores externos, entidades financieras, organismos públicos ni transportistas que actúen como responsables independientes. Dichas entidades podrán disponer de sus propias políticas y condiciones.
+
+4. Categorías de usuarios
+
+AkuoSplash distingue las siguientes categorías de usuarios:
+
+4.1. Clientes. Personas naturales o representantes de personas jurídicas que solicitan servicios de reparto de agua potable, administran sus pedidos o se comunican con los transportistas.
+
+4.2. Transportistas. Personas naturales o jurídicas que ofrecen servicios de reparto, gestionan sus vehículos, conductores, clientes, entregas y demás operaciones comerciales a través de AkuoSplash.
+
+4.3. Conductores y personal asociado. Personas cuyos datos se incorporan para acreditar o gestionar la operación de los transportistas, incluyendo antecedentes de identidad, licencias y documentos relacionados con los vehículos.
+
+4.4. Superadministradores y personal autorizado. Personas autorizadas por Akuologistic para administrar la plataforma, gestionar configuraciones, atender solicitudes, investigar incidentes y ejecutar tareas de soporte o auditoría.
+
+La información que tratamos varía según el tipo de usuario, las funcionalidades utilizadas y las obligaciones legales aplicables.
+
+5. Datos personales que recopilamos
+
+Akuologistic procura recopilar únicamente los datos adecuados y pertinentes para las finalidades informadas. La entrega de determinados antecedentes puede ser indispensable para crear una cuenta, procesar una operación, verificar la identidad comercial o cumplir obligaciones legales.
+
+5.1. Datos de clientes
+
+Podemos tratar las siguientes categorías:
+
+a) Datos de cuenta: nombre, dirección de correo electrónico, teléfono, credenciales de acceso y rol de usuario.
+
+b) Datos de identidad y facturación: RUT, tipo de persona (natural o jurídica), RUT de empresa, razón social y giro comercial, cuando corresponda.
+
+c) Datos de ubicación: dirección de entrega, comuna, coordenadas de latitud y longitud y, cuando el usuario las proporcione, indicaciones para acceder al inmueble o encontrar el punto de descarga.
+
+d) Datos de pedidos: cantidad de litros solicitada, fecha, dirección de entrega, estado del pedido, transportista asignado, confirmación de entrega e historial de operaciones.
+
+e) Datos de pago: identificadores de preferencias, pagos o transacciones generados por MercadoPago y los estados de pago necesarios para gestionar la operación.
+
+f) Datos de comunicación: mensajes enviados al transportista, notificaciones recibidas y antecedentes vinculados a solicitudes de soporte o controversias.
+
+g) Datos técnicos: dirección IP, tipo y versión del navegador o dispositivo cuando estén disponibles, user-agent, identificadores de sesión, registros de acceso y datos técnicos de funcionamiento.
+
+h) Registros de entrega: código de confirmación de cuatro dígitos y, cuando corresponda, fotografías del medidor u otros antecedentes incorporados por el transportista durante la entrega.
+
+Las fotografías del medidor son opcionales dentro de la operación descrita en esta Política y son subidas por el transportista, no directamente por el cliente. Su utilización deberá limitarse a los fines operacionales informados, tales como respaldar una lectura, documentar una entrega o resolver una discrepancia.
+
+5.2. Datos de transportistas
+
+Para habilitar las funcionalidades comerciales y operacionales podemos tratar:
+
+a) Datos de cuenta: nombre, correo electrónico, teléfono, credenciales de acceso y rol.
+
+b) Datos de empresa: RUT, razón social, giro, dirección fiscal, comuna, ciudad, teléfono y correo electrónico de contacto empresarial.
+
+c) Datos de conductores: nombre y RUT personal, información de contacto cuando sea necesaria, licencia de conducir y antecedentes relacionados con la habilitación para conducir.
+
+d) Datos de vehículos: patente, tipo de vehículo, capacidad en litros, fotografías de sus distintos lados y documentos asociados, como permiso de circulación, revisión técnica y seguro obligatorio o los demás seguros que correspondan.
+
+e) Datos bancarios: banco, tipo y número de cuenta, titular, RUT del titular y correo electrónico para comprobantes, cuando sean necesarios para las liquidaciones o pagos.
+
+f) Datos de integración con MercadoPago: identificador de usuario de MercadoPago, tokens de acceso y renovación OAuth, fecha de conexión y estado de la integración.
+
+g) Datos de facturación electrónica: identificadores o credenciales de integración con Wasabil y antecedentes necesarios para emitir documentos tributarios electrónicos a través del proveedor, cuando se habilite esa funcionalidad.
+
+h) Datos de suscripción: plan contratado, fechas de inicio y término, estado de la suscripción, identificador de autorización o preaprobación, monto y ciclo de facturación.
+
+i) Datos de gestión comercial: clientes propios incorporados por el transportista, vueltas, entregas, litros, montos, métodos de pago, lecturas anteriores y actuales de medidores, fotografías de respaldo, gastos, liquidaciones, pedidos recurrentes e historial operacional.
+
+Los datos personales de clientes propios que el transportista incorpore a sus herramientas deberán ser obtenidos y utilizados de manera legítima. El transportista es responsable de contar con una base jurídica adecuada para incorporarlos y de informar a las personas afectadas cuando así corresponda.
+
+5.3. Datos de superadministradores
+
+Para proteger y operar la plataforma podemos tratar:
+
+- Nombre, correo electrónico, rol y datos de acceso.
+- Registros de acciones administrativas, incluyendo acción realizada, entidad afectada, detalles pertinentes, dirección IP y fecha y hora.
+- Registros de configuración de planes, cupones, zonas de operación y reglas de precios.
+- Referencias y estados de integración con proveedores de pago.
+- Registros técnicos necesarios para investigar incidentes, errores o accesos no autorizados.
+
+Las credenciales de administración de MercadoPago, Transbank u otros proveedores deben ser tratadas como información de acceso restringido. No se utilizarán para finalidades ajenas a la operación autorizada de la plataforma.
+
+5.4. Mensajes y notificaciones
+
+Podemos tratar el contenido de los mensajes intercambiados entre clientes y transportistas, la fecha y hora de envío, el estado de lectura y los identificadores de las cuentas participantes.
+
+Asimismo, podemos registrar notificaciones con su tipo, título, contenido, enlace asociado y fecha de creación o lectura.
+
+5.5. Datos de terceros incorporados por los usuarios
+
+Si un usuario incorpora información de otra persona —por ejemplo, un conductor, representante, empleado o cliente propio— deberá tener facultades y una base jurídica suficiente para hacerlo.
+
+El usuario deberá evitar incorporar datos excesivos, documentos innecesarios o información especialmente privada que no resulte pertinente para la funcionalidad utilizada.
+
+6. Finalidades del tratamiento
+
+Los datos personales se tratarán únicamente para finalidades determinadas y compatibles con la prestación de AkuoSplash, de acuerdo con las bases jurídicas aplicables.
+
+6.1. Registro y administración de cuentas
+
+- Crear y mantener cuentas de usuarios.
+- Autenticar identidades y gestionar sesiones.
+- Recuperar el acceso a las cuentas.
+- Administrar roles y permisos.
+- Verificar antecedentes necesarios para habilitar funcionalidades.
+
+6.2. Gestión del marketplace
+
+- Recibir y administrar solicitudes de reparto.
+- Identificar la dirección y los requerimientos de entrega.
+- Asignar pedidos a transportistas.
+- Facilitar la coordinación entre clientes y transportistas.
+- Registrar el estado de las operaciones.
+- Confirmar entregas y gestionar incidencias.
+- Mantener un historial de operaciones necesario para el servicio.
+
+6.3. Pagos y suscripciones
+
+- Crear referencias de pago.
+- Comunicar la información necesaria a los procesadores de pago.
+- Verificar el resultado de las transacciones.
+- Administrar suscripciones y renovaciones autorizadas.
+- Conciliar pagos, devoluciones y liquidaciones cuando corresponda.
+- Investigar operaciones sospechosas o errores de procesamiento.
+
+6.4. Herramientas de productividad
+
+- Administrar clientes propios del transportista.
+- Registrar vueltas, entregas, lecturas de medidores y gastos.
+- Gestionar vehículos, conductores y documentación.
+- Preparar liquidaciones y reportes operacionales.
+- Administrar pedidos recurrentes.
+- Facilitar la emisión de documentos tributarios mediante integraciones autorizadas.
+- Mantener información histórica útil para la administración del negocio.
+
+6.5. Facturación y obligaciones legales
+
+- Generar o facilitar documentos tributarios electrónicos cuando corresponda.
+- Mantener antecedentes necesarios para el cumplimiento tributario y contable.
+- Atender requerimientos válidos de autoridades competentes.
+- Cumplir obligaciones legales, contractuales y regulatorias.
+
+6.6. Soporte, seguridad y prevención del fraude
+
+- Responder consultas y solicitudes.
+- Investigar entregas controvertidas.
+- Detectar accesos no autorizados y actividades anómalas.
+- Prevenir suplantaciones, pagos fraudulentos y abusos de la plataforma.
+- Mantener registros de auditoría.
+- Proteger la integridad, disponibilidad y confidencialidad de los sistemas.
+
+6.7. Comunicaciones de servicio
+
+Podremos enviar mensajes relacionados con pedidos, entregas, pagos, seguridad, cambios operacionales, facturación y funcionamiento de la cuenta.
+
+Las comunicaciones comerciales o promocionales, cuando existan, se tratarán conforme a la normativa aplicable y a las preferencias y autorizaciones que correspondan. El usuario podrá solicitar que cesen las comunicaciones promocionales, sin que ello impida recibir mensajes indispensables para ejecutar operaciones o cumplir obligaciones legales.
+
+7. Bases jurídicas del tratamiento
+
+Cada tratamiento deberá apoyarse en una base jurídica válida conforme a la legislación vigente.
+
+7.1. Ejecución de un contrato o medidas precontractuales
+
+Trataremos los datos necesarios para crear cuentas, gestionar pedidos, coordinar entregas, administrar pagos y suscripciones, mantener herramientas de productividad y prestar las funcionalidades solicitadas.
+
+7.2. Cumplimiento de obligaciones legales
+
+Podremos conservar o comunicar los datos necesarios para cumplir obligaciones tributarias, contables, documentales, regulatorias o requerimientos legalmente procedentes.
+
+7.3. Consentimiento
+
+Cuando el tratamiento requiera consentimiento, este deberá ser informado, específico y otorgado mediante una acción afirmativa que permita acreditar su existencia. Cuando la ley lo exija, se solicitará autorización expresa para las finalidades correspondientes.
+
+El consentimiento podrá revocarse por los medios habilitados, sin que ello afecte la licitud del tratamiento realizado previamente. La revocación no elimina las obligaciones legales que justifiquen mantener determinados antecedentes.
+
+7.4. Interés legítimo y otras bases permitidas
+
+Cuando la legislación aplicable lo permita, podremos tratar datos para proteger la seguridad de la plataforma, mantener registros de auditoría, investigar fraudes o defender derechos en controversias.
+
+En tales casos se evaluará la necesidad y proporcionalidad del tratamiento, considerando los derechos y expectativas de las personas afectadas. Cuando corresponda, se adoptarán medidas para minimizar el impacto sobre su privacidad.
+
+El interés legítimo no se utilizará como justificación genérica para cualquier tratamiento ni reemplazará el consentimiento cuando este sea legalmente necesario.
+
+7.5. Datos opcionales
+
+La entrega de fotografías de respaldo, indicaciones adicionales u otros antecedentes opcionales no se exigirá salvo que una funcionalidad concreta requiera legítimamente esa información.
+
+Si el usuario decide no proporcionar datos opcionales, algunas funciones complementarias podrían no estar disponibles, pero ello no deberá impedir injustificadamente el acceso a funcionalidades que no necesiten esos datos.
+
+8. Datos de ubicación y GPS
+
+AkuoSplash utiliza información de ubicación para identificar el destino de las entregas y facilitar la asignación y coordinación de pedidos.
+
+La dirección y las coordenadas precisas asociadas a una solicitud pueden ser necesarias para prestar el servicio de reparto. El usuario debe procurar que la ubicación indicada sea correcta y adecuada para realizar la entrega.
+
+La información precisa de ubicación vinculada a un pedido se comunicará al transportista asignado en la medida necesaria para cumplir la entrega. No se facilitará indiscriminadamente a otros transportistas ni se publicará como información abierta.
+
+La ubicación no se utilizará para realizar un seguimiento continuo de los movimientos del cliente fuera de las funcionalidades y finalidades informadas.
+
+Si se incorpora una función que solicite acceso directo al GPS del dispositivo, se informará de su finalidad y se solicitarán los permisos correspondientes cuando sean necesarios. La utilización de un selector de mapa para indicar manualmente una dirección no implica, por sí sola, autorización para rastrear la ubicación continuamente.
+
+La información de ubicación podrá ser tratada adicionalmente cuando sea necesario resolver una controversia de entrega, investigar un incidente o cumplir una obligación legal, dentro de los límites aplicables.
+
+9. Fotografías, documentos y archivos
+
+9.1. Fotografías de medidores
+
+Las fotografías del medidor son opcionales y las sube el transportista como respaldo operacional. Pueden utilizarse para documentar lecturas, verificar una entrega o resolver diferencias relacionadas con el servicio.
+
+No se presumirá que el cliente ha otorgado consentimiento para finalidades publicitarias ni para difundir estas fotografías públicamente por el solo hecho de haber solicitado una entrega.
+
+Los usuarios y transportistas deberán evitar que las imágenes incluyan personas, documentos, interiores de viviendas u otros elementos innecesarios que permitan identificar a terceros.
+
+9.2. Fotografías de vehículos y documentos
+
+Las fotografías de vehículos y los documentos de conductores o vehículos son proporcionados por el transportista para habilitar, verificar o administrar el servicio.
+
+Estos archivos pueden contener información personal o comercial. Su acceso debe limitarse a quienes necesiten consultarlos para verificar requisitos, administrar operaciones o atender incidencias.
+
+Si una fotografía o documento se almacena mediante una URL técnicamente accesible a quien disponga del enlace, la Empresa no considerará ese enlace equivalente a una autorización para su divulgación pública. El acceso por enlace puede implicar riesgos de reenvío, exposición o indexación, dependiendo de la configuración del proveedor.
+
+Akuologistic procurará aplicar controles técnicos y organizativos adecuados. Se recomienda y priorizará, cuando sea técnicamente posible, el almacenamiento privado, la autenticación y los enlaces temporales para documentos de identidad, licencias, seguros y otros antecedentes sensibles.
+
+La mera publicación de esta Política no transforma un archivo de acceso público en un archivo privado ni subsana una configuración técnica inadecuada.
+
+9.3. Almacenamiento y eliminación de archivos
+
+Los archivos se conservarán durante el tiempo necesario para su finalidad, de acuerdo con los plazos legales y operacionales aplica
