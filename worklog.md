@@ -2354,3 +2354,41 @@ Stage Summary:
 - ⏳ PENDIENTE usuario: cargar las 8 vars [SENSITIVE] restantes via dashboard de Vercel del AljibeApp → Settings → Environment Variables → copiar valores a mano → pegar en akuosplash
 - ⏳ PENDIENTE usuario (cuando quiera separar BD): crear Turso DB nuevo → migrar tablas Akuo* → actualizar DATABASE_URL en akuosplash
 - ✅ Token Vercel del usuario va a expirar en 24h (lo dije al crearlo) — si necesita más trabajo, generar otro
+
+---
+Task ID: landing-transportista
+Agent: main
+Task: Crear landing page pública para AkuoSplash transportista con info de lo que se consigue al registrarse.
+
+Work Log:
+- Revisé estructura existente: `/akuosplash/transportista` ya es el dashboard post-login. Necesitaba una ruta pública nueva.
+- Elegí la URL `/akuosplash/quiero-repartir` — descriptiva, action-oriented, sin colisión con el dashboard existente.
+- Modifiqué `akuosplash-landing.tsx` para soportar deep-link `?view=register-transportista` (y register-cliente, forgot-password) → el CTA de la landing nueva abre directamente el form de registro.
+- Creé `src/components/akuosplash/transportista-landing.tsx` con:
+  * Nav sticky (logo + Iniciar sesión + Crear cuenta)
+  * Hero con headline "Repartí agua a domicilio y generá ingresos" + mockup del panel de transportista
+  * Stats bar (0% costo registro, 10d pago MP, 24/7 marketplace, +50 comunas)
+  * Sección "¿Qué conseguís al registrarte?" con 8 cards de beneficios (marketplace, ingresos, panel, camiones, recurrentes, historial, liquidación, clientes propios)
+  * Sección "¿Cómo funciona?" con 4 pasos (registrar, cargar camión, tomar pedidos, cobrar)
+  * Sección "Planes" con 3 cards (Gratis $0 / 20%, Premium $15.000 / 15%, Pro $50.000 / 10% próximamente) — lee defaults desde el código, con fetch opcional a /api/akuosplash/planes si existe
+  * Sección "Por qué AkuoSplash" con 4 features destacadas (celular, mapa, métricas, liquidación)
+  * FAQ accordion con 8 preguntas frecuentes (costo, cuándo cobro, vehículo, choferes, comisión, clientes propios, factura electrónica, zonas)
+  * CTA final con dos botones (crear cuenta + iniciar sesión)
+  * Footer con links a Términos, Privacidad, Empresa
+- Creé `src/app/akuosplash/quiero-repartir/page.tsx` que renderiza el componente.
+- Smoke test dev server (puerto 3000):
+  * GET /akuosplash/quiero-repartir → 200 ✓
+  * GET /akuosplash?view=register-transportista → 200 ✓ (deep-link al form de registro)
+  * GET /akuosplash/transportista (dashboard) → 200 ✓ (sin regresión)
+  * GET /akuosplash/cliente → 200 ✓
+  * GET /akuosplash/superadmin → 200 ✓
+  * Contenido HTML verificado: "Repartí agua", "¿Qué conseguís", "Planes", "Preguntas frecuentes", "Empezar ahora", "Empezá a repartir" ✓
+
+Stage Summary:
+- ✅ Landing page de transportista lista en https://akuosplash.vercel.app/akuosplash/quiero-repartir (deploy pendiente del git push, pero la ruta funciona en dev)
+- ✅ Estilo consistente con la app existente (azul/cyan, logo, shadcn/ui, Tailwind)
+- ✅ Deep-link `?view=register-transportista` abre directamente el form de registro desde el CTA
+- ✅ Sin regresiones en rutas existentes
+- ✅ Plan Pro aparece marcado como "Próximamente" porque `activa: false` en config default
+- ⏳ Pendiente: deploy a Vercel (git push + redeploy) — el usuario decide si lo hace ahora
+- ⏳ Pendiente: opcionalmente agregar link a `/akuosplash/quiero-repartir` en la landing principal (`akuosplash-landing.tsx`) para que sea más discoverable desde el login

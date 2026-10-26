@@ -18,6 +18,13 @@ export function AkuosplashLanding() {
   const [user, setUser] = useState<AkuoUser | null | undefined>(undefined);
   const [view, setView] = useState<View>("login");
   const oauthError = searchParams.get("oauth_error");
+  // Deep-link: ?view=register-transportista o ?view=register-cliente abre directamente esa vista
+  const viewParam = searchParams.get("view") as View | null;
+  useEffect(() => {
+    if (viewParam === "register-transportista" || viewParam === "register-cliente" || viewParam === "forgot-password") {
+      setView(viewParam);
+    }
+  }, [viewParam]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nombre, setNombre] = useState("");
