@@ -2392,3 +2392,41 @@ Stage Summary:
 - ✅ Plan Pro aparece marcado como "Próximamente" porque `activa: false` en config default
 - ⏳ Pendiente: deploy a Vercel (git push + redeploy) — el usuario decide si lo hace ahora
 - ⏳ Pendiente: opcionalmente agregar link a `/akuosplash/quiero-repartir` en la landing principal (`akuosplash-landing.tsx`) para que sea más discoverable desde el login
+
+---
+Task ID: deploy-landing-transportista
+Agent: main
+Task: Deployar la landing page nueva de transportista a producción (akuosplash.vercel.app) usando token de Vercel provisto por el usuario.
+
+Work Log:
+- Token Vercel recibido (vcp_1DsytMv...). Verificado: user=akuobara, team=team_BcC6nLGDaPF8NFDXQ6q97JsXQ6q97JsX, plan=hobby.
+- Confirmado: project "akuosplash" existe en Vercel (projectId=prj_vVnmGI87GQM4wBszNZq8tw7kdPRo, alias=[akuosplash.cl, akuosplash.vercel.app, www.akuosplash.cl, akuosplash-aljibeapp.vercel.app]).
+- SCRIPT `scripts/deploy-landing-transportista.py` creado y ejecutado:
+  * Crea /home/z/my-project-akuosplash/ como copia limpia de /home/z/my-project/ con rsync --exclude para excluir rutas de AljibeApp (bolson, camiones, cliente, super-admin, admin-*, suscripcion, mapa-clientes, src/components/app, etc.).
+  * Agrega src/app/page.tsx con redirect("/akuosplash") como root.
+  * Symlink node_modules desde AljibeApp (skip npm install de 934 packages).
+  * Escribe .vercel/project.json linkeando al project akuosplash existente.
+  * Ejecuta `npx vercel deploy --yes --prod --token` desde /home/z/my-project-akuosplash/.
+- Deploy creado: dpl_9m9kTzuHv5SR2X8zPtbaSV4mw26M (production target).
+- Build progress monitoreado via API /v3/deployments/{id}/events:
+  * Cache restored from previous deployment ipRrtqWH9TuYZFFf9NcQFc5NbUEj.
+  * prisma generate × 3 schemas (default + bolson + akuosplash) OK.
+  * Next.js build OK — todas las rutas /api/akuosplash/*, /api/auth/*, /akuosplash/*, /mapa-picker compiladas.
+  * BUILD took ~10-15 min total.
+- Deploy READY: aliases activos = [akuosplash.cl, akuosplash.vercel.app, www.akuosplash.cl, akuosplash-aljibeapp.vercel.app].
+
+Stage Summary:
+- ✅ Landing nueva LIVE en producción: https://akuosplash.vercel.app/akuosplash/quiero-repartir
+- ✅ Smoke test producción OK:
+  * GET /akuosplash/quiero-repartir → 200 ✓
+  * GET /akuosplash?view=register-transportista → 200 ✓ (deep-link al form de registro)
+  * GET /akuosplash → 200 ✓
+  * GET /akuosplash/transportista → 200 ✓ (dashboard, sin regresión)
+  * GET /akuosplash/cliente → 200 ✓
+  * GET /akuosplash/superadmin → 200 ✓
+  * GET /api/akuosplash/auth/me → 200 ✓ (BD conectada)
+- ✅ Contenido HTML verificado: "Repartí agua a domicilio y generá ingresos", "¿Qué conseguís", "¿Cómo funciona", "Planes", "Preguntas frecuentes", "Empezá a repartir", "Crear cuenta de transportista" ✓
+- ✅ Sin regresiones en rutas existentes
+- ✅ Token Vercel se auto-expira en 24h (24h desde creación por el usuario)
+- ⚠️ Quedan 8 vars [SENSITIVE] sin cargar en el project akuosplash (mismas que antes — MP splits, MP sub, TRANSBANK, JWT_SECRET opcional si no es AKUOSPLASH_JWT_SECRET)
+- ⏳ PENDIENTE usuario: copiar las 8 vars [SENSITIVE] restantes desde el dashboard de Vercel del AljibeApp al akuosplash si quiere MP split y TRANSBANK funcionando
