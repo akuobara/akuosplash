@@ -166,7 +166,7 @@ const HERRAMIENTAS = [
   {
     icon: ClipboardList,
     titulo: "Pedidos",
-    desc: "Toma pedidos del marketplace de AkuoSplash y crea pedidos manuales para tus clientes. Asigná pedidos a tu vuelta actual, especificá litros, método de pago y cliente.",
+    desc: "Creá y gestioná pedidos manuales para tus clientes propios. Asigná pedidos a tu vuelta actual, especificá litros, método de pago y cliente. Los pedidos del marketplace (cuando esté disponible) entran por un módulo separado.",
     color: "text-violet-600 bg-violet-100",
     planes: "Premium y Pro",
     gratis: false, premium: true, pro: true,
@@ -174,7 +174,7 @@ const HERRAMIENTAS = [
   {
     icon: Droplets,
     titulo: "Entregas",
-    desc: "Vueltas activas con litros restantes y capacidad del camión. Marcá cada entrega como completada, registrá litros efectivos, método de pago (efectivo/transferencia/camión completo) y cierre de vuelta.",
+    desc: "Historial de entregas — propias y del marketplace cuando esté disponible. Cada entrega con cliente, fecha, litros, monto y método de pago. Para seguimiento y control de tu operación.",
     color: "text-cyan-600 bg-cyan-100",
     planes: "Gratis, Premium y Pro",
     gratis: true, premium: true, pro: true,
@@ -222,7 +222,7 @@ const HERRAMIENTAS = [
   {
     icon: History,
     titulo: "Historial de vueltas",
-    desc: "Cada vuelta pasada queda registrada con fecha, cliente, litros, monto, chofer asignado y método de pago. Filtrá por período, cliente o chofer. Para rendiciones, declaraciones y auditoría.",
+    desc: "Cada vuelta pasada queda registrada con fecha, cliente, litros, monto, chofer asignado y método de pago. Filtrá por período, cliente o chofer. Para rendiciones y referencia operativa. AkuoSplash no es una herramienta contable: los resultados deben ser revisados por un profesional contador antes de cualquier declaración o reporte al SII.",
     color: "text-amber-600 bg-amber-100",
     planes: "Premium y Pro",
     gratis: false, premium: true, pro: true,
@@ -271,23 +271,23 @@ const PASOS = [
 const FAQS = [
   {
     q: "¿Qué herramientas tengo en cada plan?",
-    a: "Plan Gratis: Dashboard, Entregas y Perfil. Plan Premium: suma Pedidos, Gastos, Clientes, Recurrentes e Historial. Plan Pro: suma Camiones, Liquidación y Equipo. MercadoPago Split está disponible en los 3 planes (cada transportista conecta su propia cuenta de MP).",
+    a: "Plan Gratis: Dashboard, Entregas y Perfil. Plan Premium: suma Pedidos, Gastos, Clientes, Recurrentes e Historial. Plan Pro: suma Camiones, Liquidación y Equipo. MercadoPago Split* estará disponible en los 3 planes junto con el marketplace. *Solo si conectás tu cuenta de MP desde tu perfil.",
   },
   {
     q: "¿Qué es el marketplace de AkuoSplash?",
-    a: "Es una red de clientes que piden agua a domicilio a través de AkuoSplash. Cuando un cliente hace un pedido en tu zona, te aparece en la pestaña Pedidos. Vos decidís si lo tomás. Si lo tomás, lo entregás y cobrás tu porcentaje del valor del pedido. El marketplace estará disponible próximamente y puede no estar disponible en todas las zonas al inicio.",
+    a: "Es una red de clientes que piden agua a domicilio a través de AkuoSplash. Cuando un cliente hace un pedido en tu zona, el pedido entra al módulo del marketplace (sección propia dentro del panel, conectada a las herramientas de productividad — no aparece en la pestaña Pedidos, que es para tus clientes propios). Vos decidís si lo tomás. Si lo tomás, lo entregás y cobrás tu porcentaje del valor del pedido. El marketplace estará disponible próximamente y puede no estar disponible en todas las zonas al inicio.",
   },
   {
     q: "¿Necesito MercadoPago para usar la app?",
-    a: "Sí. Todos los planes usan MercadoPago Split para que los pagos del marketplace se dividan automáticamente entre AkuoSplash (comisión) y vos (tu porcentaje). Conectás tu cuenta de MercadoPago una sola vez desde tu perfil. El pago te llega: en plan Gratis a 10 días, en Premium y Pro de forma instantánea.",
+    a: "MercadoPago Split* es lo que usa AkuoSplash para dividir automáticamente los pagos del marketplace entre la comisión y tu porcentaje. Estará disponible junto con el marketplace. Conectás tu cuenta de MercadoPago una sola vez desde tu perfil. El pago te llegaría: en plan Gratis a 10 días, en Premium y Pro de forma instantánea. *Solo si conectás tu cuenta de MercadoPago. Las herramientas de productividad funcionan sin MercadoPago (podés operar con tus clientes propios sin MP).",
   },
   {
     q: "¿Tengo que subir documentos tributarios?",
-    a: "Sí. Todos los transportistas que aceptan ventas por el marketplace deben subir sus documentos tributarios al SII para que AkuoSplash pueda emitir los pagos. Esto aplica a los 3 planes. En el futuro vas a poder automatizar la emisión de documentos conectando tu cuenta de Wasabel u otro proveedor de facturación.",
+    a: "Sí. Todos los transportistas que aceptan ventas por el marketplace deben subir sus documentos tributarios al SII para que AkuoSplash pueda emitir los pagos. Esto aplica a los 3 planes. AkuoSplash no emite documentos tributarios por vos — vos sos responsable de emitirlos y declararlos al SII según corresponda.",
   },
   {
-    q: "¿Qué comisión cobra AkuoSplash por cada venta del marketplace?",
-    a: "Depende del plan: 17.5% en Gratis, 12.5% en Premium y 8.5% en Pro. Vos recibís el resto automáticamente vía MercadoPago Split. La comisión cubre desarrollo, soporte y adquisición de clientes del marketplace.",
+    q: "¿Necesito vehículo propio?",
+    a: "Sí. Necesitás al menos un camión o vehículo con capacidad para llevar agua. Plan Gratis y Premium: hasta 1 vehículo y 1 chofer. Plan Pro: hasta 5 vehículos y 5 choferes. La gestión de camiones (pestaña Camiones) solo está disponible en el plan Pro.",
   },
   {
     q: "¿Hay algún fee si no uso MercadoPago Split?",
@@ -298,16 +298,16 @@ const FAQS = [
     a: "Sí. Podés usar el panel solo para gestionar tus clientes actuales y tu operación propia, sin tocar el marketplace. Las herramientas de Entregas, Gastos, Clientes, Recurrentes e Historial funcionan para tu operación. El marketplace es una fuente adicional de pedidos cuando esté disponible.",
   },
   {
-    q: "¿Necesito vehículo propio?",
-    a: "Sí. Necesitás al menos un camión o vehículo con capacidad para llevar agua. Plan Gratis y Premium: hasta 1 vehículo y 1 chofer. Plan Pro: hasta 5 vehículos y 5 choferes. La gestión de camiones (pestaña Camiones) solo está disponible en el plan Pro.",
-  },
-  {
-    q: "¿Puedo tener choferes que trabajen para mí?",
-    a: "Sí, en el plan Pro. Los registrás en la pestaña Equipo, les asignás vueltas y cada chofer tiene su propia sesión para reportar sus entregas. Plan Pro: hasta 5 choferes. En Gratis y Premium el límite es 1 chofer (vos mismo).",
-  },
-  {
     q: "¿En qué zonas funciona el marketplace?",
     a: "El marketplace estará disponible próximamente en las comunas donde AkuoSplash tenga clientes registrados pidiendo agua. Si tu zona todavía no tiene pedidos del marketplace, podés igualmente usar todas las herramientas de productividad con tus clientes propios.",
+  },
+  {
+    q: "¿Qué comisión cobra AkuoSplash por cada venta del marketplace?",
+    a: "Depende del plan: 17.5% en Gratis, 12.5% en Premium y 8.5% en Pro. Vos recibís el resto automáticamente vía MercadoPago Split* (cuando esté disponible junto con el marketplace). La comisión cubre desarrollo, soporte y adquisición de clientes del marketplace. *Solo si conectás tu cuenta de MP desde tu perfil.",
+  },
+  {
+    q: "¿AkuoSplash reporta al SII o es una herramienta contable?",
+    a: "No. AkuoSplash no es una herramienta contable y no reporta al SII ningún movimiento, ni siquiera los pedidos del marketplace ni los de tus clientes propios. Vos sos responsable de emitir tus documentos tributarios y declarar al SII según corresponda. Los reportes de AkuoSplash (liquidación, historial de vueltas, gastos) son informativos y deben ser revisados por un profesional contador antes de cualquier declaración tributaria.",
   },
 ];
 
@@ -410,8 +410,9 @@ export function TransportistaLanding() {
                 El panel completo para tu negocio de reparto de agua
               </h1>
               <p className="mt-4 text-lg text-blue-800/80">
-                Gestioná camiones, vueltas, entregas, gastos, clientes, liquidación y equipo en una sola app. MercadoPago Split para que cobres automático. <strong className="text-blue-900">+ Marketplace de AkuoSplash próximamente</strong> con clientes que piden agua en tu zona.
+                Gestioná camiones, vueltas, entregas, gastos, clientes, liquidación y equipo en una sola app. <strong className="text-blue-900">+ Marketplace de AkuoSplash próximamente</strong> con clientes que piden agua en tu zona, MercadoPago Split* para que cobres automático.
               </p>
+              <p className="mt-2 text-xs text-blue-700/60">* MercadoPago Split estará disponible junto con el marketplace. Solo funciona si conectás tu cuenta de MercadoPago desde tu perfil.</p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link href="/akuosplash?view=register-transportista">
                   <Button size="lg" className="w-full bg-blue-600 text-white hover:bg-blue-700 sm:w-auto">
@@ -427,9 +428,9 @@ export function TransportistaLanding() {
               </div>
               <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-blue-700/80">
                 <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> 11 herramientas de productividad</span>
-                <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> MercadoPago Split</span>
-                <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-blue-500" /> Marketplace próximamente</span>
+                <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-blue-500" /> Marketplace + MP Split* próximamente</span>
               </div>
+              <p className="mt-1 text-[10px] text-blue-700/50">* Solo si conectás tu cuenta de MercadoPago desde tu perfil.</p>
             </div>
             <div className="relative">
               <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-cyan-200/60 blur-2xl" />
@@ -489,8 +490,8 @@ export function TransportistaLanding() {
             <p className="text-xs text-blue-700/70">planes (Gratis / Premium / Pro)</p>
           </div>
           <div className="text-center">
-            <p className="text-3xl font-bold text-blue-900">MP Split</p>
-            <p className="text-xs text-blue-700/70">en los 3 planes</p>
+            <p className="text-3xl font-bold text-blue-900">MP Split*</p>
+            <p className="text-xs text-blue-700/70">próximamente (con marketplace)</p>
           </div>
           <div className="text-center">
             <p className="text-3xl font-bold text-blue-900">24/7</p>
@@ -562,8 +563,9 @@ export function TransportistaLanding() {
               </div>
               <h2 className="text-3xl font-extrabold sm:text-4xl">+ Marketplace de AkuoSplash</h2>
               <p className="mt-4 text-blue-200/80">
-                AkuoSplash está armando una red de clientes que piden agua a domicilio. Cuando esté disponible y haya clientes en tu zona, los pedidos te van a aparecer en la pestaña <strong className="text-white">Pedidos</strong>. Vos decidís si los tomás. Si los tomás, los entregás y cobrás tu porcentaje del valor del pedido vía MercadoPago Split.
+                AkuoSplash está armando una red de clientes que piden agua a domicilio. Cuando esté disponible y haya clientes en tu zona, los pedidos entrarán al <strong className="text-white">módulo del marketplace</strong> (sección propia dentro del panel, conectada a las herramientas de productividad). Vos decidís si los tomás. Si los tomás, los entregás y cobrás tu porcentaje del valor del pedido vía MercadoPago Split*.
               </p>
+              <p className="mt-2 text-xs text-blue-300/60">* MercadoPago Split funciona solo si conectás tu cuenta de MercadoPago desde tu perfil. Estará disponible junto con el marketplace.</p>
               <ul className="mt-6 space-y-3 text-sm">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-cyan-400" />
@@ -579,7 +581,7 @@ export function TransportistaLanding() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-cyan-400" />
-                  <span className="text-blue-100"><strong className="text-white">MercadoPago Split automático.</strong> El pago se divide entre la comisión y tu porcentaje en cada venta.</span>
+                  <span className="text-blue-100"><strong className="text-white">MercadoPago Split automático*.</strong> El pago se divide entre la comisión y tu porcentaje en cada venta.</span>
                 </li>
               </ul>
               <p className="mt-6 text-xs text-blue-300/70">
@@ -590,8 +592,8 @@ export function TransportistaLanding() {
               <Card className="border border-white/10 bg-white/5 backdrop-blur">
                 <CardHeader className="border-b border-white/10">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-base text-white">Pestaña Pedidos (próximamente)</CardTitle>
-                    <ClipboardList className="h-5 w-5 text-cyan-400" />
+                    <CardTitle className="text-base text-white">Módulo Marketplace (próximamente)</CardTitle>
+                    <ShoppingCart className="h-5 w-5 text-cyan-400" />
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2 p-4 opacity-60">
@@ -691,11 +693,11 @@ export function TransportistaLanding() {
                     <p className="text-xs text-blue-700/70">({p.comisionPct}% comisión AkuoSplash)</p>
                   </div>
                   <div className="rounded-lg bg-white/70 p-3">
-                    <p className="text-xs font-medium text-blue-700">MercadoPago Split</p>
+                    <p className="text-xs font-medium text-blue-700">MercadoPago Split* <span className="text-amber-700">(próximamente)</span></p>
                     <p className="text-sm text-blue-900">
                       {p.pagoDiferadoDias === 0 ? "Pago instantáneo" : `Pago a ${p.pagoDiferadoDias} días`}
                     </p>
-                    <p className="text-xs text-blue-700/70">Conectás tu cuenta MP una vez</p>
+                    <p className="text-[10px] text-blue-700/60">* Disponible junto con el marketplace. Solo si conectás tu cuenta de MP.</p>
                   </div>
                   <div className="rounded-lg bg-white/70 p-3">
                     <p className="text-xs font-medium text-blue-700">Vehículos y choferes</p>
@@ -708,8 +710,8 @@ export function TransportistaLanding() {
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-700">Herramientas incluidas</p>
                     <ul className="grid grid-cols-1 gap-1.5 text-sm">
                       <li className="flex items-center gap-2"><Check yes={p.incluye.dashboard} /> Dashboard</li>
-                      <li className="flex items-center gap-2"><Check yes={p.incluye.pedidos} /> Pedidos (marketplace)</li>
-                      <li className="flex items-center gap-2"><Check yes={p.incluye.entregas} /> Entregas y vueltas</li>
+                      <li className="flex items-center gap-2"><Check yes={p.incluye.pedidos} /> Pedidos (clientes propios)</li>
+                      <li className="flex items-center gap-2"><Check yes={p.incluye.entregas} /> Entregas (historial)</li>
                       <li className="flex items-center gap-2"><Check yes={p.incluye.camiones} /> Camiones (gestión)</li>
                       <li className="flex items-center gap-2"><Check yes={p.incluye.gastos} /> Gastos operativos</li>
                       <li className="flex items-center gap-2"><Check yes={p.incluye.liquidacion} /> Liquidación</li>
@@ -722,8 +724,9 @@ export function TransportistaLanding() {
                   </div>
 
                   <div className="rounded-lg bg-blue-50/50 p-2.5 text-xs text-blue-700/80">
-                    <p className="font-medium text-blue-900">Fee por retiro manual</p>
+                    <p className="font-medium text-blue-900">Fee por retiro manual*</p>
                     <p>$3.290 fijo + 1.7% del monto (todos los planes)</p>
+                    <p className="text-[10px] text-blue-700/60 mt-1">* Aplica cuando retirás dinero en vez de recibirlo por MP Split automático.</p>
                   </div>
 
                   <div className="pt-2">
@@ -752,7 +755,10 @@ export function TransportistaLanding() {
             ))}
           </div>
           <p className="mt-6 text-center text-xs text-blue-700/60">
-            Los planes se cobran por mes y podés cancelar cuando quieras. MercadoPago Split disponible en los 3 planes.
+            Los planes se cobran por mes y podés cancelar cuando quieras. MercadoPago Split* estará disponible en los 3 planes junto con el marketplace.
+          </p>
+          <p className="mt-1 text-center text-[10px] text-blue-700/50">
+            * Solo si conectás tu cuenta de MercadoPago desde tu perfil. AkuoSplash no es una herramienta contable ni reporta al SII ningún movimiento.
           </p>
         </div>
       </section>
@@ -840,8 +846,9 @@ export function TransportistaLanding() {
           <Droplets className="mx-auto h-12 w-12 text-cyan-200" />
           <h2 className="mt-4 text-3xl font-extrabold sm:text-4xl">Empezá a usar tu panel hoy</h2>
           <p className="mt-3 text-blue-100">
-            Registro 100% online. Empezá gratis con el panel básico y MercadoPago Split. Subí a Premium o Pro cuando quieras más herramientas.
+            Registro 100% online. Empezá gratis con el panel básico de productividad. MercadoPago Split* estará disponible junto con el marketplace. Subí a Premium o Pro cuando quieras más herramientas.
           </p>
+          <p className="mt-2 text-xs text-blue-200/70">* Solo si conectás tu cuenta de MercadoPago desde tu perfil. AkuoSplash no es una herramienta contable ni reporta al SII ningún movimiento.</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href="/akuosplash?view=register-transportista">
               <Button size="lg" className="w-full bg-white text-blue-700 hover:bg-blue-50 sm:w-auto">

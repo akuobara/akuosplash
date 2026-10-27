@@ -2481,3 +2481,45 @@ Stage Summary:
 - ✅ DEFAULT_PLAN_CONFIGS en akuosplash-plans.ts actualizado para coincidir con producción (fallback correcto para nuevas instalaciones)
 - ✅ Sin regresiones: dashboard, cliente, superadmin, API auth/me OK
 - ✅ Smoke test producción: 200 en todas las rutas + todos los keywords correctos presentes en el HTML
+
+---
+Task ID: landing-transportista-v4
+Agent: main
+Task: Aplicar correcciones de la v4 a la landing: MP Split tied to marketplace (con asterisco), Entregas no tiene vueltas, Historial de vueltas con disclaimer contable, Marketplace tiene su propio módulo, FAQ nuevo sobre SII.
+
+Work Log:
+- Rewrote Entregas card description: "Historial de entregas — propias y del marketplace cuando esté disponible. Cada entrega con cliente, fecha, litros, monto y método de pago. Para seguimiento y control de tu operación." (antes mencionaba vueltas activas y cierre de vuelta — incorrecto).
+- Rewrote Pedidos card description: "Creá y gestioná pedidos manuales para tus clientes propios. Asigná pedidos a tu vuelta actual, especificá litros, método de pago y cliente. Los pedidos del marketplace (cuando esté disponible) entran por un módulo separado." (antes decía "Toma pedidos del marketplace" — incorrecto).
+- Rewrote Historial de vueltas card description: "Cada vuelta pasada queda registrada... Filtrá por período, cliente o chofer. Para rendiciones y referencia operativa. AkuoSplash no es una herramienta contable: los resultados deben ser revisados por un profesional contador antes de cualquier declaración o reporte al SII."
+- Updated hero subheadline: "Gestioná camiones, vueltas, entregas... + Marketplace de AkuoSplash próximamente con clientes que piden agua en tu zona, MercadoPago Split* para que cobres automático." + asterisk note.
+- Updated hero badges: cambié "MercadoPago Split" + "Marketplace próximamente" por "Marketplace + MP Split* próximamente" (combo).
+- Updated stats bar: "MP Split*" with subtitle "próximamente (con marketplace)".
+- Rewrote marketplace section: "Cuando esté disponible y haya clientes en tu zona, los pedidos entrarán al módulo del marketplace (sección propia dentro del panel, conectada a las herramientas de productividad)".
+- Changed marketplace card title: "Módulo Marketplace (próximamente)" (antes "Pestaña Pedidos (próximamente)").
+- Changed marketplace card icon: ShoppingCart (antes ClipboardList).
+- Updated plan cards MP Split: "MercadoPago Split* (próximamente)" + nota "Disponible junto con el marketplace. Solo si conectás tu cuenta de MP."
+- Updated plan cards Entregas line: "Entregas (historial)" (antes "Entregas y vueltas").
+- Updated plan cards Pedidos line: "Pedidos (clientes propios)" (antes "Pedidos (marketplace)").
+- Updated fee por retiro manual con asterisco + nota "Aplica cuando retirás dinero en vez de recibirlo por MP Split automático".
+- Updated disclaimer al final de planes: "MercadoPago Split* estará disponible en los 3 planes junto con el marketplace. *Solo si conectás tu cuenta de MercadoPago desde tu perfil. AkuoSplash no es una herramienta contable ni reporta al SII ningún movimiento."
+- Updated CTA final text: "Empezá gratis con el panel básico de productividad. MercadoPago Split* estará disponible junto con el marketplace." + nota de disclaimer.
+- FAQ updates:
+  * "¿Qué herramientas tengo en cada plan?" → updated to mention MP Split con asterisk.
+  * "¿Qué es el marketplace de AkuoSplash?" → updated: pedidos entran al módulo del marketplace (no a pestaña Pedidos).
+  * "¿Necesito MercadoPago?" → rewrote: "MercadoPago Split* es lo que usa AkuoSplash... Estará disponible junto con el marketplace. *Solo si conectás tu cuenta... Las herramientas de productividad funcionan sin MercadoPago".
+  * "¿Tengo que subir documentos tributarios?" → updated: removida mención a Wasabel (no debe aparecer en la landing).
+  * "¿Qué comisión cobra AkuoSplash?" → updated with asterisk para MP Split.
+  * NEW: "¿AkuoSplash reporta al SII o es una herramienta contable?" → "No. AkuoSplash no es una herramienta contable y no reporta al SII ningún movimiento, ni siquiera los pedidos del marketplace ni los de tus clientes propios..."
+- Deployed via background script (setsid + disown + literal token). New deploy: dpl_J6cjqx5LQZix66Tx2CRTY — READY.
+
+Stage Summary:
+- ✅ Landing v4 LIVE en https://akuosplash.cl/akuosplash/quiero-repartir
+- ✅ MP Split marcado con asterisco "*" + nota "Solo si conectás tu cuenta de MercadoPago"
+- ✅ MP Split aclarado como parte del marketplace (próximamente, no disponible ahora)
+- ✅ Entregas description = historial de entregas (sin vueltas)
+- ✅ Historial de vueltas con disclaimer contable + revisión por contador
+- ✅ Marketplace tiene su propio módulo (no pestaña Pedidos)
+- ✅ Pedidos card = pedidos propios (no del marketplace)
+- ✅ FAQ nuevo "¿AkuoSplash reporta al SII?" = No, no reporta, no es herramienta contable
+- ✅ Wasabel eliminado de la landing (no mencionar proveedores externos)
+- ✅ Smoke test OK: 200 en todas las rutas + todos los keywords críticos presentes
