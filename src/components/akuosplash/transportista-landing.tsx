@@ -72,7 +72,7 @@ const DEFAULT_PLANES: PlanInfo[] = [
     id: "gratis",
     nombre: "Gratis",
     precioMensual: 0,
-    comisionPct: 17.5,
+    comisionPct: 15,
     pagoDiferadoDias: 10,
     maxVehiculos: 1,
     maxChoferes: 1,
@@ -268,48 +268,8 @@ const PASOS = [
   },
 ];
 
-const FAQS = [
-  {
-    q: "¿Qué herramientas tengo en cada plan?",
-    a: "Plan Gratis: Dashboard, Entregas y Perfil. Plan Premium: suma Pedidos, Gastos, Clientes, Recurrentes e Historial. Plan Pro: suma Camiones, Liquidación y Equipo. MercadoPago Split* estará disponible en los 3 planes junto con el marketplace. *Solo si conectás tu cuenta de MP desde tu perfil.",
-  },
-  {
-    q: "¿Qué es el marketplace de AkuoSplash?",
-    a: "Es una red de clientes que piden agua a domicilio a través de AkuoSplash. Cuando un cliente hace un pedido en tu zona, el pedido entra al módulo del marketplace (sección propia dentro del panel, conectada a las herramientas de productividad — no aparece en la pestaña Pedidos, que es para tus clientes propios). Vos decidís si lo tomás. Si lo tomás, lo entregás y cobrás tu porcentaje del valor del pedido. El marketplace estará disponible próximamente y puede no estar disponible en todas las zonas al inicio.",
-  },
-  {
-    q: "¿Necesito MercadoPago para usar la app?",
-    a: "MercadoPago Split* es lo que usa AkuoSplash para dividir automáticamente los pagos del marketplace entre la comisión y tu porcentaje. Estará disponible junto con el marketplace. Conectás tu cuenta de MercadoPago una sola vez desde tu perfil. El pago te llegaría: en plan Gratis a 10 días, en Premium y Pro de forma instantánea. *Solo si conectás tu cuenta de MercadoPago. Las herramientas de productividad funcionan sin MercadoPago (podés operar con tus clientes propios sin MP).",
-  },
-  {
-    q: "¿Tengo que subir documentos tributarios?",
-    a: "Sí. Todos los transportistas que aceptan ventas por el marketplace deben subir sus documentos tributarios al SII para que AkuoSplash pueda emitir los pagos. Esto aplica a los 3 planes. AkuoSplash no emite documentos tributarios por vos — vos sos responsable de emitirlos y declararlos al SII según corresponda.",
-  },
-  {
-    q: "¿Necesito vehículo propio?",
-    a: "Sí. Necesitás al menos un camión o vehículo con capacidad para llevar agua. Plan Gratis y Premium: hasta 1 vehículo y 1 chofer. Plan Pro: hasta 5 vehículos y 5 choferes. La gestión de camiones (pestaña Camiones) solo está disponible en el plan Pro.",
-  },
-  {
-    q: "¿Hay algún fee si no uso MercadoPago Split?",
-    a: "Sí. Si retirás dinero de forma manual en vez de recibir el pago automático por MP Split, se aplica un fee de $3.290 CLP fijo + 1.7% del monto retirado. Es el mismo fee para los 3 planes.",
-  },
-  {
-    q: "¿Las herramientas de productividad funcionan aunque no use el marketplace?",
-    a: "Sí. Podés usar el panel solo para gestionar tus clientes actuales y tu operación propia, sin tocar el marketplace. Las herramientas de Entregas, Gastos, Clientes, Recurrentes e Historial funcionan para tu operación. El marketplace es una fuente adicional de pedidos cuando esté disponible.",
-  },
-  {
-    q: "¿En qué zonas funciona el marketplace?",
-    a: "El marketplace estará disponible próximamente en las comunas donde AkuoSplash tenga clientes registrados pidiendo agua. Si tu zona todavía no tiene pedidos del marketplace, podés igualmente usar todas las herramientas de productividad con tus clientes propios.",
-  },
-  {
-    q: "¿Qué comisión cobra AkuoSplash por cada venta del marketplace?",
-    a: "Depende del plan: 17.5% en Gratis, 12.5% en Premium y 8.5% en Pro. Vos recibís el resto automáticamente vía MercadoPago Split* (cuando esté disponible junto con el marketplace). La comisión cubre desarrollo, soporte y adquisición de clientes del marketplace. *Solo si conectás tu cuenta de MP desde tu perfil.",
-  },
-  {
-    q: "¿AkuoSplash reporta al SII o es una herramienta contable?",
-    a: "AkuoSplash no es una herramienta contable. Las ventas del marketplace SÍ se reportan al SII (es obligación legal cuando el marketplace esté disponible). Las ventas a tus clientes propios NO se reportan: vos sos responsable de declararlas al SII por tu cuenta ya que AkuoSplash no tiene control ni autoridad sobre cómo manejás tus movimientos con tus clientes. Los reportes de AkuoSplash (liquidación, historial de vueltas, gastos) son informativos y deben ser revisados por un profesional contador antes de cualquier declaración tributaria.",
-  },
-];
+// Fallback de fee manual si la API no responde
+const DEFAULT_FEE_MANUAL = { fijo: 3290, pct: 1.7 };
 
 function formatCLP(n: number): string {
   return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(n);
@@ -325,11 +285,12 @@ function Check({ yes }: { yes: boolean }) {
 
 export function TransportistaLanding() {
   const [planes, setPlanes] = useState<PlanInfo[]>(DEFAULT_PLANES);
+  const [feeManual, setFeeManual] = useState(DEFAULT_FEE_MANUAL);
+  const [mpSandbox, setMpSandbox] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Intentar cargar la config publicada desde la API pública (cuando exista).
-    // Si falla, usar los DEFAULT_PLANES que ya están alineados con la config de producción.
-    fetch("/api/akuosplash/planes")
+    fetch("/api/akuosplash/planes", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.planes && Array.isArray(d.planes)) {
@@ -368,9 +329,76 @@ export function TransportistaLanding() {
           mapped.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
           setPlanes(mapped);
         }
+        if (d?.feeManual) {
+          setFeeManual({
+            fijo: Number(d.feeManual.fijo) || DEFAULT_FEE_MANUAL.fijo,
+            pct: Number(d.feeManual.pct) || DEFAULT_FEE_MANUAL.pct,
+          });
+        }
+        if (typeof d?.mpSandbox === "boolean") setMpSandbox(d.mpSandbox);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
+
+  // Helper: buscar plan por id en el estado actual
+  const getPlan = (id: PlanId) => planes.find((p) => p.id === id);
+  const planGratis = getPlan("gratis");
+  const planPremium = getPlan("premium");
+  const planPro = getPlan("pro");
+
+  // Helper: texto de comisiones para reusar en FAQ/sección marketplace
+  const comisionesTxt = `${planGratis?.comisionPct}% en Gratis, ${planPremium?.comisionPct}% en Premium y ${planPro?.comisionPct}% en Pro`;
+  const feeManualTxt = `$${feeManual.fijo.toLocaleString("es-CL")} CLP fijo + ${feeManual.pct}% del monto`;
+  const feeManualCortoTxt = `$${feeManual.fijo.toLocaleString("es-CL")} fijo + ${feeManual.pct}% del monto`;
+  // Texto dinámico para límites por plan ("1 vehículo y 1 chofer" / "5 vehículos y 5 choferes")
+  const limitesTxt = (p?: PlanInfo) => p ? `hasta ${p.maxVehiculos} vehículo${p.maxVehiculos > 1 ? "s" : ""} y ${p.maxChoferes} chofer${p.maxChoferes > 1 ? "es" : ""}` : "";
+  // Texto dinámico para pago MP Split: el tiempo de pago lo decide cada usuario en su cuenta de MP
+  // (no depende del plan, todos los planes usan MP Split igual)
+
+  // FAQ generado dinámicamente con los valores actuales de la API
+  const FAQS = [
+    {
+      q: "¿Qué herramientas tengo en cada plan?",
+      a: "Plan Gratis: Dashboard, Entregas y Perfil. Plan Premium: suma Pedidos, Gastos, Clientes, Recurrentes e Historial. Plan Pro: suma Camiones, Liquidación y Equipo. MercadoPago Split* estará disponible en los 3 planes junto con el marketplace. *Solo si conectás tu cuenta de MP desde tu perfil.",
+    },
+    {
+      q: "¿Qué es el marketplace de AkuoSplash?",
+      a: "Es una red de clientes que piden agua a domicilio a través de AkuoSplash. Cuando un cliente hace un pedido en tu zona, el pedido entra al módulo del marketplace (sección propia dentro del panel, conectada a las herramientas de productividad — no aparece en la pestaña Pedidos, que es para tus clientes propios). Vos decidís si lo tomás. Si lo tomás, lo entregás y cobrás tu porcentaje del valor del pedido. El marketplace estará disponible próximamente y puede no estar disponible en todas las zonas al inicio.",
+    },
+    {
+      q: "¿Necesito MercadoPago para usar la app?",
+      a: `MercadoPago Split* es lo que usa AkuoSplash para dividir automáticamente los pagos del marketplace entre la comisión y tu porcentaje. Estará disponible junto con el marketplace. Conectás tu cuenta de MercadoPago una sola vez desde tu perfil. El tiempo de pago (inmediato o diferido) lo decidís vos en la configuración de tu cuenta de MercadoPago — no depende del plan. *Solo si conectás tu cuenta de MercadoPago. Las herramientas de productividad funcionan sin MercadoPago (podés operar con tus clientes propios sin MP).`,
+    },
+    {
+      q: "¿Tengo que subir documentos tributarios?",
+      a: "Sí. Todos los transportistas que aceptan ventas por el marketplace deben subir sus documentos tributarios al SII para que AkuoSplash pueda emitir los pagos. Esto aplica a los 3 planes. AkuoSplash no emite documentos tributarios por vos — vos sos responsable de emitirlos y declararlos al SII según corresponda.",
+    },
+    {
+      q: "¿Necesito vehículo propio?",
+      a: `Sí. Necesitás al menos un camión o vehículo con capacidad para llevar agua. Plan Gratis y Premium: ${limitesTxt(planGratis)}. Plan Pro: ${limitesTxt(planPro)}. La gestión de camiones (pestaña Camiones) solo está disponible en el plan Pro.`,
+    },
+    {
+      q: "¿Hay algún fee si no uso MercadoPago Split?",
+      a: `Sí. Si retirás dinero de forma manual en vez de recibir el pago automático por MP Split, se aplica un fee de ${feeManualTxt}. Es el mismo fee para los 3 planes.`,
+    },
+    {
+      q: "¿Las herramientas de productividad funcionan aunque no use el marketplace?",
+      a: "Sí. Podés usar el panel solo para gestionar tus clientes actuales y tu operación propia, sin tocar el marketplace. Las herramientas de Entregas, Gastos, Clientes, Recurrentes e Historial funcionan para tu operación. El marketplace es una fuente adicional de pedidos cuando esté disponible.",
+    },
+    {
+      q: "¿En qué zonas funciona el marketplace?",
+      a: "El marketplace estará disponible próximamente en las comunas donde AkuoSplash tenga clientes registrados pidiendo agua. Si tu zona todavía no tiene pedidos del marketplace, podés igualmente usar todas las herramientas de productividad con tus clientes propios.",
+    },
+    {
+      q: "¿Qué comisión cobra AkuoSplash por cada venta del marketplace?",
+      a: `Depende del plan: ${comisionesTxt}. Vos recibís el resto automáticamente vía MercadoPago Split* (cuando esté disponible junto con el marketplace). La comisión cubre desarrollo, soporte y adquisición de clientes del marketplace. *Solo si conectás tu cuenta de MP desde tu perfil.`,
+    },
+    {
+      q: "¿AkuoSplash reporta al SII o es una herramienta contable?",
+      a: "AkuoSplash no es una herramienta contable. Las ventas del marketplace SÍ se reportan al SII (es obligación legal cuando el marketplace esté disponible). Las ventas a tus clientes propios NO se reportan: vos sos responsable de declararlas al SII por tu cuenta ya que AkuoSplash no tiene control ni autoridad sobre cómo manejás tus movimientos con tus clientes. Los reportes de AkuoSplash (liquidación, historial de vueltas, gastos) son informativos y deben ser revisados por un profesional contador antes de cualquier declaración tributaria.",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -577,7 +605,7 @@ export function TransportistaLanding() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-cyan-400" />
-                  <span className="text-blue-100"><strong className="text-white">Comisión variable según plan.</strong> 17.5% en Gratis, 12.5% en Premium, 8.5% en Pro. Vos recibís el resto.</span>
+                  <span className="text-blue-100"><strong className="text-white">Comisión variable según plan.</strong> {comisionesTxt}. Vos recibís el resto.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-cyan-400" />
@@ -694,9 +722,7 @@ export function TransportistaLanding() {
                   </div>
                   <div className="rounded-lg bg-white/70 p-3">
                     <p className="text-xs font-medium text-blue-700">MercadoPago Split* <span className="text-amber-700">(próximamente)</span></p>
-                    <p className="text-sm text-blue-900">
-                      {p.pagoDiferadoDias === 0 ? "Pago instantáneo" : `Pago a ${p.pagoDiferadoDias} días`}
-                    </p>
+                    <p className="text-sm text-blue-900">Pago decidido en tu cuenta MP</p>
                     <p className="text-[10px] text-blue-700/60">* Disponible junto con el marketplace. Solo si conectás tu cuenta de MP.</p>
                   </div>
                   <div className="rounded-lg bg-white/70 p-3">
@@ -725,7 +751,7 @@ export function TransportistaLanding() {
 
                   <div className="rounded-lg bg-blue-50/50 p-2.5 text-xs text-blue-700/80">
                     <p className="font-medium text-blue-900">Fee por retiro manual*</p>
-                    <p>$3.290 fijo + 1.7% del monto (todos los planes)</p>
+                    <p>{feeManualCortoTxt} (todos los planes)</p>
                     <p className="text-[10px] text-blue-700/60 mt-1">* Aplica cuando retirás dinero en vez de recibirlo por MP Split automático.</p>
                   </div>
 

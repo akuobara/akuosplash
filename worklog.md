@@ -2541,3 +2541,48 @@ Stage Summary:
 - ✅ FAQ "¿AkuoSplash reporta al SII?" corregido — distingue marketplace (SÍ reporta, ley) vs clientes propios (NO reporta, vos declarás)
 - ✅ Frase incorrecta "no reporta al SII ningún movimiento" eliminada por completo
 - ✅ Smoke test OK: 200 en todas las rutas + texto correcto presente en disclaimer visible
+
+---
+Task ID: landing-transportista-v6-v7
+Agent: main
+Task: Hacer la landing dinámica (que lea valores de la BD vía API) + corregir: el tiempo de pago MP lo decide cada usuario en su cuenta, no depende del plan.
+
+Work Log:
+- Leído estado actual de Turso (config publicada en producción):
+  * Gratis: comisionPct=15 (usuario cambió de 17.5% a 15%)
+  * Premium: comisionPct=12.5
+  * Pro: comisionPct=8.5
+  * retiroFeeFijoGlobal=3290, retiroFeePctGlobal=1.7, mpSandbox=true
+- Creado endpoint público `/api/akuosplash/planes/route.ts` (NO requiere auth):
+  * Lee planConfigs desde getPlanConfigs() (Turso) — devuelve los 3 planes con TODOS los campos
+  * Lee retiroFeeFijoGlobal, retiroFeePctGlobal, mpSandbox desde AkuoConfig
+  * Response: { planes: [...], feeManual: {fijo, pct}, mpSandbox: bool, generadoEn: ISO }
+  * Defaults: si no hay fila AkuoConfig o columnas, usa defaults sanos.
+- Actualizado `transportista-landing.tsx`:
+  * DEFAULT_PLANES Gratis actualizado: comisionPct=15 (alineado con producción)
+  * Estado nuevo: `feeManual` (state) y `mpSandbox` (state)
+  * fetch a /api/akuosplash/planes con `cache: 'no-store'` para evitar cache de Next
+  * Mapeo de respuesta de API → estado de PlanInfo + feeManual + mpSandbox
+  * Helpers dinámicos: `comisionesTxt`, `feeManualTxt`, `feeManualCortoTxt`, `limitesTxt(p)`
+  * FAQS movido dentro del component para usar valores dinámicos en las respuestas
+  * FAQ "¿Qué comisión cobra AkuoSplash?" → usa `comisionesTxt` (antes hardcoded "17.5%/12.5%/8.5%")
+  * FAQ "¿Hay algún fee si no uso MP Split?" → usa `feeManualTxt` (antes hardcoded "$3.290 + 1.7%")
+  * FAQ "¿Necesito vehículo propio?" → usa `limitesTxt(planGratis)` y `limitesTxt(planPro)` (antes hardcoded "1 vehículo/1 chofer" y "5 vehículos/5 choferes")
+  * FAQ "¿Necesito MercadoPago?" → rewrote: "El tiempo de pago (inmediato o diferido) lo decidís vos en la configuración de tu cuenta de MercadoPago — no depende del plan." (antes decía "en plan Gratis a 10 días, en Premium y Pro de forma instantánea")
+  * Marketplace section: "Comisión variable según plan. {comisionesTxt}." (antes hardcoded)
+  * Plan card "Fee por retiro manual": usa `feeManualCortoTxt` (antes hardcoded "$3.290 fijo + 1.7%")
+  * Plan card "MercadoPago Split": cambió de "Pago a X días / Pago instantáneo" a "Pago decidido en tu cuenta MP" (el tiempo de pago lo decide cada usuario en su cuenta de MP)
+- Deploy v6 (con dynamic code): dpl_H56QRK39ebP7BnEQ9nAD3 — READY
+- Deploy v7 (con corrección de MP timing): dpl_Do4xSRhe3VWeVpjdV5qV2 — READY
+
+Stage Summary:
+- ✅ Landing ahora DINÁMICA — cualquier cambio que el superadmin haga en AkuoConfig (comisiones, precios, límites, fee manual, features por plan) se refleja automáticamente en la landing al cargarla (no requiere redeploy)
+- ✅ API público /api/akuosplash/planes creado y funcionando en producción
+- ✅ API devuelve los 3 planes + feeManual + mpSandbox desde Turso
+- ✅ Verificado en producción:
+  * GET /api/akuosplash/planes → 200 con valores reales (Gratis=15%, Premium=12.5%, Pro=8.5%, fee=$3.290+1.7%)
+  * GET /akuosplash/quiero-repartir → 200
+  * "Pago decidido en tu cuenta MP" aparece en el HTML (reemplaza "Pago instantáneo / Pago a 10 días")
+  * "Pago instantáneo" y "Pago a 10 días" completamente AUSENTES (correcto)
+  * Sin regresiones: /akuosplash/transportista, /akuosplash/cliente, /api/akuosplash/auth/me → 200
+- ✅ DEFAULT_PLANES del frontend actualizado como fallback (Gratis=15%)
