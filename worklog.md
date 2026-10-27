@@ -2430,3 +2430,54 @@ Stage Summary:
 - ✅ Token Vercel se auto-expira en 24h (24h desde creación por el usuario)
 - ⚠️ Quedan 8 vars [SENSITIVE] sin cargar en el project akuosplash (mismas que antes — MP splits, MP sub, TRANSBANK, JWT_SECRET opcional si no es AKUOSPLASH_JWT_SECRET)
 - ⏳ PENDIENTE usuario: copiar las 8 vars [SENSITIVE] restantes desde el dashboard de Vercel del AljibeApp al akuosplash si quiere MP split y TRANSBANK funcionando
+
+---
+Task ID: landing-transportista-v3
+Agent: main
+Task: Reescribir landing de transportista con info correcta (precios, comisiones, fees, matriz de herramientas por plan) + actualizar DEFAULT_PLAN_CONFIGS en akuosplash-plans.ts para que coincida con la config publicada en producción.
+
+Work Log:
+- Leí la config REAL publicada en producción (Turso AkuoConfig.planConfigsJson + retiroFeeFijoGlobal/PctGlobal):
+  * Gratis: $0/mes, comisión 17.5%, MP Split (pago 10 días), 1 vehículo/1 chofer. Tools: dashboard + entregas + perfil + docUpload. NO pedidos/camiones/gastos/liquidacion/clientes/recurrentes/equipo/historial.
+  * Premium (y alias "pago"): $7.990/mes, comisión 12.5%, MP Split (pago instantáneo), 1 vehículo/1 chofer. Tools: dashboard + pedidos + entregas + gastos + clientes + recurrentes + historial + perfil. NO camiones/liquidacion/equipo.
+  * Pro: $23.990/mes, comisión 8.5%, MP Split (pago instantáneo), 5 vehículos/5 choferes. Tools: TODAS. Incluye camiones/liquidacion/equipo.
+  * mpPropio y wasabil = false para TODOS los planes (no existen en AkuoSplash).
+  * Fee por retiro manual (todos los planes): $3.290 CLP fijo + 1.7% del monto.
+  * MercadoPago Split = "split" en los 3 planes (cada transportista conecta su cuenta MP).
+- Updated `src/lib/akuosplash-plans.ts`:
+  * Agregué "split" a `MpSplitMode` type (era solo "none" | "10day" | "instant").
+  * DEFAULT_PLAN_CONFIGS gratis: 17.5% / "split" / pago 10 días / 1/1 / vehiculo=false / entregas=true / docUpload=true.
+  * DEFAULT_PLAN_CONFIGS premium (y pago alias): $7.990 / 12.5% / "split" / pago 0 días / 1/1 / vehiculo=false / liquidacion=false / equipo=false.
+  * DEFAULT_PLAN_CONFIGS pro: $23.990 / 8.5% / "split" / pago 0 días / 5/5 / TODAS las tools / mpPropio=false / wasabil=false / activa=true.
+- Rewrote `src/components/akuosplash/transportista-landing.tsx` (v3):
+  * Hero reformulado: "El panel completo para tu negocio de reparto de agua" + subheadline menciona MercadoPago Split + Marketplace próximamente.
+  * Stats bar corregido: 11 herramientas, 3 planes, MP Split, 24/7 (eliminé "0% costo registro" que era misleading).
+  * Sección "Las herramientas que conseguís" — 11 cards, cada una con badges visuales (3 dots en la esquina superior derecha) que indican en qué planes está disponible (Gratis=amber, Premium=blue, Pro=violet).
+  * Marketplace: sección con badge "Próximamente" + texto claro que no está disponible todavía / puede no estarlo en tu zona. El mockup de pedidos aparece con opacity-60 y mensaje "Marketplace no disponible todavía en tu zona".
+  * Cómo funciona: 4 pasos reorientados — registrar+MP, cargar clientes, gestionar vueltas+entregas, gastos+liquidación.
+  * Planes: 3 cards con info REAL publicada — precios exactos ($0 / $7.990 / $23.990), comisiones (17.5% / 12.5% / 8.5%), pago MP (10 días / instantáneo / instantáneo), límites (1-1 / 1-1 / 5-5), matriz ✓/— de las 11 herramientas, block de "Fee por retiro manual: $3.290 + 1.7%" en cada plan.
+  * FAQ: 10 preguntas reescritas con info correcta:
+    - ¿Qué herramientas tengo en cada plan?
+    - ¿Qué es el marketplace?
+    - ¿Necesito MercadoPago?
+    - ¿Tengo que subir documentos tributarios?
+    - ¿Qué comisión cobra AkuoSplash?
+    - ¿Hay algún fee si no uso MercadoPago Split?
+    - ¿Las herramientas funcionan sin usar el marketplace?
+    - ¿Necesito vehículo propio?
+    - ¿Puedo tener choferes?
+    - ¿En qué zonas funciona el marketplace?
+- Redeploy via script `scripts/deploy-landing-transportista.py` (recreó el directorio /home/z/my-project-akuosplash/ que se había borrado, copió archivos, deployó).
+- Deploy dpl_ETdWZ1ynH1yYRWcTT8iY6 — READY (BUILDING ~5min, cache hit).
+
+Stage Summary:
+- ✅ Landing v3 LIVE en https://akuosplash.cl/akuosplash/quiero-repartir
+- ✅ Todos los precios/comisiones/fees coinciden con la config publicada en BD
+- ✅ Matriz de herramientas por plan correcta (Pedidos no en Gratis, Camiones/Liquidación/Equipo solo en Pro, Entregas en todos)
+- ✅ Marketplace marcado como "Próximamente" + "no disponible en tu zona" (no oculto, no secret)
+- ✅ MercadoPago Split mencionado como feature de los 3 planes
+- ✅ Fee por retiro manual ($3.290 + 1.7%) visible en cada card de plan
+- ✅ Wasabel/MP propio eliminados de la landing (no son features de AkuoSplash)
+- ✅ DEFAULT_PLAN_CONFIGS en akuosplash-plans.ts actualizado para coincidir con producción (fallback correcto para nuevas instalaciones)
+- ✅ Sin regresiones: dashboard, cliente, superadmin, API auth/me OK
+- ✅ Smoke test producción: 200 en todas las rutas + todos los keywords correctos presentes en el HTML
