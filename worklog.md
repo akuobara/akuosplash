@@ -2523,3 +2523,21 @@ Stage Summary:
 - ✅ FAQ nuevo "¿AkuoSplash reporta al SII?" = No, no reporta, no es herramienta contable
 - ✅ Wasabel eliminado de la landing (no mencionar proveedores externos)
 - ✅ Smoke test OK: 200 en todas las rutas + todos los keywords críticos presentes
+
+---
+Task ID: landing-transportista-v5
+Task: Corregir error sobre SII reporting — las ventas del marketplace SÍ se reportan al SII (es ley), las de clientes propios NO las reporta AkuoSplash.
+
+Work Log:
+- Detectado error en v4: había escrito "AkuoSplash no reporta al SII ningún movimiento, ni siquiera los pedidos del marketplace" — INCORRECTO.
+- Corregido FAQ "¿AkuoSplash reporta al SII o es una herramienta contable?": "AkuoSplash no es una herramienta contable. Las ventas del marketplace SÍ se reportan al SII (es obligación legal cuando el marketplace esté disponible). Las ventas a tus clientes propios NO se reportan: vos sos responsable de declararlas al SII por tu cuenta ya que AkuoSplash no tiene control ni autoridad sobre cómo manejás tus movimientos con tus clientes. Los reportes de AkuoSplash (liquidación, historial de vueltas, gastos) son informativos y deben ser revisados por un profesional contador antes de cualquier declaración tributaria."
+- Corregido disclaimer al final de section planes: "AkuoSplash no es una herramienta contable. Las ventas del marketplace se reportan al SII (es la ley); las ventas a tus clientes propios no se reportan — vos sos responsable de declararlas."
+- Corregido disclaimer en CTA final section (mismo texto).
+- Deploy: dpl_3GFB78UHkZLGhMQj19kTC — READY.
+
+Stage Summary:
+- ✅ Landing v5 LIVE en https://akuosplash.cl/akuosplash/quiero-repartir
+- ✅ Disclaimer al final de cards de plan: "Las ventas del marketplace se reportan al SII (es la ley); las ventas a tus clientes propios no se reportan — vos sos responsable de declararlas."
+- ✅ FAQ "¿AkuoSplash reporta al SII?" corregido — distingue marketplace (SÍ reporta, ley) vs clientes propios (NO reporta, vos declarás)
+- ✅ Frase incorrecta "no reporta al SII ningún movimiento" eliminada por completo
+- ✅ Smoke test OK: 200 en todas las rutas + texto correcto presente en disclaimer visible

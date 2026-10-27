@@ -307,7 +307,7 @@ const FAQS = [
   },
   {
     q: "¿AkuoSplash reporta al SII o es una herramienta contable?",
-    a: "No. AkuoSplash no es una herramienta contable y no reporta al SII ningún movimiento, ni siquiera los pedidos del marketplace ni los de tus clientes propios. Vos sos responsable de emitir tus documentos tributarios y declarar al SII según corresponda. Los reportes de AkuoSplash (liquidación, historial de vueltas, gastos) son informativos y deben ser revisados por un profesional contador antes de cualquier declaración tributaria.",
+    a: "AkuoSplash no es una herramienta contable. Las ventas del marketplace SÍ se reportan al SII (es obligación legal cuando el marketplace esté disponible). Las ventas a tus clientes propios NO se reportan: vos sos responsable de declararlas al SII por tu cuenta ya que AkuoSplash no tiene control ni autoridad sobre cómo manejás tus movimientos con tus clientes. Los reportes de AkuoSplash (liquidación, historial de vueltas, gastos) son informativos y deben ser revisados por un profesional contador antes de cualquier declaración tributaria.",
   },
 ];
 
@@ -758,7 +758,7 @@ export function TransportistaLanding() {
             Los planes se cobran por mes y podés cancelar cuando quieras. MercadoPago Split* estará disponible en los 3 planes junto con el marketplace.
           </p>
           <p className="mt-1 text-center text-[10px] text-blue-700/50">
-            * Solo si conectás tu cuenta de MercadoPago desde tu perfil. AkuoSplash no es una herramienta contable ni reporta al SII ningún movimiento.
+            * Solo si conectás tu cuenta de MercadoPago desde tu perfil. AkuoSplash no es una herramienta contable. Las ventas del marketplace se reportan al SII (es la ley); las ventas a tus clientes propios no se reportan — vos sos responsable de declararlas.
           </p>
         </div>
       </section>
@@ -848,7 +848,7 @@ export function TransportistaLanding() {
           <p className="mt-3 text-blue-100">
             Registro 100% online. Empezá gratis con el panel básico de productividad. MercadoPago Split* estará disponible junto con el marketplace. Subí a Premium o Pro cuando quieras más herramientas.
           </p>
-          <p className="mt-2 text-xs text-blue-200/70">* Solo si conectás tu cuenta de MercadoPago desde tu perfil. AkuoSplash no es una herramienta contable ni reporta al SII ningún movimiento.</p>
+          <p className="mt-2 text-xs text-blue-200/70">* Solo si conectás tu cuenta de MercadoPago desde tu perfil. AkuoSplash no es una herramienta contable. Las ventas del marketplace se reportan al SII (es la ley); las ventas a tus clientes propios no se reportan — vos sos responsable de declararlas.</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href="/akuosplash?view=register-transportista">
               <Button size="lg" className="w-full bg-white text-blue-700 hover:bg-blue-50 sm:w-auto">
