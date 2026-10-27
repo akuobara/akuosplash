@@ -2586,3 +2586,37 @@ Stage Summary:
   * "Pago instantáneo" y "Pago a 10 días" completamente AUSENTES (correcto)
   * Sin regresiones: /akuosplash/transportista, /akuosplash/cliente, /api/akuosplash/auth/me → 200
 - ✅ DEFAULT_PLANES del frontend actualizado como fallback (Gratis=15%)
+
+---
+Task ID: dashboard-textos-v8
+Agent: main
+Task: Fixear textos desactualizados en el dashboard del transportista (BasicPanel, PerfilGratis, SubscripcionTab) que decían "Solo marketplace", "Sin MP split", "MP 10d", "MP instant", etc. — los mismos errores que ya habíamos fixeado en la landing pública.
+
+Work Log:
+- Diagnóstico: el screenshot que mandó el usuario (Plan Gratis dashboard) reveló que el componente `basic-panel.tsx` todavía tenía los textos viejos:
+  * "Solo marketplace. Comisión X%. Sin MP split — subís tus documentos tributarios para recibir pago."
+  * Badge "💳 Sin MP split"
+  * Cards de upgrade Premium/Pro con "15% comisión · MP 10d" / "$15.000/mes" / "10% comisión · MP instant" / "$50.000/mes" (hardcoded, no dinámico)
+- Componentes con el mismo problema:
+  * `basic-panel.tsx` — el dashboard principal de Plan Gratis (lo que veía el usuario)
+  * `perfil-gratis.tsx` — banner de aviso "Solo marketplace" + nota "Plan Gratis no incluye: ... MP split ..."
+  * `subscripcion-tab.tsx` — label "MP split inmediato" / "MP split a 10 días" / "Sin MP split (subís factura)"
+- Fix aplicado a `basic-panel.tsx`:
+  * Banner: "Panel básico de productividad. Marketplace próximamente. Comisión X% del marketplace. MercadoPago Split* disponible junto con el marketplace."
+  * Badges: "💳 MP Split* (próximamente)" (en vez de "Sin MP split")
+  * Nota asterisco: "* MP Split funciona solo si conectás tu cuenta de MercadoPago desde tu perfil."
+  * Estado del registro: "Para participar en el marketplace (próximamente) necesitás..." (agregué "(próximamente)")
+  * Cards de upgrade Premium/Pro ahora DINÁMICAS: leen comisionPct y precioMensual desde /api/akuosplash/planes (en vez de hardcoded "15% / $15.000 / 10% / $50.000")
+  * Descripción de upgrade: "Desbloqueá gastos, clientes, pedidos recurrentes, historial, liquidación y equipo..." (quitada la mención a "vueltas" y "pago más rápido")
+- Fix aplicado a `perfil-gratis.tsx`:
+  * Banner: "Estás en Plan Gratis. Marketplace próximamente. Necesitás registrar tu empresa, un chofer... y un vehículo para poder aceptar pedidos cuando el marketplace esté disponible."
+  * Nota "Plan Gratis no incluye": ahora dice "gestión de camiones, clientes propios, gastos, liquidación, pedidos recurrentes, historial de vueltas y equipo" (removida "MP split" de la lista porque MP Split es para todos los planes)
+- Fix aplicado a `subscripcion-tab.tsx`:
+  * mpModeLabel: cambió de switch instant/10day/none a "MP Split* (próximamente con marketplace)" — el tiempo de pago lo decide cada usuario en su cuenta de MP, no el plan
+- Deploy: dpl_3uS2vcmsd5KWCdXt4hapf — READY
+
+Stage Summary:
+- ✅ Dashboard del transportista ya no dice "Solo marketplace", "Sin MP split", "MP 10d", "MP instant" ni ninguna de las frases incorrectas
+- ✅ Cards de upgrade Premium/Pro ahora DINÁMICAS (leen de /api/akuosplash/planes) — si cambiás comisiones/precios en el admin, se refleja acá también
+- ✅ MP Split ahora marcado con asterisco y "próximamente" en TODOS los componentes (basic-panel, perfil-gratis, subscripcion-tab)
+- ✅ Smoke test OK: 200 en todas las rutas + verificado en producción

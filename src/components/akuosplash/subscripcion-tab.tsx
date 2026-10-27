@@ -229,10 +229,9 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     const activeFeatures = featureLabels.filter(([k]) => plan.features[k]);
     const inactiveFeatures = featureLabels.filter(([k]) => !plan.features[k]);
 
-    // MP split mode label
-    const mpModeLabel = plan.mpSplitMode === "instant" ? "MP split inmediato"
-      : plan.mpSplitMode === "10day" ? "MP split a 10 días"
-      : "Sin MP split (subís factura)";
+    // MP split mode label — todos los planes usan MP Split cuando el marketplace esté disponible
+    // El tiempo de pago (inmediato / diferido) lo decide cada usuario en su cuenta de MercadoPago
+    const mpModeLabel = "MP Split* (próximamente con marketplace)";
 
     return (
       <Card className={`relative ${isSelected ? "border-blue-500 ring-2 ring-blue-200" : ""}`}>

@@ -27,11 +27,36 @@ interface MarketplaceStats {
   totalEntregas: number;
 }
 
+// Datos dinámicos de los 3 planes (cargados desde /api/akuosplash/planes)
+interface PlanPublico {
+  comisionPct: number;
+  precioMensual: number;
+}
+interface PlanesData {
+  gratis?: PlanPublico;
+  premium?: PlanPublico;
+  pro?: PlanPublico;
+}
+
 export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedidos, onGoToVehiculo, onGoToPerfil }: BasicPanelProps) {
   const [stats, setStats] = useState<MarketplaceStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [planesData, setPlanesData] = useState<PlanesData>({});
 
   useEffect(() => {
+    // Cargar valores publicados de los 3 planes para mostrar en el banner de upgrade
+    fetch("/api/akuosplash/planes", { cache: "no-store" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.planes && Array.isArray(d.planes)) {
+          const obj: PlanesData = {};
+          for (const p of d.planes) {
+            obj[p.id] = { comisionPct: p.comisionPct, precioMensual: p.precioMensual };
+          }
+          setPlanesData(obj);
+        }
+      })
+      .catch(() => {});
     (async () => {
       try {
         // Cargar stats básicas del marketplace (cuántos pedidos pendientes tengo)
@@ -70,14 +95,15 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
                 Estás en Plan <span className="uppercase text-amber-700">Gratis</span>
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Solo marketplace. Comisión {plan.comisionPct}%. Sin MP split — subís tus documentos tributarios para recibir pago.
+                Panel básico de productividad. Marketplace próximamente. Comisión {plan.comisionPct}% del marketplace. MercadoPago Split* disponible junto con el marketplace.
               </p>
               <div className="flex flex-wrap gap-2 mt-2 text-[11px]">
-                <Badge variant="outline" className="bg-white">💵 {plan.comisionPct}% comisión</Badge>
-                <Badge variant="outline" className="bg-white">💳 Sin MP split</Badge>
+                <Badge variant="outline" className="bg-white">💵 {plan.comisionPct}% comisión marketplace</Badge>
+                <Badge variant="outline" className="bg-white">💳 MP Split* (próximamente)</Badge>
                 <Badge variant="outline" className="bg-white">🚛 1 vehículo</Badge>
                 <Badge variant="outline" className="bg-white">👥 1 chofer</Badge>
               </div>
+              <p className="text-[10px] text-muted-foreground mt-1.5">* MP Split funciona solo si conectás tu cuenta de MercadoPago desde tu perfil.</p>
             </div>
             <Button size="sm" onClick={onGoToSubscripcion} className="bg-amber-600 hover:bg-amber-700 text-white shrink-0">
               <Sparkles className="h-4 w-4 mr-1" /> Subir de plan
@@ -95,7 +121,7 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-xs text-muted-foreground mb-2">
-            Para participar en el marketplace necesitás tener registrados: tu empresa, un chofer (persona natural con su propio RUT + licencia) y un vehículo.
+            Para participar en el marketplace (próximamente) necesitás tener registrados: tu empresa, un chofer (persona natural con su propio RUT + licencia) y un vehículo.
           </p>
           <Row label="Empresa (RUT + razón social)" ok={!!(user?.rutEmpresa && user?.razonSocial)} onClick={onGoToPerfil} />
           <Row label="Chofer (persona natural — RUT + licencia)" ok={!!(user?.rut && user?.licenciaConducirUrl)} onClick={onGoToPerfil} />
@@ -149,18 +175,18 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
             <div className="flex-1">
               <p className="font-semibold">Subí a Premium o Pro</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Accedé a vueltas, entregas, gastos, liquidación, clientes propios, pedidos recurrentes y mucho más. Comisión reducida y pago más rápido.
+                Desbloqueá gastos, clientes, pedidos recurrentes, historial, liquidación y equipo. Comisión reducida en cada venta del marketplace.
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
                 <div className="rounded-md border border-blue-200 bg-white p-2 text-xs">
                   <p className="font-medium text-blue-700">⭐ Premium</p>
-                  <p className="text-[10px] text-muted-foreground">15% comisión · MP 10d</p>
-                  <p className="font-bold tabular-nums mt-0.5">{formatCLP(15000)}/mes</p>
+                  <p className="text-[10px] text-muted-foreground">{planesData.premium?.comisionPct ?? 12.5}% comisión · MP Split*</p>
+                  <p className="font-bold tabular-nums mt-0.5">{formatCLP(planesData.premium?.precioMensual ?? 7990)}/mes</p>
                 </div>
                 <div className="rounded-md border border-violet-200 bg-white p-2 text-xs">
                   <p className="font-medium text-violet-700">👑 Pro</p>
-                  <p className="text-[10px] text-muted-foreground">10% comisión · MP instant</p>
-                  <p className="font-bold tabular-nums mt-0.5">{formatCLP(50000)}/mes</p>
+                  <p className="text-[10px] text-muted-foreground">{planesData.pro?.comisionPct ?? 8.5}% comisión · MP Split*</p>
+                  <p className="font-bold tabular-nums mt-0.5">{formatCLP(planesData.pro?.precioMensual ?? 23990)}/mes</p>
                 </div>
               </div>
               <Button size="sm" className="w-full mt-3" onClick={onGoToSubscripcion}>

@@ -100,7 +100,7 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
           <p className="text-xs text-amber-900 flex items-start gap-2">
             <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
             <span>
-              Estás en <strong>Plan Gratis</strong>. Solo marketplace. Necesitás registrar tu empresa, un chofer (persona natural con licencia) y un vehículo para poder aceptar pedidos.
+              Estás en <strong>Plan Gratis</strong>. Marketplace próximamente. Necesitás registrar tu empresa, un chofer (persona natural con licencia) y un vehículo para poder aceptar pedidos cuando el marketplace esté disponible.
               <br />
               <strong>El chofer no puede ser la empresa</strong> — debe ser una persona natural, aunque seas el representante legal.
             </span>
@@ -271,7 +271,7 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
           <p className="text-[11px] text-muted-foreground flex items-start gap-2">
             <CreditCard className="h-3.5 w-3.5 shrink-0 mt-0.5" />
             <span>
-              <strong>Plan Gratis no incluye:</strong> precios por litro a clientes propios, datos bancarios, facturación SII automática, MP split, ni gestión de clientes/gastos/liquidación. Para eso, subí a <strong>Premium</strong> o <strong>Pro</strong>.
+              <strong>Plan Gratis no incluye:</strong> gestión de camiones, clientes propios, gastos, liquidación, pedidos recurrentes, historial de vueltas y equipo. Para eso, subí a <strong>Premium</strong> o <strong>Pro</strong>. MercadoPago Split* estará disponible en los 3 planes junto con el marketplace.
             </span>
           </p>
         </CardContent>
