@@ -93,6 +93,59 @@ export async function PATCH(
     if (body.vehiculosPermitidos !== undefined) {
       data.vehiculosPermitidos = Number(body.vehiculosPermitidos);
     }
+    // Estado de aprobación granular (pendiente | pre_aprobado | aprobado | rechazado | cuenta_prueba)
+    // Permite al superadmin gestionar cuentas con marketplace cerrado / zona no disponible / pruebas
+    if (body.estadoAprobacion !== undefined) {
+      const estadosValidos = ["pendiente", "pre_aprobado", "aprobado", "rechazado", "cuenta_prueba"];
+      const nuevoEstado = String(body.estadoAprobacion);
+      if (!estadosValidos.includes(nuevoEstado)) {
+        return NextResponse.json({ error: `estadoAprobacion inválido. Valores: ${estadosValidos.join(", ")}` }, { status: 400 });
+      }
+      data.estadoAprobacion = nuevoEstado;
+      data.estadoAprobacionNota = body.estadoAprobacionNota?.trim() || null;
+      data.estadoAprobacionActualizadoEn = new Date();
+      data.estadoAprobacionActualizadoPor = user.id;
+      // Por compatibilidad con el campo booleano `aprobado` existente:
+      // - "aprobado" y "cuenta_prueba" → aprobado=true
+      // - "pre_aprobado" → aprobado=true (tiene acceso al panel pero no al marketplace hasta que esté en su zona)
+      // - "pendiente" y "rechazado" → aprobado=false
+      if (nuevoEstado === "aprobado" || nuevoEstado === "pre_aprobado" || nuevoEstado === "cuenta_prueba") {
+        data.aprobado = true;
+      } else {
+        data.aprobado = false;
+      }
+      await akuoAuditar(
+        user.id,
+        `cambiar_estado_aprobacion_${nuevoEstado}`,
+        "AkuoUsuario",
+        id,
+        `Usuario ${target.email} estadoAprobacion=${nuevoEstado}${body.estadoAprobacionNota ? ` — nota: ${body.estadoAprobacionNota}` : ""}`
+      );
+      // Notificar al transportista
+      const titulos: Record<string, string> = {
+        pendiente: "Cuenta en revisión",
+        pre_aprobado: "Cuenta pre-aprobada",
+        aprobado: "Cuenta aprobada",
+        rechazado: "Cuenta rechazada",
+        cuenta_prueba: "Cuenta marcada como prueba",
+      };
+      const mensajes: Record<string, string> = {
+        pendiente: "Tu registro está completo. Tu cuenta está en espera de aprobación del equipo de AkuoSplash.",
+        pre_aprobado: "Tu cuenta fue pre-aprobada. Vas a poder acceder al marketplace cuando esté disponible en tu zona.",
+        aprobado: "¡Tu cuenta fue aprobada! Ya podés operar en el marketplace cuando esté disponible en tu zona.",
+        rechazado: `Tu cuenta fue rechazada para participar del marketplace. ${body.estadoAprobacionNota ? `Motivo: ${body.estadoAprobacionNota}` : "Contactá soporte para más info."}`,
+        cuenta_prueba: "Tu cuenta fue marcada como cuenta de prueba. Vas a poder hacer pruebas del marketplace cuando esté disponible.",
+      };
+      await akuosplashDb.akuoNotificacion.create({
+        data: {
+          usuarioId: id,
+          tipo: `cuenta_${nuevoEstado}`,
+          titulo: titulos[nuevoEstado] || "Estado de cuenta actualizado",
+          mensaje: mensajes[nuevoEstado] || "Tu estado de cuenta fue actualizado.",
+          link: "/akuosplash/transportista",
+        },
+      });
+    }
     if (body.plan && ["free", "pro", "enterprise"].includes(body.plan)) {
       data.plan = body.plan;
       // Ajustar vehiculosPermitidos según plan si no se especificó

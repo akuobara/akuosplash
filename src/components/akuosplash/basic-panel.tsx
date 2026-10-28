@@ -99,7 +99,13 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
           <Row label="Empresa (RUT + razón social)" ok={!!(user?.rutEmpresa && user?.razonSocial)} onClick={onGoToPerfil} />
           <Row label="Chofer (persona natural — RUT + licencia)" ok={!!(user?.rut && user?.licenciaConducirUrl)} onClick={onGoToPerfil} />
           <Row label="Vehículo (patente + capacidad)" ok={!!(user?.patenteVehiculo && user?.capacidadVehiculoKg)} onClick={onGoToVehiculo} />
-          {!perfilCompleto && (
+          {perfilCompleto ? (
+            <EstadoAprobacionBanner
+              estado={user?.estadoAprobacion || "pendiente"}
+              nota={user?.estadoAprobacionNota}
+              actualizadoEn={user?.estadoAprobacionActualizadoEn}
+            />
+          ) : (
             <div className="rounded-md bg-amber-50 border border-amber-200 p-2 mt-2 flex items-start gap-2">
               <AlertCircle className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
               <p className="text-[11px] text-amber-900">
@@ -187,6 +193,72 @@ function Row({ label, ok, onClick }: { label: string; ok: boolean; onClick: () =
         {ok ? "✓ Completo" : "Falta →"}
       </span>
     </button>
+  );
+}
+
+function EstadoAprobacionBanner({ estado, nota, actualizadoEn }: { estado: string; nota?: string | null; actualizadoEn?: string | Date | null; }) {
+  // Mapa de estados → color + ícono + título + descripción
+  const config: Record<string, { color: string; border: string; bg: string; iconColor: string; title: string; desc: string }> = {
+    pendiente: {
+      color: "text-amber-800",
+      border: "border-amber-300",
+      bg: "bg-amber-50",
+      iconColor: "text-amber-600",
+      title: "En espera de aprobación",
+      desc: "Tu registro está completo. El equipo de AkuoSplash va a revisar tu cuenta y aprobarla para que puedas participar del marketplace cuando esté disponible.",
+    },
+    pre_aprobado: {
+      color: "text-blue-800",
+      border: "border-blue-300",
+      bg: "bg-blue-50",
+      iconColor: "text-blue-600",
+      title: "Pre-aprobado",
+      desc: "Tu cuenta cumple con los requisitos y está pre-aprobada. Vas a poder acceder al marketplace cuando esté disponible en tu zona. El acceso puede demorar si tu zona todavía no está habilitada.",
+    },
+    aprobado: {
+      color: "text-emerald-800",
+      border: "border-emerald-300",
+      bg: "bg-emerald-50",
+      iconColor: "text-emerald-600",
+      title: "Aprobado",
+      desc: "Tu cuenta está aprobada. Vas a poder acceder al marketplace cuando esté disponible en tu zona.",
+    },
+    cuenta_prueba: {
+      color: "text-violet-800",
+      border: "border-violet-300",
+      bg: "bg-violet-50",
+      iconColor: "text-violet-600",
+      title: "Cuenta de prueba",
+      desc: "Tu cuenta está marcada como cuenta de prueba. Tenés acceso para hacer pruebas del marketplace cuando esté disponible.",
+    },
+    rechazado: {
+      color: "text-red-800",
+      border: "border-red-300",
+      bg: "bg-red-50",
+      iconColor: "text-red-600",
+      title: "Rechazado",
+      desc: "Tu cuenta fue rechazada para participar del marketplace. Revisá la nota del equipo o contactá soporte para más info.",
+    },
+  };
+  const c = config[estado] || config.pendiente;
+  return (
+    <div className={`rounded-md ${c.bg} border ${c.border} p-2.5 mt-3`}>
+      <div className="flex items-start gap-2">
+        <CheckCircle2 className={`h-4 w-4 ${c.iconColor} shrink-0 mt-0.5`} />
+        <div className="flex-1 min-w-0">
+          <p className={`text-xs font-semibold ${c.color}`}>{c.title}</p>
+          <p className={`text-[11px] ${c.color} mt-0.5`}>{c.desc}</p>
+          {nota && (
+            <p className={`text-[10px] ${c.color} mt-1.5 italic opacity-80`}>Nota: {nota}</p>
+          )}
+          {actualizadoEn && (
+            <p className={`text-[10px] ${c.color} opacity-60 mt-0.5`}>
+              Actualizado: {new Date(actualizadoEn).toLocaleString("es-CL")}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 

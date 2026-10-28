@@ -75,6 +75,10 @@ export async function GET(req: Request) {
         patenteVehiculo: user.patenteVehiculo,
         capacidadVehiculoKg: user.capacidadVehiculoKg,
         tipoVehiculo: user.tipoVehiculo,
+        // Estado de aprobación (para mostrar en BasicPanel)
+        estadoAprobacion: user.estadoAprobacion || "pendiente",
+        estadoAprobacionNota: user.estadoAprobacionNota,
+        estadoAprobacionActualizadoEn: user.estadoAprobacionActualizadoEn,
       } : {}),
       // Plan info (features + commission + deferral)
       planInfo: {

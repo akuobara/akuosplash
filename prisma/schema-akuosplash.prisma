@@ -75,6 +75,12 @@ model AkuoUsuario {
   fotoVehiculoAtrasUrl    String?
   fotoVehiculoIzquierdaUrl String?
   fotoVehiculoDerechaUrl  String?
+  // Estado de aprobación del transportista (manejado por superadmin)
+  // valores: pendiente | pre_aprobado | aprobado | rechazado | cuenta_prueba
+  estadoAprobacion                    String?
+  estadoAprobacionNota                String?
+  estadoAprobacionActualizadoEn       DateTime?
+  estadoAprobacionActualizadoPor      String?
   areasCobertura       String?
   descripcion          String?
   plan                 String  @default("free")

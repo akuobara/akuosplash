@@ -237,6 +237,12 @@ export async function ensureAkuoConfigColumns() {
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoEn DATETIME",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioSubidoPor TEXT",
     "ALTER TABLE AkuoPedidoCliente ADD COLUMN docTributarioMonto REAL",
+    // Estado de aprobación del transportista (para superadmin)
+    // valores: pendiente (default) | pre_aprobado | aprobado | rechazado | cuenta_prueba
+    "ALTER TABLE AkuoUsuario ADD COLUMN estadoAprobacion TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN estadoAprobacionNota TEXT",
+    "ALTER TABLE AkuoUsuario ADD COLUMN estadoAprobacionActualizadoEn DATETIME",
+    "ALTER TABLE AkuoUsuario ADD COLUMN estadoAprobacionActualizadoPor TEXT",
   ];
   // Las tablas nuevas (AkuoCupon, AkuoUsuarioCupon) se crean con CREATE TABLE IF NOT EXISTS
   const createStatements = [

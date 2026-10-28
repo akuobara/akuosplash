@@ -69,12 +69,23 @@ export async function akuoGetCurrentUser() {
       giro: true,
       // Datos del chofer (persona natural — separado de la empresa)
       licenciaConducirUrl: true,
+      licenciaConducirAtrasUrl: true,
       permisoCircUrl: true,
       seguroUrl: true,
+      revisonTecnicaUrl: true,
       // Datos del vehículo (para marketplace)
       capacidadVehiculoKg: true,
       patenteVehiculo: true,
       tipoVehiculo: true,
+      // Fotos del vehículo
+      fotoVehiculoFrenteUrl: true,
+      fotoVehiculoAtrasUrl: true,
+      fotoVehiculoIzquierdaUrl: true,
+      fotoVehiculoDerechaUrl: true,
+      // Estado de aprobación (manejado por superadmin)
+      estadoAprobacion: true,
+      estadoAprobacionNota: true,
+      estadoAprobacionActualizadoEn: true,
       // Facturación SII
       facturacionPlataforma: true,
       facturacionApiKey: true,

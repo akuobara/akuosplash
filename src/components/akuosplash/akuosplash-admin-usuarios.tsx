@@ -19,6 +19,23 @@ interface Usuario {
   mpUserId?: string | null; mpAccessToken?: string | null;
   zonaId?: string | null;
   zona?: { id: string; nombre: string; precioPorLitro: number } | null;
+  // Estado de aprobación granular
+  estadoAprobacion?: string | null;
+  estadoAprobacionNota?: string | null;
+  estadoAprobacionActualizadoEn?: string | null;
+  // Campos de perfil (para validar completitud)
+  rut?: string | null;
+  rutEmpresa?: string | null;
+  licenciaConducirUrl?: string | null;
+  licenciaConducirAtrasUrl?: string | null;
+  permisoCircUrl?: string | null;
+  seguroUrl?: string | null;
+  revisonTecnicaUrl?: string | null;
+  capacidadVehiculoKg?: number | null;
+  fotoVehiculoFrenteUrl?: string | null;
+  fotoVehiculoAtrasUrl?: string | null;
+  fotoVehiculoIzquierdaUrl?: string | null;
+  fotoVehiculoDerechaUrl?: string | null;
 }
 
 export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" | "cliente"; titulo: string }) {
@@ -56,6 +73,30 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
       toast.success(val ? "Repartidor aprobado" : "Aprobación revocada");
       setRefreshKey(k => k + 1);
     } catch (e: any) { toast.error(e.message || "Error"); }
+  }
+
+  // Cambiar estado de aprobación granular (pendiente | pre_aprobado | aprobado | rechazado | cuenta_prueba)
+  async function setEstadoAprobacion(u: Usuario, nuevoEstado: string, nota?: string) {
+    try {
+      await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${u.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ estadoAprobacion: nuevoEstado, estadoAprobacionNota: nota || undefined }),
+      });
+      const labels: Record<string, string> = {
+        pendiente: "marcado como Pendiente",
+        pre_aprobado: "Pre-aprobado",
+        aprobado: "Aprobado",
+        rechazado: "Rechazado",
+        cuenta_prueba: "marcado como Cuenta de prueba",
+      };
+      toast.success(`Usuario ${labels[nuevoEstado] || nuevoEstado}`);
+      setRefreshKey(k => k + 1);
+    } catch (e: any) { toast.error(e.message || "Error"); }
+  }
+
+  // Helper: verificar si el transportista tiene el perfil completo
+  function perfilCompleto(u: Usuario): boolean {
+    return !!(u.rut && u.rutEmpresa && u.razonSocial && u.licenciaConducirUrl && u.patenteVehiculo && u.capacidadVehiculoKg);
   }
 
   async function toggleActivo(u: Usuario, val: boolean) {
@@ -150,24 +191,65 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                   </div>
 
                   {rol === "transportista" && (
-                    <div className="flex gap-2 pt-2 border-t border-gray-100">
-                      {!u.aprobado ? (
-                        <Button size="sm" onClick={() => aprobar(u, true)} className="bg-emerald-600 hover:bg-emerald-700 flex-1">
-                          <Check className="h-4 w-4 mr-1" /> Aprobar
-                        </Button>
-                      ) : (
-                        <Button size="sm" variant="outline" onClick={() => aprobar(u, false)} className="flex-1">
-                          <X className="h-4 w-4 mr-1" /> Revocar
-                        </Button>
+                    <div className="space-y-2 pt-2 border-t border-gray-100">
+                      {/* Estado de aprobación actual + badges de perfil */}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge variant="outline" className={`text-[10px] ${
+                          u.estadoAprobacion === "aprobado" ? "text-emerald-700 border-emerald-300 bg-emerald-50" :
+                          u.estadoAprobacion === "pre_aprobado" ? "text-blue-700 border-blue-300 bg-blue-50" :
+                          u.estadoAprobacion === "cuenta_prueba" ? "text-violet-700 border-violet-300 bg-violet-50" :
+                          u.estadoAprobacion === "rechazado" ? "text-red-700 border-red-300 bg-red-50" :
+                          "text-amber-700 border-amber-300 bg-amber-50"
+                        }`}>
+                          {u.estadoAprobacion === "aprobado" ? "Aprobado" :
+                           u.estadoAprobacion === "pre_aprobado" ? "Pre-aprobado" :
+                           u.estadoAprobacion === "cuenta_prueba" ? "Cuenta de prueba" :
+                           u.estadoAprobacion === "rechazado" ? "Rechazado" :
+                           "Pendiente"}
+                        </Badge>
+                        {perfilCompleto(u) ? (
+                          <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 text-[10px]">Perfil completo</Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50 text-[10px]">Perfil incompleto</Badge>
+                        )}
+                        {u.mpUserId && <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 text-[10px]">MP conectado</Badge>}
+                      </div>
+                      {u.estadoAprobacionNota && (
+                        <p className="text-[10px] text-gray-500 italic">Nota: {u.estadoAprobacionNota}</p>
                       )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => toggleActivo(u, !u.activo)}
-                        className={u.activo ? "text-red-600 border-red-300 hover:bg-red-50" : "text-emerald-600 border-emerald-300 hover:bg-emerald-50"}
-                      >
-                        {u.activo ? "Desactivar" : "Activar"}
-                      </Button>
+                      {/* Botones para cambiar estado de aprobación */}
+                      <div className="flex flex-wrap gap-1.5">
+                        <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "pre_aprobado")} className="text-blue-700 border-blue-300 hover:bg-blue-50 text-[11px]">
+                          Pre-aprobar
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "aprobado")} className="text-emerald-700 border-emerald-300 hover:bg-emerald-50 text-[11px]">
+                          Aprobar
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "cuenta_prueba")} className="text-violet-700 border-violet-300 hover:bg-violet-50 text-[11px]">
+                          Cuenta prueba
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          const nota = prompt("Motivo del rechazo (opcional):");
+                          if (nota === null) return;
+                          setEstadoAprobacion(u, "rechazado", nota || undefined);
+                        }} className="text-red-700 border-red-300 hover:bg-red-50 text-[11px]">
+                          Rechazar
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "pendiente")} className="text-amber-700 border-amber-300 hover:bg-amber-50 text-[11px]">
+                          Pendiente
+                        </Button>
+                      </div>
+                      {/* Activar/Desactivar separado */}
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => toggleActivo(u, !u.activo)}
+                          className={u.activo ? "text-red-600 border-red-300 hover:bg-red-50 flex-1" : "text-emerald-600 border-emerald-300 hover:bg-emerald-50 flex-1"}
+                        >
+                          {u.activo ? "Desactivar" : "Activar"}
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </CardContent>

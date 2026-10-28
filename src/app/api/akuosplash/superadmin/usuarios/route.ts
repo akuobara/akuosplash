@@ -21,6 +21,15 @@ export async function GET(req: NextRequest) {
       aprobado: true, activo: true, banned: true, plan: true,
       creadoEn: true, ultimoLoginEn: true,
       razonSocial: true, patenteVehiculo: true, tipoVehiculo: true,
+      // Datos de perfil completos (para saber si el registro está completo)
+      rut: true, rutEmpresa: true, licenciaConducirUrl: true,
+      licenciaConducirAtrasUrl: true, permisoCircUrl: true, seguroUrl: true, revisonTecnicaUrl: true,
+      capacidadVehiculoKg: true,
+      fotoVehiculoFrenteUrl: true, fotoVehiculoAtrasUrl: true,
+      fotoVehiculoIzquierdaUrl: true, fotoVehiculoDerechaUrl: true,
+      // Estado de aprobación granular
+      estadoAprobacion: true, estadoAprobacionNota: true,
+      estadoAprobacionActualizadoEn: true, estadoAprobacionActualizadoPor: true,
       areasCobertura: true,
       // MP OAuth
       mpUserId: true, mpAccessToken: true,
