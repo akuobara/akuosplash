@@ -12,9 +12,7 @@
     "db:generate": "prisma generate && prisma generate --schema=prisma/schema-bolson.prisma",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "postinstall": "prisma generate && prisma generate --schema=prisma/schema-bolson.prisma && prisma generate --schema=prisma/schema-akuosplash.prisma",
-    "build:cf": "npx cloudflare && opennextjs-cloudflare build",
-    "deploy:cf": "npx wrangler deploy"
+    "postinstall": "prisma generate && prisma generate --schema=prisma/schema-bolson.prisma && prisma generate --schema=prisma/schema-akuosplash.prisma"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
