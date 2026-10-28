@@ -1,7 +1,7 @@
 // Planes de transportista en AkuoSplash
 // 3 planes:
 //   - gratis:   solo marketplace, panel básico, historial, vehículo, perfil.
-//               Comisión 20% ajustable. Sin MP split → el transportista debe
+//               Comisión 15% ajustable. MP Split para todos los planes.
 //               emitir y subir sus documentos tributarios para recibir pago.
 //   - premium:  casi toda la app. MP split con pago diferido 10 días.
 //               Comisión 15% ajustable. Transportista emite sus propios docs SII.
@@ -58,10 +58,10 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
   gratis: {
     id: "gratis",
     nombre: "Gratis",
-    descripcion: "MercadoPago Split (pago a 10 días). Comisión marketplace 17.5%. Panel básico de productividad.",
+    descripcion: "MercadoPago Split (pago a 10 días). Comisión marketplace 15%. Panel básico de productividad.",
     precioMensual: 0,
     precioAnual: 0,
-    comisionPct: 17.5,
+    comisionPct: 15,
     mpSplitMode: "split",
     pagoDiferadoDias: 10,
     maxVehiculos: 1,
