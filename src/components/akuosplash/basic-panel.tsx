@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Gift, Sparkles, Crown, Truck, FileText, ChevronRight, Loader2, AlertCircle, CheckCircle2,
+  Sparkles, Crown, Truck, FileText, ChevronRight, Loader2, AlertCircle, CheckCircle2,
 } from "lucide-react";
 import { akuoGet, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import type { PlanConfig, PlanId } from "@/lib/akuosplash-plans";
@@ -85,33 +85,6 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
 
   return (
     <div className="space-y-4">
-      {/* Banner de bienvenida */}
-      <Card className="border-amber-200 bg-amber-50/50">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <Gift className="h-8 w-8 text-amber-600 shrink-0 mt-1" />
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-base">
-                Estás en Plan <span className="uppercase text-amber-700">Gratis</span>
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Panel básico de productividad. Marketplace próximamente. Comisión {plan.comisionPct}% del marketplace. MercadoPago Split* disponible junto con el marketplace.
-              </p>
-              <div className="flex flex-wrap gap-2 mt-2 text-[11px]">
-                <Badge variant="outline" className="bg-white">💵 {plan.comisionPct}% comisión marketplace</Badge>
-                <Badge variant="outline" className="bg-white">💳 MP Split* (próximamente)</Badge>
-                <Badge variant="outline" className="bg-white">🚛 1 vehículo</Badge>
-                <Badge variant="outline" className="bg-white">👥 1 chofer</Badge>
-              </div>
-              <p className="text-[10px] text-muted-foreground mt-1.5">* MP Split funciona solo si conectás tu cuenta de MercadoPago desde tu perfil.</p>
-            </div>
-            <Button size="sm" onClick={onGoToSubscripcion} className="bg-amber-600 hover:bg-amber-700 text-white shrink-0">
-              <Sparkles className="h-4 w-4 mr-1" /> Subir de plan
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Estado del perfil */}
       <Card>
         <CardHeader className="pb-2">

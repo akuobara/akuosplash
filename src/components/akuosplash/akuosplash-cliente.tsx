@@ -20,11 +20,13 @@ interface Pedido {
   metodoPago: string; nota?: string; precioTotal?: number;
   codigoConfirmacion?: string | null;
   codigoVerificadoEn?: string | null;
+  mpPreferenceId?: string | null;
 }
 interface Conversacion { id: string; clienteId: string; transportistaId: string; cliente: { id: string; nombre: string; }; transportista: { id: string; nombre: string; razonSocial?: string; }; mensajes?: Mensaje[]; ultimoMensajeEn: string; }
 interface Mensaje { id: string; creadoEn: string; contenido: string; remitenteId: string; remitente: { id: string; nombre: string; }; }
 
 const ESTADO_LABELS: Record<string, { label: string; color: string; icon?: any }> = {
+  esperando_pago: { label: "Pendiente de pago", color: "bg-orange-50 text-orange-700 border-orange-200", icon: Clock },
   pendiente: { label: "Buscando repartidor", color: "bg-amber-50 text-amber-700 border-amber-200", icon: Clock },
   aceptado: { label: "Aceptado", color: "bg-blue-50 text-blue-700 border-blue-200", icon: User },
   en_ruta: { label: "En camino", color: "bg-cyan-50 text-cyan-700 border-cyan-200", icon: Truck },
@@ -83,7 +85,7 @@ export function AkuosplashCliente() {
   }
   if (!user) return null;
 
-  const pedidosActivos = pedidos.filter(p => ["pendiente", "aceptado", "en_ruta"].includes(p.estado));
+  const pedidosActivos = pedidos.filter(p => ["esperando_pago", "pendiente", "aceptado", "en_ruta"].includes(p.estado));
   const ultimoPedido = historial.find(p => p.estado === "entregado");
 
   function repetirPedido(p: Pedido) {
@@ -294,6 +296,25 @@ function PedidoActivoCard({ p }: { p: Pedido }) {
           <div className="mt-2 flex items-center gap-2 rounded-lg bg-emerald-50 p-2">
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
             <p className="text-xs font-medium text-emerald-700">Entrega confirmada</p>
+          </div>
+        )}
+
+        {/* Reanudar pago cuando está en esperando_pago */}
+        {p.estado === "esperando_pago" && (
+          <div className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-2.5 space-y-2">
+            <p className="text-[11px] text-orange-800">
+              Este pedido está pendiente de pago. Necesitás completar el pago en MercadoPago para que salga a buscar repartidor.
+            </p>
+            {p.mpPreferenceId && (
+              <a
+                href={`https://www.mercadopago.cl/checkout/v1/redirect/preference/${p.mpPreferenceId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center w-full bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium py-2 rounded-lg"
+              >
+                Completar pago en MercadoPago →
+              </a>
+            )}
           </div>
         )}
       </CardContent>
