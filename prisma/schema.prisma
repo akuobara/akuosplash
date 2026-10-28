@@ -1,0 +1,771 @@
+// Aljibe App - Registro de entregas de agua, pagos, gastos y liquidación con dueño
+// Con autenticación: dueños y choferes, asignación de choferes a camiones
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Usuario — puede ser dueño o chofer
+model Usuario {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  nombre        String
+  telefono      String?
+  role          String   @default("chofer")  // "dueno" | "chofer"
+  // Si role=chofer, duenoId apunta al dueño que lo gestiona.
+  // Si role=dueno, duenoId es null.
+  duenoId       String?
+  dueno         Usuario? @relation("DuenoChoferes", fields: [duenoId], references: [id])
+  choferes      Usuario[] @relation("DuenoChoferes")
+  activo        Boolean  @default(true)
+  creadoEn      DateTime @default(now())
+
+  // Flag para cuenta de demostración: si true, todas las operaciones de escritura
+  // quedan bloqueadas. El usuario solo puede ver y navegar.
+  isDemo        Boolean  @default(false)
+
+  // === Datos de licencia de chofer ===
+  licenciaClase        String?   // Clase de licencia (A1, A2, A3, A4, A5, B, C, D, E, F)
+  licenciaNumero       String?   // Número de licencia
+  licenciaVencimiento  DateTime? // Fecha de vencimiento de la licencia
+  licenciaFotoUrl      String?   // Foto/foto escaneada de la licencia
+
+  // Relaciones con datos del negocio
+  camionesDueno     Camion[]         @relation("CamionDueno")
+  asignaciones      CamionChofer[]
+  vueltasComoChofer Vuelta[]         @relation("VueltaChofer")
+  vueltasComoDueno  Vuelta[]         @relation("VueltaDueno")
+  entregasComoChofer Entrega[]       @relation("EntregaChofer")
+  entregasComoDueno  Entrega[]       @relation("EntregaDueno")
+  gastosComoChofer  Gasto[]          @relation("GastoChofer")
+  gastosComoDueno   Gasto[]          @relation("GastoDueno")
+  clientesDueno     Cliente[]        @relation("ClienteDueno")
+  pedidosComoChofer Pedido[]         @relation("PedidoChofer")
+  pedidosComoDueno  Pedido[]         @relation("PedidoDueno")
+  pedidosAsignados  Pedido[]         @relation("PedidoChoferAsignado")
+  pedidosTomados    Pedido[]         @relation("PedidoTomadoPor")
+  pedidosConPrioridad Pedido[]       @relation("PedidoPrioridadChofer")
+  recurrentesAsignados PedidoRecurrente[] @relation("RecurrenteChoferAsignado")
+  recurrentesComoDueno PedidoRecurrente[] @relation("RecurrenteDueno")
+  clientesPreferidos  Cliente[]        @relation("ClienteChoferPreferido")
+  pagosComoChofer     Pago[]           @relation("PagoChofer")
+  pagosComoDueno      Pago[]           @relation("PagoDueno")
+  configuracion     Configuracion?   @relation("ConfigDueno")
+  bitacoraAutor     BitacoraCamion[] @relation("BitacoraAutor")
+  bitacoraResueltas BitacoraCamion[] @relation("BitacoraResueltaPor")
+  // App cliente
+  clientesAppPreferidos  ClienteApp[]      @relation("ClienteAppProveedorPreferido")
+  pedidosAppTomados      PedidoApp[]       @relation("PedidoAppTomadoPor")
+  facturasAdmin          FacturaAdmin[]    @relation("FacturaAdminDueno")
+}
+
+// Catálogo de clientes
+model Cliente {
+  id            String   @id @default(cuid())
+  nombre        String
+  rut           String?
+  direccion     String?
+  telefono      String?
+  email         String?
+  zona          String?
+  precioEfectivoPorLitro       Float @default(0)
+  precioTransferenciaPorLitro  Float @default(0)
+  precioCamionCompleto         Float @default(0)  // precio fijo por camión completo (ej: 17000L)
+  nota          String?
+  creadoEn      DateTime @default(now())
+
+  // Deuda anterior a la app (lo que debía antes de usar el sistema)
+  // Se usa para que los pagos sueltos descuenten de esta deuda en vez de generar saldo a favor
+  deudaInicial  Float   @default(0)
+
+  // Ubicación GPS (para navegación y futura venta online)
+  lat           Float?
+  lng           Float?
+
+  // Acceso a la propiedad (cómo se entrega el agua)
+  requiereIngresoPropiedad Boolean @default(false) // ¿hay que entrar a la propiedad?
+  entregaDesdeAfuera       Boolean @default(false) // ¿se puede entregar desde afuera (ej. pasar manguera por encima del portón)?
+  conexionExterna          Boolean @default(false) // ¿hay conexión/llave de paso externa que permite entregar sin el cliente?
+  requiereClientePresente  Boolean @default(true)  // ¿el cliente debe estar presente para recibir?
+  indicacionesAcceso       String?  // descripción libre: cómo entrar, dónde está el estanque, etc.
+
+  // Uso del agua (para qué pide el agua)
+  usoAgua                  String   @default("consumo")  // consumo | riego_pasto | riego_cultivos | polvo_caminos | construccion | otro
+  usoAguaNota              String?  // detalle adicional del uso
+
+  // Estanques/piscinas del cliente (JSON array: [{tipo, capacidadLitros, nombre, ubicacion}])
+  // tipo: estanque | piscina | estanque_subterraneo | tinaco | otro
+  estanquesJson            String?  // JSON string con array de estanques
+
+  // Chofer preferido — el chofer que creó al cliente tiene prioridad para atenderlo
+  // (a menos que el dueño elija otro de manera permanente)
+  choferPreferidoId  String?
+  choferPreferido    Usuario? @relation("ClienteChoferPreferido", fields: [choferPreferidoId], references: [id])
+
+  duenoId       String
+  dueno         Usuario  @relation("ClienteDueno", fields: [duenoId], references: [id])
+
+  entregas      Entrega[]
+  pedidos       Pedido[]
+  pedidosRecurrentes PedidoRecurrente[]
+  pagos         Pago[]
+}
+
+// Pedido de agua — creado cuando un cliente pide agua (por teléfono, etc.)
+// Se convierte en Entrega cuando el chofer lo entrega.
+model Pedido {
+  id                String   @id @default(cuid())
+  creadoEn          DateTime @default(now())
+
+  // Datos del cliente (snapshoteados)
+  clienteNombre     String
+  clienteDireccion  String?
+  clienteTelefono   String?
+  clienteZona       String?
+  clienteLat        Float?
+  clienteLng        Float?
+  clienteId         String?
+  cliente           Cliente? @relation(fields: [clienteId], references: [id])
+
+  // Detalle del pedido
+  litrosSolicitados Float
+  fechaSolicitada   DateTime?  // cuándo el cliente quiere que se entregue (opcional)
+  franjaHoraria     String?   // franja horaria preferida (ej: "mañana", "tarde", "antes-12")
+  metodoPagoPreferido String   @default("credito")  // efectivo | transferencia | mixto | credito
+  indicacionesAcceso String?   // snapshot de indicaciones del cliente o custom
+  nota              String?
+
+  // Estado del pedido
+  estado            String   @default("pendiente")  // pendiente | programado | en_ruta | entregado | cancelado
+  entregaId         String?  @unique  // cuando se entrega, se vincula a la Entrega
+  entrega           Entrega? @relation(fields: [entregaId], references: [id])
+
+  // === Asignación de chofer ===
+  // asignacionTipo: cómo se asigna el chofer que entregará
+  //   - "manual": el dueño lo asigna a un chofer específico (choferAsignadoId)
+  //   - "publicado": disponible para que cualquier chofer lo tome
+  //   - "auto": el sistema sugiere según cercanía/capacidad (futuro)
+  asignacionTipo    String   @default("manual")  // manual | publicado | auto
+
+  // Chofer asignado manualmente por el dueño
+  choferAsignadoId  String?
+  choferAsignado    Usuario? @relation("PedidoChoferAsignado", fields: [choferAsignadoId], references: [id])
+
+  // Chofer que tomó el pedido publicado (puede ser distinto del creador)
+  tomadoPorChoferId String?
+  tomadoPorChofer   Usuario? @relation("PedidoTomadoPor", fields: [tomadoPorChoferId], references: [id])
+
+  // Prioridad: el chofer que creó el pedido (porque creó el cliente) tiene prioridad
+  prioridadChoferId String?
+  prioridadChofer   Usuario? @relation("PedidoPrioridadChofer", fields: [prioridadChoferId], references: [id])
+  prioridadTipo     String   @default("ninguna")  // ninguna | permanente | caso
+
+  publicadoEn       DateTime?  // cuándo se publicó para que choferes lo tomen
+
+  // Quién creó el pedido y a qué dueño pertenece
+  choferId          String?  // quién creó el pedido (puede ser null si lo creó el dueño o el sistema)
+  chofer            Usuario? @relation("PedidoChofer", fields: [choferId], references: [id])
+
+  duenoId           String
+  dueno             Usuario  @relation("PedidoDueno", fields: [duenoId], references: [id])
+
+  // Vuelta asignada (para planificación de ruta)
+  vueltaId          String?
+  vuelta            Vuelta?  @relation(fields: [vueltaId], references: [id])
+
+  // Si viene de un pedido recurrente
+  pedidoRecurrenteId String?
+  pedidoRecurrente  PedidoRecurrente? @relation(fields: [pedidoRecurrenteId], references: [id])
+}
+
+// Pedido recurrente — genera pedidos automáticamente cada N días
+// Ej: cliente que rellena el estanque semanalmente
+model PedidoRecurrente {
+  id                String   @id @default(cuid())
+  creadoEn          DateTime @default(now())
+
+  // Cliente (debe ser del catálogo)
+  clienteId         String
+  cliente           Cliente  @relation(fields: [clienteId], references: [id])
+
+  // Detalle
+  litrosSolicitados Float
+  metodoPagoPreferido String @default("credito")
+  nota              String?
+
+  // Frecuencia
+  frecuenciaDias    Int      // cada cuántos días generar el pedido (7 = semanal)
+  fechaInicio       DateTime
+  fechaProximaGeneracion DateTime  // próxima fecha en que se generará un pedido
+  activo            Boolean  @default(true)
+
+  // Día de la semana preferido (solo para frecuencia 7 días = semanal)
+  // 0=domingo, 1=lunes, 2=martes, 3=miércoles, 4=jueves, 5=viernes, 6=sábado
+  // Si está seteado, la fechaProximaGeneracion SIEMPRE cae en ese día de la semana,
+  // sin importar cuándo se haga la entrega real.
+  // Ej: si diaSemanaPreferido=5 (viernes), la próxima entrega se programa para el
+  // próximo viernes, aunque el chofer haya entregado agua el miércoles.
+  diaSemanaPreferido Int?
+
+  // Asignación (igual que Pedido)
+  asignacionTipo    String   @default("manual")  // manual | publicado
+  choferAsignadoId  String?
+  choferAsignado    Usuario? @relation("RecurrenteChoferAsignado", fields: [choferAsignadoId], references: [id])
+
+  duenoId           String
+  dueno             Usuario  @relation("RecurrenteDueno", fields: [duenoId], references: [id])
+
+  // Pedidos generados por esta regla
+  pedidos           Pedido[]
+}
+
+// Camión aljibe. Pertenece a un dueño. Puede tener varios choferes asignados.
+model Camion {
+  id          String   @id @default(cuid())
+  nombre      String
+  patente     String?
+  capacidad   Int
+  activo      Boolean  @default(true)
+  creadoEn    DateTime @default(now())
+
+  // === Datos del vehículo ===
+  marca              String?   // Marca (Ford, Chevrolet, etc.)
+  modelo             String?   // Modelo
+  anio               Int?      // Año del vehículo
+  color              String?   // Color
+  numeroMotor        String?   // Número de motor
+  numeroChasis       String?   // Número de chasis/VIN
+
+  // === Documentos del vehículo ===
+  permisoCirculacionVencimiento  DateTime?  // Vencimiento permiso de circulación
+  permisoCirculacionFotoUrl      String?    // Foto del permiso
+  revisionTecnicaVencimiento     DateTime?  // Vencimiento revisión técnica
+  revisionTecnicaFotoUrl         String?    // Foto de la revisión
+  seguroVencimiento              DateTime?  // Vencimiento póliza de seguro
+  seguroFotoUrl                  String?    // Foto de la póliza
+  seguroCompania                 String?    // Compañía aseguradora
+  seguroNumero                   String?    // Número de póliza
+
+  // === Configuración del camión ===
+  carroceria       String?  // cisterna_agua | flete | hormigon | otro (tipo de carrocería)
+  tipoCisterna    String?  // agua | combustible | quimico | otro (tipo de contenido del estanque)
+  materialEstanque String? // acero_inoxidable | fibrocemento | polietileno | aluminio | acero
+  tipoAgua        String?  // riego | aljibe | consumo_humano (tipo de agua transportada)
+  resolucionSanitaria    String?     // Número de resolución sanitaria (solo si tipoAgua = consumo_humano)
+  resolucionSanitariaVencimiento DateTime?  // Vencimiento resolución sanitaria
+  resolucionSanitariaFotoUrl      String?   // Foto/escaneo de la resolución sanitaria
+
+  duenoId     String
+  dueno       Usuario  @relation("CamionDueno", fields: [duenoId], references: [id])
+
+  vueltas     Vuelta[]
+  choferes    CamionChofer[]
+  bitacora    BitacoraCamion[]
+}
+
+// Bitácora de camión: registro de mantenimientos, fallas y observaciones
+model BitacoraCamion {
+  id            String   @id @default(cuid())
+  camionId      String
+  camion        Camion   @relation(fields: [camionId], references: [id], onDelete: Cascade)
+  autorId       String
+  autor         Usuario  @relation("BitacoraAutor", fields: [autorId], references: [id])
+  tipo          String   @default("observacion")
+  // mantenimiento: cambio_aceite | cambio_filtros | cambio_plumillas | frenos | neumaticos | revision_tecnica | otro
+  // falla: falla_motor | falla_frenos | falla_electrica | falla_hidraulica | fuga | otro
+  // observacion: observacion
+  descripcion   String
+  monto         Float?   // costo del mantenimiento (opcional)
+  fecha         DateTime @default(now())  // fecha en que se realizó el trabajo
+  kilometraje   Int?     // kilometraje al momento del trabajo (opcional)
+  severidad     String?  // baja | media | alta | critica
+  resuelta      Boolean  @default(false)
+  resueltaEn    DateTime?
+  resueltaPorId String?
+  resueltaPor   Usuario? @relation("BitacoraResueltaPor", fields: [resueltaPorId], references: [id])
+  creadoEn      DateTime @default(now())
+
+  @@index([camionId])
+  @@index([tipo])
+}
+
+// Asignación chofer ↔ camión (muchos a muchos)
+// Un camión puede tener varios choferes; un chofer puede tener varios camiones.
+model CamionChofer {
+  id          String   @id @default(cuid())
+  camionId    String
+  camion      Camion   @relation(fields: [camionId], references: [id], onDelete: Cascade)
+  choferId    String
+  chofer      Usuario  @relation(fields: [choferId], references: [id], onDelete: Cascade)
+  asignadoEn  DateTime @default(now())
+
+  @@unique([camionId, choferId])
+}
+
+// Una vuelta = un viaje del camión aljibe desde la planta de agua.
+model Vuelta {
+  id          String   @id @default(cuid())
+  numero      Int
+  iniciadaEn  DateTime @default(now())
+  cerradaEn   DateTime?
+  nota        String?
+  activa      Boolean  @default(true)
+  validadaManualmente Boolean?
+
+  camionId    String?
+  camion      Camion?  @relation(fields: [camionId], references: [id])
+
+  choferId    String?
+  chofer      Usuario? @relation("VueltaChofer", fields: [choferId], references: [id])
+
+  duenoId     String
+  dueno       Usuario  @relation("VueltaDueno", fields: [duenoId], references: [id])
+
+  entregas    Entrega[]
+  pedidos     Pedido[]
+}
+
+// Cada entrega/venta de agua a un cliente
+model Entrega {
+  id                String   @id @default(cuid())
+  fecha             DateTime @default(now())
+
+  clienteNombre     String
+  clienteDireccion  String?
+  clienteTelefono   String?
+  clienteZona       String?
+  clienteId         String?
+  cliente           Cliente? @relation(fields: [clienteId], references: [id])
+
+  vueltaId          String?
+  vuelta            Vuelta?  @relation(fields: [vueltaId], references: [id])
+
+  choferId          String?
+  chofer            Usuario? @relation("EntregaChofer", fields: [choferId], references: [id])
+
+  duenoId           String
+  dueno             Usuario  @relation("EntregaDueno", fields: [duenoId], references: [id])
+
+  lecturaAnterior   Float?
+  lecturaActual     Float?
+  litros            Float
+
+  metodoPago        String   @default("credito")
+
+  precioPorLitro    Float
+  total             Float
+  montoEfectivo     Float    @default(0)
+  montoTransferencia Float   @default(0)
+  montoRecibido     Float    @default(0)
+
+  estadoPago        String   @default("pendiente")
+
+  // Descuento aplicado a esta entrega
+  descuento         Float    @default(0)   // monto del descuento en pesos
+  descuentoTipo     String   @default("ninguno")  // ninguno | total | por_litro
+  descuentoPor      String   @default("dueno")  // quien asume el costo: dueno | chofer
+
+  // Desglose por estanque (cuando el cliente tiene facturación independiente por estanque)
+  // JSON: [{ nombre, litros, precioPorLitro, total, metodoPago, montoRecibido }]
+  detalleEstanquesJson String?
+
+  fotoMedidorUrl    String?
+  nota              String?
+  creadoEn          DateTime @default(now())
+
+  // Si esta entrega viene de un pedido, se vincula aquí
+  pedido            Pedido?
+}
+
+// Pago sin entrega — cuando un cliente paga deuda sin pedir agua
+model Pago {
+  id              String   @id @default(cuid())
+  fecha           DateTime @default(now())
+
+  clienteId       String?
+  cliente         Cliente?  @relation(fields: [clienteId], references: [id])
+
+  monto           Float
+  metodoPago      String   @default("credito")  // efectivo | transferencia | mixto
+  nota            String?
+  descripcion     String?  // para pagos que no son de cliente (ej: pago de alquiler, reembolso, etc.)
+
+  choferId        String?
+  chofer          Usuario? @relation("PagoChofer", fields: [choferId], references: [id])
+
+  duenoId         String
+  dueno           Usuario  @relation("PagoDueno", fields: [duenoId], references: [id])
+}
+
+// Gastos asociados a la operación
+model Gasto {
+  id          String   @id @default(cuid())
+  fecha       DateTime @default(now())
+  tipo        String
+  monto       Float
+  descripcion String?
+  fotoUrl     String?
+  pagadoPor   String   @default("chofer")
+
+  choferId    String?
+  chofer      Usuario? @relation("GastoChofer", fields: [choferId], references: [id])
+
+  duenoId     String
+  dueno       Usuario  @relation("GastoDueno", fields: [duenoId], references: [id])
+
+  creadoEn    DateTime @default(now())
+}
+
+// Configuración del negocio — una por dueño
+model Configuracion {
+  id                          String  @id @default(cuid())
+
+  duenoId                     String  @unique
+  dueno                       Usuario @relation("ConfigDueno", fields: [duenoId], references: [id])
+
+  nombreChofer                String  @default("Chofer")
+  nombreDueno                 String  @default("Dueño del Camión")
+
+  // === Datos de la empresa ===
+  empresaRazonSocial          String?  // Razón social (Transporte VM SPA)
+  empresaRut                  String?  // RUT de la empresa
+  empresaDireccion            String?  // Dirección comercial
+  empresaTelefono             String?  // Teléfono de la empresa
+  empresaEmail                String?  // Email comercial
+  empresaGiro                 String?  // Giro comercial
+  empresaComuna               String?  // Comuna
+  empresaCiudad               String?  // Ciudad
+
+  // === Datos para transferencias (pagos de pool / ventas) ===
+  transfBanco                 String?  // Banco (ej: BancoEstado, Santander)
+  transfTipoCuenta            String?  // Tipo de cuenta (Cuenta Corriente / Cuenta Vista / CuentaRUT)
+  transfNumeroCuenta          String?  // Número de cuenta
+  transfTitular               String?  // Titular de la cuenta
+  transfRutTitular            String?  // RUT del titular
+  transfEmail                 String?  // Email para transferencias (opcional)
+  transfTelefono              String?  // Teléfono para transferencias (opcional, ej: PagoRUT)
+
+  capacidadCamion             Int     @default(17000)
+
+  modoLiquidacion             String  @default("porcentaje")
+
+  porcentajeComisionChofer    Float   @default(50)
+  porcentajeComisionDueno     Float   @default(50)
+
+  montoPorVueltaUnicoCliente  Float   @default(20000)
+  montoPorVueltaMultiple      Float   @default(25000)
+
+  precioEfectivoPorLitro      Float   @default(0)
+  precioTransferenciaPorLitro Float   @default(0)
+  precioCamionCompleto        Float   @default(0)  // precio fijo por camión completo
+
+  tipoTributo                 String  @default("boleta_honorarios")
+  porcentajeImpuesto          Float   @default(15.25)
+  aplicaImpuestoSobre         String  @default("pago_chofer")
+
+  // Permisos para choferes
+  choferesPuedenEditarClientes Boolean @default(false)
+  choferesPuedenCrearPedidos   Boolean @default(false)
+
+  // Umbral de completación de vuelta (porcentaje 0-1, default 0.975 = 97.5%)
+  umbralCompletacionVuelta    Float   @default(0.975)
+
+  // === Periodo de liquidación ===
+  // "mensual" o "semanal"
+  periodoLiquidacion          String  @default("mensual")
+  // Dia de cierre del mes (1-31). Por defecto 0 = último día del mes
+  diaCierreMes                Int     @default(0)
+  // Dia de cierre de la semana (0=domingo, 1=lunes, ..., 6=sabado). Por defecto 6 (sabado)
+  diaCierreSemana             Int     @default(6)
+
+  // Cierre de período: fecha del último cierre (las entregas/gastos antes de esta fecha están cerrados)
+  ultimoCierre                DateTime?
+
+  // Saldo arrastrado entre períodos de liquidación
+  // Positivo = el admin le debe al chofer
+  // Negativo = el chofer le debe al admin
+  saldoPendienteLiquidacion   Float   @default(0)
+
+  // === Plan (suscripción mensual) ===
+  planId                      String?  // free | premium | pro (referencia a Plan.id)
+  plan                        Plan?    @relation("ConfigPlan", fields: [planId], references: [id])
+}
+
+// =====================================================
+// === App Cliente — tablas independientes ===
+// =====================================================
+
+// Plan de suscripción para administradores (free | premium | pro | custom)
+model Plan {
+  id              String   @id
+  nombre          String
+  descripcion     String?
+  precioMensual   Float    @default(0)
+  // Límites del plan
+  maxCamiones     Int      @default(1)        // -1 = ilimitado
+  maxChoferes     Int      @default(0)        // -1 = ilimitado
+  accesoPool      Boolean  @default(false)     // puede ver/tomar pedidos del pool
+  // Costos extra para Pro
+  costoExtraCamion    Float?  // costo por camión adicional
+  costoExtraChofer    Float?  // costo por chofer adicional
+  activo          Boolean  @default(true)
+
+  configuraciones Configuracion[] @relation("ConfigPlan")
+  creadoEn        DateTime @default(now())
+}
+
+// Zona geográfica con precio definido por el súper admin
+// El polígono se guarda como GeoJSON (string JSON) en campo zonaGeoJson
+model Zona {
+  id              String   @id @default(cuid())
+  nombre          String   // Ej: "Las Condes", "Maipú Norte"
+  descripcion     String?
+  // Polígono en formato GeoJSON: {"type":"Polygon","coordinates":[[[lng,lat],[lng,lat],...]]}
+  // El cliente cae en una zona si su lat/lng está dentro del polígono
+  zonaGeoJson     String
+  // Centro aproximado para mostrar en mapa
+  centroLat       Float?
+  centroLng       Float?
+  // Precio por litro en esta zona (incluye 10% comisión app)
+  precioPorLitro  Float
+  // Cantidad mínima de litros por pedido en esta zona (default 1000)
+  litrosMinimos   Int      @default(1000)
+  // Radio de cobertura (km) si no hay polígono
+  radioKm         Float?
+  activa          Boolean  @default(true)
+  creadoEn        DateTime @default(now())
+  actualizadoEn   DateTime @updatedAt
+
+  clientesApp     ClienteApp[]
+  pedidosApp      PedidoApp[]
+  cuponesDescuento CuponDescuento[]
+}
+
+// Cliente de la app (distinto de Cliente que pertenece a un admin)
+// Los clientes de la app NO tienen duenoId — pertenecen a la APP
+model ClienteApp {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String
+  nombre          String
+  rut             String?
+  telefono        String?
+  // Ubicación
+  direccion       String?
+  zonaId          String?   // zona donde suele pedir
+  zona            Zona?     @relation(fields: [zonaId], references: [id])
+  lat             Float?
+  lng             Float?
+  // Acceso a la propiedad
+  requiereIngresoPropiedad Boolean @default(false)
+  entregaDesdeAfuera       Boolean @default(false)
+  conexionExterna          Boolean @default(false)
+  requiereClientePresente  Boolean @default(true)
+  indicacionesAcceso       String?
+  // Uso del agua
+  usoAgua          String   @default("consumo")
+  usoAguaNota      String?
+  estanquesJson    String?
+  // Nota interna (también usada temporalmente para tokens de reset)
+  nota             String?
+  // Preferencias
+  // Tiempo (minutos) que el cliente da a su proveedor preferido para aceptar antes de caer al pool
+  tiempoAceptacionPreferidoMin  Int @default(15)
+  // Proveedor preferido (admin que ya le entregó antes)
+  proveedorPreferidoId  String?
+  proveedorPreferido    Usuario? @relation("ClienteAppProveedorPreferido", fields: [proveedorPreferidoId], references: [id])
+  // Contadores para habilitar pago efectivo (requiere min 10 entregas exitosas)
+  entregasExitosas      Int @default(0)
+  // Saldo: positivo = saldo a favor del cliente (prepago o reembolso)
+  saldo                 Float @default(0)
+  // Estado
+  activo                Boolean @default(true)
+  creadoEn              DateTime @default(now())
+  actualizadoEn         DateTime @updatedAt
+
+  pedidos               PedidoApp[]
+  movimientosSaldo      MovimientoSaldoClienteApp[]
+}
+
+// Pedido generado desde la app cliente (DISTINTO del modelo Pedido actual)
+model PedidoApp {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  actualizadoEn   DateTime @updatedAt
+
+  // Cliente
+  clienteId       String
+  cliente         ClienteApp @relation(fields: [clienteId], references: [id])
+
+  // Detalle del pedido
+  litros          Int
+  zonaId          String
+  zona            Zona @relation(fields: [zonaId], references: [id])
+  direccion       String
+  lat             Float?
+  lng             Float?
+  indicacionesAcceso String?
+
+  // Pago
+  // metodo: portal | transferencia | efectivo | saldo | mensual
+  metodoPago      String
+  monto           Float   // total pagado por el cliente (incluye 10% comisión)
+  comisionApp     Float   // 10% del monto (lo que se queda la app)
+  montoProveedor  Float   // 90% del monto (lo que recibe el admin que tomó el pedido)
+  estadoPago      String  @default("pendiente") // pendiente | confirmado | rechazado | reembolsado
+  // Para transferencias: comprobante subido, requiere confirmación manual
+  comprobanteUrl  String?
+  confirmadoEn    DateTime?
+
+  // Asignación
+  // estado: en_pool | preferido_notificado | asignado | en_camino | entregado | cancelado | expirado
+  estado          String  @default("en_pool")
+  // Si el cliente eligió proveedor preferido, se le notifica primero
+  proveedorPreferidoNotificadoEn DateTime?
+  // Tiempo límite para que el preferido acepte (calculado al notificar)
+  plazoAceptacionPreferido DateTime?
+  // Quién tomó el pedido (chofer o admin)
+  tomadoPorId     String?
+  tomadoPor       Usuario? @relation("PedidoAppTomadoPor", fields: [tomadoPorId], references: [id])
+  tomadoEn        DateTime?
+  // Entrega
+  entregadoEn     DateTime?
+  entregaAdminId  String?  // referencia a Entrega en la base del admin que entregó
+  // Cancelación
+  canceladoEn     DateTime?
+  canceladoPor    String?  // cliente | admin | sistema
+  motivoCancelacion String?
+  // Reembolso
+  reembolsoMonto  Float?
+  // Si se cancela después de tomado, el cliente pierde 50% (costos admin)
+  penalizacionCancelacion Float?
+
+  // Historial de estado (JSON: [{estado, fecha, por}])
+  historialJson   String?
+
+  nota            String?
+
+  // Cupón de descuento aplicado (opcional)
+  cuponCodigo     String?
+  descuento       Float?   // monto descontado del total
+  montoOriginal   Float?  // monto antes del descuento (para auditoría)
+
+  // MercadoPago (para pagos con tarjeta)
+  mpPreferenceId  String?
+  mpPaymentId      String?
+}
+
+// Movimientos de saldo del cliente-app
+// Tipos: carga (saldo prepago), pago_pedido, reembolso, saldo_a_favor, ajuste
+model MovimientoSaldoClienteApp {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  clienteId       String
+  cliente         ClienteApp @relation(fields: [clienteId], references: [id])
+  tipo            String   // carga | pago_pedido | reembolso | saldo_a_favor | ajuste
+  monto           Float    // positivo = entra al saldo, negativo = sale
+  saldoResultante Float    // saldo del cliente después del movimiento
+  descripcion     String?
+  // Referencias opcionales
+  pedidoAppId     String?
+  // Para cargas: método (portal, transferencia, efectivo_admin)
+  metodoCarga     String?
+  comprobanteUrl  String?
+  // Para transferencias: requiere confirmación
+  confirmado      Boolean  @default(false)
+  confirmadoEn    DateTime?
+}
+
+// Factura del admin a la app (por el 90% de lo vendido)
+model FacturaAdmin {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+  // Periodo facturado
+  periodoStart    DateTime
+  periodoEnd      DateTime
+  // Admin que factura
+  duenoId         String
+  dueno           Usuario  @relation("FacturaAdminDueno", fields: [duenoId], references: [id])
+  // Montos
+  totalVentas     Float    // suma de montoProveedor de los PedidoApp entregados
+  comisionApp     Float    // 10% (ya descontado del totalVentas)
+  montoFacturado  Float    // = totalVentas (el admin factura 90% de lo cobrado al cliente)
+  montoPagado     Float    // lo que la app ya le pagó (0 al inicio)
+  saldoPendiente  Float    // montoFacturado - montoPagado
+  // Estado
+  estado          String   @default("pendiente") // pendiente | pagada | parcial | rechazada
+  // Datos factura
+  numeroFactura   String?
+  fechaEmision    DateTime?
+  fechaPago       DateTime?
+  // Detalle de pedidos incluidos (JSON)
+  pedidosJson     String?
+  nota            String?
+}
+
+// Cupón de descuento para pedidos de la app cliente
+// Creado por super-admin, aplicable a todas las zonas o a una específica.
+model CuponDescuento {
+  id           String    @id @default(cuid())
+  codigo       String    @unique
+  descripcion  String?
+  tipo         String    @default("porcentaje")  // porcentaje | monto_fijo
+  valor        Float    // ej: 10 (porcentaje) o 5000 (monto fijo)
+  montoMinimo  Float?   // monto mínimo del pedido para aplicar
+  usosMaximos  Int?     // null = ilimitado
+  usosActuales Int      @default(0)
+  activo       Boolean   @default(true)
+  validoDesde  DateTime?
+  validoHasta  DateTime?
+  creadoPorId  String?
+  creadoEn     DateTime @default(now())
+  zonaId       String?  // si se especifica, solo aplica a esa zona
+  zona         Zona?    @relation(fields: [zonaId], references: [id])
+
+  @@index([codigo])
+}
+
+// === Sistema de auditoría ===
+// Registra acciones importantes realizadas por super-admin y administradores.
+// Cada acción queda con: quién, qué hizo, sobre qué recurso, cuándo, y detalle.
+model AuditLog {
+  id              String   @id @default(cuid())
+  creadoEn        DateTime @default(now())
+
+  // Quién realizó la acción
+  actorId         String?  // null = sistema automático
+  actorNombre     String   // nombre del usuario (snapshot)
+  actorRole       String   // super_admin | dueno | chofer | sistema
+  actorEmail      String?
+
+  // Qué acción realizó
+  accion          String   // crear | actualizar | eliminar | activar | desactivar | cerrar_periodo | login | etc.
+  entidad         String   // usuario | camion | cliente | entrega | vuelta | gasto | pago | configuracion | zona | plan | factura | etc.
+
+  // Sobre qué recurso (opcional)
+  entidadId       String?
+  entidadNombre   String?  // nombre legible del recurso afectado
+
+  // Contexto: a qué admin pertenece el recurso (si aplica)
+  duenoId         String?  // el admin dueño del recurso afectado
+
+  // Detalle de la acción
+  descripcion     String   // texto legible: "Creó chofer 'Jeremy'", "Eliminó entrega #123"
+  detalleJson     String?  // JSON con datos antes/después, metadatos, etc.
+
+  // Metadatos técnicos
+  ip              String?
+  userAgent       String?
+
+  @@index([creadoEn])
+  @@index([actorId])
+  @@index([entidad, accion])
+  @@index([duenoId])
+}

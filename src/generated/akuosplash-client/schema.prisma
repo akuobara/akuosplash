@@ -1,0 +1,668 @@
+// AkuoSplash — Schema Prisma para la app de venta y reparto de agua
+// Tablas prefijadas con "Akuo" para aislamiento total.
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/akuosplash-client"
+  binaryTargets   = ["native", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("AKUOSPLASH_DATABASE_URL")
+}
+
+model AkuoUsuario {
+  id                             String                 @id @default(cuid())
+  email                          String                 @unique
+  nombre                         String
+  telefono                       String?
+  direccion                      String?
+  comuna                         String?
+  lat                            Float?
+  lng                            Float?
+  rut                            String?
+  indicacionesAcceso             String?
+  requiereClientePresente        Boolean                @default(true)
+  usoAgua                        String                 @default("consumo")
+  saldo                          Float                  @default(0)
+  // Zona asignada automáticamente al registrarse, según lat/lng
+  zonaId                         String?
+  zona                           AkuoZona?              @relation(fields: [zonaId], references: [id])
+  passwordHash                   String?
+  avatarUrl                      String?
+  rol                            String                 @default("cliente")
+  activo                         Boolean                @default(true)
+  aprobado                       Boolean                @default(false)
+  banned                         Boolean                @default(false)
+  banRazon                       String?
+  creadoEn                       DateTime               @default(now())
+  ultimoLoginEn                  DateTime?
+  googleId                       String?                @unique
+  facebookId                     String?                @unique
+  // Tipo de persona — solo para clientes del marketplace
+  tipoPersona                    String? // "natural" | "empresa" (null = natural por defecto)
+  rutEmpresa                     String?
+  razonSocial                    String?
+  direccionEmpresa               String?
+  // Datos legales / facturación SII
+  giro                           String?
+  inicioActividades              DateTime?
+  comunaEmpresa                  String?
+  ciudadEmpresa                  String?
+  telefonoEmpresa                String?
+  emailEmpresa                   String?
+  // Datos bancarios (para recibir pagos por transferencia)
+  bancoNombre                    String?
+  bancoTipoCuenta                String? // cuenta_corriente | cuenta_vista | cuenta_ahorro
+  bancoNumeroCuenta              String?
+  bancoTitular                   String?
+  bancoRutTitular                String?
+  bancoEmail                     String?
+  // Plataforma de facturación electrónica externa (SII)
+  facturacionPlataforma          String? // ej: "facturador" | "libro_derecho" | "otro"
+  facturacionApiKey              String?
+  capacidadVehiculoKg            Int?
+  patenteVehiculo                String?
+  tipoVehiculo                   String?
+  licenciaConducirUrl            String?
+  licenciaConducirAtrasUrl       String?
+  permisoCircUrl                 String?
+  seguroUrl                      String?
+  revisonTecnicaUrl              String?
+  fotoVehiculoFrenteUrl          String?
+  fotoVehiculoAtrasUrl           String?
+  fotoVehiculoIzquierdaUrl       String?
+  fotoVehiculoDerechaUrl         String?
+  // Estado de aprobación del transportista (manejado por superadmin)
+  // valores: pendiente | pre_aprobado | aprobado | rechazado
+  estadoAprobacion               String?
+  estadoAprobacionNota           String?
+  estadoAprobacionActualizadoEn  DateTime?
+  estadoAprobacionActualizadoPor String?
+  areasCobertura                 String?
+  descripcion                    String?
+  plan                           String                 @default("free")
+  suscripcionActiva              Boolean                @default(false)
+  suscripcionInicio              DateTime?
+  suscripcionFin                 DateTime?
+  vehiculosPermitidos            Int                    @default(1)
+  choferesPermitidos             Int                    @default(1)
+  // Verificación para participar en el marketplace de pedidos
+  verificado                     Boolean                @default(false)
+  verificadoEn                   DateTime?
+  verificadoPor                  String? // superadminId
+  // Precios por litro del transportista
+  precioEfectivoPorLitro         Float?
+  precioTransferenciaPorLitro    Float?
+  // MercadoPago Marketplace
+  mpUserId                       String? // ID de usuario MP del repartidor
+  mpAccessToken                  String? // token de acceso (caduca, hay que refrescar con mpRefreshToken)
+  mpRefreshToken                 String?
+  mpTokenExpiresAt               DateTime?
+  mpConnectedAt                  DateTime?
+  // --- Subscripción Transbank (planes Pro / Enterprise) ---
+  // plan (campo existente arriba) pasa a ser "free" | "pro" | "enterprise"
+  planActivoDesde                DateTime?
+  planActivoHasta                DateTime?
+  transbankBuyOrder              String?
+  transbankTokenWs               String?
+  transbankStatus                String? // INITIALIZED | AUTHORIZED | FAILED | REJECTED
+  transbankAmount                Float?
+  transbankPlanSolicitado        String? // pro | enterprise (lo que se solicitó pagar)
+  transbankCiclo                 String? // mensual | anual
+  transbankIniciadoEn            DateTime?
+  transbankAutorizadoEn          DateTime?
+  transbankAuthorizationCode     String?
+  // --- MercadoPago Subscriptions (preapproval) para planes de pago ---
+  // El transportista que sube de plan genera una preapproval en MP
+  mpSubPreapprovalId             String? // ID de la preapproval creada
+  mpSubPlanSolicitado            String? // "pago" | "pro" (cuál se solicitó)
+  mpSubCiclo                     String? // "mensual" | "anual"
+  mpSubStatus                    String? // "pending" | "authorized" | "paused" | "cancelled" | "suspended" | "payment_failed"
+  mpSubIniciadoEn                DateTime?
+  mpSubAutorizadoEn              DateTime?
+  mpSubAmount                    Float?
+  // Flag de suspención manual por superadmin (diferente de MP paused/cancelled)
+  mpSubSuspended                 Boolean                @default(false)
+  mpSubSuspendedEn               DateTime?
+  mpSubSuspendedPor              String? // superadminId
+  mpSubSuspendedRazon            String?
+  // --- MP test user email (para sandbox testing) ---
+  // Email del test user de MP (formato test_user_<numeric>@testuser.com) que se usa como payer
+  // en la creación de preapprovals. Solo relevante en sandbox.
+  mpTestUserEmail                String?
+  sesiones                       AkuoSesion[]
+  pedidosCliente                 AkuoPedido[]
+  entregasHechas                 AkuoEntrega[]          @relation("EntregaTransportista")
+  vehiculos                      AkuoVehiculo[]
+  clientes                       AkuoCliente[]
+  pedidosRecurrentes             AkuoPedidoRecurrente[] @relation("RecurrenteTransportista")
+  pagos                          AkuoPago[]
+  valoracionesRecibidas          AkuoValoracion[]
+  notificaciones                 AkuoNotificacion[]
+  auditLogs                      AkuoAuditLog[]
+  suscripciones                  AkuoSuscripcion[]
+  conversacionesCliente          AkuoConversacion[]     @relation("ConvCliente")
+  conversacionesTransportista    AkuoConversacion[]     @relation("ConvTransportista")
+  mensajesEnviados               AkuoMensaje[]          @relation("MensajeRemitente")
+  pedidosClienteApp              AkuoPedidoCliente[]    @relation("PedidoClienteApp")
+  pedidosTransportistaApp        AkuoPedidoCliente[]    @relation("PedidoTransportistaApp")
+  // Vueltas, gastos (para admin/chofer dashboard)
+  vueltas                        AkuoVuelta[]           @relation("VueltaTransportista")
+  gastos                         AkuoGasto[]            @relation("GastoTransportista")
+
+  @@index([rol, activo])
+  @@index([email])
+  @@index([googleId])
+  @@index([facebookId])
+  @@index([zonaId])
+}
+
+model AkuoSesion {
+  id        String      @id @default(cuid())
+  usuarioId String
+  usuario   AkuoUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  token     String      @unique
+  creadoEn  DateTime    @default(now())
+  expiraEn  DateTime
+  userAgent String?
+  ip        String?
+
+  @@index([usuarioId])
+}
+
+model AkuoCodigoLogin {
+  id       String   @id @default(cuid())
+  email    String
+  codigo   String
+  creadoEn DateTime @default(now())
+  expiraEn DateTime
+  usado    Boolean  @default(false)
+
+  @@index([email])
+}
+
+model AkuoVehiculo {
+  id                    String        @id @default(cuid())
+  creadoEn              DateTime      @default(now())
+  transportistaId       String
+  transportista         AkuoUsuario   @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  patente               String
+  tipo                  String        @default("aljibe")
+  capacidadLitros       Int
+  marca                 String?
+  modelo                String?
+  año                  Int?
+  activo                Boolean       @default(true)
+  permisoCircUrl        String?
+  revisionTecUrl        String?
+  seguroUrl             String?
+  // 4 fotos del vehículo (obligatorias)
+  fotoFrenteUrl         String?
+  fotoAtrasUrl          String?
+  fotoDerechaUrl        String?
+  fotoIzquierdaUrl      String?
+  fotoUrl               String?
+  // Estado de revisión de documentos
+  documentosVerificados Boolean       @default(false)
+  verificadoEn          DateTime?
+  verificadoPor         String? // superadminId que verificó
+  entregas              AkuoEntrega[]
+  vueltas               AkuoVuelta[]
+
+  @@index([transportistaId, activo])
+}
+
+model AkuoCliente {
+  id                          String                 @id @default(cuid())
+  creadoEn                    DateTime               @default(now())
+  transportistaId             String
+  transportista               AkuoUsuario            @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  nombre                      String
+  telefono                    String?
+  direccion                   String?
+  zona                        String?
+  lat                         Float?
+  lng                         Float?
+  precioEfectivoPorLitro      Float                  @default(0)
+  precioTransferenciaPorLitro Float                  @default(0)
+  nota                        String?
+  estanquesJson               String?
+  requiereIngresoPropiedad    Boolean                @default(false)
+  entregaDesdeAfuera          Boolean                @default(false)
+  conexionExterna             Boolean                @default(false)
+  indicacionesAcceso          String?
+  activo                      Boolean                @default(true)
+  pedidos                     AkuoPedido[]
+  pedidosRecurrentes          AkuoPedidoRecurrente[]
+  entregas                    AkuoEntrega[]
+
+  @@index([transportistaId, activo])
+}
+
+model AkuoPedido {
+  id                  String       @id @default(cuid())
+  creadoEn            DateTime     @default(now())
+  transportistaId     String
+  transportista       AkuoUsuario  @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  clienteId           String?
+  cliente             AkuoCliente? @relation(fields: [clienteId], references: [id])
+  clienteNombre       String
+  clienteDireccion    String?
+  clienteTelefono     String?
+  clienteZona         String?
+  clienteLat          Float?
+  clienteLng          Float?
+  litrosSolicitados   Float
+  fechaSolicitada     DateTime?
+  estado              String       @default("pendiente")
+  metodoPagoPreferido String       @default("credito")
+  nota                String?
+  entregaId           String?      @unique
+  entrega             AkuoEntrega? @relation(fields: [entregaId], references: [id])
+
+  @@index([transportistaId, estado])
+  @@index([clienteId])
+}
+
+model AkuoPedidoRecurrente {
+  id                     String      @id @default(cuid())
+  creadoEn               DateTime    @default(now())
+  transportistaId        String
+  transportista          AkuoUsuario @relation("RecurrenteTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+  clienteId              String
+  cliente                AkuoCliente @relation(fields: [clienteId], references: [id])
+  litrosSolicitados      Float
+  metodoPagoPreferido    String      @default("credito")
+  nota                   String?
+  frecuenciaDias         Int
+  fechaInicio            DateTime
+  fechaProximaGeneracion DateTime
+  activo                 Boolean     @default(true)
+  diaSemanaPreferido     Int?
+  asignacionTipo         String      @default("manual")
+  choferAsignadoId       String?
+
+  @@index([transportistaId, activo])
+  @@index([clienteId])
+}
+
+model AkuoEntrega {
+  id                   String        @id @default(cuid())
+  creadoEn             DateTime      @default(now())
+  transportistaId      String
+  transportista        AkuoUsuario   @relation("EntregaTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+  clienteId            String?
+  cliente              AkuoCliente?  @relation(fields: [clienteId], references: [id])
+  clienteNombre        String
+  clienteDireccion     String?
+  clienteTelefono      String?
+  clienteZona          String?
+  clienteLat           Float?
+  clienteLng           Float?
+  vehiculoId           String?
+  vehiculo             AkuoVehiculo? @relation(fields: [vehiculoId], references: [id])
+  // Vuelta a la que pertenece esta entrega (null si se hace fuera de una vuelta)
+  vueltaId             String?
+  vuelta               AkuoVuelta?   @relation(fields: [vueltaId], references: [id])
+  litros               Float
+  total                Float
+  montoEfectivo        Float         @default(0)
+  montoTransferencia   Float         @default(0)
+  montoRecibido        Float         @default(0)
+  metodoPago           String        @default("credito")
+  estadoPago           String        @default("pendiente")
+  descuento            Float         @default(0)
+  descuentoPor         String?
+  fotoMedidorUrl       String?
+  nota                 String?
+  detalleEstanquesJson String?
+  lecturaAnterior      Float?
+  lecturaActual        Float?
+  pedido               AkuoPedido?
+
+  @@index([transportistaId, creadoEn])
+  @@index([clienteId])
+  @@index([vueltaId])
+}
+
+// Vuelta = sesión de trabajo del repartidor (sale con camión, hace entregas, vuelve)
+// Igual a Aljibe
+model AkuoVuelta {
+  id                  String    @id @default(cuid())
+  numero              Int
+  iniciadaEn          DateTime  @default(now())
+  cerradaEn           DateTime?
+  nota                String?
+  activa              Boolean   @default(true)
+  validadaManualmente Boolean?
+
+  transportistaId String
+  transportista   AkuoUsuario @relation("VueltaTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+
+  vehiculoId String?
+  vehiculo   AkuoVehiculo? @relation(fields: [vehiculoId], references: [id])
+
+  entregas AkuoEntrega[]
+  gastos   AkuoGasto[]
+
+  @@index([transportistaId, activa])
+}
+
+// Gasto operativo del repartidor (combustible, peajes, etc.)
+// Igual a Aljibe
+model AkuoGasto {
+  id          String   @id @default(cuid())
+  fecha       DateTime @default(now())
+  tipo        String
+  monto       Float
+  descripcion String?
+  metodoPago  String   @default("efectivo")
+
+  transportistaId String
+  transportista   AkuoUsuario @relation("GastoTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+
+  // Gasto puede estar asociado a una vuelta específica o ser general
+  vueltaId String?
+  vuelta   AkuoVuelta? @relation(fields: [vueltaId], references: [id])
+
+  @@index([transportistaId, fecha])
+}
+
+model AkuoPago {
+  id              String      @id @default(cuid())
+  creadoEn        DateTime    @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  monto           Float
+  concepto        String
+  metodoPago      String
+  estado          String      @default("pendiente")
+  referencia      String?
+
+  @@index([transportistaId])
+}
+
+model AkuoSuscripcion {
+  id              String      @id @default(cuid())
+  creadoEn        DateTime    @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  plan            String
+  monto           Float
+  periodoDias     Int         @default(30)
+  inicio          DateTime
+  fin             DateTime
+  estado          String      @default("activa")
+  metodoPago      String?
+  referencia      String?
+
+  @@index([transportistaId, estado])
+}
+
+model AkuoValoracion {
+  id              String      @id @default(cuid())
+  creadoEn        DateTime    @default(now())
+  transportistaId String
+  transportista   AkuoUsuario @relation(fields: [transportistaId], references: [id], onDelete: Cascade)
+  rating          Int
+  comentario      String?
+  clienteNombre   String?
+
+  @@index([transportistaId, creadoEn])
+}
+
+model AkuoNotificacion {
+  id        String      @id @default(cuid())
+  creadoEn  DateTime    @default(now())
+  leidaEn   DateTime?
+  usuarioId String
+  usuario   AkuoUsuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  tipo      String
+  titulo    String
+  mensaje   String
+  link      String?
+
+  @@index([usuarioId, leidaEn])
+}
+
+model AkuoAuditLog {
+  id           String       @id @default(cuid())
+  creadoEn     DateTime     @default(now())
+  superadminId String?
+  superadmin   AkuoUsuario? @relation(fields: [superadminId], references: [id])
+  accion       String
+  entidad      String?
+  entidadId    String?
+  detalles     String?
+  ip           String?
+
+  @@index([superadminId, creadoEn])
+}
+
+model AkuoConfig {
+  id                       String   @id @default(cuid())
+  creadoEn                 DateTime @default(now())
+  comisionPorcentaje       Float    @default(0)
+  precioPlanPro            Float    @default(15000)
+  precioPlanEnterprise     Float    @default(50000)
+  maxVehiculosFree         Int      @default(1)
+  maxVehiculosPro          Int      @default(5)
+  maxVehiculosEnterprise   Int      @default(999)
+  activo                   Boolean  @default(true)
+  // --- Precio dinámico (marketplace) ---
+  precioDinamicoHabilitado Boolean  @default(false)
+  reglasPrecioJson         String? // JSON: array de reglas (ver src/lib/precio-dinamico.ts)
+  // Depot de referencia de la plataforma (para cálculo de distancia Haversine)
+  depotLat                 Float?
+  depotLng                 Float?
+  depotNombre              String?
+  // --- MercadoPago (credenciales — si están vacías, fallback a env vars) ---
+  // Cuenta legacy (mantenida para backward compat — se usa si las nuevas no están configuradas)
+  mpAccessToken            String?
+  mpPublicKey              String?
+  mpClientId               String?
+  mpUserId                 String?
+  mpSandbox                Boolean  @default(true)
+  // --- MP Split (para pagos del marketplace — cliente paga por agua) ---
+  // La comisión la calcula el backend de AkuoSplash según el plan del transportista.
+  // MP solo hace el split: envía al transportista (monto - comisión) y retiene la comisión a la plataforma.
+  mpSplitAccessToken       String?
+  mpSplitPublicKey         String?
+  mpSplitUserId            String?
+  // --- MP Subscriptions (para subscripciones de planes — transportista paga por su plan) ---
+  // Cuenta separada para preapproval API (subscripciones recurrentes).
+  mpSubAccessToken         String?
+  mpSubPublicKey           String?
+  // --- MP Instant / 10day (LEGACY — ya no se usan, pero se mantienen para compat) ---
+  mpInstantAccessToken     String?
+  mpInstantPublicKey       String?
+  mpInstantUserId          String?
+  mp10dayAccessToken       String?
+  mp10dayPublicKey         String?
+  mp10dayUserId            String?
+  // --- Transbank Webpay (para subscripciones) ---
+  transbankCommerceCode    String?
+  transbankApiKey          String?
+  transbankEnvironment     String? // "INTEGRACION" | "PRODUCCION"
+  // --- Configuración de planes (gratis/premium/pro) ---
+  // JSON: { gratis: {...}, premium: {...}, pro: {...} }
+  // Cada plan: { precioMensual, precioAnual, comisionPct, mpSplitMode, pagoDiferadoDias,
+  //              maxVehiculos, maxChoferes, features: {...} }
+  planConfigsJson          String?
+}
+
+// Zona geográfica con precio definido por el superadmin — mismo modelo que Aljibe
+// El polígono se guarda como GeoJSON (string JSON) en zonaGeoJson
+// El cliente cae en una zona si su lat/lng está dentro del polígono
+// o si está dentro del radioKm desde centroLat/centroLng
+model AkuoZona {
+  id                   String        @id @default(cuid())
+  creadoEn             DateTime      @default(now())
+  actualizadoEn        DateTime      @updatedAt
+  nombre               String // Ej: "Las Condes", "Maipú Norte"
+  descripcion          String?
+  // Polígono en formato GeoJSON: {"type":"Polygon","coordinates":[[[lng,lat],[lng,lat],...]]}
+  zonaGeoJson          String
+  // Centro aproximado para mostrar en mapa y fallback de cobertura por radio
+  centroLat            Float?
+  centroLng            Float?
+  // Precio por litro en esta zona
+  precioPorLitro       Float
+  // Precio mínimo por litro (floor) — si el motor calcula menos, se usa este
+  precioMinimoPorLitro Float?
+  // Precio mínimo total por viaje (floor absoluto) — ej: $50.000 mínimo
+  precioMinimoTotal    Float?
+  // Precio máximo por litro (cap opcional) — anti-surge abusivo
+  precioMaximoPorLitro Float?
+  // Cantidad mínima de litros por pedido en esta zona (default 1000)
+  litrosMinimos        Int           @default(1000)
+  // Radio de cobertura (km) si no hay polígono
+  radioKm              Float?
+  activa               Boolean       @default(true)
+  // --- Para zonas creadas desde el selector de comunas ---
+  comunaCode           String? // código único de la comuna (4 dígitos)
+  codRegion            Int? // código de la región (1-16)
+  // --- Sub-zonas dentro de una comuna (sectores urbanos/rurales) ---
+  parentZonaId         String? // ID de la zona padre (la comuna). Null = zona top-level
+  sector               String? // nombre del sector/localidad (ej: "Pan de Azúcar", "Cruz de Caña")
+  tipoSector           String? // "urbano" | "rural" — tipo de zona
+  // Relación con clientes asignados a esta zona
+  usuarios             AkuoUsuario[]
+  subZonas             AkuoZona[]    @relation("SubZonasDe")
+  zonaPadre            AkuoZona?     @relation("SubZonasDe", fields: [parentZonaId], references: [id])
+
+  @@index([activa])
+  @@index([comunaCode])
+  @@index([codRegion])
+  @@index([parentZonaId])
+}
+
+model AkuoConversacion {
+  id              String        @id @default(cuid())
+  creadoEn        DateTime      @default(now())
+  clienteId       String
+  transportistaId String
+  cliente         AkuoUsuario   @relation("ConvCliente", fields: [clienteId], references: [id], onDelete: Cascade)
+  transportista   AkuoUsuario   @relation("ConvTransportista", fields: [transportistaId], references: [id], onDelete: Cascade)
+  ultimoMensajeEn DateTime      @default(now())
+  mensajes        AkuoMensaje[]
+
+  @@unique([clienteId, transportistaId])
+  @@index([clienteId])
+  @@index([transportistaId])
+}
+
+model AkuoMensaje {
+  id             String           @id @default(cuid())
+  creadoEn       DateTime         @default(now())
+  leidoEn        DateTime?
+  conversacionId String
+  conversacion   AkuoConversacion @relation(fields: [conversacionId], references: [id], onDelete: Cascade)
+  remitenteId    String
+  remitente      AkuoUsuario      @relation("MensajeRemitente", fields: [remitenteId], references: [id], onDelete: Cascade)
+  contenido      String
+
+  @@index([conversacionId, creadoEn])
+}
+
+model AkuoPedidoCliente {
+  id                       String       @id @default(cuid())
+  creadoEn                 DateTime     @default(now())
+  clienteId                String
+  cliente                  AkuoUsuario  @relation("PedidoClienteApp", fields: [clienteId], references: [id], onDelete: Cascade)
+  transportistaId          String?
+  transportista            AkuoUsuario? @relation("PedidoTransportistaApp", fields: [transportistaId], references: [id])
+  litros                   Float
+  direccion                String
+  comuna                   String?
+  lat                      Float?
+  lng                      Float?
+  fechaDeseada             DateTime?
+  franjaHoraria            String?
+  metodoPago               String       @default("efectivo")
+  estado                   String       @default("pendiente")
+  nota                     String?
+  precioTotal              Float?
+  entregaId                String?
+  // --- Sistema de código de confirmación de entrega ---
+  requierePresenciaCliente Boolean      @default(true)
+  codigoConfirmacion       String?
+  codigoGeneradoEn         DateTime?
+  codigoVerificadoEn       DateTime?
+  codigoVerificadoPor      String?
+  codigoEnviadoPorMensaje  Boolean      @default(false)
+  codigoEnviadoEn          DateTime?
+  // --- MercadoPago ---
+  mpPreferenceId           String?
+  mpPaymentId              String?
+  estadoPago               String       @default("pendiente") // pendiente | pagado | rechazado
+  // --- Precio dinámico (snapshot al confirmar el pedido) ---
+  precioSnapshotJson       String? // JSON: {input, resultado, version, creadoEn}
+  precioDinamicoHabilitado Boolean      @default(false) // si este pedido se calculó con motor
+  precioPorLitroFinal      Float? // precio unitario final al momento del cálculo
+  // --- Documento tributario subido por transportista (Plan Gratis) ---
+  docTributarioUrl         String? // URL del PDF de factura emitida por el transportista
+  docTributarioFolio       String? // folio de la factura
+  docTributarioSubidoEn    DateTime?
+  docTributarioSubidoPor   String? // transportistaId
+  docTributarioMonto       Float? // monto total declarado en la factura
+
+  @@index([clienteId, estado])
+  @@index([transportistaId, estado])
+  @@index([codigoConfirmacion])
+}
+
+// Cupones de descuento — para ventas (marketplace) o subscripciones de planes
+// Tipos: "venta" (descuento en pedido de agua) | "subscripcion" (descuento en plan mensual/anual)
+// Descuento: porcentaje | monto_fijo | meses_gratis
+model AkuoCupon {
+  id                 String             @id @default(cuid())
+  creadoEn           DateTime           @default(now())
+  actualizadoEn      DateTime           @updatedAt
+  // Código público que el usuario ingresa (uppercase, sin espacios)
+  codigo             String             @unique
+  // Tipo de cupón
+  tipo               String // "venta" | "subscripcion"
+  // Configuración del descuento
+  descuentoTipo      String // "porcentaje" | "monto_fijo" | "meses_gratis"
+  descuentoValor     Float // % (0-100) | monto en CLP | cantidad de meses
+  // Restricciones
+  minMonto           Float? // monto mínimo del pedido/plan para aplicar (null = sin mínimo)
+  planIdAplicable    String? // para cupones de subscripción: a qué plan aplican (null = todos)
+  maxUsos            Int                @default(0) // 0 = ilimitado
+  usos               Int                @default(0) // contador de usos
+  // Vigencia
+  fechaInicio        DateTime
+  fechaFin           DateTime?
+  activo             Boolean            @default(true)
+  // Metadata
+  creadoPor          String? // superadminId
+  nota               String? // nota interna del superadmin (no visible al usuario)
+  descripcionPublica String? // descripción visible al usuario (ej: "50% off por lanzamiento")
+  // Relación
+  usosCupones        AkuoUsuarioCupon[]
+
+  @@index([tipo, activo])
+  @@index([fechaInicio, fechaFin])
+}
+
+// Registro de uso de cupones por usuario (auditoría + control de uso único)
+model AkuoUsuarioCupon {
+  id              String    @id @default(cuid())
+  usadoEn         DateTime  @default(now())
+  cuponId         String
+  cupon           AkuoCupon @relation(fields: [cuponId], references: [id], onDelete: Cascade)
+  usuarioId       String
+  // Para cupones de venta: el pedido donde se aplicó
+  pedidoClienteId String?
+  // Para cupones de subscripción: el plan que se activó
+  planActivado    String?
+  // Cuánto se ahorró (en CLP)
+  montoAhorrado   Float
+
+  @@index([cuponId, usuarioId])
+  @@index([usuarioId])
+}
