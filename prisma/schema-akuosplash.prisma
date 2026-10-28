@@ -4,7 +4,7 @@
 generator client {
   provider        = "prisma-client-js"
   output          = "../src/generated/akuosplash-client"
-  binaryTargets   = ["native", "linux-arm64-openssl-3.0.x", "debian-openssl-3.0.x"]
+  binaryTargets   = ["native", "wasm-openssl-3.0.x"]
   previewFeatures = ["driverAdapters"]
 }
 
