@@ -158,11 +158,11 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
             </div>
           </div>
           <div className="space-y-3">
-            <PhotoUploadField label="Licencia de conducir (frente)" value={form.licenciaConducirUrl} onChange={(v) => update("licenciaConducirUrl", v)} helpText="Carné de licencia clase A1/A2/A3/A4/A5 — foto frontal." />
-            <PhotoUploadField label="Licencia de conducir (atrás)" value={form.licenciaConducirAtrasUrl} onChange={(v) => update("licenciaConducirAtrasUrl", v)} helpText="Reverso del carné de licencia." />
-            <PhotoUploadField label="Permiso de circulación" value={form.permisoCircUrl} onChange={(v) => update("permisoCircUrl", v)} helpText="Permiso del vehículo, si lo tenés a tu nombre." />
-            <PhotoUploadField label="Seguro del vehículo" value={form.seguroUrl} onChange={(v) => update("seguroUrl", v)} helpText="Póliza de seguro del vehículo." />
-            <PhotoUploadField label="Revisión técnica" value={form.revisonTecnicaUrl} onChange={(v) => update("revisonTecnicaUrl", v)} helpText="Documento de revisión técnica vigente." />
+            <PhotoUploadField label="Licencia de conducir (frente)" value={form.licenciaConducirUrl} onChange={(v) => update("licenciaConducirUrl", v)} uploadTipo="licencia_de_conducir" helpText="Carné de licencia clase A1/A2/A3/A4/A5 — foto frontal." />
+            <PhotoUploadField label="Licencia de conducir (atrás)" value={form.licenciaConducirAtrasUrl} onChange={(v) => update("licenciaConducirAtrasUrl", v)} uploadTipo="licencia_de_conducir_atras" helpText="Reverso del carné de licencia." />
+            <PhotoUploadField label="Permiso de circulación" value={form.permisoCircUrl} onChange={(v) => update("permisoCircUrl", v)} uploadTipo="permiso_de_circulacion" helpText="Permiso del vehículo, si lo tenés a tu nombre." />
+            <PhotoUploadField label="Seguro del vehículo" value={form.seguroUrl} onChange={(v) => update("seguroUrl", v)} uploadTipo="seguro_del_vehiculo" helpText="Póliza de seguro del vehículo." />
+            <PhotoUploadField label="Revisión técnica" value={form.revisonTecnicaUrl} onChange={(v) => update("revisonTecnicaUrl", v)} uploadTipo="revision_tecnica" helpText="Documento de revisión técnica vigente." />
           </div>
         </CardContent>
       </Card>
@@ -256,10 +256,10 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
           </div>
           {/* Fotos del vehículo (4 ángulos) */}
           <div className="grid gap-3 sm:grid-cols-2 mt-3">
-            <PhotoUploadField label="Foto del vehículo (frente)" value={form.fotoVehiculoFrenteUrl} onChange={(v) => update("fotoVehiculoFrenteUrl", v)} helpText="Frente del camión — la patente debe verse claramente." />
-            <PhotoUploadField label="Foto del vehículo (atrás)" value={form.fotoVehiculoAtrasUrl} onChange={(v) => update("fotoVehiculoAtrasUrl", v)} helpText="Parte trasera del camión." />
-            <PhotoUploadField label="Foto del vehículo (lado izquierdo)" value={form.fotoVehiculoIzquierdaUrl} onChange={(v) => update("fotoVehiculoIzquierdaUrl", v)} helpText="Lado izquierdo del camión." />
-            <PhotoUploadField label="Foto del vehículo (lado derecho)" value={form.fotoVehiculoDerechaUrl} onChange={(v) => update("fotoVehiculoDerechaUrl", v)} helpText="Lado derecho del camión." />
+            <PhotoUploadField label="Foto del vehículo (frente)" value={form.fotoVehiculoFrenteUrl} onChange={(v) => update("fotoVehiculoFrenteUrl", v)} uploadTipo="foto_frente" helpText="Frente del camión — la patente debe verse claramente." />
+            <PhotoUploadField label="Foto del vehículo (atrás)" value={form.fotoVehiculoAtrasUrl} onChange={(v) => update("fotoVehiculoAtrasUrl", v)} uploadTipo="foto_atras" helpText="Parte trasera del camión." />
+            <PhotoUploadField label="Foto del vehículo (lado izquierdo)" value={form.fotoVehiculoIzquierdaUrl} onChange={(v) => update("fotoVehiculoIzquierdaUrl", v)} uploadTipo="foto_lado_izquierdo" helpText="Lado izquierdo del camión." />
+            <PhotoUploadField label="Foto del vehículo (lado derecho)" value={form.fotoVehiculoDerechaUrl} onChange={(v) => update("fotoVehiculoDerechaUrl", v)} uploadTipo="foto_lado_derecho" helpText="Lado derecho del camión." />
           </div>
         </CardContent>
       </Card>
@@ -286,9 +286,43 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
 
 // Componente para mostrar/cargar un documento o foto
 // - Si hay URL guardada: muestra preview de imagen + link para ver original
-// - Permite pegar URL nueva o limpiar la existente
-function PhotoUploadField({ label, value, onChange, helpText }: { label: string; value: string; onChange: (v: string) => void; helpText?: string; }) {
+// - Permite pegar URL nueva o SUBIR archivo directamente (vía /api/akuosplash/upload)
+function PhotoUploadField({ label, value, onChange, helpText, uploadTipo }: { label: string; value: string; onChange: (v: string) => void; helpText?: string; uploadTipo?: string }) {
   const hasValue = value && value.trim().length > 0;
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setError(null);
+    try {
+      // Validar tamaño (máx 5MB para base64 — la DB no debería tener archivos muy grandes)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("El archivo supera 5MB. Subí una imagen más chica.");
+        setUploading(false);
+        e.target.value = "";
+        return;
+      }
+      // Subir como base64 data URL (no requiere endpoint — la URL se guarda directo en la DB)
+      const reader = new FileReader();
+      reader.onload = () => {
+        onChange(reader.result as string);
+        setUploading(false);
+      };
+      reader.onerror = () => {
+        setError("No se pudo leer el archivo");
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err: any) {
+      setError(err?.message || "Error al subir");
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>
@@ -313,15 +347,30 @@ function PhotoUploadField({ label, value, onChange, helpText }: { label: string;
         </div>
       ) : (
         <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50/50 p-3 text-center">
-          <ImageIcon className="h-6 w-6 text-gray-400 mx-auto mb-1" />
-          <p className="text-[11px] text-muted-foreground">Sin documento cargado</p>
+          {uploading ? (
+            <div className="flex flex-col items-center gap-1 py-2">
+              <Loader2 className="h-5 w-5 text-blue-600 animate-spin" />
+              <p className="text-[11px] text-blue-600">Subiendo...</p>
+            </div>
+          ) : (
+            <>
+              <ImageIcon className="h-6 w-6 text-gray-400 mx-auto mb-1" />
+              <p className="text-[11px] text-muted-foreground mb-2">Sin documento cargado</p>
+              <label className="inline-flex items-center gap-1 cursor-pointer text-[11px] bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md">
+                <ImageIcon className="h-3 w-3" /> Subir archivo
+                <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={handleFile} className="hidden" />
+              </label>
+            </>
+          )}
         </div>
       )}
+      {error && <p className="text-[10px] text-red-600">{error}</p>}
+      {/* Input URL para pegar link manual si quiere */}
       <Input
         type="url"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="https://..."
+        placeholder="o pegá una URL https://..."
         className="text-xs"
       />
       {helpText && <p className="text-[10px] text-muted-foreground">{helpText}</p>}

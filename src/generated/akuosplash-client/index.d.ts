@@ -3272,8 +3272,14 @@ export namespace Prisma {
     patenteVehiculo: string | null
     tipoVehiculo: string | null
     licenciaConducirUrl: string | null
+    licenciaConducirAtrasUrl: string | null
     permisoCircUrl: string | null
     seguroUrl: string | null
+    revisonTecnicaUrl: string | null
+    fotoVehiculoFrenteUrl: string | null
+    fotoVehiculoAtrasUrl: string | null
+    fotoVehiculoIzquierdaUrl: string | null
+    fotoVehiculoDerechaUrl: string | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string | null
@@ -3365,8 +3371,14 @@ export namespace Prisma {
     patenteVehiculo: string | null
     tipoVehiculo: string | null
     licenciaConducirUrl: string | null
+    licenciaConducirAtrasUrl: string | null
     permisoCircUrl: string | null
     seguroUrl: string | null
+    revisonTecnicaUrl: string | null
+    fotoVehiculoFrenteUrl: string | null
+    fotoVehiculoAtrasUrl: string | null
+    fotoVehiculoIzquierdaUrl: string | null
+    fotoVehiculoDerechaUrl: string | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string | null
@@ -3458,8 +3470,14 @@ export namespace Prisma {
     patenteVehiculo: number
     tipoVehiculo: number
     licenciaConducirUrl: number
+    licenciaConducirAtrasUrl: number
     permisoCircUrl: number
     seguroUrl: number
+    revisonTecnicaUrl: number
+    fotoVehiculoFrenteUrl: number
+    fotoVehiculoAtrasUrl: number
+    fotoVehiculoIzquierdaUrl: number
+    fotoVehiculoDerechaUrl: number
     areasCobertura: number
     descripcion: number
     plan: number
@@ -3579,8 +3597,14 @@ export namespace Prisma {
     patenteVehiculo?: true
     tipoVehiculo?: true
     licenciaConducirUrl?: true
+    licenciaConducirAtrasUrl?: true
     permisoCircUrl?: true
     seguroUrl?: true
+    revisonTecnicaUrl?: true
+    fotoVehiculoFrenteUrl?: true
+    fotoVehiculoAtrasUrl?: true
+    fotoVehiculoIzquierdaUrl?: true
+    fotoVehiculoDerechaUrl?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -3672,8 +3696,14 @@ export namespace Prisma {
     patenteVehiculo?: true
     tipoVehiculo?: true
     licenciaConducirUrl?: true
+    licenciaConducirAtrasUrl?: true
     permisoCircUrl?: true
     seguroUrl?: true
+    revisonTecnicaUrl?: true
+    fotoVehiculoFrenteUrl?: true
+    fotoVehiculoAtrasUrl?: true
+    fotoVehiculoIzquierdaUrl?: true
+    fotoVehiculoDerechaUrl?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -3765,8 +3795,14 @@ export namespace Prisma {
     patenteVehiculo?: true
     tipoVehiculo?: true
     licenciaConducirUrl?: true
+    licenciaConducirAtrasUrl?: true
     permisoCircUrl?: true
     seguroUrl?: true
+    revisonTecnicaUrl?: true
+    fotoVehiculoFrenteUrl?: true
+    fotoVehiculoAtrasUrl?: true
+    fotoVehiculoIzquierdaUrl?: true
+    fotoVehiculoDerechaUrl?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -3945,8 +3981,14 @@ export namespace Prisma {
     patenteVehiculo: string | null
     tipoVehiculo: string | null
     licenciaConducirUrl: string | null
+    licenciaConducirAtrasUrl: string | null
     permisoCircUrl: string | null
     seguroUrl: string | null
+    revisonTecnicaUrl: string | null
+    fotoVehiculoFrenteUrl: string | null
+    fotoVehiculoAtrasUrl: string | null
+    fotoVehiculoIzquierdaUrl: string | null
+    fotoVehiculoDerechaUrl: string | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string
@@ -4057,8 +4099,14 @@ export namespace Prisma {
     patenteVehiculo?: boolean
     tipoVehiculo?: boolean
     licenciaConducirUrl?: boolean
+    licenciaConducirAtrasUrl?: boolean
     permisoCircUrl?: boolean
     seguroUrl?: boolean
+    revisonTecnicaUrl?: boolean
+    fotoVehiculoFrenteUrl?: boolean
+    fotoVehiculoAtrasUrl?: boolean
+    fotoVehiculoIzquierdaUrl?: boolean
+    fotoVehiculoDerechaUrl?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4170,8 +4218,14 @@ export namespace Prisma {
     patenteVehiculo?: boolean
     tipoVehiculo?: boolean
     licenciaConducirUrl?: boolean
+    licenciaConducirAtrasUrl?: boolean
     permisoCircUrl?: boolean
     seguroUrl?: boolean
+    revisonTecnicaUrl?: boolean
+    fotoVehiculoFrenteUrl?: boolean
+    fotoVehiculoAtrasUrl?: boolean
+    fotoVehiculoIzquierdaUrl?: boolean
+    fotoVehiculoDerechaUrl?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4264,8 +4318,14 @@ export namespace Prisma {
     patenteVehiculo?: boolean
     tipoVehiculo?: boolean
     licenciaConducirUrl?: boolean
+    licenciaConducirAtrasUrl?: boolean
     permisoCircUrl?: boolean
     seguroUrl?: boolean
+    revisonTecnicaUrl?: boolean
+    fotoVehiculoFrenteUrl?: boolean
+    fotoVehiculoAtrasUrl?: boolean
+    fotoVehiculoIzquierdaUrl?: boolean
+    fotoVehiculoDerechaUrl?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4358,8 +4418,14 @@ export namespace Prisma {
     patenteVehiculo?: boolean
     tipoVehiculo?: boolean
     licenciaConducirUrl?: boolean
+    licenciaConducirAtrasUrl?: boolean
     permisoCircUrl?: boolean
     seguroUrl?: boolean
+    revisonTecnicaUrl?: boolean
+    fotoVehiculoFrenteUrl?: boolean
+    fotoVehiculoAtrasUrl?: boolean
+    fotoVehiculoIzquierdaUrl?: boolean
+    fotoVehiculoDerechaUrl?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4403,7 +4469,7 @@ export namespace Prisma {
     mpTestUserEmail?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "permisoCircUrl" | "seguroUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "licenciaConducirAtrasUrl" | "permisoCircUrl" | "seguroUrl" | "revisonTecnicaUrl" | "fotoVehiculoFrenteUrl" | "fotoVehiculoAtrasUrl" | "fotoVehiculoIzquierdaUrl" | "fotoVehiculoDerechaUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -4504,8 +4570,14 @@ export namespace Prisma {
       patenteVehiculo: string | null
       tipoVehiculo: string | null
       licenciaConducirUrl: string | null
+      licenciaConducirAtrasUrl: string | null
       permisoCircUrl: string | null
       seguroUrl: string | null
+      revisonTecnicaUrl: string | null
+      fotoVehiculoFrenteUrl: string | null
+      fotoVehiculoAtrasUrl: string | null
+      fotoVehiculoIzquierdaUrl: string | null
+      fotoVehiculoDerechaUrl: string | null
       areasCobertura: string | null
       descripcion: string | null
       plan: string
@@ -5036,8 +5108,14 @@ export namespace Prisma {
     readonly patenteVehiculo: FieldRef<"AkuoUsuario", 'String'>
     readonly tipoVehiculo: FieldRef<"AkuoUsuario", 'String'>
     readonly licenciaConducirUrl: FieldRef<"AkuoUsuario", 'String'>
+    readonly licenciaConducirAtrasUrl: FieldRef<"AkuoUsuario", 'String'>
     readonly permisoCircUrl: FieldRef<"AkuoUsuario", 'String'>
     readonly seguroUrl: FieldRef<"AkuoUsuario", 'String'>
+    readonly revisonTecnicaUrl: FieldRef<"AkuoUsuario", 'String'>
+    readonly fotoVehiculoFrenteUrl: FieldRef<"AkuoUsuario", 'String'>
+    readonly fotoVehiculoAtrasUrl: FieldRef<"AkuoUsuario", 'String'>
+    readonly fotoVehiculoIzquierdaUrl: FieldRef<"AkuoUsuario", 'String'>
+    readonly fotoVehiculoDerechaUrl: FieldRef<"AkuoUsuario", 'String'>
     readonly areasCobertura: FieldRef<"AkuoUsuario", 'String'>
     readonly descripcion: FieldRef<"AkuoUsuario", 'String'>
     readonly plan: FieldRef<"AkuoUsuario", 'String'>
@@ -31720,8 +31798,14 @@ export namespace Prisma {
     patenteVehiculo: 'patenteVehiculo',
     tipoVehiculo: 'tipoVehiculo',
     licenciaConducirUrl: 'licenciaConducirUrl',
+    licenciaConducirAtrasUrl: 'licenciaConducirAtrasUrl',
     permisoCircUrl: 'permisoCircUrl',
     seguroUrl: 'seguroUrl',
+    revisonTecnicaUrl: 'revisonTecnicaUrl',
+    fotoVehiculoFrenteUrl: 'fotoVehiculoFrenteUrl',
+    fotoVehiculoAtrasUrl: 'fotoVehiculoAtrasUrl',
+    fotoVehiculoIzquierdaUrl: 'fotoVehiculoIzquierdaUrl',
+    fotoVehiculoDerechaUrl: 'fotoVehiculoDerechaUrl',
     areasCobertura: 'areasCobertura',
     descripcion: 'descripcion',
     plan: 'plan',
@@ -32293,8 +32377,14 @@ export namespace Prisma {
     patenteVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     tipoVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     licenciaConducirUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    licenciaConducirAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     permisoCircUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     seguroUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    revisonTecnicaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoFrenteUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoIzquierdaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoDerechaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -32405,8 +32495,14 @@ export namespace Prisma {
     patenteVehiculo?: SortOrderInput | SortOrder
     tipoVehiculo?: SortOrderInput | SortOrder
     licenciaConducirUrl?: SortOrderInput | SortOrder
+    licenciaConducirAtrasUrl?: SortOrderInput | SortOrder
     permisoCircUrl?: SortOrderInput | SortOrder
     seguroUrl?: SortOrderInput | SortOrder
+    revisonTecnicaUrl?: SortOrderInput | SortOrder
+    fotoVehiculoFrenteUrl?: SortOrderInput | SortOrder
+    fotoVehiculoAtrasUrl?: SortOrderInput | SortOrder
+    fotoVehiculoIzquierdaUrl?: SortOrderInput | SortOrder
+    fotoVehiculoDerechaUrl?: SortOrderInput | SortOrder
     areasCobertura?: SortOrderInput | SortOrder
     descripcion?: SortOrderInput | SortOrder
     plan?: SortOrder
@@ -32520,8 +32616,14 @@ export namespace Prisma {
     patenteVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     tipoVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     licenciaConducirUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    licenciaConducirAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     permisoCircUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     seguroUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    revisonTecnicaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoFrenteUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoIzquierdaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoDerechaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -32632,8 +32734,14 @@ export namespace Prisma {
     patenteVehiculo?: SortOrderInput | SortOrder
     tipoVehiculo?: SortOrderInput | SortOrder
     licenciaConducirUrl?: SortOrderInput | SortOrder
+    licenciaConducirAtrasUrl?: SortOrderInput | SortOrder
     permisoCircUrl?: SortOrderInput | SortOrder
     seguroUrl?: SortOrderInput | SortOrder
+    revisonTecnicaUrl?: SortOrderInput | SortOrder
+    fotoVehiculoFrenteUrl?: SortOrderInput | SortOrder
+    fotoVehiculoAtrasUrl?: SortOrderInput | SortOrder
+    fotoVehiculoIzquierdaUrl?: SortOrderInput | SortOrder
+    fotoVehiculoDerechaUrl?: SortOrderInput | SortOrder
     areasCobertura?: SortOrderInput | SortOrder
     descripcion?: SortOrderInput | SortOrder
     plan?: SortOrder
@@ -32733,8 +32841,14 @@ export namespace Prisma {
     patenteVehiculo?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     tipoVehiculo?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     licenciaConducirUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    licenciaConducirAtrasUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     permisoCircUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     seguroUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    revisonTecnicaUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoFrenteUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoAtrasUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoIzquierdaUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoDerechaUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     areasCobertura?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     plan?: StringWithAggregatesFilter<"AkuoUsuario"> | string
@@ -34991,8 +35105,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35103,8 +35223,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35213,8 +35339,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35325,8 +35457,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35436,8 +35574,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35528,8 +35672,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35621,8 +35771,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -38466,8 +38622,14 @@ export namespace Prisma {
     patenteVehiculo?: SortOrder
     tipoVehiculo?: SortOrder
     licenciaConducirUrl?: SortOrder
+    licenciaConducirAtrasUrl?: SortOrder
     permisoCircUrl?: SortOrder
     seguroUrl?: SortOrder
+    revisonTecnicaUrl?: SortOrder
+    fotoVehiculoFrenteUrl?: SortOrder
+    fotoVehiculoAtrasUrl?: SortOrder
+    fotoVehiculoIzquierdaUrl?: SortOrder
+    fotoVehiculoDerechaUrl?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -38572,8 +38734,14 @@ export namespace Prisma {
     patenteVehiculo?: SortOrder
     tipoVehiculo?: SortOrder
     licenciaConducirUrl?: SortOrder
+    licenciaConducirAtrasUrl?: SortOrder
     permisoCircUrl?: SortOrder
     seguroUrl?: SortOrder
+    revisonTecnicaUrl?: SortOrder
+    fotoVehiculoFrenteUrl?: SortOrder
+    fotoVehiculoAtrasUrl?: SortOrder
+    fotoVehiculoIzquierdaUrl?: SortOrder
+    fotoVehiculoDerechaUrl?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -38665,8 +38833,14 @@ export namespace Prisma {
     patenteVehiculo?: SortOrder
     tipoVehiculo?: SortOrder
     licenciaConducirUrl?: SortOrder
+    licenciaConducirAtrasUrl?: SortOrder
     permisoCircUrl?: SortOrder
     seguroUrl?: SortOrder
+    revisonTecnicaUrl?: SortOrder
+    fotoVehiculoFrenteUrl?: SortOrder
+    fotoVehiculoAtrasUrl?: SortOrder
+    fotoVehiculoIzquierdaUrl?: SortOrder
+    fotoVehiculoDerechaUrl?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -43697,8 +43871,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -43808,8 +43988,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -43933,8 +44119,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44044,8 +44236,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44153,8 +44351,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44264,8 +44468,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44491,8 +44701,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44602,8 +44818,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44743,8 +44965,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44854,8 +45082,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -45132,8 +45366,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45243,8 +45483,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45400,8 +45646,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -45511,8 +45763,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -45750,8 +46008,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45861,8 +46125,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46096,8 +46366,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46207,8 +46483,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46383,8 +46665,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46494,8 +46782,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46660,8 +46954,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46771,8 +47071,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47074,8 +47380,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -47185,8 +47497,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -47496,8 +47814,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47607,8 +47931,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47883,8 +48213,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -47994,8 +48330,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48196,8 +48538,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48307,8 +48655,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48463,8 +48817,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48574,8 +48934,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48720,8 +49086,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48831,8 +49203,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48956,8 +49334,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49067,8 +49451,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49176,8 +49566,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49287,8 +49683,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49412,8 +49814,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49523,8 +49931,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49632,8 +50046,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49743,8 +50163,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49868,8 +50294,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49979,8 +50411,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50088,8 +50526,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50199,8 +50643,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50324,8 +50774,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50435,8 +50891,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50544,8 +51006,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50655,8 +51123,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50780,8 +51254,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50891,8 +51371,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -51000,8 +51486,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51110,8 +51602,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51359,8 +51857,14 @@ export namespace Prisma {
     patenteVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     tipoVehiculo?: StringNullableFilter<"AkuoUsuario"> | string | null
     licenciaConducirUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    licenciaConducirAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     permisoCircUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     seguroUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    revisonTecnicaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoFrenteUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoIzquierdaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    fotoVehiculoDerechaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -51552,8 +52056,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51663,8 +52173,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51777,8 +52293,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51888,8 +52410,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52038,8 +52566,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52149,8 +52683,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52269,8 +52809,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52380,8 +52926,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52526,8 +53078,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52637,8 +53195,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52789,8 +53353,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52900,8 +53470,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53009,8 +53585,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53120,8 +53702,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53234,8 +53822,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53345,8 +53939,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53470,8 +54070,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53581,8 +54187,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53701,8 +54313,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53812,8 +54430,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -55779,8 +56403,14 @@ export namespace Prisma {
     patenteVehiculo?: string | null
     tipoVehiculo?: string | null
     licenciaConducirUrl?: string | null
+    licenciaConducirAtrasUrl?: string | null
     permisoCircUrl?: string | null
     seguroUrl?: string | null
+    revisonTecnicaUrl?: string | null
+    fotoVehiculoFrenteUrl?: string | null
+    fotoVehiculoAtrasUrl?: string | null
+    fotoVehiculoIzquierdaUrl?: string | null
+    fotoVehiculoDerechaUrl?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -55893,8 +56523,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -56003,8 +56639,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -56113,8 +56755,14 @@ export namespace Prisma {
     patenteVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     tipoVehiculo?: NullableStringFieldUpdateOperationsInput | string | null
     licenciaConducirUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    licenciaConducirAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     permisoCircUrl?: NullableStringFieldUpdateOperationsInput | string | null
     seguroUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    revisonTecnicaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoFrenteUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string

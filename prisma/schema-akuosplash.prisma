@@ -67,8 +67,14 @@ model AkuoUsuario {
   patenteVehiculo      String?
   tipoVehiculo         String?
   licenciaConducirUrl  String?
+  licenciaConducirAtrasUrl String?
   permisoCircUrl      String?
   seguroUrl            String?
+  revisonTecnicaUrl    String?
+  fotoVehiculoFrenteUrl   String?
+  fotoVehiculoAtrasUrl    String?
+  fotoVehiculoIzquierdaUrl String?
+  fotoVehiculoDerechaUrl  String?
   areasCobertura       String?
   descripcion          String?
   plan                 String  @default("free")
