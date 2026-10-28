@@ -79,6 +79,9 @@ export async function GET(req: Request) {
         estadoAprobacion: user.estadoAprobacion || "pendiente",
         estadoAprobacionNota: user.estadoAprobacionNota,
         estadoAprobacionActualizadoEn: user.estadoAprobacionActualizadoEn,
+        // Flag independiente: cuenta marcada como prueba
+        esCuentaDePrueba: user.esCuentaDePrueba || false,
+        esCuentaDePruebaMarcadaEn: user.esCuentaDePruebaMarcadaEn,
       } : {}),
       // Plan info (features + commission + deferral)
       planInfo: {

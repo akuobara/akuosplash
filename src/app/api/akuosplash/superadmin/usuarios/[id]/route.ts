@@ -93,10 +93,10 @@ export async function PATCH(
     if (body.vehiculosPermitidos !== undefined) {
       data.vehiculosPermitidos = Number(body.vehiculosPermitidos);
     }
-    // Estado de aprobación granular (pendiente | pre_aprobado | aprobado | rechazado | cuenta_prueba)
-    // Permite al superadmin gestionar cuentas con marketplace cerrado / zona no disponible / pruebas
+    // Estado de aprobación granular (pendiente | pre_aprobado | aprobado | rechazado)
+    // Permite al superadmin gestionar cuentas con marketplace cerrado / zona no disponible
     if (body.estadoAprobacion !== undefined) {
-      const estadosValidos = ["pendiente", "pre_aprobado", "aprobado", "rechazado", "cuenta_prueba"];
+      const estadosValidos = ["pendiente", "pre_aprobado", "aprobado", "rechazado"];
       const nuevoEstado = String(body.estadoAprobacion);
       if (!estadosValidos.includes(nuevoEstado)) {
         return NextResponse.json({ error: `estadoAprobacion inválido. Valores: ${estadosValidos.join(", ")}` }, { status: 400 });
@@ -106,10 +106,9 @@ export async function PATCH(
       data.estadoAprobacionActualizadoEn = new Date();
       data.estadoAprobacionActualizadoPor = user.id;
       // Por compatibilidad con el campo booleano `aprobado` existente:
-      // - "aprobado" y "cuenta_prueba" → aprobado=true
-      // - "pre_aprobado" → aprobado=true (tiene acceso al panel pero no al marketplace hasta que esté en su zona)
+      // - "aprobado" y "pre_aprobado" → aprobado=true (tienen acceso al panel; el marketplace se habilita aparte)
       // - "pendiente" y "rechazado" → aprobado=false
-      if (nuevoEstado === "aprobado" || nuevoEstado === "pre_aprobado" || nuevoEstado === "cuenta_prueba") {
+      if (nuevoEstado === "aprobado" || nuevoEstado === "pre_aprobado") {
         data.aprobado = true;
       } else {
         data.aprobado = false;
@@ -127,14 +126,12 @@ export async function PATCH(
         pre_aprobado: "Cuenta pre-aprobada",
         aprobado: "Cuenta aprobada",
         rechazado: "Cuenta rechazada",
-        cuenta_prueba: "Cuenta marcada como prueba",
       };
       const mensajes: Record<string, string> = {
         pendiente: "Tu registro está completo. Tu cuenta está en espera de aprobación del equipo de AkuoSplash.",
         pre_aprobado: "Tu cuenta fue pre-aprobada. Vas a poder acceder al marketplace cuando esté disponible en tu zona.",
         aprobado: "¡Tu cuenta fue aprobada! Ya podés operar en el marketplace cuando esté disponible en tu zona.",
         rechazado: `Tu cuenta fue rechazada para participar del marketplace. ${body.estadoAprobacionNota ? `Motivo: ${body.estadoAprobacionNota}` : "Contactá soporte para más info."}`,
-        cuenta_prueba: "Tu cuenta fue marcada como cuenta de prueba. Vas a poder hacer pruebas del marketplace cuando esté disponible.",
       };
       await akuosplashDb.akuoNotificacion.create({
         data: {
@@ -142,6 +139,34 @@ export async function PATCH(
           tipo: `cuenta_${nuevoEstado}`,
           titulo: titulos[nuevoEstado] || "Estado de cuenta actualizado",
           mensaje: mensajes[nuevoEstado] || "Tu estado de cuenta fue actualizado.",
+          link: "/akuosplash/transportista",
+        },
+      });
+    }
+    // Flag independiente: marcar/desmarcar cuenta como de prueba
+    // NO es un estado de aprobación — es una propiedad de la cuenta que le permite operar
+    // en el marketplace aunque esté cerrado o no esté en su zona (para hacer pruebas)
+    if (body.esCuentaDePrueba !== undefined) {
+      const valor = !!body.esCuentaDePrueba;
+      data.esCuentaDePrueba = valor;
+      data.esCuentaDePruebaMarcadaPor = user.id;
+      data.esCuentaDePruebaMarcadaEn = new Date();
+      await akuoAuditar(
+        user.id,
+        valor ? "marcar_cuenta_prueba" : "desmarcar_cuenta_prueba",
+        "AkuoUsuario",
+        id,
+        `Usuario ${target.email} esCuentaDePrueba=${valor}`
+      );
+      // Notificar al transportista
+      await akuosplashDb.akuoNotificacion.create({
+        data: {
+          usuarioId: id,
+          tipo: valor ? "cuenta_prueba_marcada" : "cuenta_prueba_desmarcada",
+          titulo: valor ? "Cuenta marcada como de prueba" : "Cuenta desmarcada como de prueba",
+          mensaje: valor
+            ? "Tu cuenta fue marcada como cuenta de prueba. Vas a poder operar en el marketplace aunque esté cerrado o no esté disponible en tu zona, para hacer pruebas."
+            : "Tu cuenta fue desmarcada como cuenta de prueba. El acceso al marketplace va a depender de la disponibilidad en tu zona.",
           link: "/akuosplash/transportista",
         },
       });

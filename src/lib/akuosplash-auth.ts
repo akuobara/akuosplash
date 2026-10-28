@@ -86,6 +86,10 @@ export async function akuoGetCurrentUser() {
       estadoAprobacion: true,
       estadoAprobacionNota: true,
       estadoAprobacionActualizadoEn: true,
+      // Flag independiente: cuenta marcada como prueba
+      esCuentaDePrueba: true,
+      esCuentaDePruebaMarcadaPor: true,
+      esCuentaDePruebaMarcadaEn: true,
       // Facturación SII
       facturacionPlataforma: true,
       facturacionApiKey: true,

@@ -3280,6 +3280,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl: string | null
     fotoVehiculoIzquierdaUrl: string | null
     fotoVehiculoDerechaUrl: string | null
+    estadoAprobacion: string | null
+    estadoAprobacionNota: string | null
+    estadoAprobacionActualizadoEn: Date | null
+    estadoAprobacionActualizadoPor: string | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string | null
@@ -3379,6 +3383,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl: string | null
     fotoVehiculoIzquierdaUrl: string | null
     fotoVehiculoDerechaUrl: string | null
+    estadoAprobacion: string | null
+    estadoAprobacionNota: string | null
+    estadoAprobacionActualizadoEn: Date | null
+    estadoAprobacionActualizadoPor: string | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string | null
@@ -3478,6 +3486,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl: number
     fotoVehiculoIzquierdaUrl: number
     fotoVehiculoDerechaUrl: number
+    estadoAprobacion: number
+    estadoAprobacionNota: number
+    estadoAprobacionActualizadoEn: number
+    estadoAprobacionActualizadoPor: number
     areasCobertura: number
     descripcion: number
     plan: number
@@ -3605,6 +3617,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: true
     fotoVehiculoIzquierdaUrl?: true
     fotoVehiculoDerechaUrl?: true
+    estadoAprobacion?: true
+    estadoAprobacionNota?: true
+    estadoAprobacionActualizadoEn?: true
+    estadoAprobacionActualizadoPor?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -3704,6 +3720,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: true
     fotoVehiculoIzquierdaUrl?: true
     fotoVehiculoDerechaUrl?: true
+    estadoAprobacion?: true
+    estadoAprobacionNota?: true
+    estadoAprobacionActualizadoEn?: true
+    estadoAprobacionActualizadoPor?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -3803,6 +3823,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: true
     fotoVehiculoIzquierdaUrl?: true
     fotoVehiculoDerechaUrl?: true
+    estadoAprobacion?: true
+    estadoAprobacionNota?: true
+    estadoAprobacionActualizadoEn?: true
+    estadoAprobacionActualizadoPor?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -3989,6 +4013,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl: string | null
     fotoVehiculoIzquierdaUrl: string | null
     fotoVehiculoDerechaUrl: string | null
+    estadoAprobacion: string | null
+    estadoAprobacionNota: string | null
+    estadoAprobacionActualizadoEn: Date | null
+    estadoAprobacionActualizadoPor: string | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string
@@ -4107,6 +4135,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: boolean
     fotoVehiculoIzquierdaUrl?: boolean
     fotoVehiculoDerechaUrl?: boolean
+    estadoAprobacion?: boolean
+    estadoAprobacionNota?: boolean
+    estadoAprobacionActualizadoEn?: boolean
+    estadoAprobacionActualizadoPor?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4226,6 +4258,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: boolean
     fotoVehiculoIzquierdaUrl?: boolean
     fotoVehiculoDerechaUrl?: boolean
+    estadoAprobacion?: boolean
+    estadoAprobacionNota?: boolean
+    estadoAprobacionActualizadoEn?: boolean
+    estadoAprobacionActualizadoPor?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4326,6 +4362,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: boolean
     fotoVehiculoIzquierdaUrl?: boolean
     fotoVehiculoDerechaUrl?: boolean
+    estadoAprobacion?: boolean
+    estadoAprobacionNota?: boolean
+    estadoAprobacionActualizadoEn?: boolean
+    estadoAprobacionActualizadoPor?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4426,6 +4466,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: boolean
     fotoVehiculoIzquierdaUrl?: boolean
     fotoVehiculoDerechaUrl?: boolean
+    estadoAprobacion?: boolean
+    estadoAprobacionNota?: boolean
+    estadoAprobacionActualizadoEn?: boolean
+    estadoAprobacionActualizadoPor?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4469,7 +4513,7 @@ export namespace Prisma {
     mpTestUserEmail?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "licenciaConducirAtrasUrl" | "permisoCircUrl" | "seguroUrl" | "revisonTecnicaUrl" | "fotoVehiculoFrenteUrl" | "fotoVehiculoAtrasUrl" | "fotoVehiculoIzquierdaUrl" | "fotoVehiculoDerechaUrl" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "licenciaConducirAtrasUrl" | "permisoCircUrl" | "seguroUrl" | "revisonTecnicaUrl" | "fotoVehiculoFrenteUrl" | "fotoVehiculoAtrasUrl" | "fotoVehiculoIzquierdaUrl" | "fotoVehiculoDerechaUrl" | "estadoAprobacion" | "estadoAprobacionNota" | "estadoAprobacionActualizadoEn" | "estadoAprobacionActualizadoPor" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -4578,6 +4622,10 @@ export namespace Prisma {
       fotoVehiculoAtrasUrl: string | null
       fotoVehiculoIzquierdaUrl: string | null
       fotoVehiculoDerechaUrl: string | null
+      estadoAprobacion: string | null
+      estadoAprobacionNota: string | null
+      estadoAprobacionActualizadoEn: Date | null
+      estadoAprobacionActualizadoPor: string | null
       areasCobertura: string | null
       descripcion: string | null
       plan: string
@@ -5116,6 +5164,10 @@ export namespace Prisma {
     readonly fotoVehiculoAtrasUrl: FieldRef<"AkuoUsuario", 'String'>
     readonly fotoVehiculoIzquierdaUrl: FieldRef<"AkuoUsuario", 'String'>
     readonly fotoVehiculoDerechaUrl: FieldRef<"AkuoUsuario", 'String'>
+    readonly estadoAprobacion: FieldRef<"AkuoUsuario", 'String'>
+    readonly estadoAprobacionNota: FieldRef<"AkuoUsuario", 'String'>
+    readonly estadoAprobacionActualizadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly estadoAprobacionActualizadoPor: FieldRef<"AkuoUsuario", 'String'>
     readonly areasCobertura: FieldRef<"AkuoUsuario", 'String'>
     readonly descripcion: FieldRef<"AkuoUsuario", 'String'>
     readonly plan: FieldRef<"AkuoUsuario", 'String'>
@@ -31806,6 +31858,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl: 'fotoVehiculoAtrasUrl',
     fotoVehiculoIzquierdaUrl: 'fotoVehiculoIzquierdaUrl',
     fotoVehiculoDerechaUrl: 'fotoVehiculoDerechaUrl',
+    estadoAprobacion: 'estadoAprobacion',
+    estadoAprobacionNota: 'estadoAprobacionNota',
+    estadoAprobacionActualizadoEn: 'estadoAprobacionActualizadoEn',
+    estadoAprobacionActualizadoPor: 'estadoAprobacionActualizadoPor',
     areasCobertura: 'areasCobertura',
     descripcion: 'descripcion',
     plan: 'plan',
@@ -32385,6 +32441,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     fotoVehiculoIzquierdaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     fotoVehiculoDerechaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacion?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacionNota?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacionActualizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    estadoAprobacionActualizadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -32503,6 +32563,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: SortOrderInput | SortOrder
     fotoVehiculoIzquierdaUrl?: SortOrderInput | SortOrder
     fotoVehiculoDerechaUrl?: SortOrderInput | SortOrder
+    estadoAprobacion?: SortOrderInput | SortOrder
+    estadoAprobacionNota?: SortOrderInput | SortOrder
+    estadoAprobacionActualizadoEn?: SortOrderInput | SortOrder
+    estadoAprobacionActualizadoPor?: SortOrderInput | SortOrder
     areasCobertura?: SortOrderInput | SortOrder
     descripcion?: SortOrderInput | SortOrder
     plan?: SortOrder
@@ -32624,6 +32688,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     fotoVehiculoIzquierdaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     fotoVehiculoDerechaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacion?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacionNota?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacionActualizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    estadoAprobacionActualizadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -32742,6 +32810,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: SortOrderInput | SortOrder
     fotoVehiculoIzquierdaUrl?: SortOrderInput | SortOrder
     fotoVehiculoDerechaUrl?: SortOrderInput | SortOrder
+    estadoAprobacion?: SortOrderInput | SortOrder
+    estadoAprobacionNota?: SortOrderInput | SortOrder
+    estadoAprobacionActualizadoEn?: SortOrderInput | SortOrder
+    estadoAprobacionActualizadoPor?: SortOrderInput | SortOrder
     areasCobertura?: SortOrderInput | SortOrder
     descripcion?: SortOrderInput | SortOrder
     plan?: SortOrder
@@ -32849,6 +32921,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     fotoVehiculoIzquierdaUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     fotoVehiculoDerechaUrl?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    estadoAprobacion?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    estadoAprobacionNota?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    estadoAprobacionActualizadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    estadoAprobacionActualizadoPor?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     areasCobertura?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     plan?: StringWithAggregatesFilter<"AkuoUsuario"> | string
@@ -35113,6 +35189,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35231,6 +35311,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35347,6 +35431,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35465,6 +35553,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35582,6 +35674,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35680,6 +35776,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35779,6 +35879,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -38630,6 +38734,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: SortOrder
     fotoVehiculoIzquierdaUrl?: SortOrder
     fotoVehiculoDerechaUrl?: SortOrder
+    estadoAprobacion?: SortOrder
+    estadoAprobacionNota?: SortOrder
+    estadoAprobacionActualizadoEn?: SortOrder
+    estadoAprobacionActualizadoPor?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -38742,6 +38850,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: SortOrder
     fotoVehiculoIzquierdaUrl?: SortOrder
     fotoVehiculoDerechaUrl?: SortOrder
+    estadoAprobacion?: SortOrder
+    estadoAprobacionNota?: SortOrder
+    estadoAprobacionActualizadoEn?: SortOrder
+    estadoAprobacionActualizadoPor?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -38841,6 +38953,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: SortOrder
     fotoVehiculoIzquierdaUrl?: SortOrder
     fotoVehiculoDerechaUrl?: SortOrder
+    estadoAprobacion?: SortOrder
+    estadoAprobacionNota?: SortOrder
+    estadoAprobacionActualizadoEn?: SortOrder
+    estadoAprobacionActualizadoPor?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -43879,6 +43995,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -43996,6 +44116,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44127,6 +44251,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44244,6 +44372,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44359,6 +44491,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44476,6 +44612,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44709,6 +44849,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44826,6 +44970,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44973,6 +45121,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -45090,6 +45242,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -45374,6 +45530,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45491,6 +45651,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45654,6 +45818,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -45771,6 +45939,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46016,6 +46188,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46133,6 +46309,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46374,6 +46554,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46491,6 +46675,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46673,6 +46861,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46790,6 +46982,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46962,6 +47158,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47079,6 +47279,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47388,6 +47592,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -47505,6 +47713,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -47822,6 +48034,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47939,6 +48155,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48221,6 +48441,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48338,6 +48562,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48546,6 +48774,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48663,6 +48895,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48825,6 +49061,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48942,6 +49182,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49094,6 +49338,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49211,6 +49459,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49342,6 +49594,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49459,6 +49715,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49574,6 +49834,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49691,6 +49955,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49822,6 +50090,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49939,6 +50211,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50054,6 +50330,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50171,6 +50451,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50302,6 +50586,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50419,6 +50707,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50534,6 +50826,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50651,6 +50947,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50782,6 +51082,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50899,6 +51203,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -51014,6 +51322,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51131,6 +51443,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51262,6 +51578,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -51379,6 +51699,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -51494,6 +51818,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51610,6 +51938,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51865,6 +52197,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     fotoVehiculoIzquierdaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
     fotoVehiculoDerechaUrl?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacion?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacionNota?: StringNullableFilter<"AkuoUsuario"> | string | null
+    estadoAprobacionActualizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    estadoAprobacionActualizadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -52064,6 +52400,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52181,6 +52521,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52301,6 +52645,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52418,6 +52766,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52574,6 +52926,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52691,6 +53047,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52817,6 +53177,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52934,6 +53298,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53086,6 +53454,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53203,6 +53575,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53361,6 +53737,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53478,6 +53858,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53593,6 +53977,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53710,6 +54098,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53830,6 +54222,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53947,6 +54343,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -54078,6 +54478,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -54195,6 +54599,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -54321,6 +54729,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -54438,6 +54850,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -56411,6 +56827,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: string | null
     fotoVehiculoIzquierdaUrl?: string | null
     fotoVehiculoDerechaUrl?: string | null
+    estadoAprobacion?: string | null
+    estadoAprobacionNota?: string | null
+    estadoAprobacionActualizadoEn?: Date | string | null
+    estadoAprobacionActualizadoPor?: string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -56531,6 +56951,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -56647,6 +57071,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -56763,6 +57191,10 @@ export namespace Prisma {
     fotoVehiculoAtrasUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoIzquierdaUrl?: NullableStringFieldUpdateOperationsInput | string | null
     fotoVehiculoDerechaUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacion?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
+    estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string

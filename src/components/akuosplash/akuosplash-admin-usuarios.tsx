@@ -19,10 +19,13 @@ interface Usuario {
   mpUserId?: string | null; mpAccessToken?: string | null;
   zonaId?: string | null;
   zona?: { id: string; nombre: string; precioPorLitro: number } | null;
-  // Estado de aprobación granular
+  // Estado de aprobación granular (4 valores)
   estadoAprobacion?: string | null;
   estadoAprobacionNota?: string | null;
   estadoAprobacionActualizadoEn?: string | null;
+  // Flag independiente: cuenta marcada como prueba
+  esCuentaDePrueba?: boolean | null;
+  esCuentaDePruebaMarcadaEn?: string | null;
   // Campos de perfil (para validar completitud)
   rut?: string | null;
   rutEmpresa?: string | null;
@@ -75,7 +78,7 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
     } catch (e: any) { toast.error(e.message || "Error"); }
   }
 
-  // Cambiar estado de aprobación granular (pendiente | pre_aprobado | aprobado | rechazado | cuenta_prueba)
+  // Cambiar estado de aprobación granular (pendiente | pre_aprobado | aprobado | rechazado)
   async function setEstadoAprobacion(u: Usuario, nuevoEstado: string, nota?: string) {
     try {
       await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${u.id}`, {
@@ -87,9 +90,20 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
         pre_aprobado: "Pre-aprobado",
         aprobado: "Aprobado",
         rechazado: "Rechazado",
-        cuenta_prueba: "marcado como Cuenta de prueba",
       };
       toast.success(`Usuario ${labels[nuevoEstado] || nuevoEstado}`);
+      setRefreshKey(k => k + 1);
+    } catch (e: any) { toast.error(e.message || "Error"); }
+  }
+
+  // Toggle del flag independiente esCuentaDePrueba (no es un estado de aprobación)
+  async function toggleCuentaPrueba(u: Usuario, val: boolean) {
+    try {
+      await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${u.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ esCuentaDePrueba: val }),
+      });
+      toast.success(val ? "Cuenta marcada como de prueba" : "Cuenta desmarcada como de prueba");
       setRefreshKey(k => k + 1);
     } catch (e: any) { toast.error(e.message || "Error"); }
   }
@@ -197,16 +211,17 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                         <Badge variant="outline" className={`text-[10px] ${
                           u.estadoAprobacion === "aprobado" ? "text-emerald-700 border-emerald-300 bg-emerald-50" :
                           u.estadoAprobacion === "pre_aprobado" ? "text-blue-700 border-blue-300 bg-blue-50" :
-                          u.estadoAprobacion === "cuenta_prueba" ? "text-violet-700 border-violet-300 bg-violet-50" :
                           u.estadoAprobacion === "rechazado" ? "text-red-700 border-red-300 bg-red-50" :
                           "text-amber-700 border-amber-300 bg-amber-50"
                         }`}>
                           {u.estadoAprobacion === "aprobado" ? "Aprobado" :
                            u.estadoAprobacion === "pre_aprobado" ? "Pre-aprobado" :
-                           u.estadoAprobacion === "cuenta_prueba" ? "Cuenta de prueba" :
                            u.estadoAprobacion === "rechazado" ? "Rechazado" :
                            "Pendiente"}
                         </Badge>
+                        {u.esCuentaDePrueba && (
+                          <Badge variant="outline" className="text-violet-700 border-violet-300 bg-violet-50 text-[10px]">Cuenta de prueba</Badge>
+                        )}
                         {perfilCompleto(u) ? (
                           <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 text-[10px]">Perfil completo</Badge>
                         ) : (
@@ -217,16 +232,13 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                       {u.estadoAprobacionNota && (
                         <p className="text-[10px] text-gray-500 italic">Nota: {u.estadoAprobacionNota}</p>
                       )}
-                      {/* Botones para cambiar estado de aprobación */}
+                      {/* Botones para cambiar estado de aprobación (4 estados) */}
                       <div className="flex flex-wrap gap-1.5">
                         <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "pre_aprobado")} className="text-blue-700 border-blue-300 hover:bg-blue-50 text-[11px]">
                           Pre-aprobar
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "aprobado")} className="text-emerald-700 border-emerald-300 hover:bg-emerald-50 text-[11px]">
                           Aprobar
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "cuenta_prueba")} className="text-violet-700 border-violet-300 hover:bg-violet-50 text-[11px]">
-                          Cuenta prueba
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => {
                           const nota = prompt("Motivo del rechazo (opcional):");
@@ -238,6 +250,19 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                         <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "pendiente")} className="text-amber-700 border-amber-300 hover:bg-amber-50 text-[11px]">
                           Pendiente
                         </Button>
+                      </div>
+                      {/* Toggle independiente: cuenta de prueba */}
+                      <div className="flex items-center gap-2 pt-1 border-t border-dashed border-gray-100">
+                        <label className="flex items-center gap-1.5 cursor-pointer text-[11px]">
+                          <input
+                            type="checkbox"
+                            checked={!!u.esCuentaDePrueba}
+                            onChange={(e) => toggleCuentaPrueba(u, e.target.checked)}
+                            className="h-3.5 w-3.5"
+                          />
+                          <span className="text-violet-700 font-medium">Cuenta de prueba</span>
+                          <span className="text-gray-500 text-[10px]">(puede operar aunque marketplace esté cerrado / sin zona disponible)</span>
+                        </label>
                       </div>
                       {/* Activar/Desactivar separado */}
                       <div className="flex gap-2 pt-1">

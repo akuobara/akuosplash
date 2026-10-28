@@ -104,6 +104,7 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
               estado={user?.estadoAprobacion || "pendiente"}
               nota={user?.estadoAprobacionNota}
               actualizadoEn={user?.estadoAprobacionActualizadoEn}
+              esCuentaDePrueba={user?.esCuentaDePrueba}
             />
           ) : (
             <div className="rounded-md bg-amber-50 border border-amber-200 p-2 mt-2 flex items-start gap-2">
@@ -196,8 +197,9 @@ function Row({ label, ok, onClick }: { label: string; ok: boolean; onClick: () =
   );
 }
 
-function EstadoAprobacionBanner({ estado, nota, actualizadoEn }: { estado: string; nota?: string | null; actualizadoEn?: string | Date | null; }) {
+function EstadoAprobacionBanner({ estado, nota, actualizadoEn, esCuentaDePrueba }: { estado: string; nota?: string | null; actualizadoEn?: string | Date | null; esCuentaDePrueba?: boolean | null; }) {
   // Mapa de estados → color + ícono + título + descripción
+  // (cuenta de prueba es un flag aparte, no un estado)
   const config: Record<string, { color: string; border: string; bg: string; iconColor: string; title: string; desc: string }> = {
     pendiente: {
       color: "text-amber-800",
@@ -223,14 +225,6 @@ function EstadoAprobacionBanner({ estado, nota, actualizadoEn }: { estado: strin
       title: "Aprobado",
       desc: "Tu cuenta está aprobada. Vas a poder acceder al marketplace cuando esté disponible en tu zona.",
     },
-    cuenta_prueba: {
-      color: "text-violet-800",
-      border: "border-violet-300",
-      bg: "bg-violet-50",
-      iconColor: "text-violet-600",
-      title: "Cuenta de prueba",
-      desc: "Tu cuenta está marcada como cuenta de prueba. Tenés acceso para hacer pruebas del marketplace cuando esté disponible.",
-    },
     rechazado: {
       color: "text-red-800",
       border: "border-red-300",
@@ -242,22 +236,37 @@ function EstadoAprobacionBanner({ estado, nota, actualizadoEn }: { estado: strin
   };
   const c = config[estado] || config.pendiente;
   return (
-    <div className={`rounded-md ${c.bg} border ${c.border} p-2.5 mt-3`}>
-      <div className="flex items-start gap-2">
-        <CheckCircle2 className={`h-4 w-4 ${c.iconColor} shrink-0 mt-0.5`} />
-        <div className="flex-1 min-w-0">
-          <p className={`text-xs font-semibold ${c.color}`}>{c.title}</p>
-          <p className={`text-[11px] ${c.color} mt-0.5`}>{c.desc}</p>
-          {nota && (
-            <p className={`text-[10px] ${c.color} mt-1.5 italic opacity-80`}>Nota: {nota}</p>
-          )}
-          {actualizadoEn && (
-            <p className={`text-[10px] ${c.color} opacity-60 mt-0.5`}>
-              Actualizado: {new Date(actualizadoEn).toLocaleString("es-CL")}
-            </p>
-          )}
+    <div className="space-y-2 mt-3">
+      <div className={`rounded-md ${c.bg} border ${c.border} p-2.5`}>
+        <div className="flex items-start gap-2">
+          <CheckCircle2 className={`h-4 w-4 ${c.iconColor} shrink-0 mt-0.5`} />
+          <div className="flex-1 min-w-0">
+            <p className={`text-xs font-semibold ${c.color}`}>{c.title}</p>
+            <p className={`text-[11px] ${c.color} mt-0.5`}>{c.desc}</p>
+            {nota && (
+              <p className={`text-[10px] ${c.color} mt-1.5 italic opacity-80`}>Nota: {nota}</p>
+            )}
+            {actualizadoEn && (
+              <p className={`text-[10px] ${c.color} opacity-60 mt-0.5`}>
+                Actualizado: {new Date(actualizadoEn).toLocaleString("es-CL")}
+              </p>
+            )}
+          </div>
         </div>
       </div>
+      {esCuentaDePrueba && (
+        <div className="rounded-md bg-violet-50 border border-violet-300 p-2.5">
+          <div className="flex items-start gap-2">
+            <CheckCircle2 className="h-4 w-4 text-violet-600 shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-violet-800">Cuenta de prueba</p>
+              <p className="text-[11px] text-violet-800 mt-0.5">
+                Tu cuenta está marcada como de prueba. Vas a poder operar en el marketplace aunque esté cerrado o no esté disponible en tu zona, para hacer pruebas.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
