@@ -23,9 +23,6 @@ interface Usuario {
   estadoAprobacion?: string | null;
   estadoAprobacionNota?: string | null;
   estadoAprobacionActualizadoEn?: string | null;
-  // Flag independiente: cuenta marcada como prueba
-  esCuentaDePrueba?: boolean | null;
-  esCuentaDePruebaMarcadaEn?: string | null;
   // Campos de perfil (para validar completitud)
   rut?: string | null;
   rutEmpresa?: string | null;
@@ -92,18 +89,6 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
         rechazado: "Rechazado",
       };
       toast.success(`Usuario ${labels[nuevoEstado] || nuevoEstado}`);
-      setRefreshKey(k => k + 1);
-    } catch (e: any) { toast.error(e.message || "Error"); }
-  }
-
-  // Toggle del flag independiente esCuentaDePrueba (no es un estado de aprobación)
-  async function toggleCuentaPrueba(u: Usuario, val: boolean) {
-    try {
-      await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${u.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ esCuentaDePrueba: val }),
-      });
-      toast.success(val ? "Cuenta marcada como de prueba" : "Cuenta desmarcada como de prueba");
       setRefreshKey(k => k + 1);
     } catch (e: any) { toast.error(e.message || "Error"); }
   }
@@ -219,9 +204,6 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                            u.estadoAprobacion === "rechazado" ? "Rechazado" :
                            "Pendiente"}
                         </Badge>
-                        {u.esCuentaDePrueba && (
-                          <Badge variant="outline" className="text-violet-700 border-violet-300 bg-violet-50 text-[10px]">Cuenta de prueba</Badge>
-                        )}
                         {perfilCompleto(u) ? (
                           <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 text-[10px]">Perfil completo</Badge>
                         ) : (
@@ -250,19 +232,6 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                         <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "pendiente")} className="text-amber-700 border-amber-300 hover:bg-amber-50 text-[11px]">
                           Pendiente
                         </Button>
-                      </div>
-                      {/* Toggle independiente: cuenta de prueba */}
-                      <div className="flex items-center gap-2 pt-1 border-t border-dashed border-gray-100">
-                        <label className="flex items-center gap-1.5 cursor-pointer text-[11px]">
-                          <input
-                            type="checkbox"
-                            checked={!!u.esCuentaDePrueba}
-                            onChange={(e) => toggleCuentaPrueba(u, e.target.checked)}
-                            className="h-3.5 w-3.5"
-                          />
-                          <span className="text-violet-700 font-medium">Cuenta de prueba</span>
-                          <span className="text-gray-500 text-[10px]">(puede operar aunque marketplace esté cerrado / sin zona disponible)</span>
-                        </label>
                       </div>
                       {/* Activar/Desactivar separado */}
                       <div className="flex gap-2 pt-1">

@@ -143,34 +143,6 @@ export async function PATCH(
         },
       });
     }
-    // Flag independiente: marcar/desmarcar cuenta como de prueba
-    // NO es un estado de aprobación — es una propiedad de la cuenta que le permite operar
-    // en el marketplace aunque esté cerrado o no esté en su zona (para hacer pruebas)
-    if (body.esCuentaDePrueba !== undefined) {
-      const valor = !!body.esCuentaDePrueba;
-      data.esCuentaDePrueba = valor;
-      data.esCuentaDePruebaMarcadaPor = user.id;
-      data.esCuentaDePruebaMarcadaEn = new Date();
-      await akuoAuditar(
-        user.id,
-        valor ? "marcar_cuenta_prueba" : "desmarcar_cuenta_prueba",
-        "AkuoUsuario",
-        id,
-        `Usuario ${target.email} esCuentaDePrueba=${valor}`
-      );
-      // Notificar al transportista
-      await akuosplashDb.akuoNotificacion.create({
-        data: {
-          usuarioId: id,
-          tipo: valor ? "cuenta_prueba_marcada" : "cuenta_prueba_desmarcada",
-          titulo: valor ? "Cuenta marcada como de prueba" : "Cuenta desmarcada como de prueba",
-          mensaje: valor
-            ? "Tu cuenta fue marcada como cuenta de prueba. Vas a poder operar en el marketplace aunque esté cerrado o no esté disponible en tu zona, para hacer pruebas."
-            : "Tu cuenta fue desmarcada como cuenta de prueba. El acceso al marketplace va a depender de la disponibilidad en tu zona.",
-          link: "/akuosplash/transportista",
-        },
-      });
-    }
     if (body.plan && ["free", "pro", "enterprise"].includes(body.plan)) {
       data.plan = body.plan;
       // Ajustar vehiculosPermitidos según plan si no se especificó

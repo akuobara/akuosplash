@@ -76,11 +76,16 @@ model AkuoUsuario {
   fotoVehiculoIzquierdaUrl       String?
   fotoVehiculoDerechaUrl         String?
   // Estado de aprobación del transportista (manejado por superadmin)
-  // valores: pendiente | pre_aprobado | aprobado | rechazado | cuenta_prueba
+  // valores: pendiente | pre_aprobado | aprobado | rechazado
   estadoAprobacion               String?
   estadoAprobacionNota           String?
   estadoAprobacionActualizadoEn  DateTime?
   estadoAprobacionActualizadoPor String?
+  // Flag independiente: cuenta marcada como prueba (no es un estado de aprobación)
+  // Las cuentas de prueba pueden operar en el marketplace aunque esté cerrado / no esté en su zona
+  esCuentaDePrueba               Boolean                @default(false)
+  esCuentaDePruebaMarcadaPor     String?
+  esCuentaDePruebaMarcadaEn      DateTime?
   areasCobertura                 String?
   descripcion                    String?
   plan                           String                 @default("free")

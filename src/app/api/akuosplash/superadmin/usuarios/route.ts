@@ -30,8 +30,6 @@ export async function GET(req: NextRequest) {
       // Estado de aprobación granular
       estadoAprobacion: true, estadoAprobacionNota: true,
       estadoAprobacionActualizadoEn: true, estadoAprobacionActualizadoPor: true,
-      // Flag independiente: cuenta marcada como prueba
-      esCuentaDePrueba: true, esCuentaDePruebaMarcadaPor: true, esCuentaDePruebaMarcadaEn: true,
       areasCobertura: true,
       // MP OAuth
       mpUserId: true, mpAccessToken: true,

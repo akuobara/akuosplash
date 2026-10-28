@@ -81,11 +81,6 @@ model AkuoUsuario {
   estadoAprobacionNota                String?
   estadoAprobacionActualizadoEn       DateTime?
   estadoAprobacionActualizadoPor      String?
-  // Flag independiente: cuenta marcada como prueba (no es un estado de aprobación)
-  // Las cuentas de prueba pueden operar en el marketplace aunque esté cerrado / no esté en su zona
-  esCuentaDePrueba                    Boolean  @default(false)
-  esCuentaDePruebaMarcadaPor          String?
-  esCuentaDePruebaMarcadaEn           DateTime?
   areasCobertura       String?
   descripcion          String?
   plan                 String  @default("free")
