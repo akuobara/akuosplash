@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "prisma generate --schema=prisma/schema-akuosplash.prisma && next build",
+    "build": "next build",
     "start": "next start -p $PORT",
     "lint": "eslint .",
     "db:push": "prisma db push",
