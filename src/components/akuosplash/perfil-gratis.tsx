@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, User, Building2, Truck, FileText, Save, AlertCircle, CheckCircle2, CreditCard } from "lucide-react";
+import { Loader2, User, Building2, Truck, FileText, Save, AlertCircle, CheckCircle2, CreditCard, Image as ImageIcon, ExternalLink, X } from "lucide-react";
 import { akuoGet, akuoApi, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
 
@@ -21,14 +21,21 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
     // Datos personales del chofer (persona natural)
     nombre: "", telefono: "", rut: "",
     licenciaConducirUrl: "",
+    licenciaConducirAtrasUrl: "",
     permisoCircUrl: "",
     seguroUrl: "",
+    revisonTecnicaUrl: "",
     // Datos de la empresa
     razonSocial: "", rutEmpresa: "", giro: "",
     direccionEmpresa: "", comunaEmpresa: "", ciudadEmpresa: "",
     telefonoEmpresa: "", emailEmpresa: "",
     // Datos del vehículo
     patenteVehiculo: "", tipoVehiculo: "aljibe", capacidadVehiculoKg: "",
+    // Fotos del vehículo
+    fotoVehiculoFrenteUrl: "",
+    fotoVehiculoAtrasUrl: "",
+    fotoVehiculoIzquierdaUrl: "",
+    fotoVehiculoDerechaUrl: "",
   });
 
   useEffect(() => {
@@ -38,14 +45,20 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
       setForm({
         nombre: u.nombre || "", telefono: u.telefono || "", rut: u.rut || "",
         licenciaConducirUrl: u.licenciaConducirUrl || "",
+        licenciaConducirAtrasUrl: u.licenciaConducirAtrasUrl || "",
         permisoCircUrl: u.permisoCircUrl || "",
         seguroUrl: u.seguroUrl || "",
+        revisonTecnicaUrl: u.revisonTecnicaUrl || "",
         razonSocial: u.razonSocial || "", rutEmpresa: u.rutEmpresa || "", giro: u.giro || "",
         direccionEmpresa: u.direccionEmpresa || "", comunaEmpresa: u.comunaEmpresa || "",
         ciudadEmpresa: u.ciudadEmpresa || "", telefonoEmpresa: u.telefonoEmpresa || "",
         emailEmpresa: u.emailEmpresa || "",
         patenteVehiculo: u.patenteVehiculo || "", tipoVehiculo: u.tipoVehiculo || "aljibe",
         capacidadVehiculoKg: u.capacidadVehiculoKg ? String(u.capacidadVehiculoKg) : "",
+        fotoVehiculoFrenteUrl: u.fotoVehiculoFrenteUrl || "",
+        fotoVehiculoAtrasUrl: u.fotoVehiculoAtrasUrl || "",
+        fotoVehiculoIzquierdaUrl: u.fotoVehiculoIzquierdaUrl || "",
+        fotoVehiculoDerechaUrl: u.fotoVehiculoDerechaUrl || "",
       });
     }).catch(() => {});
   }, []);
@@ -66,8 +79,10 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
           telefono: form.telefono,
           rut: form.rut,
           licenciaConducirUrl: form.licenciaConducirUrl || undefined,
+          licenciaConducirAtrasUrl: form.licenciaConducirAtrasUrl || undefined,
           permisoCircUrl: form.permisoCircUrl || undefined,
           seguroUrl: form.seguroUrl || undefined,
+          revisonTecnicaUrl: form.revisonTecnicaUrl || undefined,
           razonSocial: form.razonSocial,
           rutEmpresa: form.rutEmpresa,
           giro: form.giro || undefined,
@@ -79,6 +94,10 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
           patenteVehiculo: form.patenteVehiculo,
           tipoVehiculo: form.tipoVehiculo,
           capacidadVehiculoKg: form.capacidadVehiculoKg ? Number(form.capacidadVehiculoKg) : undefined,
+          fotoVehiculoFrenteUrl: form.fotoVehiculoFrenteUrl || undefined,
+          fotoVehiculoAtrasUrl: form.fotoVehiculoAtrasUrl || undefined,
+          fotoVehiculoIzquierdaUrl: form.fotoVehiculoIzquierdaUrl || undefined,
+          fotoVehiculoDerechaUrl: form.fotoVehiculoDerechaUrl || undefined,
         }),
       });
       toast.success("Perfil actualizado");
@@ -138,34 +157,12 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
               <Input value={form.telefono} onChange={(e) => update("telefono", e.target.value)} placeholder="+56 9 1234 5678" />
             </div>
           </div>
-          <div className="space-y-2">
-            <div>
-              <Label>Licencia de conducir (URL)</Label>
-              <Input
-                value={form.licenciaConducirUrl}
-                onChange={(e) => update("licenciaConducirUrl", e.target.value)}
-                placeholder="https://... (subí tu licencia y pegá el link)"
-              />
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                Foto/scan del carné de licencia de conducir clase A1/A2/A3/A4/A5.
-              </p>
-            </div>
-            <div>
-              <Label>Permiso de circulación (URL)</Label>
-              <Input
-                value={form.permisoCircUrl}
-                onChange={(e) => update("permisoCircUrl", e.target.value)}
-                placeholder="https://... (permiso del vehículo, si lo tenés a tu nombre)"
-              />
-            </div>
-            <div>
-              <Label>Seguro (URL)</Label>
-              <Input
-                value={form.seguroUrl}
-                onChange={(e) => update("seguroUrl", e.target.value)}
-                placeholder="https://... (póliza de seguro del vehículo)"
-              />
-            </div>
+          <div className="space-y-3">
+            <PhotoUploadField label="Licencia de conducir (frente)" value={form.licenciaConducirUrl} onChange={(v) => update("licenciaConducirUrl", v)} helpText="Carné de licencia clase A1/A2/A3/A4/A5 — foto frontal." />
+            <PhotoUploadField label="Licencia de conducir (atrás)" value={form.licenciaConducirAtrasUrl} onChange={(v) => update("licenciaConducirAtrasUrl", v)} helpText="Reverso del carné de licencia." />
+            <PhotoUploadField label="Permiso de circulación" value={form.permisoCircUrl} onChange={(v) => update("permisoCircUrl", v)} helpText="Permiso del vehículo, si lo tenés a tu nombre." />
+            <PhotoUploadField label="Seguro del vehículo" value={form.seguroUrl} onChange={(v) => update("seguroUrl", v)} helpText="Póliza de seguro del vehículo." />
+            <PhotoUploadField label="Revisión técnica" value={form.revisonTecnicaUrl} onChange={(v) => update("revisonTecnicaUrl", v)} helpText="Documento de revisión técnica vigente." />
           </div>
         </CardContent>
       </Card>
@@ -257,6 +254,13 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
               <Input type="number" value={form.capacidadVehiculoKg} onChange={(e) => update("capacidadVehiculoKg", e.target.value)} placeholder="5000" />
             </div>
           </div>
+          {/* Fotos del vehículo (4 ángulos) */}
+          <div className="grid gap-3 sm:grid-cols-2 mt-3">
+            <PhotoUploadField label="Foto del vehículo (frente)" value={form.fotoVehiculoFrenteUrl} onChange={(v) => update("fotoVehiculoFrenteUrl", v)} helpText="Frente del camión — la patente debe verse claramente." />
+            <PhotoUploadField label="Foto del vehículo (atrás)" value={form.fotoVehiculoAtrasUrl} onChange={(v) => update("fotoVehiculoAtrasUrl", v)} helpText="Parte trasera del camión." />
+            <PhotoUploadField label="Foto del vehículo (lado izquierdo)" value={form.fotoVehiculoIzquierdaUrl} onChange={(v) => update("fotoVehiculoIzquierdaUrl", v)} helpText="Lado izquierdo del camión." />
+            <PhotoUploadField label="Foto del vehículo (lado derecho)" value={form.fotoVehiculoDerechaUrl} onChange={(v) => update("fotoVehiculoDerechaUrl", v)} helpText="Lado derecho del camión." />
+          </div>
         </CardContent>
       </Card>
 
@@ -276,6 +280,51 @@ export function PerfilGratis({ user, onUpdated }: PerfilGratisProps) {
           </p>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// Componente para mostrar/cargar un documento o foto
+// - Si hay URL guardada: muestra preview de imagen + link para ver original
+// - Permite pegar URL nueva o limpiar la existente
+function PhotoUploadField({ label, value, onChange, helpText }: { label: string; value: string; onChange: (v: string) => void; helpText?: string; }) {
+  const hasValue = value && value.trim().length > 0;
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs">{label}</Label>
+      {hasValue ? (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50/30 overflow-hidden">
+          <a href={value} target="_blank" rel="noopener noreferrer" className="block">
+            <img src={value} alt={label} className="w-full max-h-48 object-contain bg-white" />
+          </a>
+          <div className="flex items-center justify-between gap-2 px-2 py-1.5 bg-emerald-50/50">
+            <a href={value} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[11px] text-emerald-700 hover:underline min-w-0">
+              <ExternalLink className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">Ver original</span>
+            </a>
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="flex items-center gap-1 text-[11px] text-red-600 hover:underline"
+            >
+              <X className="h-3 w-3" /> Quitar
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50/50 p-3 text-center">
+          <ImageIcon className="h-6 w-6 text-gray-400 mx-auto mb-1" />
+          <p className="text-[11px] text-muted-foreground">Sin documento cargado</p>
+        </div>
+      )}
+      <Input
+        type="url"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="https://..."
+        className="text-xs"
+      />
+      {helpText && <p className="text-[10px] text-muted-foreground">{helpText}</p>}
     </div>
   );
 }

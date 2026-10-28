@@ -26,9 +26,13 @@ export async function GET() {
       // Facturación SII
       facturacionPlataforma: true, facturacionApiKey: true,
       // Chofer (persona natural) — documentos
-      licenciaConducirUrl: true, permisoCircUrl: true, seguroUrl: true,
+      licenciaConducirUrl: true, licenciaConducirAtrasUrl: true,
+      permisoCircUrl: true, seguroUrl: true, revisonTecnicaUrl: true,
       // Vehículo
       patenteVehiculo: true, tipoVehiculo: true, capacidadVehiculoKg: true,
+      // Fotos del vehículo
+      fotoVehiculoFrenteUrl: true, fotoVehiculoAtrasUrl: true,
+      fotoVehiculoIzquierdaUrl: true, fotoVehiculoDerechaUrl: true,
       // Cobertura
       areasCobertura: true, descripcion: true,
       // Precios
@@ -56,9 +60,16 @@ export async function GET() {
       facturacionPlataforma: u.facturacionPlataforma, facturacionApiKey: u.facturacionApiKey,
       // Chofer documents
       licenciaConducirUrl: u.licenciaConducirUrl,
+      licenciaConducirAtrasUrl: u.licenciaConducirAtrasUrl,
       permisoCircUrl: u.permisoCircUrl,
       seguroUrl: u.seguroUrl,
+      revisonTecnicaUrl: u.revisonTecnicaUrl,
       patenteVehiculo: u.patenteVehiculo, tipoVehiculo: u.tipoVehiculo, capacidadVehiculoKg: u.capacidadVehiculoKg,
+      // Fotos del vehículo
+      fotoVehiculoFrenteUrl: u.fotoVehiculoFrenteUrl,
+      fotoVehiculoAtrasUrl: u.fotoVehiculoAtrasUrl,
+      fotoVehiculoIzquierdaUrl: u.fotoVehiculoIzquierdaUrl,
+      fotoVehiculoDerechaUrl: u.fotoVehiculoDerechaUrl,
       areasCobertura: u.areasCobertura, descripcion: u.descripcion,
       precioEfectivoPorLitro: u.precioEfectivoPorLitro, precioTransferenciaPorLitro: u.precioTransferenciaPorLitro,
       mpConnected: !!u.mpUserId && !!u.mpAccessToken, mpConnectedAt: u.mpConnectedAt,
@@ -105,12 +116,19 @@ export async function PATCH(req: NextRequest) {
   if (body.facturacionApiKey !== undefined) data.facturacionApiKey = body.facturacionApiKey?.trim() || null;
   // Chofer (persona natural) — documentos
   if (body.licenciaConducirUrl !== undefined) data.licenciaConducirUrl = body.licenciaConducirUrl?.trim() || null;
+  if (body.licenciaConducirAtrasUrl !== undefined) data.licenciaConducirAtrasUrl = body.licenciaConducirAtrasUrl?.trim() || null;
   if (body.permisoCircUrl !== undefined) data.permisoCircUrl = body.permisoCircUrl?.trim() || null;
   if (body.seguroUrl !== undefined) data.seguroUrl = body.seguroUrl?.trim() || null;
+  if (body.revisonTecnicaUrl !== undefined) data.revisonTecnicaUrl = body.revisonTecnicaUrl?.trim() || null;
   // Vehículo
   if (body.patenteVehiculo !== undefined) data.patenteVehiculo = body.patenteVehiculo?.trim() || null;
   if (body.tipoVehiculo !== undefined) data.tipoVehiculo = body.tipoVehiculo;
   if (body.capacidadVehiculoKg !== undefined) data.capacidadVehiculoKg = body.capacidadVehiculoKg ? Number(body.capacidadVehiculoKg) : null;
+  // Fotos del vehículo
+  if (body.fotoVehiculoFrenteUrl !== undefined) data.fotoVehiculoFrenteUrl = body.fotoVehiculoFrenteUrl?.trim() || null;
+  if (body.fotoVehiculoAtrasUrl !== undefined) data.fotoVehiculoAtrasUrl = body.fotoVehiculoAtrasUrl?.trim() || null;
+  if (body.fotoVehiculoIzquierdaUrl !== undefined) data.fotoVehiculoIzquierdaUrl = body.fotoVehiculoIzquierdaUrl?.trim() || null;
+  if (body.fotoVehiculoDerechaUrl !== undefined) data.fotoVehiculoDerechaUrl = body.fotoVehiculoDerechaUrl?.trim() || null;
   // Cobertura
   if (body.areasCobertura !== undefined) data.areasCobertura = body.areasCobertura?.trim() || null;
   if (body.descripcion !== undefined) data.descripcion = body.descripcion?.trim() || null;

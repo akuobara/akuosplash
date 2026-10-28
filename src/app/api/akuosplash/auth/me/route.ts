@@ -65,6 +65,17 @@ export async function GET(req: Request) {
       aprobado: user.aprobado, plan: planInfo.planId, planActivoHasta: planInfo.planActivoHasta, avatarUrl: user.avatarUrl, activo: user.activo,
       // Flag para saber si el perfil está incompleto
       perfilIncompleto: user.rol === "cliente" && (!user.rut || !user.zonaId),
+      // Campos de perfil de transportista (los usa BasicPanel para mostrar "Estado del registro")
+      // Si el usuario es transportista, incluir los datos del perfil para que el frontend pueda validar completitud
+      ...(user.rol === "transportista" || user.rol === "superadmin" ? {
+        rut: user.rut,
+        licenciaConducirUrl: user.licenciaConducirUrl,
+        rutEmpresa: user.rutEmpresa,
+        razonSocial: user.razonSocial,
+        patenteVehiculo: user.patenteVehiculo,
+        capacidadVehiculoKg: user.capacidadVehiculoKg,
+        tipoVehiculo: user.tipoVehiculo,
+      } : {}),
       // Plan info (features + commission + deferral)
       planInfo: {
         planId: planInfo.planId,
