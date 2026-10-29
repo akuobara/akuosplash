@@ -3284,9 +3284,6 @@ export namespace Prisma {
     estadoAprobacionNota: string | null
     estadoAprobacionActualizadoEn: Date | null
     estadoAprobacionActualizadoPor: string | null
-    esCuentaDePrueba: boolean | null
-    esCuentaDePruebaMarcadaPor: string | null
-    esCuentaDePruebaMarcadaEn: Date | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string | null
@@ -3390,9 +3387,6 @@ export namespace Prisma {
     estadoAprobacionNota: string | null
     estadoAprobacionActualizadoEn: Date | null
     estadoAprobacionActualizadoPor: string | null
-    esCuentaDePrueba: boolean | null
-    esCuentaDePruebaMarcadaPor: string | null
-    esCuentaDePruebaMarcadaEn: Date | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string | null
@@ -3496,9 +3490,6 @@ export namespace Prisma {
     estadoAprobacionNota: number
     estadoAprobacionActualizadoEn: number
     estadoAprobacionActualizadoPor: number
-    esCuentaDePrueba: number
-    esCuentaDePruebaMarcadaPor: number
-    esCuentaDePruebaMarcadaEn: number
     areasCobertura: number
     descripcion: number
     plan: number
@@ -3630,9 +3621,6 @@ export namespace Prisma {
     estadoAprobacionNota?: true
     estadoAprobacionActualizadoEn?: true
     estadoAprobacionActualizadoPor?: true
-    esCuentaDePrueba?: true
-    esCuentaDePruebaMarcadaPor?: true
-    esCuentaDePruebaMarcadaEn?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -3736,9 +3724,6 @@ export namespace Prisma {
     estadoAprobacionNota?: true
     estadoAprobacionActualizadoEn?: true
     estadoAprobacionActualizadoPor?: true
-    esCuentaDePrueba?: true
-    esCuentaDePruebaMarcadaPor?: true
-    esCuentaDePruebaMarcadaEn?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -3842,9 +3827,6 @@ export namespace Prisma {
     estadoAprobacionNota?: true
     estadoAprobacionActualizadoEn?: true
     estadoAprobacionActualizadoPor?: true
-    esCuentaDePrueba?: true
-    esCuentaDePruebaMarcadaPor?: true
-    esCuentaDePruebaMarcadaEn?: true
     areasCobertura?: true
     descripcion?: true
     plan?: true
@@ -4035,9 +4017,6 @@ export namespace Prisma {
     estadoAprobacionNota: string | null
     estadoAprobacionActualizadoEn: Date | null
     estadoAprobacionActualizadoPor: string | null
-    esCuentaDePrueba: boolean
-    esCuentaDePruebaMarcadaPor: string | null
-    esCuentaDePruebaMarcadaEn: Date | null
     areasCobertura: string | null
     descripcion: string | null
     plan: string
@@ -4160,9 +4139,6 @@ export namespace Prisma {
     estadoAprobacionNota?: boolean
     estadoAprobacionActualizadoEn?: boolean
     estadoAprobacionActualizadoPor?: boolean
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: boolean
-    esCuentaDePruebaMarcadaEn?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4286,9 +4262,6 @@ export namespace Prisma {
     estadoAprobacionNota?: boolean
     estadoAprobacionActualizadoEn?: boolean
     estadoAprobacionActualizadoPor?: boolean
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: boolean
-    esCuentaDePruebaMarcadaEn?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4393,9 +4366,6 @@ export namespace Prisma {
     estadoAprobacionNota?: boolean
     estadoAprobacionActualizadoEn?: boolean
     estadoAprobacionActualizadoPor?: boolean
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: boolean
-    esCuentaDePruebaMarcadaEn?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4500,9 +4470,6 @@ export namespace Prisma {
     estadoAprobacionNota?: boolean
     estadoAprobacionActualizadoEn?: boolean
     estadoAprobacionActualizadoPor?: boolean
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: boolean
-    esCuentaDePruebaMarcadaEn?: boolean
     areasCobertura?: boolean
     descripcion?: boolean
     plan?: boolean
@@ -4546,7 +4513,7 @@ export namespace Prisma {
     mpTestUserEmail?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "licenciaConducirAtrasUrl" | "permisoCircUrl" | "seguroUrl" | "revisonTecnicaUrl" | "fotoVehiculoFrenteUrl" | "fotoVehiculoAtrasUrl" | "fotoVehiculoIzquierdaUrl" | "fotoVehiculoDerechaUrl" | "estadoAprobacion" | "estadoAprobacionNota" | "estadoAprobacionActualizadoEn" | "estadoAprobacionActualizadoPor" | "esCuentaDePrueba" | "esCuentaDePruebaMarcadaPor" | "esCuentaDePruebaMarcadaEn" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "licenciaConducirAtrasUrl" | "permisoCircUrl" | "seguroUrl" | "revisonTecnicaUrl" | "fotoVehiculoFrenteUrl" | "fotoVehiculoAtrasUrl" | "fotoVehiculoIzquierdaUrl" | "fotoVehiculoDerechaUrl" | "estadoAprobacion" | "estadoAprobacionNota" | "estadoAprobacionActualizadoEn" | "estadoAprobacionActualizadoPor" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -4659,9 +4626,6 @@ export namespace Prisma {
       estadoAprobacionNota: string | null
       estadoAprobacionActualizadoEn: Date | null
       estadoAprobacionActualizadoPor: string | null
-      esCuentaDePrueba: boolean
-      esCuentaDePruebaMarcadaPor: string | null
-      esCuentaDePruebaMarcadaEn: Date | null
       areasCobertura: string | null
       descripcion: string | null
       plan: string
@@ -5204,9 +5168,6 @@ export namespace Prisma {
     readonly estadoAprobacionNota: FieldRef<"AkuoUsuario", 'String'>
     readonly estadoAprobacionActualizadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly estadoAprobacionActualizadoPor: FieldRef<"AkuoUsuario", 'String'>
-    readonly esCuentaDePrueba: FieldRef<"AkuoUsuario", 'Boolean'>
-    readonly esCuentaDePruebaMarcadaPor: FieldRef<"AkuoUsuario", 'String'>
-    readonly esCuentaDePruebaMarcadaEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly areasCobertura: FieldRef<"AkuoUsuario", 'String'>
     readonly descripcion: FieldRef<"AkuoUsuario", 'String'>
     readonly plan: FieldRef<"AkuoUsuario", 'String'>
@@ -31901,9 +31862,6 @@ export namespace Prisma {
     estadoAprobacionNota: 'estadoAprobacionNota',
     estadoAprobacionActualizadoEn: 'estadoAprobacionActualizadoEn',
     estadoAprobacionActualizadoPor: 'estadoAprobacionActualizadoPor',
-    esCuentaDePrueba: 'esCuentaDePrueba',
-    esCuentaDePruebaMarcadaPor: 'esCuentaDePruebaMarcadaPor',
-    esCuentaDePruebaMarcadaEn: 'esCuentaDePruebaMarcadaEn',
     areasCobertura: 'areasCobertura',
     descripcion: 'descripcion',
     plan: 'plan',
@@ -32487,9 +32445,6 @@ export namespace Prisma {
     estadoAprobacionNota?: StringNullableFilter<"AkuoUsuario"> | string | null
     estadoAprobacionActualizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     estadoAprobacionActualizadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
-    esCuentaDePrueba?: BoolFilter<"AkuoUsuario"> | boolean
-    esCuentaDePruebaMarcadaPor?: StringNullableFilter<"AkuoUsuario"> | string | null
-    esCuentaDePruebaMarcadaEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -32612,9 +32567,6 @@ export namespace Prisma {
     estadoAprobacionNota?: SortOrderInput | SortOrder
     estadoAprobacionActualizadoEn?: SortOrderInput | SortOrder
     estadoAprobacionActualizadoPor?: SortOrderInput | SortOrder
-    esCuentaDePrueba?: SortOrder
-    esCuentaDePruebaMarcadaPor?: SortOrderInput | SortOrder
-    esCuentaDePruebaMarcadaEn?: SortOrderInput | SortOrder
     areasCobertura?: SortOrderInput | SortOrder
     descripcion?: SortOrderInput | SortOrder
     plan?: SortOrder
@@ -32740,9 +32692,6 @@ export namespace Prisma {
     estadoAprobacionNota?: StringNullableFilter<"AkuoUsuario"> | string | null
     estadoAprobacionActualizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     estadoAprobacionActualizadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
-    esCuentaDePrueba?: BoolFilter<"AkuoUsuario"> | boolean
-    esCuentaDePruebaMarcadaPor?: StringNullableFilter<"AkuoUsuario"> | string | null
-    esCuentaDePruebaMarcadaEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -32865,9 +32814,6 @@ export namespace Prisma {
     estadoAprobacionNota?: SortOrderInput | SortOrder
     estadoAprobacionActualizadoEn?: SortOrderInput | SortOrder
     estadoAprobacionActualizadoPor?: SortOrderInput | SortOrder
-    esCuentaDePrueba?: SortOrder
-    esCuentaDePruebaMarcadaPor?: SortOrderInput | SortOrder
-    esCuentaDePruebaMarcadaEn?: SortOrderInput | SortOrder
     areasCobertura?: SortOrderInput | SortOrder
     descripcion?: SortOrderInput | SortOrder
     plan?: SortOrder
@@ -32979,9 +32925,6 @@ export namespace Prisma {
     estadoAprobacionNota?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     estadoAprobacionActualizadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     estadoAprobacionActualizadoPor?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
-    esCuentaDePrueba?: BoolWithAggregatesFilter<"AkuoUsuario"> | boolean
-    esCuentaDePruebaMarcadaPor?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
-    esCuentaDePruebaMarcadaEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     areasCobertura?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     plan?: StringWithAggregatesFilter<"AkuoUsuario"> | string
@@ -35250,9 +35193,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35375,9 +35315,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35498,9 +35435,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35623,9 +35557,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35747,9 +35678,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -35852,9 +35780,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -35958,9 +35883,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -38816,9 +38738,6 @@ export namespace Prisma {
     estadoAprobacionNota?: SortOrder
     estadoAprobacionActualizadoEn?: SortOrder
     estadoAprobacionActualizadoPor?: SortOrder
-    esCuentaDePrueba?: SortOrder
-    esCuentaDePruebaMarcadaPor?: SortOrder
-    esCuentaDePruebaMarcadaEn?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -38935,9 +38854,6 @@ export namespace Prisma {
     estadoAprobacionNota?: SortOrder
     estadoAprobacionActualizadoEn?: SortOrder
     estadoAprobacionActualizadoPor?: SortOrder
-    esCuentaDePrueba?: SortOrder
-    esCuentaDePruebaMarcadaPor?: SortOrder
-    esCuentaDePruebaMarcadaEn?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -39041,9 +38957,6 @@ export namespace Prisma {
     estadoAprobacionNota?: SortOrder
     estadoAprobacionActualizadoEn?: SortOrder
     estadoAprobacionActualizadoPor?: SortOrder
-    esCuentaDePrueba?: SortOrder
-    esCuentaDePruebaMarcadaPor?: SortOrder
-    esCuentaDePruebaMarcadaEn?: SortOrder
     areasCobertura?: SortOrder
     descripcion?: SortOrder
     plan?: SortOrder
@@ -44086,9 +43999,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44210,9 +44120,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44348,9 +44255,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44472,9 +44376,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -44594,9 +44495,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44718,9 +44616,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -44958,9 +44853,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45082,9 +44974,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45236,9 +45125,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -45360,9 +45246,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -45651,9 +45534,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45775,9 +45655,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -45945,9 +45822,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46069,9 +45943,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46321,9 +46192,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46445,9 +46313,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -46693,9 +46558,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -46817,9 +46679,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47006,9 +46865,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -47130,9 +46986,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -47309,9 +47162,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47433,9 +47283,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -47749,9 +47596,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -47873,9 +47717,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48197,9 +48038,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48321,9 +48159,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -48610,9 +48445,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48734,9 +48566,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -48949,9 +48778,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49073,9 +48899,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49242,9 +49065,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49366,9 +49186,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49525,9 +49342,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49649,9 +49463,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -49787,9 +49598,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -49911,9 +49719,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50033,9 +49838,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50157,9 +49959,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50295,9 +50094,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50419,9 +50215,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50541,9 +50334,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50665,9 +50455,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -50803,9 +50590,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -50927,9 +50711,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -51049,9 +50830,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51173,9 +50951,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51311,9 +51086,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -51435,9 +51207,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -51557,9 +51326,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51681,9 +51447,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -51819,9 +51582,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -51943,9 +51703,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -52065,9 +51822,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52188,9 +51942,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52450,9 +52201,6 @@ export namespace Prisma {
     estadoAprobacionNota?: StringNullableFilter<"AkuoUsuario"> | string | null
     estadoAprobacionActualizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     estadoAprobacionActualizadoPor?: StringNullableFilter<"AkuoUsuario"> | string | null
-    esCuentaDePrueba?: BoolFilter<"AkuoUsuario"> | boolean
-    esCuentaDePruebaMarcadaPor?: StringNullableFilter<"AkuoUsuario"> | string | null
-    esCuentaDePruebaMarcadaEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     areasCobertura?: StringNullableFilter<"AkuoUsuario"> | string | null
     descripcion?: StringNullableFilter<"AkuoUsuario"> | string | null
     plan?: StringFilter<"AkuoUsuario"> | string
@@ -52656,9 +52404,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52780,9 +52525,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -52907,9 +52649,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53031,9 +52770,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53194,9 +52930,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53318,9 +53051,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53451,9 +53181,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53575,9 +53302,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -53734,9 +53458,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -53858,9 +53579,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -54023,9 +53741,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -54147,9 +53862,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -54269,9 +53981,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -54393,9 +54102,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -54520,9 +54226,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -54644,9 +54347,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -54782,9 +54482,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -54906,9 +54603,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -55039,9 +54733,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -55163,9 +54854,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -57143,9 +56831,6 @@ export namespace Prisma {
     estadoAprobacionNota?: string | null
     estadoAprobacionActualizadoEn?: Date | string | null
     estadoAprobacionActualizadoPor?: string | null
-    esCuentaDePrueba?: boolean
-    esCuentaDePruebaMarcadaPor?: string | null
-    esCuentaDePruebaMarcadaEn?: Date | string | null
     areasCobertura?: string | null
     descripcion?: string | null
     plan?: string
@@ -57270,9 +56955,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -57393,9 +57075,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
@@ -57516,9 +57195,6 @@ export namespace Prisma {
     estadoAprobacionNota?: NullableStringFieldUpdateOperationsInput | string | null
     estadoAprobacionActualizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     estadoAprobacionActualizadoPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePrueba?: BoolFieldUpdateOperationsInput | boolean
-    esCuentaDePruebaMarcadaPor?: NullableStringFieldUpdateOperationsInput | string | null
-    esCuentaDePruebaMarcadaEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     areasCobertura?: NullableStringFieldUpdateOperationsInput | string | null
     descripcion?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: StringFieldUpdateOperationsInput | string
