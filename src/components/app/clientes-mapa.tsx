@@ -82,13 +82,23 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" /> Mapa de clientes
             <span className="text-sm font-normal text-muted-foreground">
-              ({filtrados.length} visibles)
+              ({filtrados.length} visibles de {clientes.length} total, {clientesConGps.length} con GPS)
             </span>
           </DialogTitle>
           <DialogDescription>
             Tocá un cliente en la lista para verlo en el mapa. Verde = al día. Rojo = con deuda.
           </DialogDescription>
         </DialogHeader>
+
+        {/* Debug info */}
+        {clientesConGps.length === 0 && (
+          <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+            No hay clientes con coordenadas GPS. Total clientes recibidos: {clientes.length}
+            {clientes.length > 0 && (
+              <span> — primero: {clientes[0].nombre} lat={clientes[0].lat} lng={clientes[0].lng}</span>
+            )}
+          </div>
+        )}
 
         {/* Buscador */}
         <div className="flex gap-2 mb-2">
