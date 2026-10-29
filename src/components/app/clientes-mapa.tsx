@@ -45,6 +45,7 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const markersRef = useRef<{ marker: any; id: string }[]>([]);
+  const [mapStatus, setMapStatus] = useState<string>("esperando...");
 
   const clientesConGps = useMemo(
     () => clientes.filter((c) => c.lat != null && c.lng != null),
@@ -91,10 +92,13 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
       tries++;
       if (tries > 50) {
         clearInterval(tryInit);
+        setMapStatus("ERROR: Leaflet no cargó después de 5s (tries=" + tries + ")");
         return;
       }
-      if (!window.L || !mapRef.current) return;
+      if (!window.L) { setMapStatus("cargando Leaflet... (" + tries + ")"); return; }
+      if (!mapRef.current) { setMapStatus("mapRef null (" + tries + ")"); return; }
       clearInterval(tryInit);
+      setMapStatus("inicializando mapa...");
 
       // Limpiar mapa anterior
       if (mapInstance.current) {
@@ -125,6 +129,7 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
       L.control.layers({ "Satélite": satellite, "Calles": streets }, null, { position: "topleft", collapsed: false }).addTo(map);
 
       mapInstance.current = map;
+      setMapStatus("mapa listo, agregando " + filtrados.length + " markers...");
 
       // Agregar markers para TODOS los clientes (sin límite de 30)
       filtrados.forEach((c) => {
@@ -163,6 +168,7 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
 
       setTimeout(() => map.invalidateSize(), 100);
       setTimeout(() => map.invalidateSize(), 500);
+      setMapStatus("✓ " + markersRef.current.length + " markers en mapa");
     }, 100);
 
     return () => clearInterval(tryInit);
@@ -216,6 +222,9 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
         {/* Mapa Leaflet interactivo */}
         <div className="relative rounded-lg overflow-hidden border border-gray-200" style={{ height: "400px" }}>
           <div ref={mapRef} className="absolute inset-0" style={{ zIndex: 1 }} />
+          <div className="absolute top-2 right-2 z-10 rounded bg-white/90 px-2 py-1 text-xs font-medium text-gray-700 shadow">
+            {mapStatus}
+          </div>
         </div>
 
         {/* Cliente seleccionado */}
