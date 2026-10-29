@@ -49,6 +49,9 @@ export function ClientesMapa({ open, onOpenChange, clientes }: ClientesMapaProps
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[95vh] w-[95vw] max-w-5xl overflow-y-auto">
+        <div style={{ background: "#dc2626", color: "white", padding: "8px 12px", borderRadius: "6px", marginBottom: "8px", fontWeight: "bold", fontSize: "14px" }}>
+          VERSIÓN NUEVA DEL MAPA — SI VES ESTO, EL CÓDIGO NUEVO ESTÁ CARGADO
+        </div>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" /> Mapa de clientes
