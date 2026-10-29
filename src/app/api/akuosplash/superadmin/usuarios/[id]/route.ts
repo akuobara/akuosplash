@@ -1,8 +1,7 @@
-// PATCH /api/akuosplash/superadmin/usuarios/[id]
-// Acciones: banear / desbanear / aprobar / cambiar rol / activar / desactivar
 import { NextRequest, NextResponse } from "next/server";
 import { akuoGetCurrentUser, akuoAuditar } from "@/lib/akuosplash-auth";
 import { akuosplashDb } from "@/lib/akuosplash-db";
+import { ensureAkuoConfigColumns } from "@/lib/akuosplash-plans";
 
 export async function PATCH(
   req: NextRequest,
@@ -10,161 +9,111 @@ export async function PATCH(
 ) {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autenticado" }, { status: 401 });
-  if (user.rol !== "superadmin") {
-    return NextResponse.json({ error: "Solo superadmin" }, { status: 403 });
-  }
+  if (user.rol !== "superadmin") return NextResponse.json({ error: "Solo superadmin" }, { status: 403 });
+  await ensureAkuoConfigColumns();
   const { id } = await params;
 
-  // No auto-modificarse el rol (para evitar auto-baneo accidental)
-  const target = await akuosplashDb.akuoUsuario.findUnique({ where: { id } });
-  if (!target) {
+  // Get target user via raw SQL
+  const targetRows: any = await akuosplashDb.$queryRawUnsafe(
+    `SELECT id, email FROM AkuoUsuario WHERE id = ? LIMIT 1`, id
+  ).catch(() => []);
+  if (!Array.isArray(targetRows) || targetRows.length === 0) {
     return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
   }
+  const target = targetRows[0];
   if (target.id === user.id) {
-    return NextResponse.json(
-      { error: "No podés modificar tu propia cuenta" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "No podés modificar tu propia cuenta" }, { status: 400 });
   }
 
   try {
     const body = await req.json();
-    const data: Record<string, unknown> = {};
 
-    if ("aprobado" in body) {
-      data.aprobado = !!body.aprobado;
-      await akuoAuditar(
-        user.id,
-        data.aprobado ? "aprobar_transportista" : "rechazar_transportista",
-        "AkuoUsuario",
-        id,
-        `Usuario ${target.email} aprobado=${data.aprobado}`
-      );
-      // Notificar al transportista
-      await akuosplashDb.akuoNotificacion.create({
-        data: {
-          usuarioId: id,
-          tipo: data.aprobado ? "cuenta_aprobada" : "cuenta_rechazada",
-          titulo: data.aprobado ? "Cuenta aprobada" : "Cuenta rechazada",
-          mensaje: data.aprobado
-            ? "¡Tu cuenta de transportista fue aprobada! Ya podés operar."
-            : "Tu cuenta de transportista fue rechazada. Contactá soporte.",
-          link: "/akuosplash/transportista",
-        },
-      });
-    }
-    if ("banned" in body) {
-      data.banned = !!body.banned;
-      data.banRazon = body.banRazon?.trim() || null;
-      await akuoAuditar(
-        user.id,
-        data.banned ? "banear_usuario" : "desbanear_usuario",
-        "AkuoUsuario",
-        id,
-        data.banned
-          ? `Usuario ${target.email} baneado. Motivo: ${data.banRazon || "no especificado"}`
-          : `Usuario ${target.email} desbaneado`
-      );
-      await akuosplashDb.akuoNotificacion.create({
-        data: {
-          usuarioId: id,
-          tipo: data.banned ? "cuenta_baneada" : "cuenta_desbaneada",
-          titulo: data.banned ? "Cuenta suspendida" : "Cuenta reactivada",
-          mensaje: data.banned
-            ? `Tu cuenta fue suspendida. Motivo: ${data.banRazon || "no especificado"}`
-            : "Tu cuenta fue reactivada.",
-          link: "/akuosplash",
-        },
-      });
-    }
-    if ("activo" in body) {
-      data.activo = !!body.activo;
-    }
-    if (body.rol && ["cliente", "transportista", "superadmin"].includes(body.rol)) {
-      data.rol = body.rol;
-      await akuoAuditar(
-        user.id,
-        "cambiar_rol",
-        "AkuoUsuario",
-        id,
-        `Usuario ${target.email} rol ${target.rol} → ${body.rol}`
-      );
-    }
-    if (body.vehiculosPermitidos !== undefined) {
-      data.vehiculosPermitidos = Number(body.vehiculosPermitidos);
-    }
-    // Estado de aprobación granular (pendiente | pre_aprobado | aprobado | rechazado)
-    // Permite al superadmin gestionar cuentas con marketplace cerrado / zona no disponible
+    // estadoAprobacion (pendiente | pre_aprobado | aprobado | rechazado)
     if (body.estadoAprobacion !== undefined) {
       const estadosValidos = ["pendiente", "pre_aprobado", "aprobado", "rechazado"];
       const nuevoEstado = String(body.estadoAprobacion);
       if (!estadosValidos.includes(nuevoEstado)) {
         return NextResponse.json({ error: `estadoAprobacion inválido. Valores: ${estadosValidos.join(", ")}` }, { status: 400 });
       }
-      data.estadoAprobacion = nuevoEstado;
-      data.estadoAprobacionNota = body.estadoAprobacionNota?.trim() || null;
-      data.estadoAprobacionActualizadoEn = new Date();
-      data.estadoAprobacionActualizadoPor = user.id;
-      // Por compatibilidad con el campo booleano `aprobado` existente:
-      // - "aprobado" y "pre_aprobado" → aprobado=true (tienen acceso al panel; el marketplace se habilita aparte)
-      // - "pendiente" y "rechazado" → aprobado=false
-      if (nuevoEstado === "aprobado" || nuevoEstado === "pre_aprobado") {
-        data.aprobado = true;
-      } else {
-        data.aprobado = false;
-      }
-      await akuoAuditar(
-        user.id,
-        `cambiar_estado_aprobacion_${nuevoEstado}`,
-        "AkuoUsuario",
-        id,
-        `Usuario ${target.email} estadoAprobacion=${nuevoEstado}${body.estadoAprobacionNota ? ` — nota: ${body.estadoAprobacionNota}` : ""}`
+      const nota = body.estadoAprobacionNota?.trim() || null;
+      const ahora = new Date().toISOString();
+      // Raw SQL UPDATE (Prisma update no funciona en Render)
+      await akuosplashDb.$executeRawUnsafe(
+        `UPDATE AkuoUsuario SET estadoAprobacion = ?, estadoAprobacionNota = ?, estadoAprobacionActualizadoEn = ?, estadoAprobacionActualizadoPor = ? WHERE id = ?`,
+        nuevoEstado, nota, ahora, user.id, id
       );
-      // Notificar al transportista
-      const titulos: Record<string, string> = {
-        pendiente: "Cuenta en revisión",
-        pre_aprobado: "Cuenta pre-aprobada",
-        aprobado: "Cuenta aprobada",
-        rechazado: "Cuenta rechazada",
-      };
-      const mensajes: Record<string, string> = {
-        pendiente: "Tu registro está completo. Tu cuenta está en espera de aprobación del equipo de AkuoSplash.",
-        pre_aprobado: "Tu cuenta fue pre-aprobada. Vas a poder acceder al marketplace cuando esté disponible en tu zona.",
-        aprobado: "¡Tu cuenta fue aprobada! Ya podés operar en el marketplace cuando esté disponible en tu zona.",
-        rechazado: `Tu cuenta fue rechazada para participar del marketplace. ${body.estadoAprobacionNota ? `Motivo: ${body.estadoAprobacionNota}` : "Contactá soporte para más info."}`,
-      };
-      await akuosplashDb.akuoNotificacion.create({
-        data: {
-          usuarioId: id,
-          tipo: `cuenta_${nuevoEstado}`,
-          titulo: titulos[nuevoEstado] || "Estado de cuenta actualizado",
-          mensaje: mensajes[nuevoEstado] || "Tu estado de cuenta fue actualizado.",
-          link: "/akuosplash/transportista",
-        },
-      });
+      // Also set aprobado boolean for compat
+      const aprobado = (nuevoEstado === "aprobado" || nuevoEstado === "pre_aprobado");
+      await akuosplashDb.$executeRawUnsafe(
+        `UPDATE AkuoUsuario SET aprobado = ? WHERE id = ?`,
+        aprobado ? 1 : 0, id
+      ).catch(() => {});
+      await akuoAuditar(user.id, `cambiar_estado_aprobacion_${nuevoEstado}`, "AkuoUsuario", id, `Usuario ${target.email} estadoAprobacion=${nuevoEstado}`);
+      // Notificación
+      try {
+        const titulos: Record<string, string> = {
+          pendiente: "Cuenta en revisión", pre_aprobado: "Cuenta pre-aprobada",
+          aprobado: "Cuenta aprobada", rechazado: "Cuenta rechazada",
+        };
+        const mensajes: Record<string, string> = {
+          pendiente: "Tu registro está completo. Tu cuenta está en espera de aprobación.",
+          pre_aprobado: "Tu cuenta fue pre-aprobada. Vas a poder acceder al marketplace cuando esté disponible en tu zona.",
+          aprobado: "¡Tu cuenta fue aprobada! Ya podés operar en el marketplace cuando esté disponible en tu zona.",
+          rechazado: `Tu cuenta fue rechazada. ${nota ? `Motivo: ${nota}` : "Contactá soporte."}`,
+        };
+        await akuosplashDb.$executeRawUnsafe(
+          `INSERT INTO AkuoNotificacion (id, creadoEn, usuarioId, tipo, titulo, mensaje, link) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          `notif_${Date.now()}_${id.substring(0,8)}`, ahora, id,
+          `cuenta_${nuevoEstado}`, titulos[nuevoEstado] || "Estado actualizado",
+          mensajes[nuevoEstado] || "Tu estado fue actualizado.", "/akuosplash/transportista"
+        );
+      } catch {}
+      return NextResponse.json({ ok: true, estadoAprobacion: nuevoEstado });
     }
+
+    // aprobado (legacy boolean)
+    if (body.aprobado !== undefined) {
+      const val = body.aprobado ? 1 : 0;
+      await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoUsuario SET aprobado = ? WHERE id = ?`, val, id);
+      return NextResponse.json({ ok: true, aprobado: body.aprobado });
+    }
+
+    // banned
+    if (body.banned !== undefined) {
+      const val = body.banned ? 1 : 0;
+      const razon = body.banRazon?.trim() || null;
+      await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoUsuario SET banned = ?, banRazon = ? WHERE id = ?`, val, razon, id);
+      return NextResponse.json({ ok: true, banned: body.banned });
+    }
+
+    // activo
+    if (body.activo !== undefined) {
+      const val = body.activo ? 1 : 0;
+      await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoUsuario SET activo = ? WHERE id = ?`, val, id);
+      return NextResponse.json({ ok: true, activo: body.activo });
+    }
+
+    // rol
+    if (body.rol && ["cliente", "transportista", "superadmin"].includes(body.rol)) {
+      await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoUsuario SET rol = ? WHERE id = ?`, body.rol, id);
+      return NextResponse.json({ ok: true, rol: body.rol });
+    }
+
+    // vehiculosPermitidos
+    if (body.vehiculosPermitidos !== undefined) {
+      await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoUsuario SET vehiculosPermitidos = ? WHERE id = ?`, Number(body.vehiculosPermitidos), id);
+      return NextResponse.json({ ok: true });
+    }
+
+    // plan
     if (body.plan && ["free", "pro", "enterprise"].includes(body.plan)) {
-      data.plan = body.plan;
-      // Ajustar vehiculosPermitidos según plan si no se especificó
-      if (body.vehiculosPermitidos === undefined) {
-        const config = await akuosplashDb.akuoConfig.findFirst({ where: { activo: true } });
-        if (config) {
-          if (body.plan === "free") data.vehiculosPermitidos = config.maxVehiculosFree;
-          if (body.plan === "pro") data.vehiculosPermitidos = config.maxVehiculosPro;
-          if (body.plan === "enterprise")
-            data.vehiculosPermitidos = config.maxVehiculosEnterprise;
-        }
-      }
+      await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoUsuario SET plan = ? WHERE id = ?`, body.plan, id);
+      return NextResponse.json({ ok: true, plan: body.plan });
     }
 
-    const actualizado = await akuosplashDb.akuoUsuario.update({
-      where: { id },
-      data,
-    });
-
-    return NextResponse.json({ ok: true, usuario: actualizado });
-  } catch (e) {
-    console.error("AkuoSplash superadmin/usuarios/[id] PATCH error:", e);
-    return NextResponse.json({ error: "No se pudo actualizar" }, { status: 500 });
+    return NextResponse.json({ ok: true, note: "Sin cambios" });
+  } catch (e: any) {
+    console.error("[superadmin/usuarios/[id] PATCH] error:", e);
+    return NextResponse.json({ error: "No se pudo actualizar: " + (e?.message || "") }, { status: 500 });
   }
 }

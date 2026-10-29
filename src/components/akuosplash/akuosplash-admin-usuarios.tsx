@@ -67,7 +67,7 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
 
   async function aprobar(u: Usuario, val: boolean) {
     try {
-      await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${u.id}`, {
+      await akuoApi(`/api/akuosplash/superadmin/usuarios/${u.id}`, {
         method: "PATCH", body: JSON.stringify({ aprobado: val }),
       });
       toast.success(val ? "Repartidor aprobado" : "Aprobación revocada");
@@ -78,7 +78,7 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
   // Cambiar estado de aprobación granular (pendiente | pre_aprobado | aprobado | rechazado)
   async function setEstadoAprobacion(u: Usuario, nuevoEstado: string, nota?: string) {
     try {
-      await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${u.id}`, {
+      await akuoApi(`/api/akuosplash/superadmin/usuarios/${u.id}`, {
         method: "PATCH",
         body: JSON.stringify({ estadoAprobacion: nuevoEstado, estadoAprobacionNota: nota || undefined }),
       });
@@ -100,7 +100,7 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
 
   async function toggleActivo(u: Usuario, val: boolean) {
     try {
-      await akuoApi(`/api/akuosplash/superadmin/usuarios?id=${u.id}`, {
+      await akuoApi(`/api/akuosplash/superadmin/usuarios/${u.id}`, {
         method: "PATCH", body: JSON.stringify({ activo: val }),
       });
       toast.success(val ? "Cuenta activada" : "Cuenta desactivada");
