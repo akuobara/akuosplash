@@ -51,7 +51,7 @@ export function ClientesMapa({ open, onOpenChange, clientes, onSelectCliente }: 
   const selected = selectedId ? clientesConGps.find((c) => c.id === selectedId) : null;
 
   // Construir URL de Google Static Maps
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyBuZ4DbUyF2lmX-0tmcdoiptbwodKZJxFM";
   let mapUrl: string;
 
   if (selected) {
