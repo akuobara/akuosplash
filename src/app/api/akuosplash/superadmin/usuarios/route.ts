@@ -1,66 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
+import { ensureAkuoConfigColumns } from "@/lib/akuosplash-plans";
 
 // GET /api/akuosplash/superadmin/usuarios?rol=transportista
 export async function GET(req: NextRequest) {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   if (user.rol !== "superadmin") return NextResponse.json({ error: "Solo superadmin" }, { status: 403 });
+  await ensureAkuoConfigColumns();
 
   const { searchParams } = new URL(req.url);
   const rol = searchParams.get("rol") || undefined;
-  const where: any = {};
-  if (rol) where.rol = rol;
 
-  const usuarios = await akuosplashDb.akuoUsuario.findMany({
-    where,
-    orderBy: { creadoEn: "desc" },
-    select: {
-      id: true, email: true, nombre: true, telefono: true, rol: true,
-      aprobado: true, activo: true, banned: true, plan: true,
-      creadoEn: true, ultimoLoginEn: true,
-      razonSocial: true, patenteVehiculo: true, tipoVehiculo: true,
-      // Datos de perfil completos (para saber si el registro está completo)
-      rut: true, rutEmpresa: true, licenciaConducirUrl: true,
-      licenciaConducirAtrasUrl: true, permisoCircUrl: true, seguroUrl: true, revisonTecnicaUrl: true,
-      capacidadVehiculoKg: true,
-      fotoVehiculoFrenteUrl: true, fotoVehiculoAtrasUrl: true,
-      fotoVehiculoIzquierdaUrl: true, fotoVehiculoDerechaUrl: true,
-      // Estado de aprobación granular
-      estadoAprobacion: true, estadoAprobacionNota: true,
-      estadoAprobacionActualizadoEn: true, estadoAprobacionActualizadoPor: true,
-      areasCobertura: true,
-      // MP OAuth
-      mpUserId: true, mpAccessToken: true,
-      // Zona asignada (para clientes)
-      zonaId: true, zona: { select: { id: true, nombre: true, precioPorLitro: true } },
-    },
-  });
-
-  return NextResponse.json({ usuarios });
-}
-
-// PATCH /api/akuosplash/superadmin/usuarios?id=X
-// body: { aprobado?, activo?, banned?, banRazon? }
-export async function PATCH(req: NextRequest) {
-  const user = await akuoGetCurrentUser();
-  if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  if (user.rol !== "superadmin") return NextResponse.json({ error: "Solo superadmin" }, { status: 403 });
-
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
-  if (!id) return NextResponse.json({ error: "ID requerido" }, { status: 400 });
-
-  const body = await req.json();
-  const data: any = {};
-  if (body.aprobado !== undefined) data.aprobado = !!body.aprobado;
-  if (body.activo !== undefined) data.activo = !!body.activo;
-  if (body.banned !== undefined) {
-    data.banned = !!body.banned;
-    if (body.banRazon !== undefined) data.banRazon = body.banRazon;
+  // Raw SQL (Prisma findMany no funciona en Render)
+  let sql = `SELECT id, email, nombre, telefono, rol, activo, aprobado, banned, banRazon, plan, creadoEn, ultimoLoginEn, razonSocial, patenteVehiculo, tipoVehiculo, rut, rutEmpresa, licenciaConducirUrl, capacidadVehiculoKg, areasCobertura, mpUserId, estadoAprobacion, estadoAprobacionNota, estadoAprobacionActualizadoEn FROM AkuoUsuario`;
+  const args: any[] = [];
+  if (rol) {
+    sql += ` WHERE rol = ?`;
+    args.push(rol);
   }
+  sql += ` ORDER BY creadoEn DESC`;
 
-  const actualizado = await akuosplashDb.akuoUsuario.update({ where: { id }, data });
-  return NextResponse.json({ ok: true, usuario: { id: actualizado.id, aprobado: actualizado.aprobado, activo: actualizado.activo, banned: actualizado.banned } });
+  try {
+    const rows: any = await akuosplashDb.$queryRawUnsafe(sql, ...args);
+    const usuarios = Array.isArray(rows) ? rows.map((r: any) => ({
+      ...r,
+      activo: Boolean(r.activo),
+      aprobado: Boolean(r.aprobado),
+      banned: Boolean(r.banned),
+      mpUserId: r.mpUserId ? true : false,
+    })) : [];
+    return NextResponse.json({ usuarios });
+  } catch (e: any) {
+    console.error("[superadmin/usuarios GET] error:", e?.message);
+    return NextResponse.json({ error: "No se pudo listar usuarios: " + (e?.message || "") }, { status: 500 });
+  }
 }
