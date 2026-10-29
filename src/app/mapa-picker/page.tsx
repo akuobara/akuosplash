@@ -187,15 +187,38 @@ function MapaPickerInner() {
   }, [gpsCoords]);
 
   // Recentrar el mapa cuando los clientes carguen (si no hay GPS ni marker)
+  // Y agregar markers de clientes cuando lleguen los datos
   useEffect(() => {
     if (!mapInstance.current || !window.L) return;
-    if (lat != null) return; // no recentrar si ya hay un punto marcado
-    if (gpsCoords) return; // si hay GPS, no pisar con promedio de clientes
+    const L = window.L;
+    const map = mapInstance.current;
+    
+    // Agregar markers de clientes (gris, pequeños) — esto corre cuando clientes carga
+    clientes.filter((c) => c.lat != null && c.lng != null).forEach((c) => {
+      // Verificar si ya existe un marker para este cliente (evitar duplicados)
+      const existing = (map._layers || {});
+      const yaExiste = Object.values(existing).some((layer: any) => 
+        layer._tooltip && layer._tooltip._content && String(layer._tooltip._content).includes(c.nombre)
+      );
+      if (!yaExiste) {
+        L.circleMarker([c.lat!, c.lng!], {
+          radius: 6,
+          fillColor: "#94a3b8",
+          color: "white",
+          weight: 1,
+          fillOpacity: 0.7,
+        }).addTo(map).bindTooltip(c.nombre, { permanent: false });
+      }
+    });
+    
+    // Recentrar si no hay punto marcado ni GPS
+    if (lat != null) return;
+    if (gpsCoords) return;
     const conGps = clientes.filter((c) => c.lat != null && c.lng != null);
     if (conGps.length === 0) return;
     const avgLat = conGps.reduce((s, c) => s + (c.lat as number), 0) / conGps.length;
     const avgLng = conGps.reduce((s, c) => s + (c.lng as number), 0) / conGps.length;
-    mapInstance.current.setView([avgLat, avgLng], 12);
+    map.setView([avgLat, avgLng], 12);
   }, [clientes, lat, gpsCoords]);
 
   function useMyLocation() {
