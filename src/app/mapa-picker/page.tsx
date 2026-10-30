@@ -136,16 +136,7 @@ function MapaPickerInner() {
       }, null, { position: "topleft", collapsed: false }).addTo(map);
       mapInstance.current = map;
 
-      // Mostrar markers de clientes existentes (gris, pequeños)
-      clientes.filter((c) => c.lat != null && c.lng != null).forEach((c) => {
-        L.circleMarker([c.lat!, c.lng!], {
-          radius: 6,
-          fillColor: "#94a3b8",
-          color: "white",
-          weight: 1,
-          fillOpacity: 0.7,
-        }).addTo(map).bindTooltip(c.nombre, { permanent: false });
-      });
+      // Los markers de clientes se agregan en el effect de abajo (depende de [clientes])
 
       if (lat != null && lng != null) {
         markerRef.current = L.marker([lat, lng], { draggable: true }).addTo(map);
@@ -186,31 +177,26 @@ function MapaPickerInner() {
     mapInstance.current.setView([gpsCoords.lat, gpsCoords.lng], 14);
   }, [gpsCoords]);
 
-  // Recentrar el mapa cuando los clientes carguen (si no hay GPS ni marker)
-  // Y agregar markers de clientes cuando lleguen los datos
+  // Agregar markers de clientes + recentrar cuando carguen los datos
+  // Este effect corre cuando 'clientes' cambia (API devuelve datos)
+  // o cuando el mapa termina de inicializar (mapInstance.current se setea)
   useEffect(() => {
     if (!mapInstance.current || !window.L) return;
+    if (clientes.length === 0) return; // no hacer nada si no hay clientes cargados todavía
     const L = window.L;
     const map = mapInstance.current;
-    
-    // Agregar markers de clientes (gris, pequeños) — esto corre cuando clientes carga
+
+    // Agregar markers de TODOS los clientes con GPS
     clientes.filter((c) => c.lat != null && c.lng != null).forEach((c) => {
-      // Verificar si ya existe un marker para este cliente (evitar duplicados)
-      const existing = (map._layers || {});
-      const yaExiste = Object.values(existing).some((layer: any) => 
-        layer._tooltip && layer._tooltip._content && String(layer._tooltip._content).includes(c.nombre)
-      );
-      if (!yaExiste) {
-        L.circleMarker([c.lat!, c.lng!], {
-          radius: 6,
-          fillColor: "#94a3b8",
-          color: "white",
-          weight: 1,
-          fillOpacity: 0.7,
-        }).addTo(map).bindTooltip(c.nombre, { permanent: false });
-      }
+      L.circleMarker([c.lat!, c.lng!], {
+        radius: 8,
+        fillColor: "#2563eb",
+        color: "white",
+        weight: 2,
+        fillOpacity: 0.8,
+      }).addTo(map).bindTooltip(c.nombre, { permanent: false });
     });
-    
+
     // Recentrar si no hay punto marcado ni GPS
     if (lat != null) return;
     if (gpsCoords) return;
@@ -218,8 +204,9 @@ function MapaPickerInner() {
     if (conGps.length === 0) return;
     const avgLat = conGps.reduce((s, c) => s + (c.lat as number), 0) / conGps.length;
     const avgLng = conGps.reduce((s, c) => s + (c.lng as number), 0) / conGps.length;
-    map.setView([avgLat, avgLng], 12);
-  }, [clientes, lat, gpsCoords]);
+    map.setView([avgLat, avgLng], 13);
+    setTimeout(() => map.invalidateSize(), 200);
+  }, [clientes, mapInstance.current, lat, gpsCoords]);
 
   function useMyLocation() {
     if (!navigator.geolocation) { toast.error("Sin geolocalización"); return; }
