@@ -29,6 +29,7 @@ function MapaPickerInner() {
   const [lat, setLat] = useState<number | null>(initialLat ? parseFloat(initialLat) : null);
   const [lng, setLng] = useState<number | null>(initialLng ? parseFloat(initialLng) : null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapInitialized, setMapInitialized] = useState(false);
   const [locating, setLocating] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [buscando, setBuscando] = useState(false);
@@ -135,8 +136,9 @@ function MapaPickerInner() {
         "Calles": streets,
       }, null, { position: "topleft", collapsed: false }).addTo(map);
       mapInstance.current = map;
+      setMapInitialized(true); // disparar re-render para que el effect de markers corra
 
-      // Los markers de clientes se agregan en el effect de abajo (depende de [clientes])
+      // Los markers de clientes se agregan en el effect de abajo (depende de [clientes, mapInitialized])
 
       if (lat != null && lng != null) {
         markerRef.current = L.marker([lat, lng], { draggable: true }).addTo(map);
@@ -178,10 +180,14 @@ function MapaPickerInner() {
   }, [gpsCoords]);
 
   // Agregar markers de clientes + recentrar cuando carguen los datos
-  // Este effect corre cuando 'clientes' cambia (API devuelve datos)
-  // o cuando el mapa termina de inicializar (mapInstance.current se setea)
+  // Este effect corre cuando:
+  //   - 'clientes' cambia (API devuelve datos)
+  //   - 'mapInitialized' cambia a true (mapa terminó de inicializar)
+  // Usamos el STATE mapInitialized (no el ref mapInstance.current) porque los cambios
+  // a un ref NO disparan re-render, lo que causaba que los markers no se agregaran si
+  // la API respondía antes de que el mapa inicializara.
   useEffect(() => {
-    if (!mapInstance.current || !window.L) return;
+    if (!mapInitialized || !mapInstance.current || !window.L) return;
     if (clientes.length === 0) return; // no hacer nada si no hay clientes cargados todavía
     const L = window.L;
     const map = mapInstance.current;
@@ -206,7 +212,7 @@ function MapaPickerInner() {
     const avgLng = conGps.reduce((s, c) => s + (c.lng as number), 0) / conGps.length;
     map.setView([avgLat, avgLng], 13);
     setTimeout(() => map.invalidateSize(), 200);
-  }, [clientes, mapInstance.current, lat, gpsCoords]);
+  }, [clientes, mapInitialized, lat, gpsCoords]);
 
   function useMyLocation() {
     if (!navigator.geolocation) { toast.error("Sin geolocalización"); return; }
