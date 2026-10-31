@@ -56,7 +56,22 @@ function MapaClientesPage() {
   useEffect(() => {
     apiGet<{ clientes: Cliente[] }>("/api/clientes").then((data) => {
       setClientes(data.clientes);
-    }).catch(() => {}).finally(() => setLoading(false));
+      // Debug: actualizar barra apenas llegan los datos
+      const debugEl = document.getElementById('map-debug-status');
+      if (debugEl) {
+        const conGps = data.clientes.filter((c) => c.lat != null && c.lng != null).length;
+        debugEl.textContent = `API RESPONDIÓ: ${data.clientes.length} clientes, ${conGps} con GPS. Esperando mapa...`;
+        debugEl.style.background = '#3b82f6';
+        debugEl.style.color = 'white';
+      }
+    }).catch((e) => {
+      const debugEl = document.getElementById('map-debug-status');
+      if (debugEl) {
+        debugEl.textContent = `ERROR API: ${e.message}`;
+        debugEl.style.background = '#dc2626';
+        debugEl.style.color = 'white';
+      }
+    }).finally(() => setLoading(false));
   }, []);
 
   // Cargar Leaflet CSS + JS
@@ -175,6 +190,18 @@ function MapaClientesPage() {
         map.invalidateSize();
         markersCreados.forEach((m) => { try { m.redraw(); } catch {} });
       }, 500);
+
+      // Actualizar el contador de debug
+      const debugEl = document.getElementById('map-debug-status');
+      if (debugEl) {
+        const realD = markersCreados.filter((m: any) => {
+          const d = m._path?.getAttribute('d') || '';
+          return d.length > 10;
+        }).length;
+        debugEl.textContent = `MAPA: ${markersCreados.length} markers agregados, ${realD} con geometría real | zoom ${map.getZoom()} | center ${map.getCenter().lat.toFixed(3)},${map.getCenter().lng.toFixed(3)}`;
+        debugEl.style.background = realD > 0 ? '#16a34a' : '#dc2626';
+        debugEl.style.color = 'white';
+      }
     }, 100);
 
     return () => clearInterval(tryInit);
@@ -212,6 +239,25 @@ function MapaClientesPage() {
           <span className="text-sm font-normal text-gray-500">({filtrados.length})</span>
         </h1>
       </header>
+
+      {/* DEBUG STATUS - barra amarilla grande que muestra el estado del mapa */}
+      <div
+        id="map-debug-status"
+        style={{
+          background: '#facc15',
+          color: 'black',
+          padding: '8px 16px',
+          fontSize: '13px',
+          fontWeight: 'bold',
+          fontFamily: 'monospace',
+          borderBottom: '2px solid black',
+          minHeight: '34px',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        CARGANDO MAPA... (clientes en DB: {clientes.length}, con GPS: {clientesConGps.length})
+      </div>
 
       {/* Buscador */}
       <div className="sticky top-[57px] z-20 bg-white border-b border-gray-200 px-4 py-2">
