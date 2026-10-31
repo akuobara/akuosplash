@@ -192,16 +192,33 @@ function MapaPickerInner() {
     const L = window.L;
     const map = mapInstance.current;
 
+    // CRÍTICO: invalidar el tamaño ANTES de agregar markers.
+    // Si el mapa no tiene tamaño válido, Leaflet no puede calcular _point de cada circleMarker
+    // y los paths quedan como "M0 0" (sin dibujar el círculo).
+    map.invalidateSize();
+
     // Agregar markers de TODOS los clientes con GPS
+    const markersCreados: any[] = [];
     clientes.filter((c) => c.lat != null && c.lng != null).forEach((c) => {
-      L.circleMarker([c.lat!, c.lng!], {
+      const m = L.circleMarker([c.lat!, c.lng!], {
         radius: 8,
         fillColor: "#2563eb",
         color: "white",
         weight: 2,
         fillOpacity: 0.8,
       }).addTo(map).bindTooltip(c.nombre, { permanent: false });
+      markersCreados.push(m);
     });
+
+    // Forzar redraw de los markers después de que el mapa se recentre.
+    // Sin esto, los paths pueden quedar con d="M0 0" si el setView dispara antes
+    // de que Leaflet recalcule las posiciones pixel.
+    setTimeout(() => {
+      markersCreados.forEach((m) => {
+        try { m.redraw(); } catch {}
+      });
+      map.invalidateSize();
+    }, 50);
 
     // Recentrar si no hay punto marcado ni GPS
     if (lat != null) return;
@@ -211,7 +228,10 @@ function MapaPickerInner() {
     const avgLat = conGps.reduce((s, c) => s + (c.lat as number), 0) / conGps.length;
     const avgLng = conGps.reduce((s, c) => s + (c.lng as number), 0) / conGps.length;
     map.setView([avgLat, avgLng], 13);
-    setTimeout(() => map.invalidateSize(), 200);
+    setTimeout(() => {
+      map.invalidateSize();
+      markersCreados.forEach((m) => { try { m.redraw(); } catch {} });
+    }, 200);
   }, [clientes, mapInitialized, lat, gpsCoords]);
 
   function useMyLocation() {

@@ -122,7 +122,11 @@ function MapaClientesPage() {
 
       mapInstance.current = map;
 
+      // CRÍTICO: invalidar tamaño antes de agregar markers
+      map.invalidateSize();
+
       // Agregar markers
+      const markersCreados: any[] = [];
       filtrados.forEach((c) => {
         const tieneDeuda = (c.deuda ?? 0) > 0;
         const color = tieneDeuda ? "#dc2626" : "#16a34a";
@@ -145,6 +149,7 @@ function MapaClientesPage() {
         );
         marker.on("click", () => setSelectedId(c.id));
         markersRef.current.push({ marker, id: c.id });
+        markersCreados.push(marker);
       });
 
       // Fit bounds — filtrar outliers para que no se vea todo el continente
@@ -161,8 +166,15 @@ function MapaClientesPage() {
         }
       }
 
-      setTimeout(() => map.invalidateSize(), 100);
-      setTimeout(() => map.invalidateSize(), 500);
+      // Forzar redraw después de que el mapa se recentre
+      setTimeout(() => {
+        map.invalidateSize();
+        markersCreados.forEach((m) => { try { m.redraw(); } catch {} });
+      }, 100);
+      setTimeout(() => {
+        map.invalidateSize();
+        markersCreados.forEach((m) => { try { m.redraw(); } catch {} });
+      }, 500);
     }, 100);
 
     return () => clearInterval(tryInit);
