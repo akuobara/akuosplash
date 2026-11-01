@@ -897,6 +897,7 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
             const radiusM = (sz.radioKm || 5) * 1000;
             const isActive = sz.activa;
             const isUrbano = sz.tipoSector === "urbano";
+            const label = sz.sector || sz.nombre;
             return (
               <Circle
                 key={sz.id}
@@ -913,9 +914,9 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
                   click: () => onEditSubZona?.(sz, c),
                 }}
               >
-                <Tooltip sticky>
-                  <span style={{ fontSize: 11, cursor: "pointer" }}>
-                    📍 {sz.sector || sz.nombre} ({isUrbano ? "🏙️ urbano" : "🌾 rural"})
+                <Tooltip permanent>
+                  <span style={{ fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+                    📍 {label} ({isUrbano ? "urbano" : "rural"})
                     {sz.activa ? " ✓" : ""}
                     {sz.precioPorLitro != null && ` · $${sz.precioPorLitro}/L`}
                     {sz.radioKm && ` · ${sz.radioKm}km`}
