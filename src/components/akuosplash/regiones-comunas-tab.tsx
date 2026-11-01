@@ -537,8 +537,45 @@ export function RegionesComunasTab() {
                 </Button>
               )}
             </div>
-            <div className="h-[600px] rounded-lg overflow-hidden border">
-              <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} onEditSubZona={abrirEditarSubZona} />
+            <div className="flex gap-2">
+              <div className="flex-1 h-[600px] rounded-lg overflow-hidden border">
+                <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} onEditSubZona={abrirEditarSubZona} />
+              </div>
+              {/* Panel lateral — lista de sub-zonas con botón Editar */}
+              <div className="w-64 h-[600px] border rounded-lg bg-white overflow-y-auto">
+                <div className="sticky top-0 bg-white border-b px-3 py-2">
+                  <p className="text-xs font-bold">Sub-zonas ({comunasFiltradas.flatMap(c => c.subZonas || []).length})</p>
+                  <p className="text-[10px] text-muted-foreground">Click "Editar" para modificar</p>
+                </div>
+                <div className="divide-y">
+                  {comunasFiltradas.flatMap(c => (c.subZonas || []).map(sz => ({ sz, c }))).map(({ sz, c }) => (
+                    <div key={sz.id} className="px-3 py-2 hover:bg-gray-50">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${sz.activa ? "bg-emerald-500" : "bg-gray-300"}`} />
+                        <span className="text-xs font-medium truncate flex-1">{sz.sector || sz.nombre}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 ml-3.5">
+                        <span className="text-[10px] text-muted-foreground">
+                          {sz.tipoSector === "urbano" ? "🏙️" : "🌾"} {sz.radioKm || 5}km
+                          {sz.precioPorLitro != null && ` · $${sz.precioPorLitro}/L`}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-muted-foreground ml-3.5 mt-0.5">{c.nombre}</div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-5 px-2 text-[10px] w-full mt-1.5"
+                        onClick={() => abrirEditarSubZona(sz, c)}
+                      >
+                        <Pencil className="h-2.5 w-2.5 mr-0.5" /> Editar
+                      </Button>
+                    </div>
+                  ))}
+                  {comunasFiltradas.flatMap(c => c.subZonas || []).length === 0 && (
+                    <div className="px-3 py-4 text-xs text-muted-foreground text-center">No hay sub-zonas creadas</div>
+                  )}
+                </div>
+              </div>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               Click en una comuna (polígono) para editarla. Verde = activa, gris = no configurada.
