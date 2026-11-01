@@ -862,6 +862,16 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
     };
   }, [mapInstance, mapCreateMode, onMapClick]);
 
+  // Crear pane custom para sub-zonas (z-index 450, arriba del overlayPane 400)
+  // para que los círculos de sub-zonas reciban clicks antes que el polígono de la comuna
+  useEffect(() => {
+    if (!mapInstance) return;
+    if (!mapInstance.getPane("subzonas")) {
+      const pane = mapInstance.createPane("subzonas");
+      pane.style.zIndex = "450";
+    }
+  }, [mapInstance]);
+
   if (!ready || !MapLib) {
     return <div className="flex items-center justify-center h-full"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
@@ -971,6 +981,7 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
                 key={sz.id}
                 center={center}
                 radius={radiusM}
+                pane="subzonas"
                 pathOptions={{
                   color: isActive ? (isUrbano ? "#2563eb" : "#d97706") : "#94a3b8",
                   weight: isActive ? 2 : 1,
