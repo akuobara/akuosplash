@@ -69,6 +69,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ co
     precioMinimoTotal: body.precioMinimoTotal ?? zona?.precioMinimoTotal ?? null,
     precioMaximoPorLitro: body.precioMaximoPorLitro ?? zona?.precioMaximoPorLitro ?? null,
     litrosMinimos: body.litrosMinimos ?? zona?.litrosMinimos ?? 1000,
+    radioKm: body.radioKm ?? zona?.radioKm ?? 15,
   };
 
   if (zona) {
@@ -80,6 +81,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ co
       "precioMinimoTotal = ?",
       "precioMaximoPorLitro = ?",
       "litrosMinimos = ?",
+      "radioKm = ?",
       "actualizadoEn = ?",
     ];
     const values = [
@@ -89,6 +91,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ co
       data.precioMinimoTotal,
       data.precioMaximoPorLitro,
       data.litrosMinimos,
+      data.radioKm,
       ahora,
       zona.id,
     ];
@@ -103,7 +106,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ co
     // Para el registro del cliente, usamos el centroid como punto de cobertura con radio amplio
     const zonaId = `zona_comuna_${comunaCode}_${Date.now()}`;
     const nombre = comuna.nombre;
-    const radioKm = 15; // radio default de 15km desde el centroid
+    const radioKm = data.radioKm; // radio desde el form (default 15km)
     const zonaGeoJson = JSON.stringify({
       type: "Polygon",
       coordinates: [],

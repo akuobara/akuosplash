@@ -60,6 +60,7 @@ interface EditForm {
   precioMinimoTotal: number | "";
   precioMaximoPorLitro: number | "";
   litrosMinimos: number | "";
+  radioKm: number | "";
 }
 
 export function RegionesComunasTab() {
@@ -77,6 +78,7 @@ export function RegionesComunasTab() {
     precioMinimoTotal: "",
     precioMaximoPorLitro: "",
     litrosMinimos: 1000,
+    radioKm: 15,
   });
   const [saving, setSaving] = useState(false);
   // Sub-zona creation
@@ -135,6 +137,7 @@ export function RegionesComunasTab() {
       precioMinimoTotal: c.zona?.precioMinimoTotal ?? "",
       precioMaximoPorLitro: c.zona?.precioMaximoPorLitro ?? "",
       litrosMinimos: c.zona?.litrosMinimos ?? 1000,
+      radioKm: c.zona?.radioKm ?? 15,
     });
   }
 
@@ -151,6 +154,7 @@ export function RegionesComunasTab() {
           precioMinimoTotal: form.precioMinimoTotal === "" ? null : Number(form.precioMinimoTotal),
           precioMaximoPorLitro: form.precioMaximoPorLitro === "" ? null : Number(form.precioMaximoPorLitro),
           litrosMinimos: Number(form.litrosMinimos) || 1000,
+          radioKm: Number(form.radioKm) || 15,
         }),
       });
       toast.success(`Zona de ${editing.nombre} ${editing.zona ? "actualizada" : "creada"}`);
@@ -253,9 +257,9 @@ export function RegionesComunasTab() {
     if (!editingSubZona) return;
     setSavingSub(true);
     try {
-      // Usar el endpoint PATCH de la comuna para actualizar
-      await akuoApi(`/api/akuosplash/admin/regiones-comunas/${editingSubZona.comunaCode}/sub-zonas`, {
-        method: "POST",
+      // PATCH al endpoint de la sub-zona específica (por id)
+      await akuoApi(`/api/akuosplash/admin/regiones-comunas/${editingSubZona.comunaCode}/sub-zonas/${editingSubZona.id}`, {
+        method: "PATCH",
         body: JSON.stringify({
           sector: subForm.sector.trim(),
           tipoSector: subForm.tipoSector,
@@ -580,6 +584,10 @@ export function RegionesComunasTab() {
                   <Label className="text-xs">Precio máx. por litro (cap)</Label>
                   <Input type="number" value={form.precioMaximoPorLitro} onChange={(e) => setForm({ ...form, precioMaximoPorLitro: e.target.value === "" ? "" : Number(e.target.value) })} placeholder="Opcional" className="h-8" />
                 </div>
+                <div>
+                  <Label className="text-xs">Radio de cobertura (km)</Label>
+                  <Input type="number" step="any" value={form.radioKm} onChange={(e) => setForm({ ...form, radioKm: e.target.value === "" ? "" : Number(e.target.value) })} className="h-8" />
+                </div>
               </div>
 
               <div className="flex gap-2 justify-end">
@@ -697,6 +705,66 @@ export function RegionesComunasTab() {
                 <Button size="sm" onClick={crearSubZona} disabled={savingSub}>
                   {savingSub ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
                   Crear sub-zona
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Modal EDITAR sub-zona — abre al hacer click en un círculo de sub-zona existente */}
+      {editingSubZona && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4" onClick={() => setEditingSubZona(null)}>
+          <Card className="max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <CardContent className="p-4 space-y-3">
+              <div>
+                <h3 className="font-bold text-base">Editar sub-zona: {subForm.sector}</h3>
+                <p className="text-xs text-muted-foreground">Comuna {editingSubZona.comunaCode}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="col-span-2">
+                  <Label className="text-xs">Nombre del sector</Label>
+                  <Input value={subForm.sector} onChange={(e) => setSubForm({ ...subForm, sector: e.target.value })} className="h-8" />
+                </div>
+                <div>
+                  <Label className="text-xs">Tipo</Label>
+                  <select
+                    value={subForm.tipoSector}
+                    onChange={(e) => setSubForm({ ...subForm, tipoSector: e.target.value as any })}
+                    className="h-8 w-full rounded border px-2 text-sm"
+                  >
+                    <option value="urbano">🏙️ Urbano</option>
+                    <option value="rural">🌾 Rural</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs">Radio (km)</Label>
+                  <Input type="number" step="any" value={subForm.radioKm} onChange={(e) => setSubForm({ ...subForm, radioKm: e.target.value === "" ? "" : Number(e.target.value) })} className="h-8" />
+                </div>
+                <div>
+                  <Label className="text-xs">Latitud</Label>
+                  <Input type="number" step="any" value={subForm.centroLat} onChange={(e) => setSubForm({ ...subForm, centroLat: e.target.value === "" ? "" : Number(e.target.value) })} className="h-8" />
+                </div>
+                <div>
+                  <Label className="text-xs">Longitud</Label>
+                  <Input type="number" step="any" value={subForm.centroLng} onChange={(e) => setSubForm({ ...subForm, centroLng: e.target.value === "" ? "" : Number(e.target.value) })} className="h-8" />
+                </div>
+                <div>
+                  <Label className="text-xs">Precio por litro (CLP)</Label>
+                  <Input type="number" value={subForm.precioPorLitro} onChange={(e) => setSubForm({ ...subForm, precioPorLitro: e.target.value === "" ? "" : Number(e.target.value) })} placeholder="Hereda de comuna" className="h-8" />
+                </div>
+                <div>
+                  <Label className="text-xs">Litros mínimos</Label>
+                  <Input type="number" value={subForm.litrosMinimos} onChange={(e) => setSubForm({ ...subForm, litrosMinimos: e.target.value === "" ? "" : Number(e.target.value) })} placeholder="Hereda de comuna" className="h-8" />
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => setEditingSubZona(null)}>Cancelar</Button>
+                <Button size="sm" onClick={guardarEdicionSubZona} disabled={savingSub}>
+                  {savingSub ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+                  Guardar cambios
                 </Button>
               </div>
             </CardContent>
