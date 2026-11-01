@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Search, ChevronRight, Map as MapIcon, List, CheckCircle2, Circle, MapPin, Plus } from "lucide-react";
+import { Loader2, Search, ChevronRight, Map as MapIcon, List, CheckCircle2, Circle, MapPin, Plus, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { akuoGet, akuoApi, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 
@@ -472,6 +472,14 @@ export function RegionesComunasTab() {
                                     {sz.radioKm && (
                                       <span className="text-[10px] text-muted-foreground">{sz.radioKm}km</span>
                                     )}
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-5 px-2 text-[10px] ml-auto shrink-0"
+                                      onClick={() => abrirEditarSubZona(sz, c)}
+                                    >
+                                      <Pencil className="h-2.5 w-2.5 mr-0.5" /> Editar
+                                    </Button>
                                   </div>
                                 ))}
                               </div>
