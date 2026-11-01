@@ -1010,7 +1010,7 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
           );
         })}
 
-        {/* Círculos de sub-zonas (cobertura visible) + MARKER clickable en el centro */}
+        {/* Círculos de sub-zonas (cobertura visible) */}
         {comunasValidas.flatMap(c =>
           (c.subZonas || []).filter(sz =>
             sz.centroLat != null && sz.centroLng != null &&
@@ -1020,44 +1020,19 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
             const radiusM = (sz.radioKm || 5) * 1000;
             const isActive = sz.activa;
             const isUrbano = sz.tipoSector === "urbano";
-            const label = sz.sector || sz.nombre;
-            // Icono de pin personalizado — markerPane (z-index 600) siempre arriba del overlayPane
-            const pinIcon = MapLib.divIcon({
-              html: `<div style="background:${isActive ? (isUrbano ? "#2563eb" : "#d97706") : "#94a3b8"};color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.4);cursor:pointer;">📍</div>`,
-              className: "subzona-pin",
-              iconSize: [28, 28],
-              iconAnchor: [14, 14],
-            });
             return (
-              <Fragment key={sz.id}>
-                <Circle
-                  center={center}
-                  radius={radiusM}
-                  pane="subzonas"
-                  pathOptions={{
-                    color: isActive ? (isUrbano ? "#2563eb" : "#d97706") : "#94a3b8",
-                    weight: isActive ? 2 : 1,
-                    fillColor: isActive ? (isUrbano ? "#3b82f6" : "#f59e0b") : "#cbd5e1",
-                    fillOpacity: isActive ? 0.25 : 0.08,
-                    dashArray: isActive ? undefined : "4 4",
-                  }}
-                />
-                <Marker
-                  position={center}
-                  icon={pinIcon}
-                  eventHandlers={{
-                    click: () => onEditSubZona?.(sz, c),
-                  }}
-                >
-                  <Tooltip permanent>
-                    <span style={{ fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
-                      {label} · {sz.radioKm || 5}km
-                      <br />
-                      <em style={{ color: "#3b82f6" }}>Click para editar</em>
-                    </span>
-                  </Tooltip>
-                </Marker>
-              </Fragment>
+              <Circle
+                key={sz.id}
+                center={center}
+                radius={radiusM}
+                pathOptions={{
+                  color: isActive ? (isUrbano ? "#2563eb" : "#d97706") : "#94a3b8",
+                  weight: isActive ? 2 : 1,
+                  fillColor: isActive ? (isUrbano ? "#3b82f6" : "#f59e0b") : "#cbd5e1",
+                  fillOpacity: isActive ? 0.25 : 0.08,
+                  dashArray: isActive ? undefined : "4 4",
+                }}
+              />
             );
           })
         )}
