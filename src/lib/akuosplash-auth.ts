@@ -1,6 +1,15 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { akuosplashDb } from "./akuosplash-db";
+import { createClient } from "@libsql/client";
+
+// Cliente libsql directo (bypass Prisma) — Prisma adapter falla con P2010 en raw queries
+function getDirectClient() {
+  const url = process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "";
+  const isTurso = url.startsWith("libsql://");
+  const authToken = isTurso ? process.env.DATABASE_AUTH_TOKEN : undefined;
+  return createClient({ url, authToken });
+}
 
 const COOKIE = "akuosplash_session";
 const SECRET = process.env.AKUOSPLASH_JWT_SECRET || "akuosplash-secret-dev-cambiar-en-produccion-1234567890";
@@ -29,106 +38,50 @@ export async function akuoClearSessionCookie() { const c = await cookies(); c.de
 
 export async function akuoGetCurrentUser() {
   const s = await akuoGetSession(); if (!s) return null;
-  // IMPORTANTE: usar `select` con solo los campos PRE-existentes en la DB de producción.
-  // Si no, Prisma intenta SELECT todas las columnas (incluidas las nuevas como transbankBuyOrder, planActivoDesde)
-  // y falla con "no such column" si las migraciones no se corrieron todavía.
-  // Después de correr las migraciones (migrate-precio-dinamico + migrate-transbank-campos),
-  // este select funciona igual y trae nulls en los campos nuevos (default en DB).
-  const u = await akuosplashDb.akuoUsuario.findUnique({
-    where: { id: s.userId },
-    select: {
-      id: true,
-      email: true,
-      nombre: true,
-      telefono: true,
-      direccion: true,
-      comuna: true,
-      lat: true,
-      lng: true,
-      rut: true,
-      indicacionesAcceso: true,
-      requiereClientePresente: true,
-      usoAgua: true,
-      saldo: true,
-      zonaId: true,
-      passwordHash: true,
-      avatarUrl: true,
-      rol: true,
-      activo: true,
-      aprobado: true,
-      banned: true,
-      banRazon: true,
-      creadoEn: true,
-      ultimoLoginEn: true,
-      googleId: true,
-      facebookId: true,
-      // Datos fiscales
-      rutEmpresa: true,
-      razonSocial: true,
-      direccionEmpresa: true,
-      giro: true,
-      // Datos del chofer (persona natural — separado de la empresa)
-      licenciaConducirUrl: true,
-      licenciaConducirAtrasUrl: true,
-      permisoCircUrl: true,
-      seguroUrl: true,
-      revisonTecnicaUrl: true,
-      // Datos del vehículo (para marketplace)
-      capacidadVehiculoKg: true,
-      patenteVehiculo: true,
-      tipoVehiculo: true,
-      // Fotos del vehículo
-      fotoVehiculoFrenteUrl: true,
-      fotoVehiculoAtrasUrl: true,
-      fotoVehiculoIzquierdaUrl: true,
-      fotoVehiculoDerechaUrl: true,
-      // Estado de aprobación (manejado por superadmin)
-      estadoAprobacion: true,
-      estadoAprobacionNota: true,
-      estadoAprobacionActualizadoEn: true,
-      // Facturación SII
-      facturacionPlataforma: true,
-      facturacionApiKey: true,
-      // Precios por litro del transportista (para clientes propios)
-      precioEfectivoPorLitro: true,
-      precioTransferenciaPorLitro: true,
-      // MercadoPago OAuth (para split en marketplace)
-      mpUserId: true,
-      mpAccessToken: true,
-      mpRefreshToken: true,
-      mpTokenExpiresAt: true,
-      mpConnectedAt: true,
-      // Subscripción (campos nuevos — puede que no existan en DB si no se migró)
-      plan: true,
-      planActivoDesde: true,
-      planActivoHasta: true,
-      transbankBuyOrder: true,
-      transbankTokenWs: true,
-      transbankStatus: true,
-      transbankAmount: true,
-      transbankPlanSolicitado: true,
-      transbankCiclo: true,
-      transbankIniciadoEn: true,
-      transbankAutorizadoEn: true,
-      transbankAuthorizationCode: true,
-    },
-  }).catch((e: any) => {
-    // Fallback defensivo: si la columna nueva no existe en DB, usar $queryRawUnsafe con solo campos básicos
-    if (String(e?.message || "").includes("no such column") || String(e?.message || "").includes("does not exist")) {
-      return akuosplashDb.$queryRawUnsafe(
-        `SELECT id, email, nombre, telefono, direccion, comuna, lat, lng, rut, indicacionesAcceso,
-                requiereClientePresente, usoAgua, saldo, zonaId, passwordHash, avatarUrl, rol,
-                activo, aprobado, banned, banRazon, creadoEn, ultimoLoginEn, googleId, facebookId,
-                rutEmpresa, razonSocial, direccionEmpresa, giro,
-                licenciaConducirUrl, permisoCircUrl, seguroUrl,
-                capacidadVehiculoKg, patenteVehiculo, tipoVehiculo,
-                facturacionPlataforma, facturacionApiKey, plan
+  // Usar libsql directo (bypass Prisma) — Prisma adapter falla con P2010
+  let u: any = null;
+  try {
+    const client = getDirectClient();
+    const r = await client.execute({
+      sql: `SELECT id, email, nombre, telefono, direccion, comuna, lat, lng, rut, indicacionesAcceso,
+              requiereClientePresente, usoAgua, saldo, zonaId, passwordHash, avatarUrl, rol,
+              activo, aprobado, banned, banRazon, creadoEn, ultimoLoginEn, googleId, facebookId,
+              rutEmpresa, razonSocial, direccionEmpresa, giro,
+              licenciaConducirUrl, licenciaConducirAtrasUrl, permisoCircUrl, seguroUrl, revisonTecnicaUrl,
+              capacidadVehiculoKg, patenteVehiculo, tipoVehiculo,
+              fotoVehiculoFrenteUrl, fotoVehiculoAtrasUrl, fotoVehiculoIzquierdaUrl, fotoVehiculoDerechaUrl,
+              estadoAprobacion, estadoAprobacionNota, estadoAprobacionActualizadoEn,
+              facturacionPlataforma, facturacionApiKey,
+              precioEfectivoPorLitro, precioTransferenciaPorLitro,
+              mpUserId, mpAccessToken, mpRefreshToken, mpTokenExpiresAt, mpConnectedAt,
+              plan, planActivoDesde, planActivoHasta,
+              transbankBuyOrder, transbankTokenWs, transbankStatus, transbankAmount,
+              transbankPlanSolicitado, transbankCiclo, transbankIniciadoEn, transbankAutorizadoEn,
+              transbankAuthorizationCode,
+              verificado, verificadoEn, verificadoPor,
+              mpSubPreapprovalId, mpSubPlanSolicitado, mpSubCiclo, mpSubStatus,
+              mpSubIniciadoEn, mpSubAutorizadoEn, mpSubAmount,
+              mpTestUserEmail, regionTrabajo, comunaTrabajo, localidadTrabajo
+       FROM AkuoUsuario WHERE id = ?`,
+      args: [s.userId]
+    });
+    u = r.rows[0] || null;
+  } catch (e) {
+    // Fallback con select mínimo
+    try {
+      const client = getDirectClient();
+      const r = await client.execute({
+        sql: `SELECT id, email, nombre, telefono, direccion, comuna, lat, lng, rut, rol,
+                activo, aprobado, banned, plan, passwordHash, avatarUrl
          FROM AkuoUsuario WHERE id = ?`,
-        s.userId
-      ).then((rows: unknown) => (Array.isArray(rows) ? (rows as any[])[0] || null : null));
+        args: [s.userId]
+      });
+      u = r.rows[0] || null;
+    } catch (e2) {
+      console.error("akuoGetCurrentUser fallback failed:", e2);
+      return null;
     }
-    throw e;
-  });
+  }
   if (!u || !u.activo || u.banned) return null;
   return u;
 }
