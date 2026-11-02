@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // output: "standalone" removido — next start sirve los archivos estáticos correctamente
+  output: "standalone",
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
