@@ -537,49 +537,11 @@ export function RegionesComunasTab() {
                 </Button>
               )}
             </div>
-            <div className="flex gap-2">
-              <div className="flex-1 h-[700px] rounded-lg overflow-hidden border">
-                <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} onEditSubZona={abrirEditarSubZona} />
-              </div>
-              {/* Panel lateral — lista de sub-zonas con botón Editar */}
-              <div className="w-72 h-[700px] border rounded-lg bg-white overflow-y-auto">
-                <div className="sticky top-0 bg-white border-b px-3 py-2">
-                  <p className="text-xs font-bold">Sub-zonas ({comunasFiltradas.flatMap(c => c.subZonas || []).length})</p>
-                  <p className="text-[10px] text-muted-foreground">Click "Editar" para modificar</p>
-                </div>
-                <div className="divide-y">
-                  {comunasFiltradas.flatMap(c => (c.subZonas || []).map(sz => ({ sz, c }))).map(({ sz, c }) => (
-                    <div key={sz.id} className="px-3 py-2 hover:bg-gray-50">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`inline-block w-2 h-2 rounded-full shrink-0 ${sz.activa ? "bg-emerald-500" : "bg-gray-300"}`} />
-                        <span className="text-xs font-medium truncate flex-1">{sz.sector || sz.nombre}</span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-1 ml-3.5">
-                        <span className="text-[10px] text-muted-foreground">
-                          {sz.tipoSector === "urbano" ? "🏙️" : "🌾"} {sz.radioKm || 5}km
-                          {sz.precioPorLitro != null && ` · $${sz.precioPorLitro}/L`}
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-muted-foreground ml-3.5 mt-0.5">{c.nombre}</div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-5 px-2 text-[10px] w-full mt-1.5"
-                        onClick={() => abrirEditarSubZona(sz, c)}
-                      >
-                        <Pencil className="h-2.5 w-2.5 mr-0.5" /> Editar
-                      </Button>
-                    </div>
-                  ))}
-                  {comunasFiltradas.flatMap(c => c.subZonas || []).length === 0 && (
-                    <div className="px-3 py-4 text-xs text-muted-foreground text-center">No hay sub-zonas creadas</div>
-                  )}
-                </div>
-              </div>
+            <div className="h-[700px] rounded-lg overflow-hidden border">
+              <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} onEditSubZona={abrirEditarSubZona} />
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Click en una comuna (polígono) para editarla. Verde = activa, gris = no configurada.
-              Para crear una sub-zona: click en "Crear sub-zona" → completar nombre → click en "📍 Seleccionar ubicación" → click en el mapa.
+              <p className="text-xs text-muted-foreground mt-2">
+              Click en una comuna (polígono) para editarla. Click en un círculo de sub-zona para editarla.
             </p>
           </CardContent>
         </Card>
@@ -1020,6 +982,7 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
             const radiusM = (sz.radioKm || 5) * 1000;
             const isActive = sz.activa;
             const isUrbano = sz.tipoSector === "urbano";
+            const label = sz.sector || sz.nombre;
             return (
               <Circle
                 key={sz.id}
@@ -1027,12 +990,24 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
                 radius={radiusM}
                 pathOptions={{
                   color: isActive ? (isUrbano ? "#2563eb" : "#d97706") : "#94a3b8",
-                  weight: isActive ? 2 : 1,
+                  weight: 3,
                   fillColor: isActive ? (isUrbano ? "#3b82f6" : "#f59e0b") : "#cbd5e1",
-                  fillOpacity: isActive ? 0.25 : 0.08,
+                  fillOpacity: isActive ? 0.4 : 0.15,
                   dashArray: isActive ? undefined : "4 4",
                 }}
-              />
+                eventHandlers={{
+                  click: (e: any) => {
+                    e.originalEvent?.stopPropagation?.();
+                    onEditSubZona?.(sz, c);
+                  },
+                }}
+              >
+                <Tooltip permanent direction="center">
+                  <span style={{ fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+                    ✏️ {label}
+                  </span>
+                </Tooltip>
+              </Circle>
             );
           })
         )}
