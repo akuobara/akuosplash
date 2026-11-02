@@ -197,7 +197,7 @@ function MapaPickerInner() {
     // y los paths quedan como "M0 0" (sin dibujar el círculo).
     map.invalidateSize();
 
-    // Agregar markers de TODOS los clientes con GPS
+    // Agregar markers de TODOS los clientes con GPS — CLICKEABLES con popup
     const markersCreados: any[] = [];
     clientes.filter((c) => c.lat != null && c.lng != null).forEach((c) => {
       const m = L.circleMarker([c.lat!, c.lng!], {
@@ -206,7 +206,17 @@ function MapaPickerInner() {
         color: "white",
         weight: 2,
         fillOpacity: 0.8,
-      }).addTo(map).bindTooltip(c.nombre, { permanent: false });
+      }).addTo(map);
+
+      // Popup con info del cliente al hacer click
+      m.bindPopup(
+        `<div style="font-family: sans-serif; min-width: 180px;">
+          <b style="font-size: 14px; color: #2563eb;">${c.nombre}</b>
+          <br><a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank" style="color: #2563eb; font-size: 12px;">Cómo llegar →</a>
+          <br><span style="color: #999; font-size: 10px;">${c.lat?.toFixed(5)}, ${c.lng?.toFixed(5)}</span>
+        </div>`
+      );
+      m.bindTooltip(c.nombre, { permanent: false });
       markersCreados.push(m);
     });
 
