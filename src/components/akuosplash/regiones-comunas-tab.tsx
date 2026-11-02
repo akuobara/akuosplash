@@ -782,6 +782,19 @@ export function RegionesComunasTab() {
   );
 }
 
+// Componente que crea un pane custom con z-index alto para sub-zonas
+// Debe estar DENTRO de MapContainer como hijo
+function PaneCreator({ map }: { map: any }) {
+  useEffect(() => {
+    if (!map) return;
+    if (!map.getPane("subzonas")) {
+      const pane = map.createPane("subzonas");
+      pane.style.zIndex = "450"; // arriba del overlayPane (400) donde están los GeoJSON
+    }
+  }, [map]);
+  return null;
+}
+
 // === MapView — lazy-load Leaflet con polígonos de comunas + sub-zonas ===
 function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: {
   comunas: Comuna[];
@@ -907,6 +920,9 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
           attribution='&copy; OpenStreetMap'
         />
 
+        {/* Crear pane custom para sub-zonas ANTES de renderizar los círculos */}
+        <PaneCreator map={mapInstance} />
+
         {/* Polígonos de comunas (con delimitación visible) */}
         {Object.entries(geoData).map(([regionNumStr, geoJson]) => {
           const regionNum = parseInt(regionNumStr);
@@ -988,14 +1004,21 @@ function MapView({ comunas, onEdit, mapCreateMode, onMapClick, onEditSubZona }: 
                 key={sz.id}
                 center={center}
                 radius={radiusM}
+                pane="subzonas"
                 pathOptions={{
                   color: isActive ? (isUrbano ? "#2563eb" : "#d97706") : "#94a3b8",
                   weight: 3,
                   fillColor: isActive ? (isUrbano ? "#3b82f6" : "#f59e0b") : "#cbd5e1",
                   fillOpacity: isActive ? 0.4 : 0.15,
                   dashArray: isActive ? undefined : "4 4",
+                  interactive: true,
                 }}
                 eventHandlers={{
+                  add: (e: any) => {
+                    // Traer al frente después de un breve delay (para que el GeoJSON ya esté cargado)
+                    setTimeout(() => { try { e.target.bringToFront(); } catch {} }, 100);
+                    setTimeout(() => { try { e.target.bringToFront(); } catch {} }, 500);
+                  },
                   click: (e: any) => {
                     e.originalEvent?.stopPropagation?.();
                     onEditSubZona?.(sz, c);
