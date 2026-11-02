@@ -538,11 +538,11 @@ export function RegionesComunasTab() {
               )}
             </div>
             <div className="flex gap-2">
-              <div className="flex-1 rounded-lg overflow-hidden border" style={{ height: "calc(100vh - 280px)", minHeight: "500px" }}>
+              <div className="flex-1 h-[700px] rounded-lg overflow-hidden border">
                 <MapView comunas={comunasFiltradas} onEdit={abrirEditar} mapCreateMode={mapCreateMode} onMapClick={handleMapClick} onEditSubZona={abrirEditarSubZona} />
               </div>
               {/* Panel lateral — lista de sub-zonas con botón Editar */}
-              <div className="w-72 border rounded-lg bg-white overflow-y-auto" style={{ height: "calc(100vh - 280px)", minHeight: "500px" }}>
+              <div className="w-72 h-[700px] border rounded-lg bg-white overflow-y-auto">
                 <div className="sticky top-0 bg-white border-b px-3 py-2">
                   <p className="text-xs font-bold">Sub-zonas ({comunasFiltradas.flatMap(c => c.subZonas || []).length})</p>
                   <p className="text-[10px] text-muted-foreground">Click "Editar" para modificar</p>
