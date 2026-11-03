@@ -235,37 +235,48 @@ function generarPDF(period: string, data: any) {
     y = (doc as any).lastAutoTable.finalY + 8;
   }
 
-  // === 5. GASTOS (agrupado por tipo, una fila por tipo) ===
+  // === 5. GASTOS (agrupado por tipo + pagadoPor, una fila por combinación) ===
   if (data.gastos.length > 0) {
     if (y > 250) { doc.addPage(); y = 20; }
     doc.setFontSize(14);
     doc.text("5. Gastos", 14, y);
     y += 5;
-    // Agrupar por tipo, sumar montos, contar y juntar notas
-    const gastosAgrupados = new Map<string, { monto: number; notas: string[]; count: number }>();
+    // Agrupar por tipo+pagadoPor, sumar montos, contar y juntar notas
+    const gastosAgrupados = new Map<string, { monto: number; notas: string[]; count: number; pagadoPor: string }>();
     for (const g of data.gastos) {
       const tipo = labelTipoGasto(g.tipo);
-      const existing = gastosAgrupados.get(tipo) ?? { monto: 0, notas: [], count: 0 };
+      const pagadoPor = g.pagadoPor === "dueno" ? "Dueño" : "Chofer";
+      const key = `${tipo}|${pagadoPor}`;
+      const existing = gastosAgrupados.get(key) ?? { monto: 0, notas: [], count: 0, pagadoPor };
       existing.monto += g.monto;
       existing.count += 1;
       const nota = g.descripcion || "";
       if (nota) existing.notas.push(nota);
-      gastosAgrupados.set(tipo, existing);
+      gastosAgrupados.set(key, existing);
     }
+    // Subtotales por pagadoPor
+    const totalDueno = data.gastos.filter((g: any) => g.pagadoPor === "dueno").reduce((s: number, g: any) => s + g.monto, 0);
+    const totalChofer = data.gastos.filter((g: any) => g.pagadoPor === "chofer").reduce((s: number, g: any) => s + g.monto, 0);
+
     autoTable(doc, {
       startY: y,
-      head: [["Tipo", "Cant.", "Descripción/Nota", "Monto"]],
-      body: Array.from(gastosAgrupados.entries()).map(([tipo, info]) => [
-        tipo,
+      head: [["Tipo", "Cant.", "Pagado por", "Descripción/Nota", "Monto"]],
+      body: Array.from(gastosAgrupados.entries()).map(([key, info]) => [
+        key.split("|")[0],
         String(info.count),
+        info.pagadoPor,
         info.notas.join("; "),
         formatCurrency(info.monto),
       ]),
       theme: "striped",
       headStyles: { fillColor: [220, 38, 38], fontSize: 10 },
       bodyStyles: { fontSize: 9 },
-      columnStyles: { 0: { cellWidth: 55 }, 1: { cellWidth: 15, halign: "center" }, 2: { cellWidth: 65 }, 3: { cellWidth: 35, halign: "right" } },
-      foot: [["", "", "Total", formatCurrency(data.totalGastos)]],
+      columnStyles: { 0: { cellWidth: 45 }, 1: { cellWidth: 12, halign: "center" }, 2: { cellWidth: 25 }, 3: { cellWidth: 55 }, 4: { cellWidth: 33, halign: "right" } },
+      foot: [
+        ["", "", "Subtotal Dueño", "", formatCurrency(totalDueno)],
+        ["", "", "Subtotal Chofer", "", formatCurrency(totalChofer)],
+        ["", "", "Total", "", formatCurrency(data.totalGastos)],
+      ],
     });
   }
 
@@ -319,20 +330,28 @@ function generarExcel(period: string, data: any) {
     ["", "", "Total", data.totalPagosSueltos, ""],
     [],
     ["5. GASTOS"],
-    ["Tipo", "Cant.", "Descripción/Nota", "Monto"],
+    ["Tipo", "Cant.", "Pagado por", "Descripción/Nota", "Monto"],
     ...(() => {
-      const agrupado = new Map<string, { monto: number; notas: string[]; count: number }>();
+      const agrupado = new Map<string, { monto: number; notas: string[]; count: number; pagadoPor: string }>();
       for (const g of data.gastos) {
         const tipo = labelTipoGasto(g.tipo);
-        const ex = agrupado.get(tipo) ?? { monto: 0, notas: [], count: 0 };
+        const pagadoPor = g.pagadoPor === "dueno" ? "Dueño" : "Chofer";
+        const key = `${tipo}|${pagadoPor}`;
+        const ex = agrupado.get(key) ?? { monto: 0, notas: [], count: 0, pagadoPor };
         ex.monto += g.monto;
         ex.count += 1;
         if (g.descripcion) ex.notas.push(g.descripcion);
-        agrupado.set(tipo, ex);
+        agrupado.set(key, ex);
       }
-      return Array.from(agrupado.entries()).map(([tipo, info]) => [tipo, info.count, info.notas.join("; "), info.monto]);
+      const totalDueno = data.gastos.filter((g: any) => g.pagadoPor === "dueno").reduce((s: number, g: any) => s + g.monto, 0);
+      const totalChofer = data.gastos.filter((g: any) => g.pagadoPor === "chofer").reduce((s: number, g: any) => s + g.monto, 0);
+      return [
+        ...Array.from(agrupado.entries()).map(([key, info]) => [key.split("|")[0], info.count, info.pagadoPor, info.notas.join("; "), info.monto]),
+        ["", "", "Subtotal Dueño", "", totalDueno],
+        ["", "", "Subtotal Chofer", "", totalChofer],
+        ["", "", "Total", "", data.totalGastos],
+      ];
     })(),
-    ["", "", "Total", data.totalGastos],
   ];
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
