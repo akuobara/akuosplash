@@ -42,8 +42,11 @@ export async function POST(req: NextRequest) {
   if (!session) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  if (session.role !== "dueno") {
-    return NextResponse.json({ error: "Solo administradores pueden crear pedidos recurrentes" }, { status: 403 });
+  // Choferes Y dueños pueden crear pedidos recurrentes.
+  // El duenoId se obtiene de la sesión (para choferes es session.duenoId).
+  const duenoId = session.role === "chofer" ? session.duenoId : session.userId;
+  if (!duenoId) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   try {
@@ -54,7 +57,7 @@ export async function POST(req: NextRequest) {
     }
 
     const cliente = await db.cliente.findUnique({ where: { id: body.clienteId } });
-    if (!cliente || cliente.duenoId !== session.userId) {
+    if (!cliente || cliente.duenoId !== duenoId) {
       return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
     }
 
@@ -101,7 +104,7 @@ export async function POST(req: NextRequest) {
         diaSemanaPreferido,
         asignacionTipo: body.asignacionTipo || "manual",
         choferAsignadoId: (body.choferAsignadoId && body.choferAsignadoId !== "__ninguno") ? body.choferAsignadoId : null,
-        duenoId: session.userId,
+        duenoId: duenoId,
       },
       include: {
         cliente: { select: { id: true, nombre: true, zona: true } },
