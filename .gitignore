@@ -59,7 +59,6 @@ server.log
 db/*.db
 db/*.db-journal
 *.key
-upload/
 public/uploads/
 tool-results/
 .zscripts/
