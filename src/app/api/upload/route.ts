@@ -41,10 +41,12 @@ export async function POST(req: NextRequest) {
     });
 
     // Construir URL pública
-    // En Render: https://aljibeapp.onrender.com/api/foto/<id>
-    // En localhost: http://localhost:3000/api/foto/<id>
-    const origin = req.nextUrl.origin;
-    const publicUrl = `${origin}/api/foto/${fotoId}`;
+    // Usar x-forwarded-host (seteado por Render/nginx) o Host header
+    // req.nextUrl.origin devuelve la URL interna del container, no la pública
+    const forwardedHost = req.headers.get("x-forwarded-host");
+    const forwardedProto = req.headers.get("x-forwarded-proto") || "https";
+    const host = forwardedHost || req.headers.get("host") || "akuosplash.onrender.com";
+    const publicUrl = `${forwardedProto}://${host}/api/foto/${fotoId}`;
 
     return NextResponse.json({ url: publicUrl, uploadedToServer: true, fotoId });
   } catch (e: any) {
