@@ -63,7 +63,8 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       if (d.planes) {
         setPlanes(d.planes);
         // Default al plan siguiente al actual
-        const planActual = d.subscripcion?.plan || "gratis";
+        const rawPlan = d.subscripcion?.plan || "gratis";
+        const planActual = rawPlan === "free" ? "gratis" : rawPlan;
         if (planActual === "gratis" && d.orden.includes("premium")) setPlanSeleccionado("premium");
         else if (planActual === "premium" && d.orden.includes("pro")) setPlanSeleccionado("pro");
       }
@@ -196,7 +197,9 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     );
   }
 
-  const planActual = (info?.plan as PlanId) || "gratis";
+  // Normalizar plan: "free" en DB → "gratis" en código (compatibilidad)
+  const rawPlan = (info?.plan as string) || "gratis";
+  const planActual = (rawPlan === "free" ? "gratis" : rawPlan) as PlanId;
   const planActivoHasta = info?.planActivoHasta ? new Date(info.planActivoHasta) : null;
   const diasRestantes = planActivoHasta ? Math.ceil((planActivoHasta.getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : null;
   const estaActivo = planActual !== "gratis" && planActivoHasta && diasRestantes! > 0;
