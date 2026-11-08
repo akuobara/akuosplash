@@ -89,7 +89,24 @@ export async function GET(req: NextRequest) {
   // Generar label con fecha real del período
   let periodLabel: string;
   if (period.startsWith("custom:")) {
-    periodLabel = `${period.split(":")[1]} a ${period.split(":")[2]}`;
+    const parts = period.split(":");
+    if (parts.length === 3) {
+      // Rango: desde fecha inicio hasta fecha fin
+      periodLabel = `${parts[1]} a ${parts[2]}`;
+    } else if (parts.length === 2) {
+      // Un solo día
+      periodLabel = parts[1];
+    } else {
+      periodLabel = "Personalizado";
+    }
+  } else if (period === "semana_anterior") {
+    if (start && end) {
+      const inicio = new Date(start).toLocaleDateString("es-CL", { timeZone: "America/Santiago", day: "2-digit", month: "2-digit" });
+      const fin = new Date(end).toLocaleDateString("es-CL", { timeZone: "America/Santiago", day: "2-digit", month: "2-digit", year: "numeric" });
+      periodLabel = `Sem. anterior ${inicio} a ${fin}`;
+    } else {
+      periodLabel = "Semana anterior";
+    }
   } else if (start && end) {
     // Formatear la fecha del período
     const fechaInicio = new Date(start).toLocaleDateString("es-CL", { timeZone: "America/Santiago", day: "2-digit", month: "2-digit", year: "numeric" });

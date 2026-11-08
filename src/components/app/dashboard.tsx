@@ -144,6 +144,7 @@ const PERIODS: { value: Period; label: string }[] = [
   { value: "hoy", label: "Hoy" },
   { value: "ayer", label: "Ayer" },
   { value: "semana", label: "Esta semana (Dom-Sáb)" },
+  { value: "semana_anterior", label: "Semana anterior (Dom-Sáb)" },
   { value: "semana7", label: "Últimos 7 días" },
   { value: "mes", label: "Este mes" },
   { value: "mes_anterior", label: "Mes anterior" },
@@ -274,16 +275,29 @@ export function Dashboard({
               <Input type="date" value={customStart} onChange={(e) => {
                 setCustomStart(e.target.value);
                 if (e.target.value && customEnd) {
+                  // Rango: desde fecha inicio hasta fecha fin
                   setPeriod(`custom:${e.target.value}:${customEnd}`);
+                } else if (e.target.value && !customEnd) {
+                  // Solo fecha inicio = descargar ese día específico
+                  setPeriod(`custom:${e.target.value}`);
                 }
               }} className="w-[140px] h-8" />
               <span className="text-xs text-muted-foreground">→</span>
               <Input type="date" value={customEnd} onChange={(e) => {
                 setCustomEnd(e.target.value);
                 if (customStart && e.target.value) {
+                  // Rango: desde fecha inicio hasta fecha fin
                   setPeriod(`custom:${customStart}:${e.target.value}`);
+                } else if (e.target.value && !customStart) {
+                  // Solo fecha fin = descargar ese día específico
+                  setPeriod(`custom:${e.target.value}`);
                 }
               }} className="w-[140px] h-8" />
+              {(!customStart || !customEnd) && (
+                <span className="text-[10px] text-muted-foreground ml-1">
+                  {customStart ? "Solo ese día" : "(opcional)"}
+                </span>
+              )}
             </div>
           )}
           <Button onClick={() => setGastoFormOpen(true)} variant="outline" size="sm">

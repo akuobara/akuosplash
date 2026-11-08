@@ -343,6 +343,12 @@ export function getRange(period: string): { start?: Date; end?: Date } {
     const dayOfWeek = nowCL.getDay();
     return { start: chileDayStart(year, month, date - dayOfWeek), end: chileDayEnd(year, month, date - dayOfWeek + 6) };
   }
+  if (period === "semana_anterior") {
+    // Semana anterior: del domingo al sábado de la semana pasada
+    const dayOfWeek = nowCL.getDay();
+    const startThisWeek = date - dayOfWeek; // domingo de esta semana
+    return { start: chileDayStart(year, month, startThisWeek - 7), end: chileDayEnd(year, month, startThisWeek - 1) };
+  }
   if (period === "semana7") {
     return { start: chileDayStart(year, month, date - 6), end: chileDayEnd(year, month, date) };
   }
@@ -359,11 +365,17 @@ export function getRange(period: string): { start?: Date; end?: Date } {
     return { start: chileDayStart(year, month - 2, 1), end: chileDayEnd(year, month, date) };
   }
   if (period.startsWith("custom:")) {
-    // Formato: custom:YYYY-MM-DD:YYYY-MM-DD
+    // Formato: custom:YYYY-MM-DD:YYYY-MM-DD (rango) o custom:YYYY-MM-DD (un solo día)
     const parts = period.split(":");
     if (parts.length === 3) {
+      // Rango: desde fecha inicio hasta fecha fin
       const start = new Date(parts[1] + "T00:00:00-04:00"); // hora Chile
       const end = new Date(parts[2] + "T23:59:59-04:00");
+      return { start, end };
+    } else if (parts.length === 2) {
+      // Un solo día: esa fecha completa (00:00 a 23:59)
+      const start = new Date(parts[1] + "T00:00:00-04:00");
+      const end = new Date(parts[1] + "T23:59:59-04:00");
       return { start, end };
     }
   }
