@@ -184,9 +184,11 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    // Gastos agrupados por tipo
+    // Gastos agrupados por tipo — SOLO los pagados por el chofer
+    // (los pagados por el dueño no afectan la liquidación del chofer)
+    const gastosChoferOnly = gastos.filter(g => g.pagadoPor === "chofer");
     const gastosPorTipoMap = new Map<string, { monto: number; count: number }>();
-    for (const g of gastos) {
+    for (const g of gastosChoferOnly) {
       const tipo = labelTipoGasto(g.tipo);
       const ex = gastosPorTipoMap.get(tipo) ?? { monto: 0, count: 0 };
       ex.monto += g.monto;

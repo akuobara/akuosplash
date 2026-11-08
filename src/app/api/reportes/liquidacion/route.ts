@@ -135,8 +135,10 @@ export async function GET(req: NextRequest) {
   const liquidoChoferAntesDeEfectivo = pagoChoferPositivo + gastosChofer - impuesto - descuentosChofer;
   const saldoChofer = liquidoChoferAntesDeEfectivo - totalEfectivoRecibido;
 
+  // Gastos por tipo — SOLO los pagados por el chofer
+  // (los pagados por el dueño no afectan la liquidación del chofer)
   const gastosPorTipo: Record<string, number> = {};
-  for (const g of gastos) {
+  for (const g of gastos.filter(g => g.pagadoPor === "chofer")) {
     gastosPorTipo[g.tipo] = (gastosPorTipo[g.tipo] ?? 0) + g.monto;
   }
 
