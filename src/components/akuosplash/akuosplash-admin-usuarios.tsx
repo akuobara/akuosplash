@@ -136,6 +136,19 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
   }
   if (!user) return null;
 
+  // Filtrar usuarios por estado y búsqueda
+  const filtered = usuarios.filter(u => {
+    if (filterEstado !== "todos") {
+      const est = u.estadoAprobacion || "pendiente";
+      if (est !== filterEstado) return false;
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      if (!(u.nombre?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.telefono?.toLowerCase().includes(q) || u.razonSocial?.toLowerCase().includes(q) || u.patenteVehiculo?.toLowerCase().includes(q))) return false;
+    }
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-gray-100">
@@ -187,43 +200,16 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
 
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
-        ) : (() => {
-          // Filtrar usuarios
-          const filtered = usuarios.filter(u => {
-            // Filtro por estado
-            if (filterEstado !== "todos") {
-              const est = u.estadoAprobacion || "pendiente";
-              if (est !== filterEstado) return false;
-            }
-            // Filtro por búsqueda
-            if (searchQuery.trim()) {
-              const q = searchQuery.toLowerCase().trim();
-              const matches = (
-                u.nombre?.toLowerCase().includes(q) ||
-                u.email?.toLowerCase().includes(q) ||
-                u.telefono?.toLowerCase().includes(q) ||
-                u.razonSocial?.toLowerCase().includes(q) ||
-                u.patenteVehiculo?.toLowerCase().includes(q)
-              );
-              if (!matches) return false;
-            }
-            return true;
-          });
-
-          if (filtered.length === 0) {
-            return (
-              <Card><CardContent className="p-8 text-center">
-                <p className="text-sm text-gray-400">No hay resultados{filterEstado !== "todos" ? ` con estado "${filterEstado}"` : ""}.</p>
-              </CardContent></Card>
-            );
-          }
-
-          return (
-            <div className="space-y-2">
-              {filtered.length < usuarios.length && (
-                <p className="text-[11px] text-gray-400 text-center">Mostrando {filtered.length} de {usuarios.length}</p>
-              )}
-              {filtered.map(u => {
+        ) : filtered.length === 0 ? (
+          <Card><CardContent className="p-8 text-center">
+            <p className="text-sm text-gray-400">No hay resultados{filterEstado !== "todos" ? ` con estado "${filterEstado}"` : ""}.</p>
+          </CardContent></Card>
+        ) : (
+          <div className="space-y-2">
+            {filtered.length < usuarios.length && (
+              <p className="text-[11px] text-gray-400 text-center">Mostrando {filtered.length} de {usuarios.length}</p>
+            )}
+            {filtered.map(u => {
             const isExpanded = expandedIds.has(u.id);
             const toggleExpand = () => {
               setExpandedIds(prev => {
@@ -445,11 +431,8 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
               </Card>
             );
           })}
-        </div>
-          );
-        })()}
-        </div>
-      )}
+          </div>
+        )}
 
         <Button variant="outline" onClick={() => setRefreshKey(k => k + 1)} className="w-full">Actualizar</Button>
       </main>
