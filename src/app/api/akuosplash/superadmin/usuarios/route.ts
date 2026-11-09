@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
       capacidadVehiculoKg: true,
       fotoVehiculoFrenteUrl: true, fotoVehiculoAtrasUrl: true,
       fotoVehiculoIzquierdaUrl: true, fotoVehiculoDerechaUrl: true,
-      documentosAprobacionJson: true,
       // Estado de aprobación granular
       estadoAprobacion: true, estadoAprobacionNota: true,
       estadoAprobacionActualizadoEn: true, estadoAprobacionActualizadoPor: true,
@@ -38,6 +37,19 @@ export async function GET(req: NextRequest) {
       zonaId: true, zona: { select: { id: true, nombre: true, precioPorLitro: true } },
     },
   });
+
+  // Fetch documentosAprobacionJson via raw SQL (no está en el schema de Prisma)
+  try {
+    const docsRows: any = await akuosplashDb.$queryRawUnsafe(
+      `SELECT id, documentosAprobacionJson FROM AkuoUsuario WHERE 1=1`
+    );
+    if (Array.isArray(docsRows)) {
+      const docsMap = new Map(docsRows.map((r: any) => [r.id, r.documentosAprobacionJson]));
+      for (const u of usuarios) {
+        (u as any).documentosAprobacionJson = docsMap.get(u.id) || null;
+      }
+    }
+  } catch {}
 
   return NextResponse.json({ usuarios });
 }
