@@ -215,7 +215,39 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                         <p className="text-[10px] text-gray-500 italic">Nota: {u.estadoAprobacionNota}</p>
                       )}
 
-                      {/* Sección: Revisión de documentos */}
+                      {/* Sección: Documentos para revisión */}
+                      <div className="pt-1 border-t border-gray-100">
+                        <p className="text-[10px] text-gray-500 font-medium mb-1.5">📄 Documentos para revisión:</p>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {[
+                            { label: "Licencia frente", url: u.licenciaConducirUrl },
+                            { label: "Licencia atrás", url: u.licenciaConducirAtrasUrl },
+                            { label: "Permiso circ.", url: u.permisoCircUrl },
+                            { label: "Seguro", url: u.seguroUrl },
+                            { label: "Revisión técnica", url: u.revisonTecnicaUrl },
+                            { label: "Vehículo frente", url: u.fotoVehiculoFrenteUrl },
+                            { label: "Vehículo atrás", url: u.fotoVehiculoAtrasUrl },
+                            { label: "Vehículo izq.", url: u.fotoVehiculoIzquierdaUrl },
+                            { label: "Vehículo der.", url: u.fotoVehiculoDerechaUrl },
+                          ].filter((d) => d.url).map((d) => (
+                            <a
+                              key={d.label}
+                              href={d.url!}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-[10px] px-2 py-1.5 rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition"
+                            >
+                              <span className="truncate flex-1">{d.label}</span>
+                              <span className="shrink-0 font-bold">↗</span>
+                            </a>
+                          ))}
+                          {![u.licenciaConducirUrl, u.permisoCircUrl, u.seguroUrl, u.revisonTecnicaUrl, u.fotoVehiculoFrenteUrl].some(Boolean) && (
+                            <p className="text-[10px] text-gray-400 col-span-2">Sin documentos cargados</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Sección: Revisión de cuenta */}
                       <div className="pt-1">
                         <p className="text-[10px] text-gray-500 font-medium mb-1">Revisión de cuenta:</p>
                         <div className="flex flex-wrap gap-1.5">
