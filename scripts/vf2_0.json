@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# Descripción detallada de la pantalla\n\n## Barra de estado (superior)\n- Hora: **12:30**\n- Iconos: WhatsApp, silencio/vibración\n- Lado derecho: icono de alarma (despertador), Wi-Fi con señal, señal celular con una \"x\", batería al **77%**\n\n## Navegador (Chrome)\n- Icono de casa (pestaña de inicio)\n- Barra de URL con el texto: **akuosplash.cl/akuosp** (texto cortado, con cursor)\n- Botón **+** (nueva pestaña)\n- Contador de pestañas: **51**\n- Menú de tres puntos verticales **⋮**\n\n## Encabezado de la página web\n- Logo con una gota de agua azul (Akuosplash)\n- Icono de engranaje ⚙️ a la derecha\n- Texto parcialmente visible: **\"🚗 Vehículos: 5 · 👥 Choferes: 5\"**\n\n## Botón principal\n- Botón azul grande con texto blanco: **\"✓ Seleccionado\"**\n\n## Sección de cupón\n- Título con icono de ticket: **\"🎟️ ¿Tenés un cupón?\"**\n- Campo de texto con placeholder: **\"EJ: BIENVENIDA50\"**\n- Botón a la derecha: **\"Validar\"** (gris claro)\n\n## Resumen de compra\n| Etiqueta | Valor |\n|---|---|\n| Plan | **Pro** |\n| Ciclo | **Mensual** |\n| Subtotal | **$23.990** |\n| **Total** | **$23.990** (en negrita) |\n\n## Botón de pago\n- Botón azul con icono de tarjeta: **\"💳 Pagar con MercadoPago\"**\n\n## Texto legal/informativo (parcialmente tapado por un dedo)\n- \"Vas a ser [redirigido] a MercadoPago para autorizar la [corriente]. Después de aprobar, volvés [auto]máticamente acá.\"\n\n## Mensaje de error/advertencia (abajo, cortado)\n- Texto en amarillo/advertencia parcialmente visible: *\"...ago no está configurado, el pago ...al superadmin que configure las...\"* — parece indicar que **MercadoPago no está configurado** y que hay que avisar al superadmin.\n\n## Otro detalle\n- Un **dedo** (persona real) tapa parte inferior izquierda de la pantalla\n- Sin errores visibles de navegador; solo la advertencia de configuración de pago",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1794195116,
+  "id": "20261109113140628836602ff84df5",
+  "model": "glm-5.3-flash",
+  "object": "chat.completion",
+  "request_id": "20261109113140628836602ff84df5",
+  "usage": {
+    "completion_tokens": 572,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2734,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3306
+  }
+}
