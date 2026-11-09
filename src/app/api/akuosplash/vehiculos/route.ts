@@ -13,6 +13,39 @@ export async function GET() {
     where: { transportistaId: user.id },
     orderBy: { creadoEn: "desc" },
   });
+
+  // Fetch choferes asignados via libsql directo (AkuoVehiculoChofer table)
+  let choferesMap: Map<string, any[]> = new Map();
+  try {
+    const { createClient } = await import("@libsql/client");
+    const client = createClient({
+      url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+      authToken: process.env.DATABASE_AUTH_TOKEN,
+    });
+    const vehiculoIds = vehiculos.map(v => v.id);
+    if (vehiculoIds.length > 0) {
+      const placeholders = vehiculoIds.map(() => "?").join(",");
+      const r = await client.execute({
+        sql: `SELECT vc.vehiculoId, vc.choferId, u.nombre as choferNombre, u.email as choferEmail
+              FROM AkuoVehiculoChofer vc
+              LEFT JOIN AkuoUsuario u ON vc.choferId = u.id
+              WHERE vc.vehiculoId IN (${placeholders})`,
+        args: vehiculoIds,
+      });
+      for (const row of r.rows) {
+        const vid = (row as any).vehiculoId;
+        if (!choferesMap.has(vid)) choferesMap.set(vid, []);
+        choferesMap.get(vid)!.push({
+          id: (row as any).choferId,
+          nombre: (row as any).choferNombre,
+          email: (row as any).choferEmail,
+        });
+      }
+    }
+  } catch (e: any) {
+    console.error("[vehiculos GET] Error fetching choferes:", e?.message);
+  }
+
   return NextResponse.json({
     camiones: vehiculos.map(v => ({
       id: v.id,
@@ -36,6 +69,8 @@ export async function GET() {
       // Estado
       documentosVerificados: v.documentosVerificados,
       verificadoEn: v.verificadoEn,
+      // Choferes asignados
+      choferes: choferesMap.get(v.id) || [],
     })),
   });
 }
