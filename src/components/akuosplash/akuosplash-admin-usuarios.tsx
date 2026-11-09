@@ -44,6 +44,7 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
   const [loading, setLoading] = useState(true);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [docViewer, setDocViewer] = useState<{ url: string; label: string; usuario: Usuario } | null>(null);
 
   useEffect(() => {
     akuoGet<{ user: any }>("/api/akuosplash/auth/me").then(d => {
@@ -230,16 +231,14 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                             { label: "Vehículo izq.", url: u.fotoVehiculoIzquierdaUrl },
                             { label: "Vehículo der.", url: u.fotoVehiculoDerechaUrl },
                           ].filter((d) => d.url).map((d) => (
-                            <a
+                            <button
                               key={d.label}
-                              href={d.url!}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-[10px] px-2 py-1.5 rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition"
+                              onClick={() => setDocViewer({ url: d.url!, label: d.label, usuario: u })}
+                              className="flex items-center gap-1 text-[10px] px-2 py-1.5 rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition cursor-pointer"
                             >
-                              <span className="truncate flex-1">{d.label}</span>
-                              <span className="shrink-0 font-bold">↗</span>
-                            </a>
+                              <span className="truncate flex-1 text-left">{d.label}</span>
+                              <span className="shrink-0 font-bold">🔍</span>
+                            </button>
                           ))}
                           {![u.licenciaConducirUrl, u.permisoCircUrl, u.seguroUrl, u.revisonTecnicaUrl, u.fotoVehiculoFrenteUrl].some(Boolean) && (
                             <p className="text-[10px] text-gray-400 col-span-2">Sin documentos cargados</p>
@@ -321,6 +320,107 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
 
         <Button variant="outline" onClick={() => setRefreshKey(k => k + 1)} className="w-full">Actualizar</Button>
       </main>
+
+      {/* Modal: Visor de documentos con botones aprobar/rechazar */}
+      {docViewer && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-[9999] p-4"
+          onClick={() => setDocViewer(null)}
+        >
+          <div
+            className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b">
+              <div>
+                <p className="font-bold text-sm">{docViewer.label}</p>
+                <p className="text-xs text-gray-500">{docViewer.usuario.nombre} · {docViewer.usuario.email}</p>
+              </div>
+              <button onClick={() => setDocViewer(null)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+            </div>
+
+            {/* Imagen del documento */}
+            <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center min-h-[300px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={docViewer.url}
+                alt={docViewer.label}
+                className="max-w-full max-h-[60vh] object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                  (e.target as HTMLImageElement).parentElement!.innerHTML =
+                    '<div class="text-gray-500 text-sm">No se pudo cargar la imagen. <a href="' + docViewer.url + '" target="_blank" class="text-blue-600 underline">Abrir en pestaña nueva</a></div>';
+                }}
+              />
+            </div>
+
+            {/* Botones de acción */}
+            <div className="border-t px-4 py-3 space-y-2">
+              {/* Estado actual */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Estado actual:</span>
+                <Badge variant="outline" className={`text-[10px] ${
+                  docViewer.usuario.estadoAprobacion === "aprobado" ? "text-emerald-700 border-emerald-300 bg-emerald-50" :
+                  docViewer.usuario.estadoAprobacion === "pre_aprobado" ? "text-blue-700 border-blue-300 bg-blue-50" :
+                  docViewer.usuario.estadoAprobacion === "rechazado" ? "text-red-700 border-red-300 bg-red-50" :
+                  "text-amber-700 border-amber-300 bg-amber-50"
+                }`}>
+                  {docViewer.usuario.estadoAprobacion === "aprobado" ? "✓ Aprobado" :
+                   docViewer.usuario.estadoAprobacion === "pre_aprobado" ? "🔍 Pre-aprobado" :
+                   docViewer.usuario.estadoAprobacion === "rechazado" ? "✗ Rechazado" :
+                   "⏳ Pendiente"}
+                </Badge>
+              </div>
+
+              {/* Botones */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setEstadoAprobacion(docViewer.usuario, "aprobado");
+                    setDocViewer(null);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+                >
+                  ✓ Aprobar documento
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setEstadoAprobacion(docViewer.usuario, "pre_aprobado");
+                    setDocViewer(null);
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                >
+                  🔍 Pre-aprobar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const nota = prompt("Motivo del rechazo (opcional):");
+                    if (nota === null) return;
+                    setEstadoAprobacion(docViewer.usuario, "rechazado", nota || undefined);
+                    setDocViewer(null);
+                  }}
+                  className="text-red-700 border-red-300 hover:bg-red-50 text-xs"
+                >
+                  ✗ Rechazar documento
+                </Button>
+                <a
+                  href={docViewer.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-auto text-xs text-blue-600 hover:underline self-center"
+                >
+                  Abrir en pestaña nueva ↗
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
