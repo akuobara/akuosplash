@@ -62,10 +62,11 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       setInfo(d.subscripcion || { plan: "gratis" });
       if (d.planes) {
         setPlanes(d.planes);
-        // Default al plan siguiente al actual
+        // Default al plan más alto disponible para upgrade
         const rawPlan = d.subscripcion?.plan || "gratis";
         const planActual = rawPlan === "free" ? "gratis" : rawPlan;
-        if (planActual === "gratis" && d.orden.includes("premium")) setPlanSeleccionado("premium");
+        if (planActual === "gratis" && d.orden.includes("pro")) setPlanSeleccionado("pro");
+        else if (planActual === "gratis" && d.orden.includes("premium")) setPlanSeleccionado("premium");
         else if (planActual === "premium" && d.orden.includes("pro")) setPlanSeleccionado("pro");
       }
       if (d.orden) setOrden(d.orden);
