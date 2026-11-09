@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, LogOut, Loader2, Check, X, MapPin, Mail, Phone, Truck } from "lucide-react";
+import { ArrowLeft, LogOut, Loader2, Check, X, MapPin, Mail, Phone, Truck, Search } from "lucide-react";
 import { akuoGet, akuoApi, akuoPost, formatCLP } from "@/components/akuosplash/akuosplash-utils";
 import { toast } from "sonner";
 
@@ -46,6 +46,9 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [docViewer, setDocViewer] = useState<{ url: string; label: string; usuario: Usuario; docKey?: string } | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [filterEstado, setFilterEstado] = useState<string>("todos");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     akuoGet<{ user: any }>("/api/akuosplash/auth/me").then(d => {
@@ -152,31 +155,120 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
           <p className="text-sm text-gray-500">{usuarios.length} registrados</p>
         </div>
 
+        {/* Filtros: búsqueda + estado */}
+        <div className="space-y-2">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar por nombre, email, teléfono..."
+              className="pl-8 h-9 text-sm"
+            />
+          </div>
+          {rol === "transportista" && (
+            <div className="flex gap-1.5 flex-wrap">
+              {["todos", "pendiente", "pre_aprobado", "aprobado", "rechazado"].map(est => (
+                <button
+                  key={est}
+                  onClick={() => setFilterEstado(est)}
+                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition ${
+                    filterEstado === est
+                      ? "bg-blue-600 text-white"
+                      : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {est === "todos" ? "Todos" : est === "pre_aprobado" ? "Pre-aprobados" : est.charAt(0).toUpperCase() + est.slice(1) + "s"}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
-        ) : usuarios.length === 0 ? (
-          <Card><CardContent className="p-8 text-center">
-            <p className="text-sm text-gray-400">No hay {titulo.toLowerCase()} registrados todavía.</p>
-          </CardContent></Card>
-        ) : (
-          <div className="space-y-2">
-            {usuarios.map(u => (
+        ) : (() => {
+          // Filtrar usuarios
+          const filtered = usuarios.filter(u => {
+            // Filtro por estado
+            if (filterEstado !== "todos") {
+              const est = u.estadoAprobacion || "pendiente";
+              if (est !== filterEstado) return false;
+            }
+            // Filtro por búsqueda
+            if (searchQuery.trim()) {
+              const q = searchQuery.toLowerCase().trim();
+              const matches = (
+                u.nombre?.toLowerCase().includes(q) ||
+                u.email?.toLowerCase().includes(q) ||
+                u.telefono?.toLowerCase().includes(q) ||
+                u.razonSocial?.toLowerCase().includes(q) ||
+                u.patenteVehiculo?.toLowerCase().includes(q)
+              );
+              if (!matches) return false;
+            }
+            return true;
+          });
+
+          if (filtered.length === 0) {
+            return (
+              <Card><CardContent className="p-8 text-center">
+                <p className="text-sm text-gray-400">No hay resultados{filterEstado !== "todos" ? ` con estado "${filterEstado}"` : ""}.</p>
+              </CardContent></Card>
+            );
+          }
+
+          return (
+            <div className="space-y-2">
+              {filtered.length < usuarios.length && (
+                <p className="text-[11px] text-gray-400 text-center">Mostrando {filtered.length} de {usuarios.length}</p>
+              )}
+              {filtered.map(u => {
+            const isExpanded = expandedIds.has(u.id);
+            const toggleExpand = () => {
+              setExpandedIds(prev => {
+                const next = new Set(prev);
+                if (next.has(u.id)) next.delete(u.id);
+                else next.add(u.id);
+                return next;
+              });
+            };
+            return (
               <Card key={u.id} className="border-gray-100">
-                <CardContent className="p-3.5 space-y-2">
-                  <div className="flex items-center justify-between gap-2">
+                <CardContent className="p-3.5">
+                  {/* Header siempre visible — click para expandir/colapsar */}
+                  <button
+                    onClick={toggleExpand}
+                    className="w-full flex items-center justify-between gap-2 text-left"
+                  >
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-medium text-sm truncate">{u.nombre}</p>
-                        {rol === "transportista" && !u.aprobado && (
-                          <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50 text-[10px]">Pendiente</Badge>
+                        {rol === "transportista" && (
+                          <Badge variant="outline" className={`text-[9px] shrink-0 ${
+                            u.estadoAprobacion === "aprobado" ? "text-emerald-700 border-emerald-300 bg-emerald-50" :
+                            u.estadoAprobacion === "pre_aprobado" ? "text-blue-700 border-blue-300 bg-blue-50" :
+                            u.estadoAprobacion === "rechazado" ? "text-red-700 border-red-300 bg-red-50" :
+                            "text-amber-700 border-amber-300 bg-amber-50"
+                          }`}>
+                            {u.estadoAprobacion === "aprobado" ? "✓ Aprobado" :
+                             u.estadoAprobacion === "pre_aprobado" ? "🔍 Pre-aprob." :
+                             u.estadoAprobacion === "rechazado" ? "✗ Rechazado" :
+                             "⏳ Pendiente"}
+                          </Badge>
                         )}
-                        {u.banned && <Badge variant="outline" className="text-red-700 border-red-300 bg-red-50 text-[10px]">Bloqueado</Badge>}
-                        {!u.activo && <Badge variant="outline" className="text-gray-500 text-[10px]">Inactivo</Badge>}
-                        {u.mpUserId && <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 text-[10px]">MP conectado</Badge>}
+                        {u.banned && <Badge variant="outline" className="text-red-700 border-red-300 bg-red-50 text-[9px]">Bloqueado</Badge>}
+                        {!u.activo && <Badge variant="outline" className="text-gray-500 text-[9px]">Inactivo</Badge>}
+                        {u.mpUserId && <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 text-[9px]">MP</Badge>}
                       </div>
-                      <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                        <Mail className="h-3 w-3" /> {u.email}
-                      </p>
+                      <p className="text-xs text-gray-500 truncate mt-0.5">{u.email}</p>
+                    </div>
+                    <span className="text-gray-400 text-xs shrink-0">{isExpanded ? "▲" : "▼"}</span>
+                  </button>
+
+                  {/* Contenido colapsable */}
+                  {isExpanded && (
+                    <div className="space-y-2 pt-2 mt-2 border-t border-gray-100">
                       {u.telefono && (
                         <p className="text-xs text-gray-500 flex items-center gap-1">
                           <Phone className="h-3 w-3" /> {u.telefono}
@@ -202,8 +294,6 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                         Registrado: {new Date(u.creadoEn).toLocaleDateString("es-CL")}
                         {u.ultimoLoginEn && ` · Último login: ${new Date(u.ultimoLoginEn).toLocaleDateString("es-CL")}`}
                       </p>
-                    </div>
-                  </div>
 
                   {rol === "transportista" && (
                     <div className="space-y-2 pt-2 border-t border-gray-100">
@@ -349,11 +439,17 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                       </div>
                     </div>
                   )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </div>
+          );
+        })()}
+        </div>
+      )}
 
         <Button variant="outline" onClick={() => setRefreshKey(k => k + 1)} className="w-full">Actualizar</Button>
       </main>
