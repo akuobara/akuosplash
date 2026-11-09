@@ -157,12 +157,75 @@ export async function PATCH(
       }
     }
 
-    const actualizado = await akuosplashDb.akuoUsuario.update({
-      where: { id },
-      data,
+    // Construir UPDATE dinámico con libsql directo (Prisma update falla en Render)
+    const { createClient } = await import("@libsql/client");
+    const dbClient = createClient({
+      url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+      authToken: process.env.DATABASE_AUTH_TOKEN,
     });
 
-    return NextResponse.json({ ok: true, usuario: actualizado });
+    const setParts: string[] = [];
+    const values: any[] = [];
+
+    if (data.aprobado !== undefined) { setParts.push("aprobado = ?"); values.push(data.aprobado ? 1 : 0); }
+    if (data.banned !== undefined) { setParts.push("banned = ?"); values.push(data.banned ? 1 : 0); }
+    if (data.banRazon !== undefined) { setParts.push("banRazon = ?"); values.push(data.banRazon); }
+    if (data.activo !== undefined) { setParts.push("activo = ?"); values.push(data.activo ? 1 : 0); }
+    if (data.rol !== undefined) { setParts.push("rol = ?"); values.push(data.rol); }
+    if (data.plan !== undefined) { setParts.push("plan = ?"); values.push(data.plan); }
+    if (data.vehiculosPermitidos !== undefined) { setParts.push("vehiculosPermitidos = ?"); values.push(data.vehiculosPermitidos); }
+    if (data.estadoAprobacion !== undefined) {
+      setParts.push("estadoAprobacion = ?");
+      values.push(data.estadoAprobacion);
+      setParts.push("estadoAprobacionNota = ?");
+      values.push(data.estadoAprobacionNota || null);
+      setParts.push("estadoAprobacionActualizadoEn = ?");
+      values.push(new Date().toISOString());
+      setParts.push("estadoAprobacionActualizadoPor = ?");
+      values.push(user.id);
+      // Por compatibilidad: aprobado = true si estadoAprobacion es aprobado/pre_aprobado
+      if (data.estadoAprobacion === "aprobado" || data.estadoAprobacion === "pre_aprobado") {
+        setParts.push("aprobado = ?"); values.push(1);
+      } else {
+        setParts.push("aprobado = ?"); values.push(0);
+      }
+    }
+
+    if (setParts.length > 0) {
+      values.push(id);
+      await dbClient.execute({
+        sql: `UPDATE AkuoUsuario SET ${setParts.join(", ")} WHERE id = ?`,
+        args: values,
+      });
+    }
+
+    // Crear notificación (opcional, no falla si no se puede)
+    if (body.estadoAprobacion !== undefined) {
+      const nuevoEstado = String(body.estadoAprobacion);
+      const titulos: Record<string, string> = {
+        pendiente: "Cuenta en revisión",
+        pre_aprobado: "Cuenta pre-aprobada",
+        aprobado: "Cuenta aprobada",
+        rechazado: "Cuenta rechazada",
+      };
+      const mensajes: Record<string, string> = {
+        pendiente: "Tu registro está completo. Tu cuenta está en espera de aprobación.",
+        pre_aprobado: "Tu cuenta fue pre-aprobada. Vas a poder acceder al marketplace cuando esté disponible.",
+        aprobado: "¡Tu cuenta fue aprobada! Ya podés operar.",
+        rechazado: `Tu cuenta fue rechazada. ${body.estadoAprobacionNota ? `Motivo: ${body.estadoAprobacionNota}` : "Contactá soporte."}`,
+      };
+      try {
+        const notifId = `notif_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        await dbClient.execute({
+          sql: "INSERT INTO AkuoNotificacion (id, usuarioId, tipo, titulo, mensaje, link, creadoEn, leida) VALUES (?, ?, ?, ?, ?, ?, ?, 0)",
+          args: [notifId, id, `cuenta_${nuevoEstado}`, titulos[nuevoEstado] || "Estado actualizado", mensajes[nuevoEstado] || "", "/akuosplash/transportista", new Date().toISOString()],
+        });
+      } catch (e) {
+        console.error("[PATCH] Notificación no creada:", (e as any)?.message);
+      }
+    }
+
+    return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("AkuoSplash superadmin/usuarios/[id] PATCH error:", e);
     return NextResponse.json({ error: "No se pudo actualizar" }, { status: 500 });
