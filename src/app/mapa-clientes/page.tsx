@@ -240,25 +240,6 @@ function MapaClientesPage() {
         </h1>
       </header>
 
-      {/* DEBUG STATUS - barra amarilla grande que muestra el estado del mapa */}
-      <div
-        id="map-debug-status"
-        style={{
-          background: '#facc15',
-          color: 'black',
-          padding: '8px 16px',
-          fontSize: '13px',
-          fontWeight: 'bold',
-          fontFamily: 'monospace',
-          borderBottom: '2px solid black',
-          minHeight: '34px',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        CARGANDO MAPA... (clientes en DB: {clientes.length}, con GPS: {clientesConGps.length})
-      </div>
-
       {/* Buscador */}
       <div className="sticky top-[57px] z-20 bg-white border-b border-gray-200 px-4 py-2">
         <div className="relative">
