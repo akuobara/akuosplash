@@ -567,10 +567,6 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                     : formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : planes[planSeleccionado].precioMensual)}
                 </span>
               </div>
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Comisión marketplace</span>
-                <span>{planes[planSeleccionado].comisionPct}%</span>
-              </div>
               {ciclo === "anual" && (
                 <p className="text-[10px] text-emerald-700 text-right">
                   Ahorrás {formatCLP(planes[planSeleccionado].precioMensual * 2)} vs mensual
