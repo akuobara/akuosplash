@@ -199,10 +199,10 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                           u.estadoAprobacion === "rechazado" ? "text-red-700 border-red-300 bg-red-50" :
                           "text-amber-700 border-amber-300 bg-amber-50"
                         }`}>
-                          {u.estadoAprobacion === "aprobado" ? "Aprobado" :
-                           u.estadoAprobacion === "pre_aprobado" ? "Pre-aprobado" :
-                           u.estadoAprobacion === "rechazado" ? "Rechazado" :
-                           "Pendiente"}
+                          {u.estadoAprobacion === "aprobado" ? "✓ Aprobado" :
+                           u.estadoAprobacion === "pre_aprobado" ? "🔍 Pre-aprobado" :
+                           u.estadoAprobacion === "rechazado" ? "✗ Rechazado" :
+                           "⏳ Pendiente"}
                         </Badge>
                         {perfilCompleto(u) ? (
                           <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 text-[10px]">Perfil completo</Badge>
@@ -214,35 +214,70 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                       {u.estadoAprobacionNota && (
                         <p className="text-[10px] text-gray-500 italic">Nota: {u.estadoAprobacionNota}</p>
                       )}
-                      {/* Botones para cambiar estado de aprobación (4 estados) */}
-                      <div className="flex flex-wrap gap-1.5">
-                        <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "pre_aprobado")} className="text-blue-700 border-blue-300 hover:bg-blue-50 text-[11px]">
-                          Pre-aprobar
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "aprobado")} className="text-emerald-700 border-emerald-300 hover:bg-emerald-50 text-[11px]">
-                          Aprobar
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => {
-                          const nota = prompt("Motivo del rechazo (opcional):");
-                          if (nota === null) return;
-                          setEstadoAprobacion(u, "rechazado", nota || undefined);
-                        }} className="text-red-700 border-red-300 hover:bg-red-50 text-[11px]">
-                          Rechazar
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setEstadoAprobacion(u, "pendiente")} className="text-amber-700 border-amber-300 hover:bg-amber-50 text-[11px]">
-                          Pendiente
-                        </Button>
+
+                      {/* Sección: Revisión de documentos */}
+                      <div className="pt-1">
+                        <p className="text-[10px] text-gray-500 font-medium mb-1">Revisión de cuenta:</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          <Button
+                            size="sm" variant="outline"
+                            onClick={() => setEstadoAprobacion(u, "pre_aprobado")}
+                            disabled={u.estadoAprobacion === "pre_aprobado"}
+                            className="text-blue-700 border-blue-300 hover:bg-blue-50 text-[11px] disabled:opacity-40"
+                          >
+                            🔍 Pre-aprobar
+                          </Button>
+                          <Button
+                            size="sm" variant="outline"
+                            onClick={() => setEstadoAprobacion(u, "aprobado")}
+                            disabled={u.estadoAprobacion === "aprobado"}
+                            className="text-emerald-700 border-emerald-300 hover:bg-emerald-50 text-[11px] disabled:opacity-40"
+                          >
+                            ✓ Aprobar
+                          </Button>
+                          <Button
+                            size="sm" variant="outline"
+                            onClick={() => {
+                              const nota = prompt("Motivo del rechazo (opcional):");
+                              if (nota === null) return;
+                              setEstadoAprobacion(u, "rechazado", nota || undefined);
+                            }}
+                            disabled={u.estadoAprobacion === "rechazado"}
+                            className="text-red-700 border-red-300 hover:bg-red-50 text-[11px] disabled:opacity-40"
+                          >
+                            ✗ Rechazar
+                          </Button>
+                          <Button
+                            size="sm" variant="outline"
+                            onClick={() => setEstadoAprobacion(u, "pendiente")}
+                            disabled={u.estadoAprobacion === "pendiente" || !u.estadoAprobacion}
+                            className="text-amber-700 border-amber-300 hover:bg-amber-50 text-[11px] disabled:opacity-40"
+                          >
+                            ⏳ Pendiente
+                          </Button>
+                        </div>
+                        <p className="text-[9px] text-gray-400 mt-1">
+                          Pre-aprobar = documentos OK, falta verificación final · Aprobar = puede participar del marketplace · Rechazar = documentos rechazados
+                        </p>
                       </div>
-                      {/* Activar/Desactivar separado */}
-                      <div className="flex gap-2 pt-1">
+
+                      {/* Sección: Activación de cuenta (separada de la aprobación) */}
+                      <div className="pt-1 border-t border-gray-100">
+                        <p className="text-[10px] text-gray-500 font-medium mb-1">Cuenta:</p>
                         <Button
-                          size="sm"
-                          variant="outline"
+                          size="sm" variant="outline"
                           onClick={() => toggleActivo(u, !u.activo)}
-                          className={u.activo ? "text-red-600 border-red-300 hover:bg-red-50 flex-1" : "text-emerald-600 border-emerald-300 hover:bg-emerald-50 flex-1"}
+                          className={u.activo
+                            ? "text-red-600 border-red-300 hover:bg-red-50 w-full text-[11px]"
+                            : "text-emerald-600 border-emerald-300 hover:bg-emerald-50 w-full text-[11px]"}
                         >
-                          {u.activo ? "Desactivar" : "Activar"}
+                          {u.activo ? "🚫 Desactivar cuenta (bloquear acceso)" : "✅ Activar cuenta (permitir acceso)"}
                         </Button>
+                        <p className="text-[9px] text-gray-400 mt-1">
+                          {u.activo
+                            ? "Desactivar = el transportista no puede ingresar a la app (cuenta bloqueada)"
+                            : "La cuenta está desactivada — el transportista no puede ingresar"}
+                        </p>
                       </div>
                     </div>
                   )}

@@ -308,7 +308,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
           )}
           {isCurrent && (
             <Badge variant="outline" className="w-full justify-center py-1 text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200">
-              {estaActivo ? "Activo" : "Vencido"}
+              {planId === "gratis" ? "Activo" : estaActivo ? "Activo" : "Vencido"}
             </Badge>
           )}
           {planId === "gratis" && planActual !== "gratis" && (
