@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
       capacidadVehiculoKg: true,
       fotoVehiculoFrenteUrl: true, fotoVehiculoAtrasUrl: true,
       fotoVehiculoIzquierdaUrl: true, fotoVehiculoDerechaUrl: true,
+      documentosAprobacionJson: true,
       // Estado de aprobación granular
       estadoAprobacion: true, estadoAprobacionNota: true,
       estadoAprobacionActualizadoEn: true, estadoAprobacionActualizadoPor: true,

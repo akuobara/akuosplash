@@ -36,6 +36,7 @@ interface Usuario {
   fotoVehiculoAtrasUrl?: string | null;
   fotoVehiculoIzquierdaUrl?: string | null;
   fotoVehiculoDerechaUrl?: string | null;
+  documentosAprobacionJson?: string | null;
 }
 
 export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" | "cliente"; titulo: string }) {
@@ -44,7 +45,7 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
   const [loading, setLoading] = useState(true);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [docViewer, setDocViewer] = useState<{ url: string; label: string; usuario: Usuario } | null>(null);
+  const [docViewer, setDocViewer] = useState<{ url: string; label: string; usuario: Usuario; docKey?: string } | null>(null);
 
   useEffect(() => {
     akuoGet<{ user: any }>("/api/akuosplash/auth/me").then(d => {
@@ -97,6 +98,20 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
   // Helper: verificar si el transportista tiene el perfil completo
   function perfilCompleto(u: Usuario): boolean {
     return !!(u.rut && u.rutEmpresa && u.razonSocial && u.licenciaConducirUrl && u.patenteVehiculo && u.capacidadVehiculoKg);
+  }
+
+  // Guardar aprobación de un documento específico
+  async function setDocumentoAprobacion(usuario: Usuario, tipoDocumento: string, estado: string, nota?: string) {
+    try {
+      await akuoApi(`/api/akuosplash/superadmin/usuarios/${usuario.id}/documento`, {
+        method: "PATCH",
+        body: JSON.stringify({ tipoDocumento, estado, nota }),
+      });
+      toast.success(`Documento ${estado}`);
+      setRefreshKey(k => k + 1);
+    } catch (e: any) {
+      toast.error(e?.message || "Error");
+    }
   }
 
   async function toggleActivo(u: Usuario, val: boolean) {
@@ -216,34 +231,56 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                         <p className="text-[10px] text-gray-500 italic">Nota: {u.estadoAprobacionNota}</p>
                       )}
 
-                      {/* Sección: Documentos para revisión */}
+                      {/* Sección: Documentos para revisión — con estado individual por documento */}
                       <div className="pt-1 border-t border-gray-100">
                         <p className="text-[10px] text-gray-500 font-medium mb-1.5">📄 Documentos para revisión:</p>
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {[
-                            { label: "Licencia frente", url: u.licenciaConducirUrl },
-                            { label: "Licencia atrás", url: u.licenciaConducirAtrasUrl },
-                            { label: "Permiso circ.", url: u.permisoCircUrl },
-                            { label: "Seguro", url: u.seguroUrl },
-                            { label: "Revisión técnica", url: u.revisonTecnicaUrl },
-                            { label: "Vehículo frente", url: u.fotoVehiculoFrenteUrl },
-                            { label: "Vehículo atrás", url: u.fotoVehiculoAtrasUrl },
-                            { label: "Vehículo izq.", url: u.fotoVehiculoIzquierdaUrl },
-                            { label: "Vehículo der.", url: u.fotoVehiculoDerechaUrl },
-                          ].filter((d) => d.url).map((d) => (
-                            <button
-                              key={d.label}
-                              onClick={() => setDocViewer({ url: d.url!, label: d.label, usuario: u })}
-                              className="flex items-center gap-1 text-[10px] px-2 py-1.5 rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition cursor-pointer"
-                            >
-                              <span className="truncate flex-1 text-left">{d.label}</span>
-                              <span className="shrink-0 font-bold">🔍</span>
-                            </button>
-                          ))}
-                          {![u.licenciaConducirUrl, u.permisoCircUrl, u.seguroUrl, u.revisonTecnicaUrl, u.fotoVehiculoFrenteUrl].some(Boolean) && (
-                            <p className="text-[10px] text-gray-400 col-span-2">Sin documentos cargados</p>
-                          )}
-                        </div>
+                        {(() => {
+                          let docsAprob: Record<string, { estado: string; nota?: string }> = {};
+                          try { docsAprob = u.documentosAprobacionJson ? JSON.parse(u.documentosAprobacionJson) : {}; } catch {}
+                          const docs = [
+                            { key: "licenciaConducirUrl", label: "Licencia frente", url: u.licenciaConducirUrl },
+                            { key: "licenciaConducirAtrasUrl", label: "Licencia atrás", url: u.licenciaConducirAtrasUrl },
+                            { key: "permisoCircUrl", label: "Permiso circ.", url: u.permisoCircUrl },
+                            { key: "seguroUrl", label: "Seguro", url: u.seguroUrl },
+                            { key: "revisonTecnicaUrl", label: "Revisión técnica", url: u.revisonTecnicaUrl },
+                            { key: "fotoVehiculoFrenteUrl", label: "Vehículo frente", url: u.fotoVehiculoFrenteUrl },
+                            { key: "fotoVehiculoAtrasUrl", label: "Vehículo atrás", url: u.fotoVehiculoAtrasUrl },
+                            { key: "fotoVehiculoIzquierdaUrl", label: "Vehículo izq.", url: u.fotoVehiculoIzquierdaUrl },
+                            { key: "fotoVehiculoDerechaUrl", label: "Vehículo der.", url: u.fotoVehiculoDerechaUrl },
+                          ].filter((d) => d.url);
+
+                          if (docs.length === 0) {
+                            return <p className="text-[10px] text-gray-400">Sin documentos cargados</p>;
+                          }
+
+                          return (
+                            <div className="space-y-1">
+                              {docs.map((d) => {
+                                const ap = docsAprob[d.key];
+                                const est = ap?.estado;
+                                return (
+                                  <div key={d.key} className="flex items-center gap-1.5">
+                                    <button
+                                      onClick={() => setDocViewer({ url: d.url!, label: d.label, usuario: u, docKey: d.key })}
+                                      className="flex items-center gap-1 text-[10px] px-2 py-1.5 rounded border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition cursor-pointer flex-1 min-w-0"
+                                    >
+                                      <span className="truncate flex-1 text-left">{d.label}</span>
+                                    </button>
+                                    <span className="text-[10px] shrink-0 w-16 text-center">
+                                      {est === "aprobado" ? (
+                                        <span className="text-emerald-700 font-medium">✓ Aprob.</span>
+                                      ) : est === "rechazado" ? (
+                                        <span className="text-red-700 font-medium" title={ap?.nota}>✗ Rechaz.</span>
+                                      ) : (
+                                        <span className="text-amber-600 font-medium">⏳ Pend.</span>
+                                      )}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Sección: Revisión de cuenta */}
@@ -373,50 +410,44 @@ export function AkuosplashAdminUsuarios({ rol, titulo }: { rol: "transportista" 
                 </Badge>
               </div>
 
-              {/* Botones */}
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setEstadoAprobacion(docViewer.usuario, "aprobado");
-                    setDocViewer(null);
-                  }}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
-                >
-                  ✓ Aprobar documento
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setEstadoAprobacion(docViewer.usuario, "pre_aprobado");
-                    setDocViewer(null);
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
-                >
-                  🔍 Pre-aprobar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    const nota = prompt("Motivo del rechazo (opcional):");
-                    if (nota === null) return;
-                    setEstadoAprobacion(docViewer.usuario, "rechazado", nota || undefined);
-                    setDocViewer(null);
-                  }}
-                  className="text-red-700 border-red-300 hover:bg-red-50 text-xs"
-                >
-                  ✗ Rechazar documento
-                </Button>
-                <a
-                  href={docViewer.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-auto text-xs text-blue-600 hover:underline self-center"
-                >
-                  Abrir en pestaña nueva ↗
-                </a>
-              </div>
+              {/* Botones — guardan el estado de ESTE documento específico */}
+              {docViewer.docKey && (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setDocumentoAprobacion(docViewer.usuario, docViewer.docKey!, "aprobado");
+                      setDocViewer(null);
+                    }}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs"
+                  >
+                    ✓ Aprobar este documento
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const nota = prompt("Motivo del rechazo (opcional):");
+                      if (nota === null) return;
+                      setDocumentoAprobacion(docViewer.usuario, docViewer.docKey!, "rechazado", nota || undefined);
+                      setDocViewer(null);
+                    }}
+                    className="text-red-700 border-red-300 hover:bg-red-50 text-xs"
+                  >
+                    ✗ Rechazar este documento
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setDocumentoAprobacion(docViewer.usuario, docViewer.docKey!, "pendiente");
+                      setDocViewer(null);
+                    }}
+                    className="text-amber-700 border-amber-300 hover:bg-amber-50 text-xs"
+                  >
+                    ⏳ Marcar pendiente
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
