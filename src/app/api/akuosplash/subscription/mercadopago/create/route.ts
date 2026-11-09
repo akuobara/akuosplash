@@ -121,12 +121,19 @@ export async function POST(req: NextRequest) {
       transaction_amount: amount,
       currency_id: "CLP",
     },
-    payer_email: mpPayerEmail,
     back_url: `${APP_URL}/akuosplash/transportista?tab=subscripcion`,
     status: "pending",
     external_reference: `akuo_sub:${user.id}:${planId}:${ciclo}`,
     notification_url: `${APP_URL}/api/akuosplash/subscription/mercadopago/webhook`,
   };
+
+  // Solo enviar payer_email si es un email válido de test user de MP
+  // (formato: test_user_xxx@testuser.com) o un email real.
+  // Si es un email de prueba interno (@akuosplash.test), NO enviarlo —
+  // MP lo pedirá durante el checkout.
+  if (mpPayerEmail && (mpPayerEmail.includes("@testuser.com") || !mpPayerEmail.includes(".test"))) {
+    mpBody.payer_email = mpPayerEmail;
+  }
   // Si hay meses gratis (cupón meses_gratis), agregar free_trial
   if (mesesGratis > 0) {
     mpBody.auto_recurring.free_trial = {
