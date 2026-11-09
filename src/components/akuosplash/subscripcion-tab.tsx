@@ -571,10 +571,6 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                 <span>Comisión marketplace</span>
                 <span>{planes[planSeleccionado].comisionPct}%</span>
               </div>
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>MP split mode</span>
-                <span className="capitalize">{planes[planSeleccionado].mpSplitMode}</span>
-              </div>
               {ciclo === "anual" && (
                 <p className="text-[10px] text-emerald-700 text-right">
                   Ahorrás {formatCLP(planes[planSeleccionado].precioMensual * 2)} vs mensual
