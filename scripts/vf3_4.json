@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# Descripción completa de la pantalla\n\n## Barra de estado (superior)\n- Hora: **12:57** con iconos de llamada, vibración y teclado\n- Iconos de: reloj/alarma, WiFi, señal móvil (con \"x\"), batería al **89%**\n\n## Barra del navegador\n- Icono de inicio (casita) a la izquierda\n- **URL:** `akuosplash.cl/akuosp...` (texto cortado en la barra)\n- Botón **+** (nueva pestaña)\n- Icono con número **51** (pestañas)\n- Menú de tres puntos **⋮**\n\n## Página web\n\n### Banner de error (fondo rosado, parte superior)\n- Icono de exclamación rojo en círculo\n- Texto: **\"Email o contraseña incorrectos\"**\n\n### Encabezado\n- **Logo:** círculo azul con un camión repartidor de agua y salpicaduras de agua; letra \"A\" en el camión\n- Nombre de la marca: **\"Akuosplash\"** (\"Akuo\" en celeste, \"splash\" en azul oscuro)\n- Subtítulo: **\"Reparto de agua a domicilio\"**\n\n### Tarjeta de inicio de sesión (borde redondeado)\n- Título: **\"Iniciar sesión\"**\n- Subtítulo: **\"Ingresa a tu cuenta\"**\n\n**Campo 1:**\n- Etiqueta: **\"Email\"**\n- Valor ingresado: `test_user_6056179395943393134` (texto cortado en el borde derecho)\n\n**Campo 2:**\n- Etiqueta: **\"Contraseña\"**\n- Valor: puntos de contraseña (`••••••••••••`)\n\n**Botón principal (azul, texto blanco):**\n- **\"Iniciar sesión\"**\n\n**Enlace:**\n- **\"¿Olvidaste tu contraseña?\"**\n\n**Separador:**\n- **\"o continuá con\"** (entre líneas)\n\n**Botón secundario (borde, con logo de Google \"G\"):**\n- **\"Continuar con Google\"**\n\n**Texto final:**\n- **\"¿No tenés cuenta?\"**\n\n**Botón inferior (parcialmente visible):**\n- **\"Crear cuenta\"**",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1794196763,
+  "id": "20261109115912256429e1fce341fa",
+  "model": "glm-5.3-flash",
+  "object": "chat.completion",
+  "request_id": "20261109115912256429e1fce341fa",
+  "usage": {
+    "completion_tokens": 511,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2731,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3242
+  }
+}

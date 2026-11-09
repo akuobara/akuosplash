@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# Descripción completa de la pantalla\n\n## Barra de estado del teléfono (parte superior)\n- **Hora:** 12:57\n- Iconos: modo silencio/reloj, señal Wi-Fi, señal cellular, batería al **89%** (indicador verde)\n\n## Barra del navegador (Chrome)\n- Botón de inicio (ícono de casita 🏠)\n- **URL:** `akuosplash.cl/akuos|` (texto cortado, el cursor está al final; probablemente \"akuosplash.cl/akuosplash\" o similar)\n- Botón **+** (nueva pestaña)\n- Ícono de pestañas con el número **51**\n- Menú de tres puntos verticales **⋮**\n\n## Página web — Akuosplash\n\n### Encabezado\n- **Logo:** gota de agua azul con un camión repartidor de agua dentro, con gotitas salpicando a la izquierda\n- **Nombre:** **Akuosplash** (\"Akuos\" en celeste y \"splash\" en azul oscuro)\n- Subtítulo: **Reparto de agua a domicilio**\n\n### Tarjeta de inicio de sesión\n- Título: **Iniciar sesión**\n- Subtítulo: **Ingresá a tu cuenta**\n\n**Campo 1:**\n- Etiqueta: **Email**\n- Valor ingresado: `test_user_6056179395943393134` (el último carácter se corta parcialmente)\n\n**Campo 2:**\n- Etiqueta: **Contraseña**\n- Valor ingresado: oculto con puntos `••••••••••`\n\n**Botón principal (azul, ancho completo):**\n- **Iniciar sesión**\n\n**Enlace:**\n- **¿Olvidaste tu contraseña?**\n\n**Separador:**\n- **o continuá con**\n\n**Botón secundario (borde blanco, con logo de Google \"G\"):**\n- **Continuar con Google**\n\n**Texto inferior:**\n- **¿No tenés cuenta?**\n\n**Botón final (borde, parcialmente cortado abajo):**\n- **Crear cuenta**\n\n## Errores\n- No hay mensajes de error visibles en la pantalla.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1794196739,
+  "id": "202611091158450b303a6a3dc74ebb",
+  "model": "glm-5.3-flash",
+  "object": "chat.completion",
+  "request_id": "202611091158450b303a6a3dc74ebb",
+  "usage": {
+    "completion_tokens": 481,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2731,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3212
+  }
+}
