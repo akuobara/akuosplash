@@ -377,17 +377,24 @@ export async function getPlanActivo(userId: string): Promise<{
   let userPlanActivoDesde: Date | null = null;
   let userPlanActivoHasta: Date | null = null;
   try {
-    const result: any = await akuosplashDb.$queryRawUnsafe(
-      `SELECT plan, planActivoDesde, planActivoHasta FROM AkuoUsuario WHERE id = ? LIMIT 1`,
-      userId
-    );
-    if (Array.isArray(result) && result.length > 0) {
-      userPlan = result[0].plan || null;
-      userPlanActivoDesde = result[0].planActivoDesde ? new Date(result[0].planActivoDesde) : null;
-      userPlanActivoHasta = result[0].planActivoHasta ? new Date(result[0].planActivoHasta) : null;
+    // Usar libsql directo (Prisma $queryRawUnsafe falla en Render)
+    const { createClient } = await import("@libsql/client");
+    const client = createClient({
+      url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+      authToken: process.env.DATABASE_AUTH_TOKEN,
+    });
+    const result = await client.execute({
+      sql: "SELECT plan, planActivoDesde, planActivoHasta FROM AkuoUsuario WHERE id = ? LIMIT 1",
+      args: [userId],
+    });
+    if (result.rows.length > 0) {
+      const row = result.rows[0] as any;
+      userPlan = row.plan || null;
+      userPlanActivoDesde = row.planActivoDesde ? new Date(row.planActivoDesde) : null;
+      userPlanActivoHasta = row.planActivoHasta ? new Date(row.planActivoHasta) : null;
     }
   } catch {
-    // Si falla (columnas no existen), usar defaults
+    // Si falla, usar defaults
   }
 
   const configs = await getPlanConfigs();
