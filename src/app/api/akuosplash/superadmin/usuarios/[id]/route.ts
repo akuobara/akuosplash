@@ -15,16 +15,22 @@ export async function PATCH(
   }
   const { id } = await params;
 
-  // No auto-modificarse el rol (para evitar auto-baneo accidental)
-  const target = await akuosplashDb.akuoUsuario.findUnique({ where: { id } });
-  if (!target) {
+  // Buscar usuario via libsql directo (Prisma findUnique puede fallar en Render)
+  const { createClient } = await import("@libsql/client");
+  const checkClient = createClient({
+    url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+    authToken: process.env.DATABASE_AUTH_TOKEN,
+  });
+  const checkRows = await checkClient.execute({
+    sql: "SELECT id, email FROM AkuoUsuario WHERE id = ?",
+    args: [id],
+  });
+  if (checkRows.rows.length === 0) {
     return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
   }
-  if (target.id === user.id) {
-    return NextResponse.json(
-      { error: "No podés modificar tu propia cuenta" },
-      { status: 400 }
-    );
+  const targetEmail = (checkRows.rows[0] as any).email;
+  if (id === user.id) {
+    return NextResponse.json({ error: "No podés modificar tu propia cuenta" }, { status: 400 });
   }
 
   try {
@@ -38,7 +44,7 @@ export async function PATCH(
         data.aprobado ? "aprobar_transportista" : "rechazar_transportista",
         "AkuoUsuario",
         id,
-        `Usuario ${target.email} aprobado=${data.aprobado}`
+        `Usuario ${targetEmail} aprobado=${data.aprobado}`
       );
       // Notificar al transportista
       await akuosplashDb.akuoNotificacion.create({
@@ -62,8 +68,8 @@ export async function PATCH(
         "AkuoUsuario",
         id,
         data.banned
-          ? `Usuario ${target.email} baneado. Motivo: ${data.banRazon || "no especificado"}`
-          : `Usuario ${target.email} desbaneado`
+          ? `Usuario ${targetEmail} baneado. Motivo: ${data.banRazon || "no especificado"}`
+          : `Usuario ${targetEmail} desbaneado`
       );
       await akuosplashDb.akuoNotificacion.create({
         data: {
@@ -87,7 +93,7 @@ export async function PATCH(
         "cambiar_rol",
         "AkuoUsuario",
         id,
-        `Usuario ${target.email} rol ${target.rol} → ${body.rol}`
+        `Usuario ${targetEmail} rol ${"?"} → ${body.rol}`
       );
     }
     if (body.vehiculosPermitidos !== undefined) {
@@ -118,7 +124,7 @@ export async function PATCH(
         `cambiar_estado_aprobacion_${nuevoEstado}`,
         "AkuoUsuario",
         id,
-        `Usuario ${target.email} estadoAprobacion=${nuevoEstado}${body.estadoAprobacionNota ? ` — nota: ${body.estadoAprobacionNota}` : ""}`
+        `Usuario ${targetEmail} estadoAprobacion=${nuevoEstado}${body.estadoAprobacionNota ? ` — nota: ${body.estadoAprobacionNota}` : ""}`
       );
       // Notificar al transportista
       const titulos: Record<string, string> = {

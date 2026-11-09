@@ -38,20 +38,28 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  // Fetch documentosAprobacionJson via libsql directo (Prisma $queryRawUnsafe falla en Render)
+  // Fetch documentosAprobacionJson + estadoAprobacion via libsql directo
+  // (Prisma no conoce estas columnas — agregadas vía ALTER TABLE)
   try {
     const { createClient } = await import("@libsql/client");
     const client = createClient({
       url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
       authToken: process.env.DATABASE_AUTH_TOKEN,
     });
-    const docsRows = await client.execute("SELECT id, documentosAprobacionJson FROM AkuoUsuario");
-    const docsMap = new Map(docsRows.rows.map((r: any) => [r.id, r.documentosAprobacionJson]));
+    const docsRows = await client.execute(
+      "SELECT id, documentosAprobacionJson, estadoAprobacion, estadoAprobacionNota, estadoAprobacionActualizadoEn, aprobado FROM AkuoUsuario"
+    );
+    const docsMap = new Map(docsRows.rows.map((r: any) => [r.id, r]));
     for (const u of usuarios) {
-      (u as any).documentosAprobacionJson = docsMap.get(u.id) || null;
+      const row = docsMap.get(u.id);
+      (u as any).documentosAprobacionJson = row?.documentosAprobacionJson || null;
+      // Sobrescribir estadoAprobacion con el valor real de la DB (Prisma no lo devuelve)
+      (u as any).estadoAprobacion = row?.estadoAprobacion || null;
+      (u as any).estadoAprobacionNota = row?.estadoAprobacionNota || null;
+      (u as any).aprobado = !!row?.aprobado;
     }
   } catch (e: any) {
-    console.error("[usuarios GET] Error fetching documentosAprobacionJson:", e?.message);
+    console.error("[usuarios GET] Error fetching extra fields:", e?.message);
   }
 
   return NextResponse.json({ usuarios });
