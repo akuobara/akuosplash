@@ -316,6 +316,14 @@ export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
       const configs: Record<string, PlanConfig> = {};
       for (const row of r.rows) {
         const p = row as any;
+        // Para planes base (gratis/premium/pro), usar features de DEFAULT_PLAN_CONFIGS si la DB no tiene
+        let features = (() => { try { return JSON.parse(p.features || '{}'); } catch { return {}; } })();
+        const defaultCfg = (DEFAULT_PLAN_CONFIGS as any)[p.id];
+        if (defaultCfg && (!features || Object.keys(features).length === 0)) {
+          features = defaultCfg.features;
+        } else if (defaultCfg) {
+          features = { ...defaultCfg.features, ...features };
+        }
         configs[p.id] = {
           id: p.id,
           nombre: p.nombre,
@@ -330,7 +338,7 @@ export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
           mpSplitMode: (p.mpSplitMode || "none") as MpSplitMode,
           feeManualFijo: p.feeManualFijo || 3290,
           feeManualPct: p.feeManualPct || 1.7,
-          features: (() => { try { return JSON.parse(p.features || '{}'); } catch { return {}; } })(),
+          features,
         };
       }
       if (!configs.gratis) configs.gratis = DEFAULT_PLAN_CONFIGS.gratis;
