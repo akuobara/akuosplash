@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { akuoSignToken, akuoSetSessionCookie } from "@/lib/akuosplash-auth";
 import { ensureAkuoConfigColumns } from "@/lib/akuosplash-plans";
-import crypto from "node:crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +10,7 @@ export async function POST(req: NextRequest) {
     const password = body.password;
     if (!email || !password) return NextResponse.json({ error: "Email y contraseña son obligatorios" }, { status: 400 });
 
-    // Usar libsql directo (Prisma findUnique falla en Render)
+    // Usar libsql directo
     const { createClient } = await import("@libsql/client");
     const client = createClient({
       url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
@@ -32,27 +31,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email o contraseña incorrectos" }, { status: 401 });
     }
 
-    // Verificar password — soporta scrypt (salt:hash) y bcrypt ($2...)
-    let valid = false;
     const hashStr = String(usuario.passwordHash);
+    let valid = false;
 
-    // Intentar scrypt primero (formato salt:hash)
+    // Scrypt (formato salt:hash)
     try {
       if (hashStr.includes(":") && !hashStr.startsWith("$2")) {
-        const [salt, hash] = hashStr.split(":");
+        const crypto = await import("crypto");
+        const parts = hashStr.split(":");
+        const salt = parts[0];
+        const hash = parts.slice(1).join(":");
         if (salt && hash) {
           const verifyHash = crypto.scryptSync(password, salt, 64).toString("hex");
           valid = verifyHash === hash;
         }
       }
-    } catch {}
+    } catch (e) {
+      console.error("[login] scrypt error:", e);
+    }
 
-    // Fallback: bcrypt
+    // Bcrypt fallback
     if (!valid) {
       try {
         const bcrypt = await import("bcryptjs");
         valid = await bcrypt.compare(password, hashStr);
-      } catch {}
+      } catch (e) {
+        console.error("[login] bcrypt error:", e);
+      }
     }
 
     if (!valid) return NextResponse.json({ error: "Email o contraseña incorrectos" }, { status: 401 });
