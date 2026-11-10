@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# Descripción exacta de la pantalla\n\n## Pestañas del navegador (de izquierda a derecha):\n- \"...vanced AI C...\" (parcialmente visible) con botón **×**\n- \"Personal Access Toke...\" (icono de GitHub) con botón **×**\n- \"Cuentas de prueba\" (icono de chat) con botón **×**\n- \"APIs & Services – Go...\" (icono de ubicación) con botón **×**\n- Pestaña activa: \"AkuoSp...\" (icono parcialmente visible)\n\n## Barra de direcciones:\n- Icono de casa 🏠\n- URL: **akuosplash.d/akuosplash/superadmin**\n- Icono de salida/sesión a la derecha ↪\n\n## Contenido de la página:\n\n**Encabezado:**\n- \"AKUOSPLASH\" (texto pequeño)\n- \"**Superadmin**\" (título con icono de engranaje ⚙️)\n\n**Dos tarjetas de rol:**\n- **Cliente** — \"Pedir agua, ver historial\" (icono de móvil)\n- **Repartidor** — \"Ver pedidos disponibles\" (icono verde)\n\n**Sección desplegable:**\n- \"💎 **Planes**\" con flecha hacia abajo ∨\n\n**Botón azul grande:**\n- \"**+ Crear plan nuevo**\"\n\n**Tarjeta de configuración:**\n- Título: \"⚙️ **Configuración de planes**\"\n- Botón: \"🔄 **Recargar**\"\n- Botón azul: \"💾 **Guardar**\"\n- Texto descriptivo: *\"Ajusta comisión, modo de MP split, precios, límites y features visibles para cada plan. El modo MP split determina qué cuenta de MercadoPago se usa al cobrar al cliente del marketplace.\"*\n\n**Lista de planes:**\n- \"🎁 **Gratis**\" — etiqueta \"15% comisión\" — etiqueta \"⊖ **Sin split**\" — botón azul pequeño ▶ — botón \"👁 **Vista previa**\"\n- \"✨ **Premium**\" — etiqueta \"12.5% comisión\" — etiqueta \"🕐 **Split 10 días**\" — botón azul ▶ — \"Disponible\" con interruptor (apagado) — botón \"👁 **Vista previa**\"\n\n## Barra de tareas de Windows (abajo):\n- Botón \"🔍 **Buscar**\"\n- Iconos fijados: almacenamiento/multimedia, Microsoft 365, Edge, explorador de archivos (carpeta naranja), Outlook, **Chrome**, WhatsApp, **Opera**, y otro navegador con fondo azul\n- Miniatura de imagen (fondo de pantalla con paisaje) sobre la barra\n\n## Otros detalles:\n- Cursor del mouse visible a la derecha de la pantalla\n- Barra de scroll vertical a la derecha\n- No hay mensajes de error visibles\n- Foto tomada a una laptop (teclado visible abajo, borroso)",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1794270993,
+  "id": "2026111008362208e275f5a5c347d3",
+  "model": "glm-5.3-flash",
+  "object": "chat.completion",
+  "request_id": "2026111008362208e275f5a5c347d3",
+  "usage": {
+    "completion_tokens": 649,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2728,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3377
+  }
+}

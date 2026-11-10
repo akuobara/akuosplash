@@ -23,11 +23,27 @@ import { getPlanConfigs, ensureAkuoConfigColumns, PLAN_ORDER, type PlanConfig, t
 export async function GET() {
   await ensureAkuoConfigColumns();
 
-  // 1. Planes publicados
+  // 1. Planes publicados — incluir planes custom de AkuoPlanConfig
   const configs = await getPlanConfigs();
   const planes: Array<PlanConfig & { orden: number }> = [];
-  for (let i = 0; i < PLAN_ORDER.length; i++) {
-    const id = PLAN_ORDER[i] as PlanId;
+
+  // Construir orden dinámico: PLAN_ORDER base + planes custom de la DB
+  const ordenIds: string[] = [...PLAN_ORDER];
+  try {
+    const { createClient } = await import("@libsql/client");
+    const client = createClient({
+      url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+      authToken: process.env.DATABASE_AUTH_TOKEN,
+    });
+    const r = await client.execute("SELECT id, orden FROM AkuoPlanConfig WHERE activo = 1 AND id NOT IN ('gratis','premium','pro') ORDER BY orden ASC");
+    for (const row of r.rows) {
+      const id = (row as any).id;
+      if (!ordenIds.includes(id)) ordenIds.push(id);
+    }
+  } catch {}
+
+  for (let i = 0; i < ordenIds.length; i++) {
+    const id = ordenIds[i];
     const cfg = configs[id];
     if (cfg) {
       planes.push({ ...cfg, orden: i });

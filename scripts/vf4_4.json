@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# Descripción exacta de la pantalla\n\n## Pestañas del navegador (de izquierda a derecha)\n- \"...anced AI C\" (parcialmente visible) con botón ✕\n- \"Personal Access Tok...\" con botón ✕\n- \"Cuentas de prueba\" con botón ✕\n- \"APIs & Services – Go...\" con botón ✕\n- \"AkuoSp...\" (parcial) con icono circular\n\n## Barra de direcciones\n- `akuosplash.cl/akuosplash/superadmin`\n- Icono de casa (inicio) a la izquierda, icono de ajustes de vista\n\n## Cuadro de diálogo emergente (arriba a la derecha)\n- Título: **\"akuosplash.cl dice\"**\n- Texto: \"Nombre del plan (ej: Emprendedor):\"\n- Un campo de texto vacío (borde azul, enfocado)\n- Botón azul parcialmente cortado a la derecha: **\"Ace...\"** (probablemente \"Aceptar\")\n\n## Encabezado de la página\n- \"AKUOSPLASH\" (texto pequeño)\n- **\"Superadmin\"** (con icono de engranaje)\n\n## Tarjetas de roles\n- Tarjeta **\"Cliente\"** — texto debajo: \"Pedir agua, ver historial\"\n- Tarjeta **\"Repartido...\"** (cortada por el diálogo) — texto: \"Ver pedidos dispo...\" (cortado)\n\n## Sección Planes\n- Encabezado: 💎 **\"Planes\"**\n- Botón azul grande: **\"+ Crear plan nuevo\"**\n\n## Tarjeta de configuración\n- Título: \"✨ Configuración de planes\"\n- Botón: 🔄 **\"Recargar\"**\n- Botón azul: 📄 **\"Guardar\"**\n- Texto descriptivo: *\"Ajusta comisión, modo de MP split, precios, límites y features visibles para cada plan. El modo MP split determina qué cuenta de MercadoPago se usa al cobrar al cliente del marketplace.\"*\n\n## Fila de plan \"Gratis\"\n- 🎁 **Gratis** — etiqueta: \"15% comisión\" — etiqueta: ⊘ \"Sin split\" — botón azul ▶ — botón: 👁 **\"Vista previa\"**\n\n## Fila de plan \"Premium\"\n- ✨ **Premium** — \"12.5% comisión\" — etiqueta: ⊙ \"Split 10 días\" — botón azul: ▶ \"Disponible\" — botón: 👁 \"Vista previa\"\n\n## Barra de tareas de Windows (abajo)\n- Campo de búsqueda: \"Buscar\"\n- Varios iconos: clima/imagen, tarea, Edge, carpeta, App Store, Chrome, WhatsApp, Canva, y otro más\n\n## Errores visibles\n- No hay mensajes de error explícitos; solo un **prompt JavaScript nativo** del navegador pidiendo el nombre del plan (típico de `prompt()`).",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1794271004,
+  "id": "2026111008363374bd11525dac4dfa",
+  "model": "glm-5.3-flash",
+  "object": "chat.completion",
+  "request_id": "2026111008363374bd11525dac4dfa",
+  "usage": {
+    "completion_tokens": 654,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2728,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3382
+  }
+}

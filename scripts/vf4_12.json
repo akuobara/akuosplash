@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# Descripción exacta de la pantalla\n\n## Diálogo modal (centro, elemento principal)\nEs un prompt de JavaScript del navegador con el título:\n\n**\"akuosplash.cl dice\"**\n\nTexto de la pregunta:\n**\"Nombre del plan (ej: Emprendedor):\"**\n\nCampo de entrada (con borde azul oscuro, enfocado) que contiene el texto escrito:\n**\"test\"** (con el cursor de texto visible después de la \"t\")\n\nBotones:\n- **\"Aceptar\"** — botón azul oscuro con texto blanco\n- **\"Cancelar\"** — botón blanco con borde gris claro\n\n## Pestañas del navegador (parte superior, visibles parcialmente)\n- **\"Cuentas de prueba\"** (con X para cerrar)\n- **\"APIs & Services – Go...\"** (icono de ubicación, con X)\n- **\"AkuoSplash — Repar...\"** (con X)\n- **\"Precios — Planes de...\"** (pestaña activa, con un icono)\n\n## Fondo de la página web (parcialmente visible)\n- Texto arriba a la derecha: **\"...e in Spanish!\"** y botones parciales **\"...nguage\"** y **\"Swit...\"**\n- Pestañas tipo editor: **\"...nsole\"** y **\"Sources\"**\n- Botón/filtro: **\"Filter\"** con icono de embudo\n- Tarjeta con texto **\"Repartido...\"** y debajo **\"Ver pedidos dispon...\"**\n- Botón azul grande: **\"...r plan nuevo\"** (probablemente \"Crear plan nuevo\")\n- Botones: **\"Recargar\"** (con icono circular) y **\"Guardar\"** (azul, con icono de disquete)\n- Etiqueta/botón: **\"Sin split\"** (con icono), botón con icono de play y **\"Vista previa\"** (con icono de ojo)\n- Abajo: **\"...% comisión\"**, **\"Split 10 días\"**, **\"Disponible\"**, y otro **\"Vista previa\"** con icono de ojo\n\n## Otros elementos\n- Barra de tareas de Windows abajo con iconos: Chrome, Edge, WhatsApp, Outlook, y otros\n- Un cursor de mouse visible sobre el campo de texto\n- La foto está tomada a una pantalla de laptop, ligeramente inclinada\n\n**Sin mensajes de error visibles.** Es un diálogo `prompt()` esperando el nombre de un plan, con \"test\" ya escrito.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1794271021,
+  "id": "20261110083654e7dd478eaf964208",
+  "model": "glm-5.3-flash",
+  "object": "chat.completion",
+  "request_id": "20261110083654e7dd478eaf964208",
+  "usage": {
+    "completion_tokens": 558,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2728,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3286
+  }
+}

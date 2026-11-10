@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# Descripción exacta de la pantalla\n\n## Diálogo modal (centrado, ventana emergente del navegador)\n- **Título:** `akuosplash.cl dice`\n- **Texto del prompt:** `Nombre del plan (ej: Emprendedor):`\n- **Campo de entrada:** contiene la letra `t`\n- **Botones:**\n  - `Aceptar` (azul, botón principal)\n  - `Cancelar` (botón secundario, borde gris)\n\n## Pestañas del navegador (visibles parcialmente)\n- `...Tok` (cortada, con ×)\n- `Cuentas de prueba` (con ×)\n- `APIs & Services – Go...` (con ×)\n- `AkuoSplash — Repa...` (con ×)\n- Pestaña nueva parcial: `Preci...` (parece \"Precios\", con un ícono de sonido/silencio a la izquierda)\n\n## Fondo de la página (parcialmente visible detrás del modal)\n- URL fragmentada: `...ash/superadmin`\n- Tarjetas de sección: `...e` y `Repartido...` con texto `Ver pedidos dispon...` y `...histonial` (probablemente \"historial\")\n- Botón azul: `+ Crear plan nuevo`\n- Sección: `...uración de` (probablemente \"Configuración de\")\n- Botones: `🔄 Recargar` y `💾 Guardar` (azul)\n- Texto de párrafo (cortado a la izquierda): `...sión, modo de MP`, `...s, límites y features`, `...a cada plan. El`, `...split determina qué`, `...MercadoPago se`, `...rar al cliente del`, `...ace.`\n\n## Fila de planes (tarjetas)\n- `...ratis` con etiqueta `15% comisión` y `⊘ Sin split`, ícono ▶, y botón `👁 Vista previa`\n- `Premium` con `12.5% comisión`, `🕐 Split 10 días`, `▶ Disponible`, y botón `👁 Vista previa`\n\n## Barra de tareas de Windows (abajo)\n- Íconos: explorador de archivos, Chrome, Outlook (D), Google Chrome, WhatsApp/verde, Opera u otro navegador, y un ícono de reloj/notificación\n\n## Entorno físico\n- Laptop con teclado retroiluminado en azul, foto tomada en ángulo con reflejo del cielo en la parte superior izquierda.\n\n## Errores visibles\n- **No hay mensajes de error en pantalla.** Solo es un diálogo `prompt()` de JavaScript pidiendo el nombre del plan, con la letra \"t\" ya escrita en el campo.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1794271014,
+  "id": "20261110083645e2d2ad2884974c85",
+  "model": "glm-5.3-flash",
+  "object": "chat.completion",
+  "request_id": "20261110083645e2d2ad2884974c85",
+  "usage": {
+    "completion_tokens": 597,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2728,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3325
+  }
+}

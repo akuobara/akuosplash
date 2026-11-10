@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# Descripción exacta de la pantalla\n\n## Diálogo emergente (prompt de JavaScript) — centro superior\n- **Título:** `akuosplash.cl dice`\n- **Texto:** `Nombre del plan (ej: Emprendedor):`\n- **Campo de texto (enfocado, borde azul):** contiene el texto `test` con el cursor parpadeante al final\n- **Cursor del mouse** visible sobre el campo\n- **Botón azul:** `Aceptar`\n- **Botón blanco con borde:** `Cancelar`\n\n## Pestañas del navegador (superior)\n- `Cuentas de prueba` (con ícono, botón X)\n- `APIs & Services – Go...` (con ícono de ubicación, botón X)\n- `AkuoSplash — Repa...` (activa, botón X)\n- Pestaña parcialmente visible a la derecha: `Prec...`\n\n## Página de fondo (parcialmente visible detrás del diálogo)\n- Arriba a la izquierda: `min` (probablemente parte de \"Admin\")\n- Tarjeta con ícono y texto: `Repartido...` / `Ver pedidos dispon...`\n- Textos cortados al borde derecho: `? u`, `an`, `n`, `u`\n\n## Panel / formulario principal\n- **Botón azul oscuro (cortado a la izquierda):** `rear plan nuevo` (probablemente \"Crear plan nuevo\")\n- **Botón con borde:** 🔄 `Recargar`\n- **Botón azul:** 💾 `Guardar`\n- Textos cortados al borde izquierdo: `MP`, `ures`, `qué`, `e` (dentro de una tarjeta)\n- **Fila de elementos (cortados):** `...sión` | 🔶 `Sin split` | ▶️ | 👁️ `Vista previa`\n- **Fila inferior:** `...5% comisión` | ⏱️ `Split 10 días` | ▶️ `Disponible` | interruptor desactivado (gris) | 👁️ `Vista previa`\n- Barra de desplazamiento vertical a la derecha\n\n## Barra de tareas de Windows (inferior)\n- Íconos visibles: escritorio/vista de tareas, menú inicio (colores), Edge (azul), Explorador de archivos (amarillo), Outlook, Chrome, WhatsApp verde, app circular azul (Canva?), y otro ícono circular gris\n\n## Errores visibles\n- **Ningún mensaje de error en pantalla.** Solo hay un `prompt()` de JavaScript pidiendo el nombre del plan, con \"test\" escrito, pendiente de aceptar o cancelar.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1794271037,
+  "id": "202611100837010effd01ac3c94fa6",
+  "model": "glm-5.3-flash",
+  "object": "chat.completion",
+  "request_id": "202611100837010effd01ac3c94fa6",
+  "usage": {
+    "completion_tokens": 582,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2728,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 3310
+  }
+}
