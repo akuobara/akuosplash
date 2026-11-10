@@ -45,7 +45,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   const [loading, setLoading] = useState(true);
   const [creando, setCreando] = useState(false);
   const [planSeleccionado, setPlanSeleccionado] = useState<PlanId>("premium");
-  const [ciclo, setCiclo] = useState<"mensual" | "anual">("mensual");
+  const [ciclo, setCiclo] = useState<string>("mensual");
   // Cupón
   const [couponCode, setCouponCode] = useState("");
   const [couponAplicado, setCouponAplicado] = useState<any>(null);
@@ -164,7 +164,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     setCouponAplicado(null);
     try {
       const planCfg = planes?.[planSeleccionado];
-      const monto = ciclo === "anual" ? (planCfg?.precioAnual || 0) : (planCfg?.precioMensual || 0);
+      const monto = ciclo === "anual" ? (planCfg?.precioAnual || 0) : ciclo === "semanal" ? (planCfg?.precioSemanal || 0) : ciclo === "diario" ? (planCfg?.precioDiario || 0) : (planCfg?.precioMensual || 0);
       const res = await akuoPost<{ valido: boolean; cupon?: any; descuento: number; montoFinal: number; mesesGratis: number; razon?: string }>(
         "/api/akuosplash/cupones/validar",
         { codigo: couponCode, tipo: "subscripcion", monto, planId: planSeleccionado }
@@ -211,7 +211,8 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     const isCurrent = planActual === planId;
     const isUpgrade = orden.indexOf(planId) > orden.indexOf(planActual);
     const isDowngrade = orden.indexOf(planId) < orden.indexOf(planActual);
-    const precioMostrar = ciclo === "anual" ? plan.precioAnual : plan.precioMensual;
+    const precioMostrar = ciclo === "anual" ? plan.precioAnual : ciclo === "semanal" ? plan.precioSemanal : ciclo === "diario" ? plan.precioDiario : plan.precioMensual;
+    const cicloLabel = ciclo === "anual" ? "año" : ciclo === "semanal" ? "semana" : ciclo === "diario" ? "día" : "mes";
     const precioMesAnual = ciclo === "anual" && plan.precioAnual > 0 ? Math.round(plan.precioAnual / 12) : 0;
 
     // Features que mostramos (lista legible)
@@ -264,7 +265,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
               <p className="text-2xl font-bold tabular-nums">Gratis<span className="text-xs font-normal text-muted-foreground">/mes</span></p>
             ) : (
               <>
-                <p className="text-2xl font-bold tabular-nums">{formatCLP(precioMostrar)}<span className="text-xs font-normal text-muted-foreground">/{ciclo === "anual" ? "año" : "mes"}</span></p>
+                <p className="text-2xl font-bold tabular-nums">{formatCLP(precioMostrar)}<span className="text-xs font-normal text-muted-foreground">/{cicloLabel}</span></p>
                 {ciclo === "anual" && (
                   <p className="text-[10px] text-emerald-700">≈ {formatCLP(precioMesAnual)}/mes (2 meses gratis)</p>
                 )}
@@ -445,40 +446,39 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
         })}
       </div>
 
-      {/* Ciclo de facturación (solo si el plan tiene opción anual) */}
-      {planSeleccionado !== "gratis" && planes?.[planSeleccionado] && planes[planSeleccionado].precioMensual > 0 && planes[planSeleccionado].precioAnual > 0 && (
-        <Card>
-          <CardContent className="p-3 space-y-2">
-            <p className="text-sm font-medium">Ciclo de facturación</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setCiclo("mensual")}
-                className={`rounded-lg border p-2.5 text-left transition ${
-                  ciclo === "mensual" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:bg-gray-50"
-                }`}
-              >
-                <p className="text-sm font-medium">Mensual</p>
-                <p className="text-xs text-muted-foreground">{formatCLP(planes[planSeleccionado].precioMensual)}/mes</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCiclo("anual")}
-                className={`rounded-lg border p-2.5 text-left transition ${
-                  ciclo === "anual" ? "border-emerald-500 bg-emerald-50" : "border-gray-200 hover:bg-gray-50"
-                }`}
-              >
-                <p className="text-sm font-medium flex items-center gap-1">
-                  Anual <Badge className="bg-emerald-100 text-emerald-800 text-[10px]">2 meses gratis</Badge>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {formatCLP(planes[planSeleccionado].precioAnual)}/año (≈ {formatCLP(Math.round(planes[planSeleccionado].precioAnual / 12))}/mes)
-                </p>
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Ciclo de facturación — dinámico según ciclosDisponibles del plan */}
+      {planSeleccionado !== "gratis" && planes?.[planSeleccionado] && (() => {
+        const planCfg = planes[planSeleccionado];
+        const ciclos = (planCfg as any).ciclosDisponibles || ["mensual"];
+        if (ciclos.length <= 1) return null; // si solo hay un ciclo, no mostrar selector
+        return (
+          <Card>
+            <CardContent className="p-3 space-y-2">
+              <p className="text-sm font-medium">Ciclo de facturación</p>
+              <div className={`grid grid-cols-${ciclos.length} gap-2`}>
+                {ciclos.map((c: string) => {
+                  const precio = c === "anual" ? planCfg.precioAnual : c === "semanal" ? (planCfg as any).precioSemanal : c === "diario" ? (planCfg as any).precioDiario : planCfg.precioMensual;
+                  const label = c === "anual" ? "Anual" : c === "semanal" ? "Semanal" : c === "diario" ? "Diario" : "Mensual";
+                  const suffix = c === "anual" ? "/año" : c === "semanal" ? "/semana" : c === "diario" ? "/día" : "/mes";
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setCiclo(c)}
+                      className={`rounded-lg border p-2.5 text-left transition ${
+                        ciclo === c ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:bg-gray-50"
+                      }`}
+                    >
+                      <p className="text-sm font-medium">{label}</p>
+                      <p className="text-xs text-muted-foreground">{formatCLP(precio)}{suffix}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Resumen + Pagar */}
       {planSeleccionado !== "gratis" && planes?.[planSeleccionado] && planes[planSeleccionado].precioMensual > 0 && (
@@ -542,7 +542,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="tabular-nums">
-                  {formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : planes[planSeleccionado].precioMensual)}
+                  {formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : ciclo === "semanal" ? (planes[planSeleccionado] as any).precioSemanal : ciclo === "diario" ? (planes[planSeleccionado] as any).precioDiario : planes[planSeleccionado].precioMensual)}
                 </span>
               </div>
               {couponAplicado && couponAplicado.descuento > 0 && (
@@ -564,7 +564,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                     ? (couponAplicado.mesesGratis > 0
                       ? "Gratis los primeros " + couponAplicado.mesesGratis + " mes(es)"
                       : formatCLP(couponAplicado.montoFinal))
-                    : formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : planes[planSeleccionado].precioMensual)}
+                    : formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : ciclo === "semanal" ? (planes[planSeleccionado] as any).precioSemanal : ciclo === "diario" ? (planes[planSeleccionado] as any).precioDiario : planes[planSeleccionado].precioMensual)}
                 </span>
               </div>
               {ciclo === "anual" && (
