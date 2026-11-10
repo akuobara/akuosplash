@@ -9,13 +9,14 @@ export function middleware(req: NextRequest) {
   }
 
   const authHeader = req.headers.get("authorization");
-  const cookieName = "aljibe-session";
-  const existingCookie = req.cookies.get(cookieName)?.value;
+  const existingCookie = req.cookies.get("aljibe-session")?.value;
+  const existingAkuoCookie = req.cookies.get("akuosplash_session")?.value;
 
-  if (authHeader?.startsWith("Bearer ") && !existingCookie) {
+  if (authHeader?.startsWith("Bearer ") && !existingCookie && !existingAkuoCookie) {
     const token = authHeader.slice(7);
     const requestHeaders = new Headers(req.headers);
-    requestHeaders.set("cookie", `${cookieName}=${token}`);
+    // Copiar a ambas cookies — aljibe-session (AljibeApp) y akuosplash_session (AkuoSplash)
+    requestHeaders.set("cookie", `aljibe-session=${token}; akuosplash_session=${token}`);
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
