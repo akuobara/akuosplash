@@ -303,45 +303,52 @@ export async function ensureAkuoConfigColumns() {
 
 // Lee la config persistida en DB (con merge sobre defaults)
 // DEFENSIVE: usa raw SQL y auto-migra si las columnas nuevas no existen.
-export async function getPlanConfigs(): Promise<Record<PlanId, PlanConfig>> {
-  await ensureAkuoConfigColumns();
-  let planConfigsJson: string | null = null;
+export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
+  // Leer desde AkuoPlanConfig table (libsql directo — Prisma falla en Render)
   try {
-    const result: any = await akuosplashDb.$queryRawUnsafe(`SELECT planConfigsJson FROM AkuoConfig WHERE activo = 1 LIMIT 1`);
-    if (Array.isArray(result) && result.length > 0) {
-      planConfigsJson = result[0]?.planConfigsJson || null;
+    const { createClient } = await import("@libsql/client");
+    const client = createClient({
+      url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+      authToken: process.env.DATABASE_AUTH_TOKEN,
+    });
+    const r = await client.execute("SELECT * FROM AkuoPlanConfig WHERE activo = 1 ORDER BY orden ASC");
+    if (r.rows.length > 0) {
+      const configs: Record<string, PlanConfig> = {};
+      for (const row of r.rows) {
+        const p = row as any;
+        configs[p.id] = {
+          id: p.id,
+          nombre: p.nombre,
+          descripcion: p.descripcion || "",
+          orden: p.orden,
+          activa: !!p.activo,
+          precioMensual: p.precioMensual || 0,
+          precioAnual: p.precioAnual || 0,
+          comisionPct: p.comisionPct || 15,
+          vehiculosPermitidos: p.vehiculosPermitidos || 1,
+          choferesPermitidos: p.choferesPermitidos || 1,
+          mpSplitMode: (p.mpSplitMode || "none") as MpSplitMode,
+          feeManualFijo: p.feeManualFijo || 3290,
+          feeManualPct: p.feeManualPct || 1.7,
+          features: (() => { try { return JSON.parse(p.features || '{}'); } catch { return {}; } })(),
+        };
+      }
+      if (!configs.gratis) configs.gratis = DEFAULT_PLAN_CONFIGS.gratis;
+      if (!configs.premium) configs.premium = DEFAULT_PLAN_CONFIGS.premium;
+      if (!configs.pro) configs.pro = DEFAULT_PLAN_CONFIGS.pro;
+      return configs;
     }
   } catch (e: any) {
-    console.warn("[getPlanConfigs] SQL failed, using defaults:", e?.message);
-    planConfigsJson = null;
+    console.warn("[getPlanConfigs] AkuoPlanConfig failed:", e?.message);
   }
 
-  if (!planConfigsJson) {
-    return {
-      gratis: DEFAULT_PLAN_CONFIGS.gratis,
-      premium: DEFAULT_PLAN_CONFIGS.premium,
-      pro: DEFAULT_PLAN_CONFIGS.pro,
-      pago: DEFAULT_PLAN_CONFIGS.pago,
-    };
-  }
-
-  try {
-    const parsed = JSON.parse(planConfigsJson);
-    const result: Record<PlanId, PlanConfig> = {
-      gratis: { ...DEFAULT_PLAN_CONFIGS.gratis, ...parsed.gratis, features: { ...DEFAULT_PLAN_CONFIGS.gratis.features, ...(parsed.gratis?.features || {}) } },
-      premium: { ...DEFAULT_PLAN_CONFIGS.premium, ...parsed.premium, features: { ...DEFAULT_PLAN_CONFIGS.premium.features, ...(parsed.premium?.features || {}) } },
-      pro: { ...DEFAULT_PLAN_CONFIGS.pro, ...parsed.pro, features: { ...DEFAULT_PLAN_CONFIGS.pro.features, ...(parsed.pro?.features || {}) } },
-      pago: { ...DEFAULT_PLAN_CONFIGS.pago, ...parsed.pago, features: { ...DEFAULT_PLAN_CONFIGS.pago.features, ...(parsed.pago?.features || {}) } },
-    };
-    return result;
-  } catch {
-    return {
-      gratis: DEFAULT_PLAN_CONFIGS.gratis,
-      premium: DEFAULT_PLAN_CONFIGS.premium,
-      pro: DEFAULT_PLAN_CONFIGS.pro,
-      pago: DEFAULT_PLAN_CONFIGS.pago,
-    };
-  }
+  // Fallback a defaults
+  return {
+    gratis: DEFAULT_PLAN_CONFIGS.gratis,
+    premium: DEFAULT_PLAN_CONFIGS.premium,
+    pro: DEFAULT_PLAN_CONFIGS.pro,
+    pago: DEFAULT_PLAN_CONFIGS.pago,
+  };
 }
 
 export async function savePlanConfigs(configs: Record<PlanId, PlanConfig>): Promise<void> {
