@@ -42,6 +42,21 @@ export async function GET() {
   // Todos los planes disponibles (para que el transportista pueda ver y elegir)
   const configs = await getPlanConfigs();
 
+  // Construir orden dinámico: PLAN_ORDER + planes custom de la DB
+  const ordenDinamico: string[] = [...PLAN_ORDER];
+  try {
+    const { createClient } = await import("@libsql/client");
+    const client = createClient({
+      url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+      authToken: process.env.DATABASE_AUTH_TOKEN,
+    });
+    const r = await client.execute("SELECT id FROM AkuoPlanConfig WHERE activo = 1 AND id NOT IN ('gratis','premium','pro') ORDER BY orden ASC");
+    for (const row of r.rows) {
+      const id = (row as any).id;
+      if (!ordenDinamico.includes(id)) ordenDinamico.push(id);
+    }
+  } catch {}
+
   return NextResponse.json({
     subscripcion: {
       plan: u.plan,
@@ -64,6 +79,6 @@ export async function GET() {
       mpSubAmount: u.mpSubAmount,
     },
     planes: configs,
-    orden: PLAN_ORDER,
+    orden: ordenDinamico,
   });
 }
