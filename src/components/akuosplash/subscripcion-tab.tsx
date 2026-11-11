@@ -46,6 +46,17 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   const [creando, setCreando] = useState(false);
   const [planSeleccionado, setPlanSeleccionado] = useState<PlanId>("premium");
   const [ciclo, setCiclo] = useState<string>("mensual");
+
+  // Cuando se cargan los planes, setear el ciclo default al primero disponible del plan seleccionado
+  useEffect(() => {
+    if (planes && planSeleccionado && planes[planSeleccionado]) {
+      const ciclos = (planes[planSeleccionado] as any).ciclosDisponibles || ["mensual"];
+      const ciclosSinAnual = ciclos.filter((c: string) => c !== "anual");
+      if (ciclosSinAnual.length > 0 && !ciclosSinAnual.includes(ciclo)) {
+        setCiclo(ciclosSinAnual[0]);
+      }
+    }
+  }, [planes, planSeleccionado]);
   // Cupón
   const [couponCode, setCouponCode] = useState("");
   const [couponAplicado, setCouponAplicado] = useState<any>(null);
@@ -164,7 +175,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     setCouponAplicado(null);
     try {
       const planCfg = planes?.[planSeleccionado];
-      const monto = ciclo === "anual" ? (planCfg?.precioAnual || 0) : ciclo === "semanal" ? (planCfg?.precioSemanal || 0) : ciclo === "diario" ? (planCfg?.precioDiario || 0) : (planCfg?.precioMensual || 0);
+      const monto = ciclo === "semanal" ? (planCfg?.precioSemanal || 0) : ciclo === "diario" ? (planCfg?.precioDiario || 0) : (planCfg?.precioMensual || 0);
       const res = await akuoPost<{ valido: boolean; cupon?: any; descuento: number; montoFinal: number; mesesGratis: number; razon?: string }>(
         "/api/akuosplash/cupones/validar",
         { codigo: couponCode, tipo: "subscripcion", monto, planId: planSeleccionado }
@@ -211,9 +222,8 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     const isCurrent = planActual === planId;
     const isUpgrade = orden.indexOf(planId) > orden.indexOf(planActual);
     const isDowngrade = orden.indexOf(planId) < orden.indexOf(planActual);
-    const precioMostrar = ciclo === "anual" ? plan.precioAnual : ciclo === "semanal" ? plan.precioSemanal : ciclo === "diario" ? plan.precioDiario : plan.precioMensual;
-    const cicloLabel = ciclo === "anual" ? "año" : ciclo === "semanal" ? "semana" : ciclo === "diario" ? "día" : "mes";
-    const precioMesAnual = ciclo === "anual" && plan.precioAnual > 0 ? Math.round(plan.precioAnual / 12) : 0;
+    const precioMostrar = ciclo === "semanal" ? plan.precioSemanal : ciclo === "diario" ? plan.precioDiario : plan.precioMensual;
+    const cicloLabel = ciclo === "semanal" ? "semana" : ciclo === "diario" ? "día" : "mes";
 
     // Features que mostramos (lista legible)
     const featureLabels: Array<[keyof PlanConfig["features"], string]> = [
@@ -232,7 +242,6 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       ["perfil", "Perfil"],
     ];
     const activeFeatures = featureLabels.filter(([k]) => plan.features[k]);
-    const inactiveFeatures = featureLabels.filter(([k]) => !plan.features[k]);
 
     // MP split mode label — todos los planes usan MP Split cuando el marketplace esté disponible
     // El tiempo de pago (inmediato / diferido) lo decide cada usuario en su cuenta de MercadoPago
@@ -266,8 +275,11 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
             ) : (
               <>
                 <p className="text-2xl font-bold tabular-nums">{formatCLP(precioMostrar)}<span className="text-xs font-normal text-muted-foreground">/{cicloLabel}</span></p>
-                {ciclo === "anual" && (
-                  <p className="text-[10px] text-emerald-700">≈ {formatCLP(precioMesAnual)}/mes (2 meses gratis)</p>
+                {ciclo === "diario" && (
+                  <p className="text-[10px] text-muted-foreground">Facturación diaria</p>
+                )}
+                {ciclo === "semanal" && (
+                  <p className="text-[10px] text-muted-foreground">Facturación semanal</p>
                 )}
               </>
             )}
@@ -284,15 +296,6 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
               </li>
             ))}
           </ul>
-          {inactiveFeatures.length > 0 && (
-            <ul className="text-xs space-y-1 text-muted-foreground/70">
-              {inactiveFeatures.map(([k, label]) => (
-                <li key={k} className="flex items-center gap-1 line-through">
-                  <XCircle className="h-3 w-3 shrink-0 opacity-50" /> {label}
-                </li>
-              ))}
-            </ul>
-          )}
 
           <div className="text-[10px] text-muted-foreground space-y-0.5">
             <p>🚛 Vehículos: {plan.maxVehiculos === 0 ? "ilimitados" : plan.maxVehiculos} · 👥 Choferes: {plan.maxChoferes === 0 ? "ilimitados" : plan.maxChoferes}</p>
@@ -446,10 +449,11 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
         })}
       </div>
 
-      {/* Ciclo de facturación — dinámico según ciclosDisponibles del plan */}
+      {/* Ciclo de facturación — dinámico según ciclosDisponibles del plan (sin anual) */}
       {planSeleccionado !== "gratis" && planes?.[planSeleccionado] && (() => {
         const planCfg = planes[planSeleccionado];
-        const ciclos = (planCfg as any).ciclosDisponibles || ["mensual"];
+        const ciclosRaw = (planCfg as any).ciclosDisponibles || ["mensual"];
+        const ciclos = ciclosRaw.filter((c: string) => c !== "anual"); // eliminar anual
         if (ciclos.length <= 1) return null; // si solo hay un ciclo, no mostrar selector
         return (
           <Card>
@@ -457,9 +461,9 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
               <p className="text-sm font-medium">Ciclo de facturación</p>
               <div className={`grid grid-cols-${ciclos.length} gap-2`}>
                 {ciclos.map((c: string) => {
-                  const precio = c === "anual" ? planCfg.precioAnual : c === "semanal" ? (planCfg as any).precioSemanal : c === "diario" ? (planCfg as any).precioDiario : planCfg.precioMensual;
-                  const label = c === "anual" ? "Anual" : c === "semanal" ? "Semanal" : c === "diario" ? "Diario" : "Mensual";
-                  const suffix = c === "anual" ? "/año" : c === "semanal" ? "/semana" : c === "diario" ? "/día" : "/mes";
+                  const precio = c === "semanal" ? (planCfg as any).precioSemanal : c === "diario" ? (planCfg as any).precioDiario : planCfg.precioMensual;
+                  const label = c === "semanal" ? "Semanal" : c === "diario" ? "Diario" : "Mensual";
+                  const suffix = c === "semanal" ? "/semana" : c === "diario" ? "/día" : "/mes";
                   return (
                     <button
                       key={c}
@@ -542,7 +546,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="tabular-nums">
-                  {formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : ciclo === "semanal" ? (planes[planSeleccionado] as any).precioSemanal : ciclo === "diario" ? (planes[planSeleccionado] as any).precioDiario : planes[planSeleccionado].precioMensual)}
+                  {formatCLP(ciclo === "semanal" ? (planes[planSeleccionado] as any).precioSemanal : ciclo === "diario" ? (planes[planSeleccionado] as any).precioDiario : planes[planSeleccionado].precioMensual)}
                 </span>
               </div>
               {couponAplicado && couponAplicado.descuento > 0 && (
@@ -564,14 +568,9 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                     ? (couponAplicado.mesesGratis > 0
                       ? "Gratis los primeros " + couponAplicado.mesesGratis + " mes(es)"
                       : formatCLP(couponAplicado.montoFinal))
-                    : formatCLP(ciclo === "anual" ? planes[planSeleccionado].precioAnual : ciclo === "semanal" ? (planes[planSeleccionado] as any).precioSemanal : ciclo === "diario" ? (planes[planSeleccionado] as any).precioDiario : planes[planSeleccionado].precioMensual)}
+                    : formatCLP(ciclo === "semanal" ? (planes[planSeleccionado] as any).precioSemanal : ciclo === "diario" ? (planes[planSeleccionado] as any).precioDiario : planes[planSeleccionado].precioMensual)}
                 </span>
               </div>
-              {ciclo === "anual" && (
-                <p className="text-[10px] text-emerald-700 text-right">
-                  Ahorrás {formatCLP(planes[planSeleccionado].precioMensual * 2)} vs mensual
-                </p>
-              )}
             </div>
             <Button
               onClick={iniciarPago}
