@@ -44,6 +44,9 @@ export interface PlanConfig {
   descripcion: string;
   precioMensual: number;     // CLP
   precioAnual: number;       // CLP (= mensual * 10, 2 meses gratis)
+  precioSemanal?: number;    // CLP
+  precioDiario?: number;     // CLP
+  ciclosDisponibles?: string[]; // ["diario", "semanal", "mensual", "anual"]
   comisionPct: number;       // % comisión marketplace
   mpSplitMode: MpSplitMode;  // none | 10day | instant
   pagoDiferadoDias: number;  // solo informativo (10 = MP 10day, 0 = instant, N/A si none)
@@ -332,6 +335,9 @@ export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
           activa: !!p.activo,
           precioMensual: p.precioMensual || 0,
           precioAnual: p.precioAnual || 0,
+          precioSemanal: p.precioSemanal || 0,
+          precioDiario: p.precioDiario || 0,
+          ciclosDisponibles: (() => { try { return JSON.parse(p.ciclosDisponibles || '["mensual"]'); } catch { return ["mensual"]; } })(),
           comisionPct: p.comisionPct || 15,
           vehiculosPermitidos: p.vehiculosPermitidos || 1,
           choferesPermitidos: p.choferesPermitidos || 1,
