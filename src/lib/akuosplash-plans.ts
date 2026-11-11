@@ -389,10 +389,19 @@ export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
         const ciclosDefault = (p.precioDiario && p.precioDiario > 0) ? ["diario"] :
                               (p.precioSemanal && p.precioSemanal > 0) ? ["semanal"] :
                               (p.precioAnual && p.precioAnual > 0) ? ["mensual","anual"] : ["mensual"];
+
+        // PARA LOS 3 PLANES BASE: forzar comisionPct y mpSplitMode a los defaults del producto.
+        // La DB puede tener valores viejos incorrectos (split en vez de none, comisiones mal).
+        // Los planes custom (test, etc.) usan los valores de la DB tal cual.
+        const isBasePlan = p.id === "gratis" || p.id === "premium" || p.id === "pro" || p.id === "pago";
+        const defaultCfgForBase = (DEFAULT_PLAN_CONFIGS as any)[p.id];
+        const forcedComisionPct = isBasePlan && defaultCfgForBase ? defaultCfgForBase.comisionPct : (Number(p.comisionPct) || 0);
+        const forcedMpSplitMode = isBasePlan && defaultCfgForBase ? defaultCfgForBase.mpSplitMode : (p.mpSplitMode || "none");
+
         configs[p.id] = {
           id: p.id,
-          nombre: p.nombre,
-          descripcion: p.descripcion || "",
+          nombre: isBasePlan && defaultCfgForBase ? defaultCfgForBase.nombre : p.nombre,
+          descripcion: p.descripcion || (defaultCfgForBase?.descripcion || ""),
           orden: p.orden,
           activa: !!p.activo,
           precioMensual: Number(p.precioMensual) || 0,
@@ -406,15 +415,15 @@ export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
             } catch {}
             return ciclosDefault;
           })(),
-          comisionPct: Number(p.comisionPct) || 0,
+          comisionPct: forcedComisionPct,
           vehiculosPermitidos: Number(p.vehiculosPermitidos) || 1,
           choferesPermitidos: Number(p.choferesPermitidos) || 1,
           maxVehiculos: Number(p.vehiculosPermitidos) || 1,
           maxChoferes: Number(p.choferesPermitidos) || 1,
-          mpSplitMode: (p.mpSplitMode || "none") as MpSplitMode,
+          mpSplitMode: forcedMpSplitMode as MpSplitMode,
           feeManualFijo: Number(p.feeManualFijo) || 3290,
           feeManualPct: Number(p.feeManualPct) || 1.7,
-          pagoDiferadoDias: p.mpSplitMode === "10day" ? 10 : 0,
+          pagoDiferadoDias: forcedMpSplitMode === "10day" ? 10 : 0,
           highlightColor: (DEFAULT_PLAN_CONFIGS as any)[p.id]?.highlightColor || "blue",
           features,
         } as any;
