@@ -69,3 +69,4 @@ scripts/github-sync/daemon.log
 scripts/github-sync/cron.log
 download/
 bun.lock
+upload/
