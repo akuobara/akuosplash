@@ -36,6 +36,13 @@ const ALL_FEATURES: Array<{ key: keyof PlanConfig["features"]; label: string; de
   { key: "subscripcion", label: "Subscripción", description: "Tab para ver/mejorar plan" },
 ];
 
+const CICLOS_OPTS: Array<{ id: string; label: string }> = [
+  { id: "diario", label: "Diario" },
+  { id: "semanal", label: "Semanal" },
+  { id: "mensual", label: "Mensual" },
+  { id: "anual", label: "Anual" },
+];
+
 const MP_SPLIT_MODES: Array<{ id: MpSplitMode; label: string; description: string; icon: any; color: string }> = [
   { id: "none", label: "Sin split", description: "La plataforma cobra y el transportista sube su factura (Plan Gratis)", icon: XCircle, color: "amber" },
   { id: "10day", label: "Split 10 días", description: "MP libera los fondos al transportista 10 días después del pago (Plan Premium)", icon: Clock, color: "blue" },
@@ -109,6 +116,24 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
         ...planes[planId],
         features: { ...planes[planId].features, [feature]: value },
       },
+    });
+  }
+
+  function toggleCiclo(planId: PlanId, ciclo: string) {
+    if (!planes) return;
+    const plan = planes[planId];
+    const ciclosActuales: string[] = (plan as any).ciclosDisponibles || ["mensual"];
+    const nuevos = ciclosActuales.includes(ciclo)
+      ? ciclosActuales.filter(c => c !== ciclo)
+      : [...ciclosActuales, ciclo];
+    // Asegurar que al menos un ciclo quede seleccionado
+    if (nuevos.length === 0) {
+      toast.info("Debe haber al menos un ciclo de facturación");
+      return;
+    }
+    setPlanes({
+      ...planes,
+      [planId]: { ...plan, ciclosDisponibles: nuevos } as any,
     });
   }
 
@@ -250,6 +275,47 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
                         onChange={(e) => updatePlan(planId, { precioAnual: parseFloat(e.target.value) || 0 })}
                         className="h-8 text-sm" disabled={!!previewOnly} />
                     </div>
+                    <div>
+                      <Label className="text-xs">Precio semanal (0 = sin opción semanal)</Label>
+                      <Input type="number" value={(plan as any).precioSemanal || 0}
+                        onChange={(e) => updatePlan(planId, { precioSemanal: parseFloat(e.target.value) || 0 } as any)}
+                        className="h-8 text-sm" disabled={!!previewOnly} />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Precio diario (0 = sin opción diaria)</Label>
+                      <Input type="number" value={(plan as any).precioDiario || 0}
+                        onChange={(e) => updatePlan(planId, { precioDiario: parseFloat(e.target.value) || 0 } as any)}
+                        className="h-8 text-sm" disabled={!!previewOnly} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ciclos de facturación disponibles */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Ciclos de facturación disponibles</p>
+                  <p className="text-[10px] text-muted-foreground mb-2">Seleccioná qué ciclos puede elegir el transportista al subscribirse. Solo se muestran los ciclos cuyo precio es &gt; 0.</p>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {CICLOS_OPTS.map(c => {
+                      const ciclos: string[] = (plan as any).ciclosDisponibles || ["mensual"];
+                      const isChecked = ciclos.includes(c.id);
+                      const precioCiclo = c.id === "diario" ? (plan as any).precioDiario :
+                                         c.id === "semanal" ? (plan as any).precioSemanal :
+                                         c.id === "anual" ? plan.precioAnual : plan.precioMensual;
+                      const precioValido = (precioCiclo || 0) > 0 || (planId === "gratis" && c.id === "mensual");
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => toggleCiclo(planId, c.id)}
+                          disabled={!!previewOnly || (!precioValido && !isChecked)}
+                          className={`rounded-md border p-2 text-center transition ${
+                            isChecked ? "border-emerald-500 bg-emerald-50" : "border-gray-200 hover:bg-gray-50"
+                          } ${(!precioValido && !isChecked) ? "opacity-40 cursor-not-allowed" : ""}`}
+                        >
+                          <p className="text-xs font-medium">{c.label}</p>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 

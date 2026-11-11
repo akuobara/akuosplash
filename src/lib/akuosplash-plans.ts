@@ -57,14 +57,15 @@ export interface PlanConfig {
   highlightColor: string;   // tailwind color name for badges/cards
 }
 
+// RESTAURADO a los valores originales del producto (no tocar sin autorización del dueño)
 export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
   gratis: {
     id: "gratis",
     nombre: "Gratis",
-    descripcion: "MercadoPago Split (pago a 10 días). Comisión marketplace 17.5%. Panel básico de productividad.",
+    descripcion: "MercadoPago Split (pago a 10 días). Comisión marketplace 20%. Panel básico de productividad.",
     precioMensual: 0,
-    precioAnual: 0,
-    comisionPct: 17.5,
+    precioAnual: 0, // 0 → no se ofrece opción anual (gratis no cobra)
+    comisionPct: 20,
     mpSplitMode: "split",
     pagoDiferadoDias: 10,
     maxVehiculos: 1,
@@ -89,13 +90,12 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
     highlightColor: "amber",
   },
   pago: {
-    // Alias backward-compat: tratamos "pago" igual que "premium" en la DB existente
     id: "pago",
     nombre: "Premium",
-    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 12.5%. Herramientas de productividad intermedias.",
+    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 15%. Herramientas de productividad intermedias.",
     precioMensual: 7990,
-    precioAnual: 0,
-    comisionPct: 12.5,
+    precioAnual: 79900, // mensual * 10 = 2 meses gratis
+    comisionPct: 15,
     mpSplitMode: "split",
     pagoDiferadoDias: 0,
     maxVehiculos: 1,
@@ -120,13 +120,12 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
     highlightColor: "blue",
   },
   premium: {
-    // Mismo que "pago" — registro canónico
     id: "premium",
     nombre: "Premium",
-    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 12.5%. Herramientas de productividad intermedias.",
+    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 15%. Herramientas de productividad intermedias.",
     precioMensual: 7990,
-    precioAnual: 0,
-    comisionPct: 12.5,
+    precioAnual: 79900, // mensual * 10 = 2 meses gratis
+    comisionPct: 15,
     mpSplitMode: "split",
     pagoDiferadoDias: 0,
     maxVehiculos: 1,
@@ -153,10 +152,10 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
   pro: {
     id: "pro",
     nombre: "Pro",
-    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 8.5%. Todas las herramientas de productividad + gestión de camiones, liquidación y equipo.",
+    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 10%. Todas las herramientas de productividad + gestión de camiones, liquidación y equipo.",
     precioMensual: 23990,
-    precioAnual: 0,
-    comisionPct: 8.5,
+    precioAnual: 239900, // mensual * 10 = 2 meses gratis
+    comisionPct: 10,
     mpSplitMode: "split",
     pagoDiferadoDias: 0,
     maxVehiculos: 5,
@@ -304,49 +303,61 @@ export async function ensureAkuoConfigColumns() {
   }
 }
 
-// Lee la config persistida en DB (con merge sobre defaults)
-// DEFENSIVE: usa raw SQL y auto-migra si las columnas nuevas no existen.
+// Lee la config persistida en DB — respeta EXACTAMENTE lo guardado en AkuoPlanConfig
+// NO mergea defaults sobre los features guardados (eso era lo que hacia que se pierdan
+// las funcionalidades que el usuario desactivó o activó manualmente).
 export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
-  // Leer desde AkuoPlanConfig table (libsql directo — Prisma falla en Render)
   try {
     const { createClient } = await import("@libsql/client");
     const client = createClient({
       url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
       authToken: process.env.DATABASE_AUTH_TOKEN,
     });
-    const r = await client.execute("SELECT * FROM AkuoPlanConfig WHERE activo = 1 ORDER BY orden ASC");
+    const r = await client.execute("SELECT * FROM AkuoPlanConfig ORDER BY orden ASC");
     if (r.rows.length > 0) {
       const configs: Record<string, PlanConfig> = {};
       for (const row of r.rows) {
         const p = row as any;
-        // Para planes base (gratis/premium/pro), usar features de DEFAULT_PLAN_CONFIGS si la DB no tiene
+        // Features: usar EXACTAMENTE lo guardado en la DB. Solo si está vacío usar defaults.
         let features = (() => { try { return JSON.parse(p.features || '{}'); } catch { return {}; } })();
-        const defaultCfg = (DEFAULT_PLAN_CONFIGS as any)[p.id];
-        if (defaultCfg && (!features || Object.keys(features).length === 0)) {
-          features = defaultCfg.features;
-        } else if (defaultCfg) {
-          features = { ...defaultCfg.features, ...features };
+        if (!features || Object.keys(features).length === 0) {
+          const defaultCfg = (DEFAULT_PLAN_CONFIGS as any)[p.id];
+          if (defaultCfg) features = { ...defaultCfg.features };
         }
+        const ciclosDefault = (p.precioDiario && p.precioDiario > 0) ? ["diario"] :
+                              (p.precioSemanal && p.precioSemanal > 0) ? ["semanal"] :
+                              (p.precioAnual && p.precioAnual > 0) ? ["mensual","anual"] : ["mensual"];
         configs[p.id] = {
           id: p.id,
           nombre: p.nombre,
           descripcion: p.descripcion || "",
           orden: p.orden,
           activa: !!p.activo,
-          precioMensual: p.precioMensual || 0,
-          precioAnual: p.precioAnual || 0,
-          precioSemanal: p.precioSemanal || 0,
-          precioDiario: p.precioDiario || 0,
-          ciclosDisponibles: (() => { try { return JSON.parse(p.ciclosDisponibles || '["mensual"]'); } catch { return ["mensual"]; } })(),
-          comisionPct: p.comisionPct || 15,
-          vehiculosPermitidos: p.vehiculosPermitidos || 1,
-          choferesPermitidos: p.choferesPermitidos || 1,
-          mpSplitMode: (p.mpSplitMode || "none") as MpSplitMode,
-          feeManualFijo: p.feeManualFijo || 3290,
-          feeManualPct: p.feeManualPct || 1.7,
+          precioMensual: Number(p.precioMensual) || 0,
+          precioAnual: Number(p.precioAnual) || 0,
+          precioSemanal: Number(p.precioSemanal) || 0,
+          precioDiario: Number(p.precioDiario) || 0,
+          ciclosDisponibles: (() => {
+            try {
+              const parsed = JSON.parse(p.ciclosDisponibles || 'null');
+              if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            } catch {}
+            return ciclosDefault;
+          })(),
+          comisionPct: Number(p.comisionPct) || 0,
+          vehiculosPermitidos: Number(p.vehiculosPermitidos) || 1,
+          choferesPermitidos: Number(p.choferesPermitidos) || 1,
+          maxVehiculos: Number(p.vehiculosPermitidos) || 1,
+          maxChoferes: Number(p.choferesPermitidos) || 1,
+          mpSplitMode: (p.mpSplitMode || "split") as MpSplitMode,
+          feeManualFijo: Number(p.feeManualFijo) || 3290,
+          feeManualPct: Number(p.feeManualPct) || 1.7,
+          pagoDiferadoDias: p.mpSplitMode === "10day" ? 10 : 0,
+          highlightColor: (DEFAULT_PLAN_CONFIGS as any)[p.id]?.highlightColor || "blue",
           features,
-        };
+        } as any;
       }
+      // Asegurar que los 3 planes base existan (si por algún motivo no están en la DB)
       if (!configs.gratis) configs.gratis = DEFAULT_PLAN_CONFIGS.gratis;
       if (!configs.premium) configs.premium = DEFAULT_PLAN_CONFIGS.premium;
       if (!configs.pro) configs.pro = DEFAULT_PLAN_CONFIGS.pro;
@@ -365,22 +376,97 @@ export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
   };
 }
 
-export async function savePlanConfigs(configs: Record<PlanId, PlanConfig>): Promise<void> {
-  await ensureAkuoConfigColumns();
-  const json = JSON.stringify(configs);
-  // DEFENSIVE: usar raw SQL porque AkuoConfig.findFirst() puede fallar si hay columnas nuevas no migradas
-  const existing: any = await akuosplashDb.$queryRawUnsafe(`SELECT id FROM AkuoConfig WHERE activo = 1 LIMIT 1`).catch(() => []);
-  if (Array.isArray(existing) && existing.length > 0) {
-    const id = existing[0].id;
-    const result = await akuosplashDb.$executeRawUnsafe(`UPDATE AkuoConfig SET planConfigsJson = ? WHERE id = ?`, json, id);
-    if (result === 0) {
-      throw new Error("UPDATE no afectó ninguna fila — verificar que el row existe");
+// Guarda la config en AkuoPlanConfig (libsql directo — Prisma falla en Render).
+// UPSERT por id: si el plan ya existe, UPDATE; si no, INSERT.
+// Esto reemplaza el viejo savePlanConfigs que escribía a AkuoConfig.planConfigsJson
+// (lo cual nunca se reflejaba en la tabla nueva AkuoPlanConfig que lee getPlanConfigs).
+export async function savePlanConfigs(configs: Record<string, PlanConfig>): Promise<void> {
+  const { createClient } = await import("@libsql/client");
+  const client = createClient({
+    url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+    authToken: process.env.DATABASE_AUTH_TOKEN,
+  });
+
+  // Asegurar que la tabla existe (idempotente)
+  await client.execute(
+    `CREATE TABLE IF NOT EXISTS AkuoPlanConfig (
+      id TEXT PRIMARY KEY,
+      nombre TEXT NOT NULL,
+      descripcion TEXT,
+      orden INTEGER DEFAULT 99,
+      activo INTEGER DEFAULT 1,
+      precioMensual REAL DEFAULT 0,
+      precioAnual REAL DEFAULT 0,
+      precioSemanal REAL DEFAULT 0,
+      precioDiario REAL DEFAULT 0,
+      comisionPct REAL DEFAULT 15,
+      vehiculosPermitidos INTEGER DEFAULT 1,
+      choferesPermitidos INTEGER DEFAULT 1,
+      mpSplitMode TEXT DEFAULT 'split',
+      ciclosDisponibles TEXT,
+      feeManualFijo REAL DEFAULT 3290,
+      feeManualPct REAL DEFAULT 1.7,
+      features TEXT,
+      creadoEn TEXT NOT NULL,
+      actualizadoEn TEXT NOT NULL
+    )`
+  ).catch(() => {});
+
+  const ahora = new Date().toISOString();
+  let ordenIdx = 0;
+  for (const [id, plan] of Object.entries(configs)) {
+    // Sincronizar alias "pago" con "premium" — no duplicar
+    if (id === "pago") continue;
+    const featuresJson = JSON.stringify(plan.features || {});
+    const ciclosJson = JSON.stringify(plan.ciclosDisponibles ||
+      (plan.precioDiario && plan.precioDiario > 0 ? ["diario"] :
+       plan.precioSemanal && plan.precioSemanal > 0 ? ["semanal"] :
+       plan.precioAnual && plan.precioAnual > 0 ? ["mensual","anual"] : ["mensual"]));
+    const activo = plan.activa === false ? 0 : 1;
+
+    try {
+      const existing = await client.execute({ sql: "SELECT id FROM AkuoPlanConfig WHERE id = ?", args: [id] });
+      if (existing.rows.length > 0) {
+        await client.execute({
+          sql: `UPDATE AkuoPlanConfig SET
+                  nombre = ?, descripcion = ?, orden = ?, activo = ?,
+                  precioMensual = ?, precioAnual = ?, precioSemanal = ?, precioDiario = ?,
+                  comisionPct = ?, vehiculosPermitidos = ?, choferesPermitidos = ?,
+                  mpSplitMode = ?, ciclosDisponibles = ?, features = ?, actualizadoEn = ?
+                WHERE id = ?`,
+          args: [
+            plan.nombre, plan.descripcion || null, ordenIdx, activo,
+            Number(plan.precioMensual) || 0, Number(plan.precioAnual) || 0,
+            Number(plan.precioSemanal) || 0, Number(plan.precioDiario) || 0,
+            Number(plan.comisionPct) || 0,
+            Number(plan.maxVehiculos) || 1, Number(plan.maxChoferes) || 1,
+            plan.mpSplitMode || "split", ciclosJson, featuresJson, ahora,
+            id,
+          ],
+        });
+      } else {
+        await client.execute({
+          sql: `INSERT INTO AkuoPlanConfig
+                  (id, nombre, descripcion, orden, activo, precioMensual, precioAnual, precioSemanal, precioDiario,
+                   comisionPct, vehiculosPermitidos, choferesPermitidos, mpSplitMode, ciclosDisponibles,
+                   feeManualFijo, feeManualPct, features, creadoEn, actualizadoEn)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [
+            id, plan.nombre, plan.descripcion || null, ordenIdx, activo,
+            Number(plan.precioMensual) || 0, Number(plan.precioAnual) || 0,
+            Number(plan.precioSemanal) || 0, Number(plan.precioDiario) || 0,
+            Number(plan.comisionPct) || 0,
+            Number(plan.maxVehiculos) || 1, Number(plan.maxChoferes) || 1,
+            plan.mpSplitMode || "split", ciclosJson,
+            3290, 1.7, featuresJson, ahora, ahora,
+          ],
+        });
+      }
+      ordenIdx++;
+    } catch (e: any) {
+      console.error(`[savePlanConfigs] error guardando plan ${id}:`, e?.message);
+      // no detener el loop — seguir con los demás
     }
-  } else {
-    await akuosplashDb.$executeRawUnsafe(
-      `INSERT INTO AkuoConfig (id, creadoEn, comisionPorcentaje, activo, planConfigsJson) VALUES (?, ?, 0, 1, ?)`,
-      `cfg_${Date.now()}`, new Date().toISOString(), json
-    );
   }
 }
 
