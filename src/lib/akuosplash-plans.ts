@@ -303,10 +303,72 @@ export async function ensureAkuoConfigColumns() {
   }
 }
 
+// Migración automática: sobreescribe los 3 planes base con los defaults correctos
+// la primera vez que se carga la app después de un deploy con nuevos defaults.
+// Usa un version flag en AkuoConfig para que solo corra cuando cambian los defaults.
+let _planDefaultsChecked = false;
+const PLAN_DEFAULTS_VERSION = "2026-11-11-v1"; // <- cambiar cuando cambien los defaults
+
+async function ensurePlanDefaults(): Promise<void> {
+  if (_planDefaultsChecked) return;
+  _planDefaultsChecked = true;
+
+  try {
+    const { createClient } = await import("@libsql/client");
+    const client = createClient({
+      url: process.env.AKUOSPLASH_DATABASE_URL || process.env.DATABASE_URL || "",
+      authToken: process.env.DATABASE_AUTH_TOKEN,
+    });
+
+    // Asegurar que la columna planDefaultsVersion exista
+    await client.execute("ALTER TABLE AkuoConfig ADD COLUMN planDefaultsVersion TEXT").catch(() => {});
+
+    // Leer la versión guardada
+    let storedVersion: string | null = null;
+    try {
+      const r = await client.execute("SELECT planDefaultsVersion FROM AkuoConfig WHERE activo = 1 LIMIT 1");
+      if (r.rows.length > 0) {
+        storedVersion = (r.rows[0] as any).planDefaultsVersion || null;
+      }
+    } catch {}
+
+    // Si la versión coincide, no hacer nada
+    if (storedVersion === PLAN_DEFAULTS_VERSION) {
+      console.log("[ensurePlanDefaults] versión OK, sin migración");
+      return;
+    }
+
+    // Version distinta o null → sobreescribir los 3 planes base con defaults
+    console.log(`[ensurePlanDefaults] migrando de "${storedVersion}" → "${PLAN_DEFAULTS_VERSION}"`);
+    await savePlanConfigs({
+      gratis: DEFAULT_PLAN_CONFIGS.gratis,
+      premium: DEFAULT_PLAN_CONFIGS.premium,
+      pro: DEFAULT_PLAN_CONFIGS.pro,
+    });
+
+    // Guardar la nueva versión
+    try {
+      await client.execute({
+        sql: "UPDATE AkuoConfig SET planDefaultsVersion = ? WHERE activo = 1",
+        args: [PLAN_DEFAULTS_VERSION],
+      });
+    } catch (e: any) {
+      console.warn("[ensurePlanDefaults] no se pudo guardar version flag:", e?.message);
+    }
+
+    console.log("[ensurePlanDefaults] migración completa");
+  } catch (e: any) {
+    console.warn("[ensurePlanDefaults] error:", e?.message);
+  }
+}
+
 // Lee la config persistida en DB — respeta EXACTAMENTE lo guardado en AkuoPlanConfig
 // NO mergea defaults sobre los features guardados (eso era lo que hacia que se pierdan
 // las funcionalidades que el usuario desactivó o activó manualmente).
 export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
+  // Migración automática (solo corre una vez por proceso, cuando cambia la versión)
+  await ensurePlanDefaults();
+
   try {
     const { createClient } = await import("@libsql/client");
     const client = createClient({
@@ -349,7 +411,7 @@ export async function getPlanConfigs(): Promise<Record<string, PlanConfig>> {
           choferesPermitidos: Number(p.choferesPermitidos) || 1,
           maxVehiculos: Number(p.vehiculosPermitidos) || 1,
           maxChoferes: Number(p.choferesPermitidos) || 1,
-          mpSplitMode: (p.mpSplitMode || "split") as MpSplitMode,
+          mpSplitMode: (p.mpSplitMode || "none") as MpSplitMode,
           feeManualFijo: Number(p.feeManualFijo) || 3290,
           feeManualPct: Number(p.feeManualPct) || 1.7,
           pagoDiferadoDias: p.mpSplitMode === "10day" ? 10 : 0,
