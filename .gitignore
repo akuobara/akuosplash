@@ -59,7 +59,6 @@ server.log
 db/*.db
 db/*.db-journal
 *.key
-upload/
 public/uploads/
 tool-results/
 .zscripts/
@@ -68,3 +67,5 @@ scripts/github-sync/daemon.out
 scripts/github-sync/sync.log
 scripts/github-sync/daemon.log
 scripts/github-sync/cron.log
+download/
+bun.lock
