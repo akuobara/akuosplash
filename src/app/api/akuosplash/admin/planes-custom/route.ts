@@ -72,8 +72,8 @@ export async function POST(req: NextRequest) {
     }
 
     await client.execute({
-      sql: `INSERT INTO AkuoPlanConfig (id, nombre, descripcion, orden, activo, precioMensual, precioAnual, precioSemanal, precioDiario, comisionPct, vehiculosPermitidos, choferesPermitidos, mpSplitMode, ciclosDisponibles, feeManualFijo, feeManualPct, creadoEn, actualizadoEn)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT INTO AkuoPlanConfig (id, nombre, descripcion, orden, activo, precioMensual, precioAnual, precioSemanal, precioDiario, comisionPct, vehiculosPermitidos, choferesPermitidos, mpSplitMode, ciclosDisponibles, feeManualFijo, feeManualPct, features, creadoEn, actualizadoEn)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         id, body.nombre.trim(), body.descripcion || null, body.orden || 99,
         body.activo === false ? 0 : 1,
@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
         body.mpSplitMode || "none",
         JSON.stringify(body.ciclosDisponibles || ["mensual", "anual"]),
         Number(body.feeManualFijo) || 3290, Number(body.feeManualPct) || 1.7,
+        JSON.stringify(body.features || {}),
         ahora, ahora,
       ],
     });
@@ -134,6 +135,10 @@ export async function PATCH(req: NextRequest) {
   if (body.ciclosDisponibles !== undefined) {
     setParts.push("ciclosDisponibles = ?");
     values.push(JSON.stringify(body.ciclosDisponibles));
+  }
+  if (body.features !== undefined) {
+    setParts.push("features = ?");
+    values.push(JSON.stringify(body.features));
   }
 
   values.push(id);

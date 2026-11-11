@@ -57,17 +57,17 @@ export interface PlanConfig {
   highlightColor: string;   // tailwind color name for badges/cards
 }
 
-// RESTAURADO a los valores originales del producto (no tocar sin autorización del dueño)
+// RESTAURADO a los valores reales del producto (15/12.5/8.5% SIN MP split)
 export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
   gratis: {
     id: "gratis",
     nombre: "Gratis",
-    descripcion: "MercadoPago Split (pago a 10 días). Comisión marketplace 20%. Panel básico de productividad.",
+    descripcion: "Sin MP split — el transportista emite y sube sus documentos tributarios para recibir pago. Comisión marketplace 15%.",
     precioMensual: 0,
-    precioAnual: 0, // 0 → no se ofrece opción anual (gratis no cobra)
-    comisionPct: 20,
-    mpSplitMode: "split",
-    pagoDiferadoDias: 10,
+    precioAnual: 0,
+    comisionPct: 15,
+    mpSplitMode: "none",
+    pagoDiferadoDias: 0,
     maxVehiculos: 1,
     maxChoferes: 1,
     features: {
@@ -92,11 +92,11 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
   pago: {
     id: "pago",
     nombre: "Premium",
-    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 15%. Herramientas de productividad intermedias.",
+    descripcion: "Sin MP split. Comisión marketplace 12.5%. Herramientas de productividad intermedias.",
     precioMensual: 7990,
-    precioAnual: 79900, // mensual * 10 = 2 meses gratis
-    comisionPct: 15,
-    mpSplitMode: "split",
+    precioAnual: 79900,
+    comisionPct: 12.5,
+    mpSplitMode: "none",
     pagoDiferadoDias: 0,
     maxVehiculos: 1,
     maxChoferes: 1,
@@ -122,11 +122,11 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
   premium: {
     id: "premium",
     nombre: "Premium",
-    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 15%. Herramientas de productividad intermedias.",
+    descripcion: "Sin MP split. Comisión marketplace 12.5%. Herramientas de productividad intermedias.",
     precioMensual: 7990,
-    precioAnual: 79900, // mensual * 10 = 2 meses gratis
-    comisionPct: 15,
-    mpSplitMode: "split",
+    precioAnual: 79900,
+    comisionPct: 12.5,
+    mpSplitMode: "none",
     pagoDiferadoDias: 0,
     maxVehiculos: 1,
     maxChoferes: 1,
@@ -152,11 +152,11 @@ export const DEFAULT_PLAN_CONFIGS: Record<PlanId, PlanConfig> = {
   pro: {
     id: "pro",
     nombre: "Pro",
-    descripcion: "MercadoPago Split (pago instantáneo). Comisión marketplace 10%. Todas las herramientas de productividad + gestión de camiones, liquidación y equipo.",
+    descripcion: "Sin MP split. Comisión marketplace 8.5%. Todas las herramientas de productividad + gestión de camiones, liquidación y equipo.",
     precioMensual: 23990,
-    precioAnual: 239900, // mensual * 10 = 2 meses gratis
-    comisionPct: 10,
-    mpSplitMode: "split",
+    precioAnual: 239900,
+    comisionPct: 8.5,
+    mpSplitMode: "none",
     pagoDiferadoDias: 0,
     maxVehiculos: 5,
     maxChoferes: 5,

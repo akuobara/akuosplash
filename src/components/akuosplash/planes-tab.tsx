@@ -8,10 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
-  Loader2, Save, Eye, Gift, Sparkles, Crown, RotateCcw, Zap, Clock, XCircle,
+  Loader2, Save, Eye, Gift, Sparkles, Crown, RotateCcw, Zap, Clock, XCircle, RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
-import { akuoGet, akuoPut } from "@/components/akuosplash/akuosplash-utils";
+import { akuoGet, akuoPut, akuoApi } from "@/components/akuosplash/akuosplash-utils";
 import type { PlanConfig, PlanId, MpSplitMode } from "@/lib/akuosplash-plans";
 import { useRouter } from "next/navigation";
 
@@ -55,6 +55,7 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
   const [orden, setOrden] = useState<PlanId[]>(["gratis", "premium", "pro"]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [expandedPlan, setExpandedPlan] = useState<PlanId | null>(null);
 
   const cargar = useCallback(async () => {
@@ -161,6 +162,28 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
     toast.info("Recargado desde la DB");
   }
 
+  async function restaurarDefaults() {
+    if (!confirm("¿Restaurar los 3 planes base a los valores de fábrica?\n\nEsto borrará todos los planes guardados en la DB y los recreará con:\n- Gratis: 15% comisión, Sin MP split\n- Premium: 12.5% comisión, $7.990/mes, Sin MP split\n- Pro: 8.5% comisión, $23.990/mes, Sin MP split\n\nLos planes custom que creaste también se borrarán. ¿Continuar?")) return;
+    setResetting(true);
+    try {
+      const res = await fetch("/api/akuosplash/admin/planes-reset", {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+      toast.success(data.mensaje || "Planes restaurados a defaults");
+      cargar();
+    } catch (e: any) {
+      console.error("[restaurarDefaults]", e);
+      toast.error("No se pudo restaurar: " + (e?.message || ""));
+    } finally {
+      setResetting(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -198,12 +221,16 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
                 El modo MP split determina qué cuenta de MercadoPago se usa al cobrar al cliente del marketplace.
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={reset} disabled={saving}>
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" size="sm" onClick={reset} disabled={saving || resetting}>
                 <RotateCcw className="h-3 w-3 mr-1" /> Recargar
               </Button>
+              <Button variant="outline" size="sm" onClick={restaurarDefaults} disabled={saving || resetting} className="text-amber-700 border-amber-300 hover:bg-amber-50">
+                {resetting ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <RefreshCw className="h-3 w-3 mr-1" />}
+                Restaurar defaults
+              </Button>
               {!previewOnly && (
-                <Button size="sm" onClick={guardar} disabled={saving}>
+                <Button size="sm" onClick={guardar} disabled={saving || resetting}>
                   {saving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />}
                   Guardar
                 </Button>
