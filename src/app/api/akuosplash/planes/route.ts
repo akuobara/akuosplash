@@ -72,6 +72,7 @@ export async function GET() {
     planes,
     feeManual,
     mpSandbox,
+    deployId: "2d5143c-fix-vercel-blob",
     generadoEn: new Date().toISOString(),
   });
 }
