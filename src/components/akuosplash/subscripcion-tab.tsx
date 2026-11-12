@@ -222,8 +222,14 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     const isCurrent = planActual === planId;
     const isUpgrade = orden.indexOf(planId) > orden.indexOf(planActual);
     const isDowngrade = orden.indexOf(planId) < orden.indexOf(planActual);
-    const precioMostrar = ciclo === "semanal" ? plan.precioSemanal : ciclo === "diario" ? plan.precioDiario : plan.precioMensual;
-    const cicloLabel = ciclo === "semanal" ? "semana" : ciclo === "diario" ? "día" : "mes";
+
+    // Cada plan muestra su PROPIO precio según su ciclo default
+    // (no el ciclo global que solo aplica al plan seleccionado)
+    const planCiclos = (plan as any).ciclosDisponibles || ["mensual"];
+    const planCiclosSinAnual = planCiclos.filter((c: string) => c !== "anual");
+    const planCicloDefault = planCiclosSinAnual[0] || "mensual";
+    const precioMostrar = planCicloDefault === "semanal" ? plan.precioSemanal : planCicloDefault === "diario" ? plan.precioDiario : plan.precioMensual;
+    const cicloLabel = planCicloDefault === "semanal" ? "semana" : planCicloDefault === "diario" ? "día" : "mes";
 
     // Features que mostramos (lista legible) — solo las que existen en la app
     const featureLabels: Array<[keyof PlanConfig["features"], string]> = [
