@@ -22,7 +22,7 @@ interface PlanesTabProps {
 const ALL_FEATURES: Array<{ key: keyof PlanConfig["features"]; label: string; description: string }> = [
   { key: "dashboard", label: "Panel", description: "Resumen y métricas del día" },
   { key: "historial", label: "Historial", description: "Historial de vueltas y entregas" },
-  { key: "vehiculo", label: "Vehículos", description: "Gestión de camiones (necesario para marketplace)" },
+  { key: "vehiculo", label: "Vehículos", description: "Gestión de camiones" },
   { key: "perfil", label: "Perfil", description: "Perfil del transportista" },
   { key: "entregas", label: "Entregas", description: "Entregas y vueltas activas" },
   { key: "gastos", label: "Gastos", description: "Registro de gastos operativos" },
@@ -30,10 +30,6 @@ const ALL_FEATURES: Array<{ key: keyof PlanConfig["features"]; label: string; de
   { key: "clientes", label: "Clientes", description: "Gestión de clientes propios" },
   { key: "recurrentes", label: "Recurrentes", description: "Pedidos recurrentes" },
   { key: "equipo", label: "Equipo", description: "Choferes y equipo de trabajo" },
-  { key: "mpPropio", label: "MP propios", description: "MP para sus propios clientes (Plan Pro)" },
-  { key: "wasabil", label: "Wasabil", description: "Plan Growth de wasabil.cl — facturación SII automática (incluido en plan Pro)" },
-  { key: "docUpload", label: "Doc tributario", description: "Subir factura manualmente para recibir pago (Plan Gratis)" },
-  { key: "subscripcion", label: "Subscripción", description: "Tab para ver/mejorar plan" },
 ];
 
 const CICLOS_OPTS: Array<{ id: string; label: string }> = [
@@ -61,9 +57,14 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
   const cargar = useCallback(async () => {
     setLoading(true);
     try {
-      const d = await akuoGet<{ planes: Record<PlanId, PlanConfig>; orden: PlanId[] }>("/api/akuosplash/admin/planes");
-      setPlanes(d.planes);
-      setOrden(d.orden);
+      const d = await akuoGet<{ planes: Record<string, PlanConfig>; orden: string[] }>("/api/akuosplash/admin/planes");
+      setPlanes(d.planes as any);
+      // Incluir planes custom que vengan en planes pero no en orden
+      const ordenFull = [...(d.orden || ["gratis", "premium", "pro"])];
+      for (const key of Object.keys(d.planes || {})) {
+        if (!ordenFull.includes(key)) ordenFull.push(key);
+      }
+      setOrden(ordenFull as PlanId[]);
     } catch (e: any) {
       toast.error("No se pudo cargar: " + (e?.message || ""));
     } finally {
@@ -194,13 +195,13 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
 
   if (!planes) return null;
 
-  const planIcons: Record<PlanId, any> = {
+  const planIcons: Record<string, any> = {
     gratis: Gift,
-    pago: Sparkles, // alias
+    pago: Sparkles,
     premium: Sparkles,
     pro: Crown,
   };
-  const planColors: Record<PlanId, string> = {
+  const planColors: Record<string, string> = {
     gratis: "amber",
     pago: "blue",
     premium: "blue",

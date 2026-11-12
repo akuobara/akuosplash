@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { PrecioDinamicoTab } from "@/components/akuosplash/precio-dinamico-tab";
 import { IntegracionesTab } from "@/components/akuosplash/integraciones-tab";
 import { PlanesTab } from "@/components/akuosplash/planes-tab";
-import { PlanesCustomForm } from "@/components/akuosplash/planes-custom-form";
 import { SubscriptionsTab } from "@/components/akuosplash/subscriptions-tab";
 import { CuponesTab } from "@/components/akuosplash/cupones-tab";
 import { RegionesComunasTab } from "@/components/akuosplash/regiones-comunas-tab";
@@ -361,8 +360,7 @@ export default function SuperadminPage() {
           </TabsContent>
 
           {/* === PLANES === */}
-          <TabsContent value="planes" className="space-y-4 mt-4">
-            <PlanesCustomForm />
+          <TabsContent value="planes" className="mt-4">
             <PlanesTab />
           </TabsContent>
 
