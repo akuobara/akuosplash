@@ -245,18 +245,19 @@ export function PlanesTab({ previewOnly }: PlanesTabProps) {
       {orden.map(planId => {
         const plan = planes[planId];
         if (!plan) return null;
-        const Icon = planIcons[planId];
+        const Icon = planIcons[planId] || Sparkles;
+        const color = planColors[planId] || "blue";
         const isExpanded = expandedPlan === planId;
         const mpMode = MP_SPLIT_MODES.find(m => m.id === plan.mpSplitMode);
         return (
-          <Card key={planId} className={`border-${planColors[planId]}-200`}>
+          <Card key={planId} className={`border-${color}-200`}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle
                   className="text-sm cursor-pointer flex items-center gap-1.5"
                   onClick={() => setExpandedPlan(isExpanded ? null : planId)}
                 >
-                  <Icon className={`h-4 w-4 text-${planColors[planId]}-600`} /> {plan.nombre}
+                  <Icon className={`h-4 w-4 text-${color}-600`} /> {plan.nombre}
                   <Badge variant="outline" className="ml-1 text-[10px]">{plan.comisionPct}% comisión</Badge>
                   {mpMode && (
                     <Badge variant="outline" className={`text-[10px] text-${mpMode.color}-700 border-${mpMode.color}-300`}>
