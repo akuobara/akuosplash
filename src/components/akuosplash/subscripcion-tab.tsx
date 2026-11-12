@@ -225,7 +225,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     const precioMostrar = ciclo === "semanal" ? plan.precioSemanal : ciclo === "diario" ? plan.precioDiario : plan.precioMensual;
     const cicloLabel = ciclo === "semanal" ? "semana" : ciclo === "diario" ? "día" : "mes";
 
-    // Features que mostramos (lista legible)
+    // Features que mostramos (lista legible) — solo las que existen en la app
     const featureLabels: Array<[keyof PlanConfig["features"], string]> = [
       ["dashboard", "Panel y métricas"],
       ["historial", "Historial de vueltas"],
@@ -236,16 +236,11 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       ["clientes", "Clientes propios"],
       ["recurrentes", "Pedidos recurrentes"],
       ["equipo", "Equipo y choferes"],
-      ["mpPropio", "MP para tus propios clientes"],
-      ["wasabil", "Plan Growth de Wasabil (facturación SII automática)"],
-      ["docUpload", "Subir documentos tributarios"],
       ["perfil", "Perfil"],
     ];
     const activeFeatures = featureLabels.filter(([k]) => plan.features[k]);
 
-    // MP split mode label — todos los planes usan MP Split cuando el marketplace esté disponible
-    // El tiempo de pago (inmediato / diferido) lo decide cada usuario en su cuenta de MercadoPago
-    const mpModeLabel = "MP Split* (próximamente con marketplace)";
+    // No mostrar texto de MP Split — no existe todavía
 
     return (
       <Card className={`relative ${isSelected ? "border-blue-500 ring-2 ring-blue-200" : ""}`}>
@@ -283,10 +278,6 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                 )}
               </>
             )}
-          </div>
-
-          <div className="text-[11px] font-medium text-foreground/80 border-l-2 pl-2" style={{ borderColor: plan.highlightColor }}>
-            💳 {mpModeLabel}
           </div>
 
           <ul className="text-xs space-y-1 text-emerald-700 dark:text-emerald-300">
