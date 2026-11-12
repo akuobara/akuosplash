@@ -159,12 +159,12 @@ export function BasicPanel({ user, plan, planId, onGoToSubscripcion, onGoToPedid
               <div className="flex flex-wrap gap-2 mt-3">
                 <div className="rounded-md border border-blue-200 bg-white p-2 text-xs">
                   <p className="font-medium text-blue-700">⭐ Premium</p>
-                  <p className="text-[10px] text-muted-foreground">{planesData.premium?.comisionPct ?? 12.5}% comisión · MP Split*</p>
+                  <p className="text-[10px] text-muted-foreground">{planesData.premium?.comisionPct ?? 12.5}% comisión</p>
                   <p className="font-bold tabular-nums mt-0.5">{formatCLP(planesData.premium?.precioMensual ?? 7990)}/mes</p>
                 </div>
                 <div className="rounded-md border border-violet-200 bg-white p-2 text-xs">
                   <p className="font-medium text-violet-700">👑 Pro</p>
-                  <p className="text-[10px] text-muted-foreground">{planesData.pro?.comisionPct ?? 8.5}% comisión · MP Split*</p>
+                  <p className="text-[10px] text-muted-foreground">{planesData.pro?.comisionPct ?? 8.5}% comisión</p>
                   <p className="font-bold tabular-nums mt-0.5">{formatCLP(planesData.pro?.precioMensual ?? 23990)}/mes</p>
                 </div>
               </div>

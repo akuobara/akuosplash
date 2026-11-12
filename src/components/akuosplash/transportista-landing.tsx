@@ -353,8 +353,7 @@ export function TransportistaLanding() {
   const feeManualCortoTxt = `$${feeManual.fijo.toLocaleString("es-CL")} fijo + ${feeManual.pct}% del monto`;
   // Texto dinámico para límites por plan ("1 vehículo y 1 chofer" / "5 vehículos y 5 choferes")
   const limitesTxt = (p?: PlanInfo) => p ? `hasta ${p.maxVehiculos} vehículo${p.maxVehiculos > 1 ? "s" : ""} y ${p.maxChoferes} chofer${p.maxChoferes > 1 ? "es" : ""}` : "";
-  // Texto dinámico para pago MP Split: el tiempo de pago lo decide cada usuario en su cuenta de MP
-  // (no depende del plan, todos los planes usan MP Split igual)
+  // Texto dinámico para pago
 
   // FAQ generado dinámicamente con los valores actuales de la API
   const FAQS = [
@@ -380,7 +379,7 @@ export function TransportistaLanding() {
     },
     {
       q: "¿Hay algún fee si no uso MercadoPago Split?",
-      a: `Sí. Si retirás dinero de forma manual en vez de recibir el pago automático por MP Split, se aplica un fee de ${feeManualTxt}. Es el mismo fee para los 3 planes.`,
+      a: `Sí. Si retirás dinero de forma manual en vez de recibir el pago automático, se aplica un fee de ${feeManualTxt}. Es el mismo fee para los 3 planes.`,
     },
     {
       q: "¿Las herramientas de productividad funcionan aunque no use el marketplace?",
@@ -456,7 +455,7 @@ export function TransportistaLanding() {
               </div>
               <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-blue-700/80">
                 <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> 11 herramientas de productividad</span>
-                <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-blue-500" /> Marketplace + MP Split* próximamente</span>
+                <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-blue-500" /> Marketplace próximamente</span>
               </div>
               <p className="mt-1 text-[10px] text-blue-700/50">* Solo si conectás tu cuenta de MercadoPago desde tu perfil.</p>
             </div>
@@ -518,7 +517,7 @@ export function TransportistaLanding() {
             <p className="text-xs text-blue-700/70">planes (Gratis / Premium / Pro)</p>
           </div>
           <div className="text-center">
-            <p className="text-3xl font-bold text-blue-900">MP Split*</p>
+            <p className="text-3xl font-bold text-blue-900">Marketplace</p>
             <p className="text-xs text-blue-700/70">próximamente (con marketplace)</p>
           </div>
           <div className="text-center">
@@ -752,7 +751,7 @@ export function TransportistaLanding() {
                   <div className="rounded-lg bg-blue-50/50 p-2.5 text-xs text-blue-700/80">
                     <p className="font-medium text-blue-900">Fee por retiro manual*</p>
                     <p>{feeManualCortoTxt} (todos los planes)</p>
-                    <p className="text-[10px] text-blue-700/60 mt-1">* Aplica cuando retirás dinero en vez de recibirlo por MP Split automático.</p>
+                    <p className="text-[10px] text-blue-700/60 mt-1">* Aplica cuando retirás dinero en vez de recibirlo automáticamente.</p>
                   </div>
 
                   <div className="pt-2">
