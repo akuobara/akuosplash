@@ -8,14 +8,16 @@ export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
-  const redirectTo = (path: string) => NextResponse.redirect(new URL(path, origin));
+  const redirectTo = (path: string) => NextResponse.redirect(`https://akuosplash.cl${path}`);
   if (error) return redirectTo(`/akuosplash?oauth_error=${error}`);
   if (!code) return redirectTo("/akuosplash?oauth_error=no_code");
   const clientId = process.env.AKUO_GOOGLE_CLIENT_ID!;
   const clientSecret = process.env.AKUO_GOOGLE_CLIENT_SECRET!;
-  const protocol = req.headers.get("x-forwarded-proto") || "https";
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "localhost:3000";
-  const redirectUri = `${protocol}://${host}/api/akuosplash/auth/google/callback`;
+  // Usar APP_URL si está configurada (siempre usa la URL pública, no la interna de Render)
+  const appUrl = process.env.APP_URL || process.env.NEXTAUTH_URL;
+  const redirectUri = appUrl
+    ? `${appUrl.replace(/\/$/, "")}/api/akuosplash/auth/google/callback`
+    : `https://akuosplash.cl/api/akuosplash/auth/google/callback`;
   try {
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ code, client_id: clientId, client_secret: clientSecret, redirect_uri: redirectUri, grant_type: "authorization_code" }) });
     if (!tokenRes.ok) { console.error("Google token failed:", await tokenRes.text()); return redirectTo("/akuosplash?oauth_error=token_exchange"); }
