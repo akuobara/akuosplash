@@ -637,27 +637,35 @@ export async function getMpSplitCreds(): Promise<{
 export async function getMpSubCreds(): Promise<{
   accessToken: string | null;
   publicKey: string | null;
+  sandbox: boolean;
 }> {
   await ensureAkuoConfigColumns();
   // 1. Intentar leer de AkuoConfig los campos mpSub* (los nuevos)
   try {
     const result: any = await akuosplashDb.$queryRawUnsafe(
-      `SELECT mpSubAccessToken, mpSubPublicKey FROM AkuoConfig WHERE activo = 1 LIMIT 1`
+      `SELECT mpSubAccessToken, mpSubPublicKey, mpSandbox FROM AkuoConfig WHERE activo = 1 LIMIT 1`
     );
     if (Array.isArray(result) && result.length > 0) {
       const row = result[0];
+      const at = row.mpSubAccessToken || process.env.AKUO_MP_SUB_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
       return {
-        accessToken: row.mpSubAccessToken || process.env.AKUO_MP_SUB_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null,
+        accessToken: at,
         publicKey: row.mpSubPublicKey || process.env.AKUO_MP_SUB_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null,
+        // mpSandbox=1 → sandbox. En Chile los tokens de prueba empiezan con APP_USR- (no TEST-),
+        // así que NO podemos detectar sandbox por el prefijo del token. Usar la flag de la DB.
+        sandbox: row.mpSandbox != null ? Number(row.mpSandbox) === 1 : (process.env.AKUO_MP_SANDBOX !== "false"),
       };
     }
   } catch (e: any) {
     console.warn("[getMpSubCreds] SQL failed, using env vars:", e?.message);
   }
   // 2. Fallback a env vars
+  const at = process.env.AKUO_MP_SUB_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null;
   return {
-    accessToken: process.env.AKUO_MP_SUB_ACCESS_TOKEN || process.env.AKUO_MP_ACCESS_TOKEN || null,
+    accessToken: at,
     publicKey: process.env.AKUO_MP_SUB_PUBLIC_KEY || process.env.AKUO_MP_PUBLIC_KEY || null,
+    // Si el token empieza con TEST- es sandbox (otros países). Si no, respetar AKUO_MP_SANDBOX.
+    sandbox: at ? at.startsWith("TEST-") : (process.env.AKUO_MP_SANDBOX !== "false"),
   };
 }
 

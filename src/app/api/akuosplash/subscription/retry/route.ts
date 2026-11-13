@@ -79,9 +79,8 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    // Sandbox o producción según access token
-    const isSandbox = subCreds.accessToken.startsWith("TEST-") || subCreds.accessToken.includes("sandbox");
-    const initPoint = isSandbox
+    // Sandbox o producción según la flag mpSandbox de la DB (en Chile los tokens de prueba empiezan con APP_USR-)
+    const initPoint = subCreds.sandbox
       ? (data.sandbox_init_point || data.init_point)
       : (data.init_point || data.sandbox_init_point);
     if (!initPoint) {

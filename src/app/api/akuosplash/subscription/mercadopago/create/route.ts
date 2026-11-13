@@ -156,9 +156,8 @@ export async function POST(req: NextRequest) {
     }
 
     // MP subscriptions: init_point para producción, sandbox_init_point para sandbox
-    // Si el access token es de test (empieza con TEST-), usar sandbox_init_point
-    const isSandbox = subCreds.accessToken.startsWith("TEST-") || subCreds.accessToken.includes("sandbox");
-    const initPoint = isSandbox
+    // En Chile los tokens de prueba empiezan con APP_USR- (no TEST-), así que usar la flag sandbox de la DB.
+    const initPoint = subCreds.sandbox
       ? (data.sandbox_init_point || data.init_point)
       : (data.init_point || data.sandbox_init_point);
     if (!initPoint) {
