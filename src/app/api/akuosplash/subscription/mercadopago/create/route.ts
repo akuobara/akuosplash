@@ -16,14 +16,21 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  // Aceptar "pago" (legacy) o "premium" o "pro"
-  const planRaw: string = body.plan;
-  const planId: PlanId = planRaw === "pro" ? "pro" : (planRaw === "pago" || planRaw === "premium" ? "premium" : "premium");
-  const ciclo: "mensual" | "anual" = body.ciclo === "anual" ? "anual" : "mensual";
+  // Aceptar cualquier plan id (premium, pro, test, custom) — lookup en plan configs
+  const planRaw: string = body.plan || "premium";
+  const cicloRaw: string = body.ciclo || "mensual";
+  const ciclo: "mensual" | "anual" | "semanal" | "diario" =
+    cicloRaw === "anual" ? "anual" : cicloRaw === "semanal" ? "semanal" : cicloRaw === "diario" ? "diario" : "mensual";
 
   // Cargar config de plan + MP creds (cuenta de subscriptions)
   const configs = await getPlanConfigs();
-  const planCfg = configs[planId];
+  // Soportar alias "pago" → "premium"
+  const planLookupKey = planRaw === "pago" ? "premium" : planRaw;
+  const planCfg = (configs as any)[planLookupKey];
+  if (!planCfg) {
+    return NextResponse.json({ error: `Plan '${planRaw}' no encontrado` }, { status: 400 });
+  }
+  const planId = planLookupKey; // alias para que el resto del código funcione (external_reference, cupones, DB)
   const subCreds = await getMpSubCreds();
   if (!subCreds.accessToken) {
     return NextResponse.json({
@@ -32,9 +39,18 @@ export async function POST(req: NextRequest) {
   }
 
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://akuosplash.onrender.com";
-  let amount = ciclo === "anual" ? planCfg.precioAnual : planCfg.precioMensual;
-  const frequency = ciclo === "anual" ? 12 : 1;
-  const frequencyType = "months";
+  // Precio según ciclo
+  let amount = ciclo === "anual" ? planCfg.precioAnual
+    : ciclo === "semanal" ? planCfg.precioSemanal
+    : ciclo === "diario" ? planCfg.precioDiario
+    : planCfg.precioMensual;
+  // Frequency mapping para MP preapproval (frequency_type: "days" | "months")
+  let frequency: number;
+  let frequencyType: "days" | "months";
+  if (ciclo === "anual") { frequency = 12; frequencyType = "months"; }
+  else if (ciclo === "semanal") { frequency = 7; frequencyType = "days"; }
+  else if (ciclo === "diario") { frequency = 1; frequencyType = "days"; }
+  else { frequency = 1; frequencyType = "months"; }
 
   // === CUPÓN DE SUBSCRIPCIÓN (opcional) ===
   // Si viene couponCode en el body, validar y aplicar descuento

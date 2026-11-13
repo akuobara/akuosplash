@@ -19,19 +19,28 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const planRaw: string = body.plan || "premium";
-  const planId: PlanId = planRaw === "pro" ? "pro" : "premium";
-  const ciclo: "mensual" | "anual" = body.ciclo === "anual" ? "anual" : "mensual";
+  const cicloRaw: string = body.ciclo || "mensual";
+  const ciclo: "mensual" | "anual" | "semanal" | "diario" =
+    cicloRaw === "anual" ? "anual" : cicloRaw === "semanal" ? "semanal" : cicloRaw === "diario" ? "diario" : "mensual";
 
   // Cargar config + MP creds
   const configs = await getPlanConfigs();
-  const planCfg = configs[planId];
+  const planLookupKey = planRaw === "pago" ? "premium" : planRaw;
+  const planCfg = (configs as any)[planLookupKey];
+  if (!planCfg) return NextResponse.json({ error: `Plan '${planRaw}' no encontrado` }, { status: 400 });
+  const planId = planLookupKey;
   const subCreds = await getMpSubCreds();
   if (!subCreds.accessToken) {
     return NextResponse.json({ error: "MP Subscriptions no configurado" }, { status: 500 });
   }
 
-  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://my-project-azure-five-82.vercel.app";
-  const amount = ciclo === "anual" ? planCfg.precioAnual : planCfg.precioMensual;
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://akuosplash.onrender.com";
+  const amount = ciclo === "anual" ? planCfg.precioAnual
+    : ciclo === "semanal" ? planCfg.precioSemanal
+    : ciclo === "diario" ? planCfg.precioDiario
+    : planCfg.precioMensual;
+  const frequency = ciclo === "anual" ? 12 : ciclo === "semanal" ? 7 : 1;
+  const frequencyType: "days" | "months" = (ciclo === "semanal" || ciclo === "diario") ? "days" : "months";
 
   // MP test user email (si está configurado)
   let mpPayerEmail = user.email || "";
@@ -49,8 +58,8 @@ export async function POST(req: NextRequest) {
   const mpBody: any = {
     reason: `AkuoSplash — Plan ${planCfg.nombre} (${ciclo}) — reintento`,
     auto_recurring: {
-      frequency: ciclo === "anual" ? 12 : 1,
-      frequency_type: "months",
+      frequency,
+      frequency_type: frequencyType,
       transaction_amount: amount,
       currency_id: "CLP",
     },
