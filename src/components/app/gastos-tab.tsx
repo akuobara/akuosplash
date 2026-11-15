@@ -37,6 +37,7 @@ import {
   Droplets,
   Gauge,
   Receipt,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { GastoForm } from "./gasto-form";
@@ -85,6 +86,13 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
   const [editando, setEditando] = useState<Gasto | null>(null);
   const [vista, setVista] = useState<Gasto | null>(null);
   const [borrando, setBorrando] = useState<Gasto | null>(null);
+
+  // === Informe descargable ===
+  const hoyCL = new Date().toLocaleDateString("en-CA", { timeZone: "America/Santiago" });
+  const [exportOpen, setExportOpen] = useState(false);
+  const [expDesde, setExpDesde] = useState(hoyCL);
+  const [expHasta, setExpHasta] = useState(hoyCL);
+  const [expFormato, setExpFormato] = useState<"pdf" | "excel">("excel");
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -141,6 +149,18 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo eliminar");
     }
+  }
+
+  function handleDescargar() {
+    if (!expDesde && !expHasta) {
+      toast.info("Elegí una fecha o rango de fechas");
+      return;
+    }
+    const params = new URLSearchParams({ formato: expFormato });
+    if (expDesde) params.set("desde", expDesde);
+    if (expHasta) params.set("hasta", expHasta);
+    window.open(`/api/reportes/gastos?${params.toString()}`, "_blank");
+    setExportOpen(false);
   }
 
   return (
@@ -208,9 +228,14 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
             </div>
           </div>
         </div>
-        <Button onClick={handleNuevo} size="sm">
-          <Plus className="mr-1 h-4 w-4" /> Nuevo gasto
-        </Button>
+        <div className="flex items-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => setExportOpen(true)}>
+            <Download className="mr-1 h-4 w-4" /> Informe
+          </Button>
+          <Button onClick={handleNuevo} size="sm">
+            <Plus className="mr-1 h-4 w-4" /> Nuevo gasto
+          </Button>
+        </div>
       </div>
 
       {/* Totales */}
@@ -430,6 +455,48 @@ export function GastosTab({ refreshKey, onRefresh }: GastosTabProps) {
             </Button>
             <Button variant="destructive" onClick={() => borrando && handleBorrar(borrando)}>
               <Trash2 className="mr-1 h-4 w-4" /> Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Descargar informe de gastos */}
+      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Descargar informe de gastos</DialogTitle>
+            <DialogDescription>
+              Elegí el período a exportar. Para un solo día, poné la misma fecha en "Desde" y "Hasta".
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-medium uppercase text-muted-foreground">Desde</label>
+                <Input type="date" lang="es-CL" value={expDesde} onChange={(e) => setExpDesde(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium uppercase text-muted-foreground">Hasta</label>
+                <Input type="date" lang="es-CL" value={expHasta} onChange={(e) => setExpHasta(e.target.value)} />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium uppercase text-muted-foreground">Formato</label>
+              <Select value={expFormato} onValueChange={(v) => setExpFormato(v as "pdf" | "excel")}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="excel">Excel (.xlsx)</SelectItem>
+                  <SelectItem value="pdf">PDF (.pdf)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setExportOpen(false)}>Cancelar</Button>
+            <Button onClick={handleDescargar}>
+              <Download className="mr-1 h-4 w-4" /> Descargar
             </Button>
           </DialogFooter>
         </DialogContent>

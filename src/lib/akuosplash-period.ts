@@ -5,6 +5,21 @@ export function getPeriodRange(period: string): { start: Date; end: Date } {
   const end = new Date(now);
   end.setHours(23, 59, 59, 999);
 
+  // custom:YYYY-MM-DD:YYYY-MM-DD (rango) o custom:YYYY-MM-DD (un solo día)
+  // Usa zona horaria Chile (UTC-4) para coincidir con el día local del usuario.
+  if (period.startsWith("custom:")) {
+    const parts = period.split(":");
+    if (parts.length === 3) {
+      const start = new Date(parts[1] + "T00:00:00-04:00");
+      const endCustom = new Date(parts[2] + "T23:59:59-04:00");
+      return { start, end: endCustom };
+    } else if (parts.length === 2) {
+      const start = new Date(parts[1] + "T00:00:00-04:00");
+      const endCustom = new Date(parts[1] + "T23:59:59-04:00");
+      return { start, end: endCustom };
+    }
+  }
+
   switch (period) {
     case "hoy": {
       const start = new Date(now);
