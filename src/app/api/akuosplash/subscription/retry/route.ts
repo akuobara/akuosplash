@@ -70,10 +70,12 @@ export async function POST(req: NextRequest) {
 
   const apiBase = "https://api.mercadopago.com";
 
-  // === MODO SANDBOX: flujo API directo con tarjeta de prueba (igual que create) ===
-  // El checkout web no acepta tarjetas de prueba (corre con credenciales de producción del
-  // test user) — el flujo API con card_token autoriza y cobra al instante.
-  if (subCreds.sandbox) {
+  // === MODO SANDBOX ===
+  // Caso A: token TEST- (credenciales de prueba del panel) → checkout web sandbox (sandbox_init_point).
+  // Caso B: token APP_USR- de test user → flujo API directo con tarjeta de prueba
+  //   (el checkout web con ese token corre en producción: tarjetas de prueba no confirman).
+  const isTestCredToken = subCreds.accessToken.startsWith("TEST-");
+  if (subCreds.sandbox && !isTestCredToken) {
     try {
       const PAYER_EMAIL = mpPayerEmail.includes("@testuser.com")
         ? mpPayerEmail
@@ -181,7 +183,8 @@ export async function POST(req: NextRequest) {
     }
 
     // El plan devuelve init_point SIN activation=true.
-    const initPoint = data.init_point;
+    // Con credenciales TEST-, preferir sandbox_init_point (checkout donde las tarjetas de prueba confirman).
+    const initPoint = data.sandbox_init_point || data.init_point;
     if (!initPoint) {
       return NextResponse.json({ error: "MP no devolvió init_point del plan", data }, { status: 500 });
     }
