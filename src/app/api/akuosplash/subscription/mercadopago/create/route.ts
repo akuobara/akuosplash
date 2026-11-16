@@ -158,6 +158,138 @@ export async function POST(req: NextRequest) {
 
   const apiBase = "https://api.mercadopago.com";
 
+  // === MODO SANDBOX (mpSandbox=1): flujo API directo con tarjeta de prueba ===
+  // El checkout web de subscripciones corre con credenciales de PRODUCCIÓN del test user
+  // (MP Chile no emite TEST- para subscripciones) → las tarjetas de prueba NO se pueden
+  // confirmar ahí (el botón "Pagar suscripción" queda gris / "no acepta este medio de pago").
+  // Flujo verificado: card_token con access token + preapproval con card_token →
+  // MP la autoriza y cobra al instante (summarized.charged_quantity=1).
+  if (subCreds.sandbox) {
+    try {
+      // 1) Card token de la tarjeta de PRUEBA (Mastercard crédito CL) con el access token.
+      //    Con la public key falla (G001) — la pk de producción no tokeniza tarjetas de prueba.
+      const PAYER_EMAIL = mpPayerEmail.includes("@testuser.com")
+        ? mpPayerEmail
+        : user.email.includes("@testuser.com") ? user.email : "test_user_2094743021490827193@testuser.com";
+      const ctRes = await fetch(`${apiBase}/v1/card_tokens`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${subCreds.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          card_number: "5416752602582580", // Mastercard crédito (tarjeta de prueba MP Chile)
+          security_code: "123",
+          expiration_month: 11,
+          expiration_year: 2030,
+          cardholder: { name: "APRO" },
+        }),
+      });
+      const ct = await ctRes.json();
+      if (!ctRes.ok || !ct.id) {
+        console.error("[mp sub create sandbox] card_token failed", ct);
+        return NextResponse.json({ error: `MP no pudo tokenizar la tarjeta de prueba: ${ct.message || ctRes.status}` }, { status: 502 });
+      }
+
+      // 2) Crear el PLAN (igual que producción — el preapproval necesita un plan en el modelo actual)
+      const planRes = await fetch(`${apiBase}/preapproval_plan`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${subCreds.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(mpBody),
+      });
+      const planData = await planRes.json();
+      if (!planRes.ok) {
+        console.error("[mp sub create sandbox] plan failed", planData);
+        return NextResponse.json({ error: planData.message || `MP error plan ${planRes.status}` }, { status: 500 });
+      }
+
+      // 3) Preapproval contra el plan con el card token → MP autoriza y cobra al instante
+      const preRes = await fetch(`${apiBase}/preapproval`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${subCreds.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          preapproval_plan_id: planData.id,
+          reason: mpBody.reason,
+          payer_email: PAYER_EMAIL,
+          card_token_id: ct.id,
+          external_reference: mpBody.external_reference,
+          back_url: mpBody.back_url,
+        }),
+      });
+      const preData = await preRes.json();
+      if (!preRes.ok) {
+        console.error("[mp sub create sandbox] preapproval failed", preData);
+        return NextResponse.json({ error: preData.message || `MP error preapproval ${preRes.status}` }, { status: 500 });
+      }
+
+      // 4) Activar el plan directamente (mismo criterio que el webhook/sync)
+      const authorized = preData.status === "authorized";
+      const ahora = new Date();
+      const fin = new Date(ahora);
+      if (ciclo === "anual") fin.setFullYear(fin.getFullYear() + 1);
+      else if (ciclo === "semanal") fin.setDate(fin.getDate() + 7);
+      else if (ciclo === "diario") fin.setDate(fin.getDate() + 1);
+      else fin.setMonth(fin.getMonth() + 1);
+
+      await akuosplashDb.$executeRawUnsafe(
+        `UPDATE AkuoUsuario SET
+          mpSubPreapprovalId = ?, mpSubPlanSolicitado = ?, mpSubCiclo = ?,
+          mpSubStatus = ?, mpSubIniciadoEn = ?, mpSubAmount = ?,
+          plan = ?, planActivoDesde = ?, planActivoHasta = ?,
+          mpSubAutorizadoEn = ?, suscripcionActiva = ?
+         WHERE id = ?`,
+        preData.id, planId, ciclo, preData.status || "authorized", ahora.toISOString(), amount,
+        planId, ahora.toISOString(), fin.toISOString(),
+        authorized ? ahora.toISOString() : null, authorized ? 1 : 0,
+        user.id
+      ).catch(() => {});
+
+      // Registrar cupón igual que en producción
+      if (cuponAplicado) {
+        try {
+          const usoId = `cupon_uso_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+          await akuosplashDb.$executeRawUnsafe(
+            `INSERT INTO AkuoUsuarioCupon (id, usadoEn, cuponId, usuarioId, planActivado, montoAhorrado)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            usoId, new Date().toISOString(), cuponAplicado.id, user.id, planId, montoAhorrado
+          );
+          await akuosplashDb.$executeRawUnsafe(
+            `UPDATE AkuoCupon SET usos = usos + 1 WHERE id = ?`,
+            cuponAplicado.id
+          );
+        } catch (e: any) {
+          console.warn("[mp sub create sandbox] no se pudo registrar uso de cupón:", e?.message);
+        }
+      }
+
+      return NextResponse.json({
+        sandbox: true,
+        authorized,
+        preapprovalId: preData.id,
+        amount,
+        planId,
+        ciclo,
+        planActivoHasta: fin.toISOString(),
+        cuponAplicado: cuponAplicado ? {
+          codigo: cuponAplicado.codigo,
+          descuentoTipo: cuponAplicado.descuentoTipo,
+          montoAhorrado,
+          mesesGratis,
+        } : null,
+      });
+    } catch (e: any) {
+      console.error("[mp sub create sandbox exception]", e);
+      return NextResponse.json({ error: e.message || "Error en subscripción sandbox" }, { status: 500 });
+    }
+  }
+
+  // === MODO PRODUCCIÓN: checkout web ===
   try {
     const res = await fetch(`${apiBase}/preapproval_plan`, {
       method: "POST",
