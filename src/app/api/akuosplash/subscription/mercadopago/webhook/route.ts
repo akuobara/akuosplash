@@ -51,14 +51,40 @@ async function handlePreapprovalWebhook(dataId: string | undefined) {
   const data = await r.json();
 
   // external_reference formato: "akuo_sub:<userId>:<planId>:<ciclo>"
+  // (modelo inline). En el modelo PLAN, el preapproval creado desde el plan debería heredar
+  // el external_reference del plan; si no lo trae, caemos al fallback por preapproval_plan_id.
   const extRef: string = data.external_reference || "";
   const parts = extRef.split(":");
-  if (parts.length < 4 || parts[0] !== "akuo_sub") {
-    return NextResponse.json({ ok: true, ignored: true, reason: "external_ref inválido" });
+  let userId: string | undefined;
+  let planId: string | undefined;
+  let ciclo: string | undefined;
+  if (parts.length >= 4 && parts[0] === "akuo_sub") {
+    userId = parts[1];
+    planId = parts[2];
+    ciclo = parts[3];
   }
-  const userId = parts[1];
-  const planId = parts[2];
-  const ciclo = parts[3];
+
+  // Fallback modelo PLAN: vincular por preapproval_plan_id → buscar usuario cuyo
+  // mpSubPreapprovalId (guardado en create) coincide con el plan_id.
+  if (!userId && data.preapproval_plan_id) {
+    try {
+      const r: any = await akuosplashDb.$queryRawUnsafe(
+        `SELECT id, mpSubPlanSolicitado, mpSubCiclo FROM AkuoUsuario WHERE mpSubPreapprovalId = ? LIMIT 1`,
+        data.preapproval_plan_id
+      );
+      if (Array.isArray(r) && r.length > 0) {
+        userId = r[0].id;
+        planId = r[0].mpSubPlanSolicitado;
+        ciclo = r[0].mpSubCiclo;
+      }
+    } catch (e: any) {
+      console.warn("[mp preapproval webhook] fallback plan_id failed:", e?.message);
+    }
+  }
+
+  if (!userId || !planId || !ciclo) {
+    return NextResponse.json({ ok: true, ignored: true, reason: "sin vinculación a usuario" });
+  }
 
   const status: string = data.status; // pending | authorized | paused | cancelled
   const amount: number | undefined = data.auto_recurring?.transaction_amount;

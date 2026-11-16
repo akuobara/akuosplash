@@ -116,6 +116,8 @@ export async function POST(req: NextRequest) {
   // Si el transportista tiene un MP test user email configurado, usar ese (no su email de AkuoSplash)
   // MP sandbox requiere payer_email en formato test_user_<numeric>@testuser.com
   // Lo leemos del campo `mpTestUserEmail` si existe, sino caemos a user.email
+  // (Nota: en el modelo PLAN el payer_email no va en el plan — el payer lo ingresa en el checkout.
+  //  Se mantiene la lectura para compatibilidad con otros flujos.)
   let mpPayerEmail = user.email || "";
   try {
     const result: any = await akuosplashDb.$queryRawUnsafe(
@@ -127,7 +129,11 @@ export async function POST(req: NextRequest) {
     }
   } catch {}
 
-  // Crear preapproval en MP
+  // Crear preapproval_PLAN en MP (no preapproval inline).
+  // MP deprecó el preapproval inline: le agrega "&activation=true" al checkout y el botón
+  // "Confirmar" queda gris (no deja confirmar recurring). El modelo PLAN devuelve un init_point
+  // limpio (sin activation=true) y MP crea el preapproval + cobra cuando el payer confirma en el checkout.
+  // Creamos un plan único por intento, con external_reference para vincular al usuario en el webhook.
   const mpBody: any = {
     reason: `AkuoSplash — Plan ${planCfg.nombre} (${ciclo})`,
     auto_recurring: {
@@ -136,11 +142,11 @@ export async function POST(req: NextRequest) {
       transaction_amount: amount,
       currency_id: "CLP",
     },
-    payer_email: mpPayerEmail,
     back_url: `${APP_URL}/akuosplash/transportista?tab=subscripcion`,
-    status: "pending",
     external_reference: `akuo_sub:${user.id}:${planId}:${ciclo}`,
-    notification_url: `${APP_URL}/api/akuosplash/subscription/mercadopago/webhook`,
+    payment_methods_allowed: {
+      payment_type_id: ["credit_card"],
+    },
   };
   // Si hay meses gratis (cupón meses_gratis), agregar free_trial
   if (mesesGratis > 0) {
@@ -150,12 +156,10 @@ export async function POST(req: NextRequest) {
     };
   }
 
-  // Sandbox siempre es true para preapprovals (MP no tiene sandbox_init_point separado para subscriptions)
-  // El access token ya es de la cuenta correcta (sandbox o producción según esté configurado).
   const apiBase = "https://api.mercadopago.com";
 
   try {
-    const res = await fetch(`${apiBase}/preapproval`, {
+    const res = await fetch(`${apiBase}/preapproval_plan`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${subCreds.accessToken}`,
@@ -166,21 +170,19 @@ export async function POST(req: NextRequest) {
 
     const data = await res.json();
     if (!res.ok) {
-      console.error("[mp sub create]", data);
+      console.error("[mp sub create plan]", data);
       const msg = data.message || data.error || `MP error ${res.status}`;
       return NextResponse.json({ error: msg }, { status: 500 });
     }
 
-    // MP subscriptions: init_point para producción, sandbox_init_point para sandbox
-    // En Chile los tokens de prueba empiezan con APP_USR- (no TEST-), así que usar la flag sandbox de la DB.
-    const initPoint = subCreds.sandbox
-      ? (data.sandbox_init_point || data.init_point)
-      : (data.init_point || data.sandbox_init_point);
+    // El plan devuelve init_point SIN activation=true (modelo actual de MP).
+    const initPoint = data.init_point;
     if (!initPoint) {
-      return NextResponse.json({ error: "MP no devolvió init_point", data }, { status: 500 });
+      return NextResponse.json({ error: "MP no devolvió init_point del plan", data }, { status: 500 });
     }
 
-    // Guardar la preapproval pendiente en la DB (via raw SQL para evitar Prisma errors)
+    // Guardamos el plan_id en mpSubPreapprovalId (temporal — el webhook lo reemplazará por el
+    // preapproval_id real cuando el payer confirme y MP cree el preapproval).
     await akuosplashDb.$executeRawUnsafe(
       `UPDATE AkuoUsuario SET
         mpSubPreapprovalId = ?, mpSubPlanSolicitado = ?, mpSubCiclo = ?,
