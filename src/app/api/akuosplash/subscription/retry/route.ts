@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     }
   } catch {}
 
-  // Crear nueva preapproval en MP
+  // Crear preapproval_PLAN en MP (modelo actual — el inline queda con activation=true y botón gris).
   const mpBody: any = {
     reason: `AkuoSplash — Plan ${planCfg.nombre} (${ciclo}) — reintento`,
     auto_recurring: {
@@ -63,15 +63,15 @@ export async function POST(req: NextRequest) {
       transaction_amount: amount,
       currency_id: "CLP",
     },
-    payer_email: mpPayerEmail,
     back_url: `${APP_URL}/akuosplash/transportista?tab=subscripcion`,
-    status: "pending",
     external_reference: `akuo_sub:${user.id}:${planId}:${ciclo}`,
-    notification_url: `${APP_URL}/api/akuosplash/subscription/mercadopago/webhook`,
+    payment_methods_allowed: {
+      payment_type_id: ["credit_card"],
+    },
   };
 
   try {
-    const r = await fetch("https://api.mercadopago.com/preapproval", {
+    const r = await fetch("https://api.mercadopago.com/preapproval_plan", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${subCreds.accessToken}`,
@@ -88,15 +88,13 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    // Sandbox o producción según la flag mpSandbox de la DB (en Chile los tokens de prueba empiezan con APP_USR-)
-    const initPoint = subCreds.sandbox
-      ? (data.sandbox_init_point || data.init_point)
-      : (data.init_point || data.sandbox_init_point);
+    // El plan devuelve init_point SIN activation=true.
+    const initPoint = data.init_point;
     if (!initPoint) {
-      return NextResponse.json({ error: "MP no devolvió init_point", data }, { status: 500 });
+      return NextResponse.json({ error: "MP no devolvió init_point del plan", data }, { status: 500 });
     }
 
-    // Guardar la nueva preapproval en la DB
+    // Guardamos el plan_id (temporal — el webhook lo reemplaza por el preapproval_id real).
     await akuosplashDb.$executeRawUnsafe(
       `UPDATE AkuoUsuario SET
         mpSubPreapprovalId = ?,
