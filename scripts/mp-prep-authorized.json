@@ -1,0 +1,40 @@
+{
+  "id": "e2b7227628234a808853884e8f202a41",
+  "payer_id": 3774264414,
+  "payer_email": "",
+  "back_url": "https://akuosplash.cl/akuosplash/transportista?tab=subscripcion",
+  "collector_id": 3738974993,
+  "application_id": 2731961034891399,
+  "status": "authorized",
+  "reason": "AkuoSplash — Plan Pro (mensual)",
+  "external_reference": "akuo_sub:test_transp_1792894807029:pro:mensual",
+  "date_created": "2026-11-09T00:05:29.000-04:00",
+  "last_modified": "2026-11-09T00:06:15.082-04:00",
+  "init_point": "https://www.mercadopago.cl/subscriptions/checkout?preapproval_id=e2b7227628234a808853884e8f202a41",
+  "auto_recurring": {
+    "frequency": 1,
+    "frequency_type": "months",
+    "transaction_amount": 23990,
+    "currency_id": "CLP",
+    "start_date": "2026-11-09T00:05:29.000-04:00",
+    "has_billing_day": false,
+    "free_trial": null
+  },
+  "summarized": {
+    "quotas": null,
+    "charged_quantity": 1,
+    "pending_charge_quantity": null,
+    "charged_amount": 23990,
+    "pending_charge_amount": null,
+    "semaphore": "green",
+    "last_charged_date": "2026-11-09T00:05:55.000-04:00",
+    "last_charged_amount": 23990
+  },
+  "next_payment_date": "2026-12-09T00:05:54.000-04:00",
+  "payment_method_id": "master",
+  "card_id": "9871487195",
+  "payment_method_id_secondary": null,
+  "first_invoice_offset": null,
+  "subscription_id": "e2b7227628234a808853884e8f202a41",
+  "owner": null
+}
