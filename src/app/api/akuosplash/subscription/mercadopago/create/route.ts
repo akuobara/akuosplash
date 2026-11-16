@@ -144,9 +144,9 @@ export async function POST(req: NextRequest) {
     },
     back_url: `${APP_URL}/akuosplash/transportista?tab=subscripcion`,
     external_reference: `akuo_sub:${user.id}:${planId}:${ciclo}`,
-    payment_methods_allowed: {
-      payment_type_id: ["credit_card"],
-    },
+    // Sin payment_methods_allowed: MP lo guarda vacío ({}) y no aporta nada.
+    // Las subscripciones en CL solo aceptan crédito por sí solas — igual que el
+    // preapproval que funcionó el 9/11 (sin restricciones de medio de pago).
   };
   // Si hay meses gratis (cupón meses_gratis), agregar free_trial
   if (mesesGratis > 0) {

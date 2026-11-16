@@ -65,9 +65,7 @@ export async function POST(req: NextRequest) {
     },
     back_url: `${APP_URL}/akuosplash/transportista?tab=subscripcion`,
     external_reference: `akuo_sub:${user.id}:${planId}:${ciclo}`,
-    payment_methods_allowed: {
-      payment_type_id: ["credit_card"],
-    },
+    // Sin payment_methods_allowed: MP lo guarda vacío ({}) y no aporta nada.
   };
 
   try {
