@@ -147,15 +147,26 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     }
     setCreando(true);
     try {
-      const res = await akuoPost<{ initPoint: string; preapprovalId: string; amount: number; cuponAplicado?: any }>(
+      const res = await akuoPost<{ initPoint?: string; sandbox?: boolean; authorized?: boolean; preapprovalId: string; amount: number; planActivoHasta?: string; cuponAplicado?: any }>(
         "/api/akuosplash/subscription/mercadopago/create",
         { plan: planSeleccionado, ciclo, couponCode: couponAplicado ? couponAplicado.codigo : undefined }
       );
       if (res.cuponAplicado) {
         toast.success(`Cupón "${res.cuponAplicado.codigo}" aplicado: ${res.cuponAplicado.montoAhorrado > 0 ? formatCLP(res.cuponAplicado.montoAhorrado) + " de descuento" : res.cuponAplicado.mesesGratis + " mes(es) gratis"}`);
       }
+      // Modo sandbox: la subscripción se autorizó por API directo (sin checkout web)
+      if (res.sandbox) {
+        if (res.authorized) {
+          toast.success(`✅ Subscripción ${planSeleccionado} activada (sandbox) hasta el ${new Date(res.planActivoHasta || "").toLocaleDateString("es-CL")}`);
+        } else {
+          toast.info("Subscripción en proceso — sincronizá en unos segundos");
+        }
+        await cargar();
+        onUpdated();
+        return;
+      }
       // Redirigir al init_point de MP (Checkout de subscripción)
-      window.location.href = res.initPoint;
+      window.location.href = res.initPoint!;
     } catch (e: any) {
       toast.error("No se pudo iniciar el pago: " + (e?.message || ""));
     } finally {
@@ -399,11 +410,21 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                   className="bg-blue-600 hover:bg-blue-700 text-white border-blue-700"
                   onClick={async () => {
                     try {
-                      const r = await akuoPost("/api/akuosplash/subscription/retry", {
+                      const r = await akuoPost<{ ok?: boolean; initPoint?: string; sandbox?: boolean; authorized?: boolean; planActivoHasta?: string }>("/api/akuosplash/subscription/retry", {
                         plan: info?.mpSubPlanSolicitado || planActual,
                         ciclo: info?.mpSubCiclo || "mensual",
                       });
-                      if (r.initPoint) window.location.href = r.initPoint;
+                      if (r.sandbox) {
+                        if (r.authorized) {
+                          toast.success(`✅ Subscripción reactivada (sandbox) hasta el ${new Date(r.planActivoHasta || "").toLocaleDateString("es-CL")}`);
+                        } else {
+                          toast.info("Reintento en proceso");
+                        }
+                        await cargar();
+                        onUpdated();
+                      } else if (r.initPoint) {
+                        window.location.href = r.initPoint;
+                      }
                     } catch (e: any) {
                       toast.error(e?.message || "No se pudo crear nueva preapproval");
                     }

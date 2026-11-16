@@ -68,8 +68,102 @@ export async function POST(req: NextRequest) {
     // Sin payment_methods_allowed: MP lo guarda vacío ({}) y no aporta nada.
   };
 
+  const apiBase = "https://api.mercadopago.com";
+
+  // === MODO SANDBOX: flujo API directo con tarjeta de prueba (igual que create) ===
+  // El checkout web no acepta tarjetas de prueba (corre con credenciales de producción del
+  // test user) — el flujo API con card_token autoriza y cobra al instante.
+  if (subCreds.sandbox) {
+    try {
+      const PAYER_EMAIL = mpPayerEmail.includes("@testuser.com")
+        ? mpPayerEmail
+        : user.email.includes("@testuser.com") ? user.email : "test_user_2094743021490827193@testuser.com";
+      const ctRes = await fetch(`${apiBase}/v1/card_tokens`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${subCreds.accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          card_number: "5416752602582580", // Mastercard crédito (tarjeta de prueba MP Chile)
+          security_code: "123",
+          expiration_month: 11,
+          expiration_year: 2030,
+          cardholder: { name: "APRO" },
+        }),
+      });
+      const ct = await ctRes.json();
+      if (!ctRes.ok || !ct.id) {
+        console.error("[mp sub retry sandbox] card_token failed", ct);
+        return NextResponse.json({ error: `MP no pudo tokenizar la tarjeta de prueba: ${ct.message || ctRes.status}` }, { status: 502 });
+      }
+
+      const planRes = await fetch(`${apiBase}/preapproval_plan`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${subCreds.accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify(mpBody),
+      });
+      const planData = await planRes.json();
+      if (!planRes.ok) {
+        console.error("[mp sub retry sandbox] plan failed", planData);
+        return NextResponse.json({ error: planData.message || `MP error plan ${planRes.status}` }, { status: 500 });
+      }
+
+      const preRes = await fetch(`${apiBase}/preapproval`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${subCreds.accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          preapproval_plan_id: planData.id,
+          reason: mpBody.reason,
+          payer_email: PAYER_EMAIL,
+          card_token_id: ct.id,
+          external_reference: mpBody.external_reference,
+          back_url: mpBody.back_url,
+        }),
+      });
+      const preData = await preRes.json();
+      if (!preRes.ok) {
+        console.error("[mp sub retry sandbox] preapproval failed", preData);
+        return NextResponse.json({ error: preData.message || `MP error preapproval ${preRes.status}` }, { status: 500 });
+      }
+
+      const authorized = preData.status === "authorized";
+      const ahora = new Date();
+      const fin = new Date(ahora);
+      if (ciclo === "anual") fin.setFullYear(fin.getFullYear() + 1);
+      else if (ciclo === "semanal") fin.setDate(fin.getDate() + 7);
+      else if (ciclo === "diario") fin.setDate(fin.getDate() + 1);
+      else fin.setMonth(fin.getMonth() + 1);
+
+      await akuosplashDb.$executeRawUnsafe(
+        `UPDATE AkuoUsuario SET
+          mpSubPreapprovalId = ?, mpSubPlanSolicitado = ?, mpSubCiclo = ?,
+          mpSubStatus = ?, mpSubIniciadoEn = ?, mpSubAmount = ?,
+          plan = ?, planActivoDesde = ?, planActivoHasta = ?,
+          mpSubAutorizadoEn = ?, suscripcionActiva = ?
+         WHERE id = ?`,
+        preData.id, planId, ciclo, preData.status || "authorized", ahora.toISOString(), amount,
+        planId, ahora.toISOString(), fin.toISOString(),
+        authorized ? ahora.toISOString() : null, authorized ? 1 : 0,
+        user.id
+      ).catch(() => {});
+
+      return NextResponse.json({
+        ok: true,
+        sandbox: true,
+        authorized,
+        preapprovalId: preData.id,
+        amount,
+        planId,
+        ciclo,
+        planActivoHasta: fin.toISOString(),
+      });
+    } catch (e: any) {
+      console.error("[mp sub retry sandbox exception]", e);
+      return NextResponse.json({ error: e?.message || "Error en reintento sandbox" }, { status: 500 });
+    }
+  }
+
+  // === MODO PRODUCCIÓN: checkout web ===
   try {
-    const r = await fetch("https://api.mercadopago.com/preapproval_plan", {
+    const r = await fetch(`${apiBase}/preapproval_plan`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${subCreds.accessToken}`,
