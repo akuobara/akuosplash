@@ -158,13 +158,16 @@ export async function POST(req: NextRequest) {
 
   const apiBase = "https://api.mercadopago.com";
 
-  // === MODO SANDBOX (mpSandbox=1): flujo API directo con tarjeta de prueba ===
-  // El checkout web de subscripciones corre con credenciales de PRODUCCIÓN del test user
-  // (MP Chile no emite TEST- para subscripciones) → las tarjetas de prueba NO se pueden
-  // confirmar ahí (el botón "Pagar suscripción" queda gris / "no acepta este medio de pago").
-  // Flujo verificado: card_token con access token + preapproval con card_token →
-  // MP la autoriza y cobra al instante (summarized.charged_quantity=1).
-  if (subCreds.sandbox) {
+  // === MODO SANDBOX ===
+  // Caso A: token TEST- (credenciales de prueba del panel) → checkout web sandbox.
+  //   MP devuelve sandbox_init_point y las tarjetas de prueba funcionan en el checkout.
+  // Caso B: token APP_USR- de un test user (lo configurado hoy) → flujo API directo.
+  //   Con este token MP NO devuelve sandbox_init_point (verificado): el checkout corre en
+  //   producción, donde las tarjetas de prueba no se pueden confirmar (botón gris).
+  //   Flujo verificado: card_token con access token + preapproval con card_token →
+  //   MP la autoriza y cobra al instante (summarized.charged_quantity=1).
+  const isTestCredToken = subCreds.accessToken.startsWith("TEST-");
+  if (subCreds.sandbox && !isTestCredToken) {
     try {
       // 1) Card token de la tarjeta de PRUEBA (Mastercard crédito CL) con el access token.
       //    Con la public key falla (G001) — la pk de producción no tokeniza tarjetas de prueba.
@@ -308,7 +311,9 @@ export async function POST(req: NextRequest) {
     }
 
     // El plan devuelve init_point SIN activation=true (modelo actual de MP).
-    const initPoint = data.init_point;
+    // Con credenciales TEST- (sandbox real), MP además devuelve sandbox_init_point —
+    // usarlo preferentemente: es el checkout donde las tarjetas de prueba SÍ confirman.
+    const initPoint = data.sandbox_init_point || data.init_point;
     if (!initPoint) {
       return NextResponse.json({ error: "MP no devolvió init_point del plan", data }, { status: 500 });
     }
