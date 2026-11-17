@@ -70,6 +70,30 @@ export async function POST(req: NextRequest) {
 
   const apiBase = "https://api.mercadopago.com";
 
+  // === ANTI-DOBLE-COBRO: cancelar la subscripción ANTERIOR antes de crear una nueva ===
+  // Mismo guard que en /create: si queda una preapproval viva, se cancela antes de reintentar.
+  try {
+    const prev: any = await akuosplashDb.$queryRawUnsafe(
+      `SELECT mpSubPreapprovalId, mpSubStatus FROM AkuoUsuario WHERE id = ? LIMIT 1`,
+      user.id
+    );
+    const prevId = Array.isArray(prev) && prev[0]?.mpSubPreapprovalId;
+    const prevStatus = Array.isArray(prev) && prev[0]?.mpSubStatus;
+    if (prevId && (prevStatus === "authorized" || prevStatus === "pending")) {
+      const cr = await fetch(`${apiBase}/preapproval/${prevId}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${subCreds.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "cancelled" }),
+      });
+      console.log(`[mp sub retry] preapproval anterior ${prevId} (${prevStatus}) cancelada: HTTP ${cr.status}`);
+    }
+  } catch (e: any) {
+    console.warn("[mp sub retry] no se pudo cancelar la preapproval anterior:", e?.message);
+  }
+
   // === MODO SANDBOX ===
   // Caso A: token TEST- (credenciales de prueba del panel) → checkout web sandbox (sandbox_init_point).
   // Caso B: token APP_USR- de test user → flujo API directo con tarjeta de prueba

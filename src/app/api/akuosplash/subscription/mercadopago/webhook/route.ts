@@ -89,6 +89,33 @@ async function handlePreapprovalWebhook(dataId: string | undefined) {
   const status: string = data.status; // pending | authorized | paused | cancelled
   const amount: number | undefined = data.auto_recurring?.transaction_amount;
 
+  // === ANTI-DOBLE-COBRO: ignorar webhooks de preapprovals obsoletas ===
+  // Si el usuario ya tiene OTRA preapproval activa (authorized) más reciente, esta
+  // notificación es de una subscripción vieja que quedó viva por error: ignorarla,
+  // para que no re-active un plan distinto ni pise el estado de la subscripción buena.
+  if (status === "authorized" && userId) {
+    try {
+      const actual: any = await akuosplashDb.$queryRawUnsafe(
+        `SELECT mpSubPreapprovalId, mpSubAutorizadoEn, mpSubIniciadoEn FROM AkuoUsuario WHERE id = ? LIMIT 1`,
+        userId
+      );
+      const actualId = Array.isArray(actual) && actual[0]?.mpSubPreapprovalId;
+      const actualFecha = Array.isArray(actual) && (actual[0]?.mpSubAutorizadoEn || actual[0]?.mpSubIniciadoEn);
+      if (actualId && actualId !== data.id && new Date(data.date_created || 0) < new Date(actualFecha || 0)) {
+        console.warn(`[mp preapproval webhook] preapproval obsoleta ${data.id} ignorada (activa: ${actualId})`);
+        // Cancelar en MP la obsoleta para que no vuelva a cobrar
+        await fetch(`${apiBase}/preapproval/${data.id}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${subCreds.accessToken}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "cancelled" }),
+        }).catch(() => {});
+        return NextResponse.json({ ok: true, ignored: true, reason: "preapproval obsoleta cancelada" });
+      }
+    } catch (e: any) {
+      console.warn("[mp preapproval webhook] guard anti-duplicado falló (continuando):", e?.message);
+    }
+  }
+
   // Actualizar el usuario con el estado de la preapproval
   const updateData: any = {
     mpSubStatus: status,
