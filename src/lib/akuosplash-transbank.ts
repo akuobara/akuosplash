@@ -273,8 +273,10 @@ export async function startInscription(params: StartInscriptionParams): Promise<
   });
   const data = await res.json();
   if (!res.ok) throw new Error(`Oneclick start HTTP ${res.status}: ${JSON.stringify(data)}`);
-  if (!data.token || !data.url) throw new Error(`Oneclick start respuesta inválida: ${JSON.stringify(data)}`);
-  return { token: data.token, url: data.url };
+  // Oneclick devuelve "url_webpay" (no "url" como Webpay Plus)
+  const urlWebpay = data.url_webpay || data.url;
+  if (!data.token || !urlWebpay) throw new Error(`Oneclick start respuesta inválida: ${JSON.stringify(data)}`);
+  return { token: data.token, url: urlWebpay };
 }
 
 // --- 2. Finish inscription ---
