@@ -5,34 +5,45 @@ import { createTransaction, generateBuyOrder } from "@/lib/akuosplash-transbank"
 
 // POST /api/akuosplash/subscription/transbank/create
 // Inicia una transacción Webpay para el pago de una subscripción.
-// Body: { plan: "pro" | "enterprise", ciclo: "mensual" | "anual" }
-// Devuelve: { token, url, buyOrder }
+// Body: { plan: "premium" | "pro", ciclo: "mensual" | "anual" | "semanal" | "diario" }
+// Devuelve: { token, url, buyOrder, amount }
 export async function POST(req: NextRequest) {
   const user = await akuoGetCurrentUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  if (user.rol !== "transportista") {
+  if (user.rol !== "transportista" && user.rol !== "superadmin") {
     return NextResponse.json({ error: "Solo transportistas pueden subscribirse" }, { status: 403 });
   }
 
   const body = await req.json();
-  const plan = body.plan || "pro";
+  const plan = body.plan || "premium";
   const ciclo = body.ciclo || "mensual";
-  if (plan !== "pro" && plan !== "enterprise") {
-    return NextResponse.json({ error: "Plan inválido (debe ser pro o enterprise)" }, { status: 400 });
+  if (plan !== "premium" && plan !== "pro") {
+    return NextResponse.json({ error: "Plan inválido (debe ser premium o pro)" }, { status: 400 });
   }
 
-  // Cargar config para precios
+  // Precio desde planConfigsJson (fuente real de precios de la app, igual que MP)
   const config = await akuosplashDb.akuoConfig.findFirst();
   if (!config) return NextResponse.json({ error: "Config no encontrada" }, { status: 500 });
 
-  const precioPlan = plan === "pro" ? config.precioPlanPro : config.precioPlanEnterprise;
-  const amount = ciclo === "anual" ? precioPlan * 10 : precioPlan; // anual = 10 meses (2 gratis)
+  let amount: number;
+  try {
+    const configs = JSON.parse(config.planConfigsJson || "{}");
+    const cfg = configs[plan];
+    if (!cfg) throw new Error(`plan ${plan} no está en planConfigsJson`);
+    amount = ciclo === "anual" ? cfg.precioAnual
+      : ciclo === "semanal" ? cfg.precioSemanal
+      : ciclo === "diario" ? cfg.precioDiario
+      : cfg.precioMensual;
+    if (!amount || amount <= 0) throw new Error(`precio ${ciclo} no configurado para ${plan}`);
+  } catch (e: any) {
+    return NextResponse.json({ error: `Precio no disponible para ${plan}/${ciclo}: ${e.message}` }, { status: 400 });
+  }
 
   const buyOrder = generateBuyOrder(user.id);
   const sessionId = user.id;
 
-  // Determinar la URL de retorno (debe ser absoluta y pública)
-  const returnUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://my-project-azure-five-82.vercel.app"}/api/akuosplash/subscription/transbank/return`;
+  // URL de retorno: dominio real de la app (el env apunta a dominios viejos)
+  const returnUrl = `https://akuosplash.cl/api/akuosplash/subscription/transbank/return`;
 
   try {
     const result = await createTransaction({
@@ -43,7 +54,6 @@ export async function POST(req: NextRequest) {
     });
 
     // Guardar la transacción pendiente en la DB para tracking
-    // Usamos AkuoUsuario.transbankBuyOrder (campo nuevo)
     await akuosplashDb.akuoUsuario.update({
       where: { id: user.id },
       data: {

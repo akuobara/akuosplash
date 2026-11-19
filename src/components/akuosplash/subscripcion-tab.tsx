@@ -63,6 +63,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   const [couponValidating, setCouponValidating] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
+  const [creandoTbk, setCreandoTbk] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -113,6 +114,18 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   // Detectar resultado del redirect de MP (init_point redirige a MP, vuelve a ?tab=subscripcion&mp=ok|fail)
   useEffect(() => {
     const result = searchParams.get("mp");
+    const tbk = searchParams.get("transbank");
+    if (tbk === "ok") {
+      toast.success("¡Pago Webpay confirmado! Plan activado.");
+      cargar();
+      onUpdated();
+    } else if (tbk === "fallido") {
+      toast.error("El pago Webpay fue rechazado o falló.");
+    } else if (tbk === "abortado") {
+      toast.info("Pago Webpay cancelado.");
+    } else if (tbk === "error") {
+      toast.error("Error al confirmar el pago Webpay.");
+    }
     if (result === "ok") {
       toast.success("¡Subscripción procesada! Sincronizando estado…");
       // Disparar sync automáticamente
@@ -185,6 +198,39 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       toast.error("No se pudo iniciar el pago: " + (e?.message || ""));
     } finally {
       setCreando(false);
+    }
+  }
+
+  // Iniciar pago con Webpay (Transbank) — un solo click, redirect al formulario de TBK
+  async function iniciarPagoTransbank() {
+    if (planSeleccionado === "gratis") {
+      toast.info("Elegí un plan de pago para subscribirte.");
+      return;
+    }
+    if (ciclo !== "mensual") {
+      toast.info("Webpay por ahora solo soporta el ciclo mensual.");
+      return;
+    }
+    setCreandoTbk(true);
+    try {
+      const res = await akuoPost<{ token: string; url: string; buyOrder: string; amount: number }>(
+        "/api/akuosplash/subscription/transbank/create",
+        { plan: planSeleccionado, ciclo }
+      );
+      // Transbank requiere POST/redirect con el token — usamos un form auto-submit
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = res.url;
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "token_ws";
+      input.value = res.token;
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    } catch (e: any) {
+      toast.error("No se pudo iniciar el pago Webpay: " + (e?.message || ""));
+      setCreandoTbk(false);
     }
   }
 
@@ -604,20 +650,35 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                 </span>
               </div>
             </div>
-            <Button
-              onClick={iniciarPago}
-              disabled={creando}
-              size="lg"
-              className="w-full h-12 text-base font-semibold"
-            >
-              {creando ? (
-                <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Iniciando pago…</>
-              ) : (
-                <><CreditCard className="mr-2 h-5 w-5" /> Pagar con MercadoPago</>
-              )}
-            </Button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <Button
+                onClick={iniciarPago}
+                disabled={creando}
+                size="lg"
+                className="h-12 text-base font-semibold"
+              >
+                {creando ? (
+                  <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Iniciando…</>
+                ) : (
+                  <><CreditCard className="mr-2 h-5 w-5" /> MercadoPago</>
+                )}
+              </Button>
+              <Button
+                onClick={iniciarPagoTransbank}
+                disabled={creandoTbk}
+                size="lg"
+                variant="outline"
+                className="h-12 text-base font-semibold"
+              >
+                {creandoTbk ? (
+                  <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Iniciando…</>
+                ) : (
+                  <><CreditCard className="mr-2 h-5 w-5" /> Webpay (Transbank)</>
+                )}
+              </Button>
+            </div>
             <p className="text-[10px] text-muted-foreground text-center">
-              Vas a ser redirigido a MercadoPago para autorizar la subscripción recurrente. Después de aprobar, volvés automáticamente acá.
+              Con MercadoPago autorizás la subscripción recurrente. Con Webpay pagás el primer período y te redirige de vuelta automáticamente.
             </p>
           </CardContent>
         </Card>
