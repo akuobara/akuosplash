@@ -11,10 +11,16 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const tokenWs = url.searchParams.get("token_ws") || url.searchParams.get("TBK_TOKEN");
 
+  // IMPORTANTE: url.origin dentro de Render resuelve al hostname INTERNO
+  // (srv-xxx-yyy:10000), no al dominio público. Usar el host forwarded (akuosplash.cl)
+  // con fallback al dominio de producción.
+  const fwdHost = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  const origin = fwdHost && !fwdHost.startsWith("srv-") ? `https://${fwdHost}` : "https://akuosplash.cl";
+
   if (!tokenWs) {
     // Usuario abortó
     return NextResponse.redirect(
-      new URL("/akuosplash/transportista?tab=subscripcion&transbank=abortado", url.origin)
+      new URL("/akuosplash/transportista?tab=subscripcion&transbank=abortado", origin)
     );
   }
 
@@ -25,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   if (!usuario) {
     return NextResponse.redirect(
-      new URL("/akuosplash/transportista?tab=subscripcion&transbank=error&msg=token_no_encontrado", url.origin)
+      new URL("/akuosplash/transportista?tab=subscripcion&transbank=error&msg=token_no_encontrado", origin)
     );
   }
 
@@ -58,7 +64,7 @@ export async function GET(req: NextRequest) {
       });
 
       return NextResponse.redirect(
-        new URL(`/akuosplash/transportista?tab=subscripcion&transbank=ok&plan=${planSolicitado}`, url.origin)
+        new URL(`/akuosplash/transportista?tab=subscripcion&transbank=ok&plan=${planSolicitado}`, origin)
       );
     } else {
       // Falló
@@ -69,7 +75,7 @@ export async function GET(req: NextRequest) {
         },
       });
       return NextResponse.redirect(
-        new URL(`/akuosplash/transportista?tab=subscripcion&transbank=fallido&status=${commit.status}&rc=${commit.response_code ?? ""}`, url.origin)
+        new URL(`/akuosplash/transportista?tab=subscripcion&transbank=fallido&status=${commit.status}&rc=${commit.response_code ?? ""}`, origin)
       );
     }
   } catch (e: any) {
@@ -79,7 +85,7 @@ export async function GET(req: NextRequest) {
       data: { transbankStatus: "ERROR" },
     }).catch(() => {});
     return NextResponse.redirect(
-      new URL(`/akuosplash/transportista?tab=subscripcion&transbank=error&msg=${encodeURIComponent(e.message || "")}`, url.origin)
+      new URL(`/akuosplash/transportista?tab=subscripcion&transbank=error&msg=${encodeURIComponent(e.message || "")}`, origin)
     );
   }
 }
