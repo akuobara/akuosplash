@@ -115,6 +115,21 @@ model AkuoUsuario {
   transbankIniciadoEn   DateTime?
   transbankAutorizadoEn DateTime?
   transbankAuthorizationCode String?
+  // --- Transbank Oneclick Mall (inscripción de tarjeta + cobro recurrente) ---
+  // Flujo: start → usuario inscribe tarjeta en Webpay → finish devuelve tbkUser
+  //        → authorize cobra desde el backend con tbkUser (recurrente)
+  //        → refund revierte un cargo → delete desinscribe la tarjeta
+  tbkUsername              String?  // username enviado a Oneclick (deriva del userId, max 40)
+  tbkUser                  String?  // tbk_user retornado por finish (token para authorize)
+  tbkCardType              String?  // Visa | MasterCard | AmericanExpress | ...
+  tbkCardLast4             String?  // últimos 4 dígitos de la tarjeta inscripta
+  tbkInscriptionStatus     String?  // INITIALIZED | COMPLETED | FAILED | DELETED
+  tbkInscriptionToken      String?  // token de start (para llamar finish)
+  tbkInscriptionEmail      String?  // email enviado a start
+  tbkSubscriptionActive    Boolean? @default(false)  // ¿cobro recurrente activo?
+  tbkLastCobroBuyOrder     String?  // buy_order del último cargo (para refund)
+  tbkLastCobroEn           DateTime?  // fecha del último cargo exitoso
+  tbkLastCobroAuthCode     String?  // authorization_code del último cargo
   // --- MercadoPago Subscriptions (preapproval) para planes de pago ---
   // El transportista que sube de plan genera una preapproval en MP
   mpSubPreapprovalId       String?  // ID de la preapproval creada
@@ -474,6 +489,9 @@ model AkuoConfig {
   transbankCommerceCode    String?
   transbankApiKey          String?
   transbankEnvironment     String?  // "INTEGRACION" | "PRODUCCION"
+  // --- Transbank Oneclick Mall (inscripción + cobro recurrente) ---
+  transbankOneclickMallCode   String?  // código de comercio padre (mall)
+  transbankOneclickChildCode  String?  // código de comercio hijo (store)
   // --- Configuración de planes (gratis/premium/pro) ---
   // JSON: { gratis: {...}, premium: {...}, pro: {...} }
   // Cada plan: { precioMensual, precioAnual, comisionPct, mpSplitMode, pagoDiferadoDias,

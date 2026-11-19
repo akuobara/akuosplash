@@ -23,6 +23,15 @@ interface SubscripcionInfo {
   transbankCiclo?: string | null;
   transbankIniciadoEn?: string | null;
   transbankAutorizadoEn?: string | null;
+  // Oneclick
+  tbkUser?: string | null;
+  tbkCardType?: string | null;
+  tbkCardLast4?: string | null;
+  tbkInscriptionStatus?: string | null;
+  tbkSubscriptionActive?: boolean | null;
+  tbkLastCobroBuyOrder?: string | null;
+  tbkLastCobroEn?: string | null;
+  tbkLastCobroAuthCode?: string | null;
   mpSubPreapprovalId?: string | null;
   mpSubPlanSolicitado?: string | null;
   mpSubCiclo?: string | null;
@@ -64,6 +73,11 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [creandoTbk, setCreandoTbk] = useState(false);
+  // Oneclick
+  const [inscribiendo, setInscribiendo] = useState(false);
+  const [cobrando, setCobrando] = useState(false);
+  const [cancelandoTbk, setCancelandoTbk] = useState(false);
+  const [eliminando, setEliminando] = useState(false);
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -115,6 +129,7 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   useEffect(() => {
     const result = searchParams.get("mp");
     const tbk = searchParams.get("transbank");
+    const one = searchParams.get("oneclick");
     if (tbk === "ok") {
       toast.success("¡Pago Webpay confirmado! Plan activado.");
       cargar();
@@ -125,6 +140,17 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
       toast.info("Pago Webpay cancelado.");
     } else if (tbk === "error") {
       toast.error("Error al confirmar el pago Webpay.");
+    }
+    if (one === "ok") {
+      toast.success("¡Tarjeta inscripta en Webpay Oneclick! Ya podés pagar.");
+      cargar();
+      onUpdated();
+    } else if (one === "fallido") {
+      toast.error("La inscripción de tarjeta falló.");
+    } else if (one === "abortado") {
+      toast.info("Inscripción de tarjeta cancelada.");
+    } else if (one === "error") {
+      toast.error("Error al confirmar la inscripción de tarjeta.");
     }
     if (result === "ok") {
       toast.success("¡Subscripción procesada! Sincronizando estado…");
@@ -231,6 +257,90 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     } catch (e: any) {
       toast.error("No se pudo iniciar el pago Webpay: " + (e?.message || ""));
       setCreandoTbk(false);
+    }
+  }
+
+  // === Oneclick (Transbank recurrente) ===
+  // Inscribir tarjeta: POST /oneclick/start → redirect al formulario de Webpay
+  async function inscribirTarjeta() {
+    setInscribiendo(true);
+    try {
+      const res = await akuoPost<{ url: string; token: string }>("/api/akuosplash/subscription/transbank/oneclick/start", {});
+      // Redirect a la URL de Transbank con el token (form POST, como Webpay Plus)
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = res.url;
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = "tbk_token";
+      input.value = res.token;
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+    } catch (e: any) {
+      toast.error("No se pudo iniciar la inscripción: " + (e?.message || ""));
+      setInscribiendo(false);
+    }
+  }
+
+  // Pagar con la tarjeta inscripta (cargo server-to-server, recurrente)
+  async function pagarConTarjeta() {
+    if (planSeleccionado === "gratis") {
+      toast.info("Elegí un plan de pago primero.");
+      return;
+    }
+    setCobrando(true);
+    try {
+      const res = await akuoPost<{ ok: boolean; authorizationCode?: string; amount?: number; plan?: string; planActivoHasta?: string; error?: string }>("/api/akuosplash/subscription/transbank/oneclick/authorize", { plan: planSeleccionado, ciclo });
+      if (res.ok) {
+        toast.success(`¡Pago confirmado! Plan ${res.plan} activado hasta el ${new Date(res.planActivoHasta || "").toLocaleDateString("es-CL")}. Cod. auth: ${res.authorizationCode}`);
+        await cargar();
+        onUpdated();
+      } else {
+        toast.error(res.error || "El cargo fue rechazado.");
+      }
+    } catch (e: any) {
+      toast.error("No se pudo hacer el cargo: " + (e?.message || ""));
+    } finally {
+      setCobrando(false);
+    }
+  }
+
+  // Cancelar suscripción: reembolsa el último cargo + desactiva el plan
+  async function cancelarSuscripcion() {
+    if (!confirm("¿Cancelar la suscripción? Se reembolsará el último cargo y el plan volverá a Gratis.")) return;
+    setCancelandoTbk(true);
+    try {
+      const res = await akuoPost<{ ok: boolean; refunded: boolean; message?: string }>("/api/akuosplash/subscription/transbank/oneclick/cancel", {});
+      if (res.ok) {
+        toast.success(res.refunded ? "Suscripción cancelada y último cargo reembolsado." : "Suscripción cancelada (el reembolso falló — revisá los logs).");
+        await cargar();
+        onUpdated();
+      } else {
+        toast.error("No se pudo cancelar.");
+      }
+    } catch (e: any) {
+      toast.error("No se pudo cancelar: " + (e?.message || ""));
+    } finally {
+      setCancelandoTbk(false);
+    }
+  }
+
+  // Eliminar la tarjeta inscripta (desinscripción)
+  async function eliminarTarjeta() {
+    if (!confirm("¿Eliminar la tarjeta inscripta? No podrás hacer cobros hasta re-inscribir una.")) return;
+    setEliminando(true);
+    try {
+      const res = await akuoPost<{ ok: boolean; message?: string }>("/api/akuosplash/subscription/transbank/oneclick/delete", {});
+      if (res.ok) {
+        toast.success("Tarjeta eliminada.");
+        await cargar();
+        onUpdated();
+      }
+    } catch (e: any) {
+      toast.error("No se pudo eliminar: " + (e?.message || ""));
+    } finally {
+      setEliminando(false);
     }
   }
 
@@ -650,36 +760,73 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <Button
-                onClick={iniciarPago}
-                disabled={creando}
-                size="lg"
-                className="h-12 text-base font-semibold"
-              >
-                {creando ? (
-                  <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Iniciando…</>
-                ) : (
-                  <><CreditCard className="mr-2 h-5 w-5" /> MercadoPago</>
-                )}
-              </Button>
-              <Button
-                onClick={iniciarPagoTransbank}
-                disabled={creandoTbk}
-                size="lg"
-                variant="outline"
-                className="h-12 text-base font-semibold"
-              >
-                {creandoTbk ? (
-                  <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Iniciando…</>
-                ) : (
-                  <><CreditCard className="mr-2 h-5 w-5" /> Webpay (Transbank)</>
-                )}
-              </Button>
-            </div>
-            <p className="text-[10px] text-muted-foreground text-center">
-              Con MercadoPago autorizás la subscripción recurrente. Con Webpay pagás el primer período y te redirige de vuelta automáticamente.
-            </p>
+            {/* Oneclick (Transbank recurrente) */}
+            {info?.tbkUser ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between rounded-md border bg-muted/40 px-3 py-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    <span className="font-medium">{info.tbkCardType || "Tarjeta"} •••• {info.tbkCardLast4}</span>
+                  </div>
+                  {info.tbkSubscriptionActive && (
+                    <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Recurrente activa</Badge>
+                  )}
+                </div>
+                <Button
+                  onClick={pagarConTarjeta}
+                  disabled={cobrando}
+                  size="lg"
+                  className="w-full h-12 text-base font-semibold"
+                >
+                  {cobrando ? (
+                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Cobrando…</>
+                  ) : (
+                    <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(planes[planSeleccionado]?.precioMensual || 0)} con tarjeta</>
+                  )}
+                </Button>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    onClick={cancelarSuscripcion}
+                    disabled={cancelandoTbk || !info.tbkLastCobroBuyOrder}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {cancelandoTbk ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
+                    Cancelar suscripción
+                  </Button>
+                  <Button
+                    onClick={eliminarTarjeta}
+                    disabled={eliminando}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    {eliminando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AlertTriangle className="mr-2 h-4 w-4" />}
+                    Eliminar tarjeta
+                  </Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground text-center">
+                  El cargo se hace desde el servidor con tu tarjeta inscripta (Oneclick). "Cancelar" reembolsa el último pago y apaga el cobro recurrente.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Button
+                  onClick={inscribirTarjeta}
+                  disabled={inscribiendo}
+                  size="lg"
+                  className="w-full h-12 text-base font-semibold"
+                >
+                  {inscribiendo ? (
+                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Iniciando…</>
+                  ) : (
+                    <><CreditCard className="mr-2 h-5 w-5" /> Inscribir tarjeta (Webpay Oneclick)</>
+                  )}
+                </Button>
+                <p className="text-[10px] text-muted-foreground text-center">
+                  Inscribí tu tarjeta una sola vez. Después cobramos automáticamente cada mes desde el servidor, sin redirigirte.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

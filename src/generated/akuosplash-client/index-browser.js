@@ -207,6 +207,17 @@ exports.Prisma.AkuoUsuarioScalarFieldEnum = {
   transbankIniciadoEn: 'transbankIniciadoEn',
   transbankAutorizadoEn: 'transbankAutorizadoEn',
   transbankAuthorizationCode: 'transbankAuthorizationCode',
+  tbkUsername: 'tbkUsername',
+  tbkUser: 'tbkUser',
+  tbkCardType: 'tbkCardType',
+  tbkCardLast4: 'tbkCardLast4',
+  tbkInscriptionStatus: 'tbkInscriptionStatus',
+  tbkInscriptionToken: 'tbkInscriptionToken',
+  tbkInscriptionEmail: 'tbkInscriptionEmail',
+  tbkSubscriptionActive: 'tbkSubscriptionActive',
+  tbkLastCobroBuyOrder: 'tbkLastCobroBuyOrder',
+  tbkLastCobroEn: 'tbkLastCobroEn',
+  tbkLastCobroAuthCode: 'tbkLastCobroAuthCode',
   mpSubPreapprovalId: 'mpSubPreapprovalId',
   mpSubPlanSolicitado: 'mpSubPlanSolicitado',
   mpSubCiclo: 'mpSubCiclo',
@@ -463,6 +474,8 @@ exports.Prisma.AkuoConfigScalarFieldEnum = {
   transbankCommerceCode: 'transbankCommerceCode',
   transbankApiKey: 'transbankApiKey',
   transbankEnvironment: 'transbankEnvironment',
+  transbankOneclickMallCode: 'transbankOneclickMallCode',
+  transbankOneclickChildCode: 'transbankOneclickChildCode',
   planConfigsJson: 'planConfigsJson'
 };
 

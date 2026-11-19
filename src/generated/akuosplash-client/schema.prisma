@@ -115,6 +115,21 @@ model AkuoUsuario {
   transbankIniciadoEn            DateTime?
   transbankAutorizadoEn          DateTime?
   transbankAuthorizationCode     String?
+  // --- Transbank Oneclick Mall (inscripción de tarjeta + cobro recurrente) ---
+  // Flujo: start → usuario inscribe tarjeta en Webpay → finish devuelve tbkUser
+  //        → authorize cobra desde el backend con tbkUser (recurrente)
+  //        → refund revierte un cargo → delete desinscribe la tarjeta
+  tbkUsername                    String? // username enviado a Oneclick (deriva del userId, max 40)
+  tbkUser                        String? // tbk_user retornado por finish (token para authorize)
+  tbkCardType                    String? // Visa | MasterCard | AmericanExpress | ...
+  tbkCardLast4                   String? // últimos 4 dígitos de la tarjeta inscripta
+  tbkInscriptionStatus           String? // INITIALIZED | COMPLETED | FAILED | DELETED
+  tbkInscriptionToken            String? // token de start (para llamar finish)
+  tbkInscriptionEmail            String? // email enviado a start
+  tbkSubscriptionActive          Boolean?               @default(false) // ¿cobro recurrente activo?
+  tbkLastCobroBuyOrder           String? // buy_order del último cargo (para refund)
+  tbkLastCobroEn                 DateTime? // fecha del último cargo exitoso
+  tbkLastCobroAuthCode           String? // authorization_code del último cargo
   // --- MercadoPago Subscriptions (preapproval) para planes de pago ---
   // El transportista que sube de plan genera una preapproval en MP
   mpSubPreapprovalId             String? // ID de la preapproval creada
@@ -443,55 +458,58 @@ model AkuoAuditLog {
 }
 
 model AkuoConfig {
-  id                       String   @id @default(cuid())
-  creadoEn                 DateTime @default(now())
-  comisionPorcentaje       Float    @default(0)
-  precioPlanPro            Float    @default(15000)
-  precioPlanEnterprise     Float    @default(50000)
-  maxVehiculosFree         Int      @default(1)
-  maxVehiculosPro          Int      @default(5)
-  maxVehiculosEnterprise   Int      @default(999)
-  activo                   Boolean  @default(true)
+  id                         String   @id @default(cuid())
+  creadoEn                   DateTime @default(now())
+  comisionPorcentaje         Float    @default(0)
+  precioPlanPro              Float    @default(15000)
+  precioPlanEnterprise       Float    @default(50000)
+  maxVehiculosFree           Int      @default(1)
+  maxVehiculosPro            Int      @default(5)
+  maxVehiculosEnterprise     Int      @default(999)
+  activo                     Boolean  @default(true)
   // --- Precio dinámico (marketplace) ---
-  precioDinamicoHabilitado Boolean  @default(false)
-  reglasPrecioJson         String? // JSON: array de reglas (ver src/lib/precio-dinamico.ts)
+  precioDinamicoHabilitado   Boolean  @default(false)
+  reglasPrecioJson           String? // JSON: array de reglas (ver src/lib/precio-dinamico.ts)
   // Depot de referencia de la plataforma (para cálculo de distancia Haversine)
-  depotLat                 Float?
-  depotLng                 Float?
-  depotNombre              String?
+  depotLat                   Float?
+  depotLng                   Float?
+  depotNombre                String?
   // --- MercadoPago (credenciales — si están vacías, fallback a env vars) ---
   // Cuenta legacy (mantenida para backward compat — se usa si las nuevas no están configuradas)
-  mpAccessToken            String?
-  mpPublicKey              String?
-  mpClientId               String?
-  mpUserId                 String?
-  mpSandbox                Boolean  @default(true)
+  mpAccessToken              String?
+  mpPublicKey                String?
+  mpClientId                 String?
+  mpUserId                   String?
+  mpSandbox                  Boolean  @default(true)
   // --- MP Split (para pagos del marketplace — cliente paga por agua) ---
   // La comisión la calcula el backend de AkuoSplash según el plan del transportista.
   // MP solo hace el split: envía al transportista (monto - comisión) y retiene la comisión a la plataforma.
-  mpSplitAccessToken       String?
-  mpSplitPublicKey         String?
-  mpSplitUserId            String?
+  mpSplitAccessToken         String?
+  mpSplitPublicKey           String?
+  mpSplitUserId              String?
   // --- MP Subscriptions (para subscripciones de planes — transportista paga por su plan) ---
   // Cuenta separada para preapproval API (subscripciones recurrentes).
-  mpSubAccessToken         String?
-  mpSubPublicKey           String?
+  mpSubAccessToken           String?
+  mpSubPublicKey             String?
   // --- MP Instant / 10day (LEGACY — ya no se usan, pero se mantienen para compat) ---
-  mpInstantAccessToken     String?
-  mpInstantPublicKey       String?
-  mpInstantUserId          String?
-  mp10dayAccessToken       String?
-  mp10dayPublicKey         String?
-  mp10dayUserId            String?
+  mpInstantAccessToken       String?
+  mpInstantPublicKey         String?
+  mpInstantUserId            String?
+  mp10dayAccessToken         String?
+  mp10dayPublicKey           String?
+  mp10dayUserId              String?
   // --- Transbank Webpay (para subscripciones) ---
-  transbankCommerceCode    String?
-  transbankApiKey          String?
-  transbankEnvironment     String? // "INTEGRACION" | "PRODUCCION"
+  transbankCommerceCode      String?
+  transbankApiKey            String?
+  transbankEnvironment       String? // "INTEGRACION" | "PRODUCCION"
+  // --- Transbank Oneclick Mall (inscripción + cobro recurrente) ---
+  transbankOneclickMallCode  String? // código de comercio padre (mall)
+  transbankOneclickChildCode String? // código de comercio hijo (store)
   // --- Configuración de planes (gratis/premium/pro) ---
   // JSON: { gratis: {...}, premium: {...}, pro: {...} }
   // Cada plan: { precioMensual, precioAnual, comisionPct, mpSplitMode, pagoDiferadoDias,
   //              maxVehiculos, maxChoferes, features: {...} }
-  planConfigsJson          String?
+  planConfigsJson            String?
 }
 
 // Zona geográfica con precio definido por el superadmin — mismo modelo que Aljibe

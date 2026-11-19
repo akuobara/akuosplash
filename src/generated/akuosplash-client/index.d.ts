@@ -3313,6 +3313,17 @@ export namespace Prisma {
     transbankIniciadoEn: Date | null
     transbankAutorizadoEn: Date | null
     transbankAuthorizationCode: string | null
+    tbkUsername: string | null
+    tbkUser: string | null
+    tbkCardType: string | null
+    tbkCardLast4: string | null
+    tbkInscriptionStatus: string | null
+    tbkInscriptionToken: string | null
+    tbkInscriptionEmail: string | null
+    tbkSubscriptionActive: boolean | null
+    tbkLastCobroBuyOrder: string | null
+    tbkLastCobroEn: Date | null
+    tbkLastCobroAuthCode: string | null
     mpSubPreapprovalId: string | null
     mpSubPlanSolicitado: string | null
     mpSubCiclo: string | null
@@ -3416,6 +3427,17 @@ export namespace Prisma {
     transbankIniciadoEn: Date | null
     transbankAutorizadoEn: Date | null
     transbankAuthorizationCode: string | null
+    tbkUsername: string | null
+    tbkUser: string | null
+    tbkCardType: string | null
+    tbkCardLast4: string | null
+    tbkInscriptionStatus: string | null
+    tbkInscriptionToken: string | null
+    tbkInscriptionEmail: string | null
+    tbkSubscriptionActive: boolean | null
+    tbkLastCobroBuyOrder: string | null
+    tbkLastCobroEn: Date | null
+    tbkLastCobroAuthCode: string | null
     mpSubPreapprovalId: string | null
     mpSubPlanSolicitado: string | null
     mpSubCiclo: string | null
@@ -3519,6 +3541,17 @@ export namespace Prisma {
     transbankIniciadoEn: number
     transbankAutorizadoEn: number
     transbankAuthorizationCode: number
+    tbkUsername: number
+    tbkUser: number
+    tbkCardType: number
+    tbkCardLast4: number
+    tbkInscriptionStatus: number
+    tbkInscriptionToken: number
+    tbkInscriptionEmail: number
+    tbkSubscriptionActive: number
+    tbkLastCobroBuyOrder: number
+    tbkLastCobroEn: number
+    tbkLastCobroAuthCode: number
     mpSubPreapprovalId: number
     mpSubPlanSolicitado: number
     mpSubCiclo: number
@@ -3650,6 +3683,17 @@ export namespace Prisma {
     transbankIniciadoEn?: true
     transbankAutorizadoEn?: true
     transbankAuthorizationCode?: true
+    tbkUsername?: true
+    tbkUser?: true
+    tbkCardType?: true
+    tbkCardLast4?: true
+    tbkInscriptionStatus?: true
+    tbkInscriptionToken?: true
+    tbkInscriptionEmail?: true
+    tbkSubscriptionActive?: true
+    tbkLastCobroBuyOrder?: true
+    tbkLastCobroEn?: true
+    tbkLastCobroAuthCode?: true
     mpSubPreapprovalId?: true
     mpSubPlanSolicitado?: true
     mpSubCiclo?: true
@@ -3753,6 +3797,17 @@ export namespace Prisma {
     transbankIniciadoEn?: true
     transbankAutorizadoEn?: true
     transbankAuthorizationCode?: true
+    tbkUsername?: true
+    tbkUser?: true
+    tbkCardType?: true
+    tbkCardLast4?: true
+    tbkInscriptionStatus?: true
+    tbkInscriptionToken?: true
+    tbkInscriptionEmail?: true
+    tbkSubscriptionActive?: true
+    tbkLastCobroBuyOrder?: true
+    tbkLastCobroEn?: true
+    tbkLastCobroAuthCode?: true
     mpSubPreapprovalId?: true
     mpSubPlanSolicitado?: true
     mpSubCiclo?: true
@@ -3856,6 +3911,17 @@ export namespace Prisma {
     transbankIniciadoEn?: true
     transbankAutorizadoEn?: true
     transbankAuthorizationCode?: true
+    tbkUsername?: true
+    tbkUser?: true
+    tbkCardType?: true
+    tbkCardLast4?: true
+    tbkInscriptionStatus?: true
+    tbkInscriptionToken?: true
+    tbkInscriptionEmail?: true
+    tbkSubscriptionActive?: true
+    tbkLastCobroBuyOrder?: true
+    tbkLastCobroEn?: true
+    tbkLastCobroAuthCode?: true
     mpSubPreapprovalId?: true
     mpSubPlanSolicitado?: true
     mpSubCiclo?: true
@@ -4046,6 +4112,17 @@ export namespace Prisma {
     transbankIniciadoEn: Date | null
     transbankAutorizadoEn: Date | null
     transbankAuthorizationCode: string | null
+    tbkUsername: string | null
+    tbkUser: string | null
+    tbkCardType: string | null
+    tbkCardLast4: string | null
+    tbkInscriptionStatus: string | null
+    tbkInscriptionToken: string | null
+    tbkInscriptionEmail: string | null
+    tbkSubscriptionActive: boolean | null
+    tbkLastCobroBuyOrder: string | null
+    tbkLastCobroEn: Date | null
+    tbkLastCobroAuthCode: string | null
     mpSubPreapprovalId: string | null
     mpSubPlanSolicitado: string | null
     mpSubCiclo: string | null
@@ -4168,6 +4245,17 @@ export namespace Prisma {
     transbankIniciadoEn?: boolean
     transbankAutorizadoEn?: boolean
     transbankAuthorizationCode?: boolean
+    tbkUsername?: boolean
+    tbkUser?: boolean
+    tbkCardType?: boolean
+    tbkCardLast4?: boolean
+    tbkInscriptionStatus?: boolean
+    tbkInscriptionToken?: boolean
+    tbkInscriptionEmail?: boolean
+    tbkSubscriptionActive?: boolean
+    tbkLastCobroBuyOrder?: boolean
+    tbkLastCobroEn?: boolean
+    tbkLastCobroAuthCode?: boolean
     mpSubPreapprovalId?: boolean
     mpSubPlanSolicitado?: boolean
     mpSubCiclo?: boolean
@@ -4291,6 +4379,17 @@ export namespace Prisma {
     transbankIniciadoEn?: boolean
     transbankAutorizadoEn?: boolean
     transbankAuthorizationCode?: boolean
+    tbkUsername?: boolean
+    tbkUser?: boolean
+    tbkCardType?: boolean
+    tbkCardLast4?: boolean
+    tbkInscriptionStatus?: boolean
+    tbkInscriptionToken?: boolean
+    tbkInscriptionEmail?: boolean
+    tbkSubscriptionActive?: boolean
+    tbkLastCobroBuyOrder?: boolean
+    tbkLastCobroEn?: boolean
+    tbkLastCobroAuthCode?: boolean
     mpSubPreapprovalId?: boolean
     mpSubPlanSolicitado?: boolean
     mpSubCiclo?: boolean
@@ -4395,6 +4494,17 @@ export namespace Prisma {
     transbankIniciadoEn?: boolean
     transbankAutorizadoEn?: boolean
     transbankAuthorizationCode?: boolean
+    tbkUsername?: boolean
+    tbkUser?: boolean
+    tbkCardType?: boolean
+    tbkCardLast4?: boolean
+    tbkInscriptionStatus?: boolean
+    tbkInscriptionToken?: boolean
+    tbkInscriptionEmail?: boolean
+    tbkSubscriptionActive?: boolean
+    tbkLastCobroBuyOrder?: boolean
+    tbkLastCobroEn?: boolean
+    tbkLastCobroAuthCode?: boolean
     mpSubPreapprovalId?: boolean
     mpSubPlanSolicitado?: boolean
     mpSubCiclo?: boolean
@@ -4499,6 +4609,17 @@ export namespace Prisma {
     transbankIniciadoEn?: boolean
     transbankAutorizadoEn?: boolean
     transbankAuthorizationCode?: boolean
+    tbkUsername?: boolean
+    tbkUser?: boolean
+    tbkCardType?: boolean
+    tbkCardLast4?: boolean
+    tbkInscriptionStatus?: boolean
+    tbkInscriptionToken?: boolean
+    tbkInscriptionEmail?: boolean
+    tbkSubscriptionActive?: boolean
+    tbkLastCobroBuyOrder?: boolean
+    tbkLastCobroEn?: boolean
+    tbkLastCobroAuthCode?: boolean
     mpSubPreapprovalId?: boolean
     mpSubPlanSolicitado?: boolean
     mpSubCiclo?: boolean
@@ -4513,7 +4634,7 @@ export namespace Prisma {
     mpTestUserEmail?: boolean
   }
 
-  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "licenciaConducirAtrasUrl" | "permisoCircUrl" | "seguroUrl" | "revisonTecnicaUrl" | "fotoVehiculoFrenteUrl" | "fotoVehiculoAtrasUrl" | "fotoVehiculoIzquierdaUrl" | "fotoVehiculoDerechaUrl" | "estadoAprobacion" | "estadoAprobacionNota" | "estadoAprobacionActualizadoEn" | "estadoAprobacionActualizadoPor" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
+  export type AkuoUsuarioOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "nombre" | "telefono" | "direccion" | "comuna" | "lat" | "lng" | "rut" | "indicacionesAcceso" | "requiereClientePresente" | "usoAgua" | "saldo" | "zonaId" | "passwordHash" | "avatarUrl" | "rol" | "activo" | "aprobado" | "banned" | "banRazon" | "creadoEn" | "ultimoLoginEn" | "googleId" | "facebookId" | "tipoPersona" | "rutEmpresa" | "razonSocial" | "direccionEmpresa" | "giro" | "inicioActividades" | "comunaEmpresa" | "ciudadEmpresa" | "telefonoEmpresa" | "emailEmpresa" | "bancoNombre" | "bancoTipoCuenta" | "bancoNumeroCuenta" | "bancoTitular" | "bancoRutTitular" | "bancoEmail" | "facturacionPlataforma" | "facturacionApiKey" | "capacidadVehiculoKg" | "patenteVehiculo" | "tipoVehiculo" | "licenciaConducirUrl" | "licenciaConducirAtrasUrl" | "permisoCircUrl" | "seguroUrl" | "revisonTecnicaUrl" | "fotoVehiculoFrenteUrl" | "fotoVehiculoAtrasUrl" | "fotoVehiculoIzquierdaUrl" | "fotoVehiculoDerechaUrl" | "estadoAprobacion" | "estadoAprobacionNota" | "estadoAprobacionActualizadoEn" | "estadoAprobacionActualizadoPor" | "areasCobertura" | "descripcion" | "plan" | "suscripcionActiva" | "suscripcionInicio" | "suscripcionFin" | "vehiculosPermitidos" | "choferesPermitidos" | "verificado" | "verificadoEn" | "verificadoPor" | "precioEfectivoPorLitro" | "precioTransferenciaPorLitro" | "mpUserId" | "mpAccessToken" | "mpRefreshToken" | "mpTokenExpiresAt" | "mpConnectedAt" | "planActivoDesde" | "planActivoHasta" | "transbankBuyOrder" | "transbankTokenWs" | "transbankStatus" | "transbankAmount" | "transbankPlanSolicitado" | "transbankCiclo" | "transbankIniciadoEn" | "transbankAutorizadoEn" | "transbankAuthorizationCode" | "tbkUsername" | "tbkUser" | "tbkCardType" | "tbkCardLast4" | "tbkInscriptionStatus" | "tbkInscriptionToken" | "tbkInscriptionEmail" | "tbkSubscriptionActive" | "tbkLastCobroBuyOrder" | "tbkLastCobroEn" | "tbkLastCobroAuthCode" | "mpSubPreapprovalId" | "mpSubPlanSolicitado" | "mpSubCiclo" | "mpSubStatus" | "mpSubIniciadoEn" | "mpSubAutorizadoEn" | "mpSubAmount" | "mpSubSuspended" | "mpSubSuspendedEn" | "mpSubSuspendedPor" | "mpSubSuspendedRazon" | "mpTestUserEmail", ExtArgs["result"]["akuoUsuario"]>
   export type AkuoUsuarioInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     zona?: boolean | AkuoUsuario$zonaArgs<ExtArgs>
     sesiones?: boolean | AkuoUsuario$sesionesArgs<ExtArgs>
@@ -4655,6 +4776,17 @@ export namespace Prisma {
       transbankIniciadoEn: Date | null
       transbankAutorizadoEn: Date | null
       transbankAuthorizationCode: string | null
+      tbkUsername: string | null
+      tbkUser: string | null
+      tbkCardType: string | null
+      tbkCardLast4: string | null
+      tbkInscriptionStatus: string | null
+      tbkInscriptionToken: string | null
+      tbkInscriptionEmail: string | null
+      tbkSubscriptionActive: boolean | null
+      tbkLastCobroBuyOrder: string | null
+      tbkLastCobroEn: Date | null
+      tbkLastCobroAuthCode: string | null
       mpSubPreapprovalId: string | null
       mpSubPlanSolicitado: string | null
       mpSubCiclo: string | null
@@ -5197,6 +5329,17 @@ export namespace Prisma {
     readonly transbankIniciadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly transbankAutorizadoEn: FieldRef<"AkuoUsuario", 'DateTime'>
     readonly transbankAuthorizationCode: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkUsername: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkUser: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkCardType: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkCardLast4: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkInscriptionStatus: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkInscriptionToken: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkInscriptionEmail: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkSubscriptionActive: FieldRef<"AkuoUsuario", 'Boolean'>
+    readonly tbkLastCobroBuyOrder: FieldRef<"AkuoUsuario", 'String'>
+    readonly tbkLastCobroEn: FieldRef<"AkuoUsuario", 'DateTime'>
+    readonly tbkLastCobroAuthCode: FieldRef<"AkuoUsuario", 'String'>
     readonly mpSubPreapprovalId: FieldRef<"AkuoUsuario", 'String'>
     readonly mpSubPlanSolicitado: FieldRef<"AkuoUsuario", 'String'>
     readonly mpSubCiclo: FieldRef<"AkuoUsuario", 'String'>
@@ -22962,6 +23105,8 @@ export namespace Prisma {
     transbankCommerceCode: string | null
     transbankApiKey: string | null
     transbankEnvironment: string | null
+    transbankOneclickMallCode: string | null
+    transbankOneclickChildCode: string | null
     planConfigsJson: string | null
   }
 
@@ -22999,6 +23144,8 @@ export namespace Prisma {
     transbankCommerceCode: string | null
     transbankApiKey: string | null
     transbankEnvironment: string | null
+    transbankOneclickMallCode: string | null
+    transbankOneclickChildCode: string | null
     planConfigsJson: string | null
   }
 
@@ -23036,6 +23183,8 @@ export namespace Prisma {
     transbankCommerceCode: number
     transbankApiKey: number
     transbankEnvironment: number
+    transbankOneclickMallCode: number
+    transbankOneclickChildCode: number
     planConfigsJson: number
     _all: number
   }
@@ -23097,6 +23246,8 @@ export namespace Prisma {
     transbankCommerceCode?: true
     transbankApiKey?: true
     transbankEnvironment?: true
+    transbankOneclickMallCode?: true
+    transbankOneclickChildCode?: true
     planConfigsJson?: true
   }
 
@@ -23134,6 +23285,8 @@ export namespace Prisma {
     transbankCommerceCode?: true
     transbankApiKey?: true
     transbankEnvironment?: true
+    transbankOneclickMallCode?: true
+    transbankOneclickChildCode?: true
     planConfigsJson?: true
   }
 
@@ -23171,6 +23324,8 @@ export namespace Prisma {
     transbankCommerceCode?: true
     transbankApiKey?: true
     transbankEnvironment?: true
+    transbankOneclickMallCode?: true
+    transbankOneclickChildCode?: true
     planConfigsJson?: true
     _all?: true
   }
@@ -23295,6 +23450,8 @@ export namespace Prisma {
     transbankCommerceCode: string | null
     transbankApiKey: string | null
     transbankEnvironment: string | null
+    transbankOneclickMallCode: string | null
+    transbankOneclickChildCode: string | null
     planConfigsJson: string | null
     _count: AkuoConfigCountAggregateOutputType | null
     _avg: AkuoConfigAvgAggregateOutputType | null
@@ -23351,6 +23508,8 @@ export namespace Prisma {
     transbankCommerceCode?: boolean
     transbankApiKey?: boolean
     transbankEnvironment?: boolean
+    transbankOneclickMallCode?: boolean
+    transbankOneclickChildCode?: boolean
     planConfigsJson?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -23388,6 +23547,8 @@ export namespace Prisma {
     transbankCommerceCode?: boolean
     transbankApiKey?: boolean
     transbankEnvironment?: boolean
+    transbankOneclickMallCode?: boolean
+    transbankOneclickChildCode?: boolean
     planConfigsJson?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -23425,6 +23586,8 @@ export namespace Prisma {
     transbankCommerceCode?: boolean
     transbankApiKey?: boolean
     transbankEnvironment?: boolean
+    transbankOneclickMallCode?: boolean
+    transbankOneclickChildCode?: boolean
     planConfigsJson?: boolean
   }, ExtArgs["result"]["akuoConfig"]>
 
@@ -23462,10 +23625,12 @@ export namespace Prisma {
     transbankCommerceCode?: boolean
     transbankApiKey?: boolean
     transbankEnvironment?: boolean
+    transbankOneclickMallCode?: boolean
+    transbankOneclickChildCode?: boolean
     planConfigsJson?: boolean
   }
 
-  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre" | "mpAccessToken" | "mpPublicKey" | "mpClientId" | "mpUserId" | "mpSandbox" | "mpSplitAccessToken" | "mpSplitPublicKey" | "mpSplitUserId" | "mpSubAccessToken" | "mpSubPublicKey" | "mpInstantAccessToken" | "mpInstantPublicKey" | "mpInstantUserId" | "mp10dayAccessToken" | "mp10dayPublicKey" | "mp10dayUserId" | "transbankCommerceCode" | "transbankApiKey" | "transbankEnvironment" | "planConfigsJson", ExtArgs["result"]["akuoConfig"]>
+  export type AkuoConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "creadoEn" | "comisionPorcentaje" | "precioPlanPro" | "precioPlanEnterprise" | "maxVehiculosFree" | "maxVehiculosPro" | "maxVehiculosEnterprise" | "activo" | "precioDinamicoHabilitado" | "reglasPrecioJson" | "depotLat" | "depotLng" | "depotNombre" | "mpAccessToken" | "mpPublicKey" | "mpClientId" | "mpUserId" | "mpSandbox" | "mpSplitAccessToken" | "mpSplitPublicKey" | "mpSplitUserId" | "mpSubAccessToken" | "mpSubPublicKey" | "mpInstantAccessToken" | "mpInstantPublicKey" | "mpInstantUserId" | "mp10dayAccessToken" | "mp10dayPublicKey" | "mp10dayUserId" | "transbankCommerceCode" | "transbankApiKey" | "transbankEnvironment" | "transbankOneclickMallCode" | "transbankOneclickChildCode" | "planConfigsJson", ExtArgs["result"]["akuoConfig"]>
 
   export type $AkuoConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "AkuoConfig"
@@ -23504,6 +23669,8 @@ export namespace Prisma {
       transbankCommerceCode: string | null
       transbankApiKey: string | null
       transbankEnvironment: string | null
+      transbankOneclickMallCode: string | null
+      transbankOneclickChildCode: string | null
       planConfigsJson: string | null
     }, ExtArgs["result"]["akuoConfig"]>
     composites: {}
@@ -23961,6 +24128,8 @@ export namespace Prisma {
     readonly transbankCommerceCode: FieldRef<"AkuoConfig", 'String'>
     readonly transbankApiKey: FieldRef<"AkuoConfig", 'String'>
     readonly transbankEnvironment: FieldRef<"AkuoConfig", 'String'>
+    readonly transbankOneclickMallCode: FieldRef<"AkuoConfig", 'String'>
+    readonly transbankOneclickChildCode: FieldRef<"AkuoConfig", 'String'>
     readonly planConfigsJson: FieldRef<"AkuoConfig", 'String'>
   }
     
@@ -31891,6 +32060,17 @@ export namespace Prisma {
     transbankIniciadoEn: 'transbankIniciadoEn',
     transbankAutorizadoEn: 'transbankAutorizadoEn',
     transbankAuthorizationCode: 'transbankAuthorizationCode',
+    tbkUsername: 'tbkUsername',
+    tbkUser: 'tbkUser',
+    tbkCardType: 'tbkCardType',
+    tbkCardLast4: 'tbkCardLast4',
+    tbkInscriptionStatus: 'tbkInscriptionStatus',
+    tbkInscriptionToken: 'tbkInscriptionToken',
+    tbkInscriptionEmail: 'tbkInscriptionEmail',
+    tbkSubscriptionActive: 'tbkSubscriptionActive',
+    tbkLastCobroBuyOrder: 'tbkLastCobroBuyOrder',
+    tbkLastCobroEn: 'tbkLastCobroEn',
+    tbkLastCobroAuthCode: 'tbkLastCobroAuthCode',
     mpSubPreapprovalId: 'mpSubPreapprovalId',
     mpSubPlanSolicitado: 'mpSubPlanSolicitado',
     mpSubCiclo: 'mpSubCiclo',
@@ -32192,6 +32372,8 @@ export namespace Prisma {
     transbankCommerceCode: 'transbankCommerceCode',
     transbankApiKey: 'transbankApiKey',
     transbankEnvironment: 'transbankEnvironment',
+    transbankOneclickMallCode: 'transbankOneclickMallCode',
+    transbankOneclickChildCode: 'transbankOneclickChildCode',
     planConfigsJson: 'planConfigsJson'
   };
 
@@ -32474,6 +32656,17 @@ export namespace Prisma {
     transbankIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     transbankAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     transbankAuthorizationCode?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkUsername?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkUser?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkCardType?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkCardLast4?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionStatus?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkSubscriptionActive?: BoolNullableFilter<"AkuoUsuario"> | boolean | null
+    tbkLastCobroBuyOrder?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkLastCobroEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    tbkLastCobroAuthCode?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubPreapprovalId?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubPlanSolicitado?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubCiclo?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -32596,6 +32789,17 @@ export namespace Prisma {
     transbankIniciadoEn?: SortOrderInput | SortOrder
     transbankAutorizadoEn?: SortOrderInput | SortOrder
     transbankAuthorizationCode?: SortOrderInput | SortOrder
+    tbkUsername?: SortOrderInput | SortOrder
+    tbkUser?: SortOrderInput | SortOrder
+    tbkCardType?: SortOrderInput | SortOrder
+    tbkCardLast4?: SortOrderInput | SortOrder
+    tbkInscriptionStatus?: SortOrderInput | SortOrder
+    tbkInscriptionToken?: SortOrderInput | SortOrder
+    tbkInscriptionEmail?: SortOrderInput | SortOrder
+    tbkSubscriptionActive?: SortOrderInput | SortOrder
+    tbkLastCobroBuyOrder?: SortOrderInput | SortOrder
+    tbkLastCobroEn?: SortOrderInput | SortOrder
+    tbkLastCobroAuthCode?: SortOrderInput | SortOrder
     mpSubPreapprovalId?: SortOrderInput | SortOrder
     mpSubPlanSolicitado?: SortOrderInput | SortOrder
     mpSubCiclo?: SortOrderInput | SortOrder
@@ -32721,6 +32925,17 @@ export namespace Prisma {
     transbankIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     transbankAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     transbankAuthorizationCode?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkUsername?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkUser?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkCardType?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkCardLast4?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionStatus?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkSubscriptionActive?: BoolNullableFilter<"AkuoUsuario"> | boolean | null
+    tbkLastCobroBuyOrder?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkLastCobroEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    tbkLastCobroAuthCode?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubPreapprovalId?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubPlanSolicitado?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubCiclo?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -32843,6 +33058,17 @@ export namespace Prisma {
     transbankIniciadoEn?: SortOrderInput | SortOrder
     transbankAutorizadoEn?: SortOrderInput | SortOrder
     transbankAuthorizationCode?: SortOrderInput | SortOrder
+    tbkUsername?: SortOrderInput | SortOrder
+    tbkUser?: SortOrderInput | SortOrder
+    tbkCardType?: SortOrderInput | SortOrder
+    tbkCardLast4?: SortOrderInput | SortOrder
+    tbkInscriptionStatus?: SortOrderInput | SortOrder
+    tbkInscriptionToken?: SortOrderInput | SortOrder
+    tbkInscriptionEmail?: SortOrderInput | SortOrder
+    tbkSubscriptionActive?: SortOrderInput | SortOrder
+    tbkLastCobroBuyOrder?: SortOrderInput | SortOrder
+    tbkLastCobroEn?: SortOrderInput | SortOrder
+    tbkLastCobroAuthCode?: SortOrderInput | SortOrder
     mpSubPreapprovalId?: SortOrderInput | SortOrder
     mpSubPlanSolicitado?: SortOrderInput | SortOrder
     mpSubCiclo?: SortOrderInput | SortOrder
@@ -32954,6 +33180,17 @@ export namespace Prisma {
     transbankIniciadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     transbankAutorizadoEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
     transbankAuthorizationCode?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkUsername?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkUser?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkCardType?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkCardLast4?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionStatus?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionToken?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionEmail?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkSubscriptionActive?: BoolNullableWithAggregatesFilter<"AkuoUsuario"> | boolean | null
+    tbkLastCobroBuyOrder?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
+    tbkLastCobroEn?: DateTimeNullableWithAggregatesFilter<"AkuoUsuario"> | Date | string | null
+    tbkLastCobroAuthCode?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     mpSubPreapprovalId?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     mpSubPlanSolicitado?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
     mpSubCiclo?: StringNullableWithAggregatesFilter<"AkuoUsuario"> | string | null
@@ -34320,6 +34557,8 @@ export namespace Prisma {
     transbankCommerceCode?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankApiKey?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankEnvironment?: StringNullableFilter<"AkuoConfig"> | string | null
+    transbankOneclickMallCode?: StringNullableFilter<"AkuoConfig"> | string | null
+    transbankOneclickChildCode?: StringNullableFilter<"AkuoConfig"> | string | null
     planConfigsJson?: StringNullableFilter<"AkuoConfig"> | string | null
   }
 
@@ -34357,6 +34596,8 @@ export namespace Prisma {
     transbankCommerceCode?: SortOrderInput | SortOrder
     transbankApiKey?: SortOrderInput | SortOrder
     transbankEnvironment?: SortOrderInput | SortOrder
+    transbankOneclickMallCode?: SortOrderInput | SortOrder
+    transbankOneclickChildCode?: SortOrderInput | SortOrder
     planConfigsJson?: SortOrderInput | SortOrder
   }
 
@@ -34397,6 +34638,8 @@ export namespace Prisma {
     transbankCommerceCode?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankApiKey?: StringNullableFilter<"AkuoConfig"> | string | null
     transbankEnvironment?: StringNullableFilter<"AkuoConfig"> | string | null
+    transbankOneclickMallCode?: StringNullableFilter<"AkuoConfig"> | string | null
+    transbankOneclickChildCode?: StringNullableFilter<"AkuoConfig"> | string | null
     planConfigsJson?: StringNullableFilter<"AkuoConfig"> | string | null
   }, "id">
 
@@ -34434,6 +34677,8 @@ export namespace Prisma {
     transbankCommerceCode?: SortOrderInput | SortOrder
     transbankApiKey?: SortOrderInput | SortOrder
     transbankEnvironment?: SortOrderInput | SortOrder
+    transbankOneclickMallCode?: SortOrderInput | SortOrder
+    transbankOneclickChildCode?: SortOrderInput | SortOrder
     planConfigsJson?: SortOrderInput | SortOrder
     _count?: AkuoConfigCountOrderByAggregateInput
     _avg?: AkuoConfigAvgOrderByAggregateInput
@@ -34479,6 +34724,8 @@ export namespace Prisma {
     transbankCommerceCode?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     transbankApiKey?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     transbankEnvironment?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    transbankOneclickMallCode?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
+    transbankOneclickChildCode?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
     planConfigsJson?: StringNullableWithAggregatesFilter<"AkuoConfig"> | string | null
   }
 
@@ -35222,6 +35469,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -35344,6 +35602,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -35464,6 +35733,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35586,6 +35866,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35707,6 +35998,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -35809,6 +36111,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35912,6 +36225,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37427,6 +37751,8 @@ export namespace Prisma {
     transbankCommerceCode?: string | null
     transbankApiKey?: string | null
     transbankEnvironment?: string | null
+    transbankOneclickMallCode?: string | null
+    transbankOneclickChildCode?: string | null
     planConfigsJson?: string | null
   }
 
@@ -37464,6 +37790,8 @@ export namespace Prisma {
     transbankCommerceCode?: string | null
     transbankApiKey?: string | null
     transbankEnvironment?: string | null
+    transbankOneclickMallCode?: string | null
+    transbankOneclickChildCode?: string | null
     planConfigsJson?: string | null
   }
 
@@ -37501,6 +37829,8 @@ export namespace Prisma {
     transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
     transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankOneclickMallCode?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankOneclickChildCode?: NullableStringFieldUpdateOperationsInput | string | null
     planConfigsJson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -37538,6 +37868,8 @@ export namespace Prisma {
     transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
     transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankOneclickMallCode?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankOneclickChildCode?: NullableStringFieldUpdateOperationsInput | string | null
     planConfigsJson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -37575,6 +37907,8 @@ export namespace Prisma {
     transbankCommerceCode?: string | null
     transbankApiKey?: string | null
     transbankEnvironment?: string | null
+    transbankOneclickMallCode?: string | null
+    transbankOneclickChildCode?: string | null
     planConfigsJson?: string | null
   }
 
@@ -37612,6 +37946,8 @@ export namespace Prisma {
     transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
     transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankOneclickMallCode?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankOneclickChildCode?: NullableStringFieldUpdateOperationsInput | string | null
     planConfigsJson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -37649,6 +37985,8 @@ export namespace Prisma {
     transbankCommerceCode?: NullableStringFieldUpdateOperationsInput | string | null
     transbankApiKey?: NullableStringFieldUpdateOperationsInput | string | null
     transbankEnvironment?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankOneclickMallCode?: NullableStringFieldUpdateOperationsInput | string | null
+    transbankOneclickChildCode?: NullableStringFieldUpdateOperationsInput | string | null
     planConfigsJson?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -38508,6 +38846,11 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
   export type AkuoZonaNullableScalarRelationFilter = {
     is?: AkuoZonaWhereInput | null
     isNot?: AkuoZonaWhereInput | null
@@ -38767,6 +39110,17 @@ export namespace Prisma {
     transbankIniciadoEn?: SortOrder
     transbankAutorizadoEn?: SortOrder
     transbankAuthorizationCode?: SortOrder
+    tbkUsername?: SortOrder
+    tbkUser?: SortOrder
+    tbkCardType?: SortOrder
+    tbkCardLast4?: SortOrder
+    tbkInscriptionStatus?: SortOrder
+    tbkInscriptionToken?: SortOrder
+    tbkInscriptionEmail?: SortOrder
+    tbkSubscriptionActive?: SortOrder
+    tbkLastCobroBuyOrder?: SortOrder
+    tbkLastCobroEn?: SortOrder
+    tbkLastCobroAuthCode?: SortOrder
     mpSubPreapprovalId?: SortOrder
     mpSubPlanSolicitado?: SortOrder
     mpSubCiclo?: SortOrder
@@ -38883,6 +39237,17 @@ export namespace Prisma {
     transbankIniciadoEn?: SortOrder
     transbankAutorizadoEn?: SortOrder
     transbankAuthorizationCode?: SortOrder
+    tbkUsername?: SortOrder
+    tbkUser?: SortOrder
+    tbkCardType?: SortOrder
+    tbkCardLast4?: SortOrder
+    tbkInscriptionStatus?: SortOrder
+    tbkInscriptionToken?: SortOrder
+    tbkInscriptionEmail?: SortOrder
+    tbkSubscriptionActive?: SortOrder
+    tbkLastCobroBuyOrder?: SortOrder
+    tbkLastCobroEn?: SortOrder
+    tbkLastCobroAuthCode?: SortOrder
     mpSubPreapprovalId?: SortOrder
     mpSubPlanSolicitado?: SortOrder
     mpSubCiclo?: SortOrder
@@ -38986,6 +39351,17 @@ export namespace Prisma {
     transbankIniciadoEn?: SortOrder
     transbankAutorizadoEn?: SortOrder
     transbankAuthorizationCode?: SortOrder
+    tbkUsername?: SortOrder
+    tbkUser?: SortOrder
+    tbkCardType?: SortOrder
+    tbkCardLast4?: SortOrder
+    tbkInscriptionStatus?: SortOrder
+    tbkInscriptionToken?: SortOrder
+    tbkInscriptionEmail?: SortOrder
+    tbkSubscriptionActive?: SortOrder
+    tbkLastCobroBuyOrder?: SortOrder
+    tbkLastCobroEn?: SortOrder
+    tbkLastCobroAuthCode?: SortOrder
     mpSubPreapprovalId?: SortOrder
     mpSubPlanSolicitado?: SortOrder
     mpSubCiclo?: SortOrder
@@ -39145,6 +39521,14 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type AkuoUsuarioScalarRelationFilter = {
@@ -39643,11 +40027,6 @@ export namespace Prisma {
     lecturaActual?: SortOrder
   }
 
-  export type BoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-  }
-
   export type AkuoVueltaCountOrderByAggregateInput = {
     id?: SortOrder
     numero?: SortOrder
@@ -39690,14 +40069,6 @@ export namespace Prisma {
 
   export type AkuoVueltaSumOrderByAggregateInput = {
     numero?: SortOrder
-  }
-
-  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedBoolNullableFilter<$PrismaModel>
-    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type AkuoGastoCountOrderByAggregateInput = {
@@ -39974,6 +40345,8 @@ export namespace Prisma {
     transbankCommerceCode?: SortOrder
     transbankApiKey?: SortOrder
     transbankEnvironment?: SortOrder
+    transbankOneclickMallCode?: SortOrder
+    transbankOneclickChildCode?: SortOrder
     planConfigsJson?: SortOrder
   }
 
@@ -40022,6 +40395,8 @@ export namespace Prisma {
     transbankCommerceCode?: SortOrder
     transbankApiKey?: SortOrder
     transbankEnvironment?: SortOrder
+    transbankOneclickMallCode?: SortOrder
+    transbankOneclickChildCode?: SortOrder
     planConfigsJson?: SortOrder
   }
 
@@ -40059,6 +40434,8 @@ export namespace Prisma {
     transbankCommerceCode?: SortOrder
     transbankApiKey?: SortOrder
     transbankEnvironment?: SortOrder
+    transbankOneclickMallCode?: SortOrder
+    transbankOneclickChildCode?: SortOrder
     planConfigsJson?: SortOrder
   }
 
@@ -40811,6 +41188,10 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
   }
 
   export type AkuoZonaUpdateOneWithoutUsuariosNestedInput = {
@@ -41787,10 +42168,6 @@ export namespace Prisma {
     connect?: AkuoGastoWhereUniqueInput | AkuoGastoWhereUniqueInput[]
   }
 
-  export type NullableBoolFieldUpdateOperationsInput = {
-    set?: boolean | null
-  }
-
   export type AkuoUsuarioUpdateOneRequiredWithoutVueltasNestedInput = {
     create?: XOR<AkuoUsuarioCreateWithoutVueltasInput, AkuoUsuarioUncheckedCreateWithoutVueltasInput>
     connectOrCreate?: AkuoUsuarioCreateOrConnectWithoutVueltasInput
@@ -42350,6 +42727,11 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -42482,11 +42864,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedBoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
   }
 
   export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -44028,6 +44405,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -44149,6 +44537,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -44284,6 +44683,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44405,6 +44815,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -44524,6 +44945,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -44645,6 +45077,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -44882,6 +45325,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45003,6 +45457,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45154,6 +45619,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -45275,6 +45751,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -45563,6 +46050,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45684,6 +46182,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45851,6 +46360,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -45972,6 +46492,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -46221,6 +46752,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46342,6 +46884,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -46587,6 +47140,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -46708,6 +47272,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -46894,6 +47469,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47015,6 +47601,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47191,6 +47788,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -47312,6 +47920,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -47625,6 +48244,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47746,6 +48376,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48067,6 +48708,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -48188,6 +48840,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -48474,6 +49137,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48595,6 +49269,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -48807,6 +49492,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -48928,6 +49624,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -49094,6 +49801,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49215,6 +49933,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49371,6 +50100,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -49492,6 +50232,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -49627,6 +50378,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49748,6 +50510,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -49867,6 +50640,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -49988,6 +50772,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -50123,6 +50918,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50244,6 +51050,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50363,6 +51180,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -50484,6 +51312,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -50619,6 +51458,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50740,6 +51590,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -50859,6 +51720,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -50980,6 +51852,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -51115,6 +51998,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51236,6 +52130,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51355,6 +52260,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -51476,6 +52392,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -51611,6 +52538,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51732,6 +52670,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -51851,6 +52800,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -51971,6 +52931,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -52230,6 +53201,17 @@ export namespace Prisma {
     transbankIniciadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     transbankAutorizadoEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
     transbankAuthorizationCode?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkUsername?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkUser?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkCardType?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkCardLast4?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionStatus?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionToken?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkInscriptionEmail?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkSubscriptionActive?: BoolNullableFilter<"AkuoUsuario"> | boolean | null
+    tbkLastCobroBuyOrder?: StringNullableFilter<"AkuoUsuario"> | string | null
+    tbkLastCobroEn?: DateTimeNullableFilter<"AkuoUsuario"> | Date | string | null
+    tbkLastCobroAuthCode?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubPreapprovalId?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubPlanSolicitado?: StringNullableFilter<"AkuoUsuario"> | string | null
     mpSubCiclo?: StringNullableFilter<"AkuoUsuario"> | string | null
@@ -52433,6 +53415,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -52554,6 +53547,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -52678,6 +53682,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -52799,6 +53814,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -52959,6 +53985,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53080,6 +54117,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53210,6 +54258,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53331,6 +54390,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53487,6 +54557,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -53608,6 +54689,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -53770,6 +54862,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -53891,6 +54994,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54010,6 +55124,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -54131,6 +55256,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -54255,6 +55391,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -54376,6 +55523,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -54511,6 +55669,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54632,6 +55801,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54762,6 +55942,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54883,6 +56074,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56860,6 +58062,17 @@ export namespace Prisma {
     transbankIniciadoEn?: Date | string | null
     transbankAutorizadoEn?: Date | string | null
     transbankAuthorizationCode?: string | null
+    tbkUsername?: string | null
+    tbkUser?: string | null
+    tbkCardType?: string | null
+    tbkCardLast4?: string | null
+    tbkInscriptionStatus?: string | null
+    tbkInscriptionToken?: string | null
+    tbkInscriptionEmail?: string | null
+    tbkSubscriptionActive?: boolean | null
+    tbkLastCobroBuyOrder?: string | null
+    tbkLastCobroEn?: Date | string | null
+    tbkLastCobroAuthCode?: string | null
     mpSubPreapprovalId?: string | null
     mpSubPlanSolicitado?: string | null
     mpSubCiclo?: string | null
@@ -56984,6 +58197,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57104,6 +58328,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57224,6 +58459,17 @@ export namespace Prisma {
     transbankIniciadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAutorizadoEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     transbankAuthorizationCode?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkUser?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardType?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkCardLast4?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkInscriptionEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkSubscriptionActive?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    tbkLastCobroBuyOrder?: NullableStringFieldUpdateOperationsInput | string | null
+    tbkLastCobroEn?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tbkLastCobroAuthCode?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPreapprovalId?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubPlanSolicitado?: NullableStringFieldUpdateOperationsInput | string | null
     mpSubCiclo?: NullableStringFieldUpdateOperationsInput | string | null
