@@ -38,7 +38,10 @@ export async function POST(req: NextRequest) {
     }, { status: 500 });
   }
 
-  const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://akuosplash.onrender.com";
+  // Forzar el dominio correcto: el env NEXT_PUBLIC_APP_URL apunta al viejo onrender.com,
+  // pero la app está en akuosplash.cl. Si MP redirige al back_url tras el pago con el dominio
+  // equivocado, el usuario vuelve a una URL muerta y el auto-sync del frontend no corre.
+  const APP_URL = "https://akuosplash.cl";
   // Precio según ciclo
   let amount = ciclo === "anual" ? planCfg.precioAnual
     : ciclo === "semanal" ? planCfg.precioSemanal
@@ -142,7 +145,7 @@ export async function POST(req: NextRequest) {
       transaction_amount: amount,
       currency_id: "CLP",
     },
-    back_url: `${APP_URL}/akuosplash/transportista?tab=subscripcion`,
+    back_url: `${APP_URL}/akuosplash/transportista?tab=subscripcion&mp=ok`,
     external_reference: `akuo_sub:${user.id}:${planId}:${ciclo}`,
     // Sin payment_methods_allowed: MP lo guarda vacío ({}) y no aporta nada.
     // Las subscripciones en CL solo aceptan crédito por sí solas — igual que el

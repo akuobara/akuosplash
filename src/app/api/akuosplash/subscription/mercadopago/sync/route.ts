@@ -28,14 +28,42 @@ export async function GET() {
   if (!subCreds.accessToken) return NextResponse.json({ ok: false, error: "MP Sub no configurado" }, { status: 500 });
 
   const apiBase = "https://api.mercadopago.com";
-  const r = await fetch(`${apiBase}/preapproval/${u.mpSubPreapprovalId}`, {
+
+  // El mpSubPreapprovalId guardado por /create (camino producción) es el PLAN_ID,
+  // no el preapproval_id real (ese lo crea MP cuando el payer paga, y solo el webhook
+  // lo entregaba antes). Si el webhook no está registrado, la DB nunca recibe el id real
+  // y el GET /preapproval/<plan_id> de abajo daba 404 → el plan nunca se activaba.
+  //
+  // Fix: primero probar GET directo (sirve si ya es un preapproval_id real, p.ej. tras
+  // webhook). Si falla (es plan_id), buscar las preapprovals de ese plan y tomar la
+  // authorized. search?preapproval_plan_id=<id> es instantáneo (sin lag de índice).
+  let data: any = null;
+  const direct = await fetch(`${apiBase}/preapproval/${u.mpSubPreapprovalId}`, {
     headers: { Authorization: `Bearer ${subCreds.accessToken}` },
   });
-  if (!r.ok) return NextResponse.json({ ok: false, error: `MP ${r.status}` }, { status: 502 });
-  const data = await r.json();
+  if (direct.ok) {
+    data = await direct.json();
+  } else if (direct.status === 404) {
+    // mpSubPreapprovalId es un plan_id → buscar la preapproval real del plan
+    const s = await fetch(`${apiBase}/preapproval/search?preapproval_plan_id=${u.mpSubPreapprovalId}`, {
+      headers: { Authorization: `Bearer ${subCreds.accessToken}` },
+    });
+    if (!s.ok) return NextResponse.json({ ok: false, error: `MP search ${s.status}` }, { status: 502 });
+    const sd = await s.json();
+    const results = sd.results || sd.elements || [];
+    // Preferir la authorized; si no hay, la más reciente
+    data = results.find((p: any) => p.status === "authorized") || results[0] || null;
+    if (!data) return NextResponse.json({ ok: false, reason: "no_preapproval_for_plan" });
+  } else {
+    return NextResponse.json({ ok: false, error: `MP ${direct.status}` }, { status: 502 });
+  }
 
   const status: string = data.status;
   const updateData: any = { mpSubStatus: status };
+  // Si encontramos el preapproval_id real (distinto del plan_id guardado), actualizarlo
+  if (data.id && data.id !== u.mpSubPreapprovalId) {
+    updateData.mpSubPreapprovalId = data.id;
+  }
 
   // Si pasó a authorized y el plan actual no es el solicitado → activar
   if (status === "authorized" && u.mpSubPlanSolicitado && u.plan !== u.mpSubPlanSolicitado) {

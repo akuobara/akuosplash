@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,20 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);
+
+  // Safety net: si al cargar hay una preapproval pending (el usuario pagó en MP pero el
+  // webhook no llegó / MP no preservó &mp=ok al redirigir), disparar /sync una vez para
+  // que busque en MP por preapproval_plan_id y active el plan si ya está authorized.
+  const syncPendienteHecho = useRef(false);
+  useEffect(() => {
+    if (syncPendienteHecho.current) return;
+    if (info?.mpSubStatus === "pending" && info?.mpSubPreapprovalId) {
+      syncPendienteHecho.current = true;
+      akuoGet("/api/akuosplash/subscription/mercadopago/sync")
+        .then(() => cargar())
+        .catch(() => {});
+    }
+  }, [info, cargar]);
 
   // Resetear cupón cuando cambia el plan o el ciclo (necesita re-validar)
   useEffect(() => {
