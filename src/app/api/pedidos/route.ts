@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, getDuenoId } from "@/lib/auth";
-import { parseDateTimeLocalInput, calcularProximaFechaConDiaPreferido } from "@/lib/helpers";
+import { parseDateTimeLocalInput } from "@/lib/helpers";
 import { checkDemoBlock } from "@/lib/demo-guard";
 
 // GET /api/pedidos?estado=...&clienteId=...&disponibles=true
@@ -18,82 +18,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  // === GENERAR PEDIDOS RECURRENTES (vencidos + próximos 7 días) ===
-  // IMPORTANTE: esta lógica también corre en el cron diario (/api/cron/generar-recurrentes).
-  // Para evitar doble avance de fechaProximaGeneracion, el dedup check busca CUALQUIER pedido
-  // con el mismo pedidoRecurrenteId + fechaSolicitada (sin importar estado).
-  // Si ya existe (incluso entregado/cancelado), se avanza sin crear duplicado.
-  const ahora = new Date();
-  const en7dias = new Date(ahora);
-  en7dias.setDate(en7dias.getDate() + 7);
-  const recurrentesVencidos = await db.pedidoRecurrente.findMany({
-    where: {
-      duenoId,
-      activo: true,
-      fechaProximaGeneracion: { lte: en7dias },
-    },
-    include: { cliente: true },
-  });
-
-  for (const rec of recurrentesVencidos) {
-    // Dedup: buscar CUALQUIER pedido existente para este recurrente con la misma fechaSolicitada.
-    // Sin importar el estado (incluso entregado/cancelado) — si ya fue creado para esa fecha,
-    // no crear otro. Solo avanzar fechaProximaGeneracion.
-    const existente = await db.pedido.findFirst({
-      where: {
-        pedidoRecurrenteId: rec.id,
-        fechaSolicitada: rec.fechaProximaGeneracion,
-      },
-    });
-    if (existente) {
-      // Ya existe un pedido para esta fecha (pendiente, programado, entregado o cancelado).
-      // Avanzar fechaProximaGeneracion a la próxima fecha.
-      const proxima = calcularProximaFechaConDiaPreferido(
-        rec.fechaProximaGeneracion,
-        rec.frecuenciaDias,
-        rec.diaSemanaPreferido
-      );
-      await db.pedidoRecurrente.update({
-        where: { id: rec.id },
-        data: { fechaProximaGeneracion: proxima },
-      });
-      continue;
-    }
-
-    await db.pedido.create({
-      data: {
-        clienteNombre: rec.cliente.nombre,
-        clienteDireccion: rec.cliente.direccion,
-        clienteTelefono: rec.cliente.telefono,
-        clienteZona: rec.cliente.zona,
-        clienteLat: rec.cliente.lat,
-        clienteLng: rec.cliente.lng,
-        clienteId: rec.clienteId,
-        litrosSolicitados: rec.litrosSolicitados,
-        fechaSolicitada: rec.fechaProximaGeneracion,
-        metodoPagoPreferido: rec.metodoPagoPreferido,
-        nota: rec.nota,
-        // Si la fecha es futura, marcar como "programado"; si es hoy o pasada, "pendiente"
-        estado: rec.fechaProximaGeneracion > ahora ? "programado" : "pendiente",
-        choferId: session.userId,
-        duenoId,
-        asignacionTipo: rec.asignacionTipo,
-        choferAsignadoId: rec.choferAsignadoId,
-        prioridadTipo: "ninguna",
-        pedidoRecurrenteId: rec.id,
-      },
-    });
-
-    const proxima = calcularProximaFechaConDiaPreferido(
-      rec.fechaProximaGeneracion,
-      rec.frecuenciaDias,
-      rec.diaSemanaPreferido
-    );
-    await db.pedidoRecurrente.update({
-      where: { id: rec.id },
-      data: { fechaProximaGeneracion: proxima },
-    });
-  }
+  // NOTA: La generación de pedidos recurrentes se hace exclusivamente vía
+  // cron diario (/api/cron/generar-recurrentes) y el botón manual
+  // (/api/pedidos-recurrentes/[id]/generar).
+  //
+  // Antes este GET generaba pedidos como SIDE-EFFECT de cada carga de página
+  // (mirando 7 días al futuro y avanzando fechaProximaGeneracion). Eso causaba
+  // doble avance de fechaProximaGeneracion cuando el cron o el botón manual
+  // también corrían, y saltos de semanas enteras sin pedido (bug reportado:
+  // "se crea un pedido para dos semanas en vez de una por semana").
+  // Un endpoint GET de lectura NO debe mutar estado. Se eliminó.
 
   const { searchParams } = new URL(req.url);
   const estado = searchParams.get("estado");
