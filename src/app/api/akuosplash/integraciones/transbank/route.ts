@@ -3,7 +3,7 @@ import { akuosplashDb } from "@/lib/akuosplash-db";
 import { akuoGetCurrentUser } from "@/lib/akuosplash-auth";
 
 // PUT /api/akuosplash/integraciones/transbank
-// Body: { commerceCode?, apiKey?, environment? }
+// Body: { commerceCode?, apiKey?, environment?, oneclickMallCode?, oneclickChildCode? }
 // Solo superadmin.
 export async function PUT(req: NextRequest) {
   const user = await akuoGetCurrentUser();
@@ -18,6 +18,13 @@ export async function PUT(req: NextRequest) {
   if (typeof body.apiKey === "string" && body.apiKey.trim()) data.transbankApiKey = body.apiKey.trim();
   if (typeof body.environment === "string" && (body.environment === "INTEGRACION" || body.environment === "PRODUCCION")) {
     data.transbankEnvironment = body.environment;
+  }
+  // Oneclick Mall: código padre (mall) + código hijo (store)
+  if (typeof body.oneclickMallCode === "string" && body.oneclickMallCode.trim()) {
+    data.transbankOneclickMallCode = body.oneclickMallCode.trim();
+  }
+  if (typeof body.oneclickChildCode === "string" && body.oneclickChildCode.trim()) {
+    data.transbankOneclickChildCode = body.oneclickChildCode.trim();
   }
 
   const config = await akuosplashDb.akuoConfig.findFirst();
