@@ -15,7 +15,12 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({}));
   const email = body.email || user.email || `${user.id}@akuosplash.cl`;
-  const username = generateOneclickUsername(user.id);
+  // username: por defecto estable por usuario; override opcional (solo alfanumérico/_,
+  // máx 40) para tests/diagnóstico (ej. aislar 292 por username duplicado).
+  const username =
+    typeof body.username === "string" && /^[a-zA-Z0-9_]{1,40}$/.test(body.username)
+      ? body.username
+      : generateOneclickUsername(user.id);
   // URL pública a la que Transbank redirige tras inscribir la tarjeta
   const responseUrl = "https://akuosplash.cl/api/akuosplash/subscription/transbank/oneclick/finish";
 
