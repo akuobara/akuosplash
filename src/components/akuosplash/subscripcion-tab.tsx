@@ -267,12 +267,13 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
     try {
       const res = await akuoPost<{ url: string; token: string }>("/api/akuosplash/subscription/transbank/oneclick/start", {});
       // Redirect a la URL de Transbank con el token (form POST, como Webpay Plus)
+      // Oneclick usa TBK_TOKEN (mayúsculas) — distinto de Webpay Plus (token_ws). Doc Transbank.
       const form = document.createElement("form");
       form.method = "POST";
       form.action = res.url;
       const input = document.createElement("input");
       input.type = "hidden";
-      input.name = "tbk_token";
+      input.name = "TBK_TOKEN";
       input.value = res.token;
       form.appendChild(input);
       document.body.appendChild(form);
