@@ -761,73 +761,24 @@ export function SubscripcionTab({ user, onUpdated }: SubscripcionTabProps) {
                 </span>
               </div>
             </div>
-            {/* Oneclick (Transbank recurrente) */}
-            {info?.tbkUser ? (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between rounded-md border bg-muted/40 px-3 py-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4" />
-                    <span className="font-medium">{info.tbkCardType || "Tarjeta"} •••• {info.tbkCardLast4}</span>
-                  </div>
-                  {info.tbkSubscriptionActive && (
-                    <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Recurrente activa</Badge>
-                  )}
-                </div>
-                <Button
-                  onClick={pagarConTarjeta}
-                  disabled={cobrando}
-                  size="lg"
-                  className="w-full h-12 text-base font-semibold"
-                >
-                  {cobrando ? (
-                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Cobrando…</>
-                  ) : (
-                    <><CreditCard className="mr-2 h-5 w-5" /> Pagar {formatCLP(planes[planSeleccionado]?.precioMensual || 0)} con tarjeta</>
-                  )}
-                </Button>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    onClick={cancelarSuscripcion}
-                    disabled={cancelandoTbk || !info.tbkLastCobroBuyOrder}
-                    variant="outline"
-                    size="sm"
-                  >
-                    {cancelandoTbk ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
-                    Cancelar suscripción
-                  </Button>
-                  <Button
-                    onClick={eliminarTarjeta}
-                    disabled={eliminando}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    {eliminando ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AlertTriangle className="mr-2 h-4 w-4" />}
-                    Eliminar tarjeta
-                  </Button>
-                </div>
-                <p className="text-[10px] text-muted-foreground text-center">
-                  El cargo se hace desde el servidor con tu tarjeta inscripta (Oneclick). "Cancelar" reembolsa el último pago y apaga el cobro recurrente.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Button
-                  onClick={inscribirTarjeta}
-                  disabled={inscribiendo}
-                  size="lg"
-                  className="w-full h-12 text-base font-semibold"
-                >
-                  {inscribiendo ? (
-                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Iniciando…</>
-                  ) : (
-                    <><CreditCard className="mr-2 h-5 w-5" /> Inscribir tarjeta (Webpay Oneclick)</>
-                  )}
-                </Button>
-                <p className="text-[10px] text-muted-foreground text-center">
-                  Inscribí tu tarjeta una sola vez. Después cobramos automáticamente cada mes desde el servidor, sin redirigirte.
-                </p>
-              </div>
-            )}
+            {/* Webpay Plus (Transbank) — pago por redirect, sin inscripción de tarjeta */}
+            <div className="space-y-2">
+              <Button
+                onClick={iniciarPagoTransbank}
+                disabled={creandoTbk || planSeleccionado === "gratis"}
+                size="lg"
+                className="w-full h-12 text-base font-semibold"
+              >
+                {creandoTbk ? (
+                  <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Iniciando pago…</>
+                ) : (
+                  <><CreditCard className="mr-2 h-5 w-5" /> Pagar con Webpay</>
+                )}
+              </Button>
+              <p className="text-[10px] text-muted-foreground text-center">
+                Te redirigimos a Transbank para pagar con tu tarjeta. Al confirmar el pago, activamos tu plan automáticamente.
+              </p>
+            </div>
           </CardContent>
         </Card>
       )}
