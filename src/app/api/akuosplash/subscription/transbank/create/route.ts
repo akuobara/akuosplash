@@ -67,6 +67,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Log a TransbankTxLog (no pisa transacciones anteriores — para certificación Transbank)
+    const nowIso = new Date().toISOString();
+    await akuosplashDb.$executeRawUnsafe(
+      `INSERT OR REPLACE INTO TransbankTxLog (id, userId, buyOrder, tokenWs, amount, plan, ciclo, status, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'INITIALIZED', ?, ?)`,
+      buyOrder, user.id, buyOrder, result.token, amount, plan, ciclo, nowIso, nowIso
+    ).catch((e) => console.error("[transbank log insert]", e));
+
     return NextResponse.json({
       token: result.token,
       url: result.url,

@@ -18,7 +18,16 @@ export async function GET(req: NextRequest) {
   const origin = fwdHost && !fwdHost.startsWith("srv-") ? `https://${fwdHost}` : "https://akuosplash.cl";
 
   if (!tokenWs) {
-    // Usuario abortó
+    // Usuario abortó — marcar la última INITIALIZED como ABORTED en el log (para certificación)
+    const tbkSesion = url.searchParams.get("TBK_ID_SESION");
+    if (tbkSesion) {
+      await akuosplashDb.$executeRawUnsafe(
+        `UPDATE TransbankTxLog SET status='ABORTED', updatedAt=?
+         WHERE userId=? AND status='INITIALIZED'
+         AND createdAt=(SELECT MAX(createdAt) FROM TransbankTxLog WHERE userId=? AND status='INITIALIZED')`,
+        new Date().toISOString(), tbkSesion, tbkSesion
+      ).catch((e) => console.error("[transbank log abort]", e));
+    }
     return NextResponse.redirect(
       new URL("/akuosplash/transportista?tab=subscripcion&transbank=abortado", origin)
     );
@@ -38,6 +47,23 @@ export async function GET(req: NextRequest) {
   // Hacer el commit
   try {
     const commit = await commitTransaction(tokenWs);
+
+    // Log: actualizar TransbankTxLog con el resultado del commit (status, auth, response_code, card, etc.)
+    await akuosplashDb.$executeRawUnsafe(
+      `UPDATE TransbankTxLog SET status=?, authorizationCode=?, responseCode=?, vci=?, cardType=?, cardLast4=?, paymentTypeCode=?, installmentsNumber=?, transactionDate=?, updatedAt=?
+       WHERE tokenWs=?`,
+      commit.status ?? null,
+      commit.authorization_code ?? null,
+      commit.response_code ?? null,
+      commit.vci ?? null,
+      commit.card_detail?.card_type ?? null,
+      commit.card_detail?.card_number ?? null,
+      commit.payment_type_code ?? null,
+      commit.installments_number ?? null,
+      commit.transaction_date ?? null,
+      new Date().toISOString(),
+      tokenWs
+    ).catch((e) => console.error("[transbank log update]", e));
 
     if (commit.status === "AUTHORIZED") {
       // Pago exitoso — activar el plan
