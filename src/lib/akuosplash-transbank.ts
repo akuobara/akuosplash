@@ -173,7 +173,7 @@ export async function refundTransaction(tokenWs: string, amount: number): Promis
   const creds = await getTransbankCreds();
   if (!creds) throw new Error("Transbank no configurado.");
   const baseUrl = getBaseUrl(creds);
-  const url = `${baseUrl}/rswebpaytransaction/api/webpay/v1.2/transactions/${encodeURIComponent(tokenWs)}/refund`;
+  const url = `${baseUrl}/rswebpaytransaction/api/webpay/v1.2/transactions/${encodeURIComponent(tokenWs)}/refunds`;
   const res = await fetch(url, {
     method: "POST",
     headers: {
